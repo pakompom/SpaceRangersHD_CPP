@@ -1,0 +1,77 @@
+#pragma once
+#include "types/aEObjInfo.hpp"
+
+namespace aEObjInfo {
+    static_assert(sizeof(void*) != 4 || sizeof(aEObjInfo::TEOTPlanet) == 40);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, Id) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, Name) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, OwnerId) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, RaceId) == 9);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, Population) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, Economy) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, Government) == 17);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, Relation) == 18);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, UnexploredWater) == 20);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, UnexploredLand) == 24);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, UnexploredHills) == 28);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, TreasureHint) == 32);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTPlanet, Faction) == 36);
+    static_assert(sizeof(void*) != 4 || sizeof(aEObjInfo::TEOTShip) == 80);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, Id) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, Name) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, FullName) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, OwnerId) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, DominatorSeries) == 13);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, TypeName) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, Speed) == 20);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, HullCapacity) == 24);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, HullPoints) == 28);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, HullFragility) == 32);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, OutsideNormalSpace) == 40);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, ScannerResolved) == 41);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, DefenseText) == 44);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, DamageText) == 48);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, RepairPoints) == 52);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, Relation) == 56);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, WinChance) == 60);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, PortraitImage) == 64);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, CombatStatusCount) == 68);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, CombatStatusText) == 72);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTShip, Faction) == 76);
+    static_assert(sizeof(void*) != 4 || sizeof(aEObjInfo::TEOTItem) == 56);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, Id) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, Name) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, ImagePath) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, ItemType) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, InfoText) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, Weight) == 20);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, Cost) == 24);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, OwnerId) == 28);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, ConditionPercent) == 32);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, Fragility) == 40);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, DominatorSeries) == 48);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTItem, Faction) == 52);
+    static_assert(sizeof(void*) != 4 || sizeof(aEObjInfo::TEOTAsteroid) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTAsteroid, Id) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTAsteroid, Name) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTAsteroid, InfoText) == 8);
+    static_assert(sizeof(void*) != 4 || sizeof(aEObjInfo::TEOTMissile) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTMissile, Id) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTMissile, Name) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTMissile, InfoText) == 8);
+    static_assert(sizeof(void*) != 4 || sizeof(aEObjInfo::TEOTCustomStarInfo) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTCustomStarInfo, Name) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTCustomStarInfo, ImagePath) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTCustomStarInfo, Text) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEOTCustomStarInfo, Distance) == 12);
+    static_assert(sizeof(void*) != 4 || sizeof(aEObjInfo::TEObjInfo) == 36);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, StarName) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, StarRadius) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, Planets) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, Ships) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, Items) == 20);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, Asteroids) == 24);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, Missiles) == 28);
+    static_assert(sizeof(void*) != 4 || offsetof(aEObjInfo::TEObjInfo, CustomSystemInfos) == 32);
+
+} // namespace aEObjInfo

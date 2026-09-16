@@ -1,0 +1,71 @@
+#pragma once
+#include "types/aPlanet.hpp"
+
+namespace aPlanet {
+    static_assert(sizeof(void*) != 4 || sizeof(aPlanet::TPlanet) == 360);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Id) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, GenerationSeed) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, RandomState) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, SpriteTemplateIndex) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Name) == 20);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, CurrentStar) == 24);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Orbit) == 32);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, ReservedSaveValue) == 48);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Reserved34) == 52);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Radius) == 56);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, OrbitalVelocity) == 64);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, InventionLevels) == 72);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, CurrentInvention) == 92);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, CurrentInventionPoints) == 96);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, ResearchLevelPercent) == 100);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, ResearchLevelStep) == 101);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Population) == 104);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Economy) == 108);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Money) == 112);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, OwnerId) == 116);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, IsCoalitionOwned) == 117);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, RaceId) == 118);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Government) == 119);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Goods) == 120);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, GoodsScarcityTicks) == 248);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, GoodsSurplusTicks) == 256);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, TextQuestId) == 264);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, RangerRelations) == 268);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, EquipmentShop) == 272);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Warriors) == 276);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, HomeRangerCount) == 280);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, HomeTransportCount) == 284);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, WaterTiles) == 288);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, WaterExplored) == 292);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, LandTiles) == 296);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, LandExplored) == 300);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, HillTiles) == 304);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, HillExplored) == 308);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, ProbeOrbitCount) == 312);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, HasPlayerLanded) == 313);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, SurfaceLootEntries) == 316);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, GraphicRadius) == 320);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Graphic) == 324);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, GraphName) == 328);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, Satellites) == 332);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, LastFilmPosition) == 336);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, FilmObject) == 344);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, NoLanding) == 348);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, ShopUpdateMode) == 349);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, NoAutomaticShipSpawning) == 350);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, NoRandomEvents) == 351);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, IsMainPiratePlanet) == 352);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanet, CustomFaction) == 356);
+    static_assert(sizeof(void*) != 4 || sizeof(aPlanet::TPlanetSurfaceLootEntry) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanetSurfaceLootEntry, GridX) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanetSurfaceLootEntry, GridY) == 1);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanetSurfaceLootEntry, TerrainKind) == 2);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanetSurfaceLootEntry, Unavailable) == 3);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanetSurfaceLootEntry, SurfaceTileIndex) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TPlanetSurfaceLootEntry, Item) == 8);
+    static_assert(sizeof(void*) != 4 || sizeof(aPlanet::TSputnik) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TSputnik, Id) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TSputnik, Graphic) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(aPlanet::TSputnik, FilmObject) == 12);
+
+} // namespace aPlanet

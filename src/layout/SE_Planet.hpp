@@ -1,0 +1,70 @@
+#pragma once
+#include "types/SE_Planet.hpp"
+
+namespace SE_Planet {
+    static_assert(sizeof(void*) != 4 || sizeof(SE_Planet::TPlanetSE) == 312);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, ImagePath) == 76);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, ImageOrigin) == 80);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SurfaceMapOffset) == 88);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, LightAngle) == 92);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RotationTimerInterval) == 96);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SurfaceMapStep) == 100);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, MinimapImagePath) == 104);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, MinimapImageOrigin) == 108);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, OrbitalVelocity) == 120);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Radius) == 128);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud1ImagePath) == 132);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud1RelativeRotationSpeed) == 136);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud1MapStep) == 140);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud1Timer) == 144);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud1MapOffset) == 148);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud2ImagePath) == 152);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud2RelativeRotationSpeed) == 156);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud2MapStep) == 160);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud2Timer) == 164);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud2MapOffset) == 168);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud3ImagePath) == 172);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud3RelativeRotationSpeed) == 176);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud3MapStep) == 180);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud3Timer) == 184);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Cloud3MapOffset) == 188);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, AtmosphereColor) == 192);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SpaceConfigValues) == 196);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, BackgroundGraph) == 208);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, QuestEnabled) == 212);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RingKind) == 213);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, Civilized) == 214);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SurfaceAnimationMask) == 216);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SurfaceAnimationIndex) == 220);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, PlanetControl) == 224);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RingControl1) == 228);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RingControl2) == 232);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, MinimapControl) == 236);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RotationTimer) == 240);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, LegacySurfaceControl) == 244);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SurfaceImageControl) == 248);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SurfaceAnimationFrame) == 252);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, SurfaceAnimationOffset) == 256);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, MapOrbitPointCount) == 264);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, MapOrbitPoints) == 268);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, CollisionCircle) == 272);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, MinimapOwner) == 276);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RuinsAnimationPath) == 280);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RuinsImagePath) == 284);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RuinsMinimapPath) == 288);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RuinsAnimationControl) == 292);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RuinsImageControl) == 296);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RuinsMinimapControl) == 300);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, RuinsAnimationFrame) == 304);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetSE, IsRuins) == 308);
+    static_assert(sizeof(void*) != 4 || sizeof(SE_Planet::TPlanetMapOrbitPoint) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetMapOrbitPoint, Position) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetMapOrbitPoint, PixelOffset) == 8);
+    static_assert(sizeof(void*) != 4 || sizeof(SE_Planet::TPlanetCollisionCircle) == 24);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetCollisionCircle, Next) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetCollisionCircle, Prev) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetCollisionCircle, Position) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetCollisionCircle, Radius) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(SE_Planet::TPlanetCollisionCircle, RadiusSquared) == 20);
+
+} // namespace SE_Planet

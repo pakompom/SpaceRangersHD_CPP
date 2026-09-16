@@ -1,0 +1,2516 @@
+#include "layout/GI_MessageLoop.hpp"
+#include "types/BreakMessageGIException.hpp"
+#include "types/Direct3D9.hpp"
+#include "types/EC_BlockPar.hpp"
+#include "types/GI_Panel.hpp"
+#include "types/GR_Music.hpp"
+#include "types/GR_Sound.hpp"
+#include "types/MessagesSdk.hpp"
+#include "types/Types.hpp"
+#include "types/WindowsImports.hpp"
+#include "units/ClassesImports.hpp"
+#include "units/EC_Mem.hpp"
+#include "units/EC_Str.hpp"
+#include "units/EC_Struct.hpp"
+#include "units/GI_Cursor.hpp"
+#include "units/GI_GraphBuf.hpp"
+#include "units/GI_Label.hpp"
+#include "units/GI_Main.hpp"
+#include "units/GI_MessageLoop.hpp"
+#include "units/GR_GraphBuf.hpp"
+#include "units/GR_Main.hpp"
+#include "units/GR_Rect.hpp"
+#include "units/GlobalsV.hpp"
+#include "units/MMSystem.hpp"
+#include "units/PopUp.hpp"
+#include "units/SysUtils.hpp"
+#include "units/SysUtilsImports.hpp"
+#include "units/System.hpp"
+#include "units/WindowsSdk.hpp"
+#include "units/aMyFunction.hpp"
+
+namespace GI_MessageLoop {
+    void LoadConfiguredChildren(EC_BlockPar::TBlockParEC* Block, TObjectGI* Self);
+
+    void ConvertMousePointToViewport(WindowsSdk::TPoint& Point);
+
+    std::uint8_t FindFreeScreenshotName(pas::AnsiString& Digits, std::int32_t& DigitCount, pas::AnsiString& Extension, pas::AnsiString& BaseName, pas::AnsiString& FileName);
+
+    pas::List* MessageLoopStack = nullptr;
+
+    std::uint8_t IgnoreWarpMouseMove = false;
+
+    WindowsSdk::TPoint LastMousePosition{};
+
+    void PushMessageLoop(TMessageLoopGI* Loop) {
+        if (MessageLoopStack == nullptr) {
+            MessageLoopStack = pas::make_object<pas::List>();
+        }
+        pas::list_add(MessageLoopStack, reinterpret_cast<void*>(Loop));
+    }
+
+    void PopMessageLoop(TMessageLoopGI* Loop) {
+        if (MessageLoopStack == nullptr || pas::list_count(MessageLoopStack) < 1) {
+            GR_Main::RaiseWideMessage(u"ML 1"_wref.get());
+        }
+        if (pas::list_get(MessageLoopStack, pas::list_count(MessageLoopStack) - 1) != Loop) {
+            GR_Main::RaiseWideMessage(u"ML 2"_wref.get());
+        }
+        pas::list_delete(MessageLoopStack, pas::list_count(MessageLoopStack) - 1);
+    }
+
+    void TObjectGI_Create(TObjectGI* Self, TObjectGI* Owner) {
+        EC_Struct::TObjectEx_Create(Self);
+        Self->Active = true;
+        Self->HitTestDisabled = false;
+        Self->MouseBlocking = false;
+        Self->MouseBlockingTest = true;
+        Self->ScrollUpdate = false;
+        Self->AutoOffsetEnabled = false;
+        Self->AutoOffsetScale.X = 0.0f;
+        Self->AutoOffsetScale.Y = 0.0f;
+        if (Owner != nullptr) {
+            Owner->AttachOwnedChild(Self);
+        }
+        Self->OnKeyDownCode = nullptr;
+        Self->OnMouseEnterCode = nullptr;
+        Self->OnMouseLeaveCode = nullptr;
+        Self->OnRightButtonDownCode = nullptr;
+    }
+
+    void TObjectGI_Destroy(TObjectGI* Self) {
+        if (Self->MessageLoop != nullptr) {
+            Self->MessageLoop->RemoveMouseViewUpdateControl(Self);
+            if (Self->MessageLoop->FocusedControl == Self) {
+                Self->MessageLoop->SetFocusedControl(nullptr);
+            }
+            if (Self->MessageLoop->HoveredControl == Self) {
+                Self->MessageLoop->HoveredControl = nullptr;
+            }
+        }
+        Self->Clear();
+        Self->FreeOwnedChildren();
+        if (Self->Parent != nullptr) {
+            Self->Parent->UnlinkOwnedChild(Self);
+        }
+        if (pas::assigned(Self->DestroyNotify)) {
+            Self->DestroyNotify(Self);
+        }
+        EC_Struct::TObjectEx_Destroy(Self);
+    }
+
+    void TObjectGI::FreeOwnedChildren() {
+        while (LastChild != nullptr) {
+            FreeOwnedChild(FirstChild);
+        }
+    }
+
+    void TObjectGI::Clear() {
+        LocalPosition.X = 0;
+        LocalPosition.Y = 0;
+        ClientSize.X = 0;
+        ClientSize.Y = 0;
+        OriginPoint.X = 0;
+        OriginPoint.Y = 0;
+        Depth = 0.0;
+        PositionModeW = false;
+        Active = true;
+        HitTestDisabled = false;
+        ConfigPath = pas::WideString();
+        MouseBlocking = false;
+        MouseBlockingTest = true;
+        ScrollUpdate = false;
+    }
+
+    void TObjectGI::AttachOwnedChild(TObjectGI* Child) {
+        if (LastChild != nullptr) {
+            LastChild->NextSibling = Child;
+        }
+        Child->PrevSibling = LastChild;
+        Child->NextSibling = nullptr;
+        LastChild = Child;
+        if (FirstChild == nullptr) {
+            FirstChild = Child;
+        }
+        Child->Parent = this;
+        Child->MessageLoop = MessageLoop;
+    }
+
+    void TObjectGI::InsertOwnedChildBefore(TObjectGI* BeforeChild, TObjectGI* Child) {
+        if (BeforeChild != nullptr) {
+            Child->PrevSibling = BeforeChild->PrevSibling;
+            Child->NextSibling = BeforeChild;
+            if (BeforeChild->PrevSibling != nullptr) {
+                BeforeChild->PrevSibling->NextSibling = Child;
+            }
+            BeforeChild->PrevSibling = Child;
+            if (FirstChild == BeforeChild) {
+                FirstChild = Child;
+            }
+            Child->Parent = this;
+            Child->MessageLoop = MessageLoop;
+        } else {
+            AttachOwnedChild(Child);
+        }
+    }
+
+    void TObjectGI::InsertOwnedChildByDepth(TObjectGI* Child, double NewDepth) {
+        Child->Depth = NewDepth;
+        TObjectGI* BeforeChild = FirstChild;
+        while (BeforeChild != nullptr) {
+            if (BeforeChild->Depth <= NewDepth) {
+                InsertOwnedChildBefore(BeforeChild, Child);
+                break;
+            }
+            BeforeChild = BeforeChild->NextSibling;
+        }
+        if (BeforeChild == nullptr) {
+            AttachOwnedChild(Child);
+        }
+    }
+
+    void TObjectGI::FreeOwnedChild(TObjectGI* Child) {
+        UnlinkOwnedChild(Child);
+        pas::free(Child);
+    }
+
+    void TObjectGI::UnlinkOwnedChild(TObjectGI* Child) {
+        if (Child->PrevSibling != nullptr) {
+            Child->PrevSibling->NextSibling = Child->NextSibling;
+        }
+        if (Child->NextSibling != nullptr) {
+            Child->NextSibling->PrevSibling = Child->PrevSibling;
+        }
+        if (LastChild == Child) {
+            LastChild = Child->PrevSibling;
+        }
+        if (FirstChild == Child) {
+            FirstChild = Child->NextSibling;
+        }
+        Child->Parent = nullptr;
+    }
+
+    void TObjectGI::Reparent(TObjectGI* NewParent) {
+        Parent->UnlinkOwnedChild(this);
+        NewParent->InsertOwnedChildByDepth(this, Depth);
+    }
+
+    void TObjectGI::SetMouseViewUpdates(std::uint8_t Enabled) {
+        if (Enabled == true) {
+            MessageLoop->AddMouseViewUpdateControl(this);
+        } else {
+            MessageLoop->RemoveMouseViewUpdateControl(this);
+        }
+    }
+
+    void TObjectGI::UpdateAbsolutePosition() {
+        if (Parent != nullptr) {
+            AbsolutePosition = Parent->GetChildAbsolutePosition(LocalPosition, PositionModeW);
+        } else {
+            AbsolutePosition.X = LocalPosition.X;
+            AbsolutePosition.Y = LocalPosition.Y;
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true) {
+                Child->UpdateAbsolutePosition();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    WindowsSdk::TPoint TObjectGI::GetChildAbsolutePosition(WindowsSdk::TPoint LocalPosition, std::uint8_t ModeW) {
+        WindowsSdk::TPoint Result{};
+        Result.X = AbsolutePosition.X + LocalPosition.X;
+        Result.Y = AbsolutePosition.Y + LocalPosition.Y;
+        return Result;
+    }
+
+    void TObjectGI::UpdateHitTestBounds() {
+        HitTestBounds = ClassesImports::Rect(AbsolutePosition.X - OriginPoint.X, AbsolutePosition.Y - OriginPoint.Y, AbsolutePosition.X - OriginPoint.X + ClientSize.X, AbsolutePosition.Y - OriginPoint.Y + ClientSize.Y);
+    }
+
+    void TObjectGI::UpdateSubtreeHitBounds() {
+        UpdateHitTestBounds();
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true) {
+                Child->UpdateSubtreeHitBounds();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::SetHelpCallbackRecursive(TObjectHelpEventGI Callback) {
+        if (HelpText != u"" || pas::assigned(HelpCallback)) {
+            HelpCallback = Callback;
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            Child->SetHelpCallbackRecursive(Callback);
+            Child = Child->NextSibling;
+        }
+    }
+
+    WindowsSdk::TRect TObjectGI::OffsetChildRect(WindowsSdk::TRect Rect, std::uint8_t ModeW) {
+        WindowsSdk::TRect Result{};
+        if (!ModeW) {
+            Result.Left = LocalPosition.X + Rect.Left;
+            Result.Top = LocalPosition.Y + Rect.Top;
+            Result.Right = LocalPosition.X + Rect.Right;
+            Result.Bottom = LocalPosition.Y + Rect.Bottom;
+        } else {
+            Result.Left = LocalPosition.X + Rect.Left - ScrollOffset.X;
+            Result.Top = LocalPosition.Y + Rect.Top - ScrollOffset.Y;
+            Result.Right = LocalPosition.X + Rect.Right - ScrollOffset.X;
+            Result.Bottom = LocalPosition.Y + Rect.Bottom - ScrollOffset.Y;
+        }
+        return Result;
+    }
+
+    void TObjectGI::SetPosition(WindowsSdk::TPoint Position) {
+        if (LocalPosition.X == Position.X && LocalPosition.Y == Position.Y) {
+            return;
+        }
+        if (!Active) {
+            LocalPosition = Position;
+        } else {
+            Invalidate();
+            LocalPosition = Position;
+            UpdateAbsolutePosition();
+            UpdateSubtreeHitBounds();
+            Invalidate();
+        }
+    }
+
+    void TObjectGI::SetDepth(double NewDepth) {
+        if (Depth == NewDepth) {
+            return;
+        }
+        if (Parent == nullptr) {
+            return;
+        }
+        if (PrevSibling != nullptr) {
+            PrevSibling->NextSibling = NextSibling;
+        }
+        if (NextSibling != nullptr) {
+            NextSibling->PrevSibling = PrevSibling;
+        }
+        if (Parent->LastChild == this) {
+            Parent->LastChild = PrevSibling;
+        }
+        if (Parent->FirstChild == this) {
+            Parent->FirstChild = NextSibling;
+        }
+        Parent->InsertOwnedChildByDepth(this, NewDepth);
+        Invalidate();
+    }
+
+    void TObjectGI::SetDepthByName(const pas::WideString& Name) {
+        pas::WideString Value{};
+        Value = GR_Main::UiDepthConfig->GetParamOrMarker(Name);
+        if (Value != u"") {
+            SetDepth(EC_Str::ExtractDecimalToSingleW(Value));
+        } else {
+            SetDepth(EC_Str::ExtractDecimalToSingleW(Name));
+        }
+    }
+
+    void TObjectGI::SetSize(WindowsSdk::TPoint Size) {
+        if (ClientSize.X == Size.X && ClientSize.Y == Size.Y) {
+            return;
+        }
+        if (!Active) {
+            ClientSize = Size;
+        } else {
+            Invalidate();
+            ClientSize = Size;
+            UpdateAbsolutePosition();
+            UpdateSubtreeHitBounds();
+            Invalidate();
+        }
+    }
+
+    void TObjectGI::SetOrigin(WindowsSdk::TPoint Origin) {
+        if (OriginPoint.X == Origin.X && OriginPoint.Y == Origin.Y) {
+            return;
+        }
+        if (!Active) {
+            OriginPoint = Origin;
+        } else {
+            Invalidate();
+            OriginPoint = Origin;
+            UpdateAbsolutePosition();
+            UpdateSubtreeHitBounds();
+            Invalidate();
+        }
+    }
+
+    void TObjectGI::SetPositionModeW(std::uint8_t Enabled) {
+        if (PositionModeW == Enabled) {
+            return;
+        }
+        if (!Active) {
+            PositionModeW = Enabled;
+        } else {
+            Invalidate();
+            PositionModeW = Enabled;
+            UpdateAbsolutePosition();
+            UpdateSubtreeHitBounds();
+            Invalidate();
+        }
+    }
+
+    void TObjectGI::SetConfigPath(const pas::WideString& Path) {
+        LoadFromConfigPath(Path);
+        ConfigPath = Path;
+    }
+
+    WindowsSdk::TRect TObjectGI::GetLocalBounds() {
+        WindowsSdk::TRect Result{};
+        Result.Left = LocalPosition.X - OriginPoint.X;
+        Result.Top = LocalPosition.Y - OriginPoint.Y;
+        Result.Right = LocalPosition.X - OriginPoint.X + ClientSize.X;
+        Result.Bottom = LocalPosition.Y - OriginPoint.Y + ClientSize.Y;
+        return Result;
+    }
+
+    void TObjectGI::SetName(const pas::WideString& Name) {
+        ControlName = Name;
+    }
+
+    void TObjectGI::SetActive(std::uint8_t Enabled) {
+        if (Active == Enabled) {
+            return;
+        }
+        if (Enabled == true) {
+            Active = Enabled;
+            UpdateAbsolutePosition();
+            UpdateSubtreeHitBounds();
+            Invalidate();
+            OnActivate();
+        } else {
+            Invalidate();
+            Active = Enabled;
+            OnDeactivate();
+        }
+    }
+
+    void TObjectGI::SetHitTestDisabled(std::uint8_t Disabled) {
+        if (HitTestDisabled == Disabled) {
+            return;
+        }
+        if (Disabled == true) {
+            HitTestDisabled = Disabled;
+            UpdateAbsolutePosition();
+            UpdateSubtreeHitBounds();
+            Invalidate();
+            OnActivate();
+        } else {
+            Invalidate();
+            HitTestDisabled = Disabled;
+            OnDeactivate();
+        }
+    }
+
+    TObjectGI* TObjectGI::FindDeepestChildAtPoint(WindowsSdk::TPoint Point) {
+        TObjectGI* Child = LastChild;
+        while (Child != nullptr) {
+            if (Child->ContainsPoint(Point)) {
+                return Child->FindDeepestChildAtPoint(Point);
+            }
+            Child = Child->PrevSibling;
+        }
+        return this;
+    }
+
+    std::uint8_t TObjectGI::IsOccludedAtPoint(WindowsSdk::TPoint Point) {
+        return MessageLoop->QueryPointOcclusionState(Point, this, nullptr) == 1;
+    }
+
+    void TObjectGI::QueueImageLoad(pas::List* PendingLoads) {
+    }
+
+    void TObjectGI::ProcessMouseMove(std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+        if (pas::assigned(MouseMoveCallback)) {
+            MouseMoveCallback(this, KeyState, Point);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && static_cast<std::uint8_t>(Child->ContainsPoint(Point) ^ 1) && Child->MouseInside == true) {
+                Child->OnMouseLeave();
+            }
+            Child = Child->NextSibling;
+        }
+        Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->ContainsPoint(Point)) {
+                if (Child->MouseInside == false) {
+                    Child->OnMouseEnter();
+                }
+                Child->ProcessMouseMove(KeyState, Point);
+                DispatchNamedEvent(3, Point.X, Point.Y);
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::OnMouseEnter() {
+        if (pas::assigned(MouseEnterCallback)) {
+            MouseEnterCallback(this);
+        }
+        if (OnMouseEnterCode != nullptr) {
+            MessageLoop->QueueUiCode(OnMouseEnterCode, false);
+        }
+        MouseInside = true;
+        if (HelpText != u"") {
+            if (MessageLoop->HelpLabel != nullptr) {
+                pas::checked_cast<GI_Label::TLabelGI*>(MessageLoop->HelpLabel)->SetText(HelpText);
+            }
+        }
+    }
+
+    void TObjectGI::OnMouseLeave() {
+        if (pas::assigned(MouseLeaveCallback)) {
+            MouseLeaveCallback(this);
+        }
+        if (OnMouseLeaveCode != nullptr) {
+            MessageLoop->QueueUiCode(OnMouseLeaveCode, false);
+        }
+        MouseInside = false;
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->MouseInside == true) {
+                Child->OnMouseLeave();
+            }
+            Child = Child->NextSibling;
+        }
+        if (HelpText != u"") {
+            if (MessageLoop->HelpLabel != nullptr) {
+                pas::checked_cast<GI_Label::TLabelGI*>(MessageLoop->HelpLabel)->SetText(u""_wref.get());
+            }
+        }
+    }
+
+    void TObjectGI::OnActivate() {
+        if (pas::assigned(ActivateCallback)) {
+            ActivateCallback(this);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true) {
+                Child->OnActivate();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::NativeHook48() {
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true) {
+                Child->NativeHook48();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::OnDeactivate() {
+        if (pas::assigned(DeactivateCallback)) {
+            DeactivateCallback(this);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            Child->OnDeactivate();
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::NativeHook50() {
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true) {
+                Child->NativeHook50();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::ProcessLeftButtonDown(std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+        if (pas::assigned(LeftButtonDownCallback)) {
+            LeftButtonDownCallback(this, KeyState, Point);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->ContainsPoint(Point)) {
+                Child->ProcessLeftButtonDown(KeyState, Point);
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::ProcessLeftButtonUp(std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+        if (pas::assigned(LeftButtonUpCallback)) {
+            LeftButtonUpCallback(this, KeyState, Point);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->ContainsPoint(Point)) {
+                Child->ProcessLeftButtonUp(KeyState, Point);
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::ProcessRightButtonDown(std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+        if (pas::assigned(RightButtonDownCallback)) {
+            RightButtonDownCallback(this, KeyState, Point);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->ContainsPoint(Point)) {
+                Child->ProcessRightButtonDown(KeyState, Point);
+            }
+            Child = Child->NextSibling;
+        }
+        if (OnRightButtonDownCode != nullptr) {
+            MessageLoop->QueueUiCode(OnRightButtonDownCode, false);
+        }
+    }
+
+    void TObjectGI::ProcessRightButtonUp(std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+        if (pas::assigned(RightButtonUpCallback)) {
+            RightButtonUpCallback(this, KeyState, Point);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->ContainsPoint(Point)) {
+                Child->ProcessRightButtonUp(KeyState, Point);
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::ProcessLeftButtonDoubleClick(std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+        if (pas::assigned(LeftButtonDoubleClickCallback)) {
+            LeftButtonDoubleClickCallback(this, KeyState, Point);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->ContainsPoint(Point)) {
+                Child->ProcessLeftButtonDoubleClick(KeyState, Point);
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::ProcessRightButtonDoubleClick(std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+        if (pas::assigned(RightButtonDoubleClickCallback)) {
+            RightButtonDoubleClickCallback(this, KeyState, Point);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active == true && Child->ContainsPoint(Point)) {
+                Child->ProcessRightButtonDoubleClick(KeyState, Point);
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::BroadcastKeyDown(std::uint32_t Key) {
+        if (OnKeyDownCode != nullptr) {
+            MessageLoop->ExecuteUiCode(OnKeyDownCode, Key);
+        }
+        if (pas::assigned(KeyDownCallback)) {
+            KeyDownCallback(this, Key);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            Child->BroadcastKeyDown(Key);
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::BroadcastKeyUp(std::uint32_t Key) {
+        if (pas::assigned(KeyUpCallback)) {
+            KeyUpCallback(this, Key);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            Child->BroadcastKeyUp(Key);
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::OnHoverGained() {
+    }
+
+    void TObjectGI::OnHoverLost() {
+    }
+
+    void TObjectGI::OnFocusGained() {
+    }
+
+    void TObjectGI::OnFocusLost() {
+    }
+
+    void TObjectGI::ProcessKeyDown(std::int32_t Key) {
+    }
+
+    void TObjectGI::ProcessCharacter(char16_t Character) {
+    }
+
+    void TObjectGI::OnCaretBlink() {
+    }
+
+    std::uint8_t TObjectGI::ContainsPoint(WindowsSdk::TPoint Point) {
+        if (Active == false || HitTestDisabled == true) {
+            return false;
+        }
+        return Point.X >= HitTestBounds.Left && Point.Y >= HitTestBounds.Top && Point.X < HitTestBounds.Right && Point.Y < HitTestBounds.Bottom;
+    }
+
+    std::uint8_t TObjectGI::HitTestCursor() {
+        return ContainsPoint(MessageLoop->GetCursorPoint());
+    }
+
+    TObjectGI* TObjectGI::FindByNameRecursive(const pas::WideString& Name) {
+        TObjectGI* Found{};
+        if (ControlName == Name) {
+            return this;
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            Found = Child->FindByNameRecursive(Name);
+            if (Found != nullptr) {
+                return Found;
+            }
+            Child = Child->NextSibling;
+        }
+        return nullptr;
+    }
+
+    WindowsSdk::TPoint TObjectGI::ToLocalPoint(WindowsSdk::TPoint Point) {
+        WindowsSdk::TPoint Result{};
+        Result.X = Point.X - AbsolutePosition.X;
+        Result.Y = Point.Y - AbsolutePosition.Y;
+        return Result;
+    }
+
+    WindowsSdk::TPoint TObjectGI::ToAbsolutePoint(WindowsSdk::TPoint Point) {
+        WindowsSdk::TPoint Result{};
+        Result.X = Point.X + AbsolutePosition.X;
+        Result.Y = Point.Y + AbsolutePosition.Y;
+        return Result;
+    }
+
+    void TObjectGI::DispatchNamedEvent(std::int32_t EventKind, std::int32_t Param1, std::int32_t Param2) {
+        if (ControlName.length() > 0) {
+            MessageLoop->ProcessNamedControlEvent(ControlName, EventKind, Param1, Param2);
+        }
+    }
+
+    void TObjectGI::InvalidateRect(WindowsSdk::TRect Rect) {
+        WindowsSdk::TRect Intersection{};
+        WindowsSdk::TRect First{};
+        WindowsSdk::TRect Second{};
+        if (Active != true) {
+            return;
+        }
+        if (Parent == nullptr) {
+            MessageLoop->QueueUpdateRect(Rect);
+        } else {
+            First = Parent->OffsetChildRect(Rect, PositionModeW);
+            {
+                WindowsSdk::TRect localBounds = GetLocalBounds();
+                std::uint8_t positionModeW = PositionModeW;
+                TObjectGI* parent = Parent;
+                Second = parent->OffsetChildRect(localBounds, positionModeW);
+            }
+            if (EC_Struct::IntersectRects(Intersection, First, Second)) {
+                Parent->InvalidateRect(Intersection);
+            }
+        }
+    }
+
+    void TObjectGI::Invalidate() {
+        if (MessageLoop->UpdateRectsEnabled && Parent != nullptr && Active == true) {
+            InvalidateRect(GetLocalBounds());
+        }
+    }
+
+    void TObjectGI::InvalidateChildren(std::uint8_t IncludePanels) {
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active) {
+                if (static_cast<std::uint8_t>(IncludePanels ^ 1) && pas::class_cast_if<GI_Panel::TPanelGI*>(Child) != nullptr) {
+                    Child->InvalidateChildren(IncludePanels);
+                } else {
+                    Child->Invalidate();
+                }
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    TObjectGI* TObjectGI::InvalidateScrollOverlap(WindowsSdk::TRect Rect, WindowsSdk::TPoint Delta, TObjectGI* StartControl) {
+        TObjectGI* Child{};
+        if (this == StartControl) {
+            StartControl = nullptr;
+        }
+        if (pas::class_cast_if<GI_Panel::TPanelGI*>(this) != nullptr && static_cast<std::uint8_t>(ScrollUpdate ^ 1)) {
+            Child = FirstChild;
+            while (Child != nullptr) {
+                if (Child->Active) {
+                    StartControl = Child->InvalidateScrollOverlap(Rect, Delta, StartControl);
+                }
+                Child = Child->NextSibling;
+            }
+        } else if (StartControl == nullptr && (static_cast<std::uint8_t>(PositionModeW ^ 1) || ScrollUpdate)) {
+            SetPosition(ClassesImports::Point(LocalPosition.X + Delta.X, LocalPosition.Y + Delta.Y));
+            SetPosition(ClassesImports::Point(LocalPosition.X - Delta.X, LocalPosition.Y - Delta.Y));
+        }
+        return StartControl;
+    }
+
+    void TObjectGI::Draw(WindowsSdk::TRect ClipRect) {
+        TObjectGI* Child{};
+        WindowsSdk::TRect Intersection{};
+        if (MessageLoop->PendingRedraw) {
+            return;
+        }
+        Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active && EC_Struct::IntersectRects(Intersection, ClipRect, Child->HitTestBounds)) {
+                Child->Draw(Intersection);
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::DrawUpdateRects(WindowsSdk::TRect ClipRect) {
+        GR_Rect::TRectGR* RectNode{};
+        std::int32_t Stage{};
+        WindowsSdk::TRect DrawRect{};
+        WindowsSdk::TRect Intersection{};
+        Stage = 0;
+        TObjectGI* Child = nullptr;
+        try {
+            if (EC_Struct::IntersectRects(Intersection, ClipRect, HitTestBounds)) {
+                Stage = 1;
+                Child = FirstChild;
+                while (Child != nullptr) {
+                    Stage = 2;
+                    if (Child->Active) {
+                        Child->DrawUpdateRects(Intersection);
+                    }
+                    Child = Child->NextSibling;
+                }
+                Stage = 3;
+                if (SkipOwnQueuedDraw == 0) {
+                    Stage = 4;
+                    RectNode = MessageLoop->UpdateRects->FirstRect;
+                    while (RectNode != nullptr) {
+                        Stage = 5;
+                        if (EC_Struct::IntersectRects(DrawRect, RectNode->Bounds, Intersection)) {
+                            Draw(DrawRect);
+                        }
+                        RectNode = RectNode->Next;
+                    }
+                }
+            }
+        } catch (...) {
+            auto cpp_exception = pas::caught_object();
+            if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                if (Child != nullptr) {
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Error in TObjectGI.DrawEx, label = ", SysUtils::IntToStr(Stage)}));
+                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"obj - ", Child->ControlName, u" ", static_cast<pas::WideString>(pas::class_name(pas::class_type(Child)))}))));
+                } else {
+                    pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TObjectGI.DrawEx, label = ", SysUtils::IntToStr(Stage)})));
+                }
+            } else {
+                throw;
+            }
+        }
+    }
+
+    void TObjectGI::CommitFrameDraw() {
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active) {
+                Child->CommitFrameDraw();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::ErasePreviousFrame() {
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active) {
+                Child->ErasePreviousFrame();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::PrepareFrameDraw() {
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            if (Child->Active) {
+                Child->PrepareFrameDraw();
+            }
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TObjectGI::PrepareRegionDraw(WindowsSdk::TRect ClipRect) {
+    }
+
+    void TObjectGI::LoadFromConfigPath(const pas::WideString& Path) {
+        EC_BlockPar::TBlockParEC* Block{};
+        pas::WideString Text{};
+        std::int32_t Count{};
+        Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
+        if (Block->CountParams(u"Pos"_wref.get()) > 0) {
+            Text = Block->GetParam(u"Pos"_wref.get());
+            Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+            if (Count >= 2) {
+                LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+                LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            }
+            if (Count >= 3) {
+                SetDepthByName(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+            }
+            if (Count >= 4) {
+                if (EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, 3, u","_wref.get())) == u"w") {
+                    PositionModeW = true;
+                }
+            }
+        }
+        if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
+            SetDepthByName(Block->GetParam(u"PosZ"_wref.get()));
+        }
+        if (Block->CountParams(u"Size"_wref.get()) > 0) {
+            Text = Block->GetParam(u"Size"_wref.get());
+            ClientSize.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+            ClientSize.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+        }
+        if (Block->CountParams(u"Sme"_wref.get()) > 0) {
+            Text = Block->GetParam(u"Sme"_wref.get());
+            OriginPoint.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+            OriginPoint.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+        }
+        if (Block->CountParams(u"Name"_wref.get()) > 0) {
+            ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"_wref.get()));
+        }
+        if (Block->CountParams(u"Help"_wref.get()) > 0) {
+            HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"_wref.get())));
+        }
+        if (Block->CountParams(u"Active"_wref.get()) > 0) {
+            if (EC_Str::TrimWideString(Block->GetParam(u"Active"_wref.get())) == u"False") {
+                Active = false;
+            }
+        }
+        if (Block->CountParams(u"MouseBlocking"_wref.get()) > 0) {
+            MouseBlocking = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"_wref.get())));
+        }
+        if (Block->CountParams(u"MouseBlockingTest"_wref.get()) > 0) {
+            MouseBlockingTest = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"_wref.get())));
+        }
+        if (Block->CountParams(u"MVUpdate"_wref.get()) > 0) {
+            SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"_wref.get()))));
+        }
+    }
+
+    void TObjectGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
+        std::int32_t Count{};
+        pas::WideString Text{};
+        Clear();
+        GI_MessageLoop::LoadConfiguredChildren(Block, this);
+        SourceBlock = Block;
+        Depth = -1.0;
+        SetDepth(0.0);
+        if (Block->CountParams(u"Style"_wref.get()) > 0) {
+            SetConfigPath(Block->GetParam(u"Style"_wref.get()));
+        }
+        if (Block->CountParams(u"Pos"_wref.get()) > 0) {
+            Text = Block->GetParam(u"Pos"_wref.get());
+            Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+            if (Count >= 2) {
+                LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+                LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            }
+            if (Count >= 3) {
+                SetDepthByName(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+            }
+            if (Count >= 4) {
+                if (EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, 3, u","_wref.get())) == u"w") {
+                    PositionModeW = true;
+                }
+            }
+        }
+        if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
+            SetDepthByName(Block->GetParam(u"PosZ"_wref.get()));
+        }
+        if (Block->CountParams(u"Size"_wref.get()) > 0) {
+            SetSize(GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get())));
+        }
+        if (Block->CountParams(u"Sme"_wref.get()) > 0) {
+            SetOrigin(GI_Main::GetPointGI(Block->GetParam(u"Sme"_wref.get())));
+        }
+        ControlName = pas::WideString();
+        if (Block->CountParams(u"Name"_wref.get()) > 0) {
+            ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"_wref.get()));
+        }
+        if (Block->CountParams(u"Help"_wref.get()) > 0) {
+            HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"_wref.get())));
+        }
+        Active = true;
+        if (Block->CountParams(u"Active"_wref.get()) > 0) {
+            if (EC_Str::TrimWideString(Block->GetParam(u"Active"_wref.get())) == u"False") {
+                Active = false;
+            }
+        }
+        if (Block->CountParams(u"MouseBlocking"_wref.get()) > 0) {
+            MouseBlocking = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"_wref.get())));
+        }
+        if (Block->CountParams(u"MouseBlockingTest"_wref.get()) > 0) {
+            MouseBlockingTest = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"_wref.get())));
+        }
+        if (Block->CountParams(u"ScrollUpdate"_wref.get()) > 0) {
+            ScrollUpdate = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"ScrollUpdate"_wref.get())));
+        }
+        if (Block->CountParams(u"MVUpdate"_wref.get()) > 0) {
+            SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"_wref.get()))));
+        }
+        if (Block->CountParams(u"PosAutoCorrection"_wref.get()) > 0) {
+            AutoOffsetEnabled = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrection"_wref.get())));
+        }
+        if (Block->CountParams(u"PosAutoCorrectionXCoef"_wref.get()) > 0) {
+            AutoOffsetScale.X = EC_Str::ExtractDecimalToSingleW(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrectionXCoef"_wref.get())));
+        }
+        if (Block->CountParams(u"PosAutoCorrectionYCoef"_wref.get()) > 0) {
+            AutoOffsetScale.Y = EC_Str::ExtractDecimalToSingleW(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrectionYCoef"_wref.get())));
+        }
+        if (Block->CountBlocks(u"OnKey"_wref.get()) > 0) {
+            OnKeyDownCode = Block->GetBlock(u"OnKey"_wref.get());
+        }
+        if (Block->CountBlocks(u"OnMouseEnterCode"_wref.get()) > 0) {
+            OnMouseEnterCode = Block->GetBlock(u"OnMouseEnterCode"_wref.get());
+        }
+        if (Block->CountBlocks(u"OnMouseLeaveCode"_wref.get()) > 0) {
+            OnMouseLeaveCode = Block->GetBlock(u"OnMouseLeaveCode"_wref.get());
+        }
+        if (Block->CountBlocks(u"OnMouseRightClick"_wref.get()) > 0) {
+            OnRightButtonDownCode = Block->GetBlock(u"OnMouseRightClick"_wref.get());
+        }
+    }
+
+    void LoadConfiguredChildren(EC_BlockPar::TBlockParEC* Block, TObjectGI* Self) {
+        std::int32_t Index{};
+        TObjectGI* Child{};
+        std::int32_t Count = Block->GetBlockCount();
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
+            Child = GI_Main::CreateControlByName(Block->GetBlockNameByIndex(Index), Self);
+            if (Child != nullptr) {
+                Child->LoadFromBlock(Block->GetBlockByIndex(Index));
+            } else if (Block->GetBlockNameByIndex(Index) != u"OnPressCode" && Block->GetBlockNameByIndex(Index) != u"OnMouseEnterCode" && Block->GetBlockNameByIndex(Index) != u"OnMouseLeaveCode") {
+                GI_MessageLoop::LoadConfiguredChildren(Block->GetBlockByIndex(Index), Self);
+            }
+        }
+    }
+
+    void TObjectGI::ReloadFromBlock() {
+        FreeOwnedChildren();
+        LoadFromBlock(SourceBlock);
+    }
+
+    void TObjectGI::UpdateAutoGeometry() {
+        if (AutoOffsetEnabled) {
+            LocalPosition.X = System::Round(static_cast<long double>(GR_Main::ExtraScreenWidth) * AutoOffsetScale.X + LocalPosition.X);
+            LocalPosition.Y = System::Round(static_cast<long double>(GR_Main::ExtraScreenHeight) * AutoOffsetScale.Y + LocalPosition.Y);
+        }
+        TObjectGI* Child = FirstChild;
+        while (Child != nullptr) {
+            Child->UpdateAutoGeometry();
+            Child = Child->NextSibling;
+        }
+    }
+
+    void TFormSoundGroup_Create(TFormSoundGroup* Self) {
+        EC_Struct::TObjectEx_Create(Self);
+        Self->Sounds = pas::construct_call<EC_Str::TStringsEC>(EC_Str::TStringsEC_Create);
+    }
+
+    void TFormSoundGroup_Destroy(TFormSoundGroup* Self) {
+        Self->Clear();
+        pas::free(Self->Sounds);
+        Self->Sounds = nullptr;
+        EC_Struct::TObjectEx_Destroy(Self);
+    }
+
+    void TFormSoundGroup::Clear() {
+        Sounds->Clear();
+        Section = 0;
+    }
+
+    void TFormSoundGroup::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
+        pas::WideString Text{};
+        std::int32_t Index{};
+        Clear();
+        TotalWeight = 0;
+        Text = Block->GetParam(u"NextTime"_wref.get());
+        MinDelayMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u",-"_wref.get())));
+        MaxDelayMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u",-"_wref.get())));
+        if (Block->CountParams(u"Section"_wref.get()) > 0) {
+            Section = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Section"_wref.get())));
+        }
+        std::int32_t Count = Block->GetParamCount();
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
+            Text = Block->GetParamName(Index);
+            if (EC_Str::IsIntegerTextW(Text)) {
+                Sounds->Add(Block->GetParamValue(Index));
+                Sounds->SetDataAt(Sounds->GetCount() - 1, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Str::ExtractDigitsToIntW(Text)))));
+                TotalWeight += EC_Str::ExtractDigitsToIntW(Text);
+            }
+        }
+    }
+
+    void TFormSoundGroup::ScheduleNextPlayback() {
+        std::uint32_t cpp_left = aMyFunction::RandomIntRange(MinDelayMs, MaxDelayMs);
+        NextPlayTick = cpp_left + MMSystem::timeGetTime();
+    }
+
+    void TFormSoundGroup::PlayIfDue() {
+        std::int32_t Weight{};
+        {
+            std::uint32_t cpp_left = MMSystem::timeGetTime();
+            if (cpp_left > NextPlayTick) {
+                ScheduleNextPlayback();
+                Weight = aMyFunction::RandomIntRange(0, TotalWeight - 1);
+                Sounds->First();
+                while (!Sounds->IsAtEnd()) {
+                    Weight -= static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Sounds->GetCurrentData()));
+                    if (Weight < 0) {
+                        break;
+                    }
+                    Sounds->Next();
+                }
+                GR_Main::SoundManager->PlaySound(Sounds->GetCurrentText());
+            }
+        }
+    }
+
+    void TMessageLoopGI_Create(TMessageLoopGI* Self) {
+        EC_Struct::TObjectEx_Create(Self);
+        Self->UpdateRects = pas::construct_call<GR_Rect::TArrayRectGR>(GR_Rect::TArrayRectGR_Create);
+        Self->MouseViewUpdateControls = pas::make_object<pas::List>();
+        Self->UpdateRectsEnabled = true;
+        Self->SoundGroupList = pas::make_object<pas::List>();
+        Self->PlayTransitionSounds = true;
+        Self->SavedBackgroundControl = nullptr;
+        Self->IsOpen = false;
+        Self->DeferredCodeBlocks = pas::make_object<pas::List>();
+        Self->RefreshMouseAfterCode = false;
+    }
+
+    void TMessageLoopGI_Destroy(TMessageLoopGI* Self) {
+        Self->ResetRuntime();
+        pas::free(Self->UpdateRects);
+        pas::free(Self->MouseViewUpdateControls);
+        pas::free(Self->SoundGroupList);
+        Self->SoundGroupList = nullptr;
+        pas::free(Self->DeferredCodeBlocks);
+        Self->DeferredCodeBlocks = nullptr;
+        EC_Struct::TObjectEx_Destroy(Self);
+    }
+
+    void TMessageLoopGI::ResetRuntime() {
+        std::int32_t Index{};
+        pas::Object* Item{};
+        FreeSecondaryPixelBuffer();
+        FreeSavedLines();
+        if (SoundGroupList != nullptr) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(SoundGroupList) - 1); cpp_range.next(Index); ) {
+                Item = pas::list_at<pas::Object>(SoundGroupList, Index);
+                pas::free(Item);
+            }
+            pas::list_clear(SoundGroupList);
+        }
+        if (RootUiObject != nullptr) {
+            pas::free(RootUiObject);
+            RootUiObject = nullptr;
+        }
+        CursorControl = nullptr;
+        FocusedControl = nullptr;
+        HoveredControl = nullptr;
+        while (FirstTimer != nullptr) {
+            CancelCallbackTimer(LastTimer);
+        }
+    }
+
+    void TMessageLoopGI::QueueUpdateRect(WindowsSdk::TRect Rect) {
+        WindowsSdk::TRect Intersection{};
+        if (UpdateRectsEnabled) {
+            if (EC_Struct::IntersectRects(Intersection, Rect, GR_Main::GameScreenRect)) {
+                UpdateRects->AddRect(Intersection);
+            }
+        }
+    }
+
+    void TMessageLoopGI::InvalidateViewport() {
+        QueueUpdateRect(ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+    }
+
+    std::int32_t TMessageLoopGI::FindMouseViewUpdateControl(TObjectGI* Control) {
+        std::int32_t Index{};
+        std::int32_t Count = pas::list_count(MouseViewUpdateControls);
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
+            if (pas::list_get(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(MouseViewUpdateControls) + 0), Index) == Control) {
+                return Index;
+            }
+        }
+        return -1;
+    }
+
+    void TMessageLoopGI::AddMouseViewUpdateControl(TObjectGI* Control) {
+        if (FindMouseViewUpdateControl(Control) < 0) {
+            pas::list_add(MouseViewUpdateControls, reinterpret_cast<void*>(Control));
+        }
+    }
+
+    void TMessageLoopGI::RemoveMouseViewUpdateControl(TObjectGI* Control) {
+        std::int32_t Index = FindMouseViewUpdateControl(Control);
+        if (Index >= 0) {
+            pas::list_delete(MouseViewUpdateControls, Index);
+        }
+    }
+
+    void TMessageLoopGI::InvalidateMouseViewControls() {
+        std::int32_t Index{};
+        TObjectGI* Control{};
+        std::int32_t Count = pas::list_count(MouseViewUpdateControls);
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
+            Control = pas::list_at<TObjectGI>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(MouseViewUpdateControls) + 0), Index);
+            Control->Invalidate();
+        }
+    }
+
+    void TMessageLoopGI::DrawQueuedUpdateRects() {
+        if (RegionDrawPending && RegionDrawControl != nullptr) {
+            RegionDrawControl->PrepareRegionDraw(RegionDrawControl->HitTestBounds);
+        }
+        PendingRedraw = false;
+        GR_Rect::TRectGR* RectNode = UpdateRects->FirstRect;
+        while (RectNode != nullptr) {
+            RootUiObject->Draw(RectNode->Bounds);
+            RectNode = RectNode->Next;
+        }
+    }
+
+    void TMessageLoopGI::DrawQueuedControlRects() {
+        if (UpdateRects->FirstRect != nullptr) {
+            PendingRedraw = true;
+            RootUiObject->DrawUpdateRects(ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        }
+    }
+
+    void TMessageLoopGI::FinishQueuedDraw() {
+        RegionDrawPending = false;
+    }
+
+    void TMessageLoopGI::CommitFrameDraw() {
+        RootUiObject->CommitFrameDraw();
+    }
+
+    void TMessageLoopGI::ErasePreviousFrame() {
+        RootUiObject->ErasePreviousFrame();
+    }
+
+    void TMessageLoopGI::PrepareFrameDraw() {
+        RootUiObject->PrepareFrameDraw();
+    }
+
+    std::int32_t TMessageLoopGI::Run() {
+        std::int32_t Result{};
+        std::uint32_t LastCaretTick{};
+        std::uint32_t Tick{};
+        WindowsSdk::TPoint Point{};
+        std::int32_t Index{};
+        std::uint32_t RecordingTime{};
+        GI_GraphBuf::TGraphBufGI* Background{};
+        std::int32_t Stage = 0;
+        try {
+            GI_MessageLoop::PushMessageLoop(this);
+            ExitCode = 0;
+            ContinuousLoop = false;
+            Stage = 1;
+            FreeSecondaryPixelBuffer();
+            FreeSavedLines();
+            FreeSavedPixels16();
+            Stage = 2;
+            SetCursorByName(u"Main"_wref.get());
+            Stage = 3;
+            WindowsSdk::GetCursorPos(Point);
+            if (GR_Main::Direct3DPresentParameters.Windowed) {
+                WindowsSdk::ScreenToClient(GR_Main::MainWindowHandle, Point);
+            }
+            CursorControl->SetPosition(Point);
+            if (GR_Main::CustomCursorEnabled) {
+                SetCursorActive(true);
+            }
+            TimerTick = MMSystem::timeGetTime();
+            Stage = 4;
+            OnOpen();
+            Stage = 5;
+            RootUiObject->UpdateAbsolutePosition();
+            RootUiObject->UpdateSubtreeHitBounds();
+            QueueUpdateRect(ViewportRect);
+            LastCaretTick = 0u;
+            CaretBlinkOn = false;
+            Stage = 6;
+            RootUiObject->OnActivate();
+            if (ViewportRect.Right - ViewportRect.Left < GR_Main::GameScreenWidth || ViewportRect.Bottom - ViewportRect.Top < GR_Main::GameScreenHeight) {
+                Stage = 7;
+                if (SavedBackgroundControl == nullptr) {
+                    SavedBackgroundControl = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, BackgroundPanel, GlobalsV::HardwareRenderingEnabled);
+                }
+                Stage = 8;
+                Background = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(SavedBackgroundControl);
+                Background->SetDepth(1.0E+30);
+                Background->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+                Background->AllocateBuffer(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, false);
+                Background->CopyScreenRectToBuffer(ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight), ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            }
+            Stage = 9;
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(SoundGroupList) - 1); cpp_range.next(Index); ) {
+                pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->ScheduleNextPlayback();
+            }
+            if (PlayTransitionSounds && OpenSoundName != u"") {
+                GR_Main::SoundManager->PlaySound(OpenSoundName);
+            }
+            Stage = 10;
+            while (GR_Main::GR_WinMessage(this->bind_ProcessWindowMessage()) != 0 && ExitCode == 0) {
+                Stage = 11;
+                Tick = MMSystem::timeGetTime();
+                if (Tick - LastCaretTick > 200) {
+                    Stage = 12;
+                    LastCaretTick = Tick;
+                    if (CaretBlinkOn == true) {
+                        CaretBlinkOn = false;
+                    } else {
+                        CaretBlinkOn = true;
+                    }
+                    if (FocusedControl != nullptr) {
+                        FocusedControl->OnCaretBlink();
+                    }
+                }
+                if (!GlobalsV::MemorySnapshotActive) {
+                    Stage = 13;
+                    if (GR_Main::OffscreenTexture != nullptr) {
+                        Stage = 14;
+                        GR_Main::DrawOffscreenTexture();
+                    } else {
+                        Stage = 15;
+                        if (PopUp::PopupController == nullptr) {
+                            DrawQueuedUpdateRects();
+                        } else {
+                            RootUiObject->AttachOwnedChild(PopUp::PopupController);
+                            DrawQueuedUpdateRects();
+                            RootUiObject->UnlinkOwnedChild(PopUp::PopupController);
+                        }
+                    }
+                    if (!GR_Main::BeginFramePresentation()) {
+                        GlobalsV::RequestedScreenId = GlobalsV::screenNone;
+                        GlobalsV::PostLoadScreenId = GlobalsV::FormToId(this);
+                        break;
+                    }
+                    Stage = 16;
+                    FinishQueuedDraw();
+                    Stage = 17;
+                    GR_Main::EndFramePresentation();
+                    if (GR_Main::RecordingFrames) {
+                        Stage = 18;
+                        RecordingTime = MMSystem::timeGetTime();
+                        GR_Main::CaptureRecordingFrame();
+                        RecordingTime = MMSystem::timeGetTime() - RecordingTime;
+                        TimerTick += RecordingTime;
+                        NextTimerToProcess = FirstTimer;
+                        while (NextTimerToProcess != nullptr) {
+                            NextTimerToProcess->DueTick += RecordingTime;
+                            NextTimerToProcess = NextTimerToProcess->Next;
+                        }
+                    }
+                    Stage = 19;
+                    if (GlobalsV::MusicEnabled && static_cast<std::uint8_t>(GR_Main::MusicManager->HasSelectedMusic() ^ 1)) {
+                        Stage = 20;
+                        GR_Main::MusicManager->HasSelectedMusic();
+                        SelectMusic();
+                    }
+                    Stage = 21;
+                    ProcessCallbackTimers();
+                    if (PopUp::PopupController != nullptr) {
+                        PopUp::PopupController->AdvancePopups(TimerTick);
+                    }
+                    Stage = 22;
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(SoundGroupList) - 1); cpp_range_2.next(Index); ) {
+                        if (pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->Section == 0 || pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->Section == SoundSection) {
+                            pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->PlayIfDue();
+                        }
+                    }
+                }
+            }
+            Stage = 23;
+            try {
+                RootUiObject->OnMouseLeave();
+                RefreshMouseAfterCode = false;
+                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(DeferredCodeBlocks) - 1); cpp_range_3.next(Index); ) {
+                    ExecuteUiCode(pas::list_at<EC_BlockPar::TBlockParEC>(DeferredCodeBlocks, Index), 0u);
+                }
+                pas::list_clear(DeferredCodeBlocks);
+            } catch (...) {
+                auto cpp_exception = pas::caught_object();
+                if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+                } else {
+                    throw;
+                }
+            }
+            RootUiObject->OnDeactivate();
+            if (GR_Main::CustomCursorEnabled) {
+                SetCursorActive(false);
+            }
+            Stage = 24;
+            if (PlayTransitionSounds && CloseSoundName != u"") {
+                GR_Main::SoundManager->PlaySound(CloseSoundName);
+            }
+            Stage = 25;
+            ClearTransientControl();
+            Stage = 26;
+            OnClose();
+            Stage = 27;
+            FreeSavedPixels16();
+            FreeSecondaryPixelBuffer();
+            FreeSavedLines();
+            Result = ExitCode;
+            Stage = 28;
+            GI_MessageLoop::PopMessageLoop(this);
+        } catch (...) {
+            auto cpp_exception_2 = pas::caught_object();
+            if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception_2)) {
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TMessageLoopGI.Run, ", RegisteredLoopName, u", label = ", pas::wide_int_to_str(Stage)}))));
+            } else {
+                throw;
+            }
+        }
+        return Result;
+    }
+
+    std::int32_t TMessageLoopGI::RunContinuous() {
+        std::int32_t Result{};
+        WindowsSdk::TPoint Point{};
+        std::uint32_t FrameTime{};
+        std::uint32_t ProcessingTime{};
+        std::uint32_t CarryTicks{};
+        std::uint32_t LastFpsTick{};
+        std::int32_t FrameCount{};
+        std::uint32_t RecordingTime{};
+        std::int32_t Index{};
+        std::int32_t Stage = 0;
+        try {
+            GI_MessageLoop::PushMessageLoop(this);
+            ExitCode = 0;
+            ContinuousLoop = true;
+            Stage = 1;
+            FreeSecondaryPixelBuffer();
+            Stage = 2;
+            FreeSavedPixels16();
+            Stage = 3;
+            FreeSavedLines();
+            Stage = 4;
+            SetCursorByName(u"Main"_wref.get());
+            WindowsSdk::GetCursorPos(Point);
+            if (GR_Main::Direct3DPresentParameters.Windowed) {
+                WindowsSdk::ScreenToClient(GR_Main::MainWindowHandle, Point);
+            }
+            Stage = 5;
+            CursorControl->SetPosition(Point);
+            if (GR_Main::CustomCursorEnabled) {
+                SetCursorActive(true);
+            }
+            TimerTick = MMSystem::timeGetTime();
+            Stage = 6;
+            OnOpen();
+            Stage = 7;
+            RootUiObject->UpdateAbsolutePosition();
+            Stage = 8;
+            RootUiObject->UpdateSubtreeHitBounds();
+            Stage = 9;
+            QueueUpdateRect(ViewportRect);
+            Stage = 10;
+            CaretBlinkOn = false;
+            RootUiObject->OnActivate();
+            Stage = 11;
+            if (ExitCode == 0) {
+                DrawFrame();
+            }
+            LastFpsTick = MMSystem::timeGetTime();
+            FrameCount = 0;
+            CarryTicks = 0u;
+            Stage = 12;
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(SoundGroupList) - 1); cpp_range.next(Index); ) {
+                pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->ScheduleNextPlayback();
+            }
+            if (PlayTransitionSounds && OpenSoundName != u"") {
+                GR_Main::SoundManager->PlaySound(OpenSoundName);
+            }
+            while (GR_Main::GR_WinMessage(this->bind_ProcessWindowMessage()) != 0 && ExitCode == 0) {
+                Stage = 13;
+                if (!GlobalsV::MemorySnapshotActive) {
+                    Stage = 14;
+                    FrameTime = MMSystem::timeGetTime();
+                    if (PopUp::PopupController == nullptr) {
+                        Stage = 15;
+                        DrawFrame();
+                    } else {
+                        Stage = 16;
+                        RootUiObject->AttachOwnedChild(PopUp::PopupController);
+                        Stage = 17;
+                        DrawFrame();
+                        Stage = 18;
+                        RootUiObject->UnlinkOwnedChild(PopUp::PopupController);
+                    }
+                    Stage = 19;
+                    SysUtilsImports::Sleep(1u);
+                    FrameTime = MMSystem::timeGetTime() - FrameTime;
+                    if (FrameTime > 200) {
+                        FrameTime = 200u;
+                    }
+                    Stage = 20;
+                    if (GR_Main::RecordingFrames) {
+                        Stage = 21;
+                        RecordingTime = MMSystem::timeGetTime();
+                        GR_Main::CaptureRecordingFrame();
+                        RecordingTime = MMSystem::timeGetTime() - RecordingTime;
+                        LastFpsTick += RecordingTime;
+                    }
+                    ProcessingTime = MMSystem::timeGetTime();
+                    ++FrameCount;
+                    if (MMSystem::timeGetTime() - LastFpsTick > 500) {
+                        Stage = 22;
+                        FramesPerSecond = FrameCount * 2;
+                        LastFpsTick = MMSystem::timeGetTime();
+                        FrameCount = 0;
+                        if (GR_Main::ShowFrameRate) {
+                            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"FPS: ", SysUtils::IntToStr(FramesPerSecond)}));
+                            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"FPS"_wref.get()));
+                            cpp_arg_2->SetText(cpp_arg);
+                        }
+                    }
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(FrameTime + CarryTicks - 1)); cpp_range_2.next(Index); ) {
+                        Stage = 23;
+                        AdvanceTimerTick();
+                        if (PopUp::PopupController != nullptr) {
+                            PopUp::PopupController->AdvancePopups(TimerTick);
+                        }
+                    }
+                    Stage = 24;
+                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(SoundGroupList) - 1); cpp_range_3.next(Index); ) {
+                        if (pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->Section == 0 || pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->Section == SoundSection) {
+                            pas::list_at<TFormSoundGroup>(SoundGroupList, Index)->PlayIfDue();
+                        }
+                    }
+                    if (GlobalsV::MusicEnabled && static_cast<std::uint8_t>(GR_Main::MusicManager->HasSelectedMusic() ^ 1)) {
+                        Stage = 25;
+                        GR_Main::MusicManager->HasSelectedMusic();
+                        SelectMusic();
+                    }
+                    ProcessingTime = MMSystem::timeGetTime() - ProcessingTime;
+                    CarryTicks = ProcessingTime;
+                    if (CarryTicks > 200) {
+                        CarryTicks = 0u;
+                    }
+                    Stage = 26;
+                }
+            }
+            Stage = 27;
+            try {
+                RootUiObject->OnMouseLeave();
+                RefreshMouseAfterCode = false;
+                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(DeferredCodeBlocks) - 1); cpp_range_4.next(Index); ) {
+                    ExecuteUiCode(pas::list_at<EC_BlockPar::TBlockParEC>(DeferredCodeBlocks, Index), 0u);
+                }
+                pas::list_clear(DeferredCodeBlocks);
+            } catch (...) {
+                auto cpp_exception = pas::caught_object();
+                if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+                } else {
+                    throw;
+                }
+            }
+            RootUiObject->OnDeactivate();
+            if (GR_Main::CustomCursorEnabled) {
+                SetCursorActive(false);
+            }
+            Stage = 28;
+            if (PlayTransitionSounds && CloseSoundName != u"") {
+                GR_Main::SoundManager->PlaySound(CloseSoundName);
+            }
+            Stage = 29;
+            ClearTransientControl();
+            Stage = 30;
+            OnClose();
+            Stage = 31;
+            FreeSavedPixels16();
+            Stage = 32;
+            FreeSecondaryPixelBuffer();
+            Stage = 33;
+            FreeSavedLines();
+            Result = ExitCode;
+            Stage = 34;
+            GI_MessageLoop::PopMessageLoop(this);
+        } catch (...) {
+            auto cpp_exception_2 = pas::caught_object();
+            if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception_2)) {
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TMessageLoopGI.Run2, ", RegisteredLoopName, u", label = ", pas::wide_int_to_str(Stage)}))));
+            } else {
+                throw;
+            }
+        }
+        return Result;
+    }
+
+    void TMessageLoopGI::AdvanceTimerTick() {
+        PCallbackTimerGI Timer{};
+        std::int32_t Stage = 0;
+        try {
+            ++TimerTick;
+            Stage = 1;
+            NextTimerToProcess = FirstTimer;
+            while (NextTimerToProcess != nullptr) {
+                Stage = 2;
+                if (NextTimerToProcess->DueTick > TimerTick) {
+                    break;
+                }
+                Stage = 3;
+                Timer = NextTimerToProcess;
+                NextTimerToProcess = NextTimerToProcess->Next;
+                Timer->DueTick = TimerTick + static_cast<std::uint32_t>(Timer->RepeatMs);
+                Stage = 4;
+                ReinsertCallbackTimer(Timer);
+                Stage = 5;
+                Timer->Callback(Timer, Timer->UserData);
+                Stage = 6;
+            }
+            NextTimerToProcess = nullptr;
+        } catch (...) {
+            auto cpp_exception = pas::caught_object();
+            if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TMessageLoopGI.Takt2, ", RegisteredLoopName, u", label = ", pas::wide_int_to_str(Stage)}))));
+            } else {
+                throw;
+            }
+        }
+    }
+
+    void TMessageLoopGI::DrawFrame() {
+        if (UpdateRects->FirstRect != nullptr) {
+            DrawQueuedUpdateRects();
+            FinishQueuedDraw();
+        }
+    }
+
+    void TMessageLoopGI::Present() {
+        GR_Main::UnknownPresentState = 0;
+        if (ContinuousLoop) {
+            GR_Main::FullFrameRedrawRequested = true;
+            DrawFrame();
+        } else {
+            DrawQueuedUpdateRects();
+            if (!GR_Main::BeginFramePresentation()) {
+                GlobalsV::RequestedScreenId = GlobalsV::screenNone;
+                GlobalsV::PostLoadScreenId = GlobalsV::FormToId(this);
+                return;
+            }
+            FinishQueuedDraw();
+            GR_Main::EndFramePresentation();
+        }
+    }
+
+    void TMessageLoopGI::ProcessWindowMessage(std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam) {
+        WindowsSdk::TPoint Point{};
+        std::int32_t MoveStep{};
+        std::uint8_t BreakAfterDoubleClick{};
+        std::int32_t Index{};
+        WindowsSdk::TPoint NewOffset{};
+        if (GlobalsV::MemorySnapshotActive) {
+            return;
+        }
+        if (ExitCode != 0) {
+            return;
+        }
+        std::int32_t Stage = 0;
+        try {
+            if (Message == MessagesSdk::WM_MOUSEMOVE) {
+                Point.X = static_cast<std::int16_t>(LParam);
+                Point.Y = static_cast<std::int16_t>(pas::shr(LParam, 16));
+                LastMousePosition.X = Point.X;
+                LastMousePosition.Y = Point.Y;
+                if (IgnoreWarpMouseMove) {
+                    IgnoreWarpMouseMove = false;
+                    return;
+                }
+                if (!GlobalsV::ScaleViewportToWindow) {
+                    Stage = 1;
+                    NewOffset.X = GR_Main::ViewportOffset.X + (pas::shr(GR_Main::PresentationWidth, 1) - Point.X);
+                    NewOffset.Y = GR_Main::ViewportOffset.Y + (pas::shr(GR_Main::PresentationHeight, 1) - Point.Y);
+                    if (NewOffset.X > 0) {
+                        NewOffset.X = 0;
+                    }
+                    if (NewOffset.Y > 0) {
+                        NewOffset.Y = 0;
+                    }
+                    if (GR_Main::GameScreenWidth + NewOffset.X < GR_Main::PresentationWidth) {
+                        NewOffset.X = -(GR_Main::GameScreenWidth - GR_Main::PresentationWidth);
+                    }
+                    if (GR_Main::GameScreenHeight + NewOffset.Y < GR_Main::PresentationHeight) {
+                        NewOffset.Y = -(GR_Main::GameScreenHeight - GR_Main::PresentationHeight);
+                    }
+                    if (GR_Main::ViewportOffset.X != NewOffset.X) {
+                        Point.X = pas::shr(GR_Main::PresentationWidth, 1);
+                    }
+                    if (GR_Main::ViewportOffset.Y != NewOffset.Y) {
+                        Point.Y = pas::shr(GR_Main::PresentationHeight, 1);
+                    }
+                    Stage = 2;
+                    if (GR_Main::ViewportOffset.X != NewOffset.X || GR_Main::ViewportOffset.Y != NewOffset.Y) {
+                        IgnoreWarpMouseMove = true;
+                        WindowsSdk::ClientToScreen(GR_Main::MainWindowHandle, Point);
+                        WindowsSdk::SetCursorPos(Point.X, Point.Y);
+                        WindowsSdk::ScreenToClient(GR_Main::MainWindowHandle, Point);
+                    }
+                    GR_Main::ViewportOffset = NewOffset;
+                }
+                Stage = 3;
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                if (CursorControl->Active == true) {
+                    pas::checked_cast<GI_Cursor::TCursorGI*>(CursorControl)->SetPosition(Point);
+                }
+                Stage = 4;
+                if (FocusedControl != nullptr) {
+                    FocusedControl->ProcessMouseMove(WParam, Point);
+                }
+                Stage = 5;
+                if (RootUiObject->ContainsPoint(Point)) {
+                    if (!RootUiObject->MouseInside) {
+                        Stage = 6;
+                        RootUiObject->OnMouseEnter();
+                    }
+                    RootUiObject->ProcessMouseMove(WParam, Point);
+                } else if (RootUiObject->MouseInside == true) {
+                    Stage = 7;
+                    RootUiObject->OnMouseLeave();
+                }
+            } else if (Message == MessagesSdk::WM_MOUSELEAVE) {
+                Stage = 8;
+                WindowsSdk::GetCursorPos(Point);
+                WindowsSdk::ScreenToClient(GR_Main::MainWindowHandle, Point);
+                Stage = 9;
+                ProcessWindowMessage(MessagesSdk::WM_MOUSEMOVE, 0u, static_cast<std::uint16_t>(Point.X) | pas::shl(static_cast<std::int32_t>(static_cast<std::uint16_t>(Point.Y)), 16));
+                Stage = 10;
+                GR_Main::LastMouseMessageTick = MMSystem::timeGetTime();
+            } else if (Message == MessagesSdk::WM_MOUSEWHEEL) {
+                Stage = 11;
+                Point = ClassesImports::Point(static_cast<std::int16_t>(LParam), static_cast<std::int16_t>(pas::shr(LParam, 16)));
+                WindowsSdk::ScreenToClient(GR_Main::MainWindowHandle, Point);
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                ProcessMouseWheel(static_cast<std::uint16_t>(WParam), Point, static_cast<std::int16_t>(WParam >> 16));
+            } else if (Message == MessagesSdk::WM_LBUTTONDOWN) {
+                Stage = 12;
+                Point = ClassesImports::Point(static_cast<std::uint16_t>(LParam), static_cast<std::uint16_t>(pas::shr(LParam, 16)));
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                if (RootUiObject->ContainsPoint(Point)) {
+                    Stage = 13;
+                    RootUiObject->ProcessLeftButtonDown(WParam, Point);
+                }
+            } else if (Message == MessagesSdk::WM_LBUTTONUP) {
+                Stage = 14;
+                Point = ClassesImports::Point(static_cast<std::uint16_t>(LParam), static_cast<std::uint16_t>(pas::shr(LParam, 16)));
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                if (FocusedControl != nullptr) {
+                    Stage = 15;
+                    FocusedControl->ProcessLeftButtonUp(WParam, Point);
+                }
+                if (RootUiObject->ContainsPoint(Point)) {
+                    Stage = 16;
+                    RootUiObject->ProcessLeftButtonUp(WParam, Point);
+                }
+            } else if (Message == MessagesSdk::WM_RBUTTONDOWN) {
+                Stage = 17;
+                Point = ClassesImports::Point(static_cast<std::uint16_t>(LParam), static_cast<std::uint16_t>(pas::shr(LParam, 16)));
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                if (RootUiObject->ContainsPoint(Point)) {
+                    Stage = 18;
+                    RootUiObject->ProcessRightButtonDown(WParam, Point);
+                }
+                if (StatusLabel->Active) {
+                    Stage = 19;
+                    if (DebugControl == nullptr || DebugControl->Parent == ContentPanel || static_cast<std::uint8_t>(DebugControl->ContainsPoint(Point) ^ 1)) {
+                        DebugControl = ContentPanel->FindDeepestChildAtPoint(Point);
+                    } else {
+                        DebugControl = DebugControl->Parent;
+                    }
+                    Stage = 20;
+                    {
+                        const pas::WideString& cpp_arg = pas::concat_wide({DebugControl->ControlName, u" (", static_cast<pas::WideString>(pas::class_name(pas::class_type(DebugControl))), u") Pos=", pas::wide_int_to_str(DebugControl->LocalPosition.X), u",", pas::wide_int_to_str(DebugControl->LocalPosition.Y)});
+                        GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(StatusLabel);
+                        cpp_arg_2->SetText(cpp_arg);
+                    }
+                }
+            } else if (Message == MessagesSdk::WM_RBUTTONUP) {
+                Stage = 21;
+                Point = ClassesImports::Point(static_cast<std::uint16_t>(LParam), static_cast<std::uint16_t>(pas::shr(LParam, 16)));
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                if (RootUiObject->ContainsPoint(Point)) {
+                    Stage = 22;
+                    RootUiObject->ProcessRightButtonUp(WParam, Point);
+                }
+            } else if (Message == MessagesSdk::WM_LBUTTONDBLCLK) {
+                Stage = 23;
+                Point = ClassesImports::Point(static_cast<std::uint16_t>(LParam), static_cast<std::uint16_t>(pas::shr(LParam, 16)));
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                if (RootUiObject->ContainsPoint(Point)) {
+                    Stage = 24;
+                    BreakAfterDoubleClick = true;
+                    try {
+                        RootUiObject->ProcessLeftButtonDown(WParam, Point);
+                    } catch (...) {
+                        auto cpp_exception = pas::caught_object();
+                        if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+                            BreakAfterDoubleClick = true;
+                        } else {
+                            throw;
+                        }
+                    }
+                    Stage = 25;
+                    RootUiObject->ProcessLeftButtonDoubleClick(WParam, Point);
+                    if (BreakAfterDoubleClick) {
+                        GI_Main::BreakUiMessage();
+                    }
+                }
+            } else if (Message == MessagesSdk::WM_RBUTTONDBLCLK) {
+                Stage = 26;
+                Point = ClassesImports::Point(static_cast<std::uint16_t>(LParam), static_cast<std::uint16_t>(pas::shr(LParam, 16)));
+                GI_MessageLoop::ConvertMousePointToViewport(Point);
+                if (RootUiObject->ContainsPoint(Point)) {
+                    Stage = 27;
+                    BreakAfterDoubleClick = true;
+                    try {
+                        RootUiObject->ProcessRightButtonDown(WParam, Point);
+                    } catch (...) {
+                        auto cpp_exception_2 = pas::caught_object();
+                        if (BreakMessageGIException::EBreakMessageGI* E_2 = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception_2)) {
+                            BreakAfterDoubleClick = true;
+                        } else {
+                            throw;
+                        }
+                    }
+                    Stage = 28;
+                    RootUiObject->ProcessRightButtonDoubleClick(WParam, Point);
+                    if (BreakAfterDoubleClick) {
+                        GI_Main::BreakUiMessage();
+                    }
+                }
+            } else if (Message == MessagesSdk::WM_CHAR) {
+                Stage = 29;
+                if (WParam >= ' ' && FocusedControl != nullptr) {
+                    Stage = 30;
+                    FocusedControl->ProcessCharacter(WParam);
+                }
+            } else if (Message == MessagesSdk::WM_KEYDOWN || Message == MessagesSdk::WM_SYSKEYDOWN && pas::in_set<18, 18, 37, 40, 116, 116>(WParam)) {
+                Stage = 31;
+                RootUiObject->BroadcastKeyDown(WParam);
+                if (FocusedControl != nullptr) {
+                    Stage = 32;
+                    FocusedControl->ProcessKeyDown(WParam);
+                }
+                Stage = 33;
+                if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1) && GR_Main::DebugKeyCallback != nullptr) {
+                    GR_Main::DebugKeyCallback(WParam);
+                }
+                Stage = 34;
+                if (WParam == WindowsSdk::VK_F9) {
+                    CaptureScreenshot();
+                }
+                Stage = 35;
+                if (WParam == 'M' && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+                    StatusLabel->SetActive(static_cast<std::uint8_t>(StatusLabel->Active ^ 1));
+                }
+                Stage = 36;
+                if (StatusLabel->Active && DebugControl != nullptr) {
+                    Stage = 37;
+                    if ((WindowsSdk::GetAsyncKeyState(WindowsSdk::VK_CONTROL) & 0x00008000) == 0x00008000) {
+                        MoveStep = 10;
+                    } else {
+                        MoveStep = 1;
+                    }
+                    Stage = 38;
+                    if (WParam == WindowsSdk::VK_UP) {
+                        DebugControl->SetPosition(ClassesImports::Point(DebugControl->LocalPosition.X, DebugControl->LocalPosition.Y - MoveStep));
+                    } else if (WParam == WindowsSdk::VK_DOWN) {
+                        DebugControl->SetPosition(ClassesImports::Point(DebugControl->LocalPosition.X, DebugControl->LocalPosition.Y + MoveStep));
+                    } else if (WParam == WindowsSdk::VK_LEFT) {
+                        DebugControl->SetPosition(ClassesImports::Point(DebugControl->LocalPosition.X - MoveStep, DebugControl->LocalPosition.Y));
+                    } else if (WParam == WindowsSdk::VK_RIGHT) {
+                        DebugControl->SetPosition(ClassesImports::Point(DebugControl->LocalPosition.X + MoveStep, DebugControl->LocalPosition.Y));
+                    }
+                    Stage = 39;
+                    {
+                        const pas::WideString& cpp_arg_3 = pas::concat_wide({DebugControl->ControlName, u" (", static_cast<pas::WideString>(pas::class_name(pas::class_type(DebugControl))), u") Pos=", pas::wide_int_to_str(DebugControl->LocalPosition.X), u",", pas::wide_int_to_str(DebugControl->LocalPosition.Y)});
+                        GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(StatusLabel);
+                        cpp_arg_4->SetText(cpp_arg_3);
+                    }
+                } else if (StatusLabel->Active && DebugControl == nullptr) {
+                    Stage = 40;
+                    pas::checked_cast<GI_Label::TLabelGI*>(StatusLabel)->SetText(u"Not object"_wref.get());
+                }
+            } else if (Message == MessagesSdk::WM_KEYUP || Message == MessagesSdk::WM_SYSKEYUP && pas::in_set<18, 18, 37, 40>(WParam)) {
+                Stage = 41;
+                RootUiObject->BroadcastKeyUp(WParam);
+            } else if (Message == MessagesSdk::WM_PAINT) {
+                Stage = 42;
+                InvalidateViewport();
+            }
+            Stage = 43;
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(DeferredCodeBlocks) - 1); cpp_range.next(Index); ) {
+                ExecuteUiCode(pas::list_at<EC_BlockPar::TBlockParEC>(DeferredCodeBlocks, Index), 0u);
+            }
+            if (RefreshMouseAfterCode) {
+                Point.X = LastMousePosition.X;
+                Point.Y = LastMousePosition.Y;
+                RootUiObject->ProcessMouseMove(0u, Point);
+            }
+            RefreshMouseAfterCode = false;
+            pas::list_clear(DeferredCodeBlocks);
+        } catch (...) {
+            auto cpp_exception_3 = pas::caught_object();
+            if (BreakMessageGIException::EBreakMessageGI* E_3 = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception_3)) {
+            } else if (pas::Exception* E_4 = pas::class_cast_if<pas::Exception*>(cpp_exception_3)) {
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_4))), " ", E_4->message}));
+                if (pas::in_set<31, 32>(Stage)) {
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"key=", EC_Str::IntToWideString(WParam)})));
+                }
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error in procedure TMessageLoopGI.SysMessage, label = ", SysUtils::IntToStr(Stage)})));
+            } else {
+                throw;
+            }
+        }
+    }
+
+    void ConvertMousePointToViewport(WindowsSdk::TPoint& Point) {
+        if (GR_Main::AlternateViewportEnabled) {
+            if (GlobalsV::ScaleViewportToWindow) {
+                Point.X = pas::idiv(Point.X * GR_Main::GameScreenWidth, GR_Main::PresentationWidth);
+                Point.Y = pas::idiv(Point.Y * GR_Main::GameScreenHeight, GR_Main::PresentationHeight);
+            } else {
+                Point.X -= GR_Main::ViewportOffset.X;
+                Point.Y -= GR_Main::ViewportOffset.Y;
+            }
+        }
+    }
+
+    void TMessageLoopGI::CaptureScreenshot() {
+        pas::AnsiString Digits{};
+        pas::AnsiString Extension{};
+        pas::AnsiString BaseName{};
+        pas::AnsiString FileName{};
+        GR_GraphBuf::TGraphBufGR* Buffer{};
+        SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Screenshots"})));
+        std::int32_t DigitCount = SysUtils::IntToStr(999).length();
+        switch (GlobalsV::ScreenshotFormat) {
+            case 0: Extension = ".bmp"_a; break;
+            case 1: Extension = ".png"_a; break;
+            case 2: Extension = ".jpg"_a; break;
+        }
+        if (GI_MessageLoop::FindFreeScreenshotName(Digits, DigitCount, Extension, BaseName, FileName)) {
+            DrawQueuedUpdateRects();
+            Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+            {
+                try {
+                    if (GlobalsV::HardwareRenderingEnabled) {
+                        Buffer->LoadFromScreen(0);
+                    } else {
+                        Buffer->AllocateRgbaTight(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
+                        {
+                            std::int32_t pitchBytes = Buffer->PitchBytes;
+                            std::int32_t width = Buffer->Width;
+                            std::int32_t height = Buffer->Height;
+                            void* pixels = Buffer->GetPixels();
+                            void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
+                            std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
+                            GR_Main::Ex_OKGF_Convert565toBGRA(pixels_2, pitchBytes_2, pixels, pitchBytes, width, height);
+                        }
+                    }
+                    switch (GlobalsV::ScreenshotFormat) {
+                        case 0: Buffer->SaveBmp(static_cast<pas::WideString>(FileName)); break;
+                        case 1: Buffer->SavePng(static_cast<pas::WideString>(FileName)); break;
+                        case 2: {
+                            Buffer->SaveJpeg(static_cast<pas::WideString>(FileName), GlobalsV::ScreenshotJpegQuality);
+                            break;
+                        }
+                    }
+                } catch (...) {
+                    pas::free(Buffer);
+                    throw;
+                }
+                pas::free(Buffer);
+            }
+        }
+    }
+
+    std::uint8_t FindFreeScreenshotName(pas::AnsiString& Digits, std::int32_t& DigitCount, pas::AnsiString& Extension, pas::AnsiString& BaseName, pas::AnsiString& FileName) {
+        std::uint8_t Result = false;
+        std::int32_t Index = 0;
+        while (Index < 1000) {
+            Digits = SysUtils::IntToStr(Index);
+            while (Digits.length() < DigitCount) {
+                Digits = pas::concat_ansi({"0", Digits});
+            }
+            BaseName = pas::concat_ansi({"Shot", Digits, Extension});
+            FileName = static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Screenshots", u"\\", static_cast<pas::WideString>(BaseName)}));
+            if (!SysUtilsImports::FileExists(FileName)) {
+                break;
+            }
+            ++Index;
+        }
+        if (Index < 1000) {
+            return true;
+        }
+        return Result;
+    }
+
+    void TMessageLoopGI::RequestClose(std::int32_t ResultCode) {
+        ExitCode = ResultCode;
+    }
+
+    void TMessageLoopGI::SetHelpCallback(TObjectHelpEventGI Callback) {
+        ContentPanel->SetHelpCallbackRecursive(Callback);
+    }
+
+    TObjectGI* TMessageLoopGI::GetByName(const pas::WideString& Name) {
+        TObjectGI* Result = ContentPanel->FindByNameRecursive(Name);
+        if (Result == nullptr) {
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TMessageLoopGI.GetByName. Name=", Name}))));
+        }
+        return Result;
+    }
+
+    TObjectGI* TMessageLoopGI::FindControlByPath(const pas::WideString& Path) {
+        std::int32_t Index{};
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u":"_wref.get());
+        if (Count <= 1) {
+            return ContentPanel->FindByNameRecursive(Path);
+        }
+        TObjectGI* Result = ContentPanel;
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
+            Result = Result->FindByNameRecursive(EC_Str::ExtractDelimitedPartW(Path, Index, u":"_wref.get()));
+            if (Result == nullptr) {
+                break;
+            }
+        }
+        return Result;
+    }
+
+    void TMessageLoopGI::SetFocusedControl(TObjectGI* Control) {
+        if (FocusedControl == Control) {
+            return;
+        }
+        if (FocusedControl != nullptr) {
+            FocusedControl->OnFocusLost();
+        }
+        FocusedControl = Control;
+        if (FocusedControl != nullptr) {
+            FocusedControl->OnFocusGained();
+        }
+    }
+
+    void TMessageLoopGI::SetHoveredControl(TObjectGI* Control) {
+        TObjectGI* Previous{};
+        if (HoveredControl == Control) {
+            return;
+        }
+        if (HoveredControl != nullptr) {
+            Previous = HoveredControl;
+            HoveredControl = nullptr;
+            Previous->OnHoverLost();
+        }
+        HoveredControl = Control;
+        if (HoveredControl != nullptr) {
+            HoveredControl->OnHoverGained();
+        }
+    }
+
+    void TMessageLoopGI::ProcessNamedControlEvent(pas::WideString ControlName, std::int32_t EventKind, std::int32_t Param1, std::int32_t Param2) {
+    }
+
+    void TMessageLoopGI::OnOpen() {
+        IsOpen = true;
+    }
+
+    void TMessageLoopGI::OnClose() {
+        IsOpen = false;
+    }
+
+    void TMessageLoopGI::ProcessCallbackTimers() {
+        PCallbackTimerGI Timer{};
+        std::int32_t WaitMs{};
+        WindowsImports::THandle Handle{};
+        std::uint32_t NowTick = MMSystem::timeGetTime();
+        if (FirstTimer != nullptr) {
+            WaitMs = FirstTimer->DueTick - NowTick;
+            if (WaitMs > 0) {
+                Handle = 0u;
+                WindowsSdk::MsgWaitForMultipleObjects(0u, &Handle, 0, WaitMs, 0x000001ffu);
+                NowTick = MMSystem::timeGetTime();
+            }
+        }
+        NextTimerToProcess = FirstTimer;
+        while (NextTimerToProcess != nullptr) {
+            if (NextTimerToProcess->DueTick > NowTick) {
+                break;
+            }
+            Timer = NextTimerToProcess;
+            NextTimerToProcess = NextTimerToProcess->Next;
+            Timer->DueTick = NowTick + static_cast<std::uint32_t>(Timer->RepeatMs);
+            ReinsertCallbackTimer(Timer);
+            Timer->Callback(Timer, Timer->UserData);
+        }
+        NextTimerToProcess = nullptr;
+        TimerTick = NowTick;
+    }
+
+    void TMessageLoopGI::SelectMusic() {
+    }
+
+    PCallbackTimerGI TMessageLoopGI::ScheduleCallbackTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TCallbackTimerEventGI Callback, std::int32_t UserData) {
+        PCallbackTimerGI Timer = static_cast<PCallbackTimerGI>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TCallbackTimerGI))));
+        if (LastTimer != nullptr) {
+            LastTimer->Next = Timer;
+        }
+        Timer->Prev = LastTimer;
+        Timer->Next = nullptr;
+        LastTimer = Timer;
+        if (FirstTimer == nullptr) {
+            FirstTimer = Timer;
+        }
+        Timer->DueTick = TimerTick + static_cast<std::uint32_t>(DelayMs);
+        Timer->RepeatMs = RepeatMs;
+        Timer->UserData = UserData;
+        Timer->Callback = Callback;
+        ReinsertCallbackTimer(Timer);
+        return Timer;
+    }
+
+    void TMessageLoopGI::CancelCallbackTimer(PCallbackTimerGI Timer) {
+        PCallbackTimerGI Current = Timer;
+        if (NextTimerToProcess == Current) {
+            NextTimerToProcess = NextTimerToProcess->Next;
+        }
+        if (Current->Prev != nullptr) {
+            Current->Prev->Next = Current->Next;
+        }
+        if (Current->Next != nullptr) {
+            Current->Next->Prev = Current->Prev;
+        }
+        if (LastTimer == Current) {
+            LastTimer = Current->Prev;
+        }
+        if (FirstTimer == Current) {
+            FirstTimer = Current->Next;
+        }
+        EC_Mem::FreeEC(Current);
+    }
+
+    void TMessageLoopGI::UpdateCallbackTimer(PCallbackTimerGI Timer, std::int32_t DelayMs, std::int32_t RepeatMs) {
+        PCallbackTimerGI Current = Timer;
+        if (TimerTick + static_cast<std::uint32_t>(DelayMs) == Current->DueTick && Current->RepeatMs == RepeatMs) {
+            return;
+        }
+        Current->DueTick = TimerTick + static_cast<std::uint32_t>(DelayMs);
+        Current->RepeatMs = RepeatMs;
+        ReinsertCallbackTimer(Current);
+    }
+
+    void TMessageLoopGI::ReinsertCallbackTimer(PCallbackTimerGI Timer) {
+        PCallbackTimerGI Current = Timer;
+        if (Current->Prev != nullptr) {
+            Current->Prev->Next = Current->Next;
+        }
+        if (Current->Next != nullptr) {
+            Current->Next->Prev = Current->Prev;
+        }
+        if (LastTimer == Current) {
+            LastTimer = Current->Prev;
+        }
+        if (FirstTimer == Current) {
+            FirstTimer = Current->Next;
+        }
+        if (FirstTimer == nullptr) {
+            FirstTimer = Current;
+            LastTimer = Current;
+            Current->Prev = nullptr;
+            Current->Next = nullptr;
+            return;
+        }
+        if (LastTimer->DueTick < Current->DueTick) {
+            LastTimer->Next = Current;
+            Current->Prev = LastTimer;
+            Current->Next = nullptr;
+            LastTimer = Current;
+            return;
+        }
+        if (FirstTimer->DueTick >= Current->DueTick) {
+            Current->Prev = nullptr;
+            Current->Next = FirstTimer;
+            FirstTimer->Prev = Current;
+            FirstTimer = Current;
+            return;
+        }
+        PCallbackTimerGI Before = LastTimer->Prev;
+        while (Current->DueTick <= Before->DueTick) {
+            Before = Before->Prev;
+        }
+        Current->Prev = Before;
+        Current->Next = Before->Next;
+        Before->Next->Prev = Current;
+        Before->Next = Current;
+    }
+
+    void TMessageLoopGI::RefreshTimerTick() {
+        TimerTick = MMSystem::timeGetTime();
+    }
+
+    void TMessageLoopGI::SetCursorImage(const pas::WideString& ImagePath, WindowsSdk::TPoint HotSpot) {
+        if (GR_Main::CustomCursorEnabled) {
+            pas::checked_cast<GI_Cursor::TCursorGI*>(CursorControl)->SetImagePath(ImagePath);
+            CursorControl->SetOrigin(HotSpot);
+            CursorImagePath = ImagePath;
+        }
+    }
+
+    void TMessageLoopGI::SetCursorByName(const pas::WideString& Name) {
+        GR_Main::TCursorUnit* Cursor{};
+        if (GR_Main::CustomCursorEnabled) {
+            Cursor = GR_Main::FindCursorByName(Name);
+            SetCursorImage(Cursor->ImagePath, Cursor->HotSpot);
+        }
+    }
+
+    std::uint8_t TMessageLoopGI::IsCursorImageSelected(const pas::WideString& RegisteredName) {
+        GR_Main::TCursorUnit* Cursor = GR_Main::FindCursorByName(RegisteredName);
+        return Cursor->ImagePath == CursorImagePath;
+    }
+
+    std::uint8_t TMessageLoopGI::IsCursorActive() {
+        return CursorControl->Active;
+    }
+
+    void TMessageLoopGI::SetCursorActive(std::uint8_t Enabled) {
+        if (CursorControl->Active != Enabled) {
+            CursorControl->SetActive(Enabled);
+        }
+    }
+
+    void TMessageLoopGI::CaptureCursorState(PCursorStateGI State) {
+        State->ImagePath = CursorImagePath;
+        State->Active = IsCursorActive();
+        pas::store_unaligned<WindowsSdk::TPoint>(&State->HotSpot, CursorControl->OriginPoint);
+        pas::store_unaligned<WindowsSdk::TPoint>(&State->Position, CursorControl->LocalPosition);
+    }
+
+    void TMessageLoopGI::RestoreCursorState(PCursorStateGI State) {
+        if (GR_Main::CustomCursorEnabled) {
+            SetCursorImage(State->ImagePath, State->HotSpot);
+            SetCursorActive(State->Active);
+            CursorControl->SetPosition(State->Position);
+        }
+    }
+
+    void TMessageLoopGI::UpdateCursorPosition() {
+        WindowsSdk::TPoint Point{};
+        WindowsSdk::GetCursorPos(Point);
+        if (GR_Main::Direct3DPresentParameters.Windowed) {
+            WindowsSdk::ScreenToClient(GR_Main::MainWindowHandle, Point);
+        }
+        CursorControl->SetPosition(Point);
+    }
+
+    WindowsSdk::TPoint TMessageLoopGI::GetCursorPoint() {
+        WindowsSdk::TPoint Result{};
+        Result = CursorControl->LocalPosition;
+        return Result;
+    }
+
+    void TMessageLoopGI::SetSystemCursorPosition(WindowsSdk::TPoint Point) {
+        WindowsSdk::SetCursorPos(Point.X, Point.Y);
+    }
+
+    std::uint8_t TMessageLoopGI::ConsumeTimerTickChange() {
+        if (LastObservedTimerTick == TimerTick) {
+            return false;
+        }
+        LastObservedTimerTick = TimerTick;
+        return true;
+    }
+
+    std::int32_t TMessageLoopGI::QueryPointOcclusionState(WindowsSdk::TPoint Point, TObjectGI* IgnoreControl, TObjectGI* StartControl) {
+        std::int32_t Result{};
+        TObjectGI* Child{};
+        if (StartControl == nullptr) {
+            StartControl = RootUiObject;
+        }
+        if (StartControl->Parent != nullptr && StartControl->ContainsPoint(Point) || StartControl->Parent == nullptr) {
+            Child = StartControl->LastChild;
+            while (Child != nullptr) {
+                Result = QueryPointOcclusionState(Point, IgnoreControl, Child);
+                if (Result != 0) {
+                    return Result;
+                }
+                Child = Child->PrevSibling;
+            }
+            if (StartControl->MouseBlocking && StartControl != IgnoreControl) {
+                return 1;
+            }
+        }
+        if (StartControl == IgnoreControl) {
+            return -1;
+        }
+        return 0;
+    }
+
+    void TMessageLoopGI::FreeSavedPixels16() {
+        if (SavedPixels16 != nullptr) {
+            EC_Mem::FreeEC(SavedPixels16);
+            SavedPixels16 = nullptr;
+        }
+        SavedPixelCount16 = 0;
+        SavedPixelCapacity16 = 0;
+    }
+
+    void TMessageLoopGI_RestoreSavedPixels16(TMessageLoopGI* Self) {
+        if (Self->SavedPixelCount16 < 1) {
+            return;
+        }
+        void* Pixels = GR_Main::ScreenRenderBuffer->GetPixels();
+        std::int32_t Count = Self->SavedPixelCount16;
+        void* Entries = Self->SavedPixels16;
+        while (Count > 0) {
+            pas::store_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(static_cast<std::uint8_t*>(Pixels) + pas::load_unaligned<std::int32_t>(static_cast<WindowsSdk::PInteger>(Entries))), pas::load_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(static_cast<std::uint8_t*>(Entries) + 4)));
+            Entries = static_cast<std::uint8_t*>(Entries) + 8;
+            --Count;
+        }
+        Self->SavedPixelCount16 = 0;
+    }
+
+    void TMessageLoopGI::FreeSecondaryPixelBuffer() {
+        if (SecondaryPixelBuffer != nullptr) {
+            EC_Mem::FreeEC(SecondaryPixelBuffer);
+            SecondaryPixelBuffer = nullptr;
+        }
+        SecondaryPixelCount = 0;
+        SecondaryPixelCapacity = 0;
+    }
+
+    void TMessageLoopGI::ResetSecondaryPixelCount() {
+        if (SecondaryPixelCount < 1) {
+            return;
+        }
+        SecondaryPixelCount = 0;
+    }
+
+    void TMessageLoopGI::FreeSavedLines() {
+        std::int32_t Index{};
+        {
+            const std::int32_t cpp_last = SavedLines.length() - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    EC_Mem::FreeFromHeapEC(SavedLines[Index].Heap, SavedLines[Index].Pixels);
+                }
+            }
+        }
+        SavedLines = nullptr;
+        SavedLineCount = 0;
+    }
+
+    void TMessageLoopGI::AddSavedLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, void* Pixels) {
+        if (SavedLines.length() - 1 + 1 == SavedLineCount) {
+            SavedLines.set_length(SavedLineCount + 100);
+        }
+        SavedLines[SavedLineCount].First = First;
+        SavedLines[SavedLineCount].Last = Last;
+        SavedLines[SavedLineCount].Pixels = Pixels;
+        SavedLines[SavedLineCount].Heap = WindowsSdk::GetProcessHeap();
+        ++SavedLineCount;
+    }
+
+    void TMessageLoopGI::RestoreSavedLines() {
+        std::int32_t Index{};
+        if (!GlobalsV::SkipSavedPixelRestore) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, SavedLineCount - 1); cpp_range.next(Index); ) {
+                std::int32_t x = SavedLines[Index].First.X;
+                std::int32_t y = SavedLines[Index].First.Y;
+                std::int32_t x_2 = SavedLines[Index].Last.X;
+                std::int32_t y_2 = SavedLines[Index].Last.Y;
+                void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
+                void* pixels_2 = SavedLines[Index].Pixels;
+                std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
+                GR_Main::Ex_OKGR_Line_CopyFromBuf_WORD(pixels_2, pixels, pitchBytes, x, y, x_2, y_2);
+            }
+        }
+    }
+
+    void TMessageLoopGI::ResetSavedLineCount() {
+        SavedLineCount = 0;
+    }
+
+    void TMessageLoopGI::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
+    }
+
+    void TMessageLoopGI::ClearTransientControl() {
+        InvalidateTransientControl();
+        if (TransientData != nullptr) {
+            pas::free(TransientData);
+            TransientData = nullptr;
+        }
+        if (TransientControl != nullptr) {
+            TransientControl->SetActive(false);
+            pas::free(TransientControl);
+            TransientControl = nullptr;
+        }
+    }
+
+    void TMessageLoopGI::InvalidateTransientControl() {
+        std::uint8_t WasEnabled{};
+        if (TransientControl != nullptr) {
+            WasEnabled = UpdateRectsEnabled;
+            UpdateRectsEnabled = true;
+            TransientControl->Invalidate();
+            UpdateRectsEnabled = WasEnabled;
+        }
+    }
+
+    void TMessageLoopGI::InitializeDefaults() {
+        RootUiObject = GI_Main::CreateControlByName(u"Panel"_w, nullptr);
+        RootUiObject->MessageLoop = this;
+        RootUiObject->SetPosition(ClassesImports::Point(0, 0));
+        RootUiObject->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        BackgroundPanel = GI_Main::CreateControlByName(u"Panel"_w, RootUiObject);
+        BackgroundPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        BackgroundPanel->SetDepth(1.0);
+        ContentPanel = GI_Main::CreateControlByName(u"Panel"_w, RootUiObject);
+        ContentPanel->SetDepth(0.0);
+        OverlayPanel = GI_Main::CreateControlByName(u"Panel"_w, RootUiObject);
+        OverlayPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        OverlayPanel->SetDepth(-1.0);
+        StatusLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, OverlayPanel);
+        GI_Label::TLabelGI* LabelControl = pas::checked_cast<GI_Label::TLabelGI*>(StatusLabel);
+        LabelControl->SetActive(false);
+        LabelControl->SetFontName(GlobalsV::NormalFontName);
+        LabelControl->SetDepth(-1.0E+29);
+        LabelControl->SetPosition(ClassesImports::Point(5, 5));
+        LabelControl->SetSize(ClassesImports::Point(400, 20));
+        LabelControl->SetTextAlignX(GI_Main::taxLeft);
+        LabelControl->SetTextAlignY(GI_Main::tayCenterEx);
+        CursorControl = pas::construct_call<GI_Cursor::TCursorGI>(GI_Cursor::TCursorGI_Create, OverlayPanel);
+        CursorControl->SetDepth(-1.0E+30);
+    }
+
+    void TMessageLoopGI::InitializeFromConfig(EC_BlockPar::TBlockParEC* ConfigRoot, const pas::WideString& ScreenName, std::uint8_t UnusedFlag) {
+        EC_BlockPar::TBlockParEC* SoundBlock{};
+        pas::WideString Text{};
+        std::int32_t Index{};
+        std::int32_t Count{};
+        TFormSoundGroup* Group{};
+        ResetRuntime();
+        InitializeDefaults();
+        EC_BlockPar::TBlockParEC* ScreenBlock = ConfigRoot->GetBlockByPath(ScreenName);
+        RegisteredLoopName = ScreenName;
+        Text = ScreenBlock->GetParam(u"Border"_wref.get());
+        ViewportRect.Left = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+        ViewportRect.Top = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+        ViewportRect.Right = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+        ViewportRect.Bottom = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 3, u","_wref.get())));
+        if (ScreenBlock->CountBlocks(u"Sound"_wref.get()) > 0) {
+            SoundBlock = ScreenBlock->GetBlock(u"Sound"_wref.get());
+            if (SoundBlock->CountParams(u"Open"_wref.get()) > 0) {
+                OpenSoundName = SoundBlock->GetParam(u"Open"_wref.get());
+            }
+            if (SoundBlock->CountParams(u"Close"_wref.get()) > 0) {
+                CloseSoundName = SoundBlock->GetParam(u"Close"_wref.get());
+            }
+            Count = SoundBlock->GetBlockCount();
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
+                Group = pas::construct_call<TFormSoundGroup>(TFormSoundGroup_Create);
+                pas::list_add(SoundGroupList, reinterpret_cast<void*>(Group));
+                Group->LoadFromBlock(SoundBlock->GetBlockByIndex(Index));
+            }
+        }
+        {
+            EC_BlockPar::TBlockParEC* blockByPath = ScreenBlock->GetBlockByPath(u"Panel"_wref.get());
+            TObjectGI* contentPanel = ContentPanel;
+            contentPanel->LoadFromBlock(blockByPath);
+        }
+        RootUiObject->UpdateAbsolutePosition();
+        RootUiObject->UpdateSubtreeHitBounds();
+        QueueUpdateRect(ViewportRect);
+    }
+
+    void TMessageLoopGI::InitializeLayout() {
+        RootUiObject->UpdateAutoGeometry();
+    }
+
+    void TMessageLoopGI::UpdateActionCursor(std::uint8_t CanTake) {
+    }
+
+    TMessageLoopGI* TMessageLoopGI::GetActionParentLoop() {
+        return nullptr;
+    }
+
+    void TMessageLoopGI::QueueUiCode(EC_BlockPar::TBlockParEC* Block, std::uint8_t RefreshMouse) {
+        pas::list_add(DeferredCodeBlocks, reinterpret_cast<void*>(Block));
+        if (RefreshMouse) {
+            RefreshMouseAfterCode = true;
+        }
+    }
+
+    void TMessageLoopGI::RefreshMouseDispatch() {
+        WindowsSdk::TPoint Point{};
+        Point.X = LastMousePosition.X;
+        Point.Y = LastMousePosition.Y;
+        RootUiObject->ProcessMouseMove(0u, Point);
+    }
+
+    void TMessageLoopGI::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
+    }
+
+    void TObjectGI::p_destroy() {
+        GI_MessageLoop::TObjectGI_Destroy(this);
+    }
+
+    void TFormSoundGroup::p_destroy() {
+        GI_MessageLoop::TFormSoundGroup_Destroy(this);
+    }
+
+    void TMessageLoopGI::p_destroy() {
+        GI_MessageLoop::TMessageLoopGI_Destroy(this);
+    }
+
+    pas::Method<void(std::uint32_t, std::uint32_t, std::int32_t)> TMessageLoopGI::bind_ProcessWindowMessage() {
+        return pas::bind_method<GI_MessageLoop::TMessageLoopGI_ProcessWindowMessage>(this);
+    }
+
+} // namespace GI_MessageLoop

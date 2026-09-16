@@ -1,0 +1,644 @@
+builddir = build
+cxxflags = -target x86-windows-gnu -std=c++20 -O2 -g -fwrapv -fno-strict-aliasing -w -Iruntime -Isrc -Ithird_party/libffi/include
+
+rule pch
+  command = zig c++ $cxxflags -x c++-header -fpch-instantiate-templates -MMD -MF $out.d -c $in -o $out
+  description = PCH $in
+  depfile = $out.d
+  deps = gcc
+
+rule cxx
+  command = zig c++ $cxxflags $pch -MMD -MF $out.d -c $in -o $out
+  description = CXX $in
+  depfile = $out.d
+  deps = gcc
+
+rule cc
+  command = zig cc -target x86-windows-gnu -O2 -fexceptions -Ithird_party/libffi/include -MMD -MF $out.d -c $in -o $out
+  description = CC $in
+  depfile = $out.d
+  deps = gcc
+
+rule archive
+  command = zig ar rcs $out $in
+  description = AR $out
+
+rule link
+  command = zig c++ -target x86-windows-gnu @$out.rsp -Wl,--subsystem,windows -loleaut32 -luser32 -lgdi32 -ld3d9 -o $out && python3 tools/large_address_aware.py $out
+  description = LINK $out
+  rspfile = $out.rsp
+  rspfile_content = $in
+
+build build/runtime.pch: pch src/runtime_support.hpp
+
+build build/obj/Achievements.o: cxx src/Achievements.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ActiveXSdk.o: cxx src/ActiveXSdk.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/BlockParException.o: cxx src/BlockParException.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/BreakMessageGIException.o: cxx src/BreakMessageGIException.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/CPDiapClass.o: cxx src/CPDiapClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/CPVarClass.o: cxx src/CPVarClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/CalcParseClass.o: cxx src/CalcParseClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/CheatCode.o: cxx src/CheatCode.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ClassesImports.o: cxx src/ClassesImports.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/CrcUnit.o: cxx src/CrcUnit.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/DateUtils.o: cxx src/DateUtils.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Dialogs.o: cxx src/Dialogs.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Direct3D9.o: cxx src/Direct3D9.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/DirectSound.o: cxx src/DirectSound.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/DirectXRenderException.o: cxx src/DirectXRenderException.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_BlockPar.o: cxx src/EC_BlockPar.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Buf.o: cxx src/EC_Buf.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Cache.o: cxx src/EC_Cache.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheAlphaBitmap.o: cxx src/EC_CacheAlphaBitmap.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheBitmap.o: cxx src/EC_CacheBitmap.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheBuf.o: cxx src/EC_CacheBuf.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheFont.o: cxx src/EC_CacheFont.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheGAI.o: cxx src/EC_CacheGAI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheGI.o: cxx src/EC_CacheGI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheHSAI.o: cxx src/EC_CacheHSAI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheLightPal.o: cxx src/EC_CacheLightPal.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CachePalBitmap.o: cxx src/EC_CachePalBitmap.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CachePlanetTempl.o: cxx src/EC_CachePlanetTempl.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheRotateBuf.o: cxx src/EC_CacheRotateBuf.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheSound.o: cxx src/EC_CacheSound.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_CacheTBitmap.o: cxx src/EC_CacheTBitmap.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Data.o: cxx src/EC_Data.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Ether.o: cxx src/EC_Ether.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Expression.o: cxx src/EC_Expression.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_File.o: cxx src/EC_File.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_FileStream.o: cxx src/EC_FileStream.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_HsFile.o: cxx src/EC_HsFile.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Mem.o: cxx src/EC_Mem.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_OKGF.o: cxx src/EC_OKGF.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Str.o: cxx src/EC_Str.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Struct.o: cxx src/EC_Struct.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EC_Thread.o: cxx src/EC_Thread.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/EventClass.o: cxx src/EventClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ExceptionInfo.o: cxx src/ExceptionInfo.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/FGInt.o: cxx src/FGInt.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Forms.o: cxx src/Forms.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_AImage.o: cxx src/GI_AImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_AlphaImage.o: cxx src/GI_AlphaImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_CheckBox.o: cxx src/GI_CheckBox.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Circle.o: cxx src/GI_Circle.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_CountBar.o: cxx src/GI_CountBar.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Cursor.o: cxx src/GI_Cursor.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Door.o: cxx src/GI_Door.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Edit.o: cxx src/GI_Edit.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Frame.o: cxx src/GI_Frame.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_GAI.o: cxx src/GI_GAI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_GAIFile.o: cxx src/GI_GAIFile.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_GI.o: cxx src/GI_GI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_GraphBuf.o: cxx src/GI_GraphBuf.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_GraphButton.o: cxx src/GI_GraphButton.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Grid.o: cxx src/GI_Grid.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Image.o: cxx src/GI_Image.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_InfiniteImage.o: cxx src/GI_InfiniteImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Label.o: cxx src/GI_Label.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Line.o: cxx src/GI_Line.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Main.o: cxx src/GI_Main.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_MessageBox.o: cxx src/GI_MessageBox.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_MessageLoop.o: cxx src/GI_MessageLoop.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_MultiImage.o: cxx src/GI_MultiImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PDTurretWeapon.o: cxx src/GI_PDTurretWeapon.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSEyes.o: cxx src/GI_PSEyes.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSMissileHit.o: cxx src/GI_PSMissileHit.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon.o: cxx src/GI_PSWeapon.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon01Laser.o: cxx src/GI_PSWeapon01Laser.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon02FragCannon.o: cxx src/GI_PSWeapon02FragCannon.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon03Lezka.o: cxx src/GI_PSWeapon03Lezka.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon05Treton.o: cxx src/GI_PSWeapon05Treton.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon06Phaser.o: cxx src/GI_PSWeapon06Phaser.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon07Blaster.o: cxx src/GI_PSWeapon07Blaster.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon08ECutter.o: cxx src/GI_PSWeapon08ECutter.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon09MResonator.o: cxx src/GI_PSWeapon09MResonator.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon10AVision.o: cxx src/GI_PSWeapon10AVision.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon11Desintegrator.o: cxx src/GI_PSWeapon11Desintegrator.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon12Turbogravir.o: cxx src/GI_PSWeapon12Turbogravir.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon13IMHO.o: cxx src/GI_PSWeapon13IMHO.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon14Vertix.o: cxx src/GI_PSWeapon14Vertix.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon16Esodafer.o: cxx src/GI_PSWeapon16Esodafer.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PSWeapon17Kafacitor.o: cxx src/GI_PSWeapon17Kafacitor.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Panel.o: cxx src/GI_Panel.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PanelScrollBar.o: cxx src/GI_PanelScrollBar.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Planet.o: cxx src/GI_Planet.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PlanetButton.o: cxx src/GI_PlanetButton.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_PolyLine.o: cxx src/GI_PolyLine.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_RadialEffect.o: cxx src/GI_RadialEffect.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_RadioGroup.o: cxx src/GI_RadioGroup.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_RotateImage.o: cxx src/GI_RotateImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_RotateImage2.o: cxx src/GI_RotateImage2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_RotateImage5.o: cxx src/GI_RotateImage5.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_RotateImageGAI.o: cxx src/GI_RotateImageGAI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_SBPath.o: cxx src/GI_SBPath.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_ScrollBar.o: cxx src/GI_ScrollBar.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_ShrLight.o: cxx src/GI_ShrLight.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_SimpleButton.o: cxx src/GI_SimpleButton.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_SimpleImage.o: cxx src/GI_SimpleImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_SpaceCircle.o: cxx src/GI_SpaceCircle.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_SpaceImg.o: cxx src/GI_SpaceImg.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_StarField.o: cxx src/GI_StarField.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_StarFieldImg.o: cxx src/GI_StarFieldImg.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_StarFieldM.o: cxx src/GI_StarFieldM.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_StatusBar.o: cxx src/GI_StatusBar.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Tail.o: cxx src/GI_Tail.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_TextButton.o: cxx src/GI_TextButton.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_TransImage.o: cxx src/GI_TransImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Window.o: cxx src/GI_Window.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_XviD.o: cxx src/GI_XviD.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GI_Zone.o: cxx src/GI_Zone.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_DX.o: cxx src/GR_DX.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_GraphBuf.o: cxx src/GR_GraphBuf.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_GraphBufPal.o: cxx src/GR_GraphBufPal.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_Main.o: cxx src/GR_Main.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_Music.o: cxx src/GR_Music.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_Rect.o: cxx src/GR_Rect.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_Sound.o: cxx src/GR_Sound.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GR_gi.o: cxx src/GR_gi.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Globals.o: cxx src/Globals.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/GlobalsV.o: cxx src/GlobalsV.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/LocationClass.o: cxx src/LocationClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/MMSystem.o: cxx src/MMSystem.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/MathImports.o: cxx src/MathImports.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/MessageText.o: cxx src/MessageText.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/NoSteamAchievemens.o: cxx src/NoSteamAchievemens.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ParViewStringClass.o: cxx src/ParViewStringClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ParameterClass.o: cxx src/ParameterClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ParameterDeltaClass.o: cxx src/ParameterDeltaClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/PathClass.o: cxx src/PathClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/PopUp.o: cxx src/PopUp.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Rangers.o: cxx src/Rangers.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Registry.o: cxx src/Registry.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Robot.o: cxx src/Robot.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Angel.o: cxx src/SE_Angel.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Anim.o: cxx src/SE_Anim.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Asteroid.o: cxx src/SE_Asteroid.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_BGObj.o: cxx src/SE_BGObj.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Comet.o: cxx src/SE_Comet.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Container.o: cxx src/SE_Container.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_GAIEffect.o: cxx src/SE_GAIEffect.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Garbage.o: cxx src/SE_Garbage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Gate.o: cxx src/SE_Gate.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Hole.o: cxx src/SE_Hole.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Laser.o: cxx src/SE_Laser.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Meteorite.o: cxx src/SE_Meteorite.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Missile.o: cxx src/SE_Missile.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Planet.o: cxx src/SE_Planet.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Process.o: cxx src/SE_Process.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Ruins.o: cxx src/SE_Ruins.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Ship2.o: cxx src/SE_Ship2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_SoundRnd.o: cxx src/SE_SoundRnd.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Space.o: cxx src/SE_Space.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Sputnik.o: cxx src/SE_Sputnik.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Star.o: cxx src/SE_Star.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_StarsField.o: cxx src/SE_StarsField.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SE_Weapon.o: cxx src/SE_Weapon.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SequenceClass.o: cxx src/SequenceClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ShellAPI.o: cxx src/ShellAPI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ShlObj.o: cxx src/ShlObj.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SimpleSteamApi.o: cxx src/SimpleSteamApi.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SysUtils.o: cxx src/SysUtils.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SysUtilsImports.o: cxx src/SysUtilsImports.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/System.o: cxx src/System.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/SystemImports.o: cxx src/SystemImports.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/TextFieldClass.o: cxx src/TextFieldClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/TextQuest.o: cxx src/TextQuest.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/TextQuestInterface.o: cxx src/TextQuestInterface.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ThreadCalc.o: cxx src/ThreadCalc.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/TlHelp32.o: cxx src/TlHelp32.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Types.o: cxx src/Types.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/TypesImports.o: cxx src/TypesImports.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/VFW.o: cxx src/VFW.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ValueListClass.o: cxx src/ValueListClass.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/VorbisFile.o: cxx src/VorbisFile.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/WStringUtils.o: cxx src/WStringUtils.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/Windows.o: cxx src/Windows.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/WindowsImports.o: cxx src/WindowsImports.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/WindowsSdk.o: cxx src/WindowsSdk.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aAsteroid.o: cxx src/aAsteroid.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aCalc.o: cxx src/aCalc.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aConst.o: cxx src/aConst.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aEFilm.o: cxx src/aEFilm.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aEFilmEnd.o: cxx src/aEFilmEnd.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aEObjInfo.o: cxx src/aEObjInfo.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aGalaxy.o: cxx src/aGalaxy.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aGalaxyEvent.o: cxx src/aGalaxyEvent.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aGalaxyStruct.o: cxx src/aGalaxyStruct.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aGroup.o: cxx src/aGroup.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aItem.o: cxx src/aItem.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aKling.o: cxx src/aKling.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aMissile.o: cxx src/aMissile.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aModsInfo.o: cxx src/aModsInfo.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aMyFunction.o: cxx src/aMyFunction.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aNormalShip.o: cxx src/aNormalShip.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aPacket.o: cxx src/aPacket.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aPath.o: cxx src/aPath.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aPirate.o: cxx src/aPirate.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aPlanet.o: cxx src/aPlanet.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aPlayer.o: cxx src/aPlayer.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aRanger.o: cxx src/aRanger.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aRuins.o: cxx src/aRuins.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aSaveLoad.o: cxx src/aSaveLoad.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aScript.o: cxx src/aScript.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aScriptFun.o: cxx src/aScriptFun.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aShip.o: cxx src/aShip.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aTranclucator.o: cxx src/aTranclucator.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aTransport.o: cxx src/aTransport.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aVector.o: cxx src/aVector.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/aWarrior.o: cxx src/aWarrior.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/abWall.o: cxx src/abWall.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Global.o: cxx src/ab_Global.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Hit.o: cxx src/ab_Hit.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Item.o: cxx src/ab_Item.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_MainForm.o: cxx src/ab_MainForm.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Object.o: cxx src/ab_Object.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Polygon.o: cxx src/ab_Polygon.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Ship.o: cxx src/ab_Ship.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_ShipAI.o: cxx src/ab_ShipAI.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Space.o: cxx src/ab_Space.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_StopLine.o: cxx src/ab_StopLine.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W.o: cxx src/ab_W.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W01.o: cxx src/ab_W01.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W02.o: cxx src/ab_W02.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W03.o: cxx src/ab_W03.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W04.o: cxx src/ab_W04.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W05.o: cxx src/ab_W05.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W06.o: cxx src/ab_W06.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W07.o: cxx src/ab_W07.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W08.o: cxx src/ab_W08.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W09.o: cxx src/ab_W09.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W10.o: cxx src/ab_W10.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W11.o: cxx src/ab_W11.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W12.o: cxx src/ab_W12.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W13.o: cxx src/ab_W13.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W14.o: cxx src/ab_W14.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W15.o: cxx src/ab_W15.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W16.o: cxx src/ab_W16.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W17.o: cxx src/ab_W17.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_W18.o: cxx src/ab_W18.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_WorldImage.o: cxx src/ab_WorldImage.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_WorldLine.o: cxx src/ab_WorldLine.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/ab_Zone.o: cxx src/ab_Zone.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fAbout.o: cxx src/fAbout.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fAchievements.o: cxx src/fAchievements.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fCfgSettings.o: cxx src/fCfgSettings.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fChameleon.o: cxx src/fChameleon.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fCount1.o: cxx src/fCount1.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fCount2.o: cxx src/fCount2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fCustom.o: cxx src/fCustom.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fEquipmentShop.o: cxx src/fEquipmentShop.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fFilm.o: cxx src/fFilm.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fFilmFile.o: cxx src/fFilmFile.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGalaxy2.o: cxx src/fGalaxy2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGameEnd.o: cxx src/fGameEnd.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGameLoad.o: cxx src/fGameLoad.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGameMenu.o: cxx src/fGameMenu.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGameSettings.o: cxx src/fGameSettings.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGameSettings2.o: cxx src/fGameSettings2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGoodsShop2.o: cxx src/fGoodsShop2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fGov.o: cxx src/fGov.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fHangar.o: cxx src/fHangar.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fInfo.o: cxx src/fInfo.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fIntroduction.o: cxx src/fIntroduction.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fJournal.o: cxx src/fJournal.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fJump.o: cxx src/fJump.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fListBox.o: cxx src/fListBox.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fLoad.o: cxx src/fLoad.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fLoadAB.o: cxx src/fLoadAB.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fLoadQuest.o: cxx src/fLoadQuest.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fLoadRobot.o: cxx src/fLoadRobot.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fMainForm.o: cxx src/fMainForm.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fMods.o: cxx src/fMods.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fPanelLoad.o: cxx src/fPanelLoad.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fPanelMain.o: cxx src/fPanelMain.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fPanelPlanet.o: cxx src/fPanelPlanet.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fPanelRuins.o: cxx src/fPanelRuins.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fPlanet.o: cxx src/fPlanet.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fPlanetNO.o: cxx src/fPlanetNO.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fPlanetQuest.o: cxx src/fPlanetQuest.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fRating2.o: cxx src/fRating2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fRewards.o: cxx src/fRewards.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fRuinsTalk.o: cxx src/fRuinsTalk.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fSaveManager.o: cxx src/fSaveManager.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fScaner.o: cxx src/fScaner.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fScore.o: cxx src/fScore.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fSelectFace.o: cxx src/fSelectFace.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fShip2.o: cxx src/fShip2.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fStarMap.o: cxx src/fStarMap.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fTalk.o: cxx src/fTalk.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/fTextBox.o: cxx src/fTextBox.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+build build/obj/program.o: cxx src/program.cpp | build/runtime.pch
+  pch = -include-pch build/runtime.pch
+
+build build/runtime.o: cxx runtime/runtime.cpp
+
+build build/libffi/prep_cif.c.o: cc third_party/libffi/src/prep_cif.c
+build build/libffi/types.c.o: cc third_party/libffi/src/types.c
+build build/libffi/raw_api.c.o: cc third_party/libffi/src/raw_api.c
+build build/libffi/java_raw_api.c.o: cc third_party/libffi/src/java_raw_api.c
+build build/libffi/closures.c.o: cc third_party/libffi/src/closures.c
+build build/libffi/tramp.c.o: cc third_party/libffi/src/tramp.c
+build build/libffi/x86_ffi.c.o: cc third_party/libffi/src/x86/ffi.c
+build build/libffi/x86_sysv.S.o: cc third_party/libffi/src/x86/sysv.S
+
+build build/libffi.a: archive build/libffi/prep_cif.c.o build/libffi/types.c.o build/libffi/raw_api.c.o build/libffi/java_raw_api.c.o build/libffi/closures.c.o build/libffi/tramp.c.o build/libffi/x86_ffi.c.o build/libffi/x86_sysv.S.o
+
+build build/Rangers.exe: link build/obj/Achievements.o build/obj/ActiveXSdk.o build/obj/BlockParException.o build/obj/BreakMessageGIException.o build/obj/CPDiapClass.o build/obj/CPVarClass.o build/obj/CalcParseClass.o build/obj/CheatCode.o build/obj/ClassesImports.o build/obj/CrcUnit.o build/obj/DateUtils.o build/obj/Dialogs.o build/obj/Direct3D9.o build/obj/DirectSound.o build/obj/DirectXRenderException.o build/obj/EC_BlockPar.o build/obj/EC_Buf.o build/obj/EC_Cache.o build/obj/EC_CacheAlphaBitmap.o build/obj/EC_CacheBitmap.o build/obj/EC_CacheBuf.o build/obj/EC_CacheFont.o build/obj/EC_CacheGAI.o build/obj/EC_CacheGI.o build/obj/EC_CacheHSAI.o build/obj/EC_CacheLightPal.o build/obj/EC_CachePalBitmap.o build/obj/EC_CachePlanetTempl.o build/obj/EC_CacheRotateBuf.o build/obj/EC_CacheSound.o build/obj/EC_CacheTBitmap.o build/obj/EC_Data.o build/obj/EC_Ether.o build/obj/EC_Expression.o build/obj/EC_File.o build/obj/EC_FileStream.o build/obj/EC_HsFile.o build/obj/EC_Mem.o build/obj/EC_OKGF.o build/obj/EC_Str.o build/obj/EC_Struct.o build/obj/EC_Thread.o build/obj/EventClass.o build/obj/ExceptionInfo.o build/obj/FGInt.o build/obj/Forms.o build/obj/GI_AImage.o build/obj/GI_AlphaImage.o build/obj/GI_CheckBox.o build/obj/GI_Circle.o build/obj/GI_CountBar.o build/obj/GI_Cursor.o build/obj/GI_Door.o build/obj/GI_Edit.o build/obj/GI_Frame.o build/obj/GI_GAI.o build/obj/GI_GAIFile.o build/obj/GI_GI.o build/obj/GI_GraphBuf.o build/obj/GI_GraphButton.o build/obj/GI_Grid.o build/obj/GI_Image.o build/obj/GI_InfiniteImage.o build/obj/GI_Label.o build/obj/GI_Line.o build/obj/GI_Main.o build/obj/GI_MessageBox.o build/obj/GI_MessageLoop.o build/obj/GI_MultiImage.o build/obj/GI_PDTurretWeapon.o build/obj/GI_PSEyes.o build/obj/GI_PSMissileHit.o build/obj/GI_PSWeapon.o build/obj/GI_PSWeapon01Laser.o build/obj/GI_PSWeapon02FragCannon.o build/obj/GI_PSWeapon03Lezka.o build/obj/GI_PSWeapon05Treton.o build/obj/GI_PSWeapon06Phaser.o build/obj/GI_PSWeapon07Blaster.o build/obj/GI_PSWeapon08ECutter.o build/obj/GI_PSWeapon09MResonator.o build/obj/GI_PSWeapon10AVision.o build/obj/GI_PSWeapon11Desintegrator.o build/obj/GI_PSWeapon12Turbogravir.o build/obj/GI_PSWeapon13IMHO.o build/obj/GI_PSWeapon14Vertix.o build/obj/GI_PSWeapon16Esodafer.o build/obj/GI_PSWeapon17Kafacitor.o build/obj/GI_Panel.o build/obj/GI_PanelScrollBar.o build/obj/GI_Planet.o build/obj/GI_PlanetButton.o build/obj/GI_PolyLine.o build/obj/GI_RadialEffect.o build/obj/GI_RadioGroup.o build/obj/GI_RotateImage.o build/obj/GI_RotateImage2.o build/obj/GI_RotateImage5.o build/obj/GI_RotateImageGAI.o build/obj/GI_SBPath.o build/obj/GI_ScrollBar.o build/obj/GI_ShrLight.o build/obj/GI_SimpleButton.o build/obj/GI_SimpleImage.o build/obj/GI_SpaceCircle.o build/obj/GI_SpaceImg.o build/obj/GI_StarField.o build/obj/GI_StarFieldImg.o build/obj/GI_StarFieldM.o build/obj/GI_StatusBar.o build/obj/GI_Tail.o build/obj/GI_TextButton.o build/obj/GI_TransImage.o build/obj/GI_Window.o build/obj/GI_XviD.o build/obj/GI_Zone.o build/obj/GR_DX.o build/obj/GR_GraphBuf.o build/obj/GR_GraphBufPal.o build/obj/GR_Main.o build/obj/GR_Music.o build/obj/GR_Rect.o build/obj/GR_Sound.o build/obj/GR_gi.o build/obj/Globals.o build/obj/GlobalsV.o build/obj/LocationClass.o build/obj/MMSystem.o build/obj/MathImports.o build/obj/MessageText.o build/obj/NoSteamAchievemens.o build/obj/ParViewStringClass.o build/obj/ParameterClass.o build/obj/ParameterDeltaClass.o build/obj/PathClass.o build/obj/PopUp.o build/obj/Rangers.o build/obj/Registry.o build/obj/Robot.o build/obj/SE_Angel.o build/obj/SE_Anim.o build/obj/SE_Asteroid.o build/obj/SE_BGObj.o build/obj/SE_Comet.o build/obj/SE_Container.o build/obj/SE_GAIEffect.o build/obj/SE_Garbage.o build/obj/SE_Gate.o build/obj/SE_Hole.o build/obj/SE_Laser.o build/obj/SE_Meteorite.o build/obj/SE_Missile.o build/obj/SE_Planet.o build/obj/SE_Process.o build/obj/SE_Ruins.o build/obj/SE_Ship2.o build/obj/SE_SoundRnd.o build/obj/SE_Space.o build/obj/SE_Sputnik.o build/obj/SE_Star.o build/obj/SE_StarsField.o build/obj/SE_Weapon.o build/obj/SequenceClass.o build/obj/ShellAPI.o build/obj/ShlObj.o build/obj/SimpleSteamApi.o build/obj/SysUtils.o build/obj/SysUtilsImports.o build/obj/System.o build/obj/SystemImports.o build/obj/TextFieldClass.o build/obj/TextQuest.o build/obj/TextQuestInterface.o build/obj/ThreadCalc.o build/obj/TlHelp32.o build/obj/Types.o build/obj/TypesImports.o build/obj/VFW.o build/obj/ValueListClass.o build/obj/VorbisFile.o build/obj/WStringUtils.o build/obj/Windows.o build/obj/WindowsImports.o build/obj/WindowsSdk.o build/obj/aAsteroid.o build/obj/aCalc.o build/obj/aConst.o build/obj/aEFilm.o build/obj/aEFilmEnd.o build/obj/aEObjInfo.o build/obj/aGalaxy.o build/obj/aGalaxyEvent.o build/obj/aGalaxyStruct.o build/obj/aGroup.o build/obj/aItem.o build/obj/aKling.o build/obj/aMissile.o build/obj/aModsInfo.o build/obj/aMyFunction.o build/obj/aNormalShip.o build/obj/aPacket.o build/obj/aPath.o build/obj/aPirate.o build/obj/aPlanet.o build/obj/aPlayer.o build/obj/aRanger.o build/obj/aRuins.o build/obj/aSaveLoad.o build/obj/aScript.o build/obj/aScriptFun.o build/obj/aShip.o build/obj/aTranclucator.o build/obj/aTransport.o build/obj/aVector.o build/obj/aWarrior.o build/obj/abWall.o build/obj/ab_Global.o build/obj/ab_Hit.o build/obj/ab_Item.o build/obj/ab_MainForm.o build/obj/ab_Object.o build/obj/ab_Polygon.o build/obj/ab_Ship.o build/obj/ab_ShipAI.o build/obj/ab_Space.o build/obj/ab_StopLine.o build/obj/ab_W.o build/obj/ab_W01.o build/obj/ab_W02.o build/obj/ab_W03.o build/obj/ab_W04.o build/obj/ab_W05.o build/obj/ab_W06.o build/obj/ab_W07.o build/obj/ab_W08.o build/obj/ab_W09.o build/obj/ab_W10.o build/obj/ab_W11.o build/obj/ab_W12.o build/obj/ab_W13.o build/obj/ab_W14.o build/obj/ab_W15.o build/obj/ab_W16.o build/obj/ab_W17.o build/obj/ab_W18.o build/obj/ab_WorldImage.o build/obj/ab_WorldLine.o build/obj/ab_Zone.o build/obj/fAbout.o build/obj/fAchievements.o build/obj/fCfgSettings.o build/obj/fChameleon.o build/obj/fCount1.o build/obj/fCount2.o build/obj/fCustom.o build/obj/fEquipmentShop.o build/obj/fFilm.o build/obj/fFilmFile.o build/obj/fGalaxy2.o build/obj/fGameEnd.o build/obj/fGameLoad.o build/obj/fGameMenu.o build/obj/fGameSettings.o build/obj/fGameSettings2.o build/obj/fGoodsShop2.o build/obj/fGov.o build/obj/fHangar.o build/obj/fInfo.o build/obj/fIntroduction.o build/obj/fJournal.o build/obj/fJump.o build/obj/fListBox.o build/obj/fLoad.o build/obj/fLoadAB.o build/obj/fLoadQuest.o build/obj/fLoadRobot.o build/obj/fMainForm.o build/obj/fMods.o build/obj/fPanelLoad.o build/obj/fPanelMain.o build/obj/fPanelPlanet.o build/obj/fPanelRuins.o build/obj/fPlanet.o build/obj/fPlanetNO.o build/obj/fPlanetQuest.o build/obj/fRating2.o build/obj/fRewards.o build/obj/fRuinsTalk.o build/obj/fSaveManager.o build/obj/fScaner.o build/obj/fScore.o build/obj/fSelectFace.o build/obj/fShip2.o build/obj/fStarMap.o build/obj/fTalk.o build/obj/fTextBox.o build/obj/program.o build/runtime.o resources/Rangers.res build/libffi.a | tools/large_address_aware.py
+
+default build/Rangers.exe
