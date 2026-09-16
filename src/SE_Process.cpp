@@ -37,6 +37,7 @@
 #include "units/aMyFunction.hpp"
 
 namespace SE_Process {
+    // Film-tag factory; copies the eight-byte point and forwards it to the selected constructor. Returns nil for an unknown case-sensitive tag.
     SE_Space::TObjectSE* CreateSpaceObjectByName(const pas::WideString& ClassName, const pas::WideString& GraphKey, WindowsSdk::TPoint UnusedPosition) {
         if (ClassName == u"Star") {
             return pas::construct_call<SE_Star::TStarSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
@@ -77,6 +78,7 @@ namespace SE_Process {
         }
     }
 
+    // Returns the film type tag; raises for an unsupported scene class.
     pas::WideString ClassSEtoName(SE_Space::TObjectSE* Obj) {
         if (pas::class_cast_if<SE_Star::TStarSE*>(Obj) != nullptr) {
             return u"Star"_w;
@@ -140,6 +142,7 @@ namespace SE_Process {
         pas::object_destroy(Self);
     }
 
+    // Retains Obj and links it into the process list; does not attach it to Space.
     void TProcessSE::AddObject(SE_Space::TObjectSE* Obj) {
         if (LastObject != nullptr) {
             LastObject->ProcessNext = Obj;
@@ -152,6 +155,7 @@ namespace SE_Process {
         }
     }
 
+    // Unlinks and releases Obj.
     void TProcessSE::RemoveObject(SE_Space::TObjectSE* Obj) {
         if (Obj->ProcessPrev != nullptr) {
             Obj->ProcessPrev->ProcessNext = Obj->ProcessNext;
@@ -277,6 +281,7 @@ namespace SE_Process {
                 AddObject(CometObj);
             }
         }
+        // Native reuses the previous Count when AngelCount is absent.
         if (Block->CountParams(u"AngelCount"_wref.get()) > 0) {
             CountRange = GI_Main::GetPointGI(Block->GetParam(u"AngelCount"_wref.get()));
             Count = aMyFunction::RandomIntRange(CountRange.X, CountRange.Y);

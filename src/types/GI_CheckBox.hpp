@@ -22,6 +22,7 @@ namespace GI_CheckBox {
     struct TCheckBoxGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TCheckBoxGI, GI_MessageLoop::TObjectGI, "TCheckBoxGI", 312)
         void p_destroy() override;
+        // Does not refresh child activation or call inherited Clear.
         void Clear() override;
         void SetConfigPath(const pas::WideString& Path) override;
         void SetSize(Types::TPoint Size) override;

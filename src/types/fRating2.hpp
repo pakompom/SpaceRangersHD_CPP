@@ -31,6 +31,7 @@ namespace fRating2 {
 
     #pragma pack(push, 1)
     struct TRangerRatingRow {
+        // Borrowed.
         aRanger::TRanger* Ranger;
         std::int32_t Top;
         std::int32_t Height;
@@ -66,12 +67,15 @@ namespace fRating2 {
         void ShowCareerHint(GI_MessageLoop::TObjectGI* Sender);
         void ShowAwardHint(aRanger::TRanger* Ranger, std::int32_t AwardId);
         void HideHint();
+        // Returns -1 if the ranger is absent.
         std::int32_t FindRowByRangerId(std::int32_t RangerId);
         void SortHeaderMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void FeaturedRangerClicked(GI_MessageLoop::TObjectGI* Sender);
         void RowMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        // Accepts -1; other indices must be valid. Rebuilds the old and new rows because selection changes row height.
         void SelectRow(std::int32_t Index);
         void ClearRows();
+        // Excludes ExcludedFromRating rangers; preserves selection by ID when SelectedIndex is -1.
         void RebuildTable();
         void RebuildRow(std::int32_t Index);
         void CreateRow(std::int32_t Index);
@@ -80,9 +84,11 @@ namespace fRating2 {
         void RefreshFeaturedRangers();
         void SelectMusic() override;
         void ProcessCallbackTimers() override;
+        // Only displays a hint for the player.
         void ShowDominatorKillsHint(GI_MessageLoop::TObjectGI* Sender);
         GI_Window::TWindowGI* RewardWindow;
         pas::DynArray<TRangerRatingRow> Rows;
+        // -1 means no selection.
         std::int32_t SelectedIndex;
         std::int32_t SelectedRangerId;
         TRangerRatingSortColumn SortColumn;
@@ -92,6 +98,7 @@ namespace fRating2 {
         WindowsSdk::TRect SelectedRowRect;
         std::uint8_t BackgroundClickStarted;
         std::uint8_t cpp_padding_2[3];
+        // -1 means no award hint.
         std::int32_t HoveredAwardId;
     };
     #if INTPTR_MAX == INT32_MAX

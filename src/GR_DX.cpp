@@ -11,12 +11,7 @@
 #include "units/Windows.hpp"
 
 namespace GR_DX {
-    double LineFractionDX(double Value);
-
-    double AnimatedLineFractionDX(double Value);
-
-    void AdvanceLinePhase(std::int32_t& Phase);
-
+    // DisableTextureManager setting.
     std::uint8_t TextureManagerDisabled = false;
 
     WindowsSdk::TPoint MaxTextureSize{};
@@ -110,6 +105,7 @@ namespace GR_DX {
         return Texture;
     }
 
+    // Clamps each dimension to at least 16. Returns nil without a device; retries allocation after evicting textures.
     void GR_CreateTexture(std::int32_t Width, std::int32_t Height, std::uint32_t Format, std::uint32_t Pool, Direct3D9::IDirect3DTexture9& Result) {
         Direct3D9::IDirect3DTexture9 Texture{};
         std::int32_t ErrorCode{};
@@ -153,6 +149,7 @@ namespace GR_DX {
         return;
     }
 
+    // Accepts nil.
     void FreeTextureCache(TTextureGR* Cache) {
         std::int32_t Index{};
         if (Cache != nullptr) {
@@ -196,6 +193,7 @@ namespace GR_DX {
         }
     }
 
+    // Counts level zero only. Native format test repeats A8R8G8B8; X8R8G8B8 is not recognized.
     std::uint32_t GetTextureByteSize(pas::ComView<Direct3D9::IDirect3DTexture9_Tag> cpp_value_arg) {
         Direct3D9::IDirect3DTexture9 Texture = cpp_value_arg;
         Direct3D9::TD3DSurfaceDesc Desc{};
@@ -347,6 +345,7 @@ namespace GR_DX {
             Direct3D9::IDirect3DDevice9_GetScissorRect(GR_Main::Direct3DDevice, OldClip);
             Direct3D9::IDirect3DDevice9_SetScissorRect(GR_Main::Direct3DDevice, ClipRect);
         }
+        // Native set state 8 to 2/3: wireframe/solid fill.
         if (!Filled) {
             Direct3D9::IDirect3DDevice9_SetRenderState(GR_Main::Direct3DDevice, Direct3D9::D3DRS_FILLMODE, Direct3D9::D3DFILL_WIREFRAME);
         }
@@ -545,9 +544,13 @@ namespace GR_DX {
         }
     }
 
+    // Native routine ignores the supplied clip rectangle.
     void DrawAntialiasedLineDX(std::int32_t StartX, std::int32_t StartY, std::int32_t FinishX, std::int32_t FinishY, std::uint32_t Color, std::int32_t Alpha, WindowsSdk::PRect UnusedClipRect) {
         std::uint8_t Steep{};
         double Temp{};
+        auto LineFractionDX = [&](double Value) -> double {
+            return static_cast<long double>(Value) - MathImports::Floor(Value);
+        };
         double X1 = StartX;
         double Y1 = StartY;
         double X2 = FinishX;
@@ -584,11 +587,11 @@ namespace GR_DX {
         double Slope = pas::real_divide(DY, DX);
         double EndX = MathImports::Floor(X1 + 0.5L);
         double EndY = Y1 + (static_cast<long double>(EndX) - X1) * Slope;
-        double Gap = 1.0L - GR_DX::LineFractionDX(X1 + 0.5L);
+        double Gap = 1.0L - LineFractionDX(X1 + 0.5L);
         std::int32_t FirstX = MathImports::Floor(X1 + 0.5L);
         std::int32_t FirstY = MathImports::Floor(EndY);
-        double Coverage1 = (1.0L - GR_DX::LineFractionDX(EndY)) * Gap;
-        double Coverage2 = static_cast<long double>(GR_DX::LineFractionDX(EndY)) * Gap;
+        double Coverage1 = (1.0L - LineFractionDX(EndY)) * Gap;
+        double Coverage2 = static_cast<long double>(LineFractionDX(EndY)) * Gap;
         if (Steep) {
             GR_DX::QueueDrawPoint(FirstY, FirstX, Color, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1));
             GR_DX::QueueDrawPoint(FirstY + 1, FirstX, Color, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2));
@@ -600,12 +603,12 @@ namespace GR_DX {
         double InterY = static_cast<long double>(EndY) + Slope;
         EndX = MathImports::Floor(X2 + 0.5L);
         EndY = Y2 + (static_cast<long double>(EndX) - X2) * Slope;
-        Gap = 1.0L - GR_DX::LineFractionDX(X2 - 0.5L);
+        Gap = 1.0L - LineFractionDX(X2 - 0.5L);
         std::int32_t LastX = MathImports::Floor(X2 + 0.5L);
         std::int32_t LastY = MathImports::Floor(EndY);
         while (LastX - 1 >= X) {
-            Coverage1 = 1.0L - GR_DX::LineFractionDX(InterY);
-            Coverage2 = GR_DX::LineFractionDX(InterY);
+            Coverage1 = 1.0L - LineFractionDX(InterY);
+            Coverage2 = LineFractionDX(InterY);
             if (Steep) {
                 {
                     std::int32_t ceil = MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1);
@@ -632,8 +635,8 @@ namespace GR_DX {
             InterY = static_cast<long double>(InterY) + Slope;
             ++X;
         }
-        Coverage1 = (1.0L - GR_DX::LineFractionDX(EndY)) * Gap;
-        Coverage2 = static_cast<long double>(GR_DX::LineFractionDX(EndY)) * Gap;
+        Coverage1 = (1.0L - LineFractionDX(EndY)) * Gap;
+        Coverage2 = static_cast<long double>(LineFractionDX(EndY)) * Gap;
         if (Steep) {
             GR_DX::QueueDrawPoint(LastY, LastX, Color, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1));
             GR_DX::QueueDrawPoint(LastY + 1, LastX, Color, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2));
@@ -644,9 +647,19 @@ namespace GR_DX {
         GR_DX::FlushDrawPoints(nullptr);
     }
 
+    // Uses LineAlphaTable and advances phase by 20 per column. Ignores the supplied clip rectangle.
     void DrawAnimatedLineDX(std::int32_t StartX, std::int32_t StartY, std::int32_t FinishX, std::int32_t FinishY, std::uint32_t Color, std::int32_t Phase, WindowsSdk::PRect UnusedClipRect) {
         std::uint8_t Steep{};
         double Temp{};
+        auto AnimatedLineFractionDX = [&](double Value) -> double {
+            return static_cast<long double>(Value) - MathImports::Floor(Value);
+        };
+        auto AdvanceLinePhase = [&]() -> void {
+            Phase += 20;
+            if (Phase >= 360) {
+                Phase -= 360;
+            }
+        };
         double X1 = StartX;
         double Y1 = StartY;
         double X2 = FinishX;
@@ -683,11 +696,11 @@ namespace GR_DX {
         double Slope = pas::real_divide(DY, DX);
         double EndX = MathImports::Floor(X1 + 0.5L);
         double EndY = Y1 + (static_cast<long double>(EndX) - X1) * Slope;
-        double Gap = 1.0L - GR_DX::AnimatedLineFractionDX(X1 + 0.5L);
+        double Gap = 1.0L - AnimatedLineFractionDX(X1 + 0.5L);
         std::int32_t FirstX = MathImports::Floor(X1 + 0.5L);
         std::int32_t FirstY = MathImports::Floor(EndY);
-        double Coverage1 = (1.0L - GR_DX::AnimatedLineFractionDX(EndY)) * Gap;
-        double Coverage2 = static_cast<long double>(GR_DX::AnimatedLineFractionDX(EndY)) * Gap;
+        double Coverage1 = (1.0L - AnimatedLineFractionDX(EndY)) * Gap;
+        double Coverage2 = static_cast<long double>(AnimatedLineFractionDX(EndY)) * Gap;
         if (Steep) {
             GR_DX::QueueDrawPoint(FirstY, FirstX, Color, MathImports::Ceil(static_cast<long double>(LineAlphaTable[Phase]) * Coverage1));
             GR_DX::QueueDrawPoint(FirstY + 1, FirstX, Color, MathImports::Ceil(static_cast<long double>(LineAlphaTable[Phase]) * Coverage2));
@@ -695,17 +708,17 @@ namespace GR_DX {
             GR_DX::QueueDrawPoint(FirstX, FirstY, Color, MathImports::Ceil(static_cast<long double>(LineAlphaTable[Phase]) * Coverage1));
             GR_DX::QueueDrawPoint(FirstX, FirstY + 1, Color, MathImports::Ceil(static_cast<long double>(LineAlphaTable[Phase]) * Coverage2));
         }
-        GR_DX::AdvanceLinePhase(Phase);
+        AdvanceLinePhase();
         std::int32_t X = FirstX + 1;
         double InterY = static_cast<long double>(EndY) + Slope;
         EndX = MathImports::Floor(X2 + 0.5L);
         EndY = Y2 + (static_cast<long double>(EndX) - X2) * Slope;
-        Gap = 1.0L - GR_DX::AnimatedLineFractionDX(X2 - 0.5L);
+        Gap = 1.0L - AnimatedLineFractionDX(X2 - 0.5L);
         std::int32_t LastX = MathImports::Floor(X2 + 0.5L);
         std::int32_t LastY = MathImports::Floor(EndY);
         while (LastX - 1 >= X) {
-            Coverage1 = 1.0L - GR_DX::AnimatedLineFractionDX(InterY);
-            Coverage2 = GR_DX::AnimatedLineFractionDX(InterY);
+            Coverage1 = 1.0L - AnimatedLineFractionDX(InterY);
+            Coverage2 = AnimatedLineFractionDX(InterY);
             if (Steep) {
                 {
                     std::int32_t ceil = MathImports::Ceil(static_cast<long double>(LineAlphaTable[Phase]) * Coverage1);
@@ -729,12 +742,12 @@ namespace GR_DX {
                     GR_DX::QueueDrawPoint(X, cpp_arg_2, Color, ceil_4);
                 }
             }
-            GR_DX::AdvanceLinePhase(Phase);
+            AdvanceLinePhase();
             InterY = static_cast<long double>(InterY) + Slope;
             ++X;
         }
-        Coverage1 = (1.0L - GR_DX::AnimatedLineFractionDX(EndY)) * Gap;
-        Coverage2 = static_cast<long double>(GR_DX::AnimatedLineFractionDX(EndY)) * Gap;
+        Coverage1 = (1.0L - AnimatedLineFractionDX(EndY)) * Gap;
+        Coverage2 = static_cast<long double>(AnimatedLineFractionDX(EndY)) * Gap;
         if (Steep) {
             GR_DX::QueueDrawPoint(LastY, LastX, Color, MathImports::Ceil(static_cast<long double>(LineAlphaTable[Phase]) * Coverage1));
             GR_DX::QueueDrawPoint(LastY + 1, LastX, Color, MathImports::Ceil(static_cast<long double>(LineAlphaTable[Phase]) * Coverage2));
@@ -773,6 +786,7 @@ namespace GR_DX {
         LastUseTick = 0u;
     }
 
+    // Retains the array and SurfaceCount.
     void TTextureGR::ReleaseSurfaces() {
         std::int32_t i = 0;
         while (i < SurfaceCount) {
@@ -786,6 +800,7 @@ namespace GR_DX {
         LastUseTick = 0u;
     }
 
+    // Returns nil when out of range; successful access refreshes LastUseTick.
     void TTextureGR::GetSurface(std::int32_t Index, Direct3D9::IDirect3DTexture9& Result) {
         Result = nullptr;
         if (Index < 0 || Index >= SurfaceCount) {
@@ -796,6 +811,7 @@ namespace GR_DX {
         return;
     }
 
+    // A negative index appends; indexes beyond the end create nil holes.
     void TTextureGR::SetSurface(pas::ComView<Direct3D9::IDirect3DTexture9_Tag> cpp_value_arg, std::int32_t Index) {
         Direct3D9::IDirect3DTexture9 Value = cpp_value_arg;
         std::int32_t i{};
@@ -825,21 +841,6 @@ namespace GR_DX {
         GR_DX::AddResidentTextureBytes(ByteCount);
         Surfaces[Index] = nullptr;
         Surfaces[Index] = Value;
-    }
-
-    double LineFractionDX(double Value) {
-        return static_cast<long double>(Value) - MathImports::Floor(Value);
-    }
-
-    double AnimatedLineFractionDX(double Value) {
-        return static_cast<long double>(Value) - MathImports::Floor(Value);
-    }
-
-    void AdvanceLinePhase(std::int32_t& Phase) {
-        Phase += 20;
-        if (Phase >= 360) {
-            Phase -= 360;
-        }
     }
 
     void TTextureGR::p_destroy() {

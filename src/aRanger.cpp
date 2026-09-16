@@ -35,42 +35,24 @@
 #include "units/aRanger.hpp"
 
 namespace aRanger {
-    void SelectName(EC_BlockPar::TBlockParEC* Config, TRanger* Self);
-
-    void IncreaseRangerCareerAxis(std::uint8_t& Selected, std::uint8_t& OtherA, std::uint8_t& OtherB, std::int32_t Amount);
-
-    std::uint8_t CanNotifyPartner(TRanger* Self);
-
-    void Imprison(TRanger* Self, std::uint8_t& Result);
-
-    void ApplyToShip(TRanger* Self, TRelationChangeMode& Mode, std::uint8_t& Amount, std::uint8_t& Previous, aShip::TShip*& Ship, std::int32_t& RangerIndex);
-
-    void AcceptMoneyDemand(TRanger* Self, aShip::TShip*& OtherShip, std::int32_t& DemandedAmount);
-
-    void AcceptCargoDemand(TRanger* Self, aShip::TShip*& OtherShip);
-
-    void AcceptTrucePayment(TRanger* Self, aShip::TShip*& OtherShip, std::int32_t& OfferedAmount);
-
-    void AcceptAttackRequest(TRanger* Self, aShip::TShip*& Requester, pas::WideString& Response, aShip::TShip*& Target, std::uint8_t& Result);
-
-    void GrantQuestFailureMilestoneAward(std::int32_t InitialThreshold, std::int32_t Multiplier, std::int32_t FailureCount, std::uint8_t OwnerId, TRanger* Self);
-
-    std::uint8_t ConsumeQuestDeliveryItem(TRanger* Self, PQuest& Quest);
-
-    void FinalizeSuccessfulQuestTurnIn(TRanger* Self, std::int32_t& Index, pas::WideString& ResponseText, PQuest& Quest, std::int32_t& GenerationSeed, std::int32_t& Experience, aGalaxyEvent::TGalaxyEvent*& Event);
-
     aShip::TShip* PendingPlayerFollowTarget = nullptr;
 
+    // Auto-equips in the follow helper and uses NPC dialogue branches for the player.
     std::uint8_t PlayerAutomaticControl = false;
 
+    // Set by equipped-item breakage; ShouldContinuePlayerTravel checks it.
     std::uint8_t PlayerEquipmentBrokenThisTurn = false;
 
+    // Career, then bonSkill1..bonSkill6.
     pas::Array<pas::Array<std::int32_t, 22, 27>, 0, 2> RangerSkillBonusEvaluationWeights = pas::Array<pas::Array<std::int32_t, 22, 27>, 0, 2>{{pas::Array<std::int32_t, 22, 27>{{70, 70, 100, 100, 50, 50}}, pas::Array<std::int32_t, 22, 27>{{100, 80, 80, 80, 70, 50}}, pas::Array<std::int32_t, 22, 27>{{80, 100, 100, 80, 50, 80}}}};
 
+    // Career, then bonSlotRadar..bonSlotForsage.
     pas::Array<pas::Array<std::int32_t, 13, 20>, 0, 2> RangerSlotBonusEvaluationWeights = pas::Array<pas::Array<std::int32_t, 13, 20>, 0, 2>{{pas::Array<std::int32_t, 13, 20>{{150, 80, 100, 500, 100, 75, 30, 30}}, pas::Array<std::int32_t, 13, 20>{{100, 150, 150, 500, 150, 150, 30, 50}}, pas::Array<std::int32_t, 13, 20>{{120, 120, 200, 500, 200, 100, 30, 30}}}};
 
+    // Owned PPlayerOldQuest records.
     pas::List* PlayerOldQuests{};
 
+    // Requires registered ranger/home-planet state. Removes quests and relation-column entries, adjusts the player index and refreshes galaxy ratings.
     void TRanger_Destroy(TRanger* Self) {
         std::int32_t I{};
         std::int32_t J{};
@@ -108,7 +90,7 @@ namespace aRanger {
             Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(J); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-                if (pas::in_set<1, 3, 6, 13>(Ship->TypeId) && Ship != Self) {
+                if (pas::in_set<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate, 6, 13>(Ship->TypeId) && Ship != Self) {
                     pas::list_delete(Ship->RangerRelations, RangerIndex);
                 }
             }
@@ -134,6 +116,7 @@ namespace aRanger {
         aNormalShip::TNormalShip_Destroy(Self);
     }
 
+    // For a fresh inherited TNormalShip instance; creates loadout, career, quests and relation entries and registers it in the galaxy.
     void TRanger::InitializeAtPlanet(aPlanet::TPlanet* Planet, std::int32_t InitialMoney) {
         std::int32_t I{};
         std::int32_t J{};
@@ -142,6 +125,51 @@ namespace aRanger {
         aGalaxy::TStar* Star{};
         aShip::TShip* Ship{};
         TRanger* Ranger{};
+        // Caller-popped static link; ranger at -4. Tries unused race/faction names and appends an ID suffix when exhausted.
+        auto SelectName = [&](EC_BlockPar::TBlockParEC* Config) -> void {
+            std::int32_t Index{};
+            std::int32_t I{};
+            std::int32_t J{};
+            std::int32_t LastIndex{};
+            std::int32_t FirstIndex{};
+            std::uint8_t Used{};
+            TRanger* Other{};
+            EC_BlockPar::TBlockParEC* Block{};
+            if (Config != nullptr && Config->CountBlocks(u"Ranger"_wref.get()) != 0) {
+                Block = Config->GetBlock(u"Ranger"_wref.get());
+                if (aConst::RaceToOwner(this->PilotRace) == this->OwnerId) {
+                    Block = Block->GetBlock(aConst::OwnerToSys(this->OwnerId));
+                } else {
+                    if (Block->CountBlocks(aConst::OwnerToSys(this->OwnerId)) > 0) {
+                        Block = Block->GetBlock(aConst::OwnerToSys(this->OwnerId));
+                    }
+                    if (Block->CountBlocks(aConst::OwnerToSys(aConst::RaceToOwner(this->PilotRace))) > 0) {
+                        Block = Block->GetBlock(aConst::OwnerToSys(aConst::RaceToOwner(this->PilotRace)));
+                    }
+                }
+                FirstIndex = 0;
+                LastIndex = Block->GetParamCount() - 1;
+                Index = aMyFunction::NextRandomIntRange(FirstIndex, LastIndex, this->RandomState);
+                for (auto cpp_range = pas::for_to<std::int32_t>(FirstIndex, LastIndex); cpp_range.next(I); ) {
+                    this->Name = Block->GetParamValue(Index);
+                    Used = false;
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_2.next(J); ) {
+                        Other = pas::list_at<TRanger>(aGalaxy::Galaxy->Rangers, J);
+                        if (this != Other && Other->Name == this->Name) {
+                            Used = true;
+                            break;
+                        }
+                    }
+                    if (!Used) {
+                        break;
+                    }
+                    aMyFunction::IncrementWrapped(Index, FirstIndex, LastIndex);
+                    if (I == LastIndex) {
+                        this->Name = pas::concat_wide({this->Name, u" ", u"-", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(this->Id) % 100 + 1)), u"-"});
+                    }
+                }
+            }
+        };
         HomePlanet = Planet;
         CurrentPlanet = HomePlanet;
         CurrentStar = CurrentPlanet->CurrentStar;
@@ -257,9 +285,9 @@ namespace aRanger {
         }
         ClearPendingCareerActivity();
         Name = pas::WideString();
-        aRanger::SelectName(GR_Main::ModShipNameConfig, this);
+        SelectName(GR_Main::ModShipNameConfig);
         if (GetName().length() == 0) {
-            aRanger::SelectName(GR_Main::LanguageDataConfig->GetBlock(u"ShipName"_wref.get()), this);
+            SelectName(GR_Main::LanguageDataConfig->GetBlock(u"ShipName"_wref.get()));
         }
         ChameleonActive = false;
         GraphDominator = aGalaxy::Galaxy->GraphDominatorSurfacesEnabled && !(pas::class_cast_if<aPlayer::TPlayer*>(this) != nullptr);
@@ -318,7 +346,7 @@ namespace aRanger {
             Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(J); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-                if (pas::in_set<1, 3, 6, 13>(Ship->TypeId) && Ship != this) {
+                if (pas::in_set<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate, 6, 13>(Ship->TypeId) && Ship != this) {
                     pas::list_add(Ship->RangerRelations, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(*([&] {
                         auto cpp_index_2 = aConst::RaceToOwner(PilotRace) & 0x0000007f;
                         auto* cpp_array_2 = &aConst::OwnerRelations[aConst::RaceToOwner(Ship->PilotRace) & 0x0000007f];
@@ -340,51 +368,7 @@ namespace aRanger {
         PrisonTermRemaining = 0;
     }
 
-    void SelectName(EC_BlockPar::TBlockParEC* Config, TRanger* Self) {
-        std::int32_t Index{};
-        std::int32_t I{};
-        std::int32_t J{};
-        std::int32_t LastIndex{};
-        std::int32_t FirstIndex{};
-        std::uint8_t Used{};
-        TRanger* Other{};
-        EC_BlockPar::TBlockParEC* Block{};
-        if (Config != nullptr && Config->CountBlocks(u"Ranger"_wref.get()) != 0) {
-            Block = Config->GetBlock(u"Ranger"_wref.get());
-            if (aConst::RaceToOwner(Self->PilotRace) == Self->OwnerId) {
-                Block = Block->GetBlock(aConst::OwnerToSys(Self->OwnerId));
-            } else {
-                if (Block->CountBlocks(aConst::OwnerToSys(Self->OwnerId)) > 0) {
-                    Block = Block->GetBlock(aConst::OwnerToSys(Self->OwnerId));
-                }
-                if (Block->CountBlocks(aConst::OwnerToSys(aConst::RaceToOwner(Self->PilotRace))) > 0) {
-                    Block = Block->GetBlock(aConst::OwnerToSys(aConst::RaceToOwner(Self->PilotRace)));
-                }
-            }
-            FirstIndex = 0;
-            LastIndex = Block->GetParamCount() - 1;
-            Index = aMyFunction::NextRandomIntRange(FirstIndex, LastIndex, Self->RandomState);
-            for (auto cpp_range = pas::for_to<std::int32_t>(FirstIndex, LastIndex); cpp_range.next(I); ) {
-                Self->Name = Block->GetParamValue(Index);
-                Used = false;
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_2.next(J); ) {
-                    Other = pas::list_at<TRanger>(aGalaxy::Galaxy->Rangers, J);
-                    if (Self != Other && Other->Name == Self->Name) {
-                        Used = true;
-                        break;
-                    }
-                }
-                if (!Used) {
-                    break;
-                }
-                aMyFunction::IncrementWrapped(Index, FirstIndex, LastIndex);
-                if (I == LastIndex) {
-                    Self->Name = pas::concat_wide({Self->Name, u" ", u"-", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Self->Id) % 100 + 1)), u"-"});
-                }
-            }
-        }
-    }
-
+    // Appends Self and relation entries; requires an unregistered ranger with initialized lists.
     void TRanger::RegisterInGalaxyRelations() {
         aPlanet::TPlanet* Planet{};
         std::int32_t I{};
@@ -401,7 +385,7 @@ namespace aRanger {
             Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(J); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-                if (pas::in_set<1, 3, 6, 13>(Ship->TypeId) && Ship != this) {
+                if (pas::in_set<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate, 6, 13>(Ship->TypeId) && Ship != this) {
                     pas::list_add(Ship->RangerRelations, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(aConst::OwnerRelations[Ship->OwnerId][OwnerId]))));
                 }
             }
@@ -470,6 +454,7 @@ namespace aRanger {
         Buffer->AddBoolean(ExcludedFromRating);
     }
 
+    // Creates the quest list and loads IDs for later resolution; rejects quest counts above 10000.
     void TRanger::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         PQuest Quest{};
@@ -486,8 +471,10 @@ namespace aRanger {
         EminentProgress[aGalaxyStruct::rcWarrior] = EC_Buf::TBufEC_GetByte(Buffer);
         PreferredCareer = static_cast<aGalaxyStruct::TRangerCareer>(EC_Buf::TBufEC_GetByte(Buffer));
         Aggression = EC_Buf::TBufEC_GetByte(Buffer);
+        // Native loading uses the custom list; fresh initialization uses TList.
         Quests = pas::make_object<aMyFunction::TObjectList>();
         std::int32_t Count = EC_Buf::TBufEC_GetWord(Buffer);
+        // The signed lower bound is retained even though GetWord cannot return it.
         if (Count < 0 || Count > 10000) {
             pas::raise(pas::make_exception<pas::Abort>("Err in FQuests load"_a));
         }
@@ -533,6 +520,7 @@ namespace aRanger {
         }
     }
 
+    // Resolves quest targets by quest type and LastDockedNonPlanetLocation.
     void TRanger::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         PQuest Quest{};
@@ -710,13 +698,13 @@ namespace aRanger {
             TryRecruitWingman();
             if (PartnerShip != nullptr) {
                 if (!InFear) {
-                    if ((OrderTarget == PartnerShip || OrderTarget == PartnerShip->OrderTarget) && static_cast<std::uint8_t>(OrderAbsolute ^ 1) && (OrderTarget == PartnerShip || static_cast<std::uint8_t>(pas::in_set<0, 1>(Order) ^ 1))) {
+                    if ((OrderTarget == PartnerShip || OrderTarget == PartnerShip->OrderTarget) && static_cast<std::uint8_t>(OrderAbsolute ^ 1) && (OrderTarget == PartnerShip || static_cast<std::uint8_t>(pas::is_one_of<aShip::soNone, aShip::soMove>(Order) ^ 1))) {
                         TryCollectBestFloatingItem(0);
                         if (TryMirrorPartnerTravelOrders()) {
                             return;
                         }
                     }
-                } else if (pas::in_set<2, 3>(Order) && (OrderTarget == PartnerShip->OrderTarget || EstimateOrderTravelTurns() < 4)) {
+                } else if (pas::is_one_of<aShip::soLand, aShip::soJump>(Order) && (OrderTarget == PartnerShip->OrderTarget || EstimateOrderTravelTurns() < 4)) {
                     return;
                 }
             }
@@ -750,7 +738,7 @@ namespace aRanger {
                     }
                     if (Order != aShip::soLand && Order != aShip::soJump) {
                         EngageEnemyShip();
-                    } else if (EstimateOrderTravelTurns() > 4 && EnemyShip != nullptr && EnemyShip->OrderTarget == this && pas::in_set<1, 1, 3, 3>(EnemyShip->TypeId) && EnemyShip->EstimateOrderTravelTurns() < 3 && aMyFunction::NextRandomUnitFloat(RandomState) < 0.2L && (static_cast<std::int32_t>(Seed) + aGalaxy::Galaxy->CurrentTurn) % 2 == 0) {
+                    } else if (EstimateOrderTravelTurns() > 4 && EnemyShip != nullptr && EnemyShip->OrderTarget == this && pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(EnemyShip->TypeId) && EnemyShip->EstimateOrderTravelTurns() < 3 && aMyFunction::NextRandomUnitFloat(RandomState) < 0.2L && (static_cast<std::int32_t>(Seed) + aGalaxy::Galaxy->CurrentTurn) % 2 == 0) {
                         if (JettisonCargoGoodsTowardTargetValue(std::max<std::int32_t>(200, aGalaxy::Galaxy->ComputeScaledMiniMoney(OwnerId) / 2))) {
                             NotifyFearCargoDrop(EnemyShip);
                         }
@@ -762,7 +750,7 @@ namespace aRanger {
             } else {
                 Stage = 9;
                 if (PartnerShip != nullptr) {
-                    if (PartnerShip->CurrentStar == CurrentStar && pas::in_set<0, 1>(PartnerShip->Order) && static_cast<std::uint8_t>(OrderAbsolute ^ 1)) {
+                    if (PartnerShip->CurrentStar == CurrentStar && pas::is_one_of<aShip::soNone, aShip::soMove>(PartnerShip->Order) && static_cast<std::uint8_t>(OrderAbsolute ^ 1)) {
                         TryCollectBestFloatingItem(2);
                     } else {
                         TryCollectBestFloatingItem(0);
@@ -868,6 +856,7 @@ namespace aRanger {
         }
     }
 
+    // True only for the pending auto-equip branch; normal follow/weapon assignment returns false.
     std::uint8_t TRanger::ProcessPendingPlayerFollowTargeting() {
         std::uint8_t Result{};
         std::int32_t I{};
@@ -907,6 +896,7 @@ namespace aRanger {
         return false;
     }
 
+    // Requires HomePlanet.
     aGalaxy::TStar* TRanger::GetHomeStar() {
         return HomePlanet->CurrentStar;
     }
@@ -933,10 +923,12 @@ namespace aRanger {
         return Name;
     }
 
+    // Returns the ranger category used by ship-greeting filters.
     std::uint8_t TRanger::GetGreetingShipCategory() {
         return aGalaxyStruct::gscRanger;
     }
 
+    // Ties favor trader, then pirate.
     aGalaxyStruct::TRangerCareer TRanger::GetDominantCareer() {
         std::int32_t Maximum = std::max<std::int32_t>(std::max<std::int32_t>(static_cast<std::int32_t>(CareerStatus[aGalaxyStruct::rcTrader]), static_cast<std::int32_t>(CareerStatus[aGalaxyStruct::rcPirate])), static_cast<std::int32_t>(CareerStatus[aGalaxyStruct::rcWarrior]));
         if (CareerStatus[aGalaxyStruct::rcTrader] == Maximum) {
@@ -948,6 +940,7 @@ namespace aRanger {
         }
     }
 
+    // Values occupies the low three bytes of one stack slot; result is the average of 100 minus each career-distance.
     std::uint8_t TRanger::GetCareerSimilarity(TRangerCareerValues Values) {
         std::int32_t TraderSimilarity = 100 - pas::abs(CareerStatus[aGalaxyStruct::rcTrader] - Values[aGalaxyStruct::rcTrader]);
         std::int32_t PirateSimilarity = 100 - pas::abs(CareerStatus[aGalaxyStruct::rcPirate] - Values[aGalaxyStruct::rcPirate]);
@@ -955,6 +948,7 @@ namespace aRanger {
         return (TraderSimilarity + PirateSimilarity + WarriorSimilarity) / 3;
     }
 
+    // Selects the closest configured ShipCharacter profile; equal similarities retain the earlier profile.
     pas::WideString TRanger::GetCharacterName() {
         pas::WideString Result{};
         std::int32_t I{};
@@ -982,6 +976,7 @@ namespace aRanger {
         return Result;
     }
 
+    // Rounded pirate career status times StrengthInBestRanger, clamped to 0..100.
     std::uint8_t TRanger::GetStrengthScaledPirateStatus() {
         return System::Round(aMyFunction::RemapClamped(static_cast<long double>(CareerStatus[aGalaxyStruct::rcPirate]) * StrengthInBestRanger, 0.0, 1.0E+2, 0.0, 1.0E+2));
     }
@@ -995,6 +990,7 @@ namespace aRanger {
         }
     }
 
+    // Dispatches by object class and radar distance; unsupported objects yield unknown object.
     pas::WideString TRanger::GetObjectInfoText(pas::Object* Instance) {
         if (pas::class_cast_if<aGalaxy::TStar*>(Instance) != nullptr) {
             return pas::checked_cast<aGalaxy::TStar*>(Instance)->Name;
@@ -1029,6 +1025,7 @@ namespace aRanger {
         }
     }
 
+    // Counts galaxy star-list ships whose PartnerShip is Self; includes docked ships.
     std::int32_t TRanger::CountWingmen() {
         std::int32_t I{};
         std::int32_t J{};
@@ -1051,10 +1048,12 @@ namespace aRanger {
         return pas::real_divide(Strength, aGalaxy::Galaxy->AverageRangerStrength) < aConst::CareerTuning[PreferredCareer].MinimumStrengthToAverageRatio || StrengthInBestRanger < aConst::CareerTuning[PreferredCareer].MinimumStrengthToBestRatio;
     }
 
+    // Either the absolute or relative career threshold can trigger catch-up.
     std::uint8_t TRanger::NeedsWealthCatchup() {
         return pas::real_divide(Wealth, aGalaxy::Galaxy->AverageRangerCapital) < aConst::CareerTuning[PreferredCareer].MinimumWealthToAverageRatio || WealthInBestRanger < aConst::CareerTuning[PreferredCareer].MinimumWealthToBestRatio;
     }
 
+    // Only buys a full refill when its positive cost is affordable.
     void TRanger::RefuelAtLocation() {
         if (GetFuelTanks() != nullptr && GetFullRefuelCost() > 0 && GetFullRefuelCost() <= Money) {
             SetMoney(Money - GetFullRefuelCost());
@@ -1062,6 +1061,7 @@ namespace aRanger {
         }
     }
 
+    // Can grant money, experience, equipment, awards and simulated kills; requires the unseen-day threshold, a player and unresolved Dominators.
     void TRanger::SimulateUnseenProgression() {
         std::uint8_t Award{};
         if (DaysSincePlayerSeen < 5.0E+1L * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestTimeAndExperienceFactor) {
@@ -1070,7 +1070,7 @@ namespace aRanger {
         if (aPlayer::GetPlayer() == nullptr) {
             return;
         }
-        if (!aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{0}, {1}, {2}}))) {
+        if (!aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}}))) {
             return;
         }
         if (aMyFunction::NextRandomUnitFloat(RandomState) < 0.05L) {
@@ -1132,7 +1132,7 @@ namespace aRanger {
                 {
                     std::uint8_t pickRandomEquipmentOwner = aConst::PickRandomEquipmentOwner(RandomState);
                     aNormalShip::TNormalShip* self_4 = this;
-                    std::uint8_t selectAward = self_4->SelectAward(pickRandomEquipmentOwner, pas::constant_set<aNormalShip::TAwardTypeMask>({{0}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+                    std::uint8_t selectAward = self_4->SelectAward(pickRandomEquipmentOwner, pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atLiberation}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
                     aShip::TShip* self_5 = this;
                     self_5->AddAward(selectAward);
                 }
@@ -1201,15 +1201,15 @@ namespace aRanger {
             if (aPlayer::GetPlayer()->AwardIds != nullptr && (AwardIds == nullptr || pas::list_count(AwardIds) < std::min<std::int32_t>(5, pas::list_count(aPlayer::GetPlayer()->AwardIds))) && aMyFunction::NextRandomUnitFloat(RandomState) < 0.1L || aPlayer::GetPlayer()->AwardIds != nullptr && (AwardIds == nullptr || pas::list_count(aPlayer::GetPlayer()->AwardIds) + 5 > pas::list_count(AwardIds)) && aMyFunction::NextRandomUnitFloat(RandomState) < 0.004L || aPlayer::GetPlayer()->AwardIds == nullptr && (AwardIds == nullptr || pas::list_count(AwardIds) < 4) && aMyFunction::NextRandomUnitFloat(RandomState) < 0.006L || (AwardIds == nullptr || DominatorKillCount / 10 > pas::list_count(AwardIds)) && aMyFunction::NextRandomUnitFloat(RandomState) < 0.004L) {
                 switch (GetDominantCareer()) {
                     case aGalaxyStruct::rcTrader: {
-                        Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{1}, {2}, {3}, {5}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+                        Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atAccomplishment}, {aGalaxyStruct::atSecretMission}, {aGalaxyStruct::atCowardice}, {aGalaxyStruct::atPlanetBattle}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
                         break;
                     }
                     case aGalaxyStruct::rcPirate: {
-                        Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{1}, {2}, {3}, {4}, {5}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+                        Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atAccomplishment}, {aGalaxyStruct::atSecretMission}, {aGalaxyStruct::atCowardice}, {aGalaxyStruct::atPerfidy}, {aGalaxyStruct::atPlanetBattle}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
                         break;
                     }
                     case aGalaxyStruct::rcWarrior: {
-                        Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{1}, {2}, {5}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+                        Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atAccomplishment}, {aGalaxyStruct::atSecretMission}, {aGalaxyStruct::atPlanetBattle}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
                         break;
                     }
                     default: Award = 255; break;
@@ -1224,6 +1224,7 @@ namespace aRanger {
         }
     }
 
+    // Saturates at 100.
     void TRanger::AddTraderCareerActivity(std::uint8_t Amount) {
         if (static_cast<std::uint32_t>(PendingCareerActivity[0]) + Amount < 100) {
             PendingCareerActivity[0] += Amount;
@@ -1232,6 +1233,7 @@ namespace aRanger {
         }
     }
 
+    // Saturates at 100.
     void TRanger::AddPirateCareerActivity(std::uint8_t Amount) {
         if (static_cast<std::uint32_t>(PendingCareerActivity[1]) + Amount < 100) {
             PendingCareerActivity[1] += Amount;
@@ -1240,6 +1242,7 @@ namespace aRanger {
         }
     }
 
+    // Saturates at 100.
     void TRanger::AddWarriorCareerActivity(std::uint8_t Amount) {
         if (static_cast<std::uint32_t>(PendingCareerActivity[2]) + Amount < 100) {
             PendingCareerActivity[2] += Amount;
@@ -1254,10 +1257,53 @@ namespace aRanger {
         PendingCareerActivity[2] = 0;
     }
 
+    // Clears pending activity even when an NPC already holds a featured title. New titles require a non-excluded ranger in the upper half of the ranking and an undefeated Coalition.
     void TRanger::ProcessCareerActivityAndEminentProgress() {
         std::int32_t Delta{};
         pas::WideString Text{};
         std::int32_t Amount{};
+        // Raises Selected up to 100 and proportionally reduces the other axes when needed.
+        auto IncreaseRangerCareerAxis = [&](std::uint8_t& Selected, std::uint8_t& OtherA, std::uint8_t& OtherB, std::int32_t Amount) -> void {
+            std::uint8_t* Smaller{};
+            std::uint8_t* Larger{};
+            std::int32_t SmallReduction{};
+            std::int32_t LargeReduction{};
+            std::int32_t Reduction = Amount;
+            if (static_cast<std::uint32_t>(Selected) + OtherA + OtherB < 100) {
+                Reduction = std::max<std::int32_t>(0, Selected + OtherA + OtherB + (Reduction - 100));
+            }
+            if (OtherA + OtherB < Reduction) {
+                Reduction = OtherA + OtherB;
+            }
+            Selected = std::max<std::int32_t>(static_cast<std::int32_t>(Selected), std::min<std::int32_t>(100, Selected + Amount));
+            if (Reduction > 0) {
+                if (OtherA >= OtherB) {
+                    Smaller = &OtherB;
+                    Larger = &OtherA;
+                } else {
+                    Smaller = &OtherA;
+                    Larger = &OtherB;
+                }
+                SmallReduction = System::Round(pas::real_divide(Reduction, OtherA + OtherB) * *Smaller);
+                LargeReduction = System::Round(pas::real_divide(Reduction, OtherA + OtherB) * *Larger);
+                if (SmallReduction + LargeReduction > Reduction) {
+                    --LargeReduction;
+                }
+                if (SmallReduction + LargeReduction < Reduction) {
+                    ++SmallReduction;
+                }
+                if (*Smaller < SmallReduction) {
+                    *Larger = OtherA + OtherB - Reduction;
+                    *Smaller = 0;
+                } else if (*Larger < LargeReduction) {
+                    *Smaller = OtherA + OtherB - Reduction;
+                    *Larger = 0;
+                } else {
+                    pas::dec_unaligned<std::uint8_t>(Smaller, SmallReduction);
+                    pas::dec_unaligned<std::uint8_t>(Larger, LargeReduction);
+                }
+            }
+        };
         if (aPlayer::GetPlayer() != this && (aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcTrader] == this || aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcPirate] == this || aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcWarrior] == this)) {
             ClearPendingCareerActivity();
             return;
@@ -1279,11 +1325,11 @@ namespace aRanger {
             }
             Delta = std::min<std::int32_t>(8, Delta);
             Delta = Delta / 2;
-            aRanger::IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcWarrior], Delta);
+            IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcWarrior], Delta);
             if (aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcTrader] != this && PlaceInRating < pas::list_count(aGalaxy::Galaxy->Rangers) / 2 && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0 && static_cast<std::uint8_t>(ExcludedFromRating ^ 1)) {
                 if (EminentProgress[aGalaxyStruct::rcTrader] + Delta * 2 >= 100) {
                     if (CareerStatus[aGalaxyStruct::rcTrader] < 60) {
-                        aRanger::IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcWarrior], (60 - CareerStatus[aGalaxyStruct::rcTrader]) / 2 + 1);
+                        IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcWarrior], (60 - CareerStatus[aGalaxyStruct::rcTrader]) / 2 + 1);
                     }
                     {
                         pas::Extended cpp_left = aMyFunction::NextRandomIntRange(100, 250, RandomState);
@@ -1316,11 +1362,11 @@ namespace aRanger {
             }
             Delta = std::min<std::int32_t>(8, Delta);
             Delta = Delta / 2;
-            aRanger::IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcWarrior], Delta);
+            IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcWarrior], Delta);
             if (aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcPirate] != this && PlaceInRating < pas::list_count(aGalaxy::Galaxy->Rangers) / 2 && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0 && static_cast<std::uint8_t>(ExcludedFromRating ^ 1)) {
                 if (EminentProgress[aGalaxyStruct::rcPirate] + Delta * 2 >= 100) {
                     if (CareerStatus[aGalaxyStruct::rcPirate] < 60) {
-                        aRanger::IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcWarrior], (60 - CareerStatus[aGalaxyStruct::rcPirate]) / 2 + 1);
+                        IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcPirate], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcWarrior], (60 - CareerStatus[aGalaxyStruct::rcPirate]) / 2 + 1);
                     }
                     {
                         pas::Extended cpp_left_2 = aMyFunction::NextRandomIntRange(250, 1000, RandomState);
@@ -1353,11 +1399,11 @@ namespace aRanger {
             }
             Delta = std::min<std::int32_t>(8, Delta);
             Delta = Delta / 2;
-            aRanger::IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcWarrior], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], Delta);
+            IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcWarrior], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], Delta);
             if (aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcWarrior] != this && PlaceInRating < pas::list_count(aGalaxy::Galaxy->Rangers) / 2 && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0 && static_cast<std::uint8_t>(ExcludedFromRating ^ 1)) {
                 if (EminentProgress[aGalaxyStruct::rcWarrior] + Delta * 2 >= 100) {
                     if (CareerStatus[aGalaxyStruct::rcWarrior] < 60) {
-                        aRanger::IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcWarrior], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], (60 - CareerStatus[aGalaxyStruct::rcWarrior]) / 2 + 1);
+                        IncreaseRangerCareerAxis(CareerStatus[aGalaxyStruct::rcWarrior], CareerStatus[aGalaxyStruct::rcTrader], CareerStatus[aGalaxyStruct::rcPirate], (60 - CareerStatus[aGalaxyStruct::rcWarrior]) / 2 + 1);
                     }
                     {
                         pas::Extended cpp_left_3 = aMyFunction::NextRandomIntRange(250, 1000, RandomState);
@@ -1386,48 +1432,7 @@ namespace aRanger {
         ClearPendingCareerActivity();
     }
 
-    void IncreaseRangerCareerAxis(std::uint8_t& Selected, std::uint8_t& OtherA, std::uint8_t& OtherB, std::int32_t Amount) {
-        std::uint8_t* Smaller{};
-        std::uint8_t* Larger{};
-        std::int32_t SmallReduction{};
-        std::int32_t LargeReduction{};
-        std::int32_t Reduction = Amount;
-        if (static_cast<std::uint32_t>(Selected) + OtherA + OtherB < 100) {
-            Reduction = std::max<std::int32_t>(0, Selected + OtherA + OtherB + (Reduction - 100));
-        }
-        if (OtherA + OtherB < Reduction) {
-            Reduction = OtherA + OtherB;
-        }
-        Selected = std::max<std::int32_t>(static_cast<std::int32_t>(Selected), std::min<std::int32_t>(100, Selected + Amount));
-        if (Reduction > 0) {
-            if (OtherA >= OtherB) {
-                Smaller = &OtherB;
-                Larger = &OtherA;
-            } else {
-                Smaller = &OtherA;
-                Larger = &OtherB;
-            }
-            SmallReduction = System::Round(pas::real_divide(Reduction, OtherA + OtherB) * *Smaller);
-            LargeReduction = System::Round(pas::real_divide(Reduction, OtherA + OtherB) * *Larger);
-            if (SmallReduction + LargeReduction > Reduction) {
-                --LargeReduction;
-            }
-            if (SmallReduction + LargeReduction < Reduction) {
-                ++SmallReduction;
-            }
-            if (*Smaller < SmallReduction) {
-                *Larger = OtherA + OtherB - Reduction;
-                *Smaller = 0;
-            } else if (*Larger < LargeReduction) {
-                *Smaller = OtherA + OtherB - Reduction;
-                *Larger = 0;
-            } else {
-                pas::dec_unaligned<std::uint8_t>(Smaller, SmallReduction);
-                pas::dec_unaligned<std::uint8_t>(Larger, LargeReduction);
-            }
-        }
-    }
-
+    // Affects every galaxy ranger, including excluded entries.
     void TRanger::HalveAllRangerEminentProgress(aGalaxyStruct::TRangerCareer Career) {
         std::int32_t I{};
         TRanger* Ranger{};
@@ -1502,6 +1507,7 @@ namespace aRanger {
         return BestPlanet;
     }
 
+    // Borrowed result, nil for an empty queue.
     aPlanet::TPlanet* TRanger::SelectRandomPlanetFromQueue() {
         if (pas::list_count(PlanetQueue) > 0) {
             std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(0, pas::list_count(PlanetQueue) - 1, RandomState);
@@ -1511,6 +1517,7 @@ namespace aRanger {
         return nullptr;
     }
 
+    // Replaces PlanetQueue; excludes LastDockedPlanet. A scripted system encountered in distance order ends the scan.
     void TRanger::BuildReachablePlanetQueue() {
         std::int32_t I{};
         std::int32_t J{};
@@ -1548,6 +1555,7 @@ namespace aRanger {
         return Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && (InFear || Planet->GetRelationLevelToShip(this) > aGalaxyStruct::rlHostile);
     }
 
+    // The native UnusedMode comparison has no branch effect. Chooses travel toward combat opportunities only with no cargo, a gripper and a full hull.
     void TRanger::SelectIdleFreeFlightDestination(std::uint8_t UnusedMode) {
         static const pas::Set<0, 255> CoalitionShipTypes = pas::constant_set<pas::Set<0, 255>>({{1, 5}});
         static const pas::Set<0, 255> DominatorShipType = pas::constant_set<pas::Set<0, 255>>({{0}});
@@ -1575,6 +1583,7 @@ namespace aRanger {
             case aGalaxyStruct::rcWarrior: CareerThreshold = 0; break;
             default: CareerThreshold = 0; break;
         }
+        // Native retains this comparison although neither branch does anything.
         static_cast<void>(UnusedMode == 0);
         aGalaxy::TStar* NextStar = nullptr;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
@@ -1631,6 +1640,7 @@ namespace aRanger {
         }
     }
 
+    // Native distant-system branch tests ships in the current system (), rather than the candidate system.
     std::uint8_t TRanger::TryOrderTravelToShipTypeLocation(std::uint8_t ShipType) {
         std::int32_t I{};
         std::int32_t J{};
@@ -1654,6 +1664,7 @@ namespace aRanger {
                 if (Star->Constellation->Id == 20) {
                     continue;
                 }
+                // Native scans the current system here, even though Star is a remote candidate.
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range_3.next(J); ) {
                     Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, J);
                     if (Ship->TypeId == ShipType && Ship->InNormalSpace()) {
@@ -1666,6 +1677,7 @@ namespace aRanger {
         return false;
     }
 
+    // Can follow a partner's travel order; otherwise favors short travel to a suitable planet, station or peaceful system.
     void TRanger::SelectNearestReachableDestination() {
         std::int32_t I{};
         aGalaxy::TStar* Star{};
@@ -1709,7 +1721,7 @@ namespace aRanger {
                 return;
             }
         }
-        if (pas::in_set<2, 4>(Order)) {
+        if (pas::is_one_of<aShip::soLand, aShip::soJump, aShip::soJumpHole>(Order)) {
             CurrentTurns = EstimateOrderTravelTurns();
             BestTarget = OrderTarget;
             BestTurns = CurrentTurns;
@@ -1764,6 +1776,7 @@ namespace aRanger {
         }
     }
 
+    // Excludes the last docked planet/station and can favor leaving their system.
     void TRanger::SelectAlternateReachableDestination() {
         std::int32_t I{};
         aGalaxy::TStar* Star{};
@@ -1776,7 +1789,7 @@ namespace aRanger {
         if (aGalaxy::Galaxy->SpecialSimulationMode != 0) {
             return;
         }
-        if (pas::in_set<2, 4>(Order)) {
+        if (pas::is_one_of<aShip::soLand, aShip::soJump, aShip::soJumpHole>(Order)) {
             CurrentTurns = EstimateOrderTravelTurns();
             BestTarget = OrderTarget;
             BestTurns = CurrentTurns;
@@ -1899,6 +1912,7 @@ namespace aRanger {
         }
     }
 
+    // Skips queue index 0. Leaves BestPlanet unchanged unless a candidate improves the score; UnitCost must be nonzero.
     std::uint8_t TRanger::FindBestQueuedSellPlanetProfitScore(std::uint8_t Good, aPlanet::TPlanet*& BestPlanet, double UnitCost) {
         std::int32_t I{};
         aPlanet::TPlanet* Planet{};
@@ -1930,6 +1944,7 @@ namespace aRanger {
         }
     }
 
+    // Repairs eligible installed items even without sufficient money; subtracts cost only when Money is strictly greater.
     void TRanger::RepairBrokenEquipmentAtLocation() {
         std::int32_t I{};
         std::int32_t Cost{};
@@ -1942,6 +1957,7 @@ namespace aRanger {
                     Equipment = pas::list_at<aItem::TEquipment>(Inventory, I);
                     if ((!(pas::class_cast_if<aItem::TWeapon*>(Equipment) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Equipment)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair) && CanRepairEquipmentTech(Equipment) && (Equipment->BrokenFlag != 0 || Equipment->ConditionPercent < 5.0E+1L) && Equipment->EquippedFlag != 0) {
                         Cost = Equipment->CalculateRepairCost();
+                        // Native repair proceeds even when there is not enough money.
                         if (Money > Cost) {
                             SetMoney(Money - Cost);
                         }
@@ -2029,7 +2045,7 @@ namespace aRanger {
                 }
             }
             default: {
-                if (pas::in_set<0, 0, 5, 5>(Ship->TypeId)) {
+                if (pas::is_one_of<aGalaxyStruct::stKling, aGalaxyStruct::stTranclucator>(Ship->TypeId)) {
                     return 50;
                 }
                 return 100;
@@ -2037,6 +2053,7 @@ namespace aRanger {
         }
     }
 
+    // Two female human pilots receive 100; otherwise reads the stored galaxy-indexed relation.
     std::uint8_t TRanger::RelationToRanger(void* Ranger) {
         if (IsFemaleHumanPilot() && static_cast<aShip::TShip*>(Ranger)->IsFemaleHumanPilot()) {
             return 100;
@@ -2044,6 +2061,7 @@ namespace aRanger {
         return static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(pas::checked_cast<TRanger*>(static_cast<pas::Object*>(Ranger)))))));
     }
 
+    // Applies the target's Charisma to positive changes, clamps to 0..100, and may break partnership or select an enemy.
     void TRanger::ChangeRelationToRanger(void* Ranger, std::int32_t Amount) {
         std::int32_t Index = pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(pas::checked_cast<TRanger*>(static_cast<pas::Object*>(Ranger))));
         std::uint8_t Relation = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, Index + 0)));
@@ -2076,6 +2094,7 @@ namespace aRanger {
         }
     }
 
+    // Sets EnemyShip and penalizes relations with the attacking ranger or its controlling ranger.
     void TRanger::ReactToAttack(aShip::TShip* Attacker) {
         EnemyShip = Attacker;
         if (Attacker->TypeId == aGalaxyStruct::stRanger) {
@@ -2089,6 +2108,7 @@ namespace aRanger {
         }
     }
 
+    // Updates InFear and can replace EnemyShip; special simulation mode clears fear.
     std::uint8_t TRanger::RecomputeFearState() {
         std::uint8_t Result{};
         std::int32_t I{};
@@ -2190,6 +2210,7 @@ namespace aRanger {
         }()) || 0.2L * LicenseFactor > ChanceToWin(Ship);
     }
 
+    // Propagates reactions among nearby ships/planets; can update player achievements. Script-bound victims suppress the relation pass.
     void TRanger::ApplyAttackReputationChanges(aShip::TShip* Victim, double Severity) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2289,6 +2310,7 @@ namespace aRanger {
         }
     }
 
+    // Also adds pirate career activity and improves the main pirate planet's relation.
     void TRanger::ApplyExtortionReputationPenalty(aShip::TShip* Victim) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2372,11 +2394,27 @@ namespace aRanger {
 
     void TRanger::CheckForPartnershipBreakup() {
         aShip::TShip* Leader{};
+        // Nested in the partnership check; caller-popped static link.
+        auto CanNotifyPartner = [&]() -> std::uint8_t {
+            std::uint8_t Result{};
+            if (this->CurrentStar != this->PartnerShip->CurrentStar || static_cast<std::uint8_t>(InNormalSpace() ^ 1) || static_cast<std::uint8_t>(this->PartnerShip->InNormalSpace() ^ 1)) {
+                return false;
+            } else if (CanContactShip(this->PartnerShip)) {
+                return true;
+            } else if (static_cast<std::uint8_t>(this->PartnerShip->NoTalk ^ 1) || aPlayer::GetPlayer() != this->PartnerShip) {
+                return false;
+            } else {
+                this->PartnerShip->NoTalk = false;
+                Result = CanContactShip(this->PartnerShip);
+                this->PartnerShip->NoTalk = true;
+                return Result;
+            }
+        };
         if (PartnerShip == nullptr) {
             return;
         }
         if (PartnershipDaysRemaining < 1) {
-            if (aRanger::CanNotifyPartner(this)) {
+            if (CanNotifyPartner()) {
                 Leader = PartnerShip;
                 if (Order == aShip::soFollowShip && OrderTarget == PartnerShip) {
                     OrderNone(false);
@@ -2385,7 +2423,7 @@ namespace aRanger {
                 NotifyPartnershipExpired(Leader);
             }
         } else if (RelationToShip(PartnerShip) < 30) {
-            if (aRanger::CanNotifyPartner(this)) {
+            if (CanNotifyPartner()) {
                 Leader = PartnerShip;
                 if (Order == aShip::soFollowShip && OrderTarget == PartnerShip) {
                     OrderNone(false);
@@ -2393,7 +2431,7 @@ namespace aRanger {
                 PartnerShip = nullptr;
                 NotifyPartnerBreak(Leader);
             }
-        } else if (EnemyShip != nullptr && EnemyShip->PartnerShip != nullptr && EnemyShip->PartnerShip == PartnerShip && aRanger::CanNotifyPartner(this)) {
+        } else if (EnemyShip != nullptr && EnemyShip->PartnerShip != nullptr && EnemyShip->PartnerShip == PartnerShip && CanNotifyPartner()) {
             Leader = PartnerShip;
             if (Order == aShip::soFollowShip && OrderTarget == PartnerShip) {
                 OrderNone(false);
@@ -2403,35 +2441,67 @@ namespace aRanger {
         }
     }
 
-    std::uint8_t CanNotifyPartner(TRanger* Self) {
-        std::uint8_t Result{};
-        if (Self->CurrentStar != Self->PartnerShip->CurrentStar || static_cast<std::uint8_t>(Self->InNormalSpace() ^ 1) || static_cast<std::uint8_t>(Self->PartnerShip->InNormalSpace() ^ 1)) {
-            return false;
-        } else if (Self->CanContactShip(Self->PartnerShip)) {
-            return true;
-        } else if (static_cast<std::uint8_t>(Self->PartnerShip->NoTalk ^ 1) || aPlayer::GetPlayer() != Self->PartnerShip) {
-            return false;
-        } else {
-            Self->PartnerShip->NoTalk = false;
-            Result = Self->CanContactShip(Self->PartnerShip);
-            Self->PartnerShip->NoTalk = true;
-            return Result;
-        }
-    }
-
+    // Relation of at least 30.
     std::uint8_t TRanger::TrustsAttackRequester(aShip::TShip* Ship) {
         return RelationToShip(Ship) >= 30;
     }
 
+    // Tests relation plus a relative-strength score against 120; precise dialogue role remains unresolved.
     std::uint8_t TRanger::EvaluateAllyRelationAndStrength(aShip::TShip* Ship) {
         pas::Extended cpp_right = aMyFunction::RemapClamped(Ship->Strength, 0.9L * Strength, Strength * 3.0L, 0.0, 1.0E+2);
         return (RelationToShip(Ship) & 0x0000007f) + cpp_right > 1.2E+2L;
     }
 
+    // Returns whether imprisonment blocks this turn; may imprison, release or update standing.
     std::uint8_t TRanger::ProcessPrisonAndHostileCheck() {
+        std::uint8_t Result{};
         std::int32_t I{};
         aShip::TShip* Warrior{};
-        std::uint8_t Result = false;
+        // Caller-popped static link; ranger -4, blocked-turn output -5. Female human pilots have their resulting prison term cleared.
+        auto Imprison = [&]() -> void {
+            std::int32_t I{};
+            aShip::TShip* Ship{};
+            pas::WideString Text{};
+            this->PrisonTermRemaining = System::Round(aMyFunction::RemapClamped(this->CareerStatus[aGalaxyStruct::rcPirate], 0.0, 1.0E+2, 61.0, 1.4E+2));
+            this->CurrentSystemKills.Normal = 0;
+            this->CurrentSystemKills.Pirate = 0;
+            if (this->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (aPlanet::MainPiratePlanet != nullptr) {
+                    aPlanet::MainPiratePlanet->ChangeRelationToRanger(this, 80);
+                } else {
+                    this->CurrentPlanet->ChangeRelationToRanger(this, 80);
+                }
+            } else {
+                this->CurrentPlanet->ChangeRelationToRanger(this, 80);
+                ChangePlanetRelations(nullptr, rcmRaiseTo, 45, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            }
+            Result = true;
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(this->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
+                Ship = pas::list_at<aShip::TShip>(this->CurrentStar->Ships, I);
+                if (Ship->TypeId == aGalaxyStruct::stWarrior && this == Ship->EnemyShip) {
+                    Ship->EnemyShip = nullptr;
+                    if (this == Ship->OrderTarget) {
+                        Ship->OrderNone(false);
+                    }
+                }
+            }
+            if (IsFemaleHumanPilot()) {
+                this->PrisonTermRemaining = 0;
+            } else {
+                Text = aConst::PickLocalizedTextVariant(pas::concat_wide({u"GalaxyNews.GoToPrison.", GetTypeNameKey()}), this->Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn / 10));
+                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, this->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, this->CurrentPlanet->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Month>"_w, pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(this->PrisonTermRemaining) / 30)), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, GetName(), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<FullName>"_w, GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w);
+                if (aPlayer::GetPlayer()->CurrentStar == this->CurrentStar && aPlayer::GetPlayer()->InNormalSpace() && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
+                    aGalaxy::Galaxy->AddPlanetNewsWithPlayerBubble(40, Text);
+                } else {
+                    aGalaxy::Galaxy->AddPlanetNews(40, Text);
+                }
+            }
+        };
+        Result = false;
         if (CurrentPlanet != nullptr) {
             if (static_cast<std::uint32_t>(PrisonTermRemaining) > 0) {
                 if (CurrentStar->Status.Battle != 0 && aGalaxy::Galaxy->CurrentTurn - CurrentStar->LastDominatorPresenceTurn <= 1) {
@@ -2449,13 +2519,13 @@ namespace aRanger {
                 return true;
             }
             if (CurrentPlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlHostile) {
-                aRanger::Imprison(this, Result);
+                Imprison();
                 RefreshCurrentStanding();
             } else {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentPlanet->Warriors) - 1); cpp_range.next(I); ) {
                     Warrior = pas::list_at<aShip::TShip>(CurrentPlanet->Warriors, I);
                     if (Warrior->EnemyShip == this) {
-                        aRanger::Imprison(this, Result);
+                        Imprison();
                         RefreshCurrentStanding();
                         break;
                     }
@@ -2465,67 +2535,55 @@ namespace aRanger {
         return Result;
     }
 
-    void Imprison(TRanger* Self, std::uint8_t& Result) {
-        std::int32_t I{};
-        aShip::TShip* Ship{};
-        pas::WideString Text{};
-        Self->PrisonTermRemaining = System::Round(aMyFunction::RemapClamped(Self->CareerStatus[aGalaxyStruct::rcPirate], 0.0, 1.0E+2, 61.0, 1.4E+2));
-        Self->CurrentSystemKills.Normal = 0;
-        Self->CurrentSystemKills.Pirate = 0;
-        if (Self->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-            if (aPlanet::MainPiratePlanet != nullptr) {
-                aPlanet::MainPiratePlanet->ChangeRelationToRanger(Self, 80);
-            } else {
-                Self->CurrentPlanet->ChangeRelationToRanger(Self, 80);
-            }
-        } else {
-            Self->CurrentPlanet->ChangeRelationToRanger(Self, 80);
-            Self->ChangePlanetRelations(nullptr, rcmRaiseTo, 45, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-        }
-        Result = true;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
-            if (Ship->TypeId == aGalaxyStruct::stWarrior && Self == Ship->EnemyShip) {
-                Ship->EnemyShip = nullptr;
-                if (Self == Ship->OrderTarget) {
-                    Ship->OrderNone(false);
-                }
-            }
-        }
-        if (Self->IsFemaleHumanPilot()) {
-            Self->PrisonTermRemaining = 0;
-        } else {
-            Text = aConst::PickLocalizedTextVariant(pas::concat_wide({u"GalaxyNews.GoToPrison.", Self->GetTypeNameKey()}), Self->Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn / 10));
-            aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, Self->CurrentStar->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, Self->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Month>"_w, pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Self->PrisonTermRemaining) / 30)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, Self->GetName(), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<FullName>"_w, Self->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w);
-            if (aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar && aPlayer::GetPlayer()->InNormalSpace() && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
-                aGalaxy::Galaxy->AddPlanetNewsWithPlayerBubble(40, Text);
-            } else {
-                aGalaxy::Galaxy->AddPlanetNews(40, Text);
-            }
-        }
-    }
-
     void TRanger::ChangeGlobalRelations(pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount, aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask) {
         ChangeShipRelations(Scope, Mode, Amount, HullTypeMask, OwnerMask);
         ChangePlanetRelations(Scope, Mode, Amount, OwnerMask);
     }
 
+    // Scope filters by ship, star or sector; nil selects all. Bulk changes skip scripted ships for which HasScriptControl is true. Masks use ShipToHullType categories and owner IDs, not TShip.TypeId.
     void TRanger::ChangeShipRelations(pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount, aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask) {
         std::uint8_t Previous{};
         aShip::TShip* Ship{};
+        std::int32_t RangerIndex{};
         std::int32_t I{};
         std::int32_t J{};
         aGalaxy::TStar* Star{};
-        std::int32_t RangerIndex = pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(this));
+        // Caller-popped static link; mode -1, previous relation -2, target ship -8, ranger index -12, ranger -16, amount +16.
+        auto ApplyToShip = [&]() -> void {
+            switch (Mode) {
+                case rcmCapAt: {
+                    if (Previous > Amount) {
+                        pas::list_put(Ship->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Amount))));
+                    }
+                    break;
+                }
+                case rcmRaiseTo: {
+                    if (Previous < Amount) {
+                        pas::list_put(Ship->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Amount))));
+                    }
+                    break;
+                }
+                case rcmIncrease: Ship->ChangeRelationToRanger(this, Amount); break;
+                case rcmDecrease: Ship->ChangeRelationToRanger(this, -Amount); break;
+                case rcmDecreaseWithFloor20: {
+                    if (Previous > 20) {
+                        if (Previous - Amount < 20) {
+                            pas::list_put(Ship->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(20))));
+                        } else {
+                            Ship->ChangeRelationToRanger(this, -Amount);
+                        }
+                    }
+                    break;
+                }
+            }
+            return;
+        };
+        RangerIndex = pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(this));
         if (pas::class_cast_if<aShip::TShip*>(Scope) != nullptr) {
             Ship = pas::checked_cast<aShip::TShip*>(Scope);
             if (pas::contains(HullTypeMask, aConst::ShipToHullType(Ship)) && pas::contains(OwnerMask, Ship->OwnerId)) {
                 Previous = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->RangerRelations, RangerIndex)));
-                aRanger::ApplyToShip(this, Mode, Amount, Previous, Ship, RangerIndex);
+                ApplyToShip();
             }
         } else {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
@@ -2547,43 +2605,14 @@ namespace aRanger {
                     }
                     if (pas::contains(HullTypeMask, aConst::ShipToHullType(Ship)) && pas::contains(OwnerMask, Ship->OwnerId) && pas::list_count(Ship->RangerRelations) >= 1) {
                         Previous = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->RangerRelations, RangerIndex)));
-                        aRanger::ApplyToShip(this, Mode, Amount, Previous, Ship, RangerIndex);
+                        ApplyToShip();
                     }
                 }
             }
         }
     }
 
-    void ApplyToShip(TRanger* Self, TRelationChangeMode& Mode, std::uint8_t& Amount, std::uint8_t& Previous, aShip::TShip*& Ship, std::int32_t& RangerIndex) {
-        switch (Mode) {
-            case rcmCapAt: {
-                if (Previous > Amount) {
-                    pas::list_put(Ship->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Amount))));
-                }
-                break;
-            }
-            case rcmRaiseTo: {
-                if (Previous < Amount) {
-                    pas::list_put(Ship->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Amount))));
-                }
-                break;
-            }
-            case rcmIncrease: Ship->ChangeRelationToRanger(Self, Amount); break;
-            case rcmDecrease: Ship->ChangeRelationToRanger(Self, -Amount); break;
-            case rcmDecreaseWithFloor20: {
-                if (Previous > 20) {
-                    if (Previous - Amount < 20) {
-                        pas::list_put(Ship->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(20))));
-                    } else {
-                        Ship->ChangeRelationToRanger(Self, -Amount);
-                    }
-                }
-                break;
-            }
-        }
-        return;
-    }
-
+    // Scope filters by planet, star or sector; nil selects all. Only coalition planets are affected. OwnerMask uses owner IDs as bits.
     void TRanger::ChangePlanetRelations(pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount, aGalaxyStruct::TOwnerMask OwnerMask) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2653,6 +2682,7 @@ namespace aRanger {
         }
     }
 
+    // Averages stored relations for matching ships; empty selection returns 50. A single ship uses its virtual RelationToRanger.
     std::uint8_t TRanger::GlobalRelationsShips(pas::Object* Scope, std::uint16_t HullTypeMask, std::uint8_t OwnerMask) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2692,6 +2722,7 @@ namespace aRanger {
         return 50;
     }
 
+    // Averages Coalition planets in matching stars/sectors; empty selection returns 50. A planet Scope does not narrow this native scan.
     std::uint8_t TRanger::GlobalRelationsPlanets(pas::Object* Scope, std::uint8_t OwnerMask) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2754,7 +2785,7 @@ namespace aRanger {
                     if (1 <= cpp_last_2) {
                         for (J = 1; J <= cpp_last_2; ++J) {
                             Weapon = Weapons[J];
-                            if ((static_cast<std::uint8_t>(pas::in_set<5, 7>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
+                            if ((static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
                                 pas::Extended cpp_right = pas::sqr(GetWeaponRange(Weapon));
                                 if (aMyFunction::PointDistanceSquared(Position, Ship->Position) <= cpp_right) {
                                     Weapon->Target = Ship;
@@ -2774,7 +2805,7 @@ namespace aRanger {
             if (1 <= cpp_last_3) {
                 for (J = 1; J <= cpp_last_3; ++J) {
                     Weapon = Weapons[J];
-                    if ((static_cast<std::uint8_t>(pas::in_set<5, 7>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
+                    if ((static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
                         pas::Extended cpp_right_2 = pas::sqr(GetWeaponRange(Weapon));
                         if (aMyFunction::PointDistanceSquared(Position, EnemyShip->Position) <= cpp_right_2) {
                             Weapon->Target = EnemyShip;
@@ -2790,11 +2821,12 @@ namespace aRanger {
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range_2.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
             if (static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1) && Ship != this && (RelationToShip(Ship) < 10 || Ship == EnemyShip || Ship->EnemyShip == this) && Ship->LiberationGroup == nullptr && TruceShip != Ship && (aPlayer::GetPlayer() != Ship || aPlayer::GetPlayer()->TruceShip != this)) {
+                // Native can replace an existing weapon target in this pass.
                 const std::int32_t cpp_last_4 = static_cast<std::int32_t>(WeaponCount);
                 if (1 <= cpp_last_4) {
                     for (J = 1; J <= cpp_last_4; ++J) {
                         Weapon = Weapons[J];
-                        if ((static_cast<std::uint8_t>(pas::in_set<5, 7>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && IsEquipmentUsable(Weapon)) {
+                        if ((static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && IsEquipmentUsable(Weapon)) {
                             pas::Extended cpp_right_3 = pas::sqr(GetWeaponRange(Weapon));
                             if (aMyFunction::PointDistanceSquared(Position, Ship->Position) <= cpp_right_3) {
                                 Weapon->Target = Ship;
@@ -2815,7 +2847,7 @@ namespace aRanger {
                 if (1 <= cpp_last_5) {
                     for (J = 1; J <= cpp_last_5; ++J) {
                         Weapon = Weapons[J];
-                        if (static_cast<std::uint8_t>(pas::in_set<5, 7>(Weapon->GetWeaponInfo()->ShotType) ^ 1) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
+                        if (static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapon->GetWeaponInfo()->ShotType) ^ 1) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
                             pas::Extended cpp_right_4 = pas::sqr(GetWeaponRange(Weapon));
                             if (aMyFunction::PointDistanceSquared(Position, Missile->Position) <= cpp_right_4) {
                                 Weapon->Target = Missile;
@@ -2861,7 +2893,7 @@ namespace aRanger {
             if (1 <= cpp_last_7) {
                 for (J = 1; J <= cpp_last_7; ++J) {
                     Weapon = Weapons[J];
-                    if ((static_cast<std::uint8_t>(pas::in_set<5, 7>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
+                    if ((static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapon->GetWeaponInfo()->ShotType) ^ 1) || Weapon->Ammo != 0) && Weapon->Target == nullptr && IsEquipmentUsable(Weapon)) {
                         pas::Extended cpp_right_5 = pas::sqr(GetWeaponRange(Weapon));
                         if (aMyFunction::PointDistanceSquared(Position, aPlayer::GetPlayer()->Position) <= cpp_right_5) {
                             Weapon->Target = aPlayer::GetPlayer();
@@ -2876,6 +2908,7 @@ namespace aRanger {
         }
     }
 
+    // May attempt extortion and assign weapon targets; preserves a prior enemy when no replacement qualifies.
     void TRanger::SelectEnemyShipInStar() {
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -2998,6 +3031,7 @@ namespace aRanger {
         }
     }
 
+    // Can reduce ship/home-planet relations and adds pirate career activity to the requester.
     void TRanger::ReactToExtortionDemand(void* Ranger) {
         if (aPlayer::GetPlayer() == Ranger || aMyFunction::NextRandomUnitFloat(RandomState) < 0.05L) {
             ChangeRelationToRanger(Ranger, -15);
@@ -3006,8 +3040,45 @@ namespace aRanger {
         }
     }
 
+    // May execute payment and truce, or open the player's response dialogue; not a text-only query.
     std::uint8_t TRanger::BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) {
         float LicenseFactor{};
+        // Caller-popped static link; paying ranger -4, requester -8, amount +8.
+        auto AcceptMoneyDemand = [&]() -> void {
+            aGalaxyEvent::TGalaxyEvent* Event{};
+            AddTraderCareerActivity(4);
+            this->AbductedByPirateClan = false;
+            if (aPlayer::GetPlayer() == OtherShip) {
+                this->LastPlayerExtortionTurn = aGalaxy::Galaxy->CurrentTurn;
+                Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerExtortsMoney"_w, nullptr);
+                Event->AddData(DemandedAmount);
+                Event->AddData(this->TypeId);
+                Event->AddData(this->CurrentStar->Id);
+                Event->AddData(this->Id);
+                Event->AddData(this->OwnerId);
+                Event->AddTextData(GetName());
+                Event->AddTextData(this->TypeNameOverrideKey);
+                if (aPlayer::GetPlayer()->PirateLicenseTicks > 0) {
+                    aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + System::Round(DemandedAmount * 0.9L));
+                    aPlayer::GetPlayer()->PendingPirateLicenseCash += System::Round(DemandedAmount * 0.1L);
+                    if (aPlayer::GetPlayer()->PendingPirateLicenseCash > 100000000) {
+                        aPlayer::GetPlayer()->PendingPirateLicenseCash = 100000000;
+                    }
+                } else {
+                    aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + DemandedAmount);
+                }
+            } else {
+                OtherShip->SetMoney(OtherShip->Money + DemandedAmount);
+            }
+            SetMoney(this->Money - DemandedAmount);
+            OtherShip->TruceWithShip(this);
+            if (pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
+                pas::checked_cast<TRanger*>(OtherShip)->ApplyExtortionReputationPenalty(this);
+            }
+            if (OtherShip->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                reinterpret_cast<aNormalShip::TNormalShip*>(OtherShip)->AddPirateRankPoints(2u);
+            }
+        };
         std::uint8_t Result = false;
         if (aPlayer::GetPlayer() == OtherShip && aPlayer::GetPlayer()->PirateLicenseTicks > 0) {
             LicenseFactor = 1.15f;
@@ -3032,7 +3103,7 @@ namespace aRanger {
                 aShip::TShip* otherShip = OtherShip;
                 return otherShip->ShowPlayerDialogue(aGalaxyStruct::tkMoneyDemand, formatText1, demandedAmount);
             }()) != 0) {
-                aRanger::AcceptMoneyDemand(this, OtherShip, DemandedAmount);
+                AcceptMoneyDemand();
                 Result = true;
                 aGalaxy::PlayerStar->InterruptLongTravel = true;
                 aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnShipTalkedWithPlayer, OtherShip, nullptr, 0);
@@ -3066,49 +3137,67 @@ namespace aRanger {
                 return Result;
             } else {
                 Response = LookupVisibleTalkText(pas::concat_wide({u"Talk.Money.", GetTypeNameKey(), u"Ok"}), OtherShip);
-                aRanger::AcceptMoneyDemand(this, OtherShip, DemandedAmount);
+                AcceptMoneyDemand();
                 return true;
             }
         }
     }
 
-    void AcceptMoneyDemand(TRanger* Self, aShip::TShip*& OtherShip, std::int32_t& DemandedAmount) {
-        aGalaxyEvent::TGalaxyEvent* Event{};
-        Self->AddTraderCareerActivity(4);
-        Self->AbductedByPirateClan = false;
-        if (aPlayer::GetPlayer() == OtherShip) {
-            Self->LastPlayerExtortionTurn = aGalaxy::Galaxy->CurrentTurn;
-            Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerExtortsMoney"_w, nullptr);
-            Event->AddData(DemandedAmount);
-            Event->AddData(Self->TypeId);
-            Event->AddData(Self->CurrentStar->Id);
-            Event->AddData(Self->Id);
-            Event->AddData(Self->OwnerId);
-            Event->AddTextData(Self->GetName());
-            Event->AddTextData(Self->TypeNameOverrideKey);
-            if (aPlayer::GetPlayer()->PirateLicenseTicks > 0) {
-                aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + System::Round(DemandedAmount * 0.9L));
-                aPlayer::GetPlayer()->PendingPirateLicenseCash += System::Round(DemandedAmount * 0.1L);
-                if (aPlayer::GetPlayer()->PendingPirateLicenseCash > 100000000) {
-                    aPlayer::GetPlayer()->PendingPirateLicenseCash = 100000000;
-                }
-            } else {
-                aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + DemandedAmount);
-            }
-        } else {
-            OtherShip->SetMoney(OtherShip->Money + DemandedAmount);
-        }
-        Self->SetMoney(Self->Money - DemandedAmount);
-        OtherShip->TruceWithShip(Self);
-        if (pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
-            pas::checked_cast<TRanger*>(OtherShip)->ApplyExtortionReputationPenalty(Self);
-        }
-        if (OtherShip->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-            reinterpret_cast<aNormalShip::TNormalShip*>(OtherShip)->AddPirateRankPoints(2u);
-        }
-    }
-
+    // Successful requests jettison cargo and establish a truce.
     std::uint8_t TRanger::BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) {
+        // Caller-popped static link; paying ranger -4, requester -8. Drops goods and can set the player pact flag.
+        auto AcceptCargoDemand = [&]() -> void {
+            std::uint8_t Good{};
+            std::int32_t Pass{};
+            std::int32_t Count{};
+            float Divisor{};
+            aGalaxyEvent::TGalaxyEvent* Event{};
+            AddTraderCareerActivity(4);
+            this->AbductedByPirateClan = false;
+            std::int32_t TotalValue = 0;
+            std::uint8_t Enough = false;
+            std::int32_t LowValue = GetWealthScaledAmount(1);
+            std::int32_t HighValue = GetWealthScaledAmount(4);
+            for (Pass = 1; Pass <= 3; ++Pass) {
+                for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
+                    if (this->CargoGoods[Good].Count > 0) {
+                        Divisor = aMyFunction::RemapClamped(this->CargoGoods[Good].Count * aConst::GoodsMarket[Good].AveragePrice, LowValue, HighValue, 2.0, 8.0);
+                        Count = std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(pas::real_divide(this->CargoGoods[Good].Count, Divisor)));
+                        TotalValue += Count * aConst::GoodsMarket[Good].AveragePrice;
+                        DropGoodsIntoSpace(Good, Count);
+                        if (TotalValue > HighValue) {
+                            Enough = true;
+                            break;
+                        }
+                    }
+                }
+                if (Enough) {
+                    break;
+                }
+            }
+            OtherShip->TruceWithShip(this);
+            if (aPlayer::GetPlayer() == OtherShip) {
+                this->LastPlayerExtortionTurn = aGalaxy::Galaxy->CurrentTurn;
+                Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerExtortsGoods"_w, nullptr);
+                Event->AddData(TotalValue);
+                Event->AddData(this->TypeId);
+                Event->AddData(this->CurrentStar->Id);
+                Event->AddData(this->Id);
+                Event->AddData(this->OwnerId);
+                Event->AddTextData(GetName());
+                Event->AddTextData(this->TypeNameOverrideKey);
+            }
+            if (aPlayer::GetPlayer() == OtherShip) {
+                this->PlayerExtortionPactActive = true;
+            }
+            OtherShip->OrderMove(this->Position, true);
+            if (pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
+                pas::checked_cast<TRanger*>(OtherShip)->ApplyExtortionReputationPenalty(this);
+            }
+            if (OtherShip->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                reinterpret_cast<aNormalShip::TNormalShip*>(OtherShip)->AddPirateRankPoints(2u);
+            }
+        };
         std::uint8_t Result = false;
         if (pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
             ReactToExtortionDemand(OtherShip);
@@ -3122,7 +3211,7 @@ namespace aRanger {
                 aShip::TShip* otherShip = OtherShip;
                 return otherShip->ShowPlayerDialogue(aGalaxyStruct::tkGoodsDemand, lookupTalkText, 0);
             }()) != 0) {
-                aRanger::AcceptCargoDemand(this, OtherShip);
+                AcceptCargoDemand();
                 Result = true;
                 aGalaxy::PlayerStar->InterruptLongTravel = true;
                 aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnShipTalkedWithPlayer, OtherShip, nullptr, 0);
@@ -3151,7 +3240,7 @@ namespace aRanger {
             return Result;
         } else {
             Response = LookupVisibleTalkText(pas::concat_wide({u"Talk.Goods.", GetTypeNameKey(), u"Ok"}), OtherShip);
-            aRanger::AcceptCargoDemand(this, OtherShip);
+            AcceptCargoDemand();
             if (aPlayer::GetPlayer() == OtherShip) {
                 PlayerExtortionPactActive = true;
             }
@@ -3159,61 +3248,42 @@ namespace aRanger {
         }
     }
 
-    void AcceptCargoDemand(TRanger* Self, aShip::TShip*& OtherShip) {
-        std::uint8_t Good{};
-        std::int32_t Pass{};
-        std::int32_t Count{};
-        float Divisor{};
-        aGalaxyEvent::TGalaxyEvent* Event{};
-        Self->AddTraderCareerActivity(4);
-        Self->AbductedByPirateClan = false;
-        std::int32_t TotalValue = 0;
-        std::uint8_t Enough = false;
-        std::int32_t LowValue = Self->GetWealthScaledAmount(1);
-        std::int32_t HighValue = Self->GetWealthScaledAmount(4);
-        for (Pass = 1; Pass <= 3; ++Pass) {
-            for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
-                if (Self->CargoGoods[Good].Count > 0) {
-                    Divisor = aMyFunction::RemapClamped(Self->CargoGoods[Good].Count * aConst::GoodsMarket[Good].AveragePrice, LowValue, HighValue, 2.0, 8.0);
-                    Count = std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(pas::real_divide(Self->CargoGoods[Good].Count, Divisor)));
-                    TotalValue += Count * aConst::GoodsMarket[Good].AveragePrice;
-                    Self->DropGoodsIntoSpace(Good, Count);
-                    if (TotalValue > HighValue) {
-                        Enough = true;
-                        break;
-                    }
-                }
-            }
-            if (Enough) {
-                break;
-            }
-        }
-        OtherShip->TruceWithShip(Self);
-        if (aPlayer::GetPlayer() == OtherShip) {
-            Self->LastPlayerExtortionTurn = aGalaxy::Galaxy->CurrentTurn;
-            Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerExtortsGoods"_w, nullptr);
-            Event->AddData(TotalValue);
-            Event->AddData(Self->TypeId);
-            Event->AddData(Self->CurrentStar->Id);
-            Event->AddData(Self->Id);
-            Event->AddData(Self->OwnerId);
-            Event->AddTextData(Self->GetName());
-            Event->AddTextData(Self->TypeNameOverrideKey);
-        }
-        if (aPlayer::GetPlayer() == OtherShip) {
-            Self->PlayerExtortionPactActive = true;
-        }
-        OtherShip->OrderMove(Self->Position, true);
-        if (pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
-            pas::checked_cast<TRanger*>(OtherShip)->ApplyExtortionReputationPenalty(Self);
-        }
-        if (OtherShip->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-            reinterpret_cast<aNormalShip::TNormalShip*>(OtherShip)->AddPirateRankPoints(2u);
-        }
-    }
-
+    // Acceptance transfers OfferedAmount from OtherShip to Self and establishes a truce.
     std::uint8_t TRanger::BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) {
         pas::WideString Text{};
+        // Caller-popped static link; payer -4, receiving ranger -8, amount +8.
+        auto AcceptTrucePayment = [&]() -> void {
+            aGalaxyEvent::TGalaxyEvent* Event{};
+            OtherShip->SetMoney(OtherShip->Money - OfferedAmount);
+            if (aPlayer::GetPlayer() == this) {
+                Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerAcceptsMoneyForTruce"_w, nullptr);
+                Event->AddData(OfferedAmount);
+                Event->AddData(OtherShip->TypeId);
+                Event->AddData(OtherShip->CurrentStar->Id);
+                Event->AddData(OtherShip->Id);
+                Event->AddData(OtherShip->OwnerId);
+                Event->AddTextData(OtherShip->GetName());
+                Event->AddTextData(OtherShip->TypeNameOverrideKey);
+                if (aPlayer::GetPlayer()->PirateLicenseTicks > 0 && OtherShip->TypeId != aGalaxyStruct::stPirate && (OtherShip->TypeId != aGalaxyStruct::stRanger || OtherShip->GetDominantCareer() != aGalaxyStruct::rcPirate)) {
+                    SetMoney(this->Money + System::Round(OfferedAmount * 0.9L));
+                    aPlayer::GetPlayer()->PendingPirateLicenseCash += System::Round(OfferedAmount * 0.1L);
+                    if (aPlayer::GetPlayer()->PendingPirateLicenseCash > 100000000) {
+                        aPlayer::GetPlayer()->PendingPirateLicenseCash = 100000000;
+                    }
+                } else {
+                    SetMoney(this->Money + OfferedAmount);
+                }
+            } else {
+                SetMoney(this->Money + OfferedAmount);
+            }
+            if (this->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
+                AddPirateRankPoints(2u);
+            }
+            if (this->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::class_cast_if<aTransport::TTransport*>(OtherShip) != nullptr) {
+                AddPirateRankPoints(1u);
+            }
+            TruceWithShip(OtherShip);
+        };
         std::uint8_t Result = false;
         std::int32_t NextDemandTurn = LastPlayerExtortionTurn + 30;
         if (pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
@@ -3229,7 +3299,7 @@ namespace aRanger {
                 aShip::TShip* otherShip = OtherShip;
                 return otherShip->ShowPlayerDialogue(aGalaxyStruct::tkTruceOffer, formatText1, 0);
             }()) != 0) {
-                aRanger::AcceptTrucePayment(this, OtherShip, OfferedAmount);
+                AcceptTrucePayment();
                 Result = true;
                 aGalaxy::PlayerStar->InterruptLongTravel = true;
                 aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnShipTalkedWithPlayer, OtherShip, nullptr, 0);
@@ -3252,7 +3322,7 @@ namespace aRanger {
             return OfferedAmount > cpp_right;
         }())) {
             Response = LookupVisibleTalkText(pas::concat_wide({u"Talk.Truce.", GetTypeNameKey(), u"Ok"}), OtherShip);
-            aRanger::AcceptTrucePayment(this, OtherShip, OfferedAmount);
+            AcceptTrucePayment();
             return true;
         } else {
             Response = LookupVisibleTalkText(pas::concat_wide({u"Talk.Truce.", GetTypeNameKey(), u"No"}), OtherShip);
@@ -3260,41 +3330,16 @@ namespace aRanger {
         }
     }
 
-    void AcceptTrucePayment(TRanger* Self, aShip::TShip*& OtherShip, std::int32_t& OfferedAmount) {
-        aGalaxyEvent::TGalaxyEvent* Event{};
-        OtherShip->SetMoney(OtherShip->Money - OfferedAmount);
-        if (aPlayer::GetPlayer() == Self) {
-            Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerAcceptsMoneyForTruce"_w, nullptr);
-            Event->AddData(OfferedAmount);
-            Event->AddData(OtherShip->TypeId);
-            Event->AddData(OtherShip->CurrentStar->Id);
-            Event->AddData(OtherShip->Id);
-            Event->AddData(OtherShip->OwnerId);
-            Event->AddTextData(OtherShip->GetName());
-            Event->AddTextData(OtherShip->TypeNameOverrideKey);
-            if (aPlayer::GetPlayer()->PirateLicenseTicks > 0 && OtherShip->TypeId != aGalaxyStruct::stPirate && (OtherShip->TypeId != aGalaxyStruct::stRanger || OtherShip->GetDominantCareer() != aGalaxyStruct::rcPirate)) {
-                Self->SetMoney(Self->Money + System::Round(OfferedAmount * 0.9L));
-                aPlayer::GetPlayer()->PendingPirateLicenseCash += System::Round(OfferedAmount * 0.1L);
-                if (aPlayer::GetPlayer()->PendingPirateLicenseCash > 100000000) {
-                    aPlayer::GetPlayer()->PendingPirateLicenseCash = 100000000;
-                }
-            } else {
-                Self->SetMoney(Self->Money + OfferedAmount);
-            }
-        } else {
-            Self->SetMoney(Self->Money + OfferedAmount);
-        }
-        if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::class_cast_if<TRanger*>(OtherShip) != nullptr) {
-            Self->AddPirateRankPoints(2u);
-        }
-        if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::class_cast_if<aTransport::TTransport*>(OtherShip) != nullptr) {
-            Self->AddPirateRankPoints(1u);
-        }
-        Self->TruceWithShip(OtherShip);
-    }
-
+    // May change relations/career activity even on refusal; acceptance issues a joint attack.
     std::uint8_t TRanger::BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) {
-        std::uint8_t Result = false;
+        std::uint8_t Result{};
+        // Caller-popped static link; ranger -4, requester -8, text output -12, Boolean output -13, target +8.
+        auto AcceptAttackRequest = [&]() -> void {
+            Response = LookupVisibleTalkText(pas::concat_wide({u"Talk.Attack.", GetTypeNameKey(), u"Ok"}), Requester);
+            SetJointAttackTarget(Requester, Target);
+            Result = true;
+        };
+        Result = false;
         if (pas::class_cast_if<TRanger*>(Requester) != nullptr) {
             if (pas::in_range(Target->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stPirate)) {
                 Target->ChangeRelationToRanger(Requester, -20);
@@ -3321,7 +3366,7 @@ namespace aRanger {
                 aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnShipTalkedWithPlayer, Requester, nullptr, 0);
             }
         } else if (PartnerShip == Requester || OrderTarget == Target && GetRelationLevelToShip(Target) == aGalaxyStruct::rlHostile) {
-            aRanger::AcceptAttackRequest(this, Requester, Response, Target, Result);
+            AcceptAttackRequest();
         } else if (TruceShip == Target) {
             Response = ([&] {
                 pas::WideString name = Target->GetName();
@@ -3345,17 +3390,12 @@ namespace aRanger {
         } else if (HasLockedOrFollowOrder() && PartnerShip != Requester) {
             Response = LookupVisibleTalkText(pas::concat_wide({u"Talk.Attack.", GetTypeNameKey(), u"HaveBusiness"}), Requester);
         } else {
-            aRanger::AcceptAttackRequest(this, Requester, Response, Target, Result);
+            AcceptAttackRequest();
         }
         return Result;
     }
 
-    void AcceptAttackRequest(TRanger* Self, aShip::TShip*& Requester, pas::WideString& Response, aShip::TShip*& Target, std::uint8_t& Result) {
-        Response = Self->LookupVisibleTalkText(pas::concat_wide({u"Talk.Attack.", Self->GetTypeNameKey(), u"Ok"}), Requester);
-        Self->SetJointAttackTarget(Requester, Target);
-        Result = true;
-    }
-
+    // Checks eligibility and formats refusal text; OtherShip must be a ranger. Success does not clear preexisting Response.
     std::uint8_t TRanger::BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) {
         std::uint8_t Result = false;
         if (RelationToShip(OtherShip) < 45) {
@@ -3384,6 +3424,7 @@ namespace aRanger {
         return Result;
     }
 
+    // Calls the eligibility method, then sets PartnerShip/duration and transfers payment. Requires a ranger requester.
     std::uint8_t TRanger::AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) {
         std::uint8_t Result{};
         if (BuildPartnershipOfferResponse(OtherShip, Response, PaymentAmount)) {
@@ -3417,10 +3458,12 @@ namespace aRanger {
         return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Count>"_w, std::move(intToStr));
     }
 
+    // Does not mask or validate ProgramIndex.
     std::uint8_t TRanger::HasProgram(std::uint8_t ProgramIndex) {
         return ProgramCounts[ProgramIndex] > 0;
     }
 
+    // Sums owned quantities for bits 0..11; higher bits are ignored. Native signed 32-bit additions wrap on overflow.
     std::int32_t TRanger::CountProgramsInFilter(TRangerProgramMask Filter) {
         std::uint8_t I{};
         std::int32_t Result = 0;
@@ -3432,6 +3475,7 @@ namespace aRanger {
         return Result;
     }
 
+    // Selects an allowed ID regardless of inventory counts; deterministic system/turn seed. Empty filter returns zero after 10000 attempts.
     std::uint8_t TRanger::SelectRandomProgramIdFromFilter(TRangerProgramMask Filter) {
         std::uint8_t ProgramId{};
         std::int32_t Attempt = 0;
@@ -3450,9 +3494,10 @@ namespace aRanger {
         return Result;
     }
 
+    // Favors program 5 until enough copies exist; otherwise selects among IDs 6..11.
     std::uint8_t TRanger::SelectProgramReward() {
-        static const pas::Set<0, 255> BasicProgram = pas::constant_set<pas::Set<0, 255>>({{5}});
-        static const pas::Set<0, 255> OtherPrograms = pas::constant_set<pas::Set<0, 255>>({{6, 11}});
+        static const pas::Set<0, 255> BasicProgram = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::prgIntercom}});
+        static const pas::Set<0, 255> OtherPrograms = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::prgShipwreck, aGalaxyStruct::prgDisconnection}});
         if (CountProgramsInFilter(static_cast<TRangerProgramMask>(BasicProgram)) == 0 || ([&] {
             std::int32_t cpp_left = CountProgramsInFilter(static_cast<TRangerProgramMask>(BasicProgram));
             return cpp_left < aMyFunction::RandomIntRange(3, 10);
@@ -3462,6 +3507,7 @@ namespace aRanger {
         return SelectRandomProgramIdFromFilter(static_cast<TRangerProgramMask>(OtherPrograms));
     }
 
+    // At least one; uses galaxy seed, turn and difficulty.
     std::int32_t TRanger::GetProgramRewardCount(std::uint8_t ProgramIndex) {
         std::int32_t Result{};
         if (ProgramIndex == aGalaxyStruct::prgIntercom) {
@@ -3506,7 +3552,7 @@ namespace aRanger {
                 break;
             }
         }
-        if (pas::in_set<43, 43, 45, 46>(Item->ItemType)) {
+        if (pas::is_one_of<aConst::t_FuelTanks, aConst::t_Radar, aConst::t_Scaner>(Item->ItemType)) {
             FragilityScale = FragilityScale * 0.5L;
         }
         float DesiredFreeFraction = pas::real_max<pas::Extended>(0.01L, pas::real_min<pas::Extended>(0.99L, pas::real_divide(GetDesiredCargoFreeSpace(), std::max<std::int32_t>(100, GetHull()->Weight))));
@@ -3556,7 +3602,7 @@ namespace aRanger {
     }
 
     float TRanger::EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
-        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
+        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
         float Result = 0.0f;
         if (Value == 0) {
@@ -3683,13 +3729,13 @@ namespace aRanger {
                 Result = 0.0f;
             }
         }
-        if (PreferredCareer == aGalaxyStruct::rcWarrior && pas::in_set<0, 0, 4, 4, 6, 6, 8, 8, 12, 12>(BonusKind)) {
+        if (PreferredCareer == aGalaxyStruct::rcWarrior && pas::is_one_of<aConst::bonHull, aConst::bonRadar, aConst::bonDroid, aConst::bonDef, aConst::bonWRadius>(BonusKind)) {
             Result = Result * 1.3L;
         }
-        if (PreferredCareer == aGalaxyStruct::rcPirate && pas::in_set<2, 2, 9, 10, 28, 28>(BonusKind)) {
+        if (PreferredCareer == aGalaxyStruct::rcPirate && pas::is_one_of<aConst::bonSpeed, aConst::bonWEnergy, aConst::bonWSplinter, aConst::bonMass>(BonusKind)) {
             Result = Result * 1.3L;
         }
-        if (PreferredCareer == aGalaxyStruct::rcTrader && pas::in_set<1, 1, 3, 3>(BonusKind)) {
+        if (PreferredCareer == aGalaxyStruct::rcTrader && pas::is_one_of<aConst::bonFuel, aConst::bonJump>(BonusKind)) {
             Result = Result * 1.3L;
         }
         if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonSkill1), static_cast<std::int32_t>(aConst::bonSkill6))) {
@@ -3700,9 +3746,9 @@ namespace aRanger {
     }
 
     float TRanger::EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) {
-        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
-        static const pas::Set<0, 255> ShockFlags = pas::constant_set<pas::Set<0, 255>>({{6}});
-        static const pas::Set<0, 255> AcidFlags = pas::constant_set<pas::Set<0, 255>>({{7}});
+        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
+        static const pas::Set<0, 255> ShockFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkShock}});
+        static const pas::Set<0, 255> AcidFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkAcid}});
         float ScannerFactor{};
         aGalaxyStruct::TDamageFlagSet Flags{};
         std::int32_t I{};
@@ -3880,6 +3926,7 @@ namespace aRanger {
         return Result * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-20, 20, Seed + Weapon->GetWeaponInfo()->TypeHash));
     }
 
+    // Always true.
     std::uint8_t TRanger::AcceptPickupItem(aItem::TItem* Item) {
         return true;
     }
@@ -3932,9 +3979,10 @@ namespace aRanger {
             const std::int32_t cpp_first = pas::list_count(Quests) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
+                    // The neutral index expression preserves DCC32's native argument evaluation order.
                     Quest = pas::list_at<TQuest>(Quests, I + 0);
                     if (aGalaxy::Galaxy->CurrentTurn >= Quest->DeadlineTurn) {
-                        if (pas::in_set<0, 2>(Quest->QuestType) && static_cast<std::uint8_t>(Quest->Successful ^ 1)) {
+                        if (pas::is_one_of<aGalaxyStruct::qtSendLetter, aGalaxyStruct::qtKillShip, aGalaxyStruct::qtPlanetQuest>(Quest->QuestType) && static_cast<std::uint8_t>(Quest->Successful ^ 1)) {
                             if (Quest->QuestType != aGalaxyStruct::qtPlanetQuest || GlobalsV::CurrentScreenId != GlobalsV::screenPlanetQuest || !(pas::class_cast_if<aPlanet::TPlanet*>(Quest->ObjectiveTarget) != nullptr) || aPlayer::GetPlayer()->CurrentPlanet != pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)) {
                                 TRanger::PublishQuestStatus(Quest, -1);
                                 if (Quest->Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aPlanet::MainPiratePlanet != nullptr && aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) > aGalaxyStruct::rlBad) {
@@ -3960,10 +4008,10 @@ namespace aRanger {
                                     Achievements::TryAddAchievementProgress(u"POSTMAN"_w, 1);
                                 }
                                 Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
-                                CheckQuestFailureAward(Quest, pas::constant_set<aGalaxyStruct::TQuestTypes>({{0}, {1}, {2}}));
+                                CheckQuestFailureAward(Quest, pas::constant_set<aGalaxyStruct::TQuestTypes>({{aGalaxyStruct::qtSendLetter}, {aGalaxyStruct::qtKillShip}, {aGalaxyStruct::qtPlanetQuest}}));
                                 ArchiveQuest(I);
                             }
-                        } else if (pas::in_set<3, 4>(Quest->QuestType) && static_cast<std::uint8_t>(Quest->Successful ^ 1)) {
+                        } else if (pas::is_one_of<aGalaxyStruct::qtDefendSystem, aGalaxyStruct::qtDefendShip>(Quest->QuestType) && static_cast<std::uint8_t>(Quest->Successful ^ 1)) {
                             switch (Quest->QuestType) {
                                 case aGalaxyStruct::qtDefendSystem: {
                                     if (Quest->Planet != nullptr) {
@@ -3986,6 +4034,7 @@ namespace aRanger {
                                 }
                             }
                             aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
+                            // Native code still dereferences Planet after the nil-planet text branches.
                             aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, Quest->Planet->Name, u"<color=255,240,100>"_w);
                             Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
                             Quest->Successful = true;
@@ -4001,6 +4050,7 @@ namespace aRanger {
         }
     }
 
+    // Uses player history.
     std::int32_t TRanger::CountFailedQuests(std::uint8_t OwnerId, aGalaxyStruct::TQuestTypes QuestTypes) {
         std::int32_t I{};
         PPlayerOldQuest Quest{};
@@ -4016,37 +4066,37 @@ namespace aRanger {
 
     void TRanger::CheckQuestFailureAward(PQuest Quest, aGalaxyStruct::TQuestTypes QuestTypes) {
         std::int32_t FailureCount{};
+        // Caller-popped static link; ranger -4. Awards only at an exact geometric milestone, checking at most ten thresholds.
+        auto GrantQuestFailureMilestoneAward = [&](std::int32_t InitialThreshold, std::int32_t Multiplier, std::int32_t FailureCount, std::uint8_t OwnerId) -> void {
+            aConst::TRewardInfo cpp_result{};
+            std::int32_t I{};
+            std::int32_t Award{};
+            pas::WideString Text{};
+            std::int32_t Threshold = InitialThreshold;
+            for (I = 1; I <= 10; ++I) {
+                if (FailureCount < Threshold) {
+                    break;
+                }
+                if (FailureCount == Threshold) {
+                    Award = SelectAward(OwnerId, pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atCowardice}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}})) & 0x000000ff;
+                    if (Award != aGalaxyStruct::AwardNotFound) {
+                        AddAward(Award);
+                        if (aPlayer::GetPlayer() == this) {
+                            Text = aConst::PickLocalizedTextVariant(u"GalaxyNews.BadReward.FailQuest"_wref.get(), this->Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn / 10));
+                            aMyFunction::ReplaceTextToken(Text, u"<Reward>"_w, (aNormalShip::TNormalShip::GetAwardInfo(Award, cpp_result), cpp_result).Name, u"<color=255,240,100>"_w);
+                            Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
+                        }
+                    }
+                    break;
+                }
+                Threshold = std::min<std::int32_t>(Threshold * Multiplier, 10000000);
+            }
+        };
         if (aGalaxy::Galaxy->CoalitionDefeatedTurn == 0 && Quest->Planet != nullptr) {
             FailureCount = TRanger::CountFailedQuests(Quest->Planet->OwnerId, QuestTypes) + 1;
             if (FailureCount > 0) {
-                aRanger::GrantQuestFailureMilestoneAward(3, 2, FailureCount, aConst::RaceToOwner(Quest->Planet->RaceId), this);
+                GrantQuestFailureMilestoneAward(3, 2, FailureCount, aConst::RaceToOwner(Quest->Planet->RaceId));
             }
-        }
-    }
-
-    void GrantQuestFailureMilestoneAward(std::int32_t InitialThreshold, std::int32_t Multiplier, std::int32_t FailureCount, std::uint8_t OwnerId, TRanger* Self) {
-        aConst::TRewardInfo cpp_result{};
-        std::int32_t I{};
-        std::int32_t Award{};
-        pas::WideString Text{};
-        std::int32_t Threshold = InitialThreshold;
-        for (I = 1; I <= 10; ++I) {
-            if (FailureCount < Threshold) {
-                break;
-            }
-            if (FailureCount == Threshold) {
-                Award = Self->SelectAward(OwnerId, pas::constant_set<aNormalShip::TAwardTypeMask>({{3}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}})) & 0x000000ff;
-                if (Award != aGalaxyStruct::AwardNotFound) {
-                    Self->AddAward(Award);
-                    if (aPlayer::GetPlayer() == Self) {
-                        Text = aConst::PickLocalizedTextVariant(u"GalaxyNews.BadReward.FailQuest"_wref.get(), Self->Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn / 10));
-                        aMyFunction::ReplaceTextToken(Text, u"<Reward>"_w, (aNormalShip::TNormalShip::GetAwardInfo(Award, cpp_result), cpp_result).Name, u"<color=255,240,100>"_w);
-                        Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
-                    }
-                }
-                break;
-            }
-            Threshold = std::min<std::int32_t>(Threshold * Multiplier, 10000000);
         }
     }
 
@@ -4087,8 +4137,9 @@ namespace aRanger {
 
     std::uint8_t TRanger::TryTurnInQuest(std::int32_t Index, pas::WideString& ResponseText) {
         aConst::TRewardInfo cpp_result{};
-        static const pas::Set<0, 255> RewardPrograms = pas::constant_set<pas::Set<0, 255>>({{6, 11}});
+        static const pas::Set<0, 255> RewardPrograms = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::prgShipwreck, aGalaxyStruct::prgDisconnection}});
         PQuest Quest{};
+        std::int32_t GenerationSeed{};
         std::int32_t Experience{};
         aGalaxyEvent::TGalaxyEvent* Event{};
         std::int32_t MinimumPriority{};
@@ -4101,7 +4152,94 @@ namespace aRanger {
         std::uint8_t ProgramIndex{};
         aItem::TMicroModule* ModuleItem{};
         pas::WideString Factions{};
-        std::int32_t GenerationSeed = 0;
+        // Caller-popped static link; ranger -4, quest -8. Removes/frees matching delivery cargo; true also when this planet quest requires no item.
+        auto ConsumeQuestDeliveryItem = [&]() -> std::uint8_t {
+            std::int32_t I{};
+            aItem::TItem* Item{};
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(this->Inventory) - 1); cpp_range.next(I); ) {
+                Item = pas::list_at<aItem::TItem>(this->Inventory, I);
+                if (Item->ItemType == aConst::t_UselessItem) {
+                    if (Quest->QuestType == aGalaxyStruct::qtSendLetter && ([&] {
+                        pas::WideString cpp_string = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Quest.SendLetter.", SysUtils::IntToStr(Quest->QuestNumber), ".SysName"})));
+                        const pas::WideString& cpp_string_ref = pas::checked_cast<aItem::TUselessItem*>(Item)->ConfigBlockName;
+                        return cpp_string == cpp_string_ref;
+                    }()) || Quest->QuestType == aGalaxyStruct::qtPlanetQuest && ([&] {
+                        pas::WideString cpp_string_2 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.ItemForPlanetQuest.", SysUtils::IntToStr(Quest->QuestNumber)})));
+                        const pas::WideString& cpp_string_ref_2 = pas::checked_cast<aItem::TUselessItem*>(Item)->ConfigBlockName;
+                        return cpp_string_2 == cpp_string_ref_2;
+                    }())) {
+                        pas::list_delete(this->Inventory, I);
+                        pas::free(Item);
+                        RefreshDerivedStats(true);
+                        return true;
+                    }
+                }
+            }
+            return Quest->QuestType == aGalaxyStruct::qtPlanetQuest && (GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.ItemForPlanetQuest.", SysUtils::IntToStr(Quest->QuestNumber)}))) == u"None" || GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.ItemForPlanetQuest.", SysUtils::IntToStr(Quest->QuestNumber)}))) == u"");
+        };
+        // Caller-popped static link; ranger -4, quest -8, seed input -12, experience -16, response output -20, event -24, quest index -28. Grants experience, archives the quest and updates relations.
+        auto FinalizeSuccessfulQuestTurnIn = [&]() -> void {
+            Experience = aMyFunction::RoundAndTruncateToTens(([&] {
+                pas::Extended cpp_right = pas::real_divide(aGalaxy::Galaxy->ScaleIntByTechLevel(aConst::QuestExperience[Quest->QuestType], 2 * aConst::QuestExperience[Quest->QuestType]), aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestTimeAndExperienceFactor);
+                return aMyFunction::SeededRandomFloatRange((GenerationSeed + aGalaxy::Galaxy->CurrentTurn) / 100 + 123, 0.7, 1.5) * cpp_right;
+            }()));
+            GainExperience(Experience, 0);
+            if (aPlayer::GetPlayer() == this) {
+                ResponseText = pas::concat_wide({ResponseText, u"\r\n", u" ", u"\r\n", aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"PlanetCongratulations.Quest.AddPoints"_wref.get()), u"<color=45,105,45>"_w)});
+                aMyFunction::ReplaceTextToken(ResponseText, u"<Points>"_w, pas::wide_int_to_str(Experience), pas::WideString());
+            } else {
+                ResponseText = pas::WideString();
+            }
+            if (aPlayer::GetPlayer() == this) {
+                Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerFinishesQuest"_w, nullptr);
+                Event->AddData(Quest->QuestType);
+                Event->AddData(Quest->QuestNumber);
+                Event->AddData(Quest->RewardMoney);
+                Event->AddData(Experience);
+            }
+            if (aPlayer::GetPlayer() == this && this->CurrentPlanet != nullptr) {
+                aMyFunction::ReplaceTextToken(ResponseText, u"<Star>"_w, this->CurrentPlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(ResponseText, u"<Planet>"_w, this->CurrentPlanet->Name, u"<color=255,240,100>"_w);
+            }
+            TRanger::PublishQuestStatus(Quest, 1);
+            if (aPlayer::GetPlayer() == this) {
+                aMyFunction::ReplaceTextToken(ResponseText, u"<Ranger>"_w, this->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(ResponseText, u"<Money>"_w, pas::wide_int_to_str(Quest->RewardMoney), u"<color=255,240,100>"_w);
+            }
+            if (Quest->QuestType == aGalaxyStruct::qtDefendSystem) {
+                Achievements::TryAddAchievementProgress(u"GUARD"_w, 1);
+            }
+            if (Quest->QuestType == aGalaxyStruct::qtSendLetter) {
+                Achievements::TryAddAchievementProgress(u"DELIVERY"_w, 1);
+            }
+            ArchiveQuest(Index);
+            RefreshPlayerQuestTargets();
+            if (this->CurrentPlanet != nullptr) {
+                std::int32_t cpp_arg = std::max<std::int32_t>(0, 70 - (this->CurrentPlanet->RelationToShip(this) & 0x0000007f));
+                aPlanet::TPlanet* currentPlanet = this->CurrentPlanet;
+                currentPlanet->ChangeRelationToRanger(this, cpp_arg);
+            }
+            if (this->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aPlanet::MainPiratePlanet != nullptr) {
+                if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlHostile) {
+                    aPlanet::MainPiratePlanet->SetRelationLevelToRanger(this, aGalaxyStruct::rlBad);
+                }
+                if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlBad) {
+                    aPlanet::MainPiratePlanet->SetRelationLevelToRanger(this, aGalaxyStruct::rlNormal);
+                }
+                if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlNormal) {
+                    aPlanet::MainPiratePlanet->SetRelationLevelToRanger(this, aGalaxyStruct::rlGood);
+                }
+                if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlGood) {
+                    aPlanet::MainPiratePlanet->SetRelationLevelToRanger(this, aGalaxyStruct::rlExcellent);
+                }
+                // Native calls the ranger's own virtual method here, after upgrading the planet relation.
+                if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) >= aGalaxyStruct::rlExcellent) {
+                    ChangeRelationToRanger(this, std::max<std::int32_t>(0, 100 - (aPlanet::MainPiratePlanet->RelationToShip(this) & 0x0000007f)));
+                }
+            }
+            Achievements::TryAddAchievementProgress(u"AGENT"_w, 1);
+        };
+        GenerationSeed = 0;
         if (CurrentPlanet != nullptr) {
             GenerationSeed = CurrentPlanet->GenerationSeed;
         }
@@ -4112,7 +4250,7 @@ namespace aRanger {
         Quest = pas::list_at<TQuest>(Quests, Index);
         switch (Quest->QuestType) {
             case aGalaxyStruct::qtSendLetter: {
-                if (pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget) == CurrentPlanet && aRanger::ConsumeQuestDeliveryItem(this, Quest)) {
+                if (pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget) == CurrentPlanet && ConsumeQuestDeliveryItem()) {
                     Result = true;
                     Quest->Successful = true;
                     SetMoney(Money + Quest->RewardMoney);
@@ -4153,7 +4291,7 @@ namespace aRanger {
                 break;
             }
             case aGalaxyStruct::qtPlanetQuest: {
-                if (Quest->Planet == CurrentPlanet && (Quest->Successful || aRanger::ConsumeQuestDeliveryItem(this, Quest))) {
+                if (Quest->Planet == CurrentPlanet && (Quest->Successful || ConsumeQuestDeliveryItem())) {
                     Result = true;
                     Quest->Successful = true;
                     SetMoney(Money + Quest->RewardMoney);
@@ -4213,7 +4351,7 @@ namespace aRanger {
         {
             pas::Extended cpp_right = aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 0.1, 0.5);
             if (aMyFunction::SeededRandomUnitFloat((GenerationSeed + aGalaxy::Galaxy->CurrentTurn) / 51 + 1767) < cpp_right) {
-                aRanger::FinalizeSuccessfulQuestTurnIn(this, Index, ResponseText, Quest, GenerationSeed, Experience, Event);
+                FinalizeSuccessfulQuestTurnIn();
                 return Result;
             }
         }
@@ -4240,7 +4378,7 @@ namespace aRanger {
             ModuleWeight = aMyFunction::RandomIntRange(10, 90);
         }
         if (AwardWeight == 0.0L && ProgramWeight == 0.0L && ArtefactWeight == 0.0L && ModuleWeight == 0.0L) {
-            aRanger::FinalizeSuccessfulQuestTurnIn(this, Index, ResponseText, Quest, GenerationSeed, Experience, Event);
+            FinalizeSuccessfulQuestTurnIn();
             return Result;
         }
         if (AwardWeight > 0.0L) {
@@ -4264,15 +4402,15 @@ namespace aRanger {
         } else if (ModuleWeight > 0.0L && ModuleWeight >= pas::real_max<float>(ArtefactWeight, pas::real_max<float>(AwardWeight, ProgramWeight))) {
             RewardKind = 4;
         } else {
-            aRanger::FinalizeSuccessfulQuestTurnIn(this, Index, ResponseText, Quest, GenerationSeed, Experience, Event);
+            FinalizeSuccessfulQuestTurnIn();
             return Result;
         }
         switch (RewardKind) {
             case 1: {
                 if (CurrentPlanet != nullptr) {
-                    Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{1}, {2}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+                    Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atAccomplishment}, {aGalaxyStruct::atSecretMission}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
                 } else {
-                    Award = SelectAward(DockedTo->OwnerId, pas::constant_set<aNormalShip::TAwardTypeMask>({{1}, {2}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+                    Award = SelectAward(DockedTo->OwnerId, pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atAccomplishment}, {aGalaxyStruct::atSecretMission}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
                 }
                 if (Award != aGalaxyStruct::AwardNotFound) {
                     AddAward(Award);
@@ -4357,100 +4495,15 @@ namespace aRanger {
                 break;
             }
         }
-        aRanger::FinalizeSuccessfulQuestTurnIn(this, Index, ResponseText, Quest, GenerationSeed, Experience, Event);
+        FinalizeSuccessfulQuestTurnIn();
         return Result;
     }
 
-    std::uint8_t ConsumeQuestDeliveryItem(TRanger* Self, PQuest& Quest) {
-        std::int32_t I{};
-        aItem::TItem* Item{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range.next(I); ) {
-            Item = pas::list_at<aItem::TItem>(Self->Inventory, I);
-            if (Item->ItemType == aConst::t_UselessItem) {
-                if (Quest->QuestType == aGalaxyStruct::qtSendLetter && ([&] {
-                    pas::WideString cpp_string = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Quest.SendLetter.", SysUtils::IntToStr(Quest->QuestNumber), ".SysName"})));
-                    const pas::WideString& cpp_string_ref = pas::checked_cast<aItem::TUselessItem*>(Item)->ConfigBlockName;
-                    return cpp_string == cpp_string_ref;
-                }()) || Quest->QuestType == aGalaxyStruct::qtPlanetQuest && ([&] {
-                    pas::WideString cpp_string_2 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.ItemForPlanetQuest.", SysUtils::IntToStr(Quest->QuestNumber)})));
-                    const pas::WideString& cpp_string_ref_2 = pas::checked_cast<aItem::TUselessItem*>(Item)->ConfigBlockName;
-                    return cpp_string_2 == cpp_string_ref_2;
-                }())) {
-                    pas::list_delete(Self->Inventory, I);
-                    pas::free(Item);
-                    Self->RefreshDerivedStats(true);
-                    return true;
-                }
-            }
-        }
-        return Quest->QuestType == aGalaxyStruct::qtPlanetQuest && (GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.ItemForPlanetQuest.", SysUtils::IntToStr(Quest->QuestNumber)}))) == u"None" || GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.ItemForPlanetQuest.", SysUtils::IntToStr(Quest->QuestNumber)}))) == u"");
-    }
-
-    void FinalizeSuccessfulQuestTurnIn(TRanger* Self, std::int32_t& Index, pas::WideString& ResponseText, PQuest& Quest, std::int32_t& GenerationSeed, std::int32_t& Experience, aGalaxyEvent::TGalaxyEvent*& Event) {
-        Experience = aMyFunction::RoundAndTruncateToTens(([&] {
-            pas::Extended cpp_right = pas::real_divide(aGalaxy::Galaxy->ScaleIntByTechLevel(aConst::QuestExperience[Quest->QuestType], 2 * aConst::QuestExperience[Quest->QuestType]), aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestTimeAndExperienceFactor);
-            return aMyFunction::SeededRandomFloatRange((GenerationSeed + aGalaxy::Galaxy->CurrentTurn) / 100 + 123, 0.7, 1.5) * cpp_right;
-        }()));
-        Self->GainExperience(Experience, 0);
-        if (aPlayer::GetPlayer() == Self) {
-            ResponseText = pas::concat_wide({ResponseText, u"\r\n", u" ", u"\r\n", aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"PlanetCongratulations.Quest.AddPoints"_wref.get()), u"<color=45,105,45>"_w)});
-            aMyFunction::ReplaceTextToken(ResponseText, u"<Points>"_w, pas::wide_int_to_str(Experience), pas::WideString());
-        } else {
-            ResponseText = pas::WideString();
-        }
-        if (aPlayer::GetPlayer() == Self) {
-            Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerFinishesQuest"_w, nullptr);
-            Event->AddData(Quest->QuestType);
-            Event->AddData(Quest->QuestNumber);
-            Event->AddData(Quest->RewardMoney);
-            Event->AddData(Experience);
-        }
-        if (aPlayer::GetPlayer() == Self && Self->CurrentPlanet != nullptr) {
-            aMyFunction::ReplaceTextToken(ResponseText, u"<Star>"_w, Self->CurrentPlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(ResponseText, u"<Planet>"_w, Self->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-        }
-        TRanger::PublishQuestStatus(Quest, 1);
-        if (aPlayer::GetPlayer() == Self) {
-            aMyFunction::ReplaceTextToken(ResponseText, u"<Ranger>"_w, Self->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(ResponseText, u"<Money>"_w, pas::wide_int_to_str(Quest->RewardMoney), u"<color=255,240,100>"_w);
-        }
-        if (Quest->QuestType == aGalaxyStruct::qtDefendSystem) {
-            Achievements::TryAddAchievementProgress(u"GUARD"_w, 1);
-        }
-        if (Quest->QuestType == aGalaxyStruct::qtSendLetter) {
-            Achievements::TryAddAchievementProgress(u"DELIVERY"_w, 1);
-        }
-        Self->ArchiveQuest(Index);
-        Self->RefreshPlayerQuestTargets();
-        if (Self->CurrentPlanet != nullptr) {
-            std::int32_t cpp_arg = std::max<std::int32_t>(0, 70 - (Self->CurrentPlanet->RelationToShip(Self) & 0x0000007f));
-            aPlanet::TPlanet* currentPlanet = Self->CurrentPlanet;
-            currentPlanet->ChangeRelationToRanger(Self, cpp_arg);
-        }
-        if (Self->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aPlanet::MainPiratePlanet != nullptr) {
-            if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(Self) == aGalaxyStruct::rlHostile) {
-                aPlanet::MainPiratePlanet->SetRelationLevelToRanger(Self, aGalaxyStruct::rlBad);
-            }
-            if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(Self) == aGalaxyStruct::rlBad) {
-                aPlanet::MainPiratePlanet->SetRelationLevelToRanger(Self, aGalaxyStruct::rlNormal);
-            }
-            if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(Self) == aGalaxyStruct::rlNormal) {
-                aPlanet::MainPiratePlanet->SetRelationLevelToRanger(Self, aGalaxyStruct::rlGood);
-            }
-            if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(Self) == aGalaxyStruct::rlGood) {
-                aPlanet::MainPiratePlanet->SetRelationLevelToRanger(Self, aGalaxyStruct::rlExcellent);
-            }
-            if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(Self) >= aGalaxyStruct::rlExcellent) {
-                Self->ChangeRelationToRanger(Self, std::max<std::int32_t>(0, 100 - (aPlanet::MainPiratePlanet->RelationToShip(Self) & 0x0000007f)));
-            }
-        }
-        Achievements::TryAddAchievementProgress(u"AGENT"_w, 1);
-    }
-
+    // Requires CurrentPlanet. Grants an award, program, item or module plus experience and relation effects. The hidden WideString result is cleared on entry; NPC result is empty.
     pas::WideString TRanger::GrantPlanetQuestReward(std::int32_t Difficulty, std::int32_t& ExperienceAwarded) {
         aConst::TRewardInfo cpp_result{};
         pas::WideString Result{};
-        static const pas::Set<0, 255> RewardPrograms = pas::constant_set<pas::Set<0, 255>>({{6, 11}});
+        static const pas::Set<0, 255> RewardPrograms = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::prgShipwreck, aGalaxyStruct::prgDisconnection}});
         std::int32_t Amount{};
         std::int32_t MinimumPriority{};
         std::int32_t RewardKind{};
@@ -4510,7 +4563,7 @@ namespace aRanger {
         }
         switch (RewardKind) {
             case 1: {
-                Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{5}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+                Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atPlanetBattle}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
                 if (Award != aGalaxyStruct::AwardNotFound) {
                     AddAward(Award);
                     if (aPlayer::GetPlayer() == this) {
@@ -4621,6 +4674,7 @@ namespace aRanger {
             if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlGood) {
                 aPlanet::MainPiratePlanet->SetRelationLevelToRanger(this, aGalaxyStruct::rlExcellent);
             }
+            // Native calls the ranger's own virtual method here, after upgrading the planet relation.
             if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) >= aGalaxyStruct::rlExcellent) {
                 ChangeRelationToRanger(this, std::max<std::int32_t>(0, 100 - (aPlanet::MainPiratePlanet->RelationToShip(this) & 0x0000007f)));
             }
@@ -4628,6 +4682,7 @@ namespace aRanger {
         return Result;
     }
 
+    // Requires CurrentPlanet.
     std::uint8_t TRanger::GenerateQuestOffer(TQuest& Quest, pas::WideString& ResponseText) {
         std::int32_t I{};
         std::int32_t J{};
@@ -5286,6 +5341,7 @@ namespace aRanger {
         }
     }
 
+    // Outcome: 0=active, positive=completed, negative=failed.
     void TRanger::PublishQuestStatus(PQuest Quest, std::int32_t Outcome) {
         pas::WideString Text{};
         Globals::TMessagePlayer* Message{};
@@ -5352,6 +5408,7 @@ namespace aRanger {
                             if (Quest->Planet != nullptr && Quest->Planet->GetRelationLevelToShip(this) > aGalaxyStruct::rlBad) {
                                 Quest->Planet->SetRelationLevelToRanger(Ranger, aGalaxyStruct::rlBad);
                             }
+                            // Native assumes Planet is present after the guarded update above.
                             if (Quest->Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aPlanet::MainPiratePlanet != nullptr && aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) > aGalaxyStruct::rlBad) {
                                 if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlNormal) {
                                     aPlanet::MainPiratePlanet->SetRelationLevelToRanger(this, aGalaxyStruct::rlBad);
@@ -5371,14 +5428,17 @@ namespace aRanger {
                                 aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, pas::checked_cast<aGalaxy::TStar*>(Quest->ObjectiveTarget)->Name, u"<color=255,240,100>"_w);
                                 Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
                             }
+                            // The original calls these on Self, even while iterating another ranger's quests.
                             TRanger::PublishQuestStatus(Quest, -1);
                             ArchiveQuest(J);
                         }
+                        // Native continues reading Quest after that archive; retain the original ordering.
                         if (pas::in_range(Ship->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stPirate) && Quest->QuestType == aGalaxyStruct::qtDefendShip && Ship == Quest->ObjectiveTarget) {
                             if (!Quest->Successful) {
                                 if (Quest->Planet != nullptr && Quest->Planet->GetRelationLevelToShip(this) > aGalaxyStruct::rlBad) {
                                     Quest->Planet->SetRelationLevelToRanger(Ranger, aGalaxyStruct::rlBad);
                                 }
+                                // Native assumes Planet is present after the guarded update above.
                                 if (Quest->Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aPlanet::MainPiratePlanet != nullptr && aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) > aGalaxyStruct::rlBad) {
                                     if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlNormal) {
                                         aPlanet::MainPiratePlanet->SetRelationLevelToRanger(this, aGalaxyStruct::rlBad);
@@ -5440,6 +5500,7 @@ namespace aRanger {
         return false;
     }
 
+    // Player-only; pending history can also preserve unrelated ships.
     std::uint8_t TRanger::ShouldKeepShipForQuests(aShip::TShip* Ship) {
         std::int32_t I{};
         PQuest Quest{};
@@ -5474,6 +5535,7 @@ namespace aRanger {
         return Result;
     }
 
+    // Does nothing for NPC rangers.
     void TRanger::RefreshPlayerQuestTargets() {
         std::int32_t I{};
         PQuest Quest{};

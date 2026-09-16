@@ -21,8 +21,11 @@ namespace ab_Global {
     };
     #pragma pack(pop)
 
+    // Column-major storage: Matrix[Column][Row].
     using TMatrix4D = pas::Array<pas::Array<double, 0, 3>, 0, 3>;
 
+    // BonusTicks order from TabShip.ApplyDamage (), UpdateState ()
+    // and Advance (); shared with map bonus flags and pickup handling.
     inline constexpr std::int32_t abkRegeneration = 0;
 
     inline constexpr std::int32_t abkSpeed = 1;

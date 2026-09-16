@@ -6,6 +6,7 @@ namespace Windows {
 
     inline void MoveMemory(void* Dest, void* Source, std::uint32_t ByteCount);
 
+    // This implementation also supports overlapping ranges.
     inline void CopyMemory(void* Dest, void* Source, std::uint32_t ByteCount);
 
 } // namespace Windows

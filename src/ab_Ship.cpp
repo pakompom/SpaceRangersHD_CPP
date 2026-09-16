@@ -37,6 +37,7 @@ namespace ab_Ship {
 
     ab_Ship::TabShip* KellerArcadeShip = nullptr;
 
+    // Keeps Keller alive while present; exact visual role under review.
     ab_Ship::TabShip* KellerAuxiliaryShip = nullptr;
 
     std::uint8_t ArcadePaused{};

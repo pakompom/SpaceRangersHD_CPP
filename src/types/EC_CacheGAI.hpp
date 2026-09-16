@@ -45,16 +45,22 @@ namespace EC_CacheGAI {
         WindowsSdk::TRect GetBoundsRect();
         WindowsSdk::TPoint GetCanvasSize();
         void GetOrCreateFrameSurface(std::int32_t FrameIndex, Direct3D9::IDirect3DTexture9& Result);
+        // Requires a valid index and a prior GetOrCreateFrameSurface call.
         WindowsSdk::TPoint GetFrameOrigin(std::int32_t FrameIndex);
+        // Returns borrowed, reused DecodedFrameGi storage, or nil.
         GR_gi::TgiGR* LoadFrameGi(std::int32_t FrameIndex);
+        // Does not validate FrameIndex.
         std::uint8_t IsFrameCompressed(std::int32_t FrameIndex);
+        // Returns zero when no sequence table exists. Other sequence accessors require a valid table and indexes.
         std::int32_t GetSequenceCount();
         std::int32_t GetSequenceFrameCount(std::int32_t SequenceIndex);
         void FillSequenceFrameIndexTable(std::int32_t SequenceIndex, void* DestTable, std::int32_t EntryStride);
         void FillSequenceFrameDelayTable(std::int32_t SequenceIndex, void* DestTable, std::int32_t EntryStride);
         std::int32_t GetSequenceFrameIndex(std::int32_t SequenceIndex, std::int32_t FrameInSequence);
         std::int32_t GetSequenceFrameDelay(std::int32_t SequenceIndex, std::int32_t FrameInSequence);
+        // NoConvertPF disables palette conversion. Only the minimum header size is validated; frame and sequence offsets are trusted.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
+        // Only affects the single-frame Bm.FormAB2.2bg resource; replaces SourceBuffer with RGB565 GI data.
         static void ApplyAB2BackgroundFixup(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& ResourceKey);
         void* RawGaiData;
         GR_gi::PGaiHeader Header;

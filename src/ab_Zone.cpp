@@ -18,6 +18,7 @@
 #include "units/ab_WorldLine.hpp"
 #include "units/ab_Zone.hpp"
 
+// Native zone and link region:; original unit boundary unresolved.
 namespace ab_Zone {
     void PropagateZoneDistances(PabZone Zone);
 

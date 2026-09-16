@@ -56,6 +56,7 @@ namespace fPanelRuins {
         PanelRuins->SetActive(aPlayer::GetPlayer()->RuinsMode == 0);
     }
 
+    // Native no-op lifecycle hook.
     void TfPanelRuins::OnClose() {
     }
 

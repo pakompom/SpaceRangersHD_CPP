@@ -14,12 +14,15 @@ namespace fLoadAB {
 
     struct TfLoadAB;
 
+    // Native RTTI name and managed-field offsets.
     struct TfLoadABSlot {
         pas::WideString Name;
         pas::WideString MapName;
         pas::WideString ImageName;
+        // Produced by the native multiline helper.
         pas::WideString Description;
         std::int32_t ConfigIndex;
+        // Borrowed from the row control.
         GI_Image::TImageGI* BackgroundImage;
         std::int32_t Difficulty;
     };
@@ -48,7 +51,9 @@ namespace fLoadAB {
         void SelectCategory(GI_MessageLoop::TObjectGI* Sender);
         void StartSelectedArena(GI_MessageLoop::TObjectGI* Sender);
         void ShowSelectedArenaDetails();
+        // Native empty hook, retained during catalog rebuild.
         static void PrepareCatalog();
+        // Returns the configured ABMap entry count for the main menu.
         static pas::WideString GetCatalogSummary();
         void SelectMusic() override;
         pas::DynArray<TfLoadABSlot> Entries;

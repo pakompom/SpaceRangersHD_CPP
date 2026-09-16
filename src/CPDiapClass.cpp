@@ -31,6 +31,7 @@ namespace CPDiapClass {
         pas::destroy(Text);
     }
 
+    // Requires at least one range.
     std::int64_t TCPDiapazone::GetMinimum() {
         std::int32_t i{};
         std::int64_t Result = RangeStarts[0];
@@ -42,6 +43,7 @@ namespace CPDiapClass {
         return Result;
     }
 
+    // Requires at least one range.
     std::int64_t TCPDiapazone::GetMaximum() {
         std::int32_t i{};
         std::int64_t Result = RangeEnds[0];
@@ -53,6 +55,7 @@ namespace CPDiapClass {
         return Result;
     }
 
+    // Zero when empty. Sampling weights overlaps repeatedly; lengths and results are 32-bit.
     std::int32_t TCPDiapazone::GetRandomValue() {
         std::int32_t i{};
         std::int32_t RandomValue{};
@@ -69,6 +72,7 @@ namespace CPDiapClass {
                 RandomValue = RandomValue + RangeEnds[i] - RangeStarts[i] + 1;
             }
             RandomValue = pas::random(RandomValue, &System::RandSeed);
+            // Native scan includes RangeCount and draws again within the selected range.
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, RangeCount); cpp_range_2.next(i); ) {
                 if (RandomValue >= Starts[i] && RandomValue <= Ends[i]) {
                     RandomValue = pas::random(static_cast<std::int32_t>(RangeEnds[i] - RangeStarts[i] + 1), &System::RandSeed);
@@ -80,6 +84,7 @@ namespace CPDiapClass {
         return Result;
     }
 
+    // Rounds with System.Round first.
     std::uint8_t TCPDiapazone::Contains(pas::Extended Value) {
         std::int32_t i{};
         std::int64_t Rounded = System::Round(Value);
@@ -92,6 +97,7 @@ namespace CPDiapClass {
         return false;
     }
 
+    // Uses [ahb;c] and signed low 32-bit endpoints; empty output is '['.
     pas::WideString TCPDiapazone::ToText() {
         pas::WideString Result{};
         std::int32_t i{};
@@ -111,6 +117,7 @@ namespace CPDiapClass {
         return Result;
     }
 
+    // Ignores Source.AcceptListed.
     void TCPDiapazone::LoadFromValues(ValueListClass::TValuesList*& Source) {
         std::int32_t i{};
         RangeCount = Source->Count;
@@ -133,6 +140,7 @@ namespace CPDiapClass {
         }
     }
 
+    // Preserves overlapping and duplicate ranges.
     void TCPDiapazone::Append(TCPDiapazone*& Source) {
         std::int32_t i{};
         if (Source->RangeCount > 0) {
@@ -146,6 +154,7 @@ namespace CPDiapClass {
         }
     }
 
+    // Swaps reversed bounds; does not merge ranges.
     void TCPDiapazone::AddRange(std::int64_t MinValue, std::int64_t MaxValue) {
         std::int64_t Temporary{};
         ++RangeCount;
@@ -160,6 +169,7 @@ namespace CPDiapClass {
         RangeEnds[RangeCount - 1] = MaxValue;
     }
 
+    // Truncates to Int64; caught conversion errors preserve existing ranges.
     void TCPDiapazone::AddValue(pas::Extended Value) {
         std::int64_t IntegerValue = 0;
         std::uint8_t Failed = false;
@@ -182,6 +192,7 @@ namespace CPDiapClass {
         }
     }
 
+    // Accepts [a..b;c] or [ahb;c]. Endpoints beyond +/-200000000 can expand intervals unexpectedly; '..' normalization can overread.
     void TCPDiapazone::LoadFromText(pas::WideString Text) {
         std::int32_t i{};
         std::int64_t Value{};
@@ -193,6 +204,7 @@ namespace CPDiapClass {
         Clear();
         std::int32_t Count = Text.length();
         if (Text != u";") {
+            // Native parsing retains the original Count after this shortening replacement.
             Normalized = EC_Str::ReplaceAllWideString(Text, u".."_wref.get(), u"h"_wref.get());
             i = 1;
             NumberText = pas::WideString();

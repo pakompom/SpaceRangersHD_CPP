@@ -16,6 +16,7 @@ namespace TextFieldClass {
     struct TTextField : EC_Struct::TObjectEx {
         PAS_CLASS_META(TTextField, EC_Struct::TObjectEx, "TTextField", 8)
         void ClearText();
+        // Int32 line and character counts, UTF-16 text; trims lines and joins with CRLF.
         void LoadTextLinesFromReader(EC_Buf::TBufEC* Reader);
         pas::WideString Text;
     };

@@ -96,6 +96,7 @@ namespace fStarMap {
 
     std::int32_t FilmCameraLookAheadSteps = 30;
 
+    // Returns milliseconds, adjusted by the configured film speed.
     std::int32_t GetTurnFilmFrameInterval(std::int32_t Activity) {
         std::int32_t Result{};
         if (Activity == 0) {
@@ -153,6 +154,7 @@ namespace fStarMap {
         return Result;
     }
 
+    // Disables automatic film-camera following.
     void TfStarMap::SetMapCenterManually(WindowsSdk::TPoint Point) {
         if (MapControls == nullptr) {
             MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
@@ -1242,6 +1244,7 @@ namespace fStarMap {
         }
     }
 
+    // May rebuild the ship movement path and update its order destination.
     void TfStarMap::BuildShipPathOverlay(aShip::TShip* Ship, std::uint8_t DelayEndImage, pas::WideString InitialImagePath) {
         EC_Struct::TPointF Point{};
         EC_Struct::TPointF TargetPosition{};
@@ -1852,6 +1855,7 @@ namespace fStarMap {
         pas::free(Sender);
     }
 
+    // Returns a borrowed game object or nil; updates HitObjectPosition and HitObjectSize.
     pas::Object* TfStarMap::FindObjectAtCursor() {
         std::int32_t Index{};
         aShip::TShip* Ship{};
@@ -2622,6 +2626,7 @@ namespace fStarMap {
             } else if (pas::class_cast_if<aPlanet::TPlanet*>(CursorObject) != nullptr) {
                 TargetPosition = reinterpret_cast<aPlanet::TPlanet*>(CursorObject)->GetPosition();
             } else if (pas::class_cast_if<aGalaxy::THole*>(CursorObject) != nullptr) {
+                // Kept by the native routine despite the outer hole exclusion.
                 if (reinterpret_cast<aGalaxy::THole*>(CursorObject)->Star1 == aGalaxy::PlayerStar) {
                     TargetPosition = reinterpret_cast<aGalaxy::THole*>(CursorObject)->Position1;
                 } else {
@@ -3415,6 +3420,7 @@ namespace fStarMap {
                                 RequestClose(1);
                             }
                         } else if (CursorObject == aPlayer::GetPlayer()) {
+                            // Kept by the native routine even after the earlier player-object branch.
                             ShipToInspect = aPlayer::GetPlayer();
                             ShipClicked(nullptr);
                         } else {
@@ -3716,6 +3722,7 @@ namespace fStarMap {
     }
 
     void TfStarMap::OrderKeyUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
+        // The native body retains these guard reads despite having no guarded action.
         static_cast<void>(static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1));
     }
 
@@ -3748,6 +3755,7 @@ namespace fStarMap {
         }
     }
 
+    // Nil hides the object panels. Accepts game objects, not scene objects.
     void TfStarMap::ShowObjectInfo(pas::Object* Obj) {
         static const pas::Set<0, 255> WearableItemTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         GI_Panel::TPanelGI* Panel{};
@@ -4885,7 +4893,7 @@ namespace fStarMap {
                             cpp_with_34->SetPosition(ClassesImports::Point(RowX + RowHeight + 2, RowHeight * I + 1));
                         }
                         RowX = RowX + RowHeight + 2;
-                        if (pas::in_set<0, 0, 2, 2>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->Economy)) {
+                        if (pas::is_one_of<aGalaxyStruct::peAgricultural, aGalaxyStruct::peIndustrial>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->Economy)) {
                             GI_Image::TImageGI* cpp_with_35 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
                             switch (pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->Economy) {
                                 case aGalaxyStruct::peAgricultural: {
@@ -5184,6 +5192,7 @@ namespace fStarMap {
         AddMapAnimation(Ship->Position, pas::concat_wide({u"Bm.SI.", GR_Main::GiResourceSuffix(), u"Ring"}), 400);
     }
 
+    // Selection 1 chooses the nearest TKling; 2 chooses the farthest.
     void TfStarMap::CenterOnDominator(std::int32_t Selection) {
         std::int32_t Index{};
         aShip::TShip* Ship{};
@@ -5220,6 +5229,7 @@ namespace fStarMap {
     }
 
     void TfStarMap::CenterShipMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
+        // The native guard tests job 5 as well as the declared preparation job 3.
         if (ThreadCalc::IsTurnCalculationRunning() && (Globals::TurnCalculationThread->Job == ThreadCalc::tcjPreparePlayerStar || static_cast<std::int32_t>(Globals::TurnCalculationThread->Job) == 5)) {
             return;
         }
@@ -5433,6 +5443,7 @@ namespace fStarMap {
         std::int32_t RangeMaximum{};
         pas::Array<std::int32_t, 0, 2> Reserved{};
         CursorObject = FindObjectAtCursor();
+        // These three assignments are retained from the native routine; their values are unused.
         Reserved[0] = 1;
         Reserved[1] = 1;
         Reserved[2] = 1;
@@ -5652,7 +5663,7 @@ namespace fStarMap {
     }
 
     void TfStarMap::RebuildTargetMarkers() {
-        static const pas::Set<0, 255> TargetDamageFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
+        static const pas::Set<0, 255> TargetDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> NoDamageFlags = pas::constant_set<pas::Set<0, 255>>({});
         std::int32_t J{};
         std::int32_t I{};
@@ -5837,6 +5848,7 @@ namespace fStarMap {
             Obj = FindObjectAtCursor();
             Point.X = 0.0f;
             Point.Y = 0.0f;
+            // Native checks the cached CursorObject class but reads the current hit object's position.
             if (pas::class_cast_if<aShip::TShip*>(CursorObject) != nullptr) {
                 Point = reinterpret_cast<aShip::TShip*>(Obj)->Position;
             } else if (pas::class_cast_if<aMissile::TMissile*>(CursorObject) != nullptr) {
@@ -5944,6 +5956,7 @@ namespace fStarMap {
         HideSpacePanelButton->SetActive(Globals::StarMapWeaponPanelOpen);
     }
 
+    // Stores the animation direction; native toggle passes -1 to hide and +1 to show.
     void TfStarMap::AnimateWeaponPanel(std::int32_t Target) {
         WeaponPanelTarget = Target;
         if (WeaponPanelTimer != nullptr) {
@@ -5988,6 +6001,7 @@ namespace fStarMap {
         SpacePanel->SetPosition(ClassesImports::Point(SpacePanel->LocalPosition.X, SpacePanelRestTop + SpacePanel->ClientSize.Y - System::Round(static_cast<long double>(SpacePanel->ClientSize.Y) * Progress)));
     }
 
+    // Stores the signed animation direction.
     void TfStarMap::AnimateSpacePanel(std::int32_t Target) {
         SpacePanelTarget = Target;
         if (SpacePanelTimer != nullptr) {
@@ -6655,6 +6669,7 @@ namespace fStarMap {
         }
     }
 
+    // Returns a borrowed scene object; sets ObjectId to zero on failure.
     SE_Space::TObjectSE* TfStarMap::FindFilmObjectAtCursor(std::uint32_t& ObjectId) {
         SE_Space::TObjectSE* Result{};
         WindowsSdk::TPoint Point{};
@@ -6753,6 +6768,7 @@ namespace fStarMap {
         return Result;
     }
 
+    // Nil hides the object panels. ObjectId resolves recorded information in the current film.
     void TfStarMap::ShowFilmObjectInfo(SE_Space::TObjectSE* Obj, std::uint32_t ObjectId) {
         static const pas::Set<0, 255> WearableItemTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         std::int32_t I{};
@@ -7841,7 +7857,7 @@ namespace fStarMap {
                             cpp_with_34->SetPosition(ClassesImports::Point(RowX + RowHeight + 2, RowHeight * I + 1));
                         }
                         RowX = RowX + RowHeight + 2;
-                        if (pas::in_set<0, 0, 2, 2>(pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Economy)) {
+                        if (pas::is_one_of<aGalaxyStruct::peAgricultural, aGalaxyStruct::peIndustrial>(pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Economy)) {
                             GI_Image::TImageGI* cpp_with_35 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
                             switch (pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Economy) {
                                 case aGalaxyStruct::peAgricultural: {
@@ -8069,6 +8085,7 @@ namespace fStarMap {
         pas::Array<WindowsImports::THandle, 0, 1> Events{};
         MainPanel->Hide();
         ResumeMode = smrNormal;
+        // Native dormant checks precede the actual wait setup.
         if (Globals::TurnCalculationThread->IdleEvent == 0) {
             static_cast<void>(Globals::TurnCalculationThread->IdleEvent == 0);
         }
@@ -8132,6 +8149,7 @@ namespace fStarMap {
                             Obj = Globals::SpaceProcess->Space->FirstObject;
                             while (Obj != nullptr) {
                                 if (aKling::TerronShip->Graphic == Obj) {
+                                    // CreateNormalGraphic uses Ruins.Terron, whose TRuinsSE owns these images.
                                     if (reinterpret_cast<SE_Ruins::TRuinsSE*>(Obj)->Animation != nullptr) {
                                         TerronFadeImage = reinterpret_cast<SE_Ruins::TRuinsSE*>(Obj)->Animation;
                                         reinterpret_cast<SE_Ruins::TRuinsSE*>(Obj)->Animation = nullptr;
@@ -8223,7 +8241,7 @@ namespace fStarMap {
         if (WindowsSdk::WaitForSingleObject(Globals::ScriptUiRequestEvent, 0u) == WindowsSdk::WAIT_OBJECT_0) {
             return;
         }
-        if (!pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (!pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             ThreadCalc::WaitForTurnCalculation();
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum(10007);

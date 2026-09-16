@@ -50,6 +50,7 @@ namespace EC_CacheTBitmap {
         EC_Cache::TCacheDataEC_Destroy(Self);
     }
 
+    // Applies LoadOption image operations before building the transparent buffer.
     void TCTBitmapEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         GR_GraphBuf::TGraphBufGR* Bitmap = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
         Bitmap->LoadImage(SourceBuffer);

@@ -89,6 +89,7 @@ namespace ParameterDeltaClass {
         return true;
     }
 
+    // An empty or invalid expression preserves the current parameter value.
     void TParameterDelta::EvaluateChangeExpression(pas::List*& Parameters) {
         pas::WideString Text{};
         CalcParseClass::TCalcParse* Calc{};
@@ -143,6 +144,7 @@ namespace ParameterDeltaClass {
         }
     }
 
+    // Invalid indices and disabled parameters pass; full noncritical bounds impose no constraint.
     std::uint8_t TParameterDelta::AcceptsParameter(pas::List* Parameters) {
         std::uint8_t Result = true;
         if (ParameterIndex <= 0 || pas::list_count(Parameters) < ParameterIndex) {
@@ -168,6 +170,8 @@ namespace ParameterDeltaClass {
         return Result;
     }
 
+    // Legacy readers leave ParameterIndex zero; the location/path reader assigns it.
+    // Quest versions 1111111111..1111111115.
     void TParameterDelta::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
         MinValue = EC_Buf::TBufEC_GetInt32(Reader);
@@ -180,6 +184,7 @@ namespace ParameterDeltaClass {
         CriticalEvent->Text->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest version 1111111116.
     void TParameterDelta::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
         EC_Buf::TBufEC_GetInt32(Reader);
@@ -195,6 +200,7 @@ namespace ParameterDeltaClass {
         CriticalEvent->Text->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest versions 1111111117..1111111118.
     void TParameterDelta::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
         EC_Buf::TBufEC_GetInt32(Reader);
@@ -211,6 +217,7 @@ namespace ParameterDeltaClass {
         CriticalEvent->Text->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest versions 1111111119..1111111124.
     void TParameterDelta::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
         EC_Buf::TBufEC_GetInt32(Reader);

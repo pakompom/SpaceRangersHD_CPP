@@ -50,8 +50,6 @@
 #include "units/fShip2.hpp"
 
 namespace fEquipmentShop {
-    void AddOverlay(pas::WideString Name, GI_MessageLoop::TObjectGI*& Parent, std::int32_t& OffsetX, std::int32_t& OffsetY, GI_MessageLoop::TObjectGI*& Root);
-
     std::int32_t ShopGridRowCount = 4;
 
     std::int32_t ShopVisibleColumnCount = 6;
@@ -64,9 +62,11 @@ namespace fEquipmentShop {
 
     pas::Array<pas::WideString, 0, 2> ShopDominatorImagePrefixes = pas::Array<pas::WideString, 0, 2>{{u"B"_w, u"K"_w, u"T"_w}};
 
+    // Native no-op. Sole caller passes nil; original parameter meaning is unresolved.
     void TemporaryShopStockHook(void* Argument) {
     }
 
+    // Transfers ownership of market inventory into the temporary slots.
     void BuildTemporaryShopSlotGrid() {
         std::int32_t X{};
         std::int32_t Y{};
@@ -155,6 +155,7 @@ namespace fEquipmentShop {
         }
     }
 
+    // Returns ownership of remaining items to the original market.
     void RestoreTemporaryShopStock() {
         std::int32_t I{};
         std::int32_t Count{};
@@ -184,6 +185,7 @@ namespace fEquipmentShop {
         fEquipmentShop::ClearTemporaryShopSlotGrid();
     }
 
+    // Frees remaining items without returning them to the market.
     void ClearTemporaryShopSlotGrid() {
         std::int32_t I{};
         std::int32_t Count{};
@@ -238,6 +240,7 @@ namespace fEquipmentShop {
         return Item->GetBitmapResourceName();
     }
 
+    // Owns Item while the location's shop list is detached, and frees remaining controls.
     void TShopSlot_Create(TShopSlot* Self) {
         EC_Struct::TObjectEx_Create(Self);
     }
@@ -921,6 +924,7 @@ namespace fEquipmentShop {
         }
     }
 
+    // Playback continues until the current animation cycle ends.
     void TfEquipmentShop::ScheduleSlotPreviewStop(TShopSlot* Slot) {
         if (Slot->ItemAnimation != nullptr) {
             Slot->ItemAnimation->CycleCompleteCallback = pas::bind_static_method<&TfEquipmentShop::PreviewCycleComplete>(this);
@@ -1434,69 +1438,70 @@ namespace fEquipmentShop {
     }
 
     void TfEquipmentShop::BuildHullSlotOverlays(GI_MessageLoop::TObjectGI* Parent, aItem::THull* Hull, std::int32_t OffsetX, std::int32_t OffsetY) {
+        GI_MessageLoop::TObjectGI* Root{};
         std::int32_t I{};
-        GI_MessageLoop::TObjectGI* Root = GetByName(u"InfoHull"_wref.get());
+        // Nested in BuildHullSlotOverlays; captures root, parent and offsets.
+        auto AddOverlay = [&](pas::WideString Name) -> void {
+            pas::WideString Path{};
+            GI_GraphBuf::TGraphBufGI* Graph{};
+            GI_MessageLoop::TObjectGI* Control = Root->FindByNameRecursive(Name);
+            if (Control != nullptr) {
+                Graph = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Parent, false);
+                Graph->SetPositionModeW(true);
+                Graph->SetPosition(ClassesImports::Point(Control->LocalPosition.X + OffsetX, Control->LocalPosition.Y + OffsetY));
+                Graph->SetSize(Control->ClientSize);
+                Graph->SourceHasPerPixelAlpha = true;
+                Path = pas::checked_cast<GI_Image::TImageGI*>(Control)->GetImagePath();
+                if (EC_Str::CountDelimitedPartsW(Path, u","_wref.get()) == 2) {
+                    Path = EC_Str::ExtractDelimitedPartW(Path, 1, u","_wref.get());
+                }
+                GI_GI::LoadGiByPathIntoGraphBuf(Path, Graph->GraphBuf);
+            }
+        };
+        Root = GetByName(u"InfoHull"_wref.get());
         if (Hull->GetSlotCount(aConst::sskAfterburner) >= 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_Forsage"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_Forsage"_w);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_W1"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_W1"_w);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 2) {
-            fEquipmentShop::AddOverlay(u"InfoHull_W2"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_W2"_w);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 3) {
-            fEquipmentShop::AddOverlay(u"InfoHull_W3"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_W3"_w);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 4) {
-            fEquipmentShop::AddOverlay(u"InfoHull_W4"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_W4"_w);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 5) {
-            fEquipmentShop::AddOverlay(u"InfoHull_W5"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_W5"_w);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, aConst::DefaultHullSlotCounts[aConst::sskArtefact]); cpp_range.next(I); ) {
             if (Hull->GetSlotCount(aConst::sskArtefact) < I) {
-                fEquipmentShop::AddOverlay(pas::concat_wide({u"InfoHull_A", EC_Str::IntToWideString(I)}), Parent, OffsetX, OffsetY, Root);
+                AddOverlay(pas::concat_wide({u"InfoHull_A", EC_Str::IntToWideString(I)}));
             }
         }
         if (Hull->GetSlotCount(aConst::sskEngine) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_Engine"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_Engine"_w);
         }
         if (Hull->GetSlotCount(aConst::sskFuelTanks) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_FuelTanks"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_FuelTanks"_w);
         }
         if (Hull->GetSlotCount(aConst::sskScanner) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_Scaner"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_Scaner"_w);
         }
         if (Hull->GetSlotCount(aConst::sskRadar) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_Radar"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_Radar"_w);
         }
         if (Hull->GetSlotCount(aConst::sskRepairRobot) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_RepairRobot"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_RepairRobot"_w);
         }
         if (Hull->GetSlotCount(aConst::sskCargoHook) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_CargoHook"_w, Parent, OffsetX, OffsetY, Root);
+            AddOverlay(u"InfoHull_CargoHook"_w);
         }
         if (Hull->GetSlotCount(aConst::sskDefGenerator) < 1) {
-            fEquipmentShop::AddOverlay(u"InfoHull_DefGenerator"_w, Parent, OffsetX, OffsetY, Root);
-        }
-    }
-
-    void AddOverlay(pas::WideString Name, GI_MessageLoop::TObjectGI*& Parent, std::int32_t& OffsetX, std::int32_t& OffsetY, GI_MessageLoop::TObjectGI*& Root) {
-        pas::WideString Path{};
-        GI_GraphBuf::TGraphBufGI* Graph{};
-        GI_MessageLoop::TObjectGI* Control = Root->FindByNameRecursive(Name);
-        if (Control != nullptr) {
-            Graph = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Parent, false);
-            Graph->SetPositionModeW(true);
-            Graph->SetPosition(ClassesImports::Point(Control->LocalPosition.X + OffsetX, Control->LocalPosition.Y + OffsetY));
-            Graph->SetSize(Control->ClientSize);
-            Graph->SourceHasPerPixelAlpha = true;
-            Path = pas::checked_cast<GI_Image::TImageGI*>(Control)->GetImagePath();
-            if (EC_Str::CountDelimitedPartsW(Path, u","_wref.get()) == 2) {
-                Path = EC_Str::ExtractDelimitedPartW(Path, 1, u","_wref.get());
-            }
-            GI_GI::LoadGiByPathIntoGraphBuf(Path, Graph->GraphBuf);
+            AddOverlay(u"InfoHull_DefGenerator"_w);
         }
     }
 
@@ -1772,7 +1777,7 @@ namespace fEquipmentShop {
         if (GR_Main::ExitScreenLoop) {
             return;
         }
-        if (pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10011);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20011);

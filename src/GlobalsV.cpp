@@ -6,6 +6,7 @@ namespace GlobalsV {
 
     std::uint8_t HalfGovAnim = false;
 
+    // // Zero-based.
     std::int32_t QuestStyleIndex = 0;
 
     std::uint8_t QuestPageAnimationEnabled = true;
@@ -14,6 +15,7 @@ namespace GlobalsV {
 
     std::int32_t RightClickOnShip = 0;
 
+    // Native purpose remains unresolved.
     std::uint8_t EstOptionEnabled = false;
 
     std::uint8_t SendRecordOff = false;
@@ -26,6 +28,7 @@ namespace GlobalsV {
 
     std::int32_t Wind = 2;
 
+    // Native default; standalone selector replaces it with a numeric quest ID or a quest resource name.
     pas::WideString PendingQuestName = u"Prison"_w;
 
     GlobalsV::TGameScreenTable RegisteredScreens{};
@@ -36,6 +39,7 @@ namespace GlobalsV {
 
     std::uint8_t HardwareRenderingEnabled{};
 
+    // Native startup checks ntdll wine_get_version/wine_get_host_version.
     std::uint8_t RunningUnderWine{};
 
     std::uint8_t ScaleViewportToWindow{};
@@ -46,14 +50,19 @@ namespace GlobalsV {
 
     pas::WideString MiniFontName{};
 
+    // Initialized to Font.2Small.
     pas::WideString SmallFontName{};
 
+    // Initialized to Font.2SmallBold.
     pas::WideString SmallBoldFontName{};
 
+    // Initialized to Font.2Normal.
     pas::WideString NormalFontName{};
 
+    // Initialized to Font.2NormalBold.
     pas::WideString NormalBoldFontName{};
 
+    // Initialized to Font.2Big.
     pas::WideString BigFontName{};
 
     pas::WideString HugeFontName{};
@@ -62,12 +71,16 @@ namespace GlobalsV {
 
     pas::WideString AuthorsFontName{};
 
+    // Initialized to Font.Verdana8.
     pas::WideString SmoothSmallFontName{};
 
+    // Initialized to Font.Verdana8bold.
     pas::WideString SmoothSmallBoldFontName{};
 
+    // Initialized to Font.Verdana9.
     pas::WideString SmoothNormalFontName{};
 
+    // Initialized to Font.Verdana9bold.
     pas::WideString SmoothNormalBoldFontName{};
 
     pas::WideString SmoothBigFontName{};
@@ -80,10 +93,12 @@ namespace GlobalsV {
 
     std::int32_t LoadedFilmCount{};
 
+    // One selects death; other native ending codes remain unresolved.
     std::int32_t GameEndReason{};
 
     std::int32_t ShipTail = 0;
 
+    // 3D setting, cleared on EDirectXRender during device startup.
     std::uint8_t ThreeDimensionalModeEnabled = false;
 
     std::uint8_t AnimCaptain = false;
@@ -148,6 +163,7 @@ namespace GlobalsV {
 
     std::int32_t MaxFilmStepSkip = 3;
 
+    // CountFilmSave setting. UI range is 1..100; config loading clamps only the minimum to 1. Limit applies when a recording is added, not while loading a save.
     std::int32_t FilmHistoryLimit = 1;
 
     float BeginCalcNextTurn = 1.0f;
@@ -158,14 +174,17 @@ namespace GlobalsV {
 
     std::uint8_t ActionDoubleClick = true;
 
+    // FontGalaxy setting; default gmfNormalBold. Out-of-range values also use the normal-bold font.
     GlobalsV::TGalaxyMapFontChoice GalaxyMapFontChoice = GlobalsV::gmfNormalBold;
 
     std::int32_t FontQuest = 0;
 
     std::int32_t FontDialog = 0;
 
+    // FontSmooth setting.
     std::uint8_t FontSmoothingEnabled = false;
 
+    // 0=BMP, 1=PNG, 2=JPEG.
     std::int32_t ScreenshotFormat = 1;
 
     std::int32_t ScreenshotJpegQuality = 85;
@@ -186,6 +205,7 @@ namespace GlobalsV {
 
     std::uint8_t ClickAutoCloseForm = true;
 
+    // Native purpose remains unresolved.
     std::uint8_t UiRuntimeFlag = false;
 
     std::uint8_t MultiThreadEnabled = false;
@@ -234,10 +254,13 @@ namespace GlobalsV {
 
     GlobalsV::TGameScreenId ScannerReturnScreenId = GlobalsV::screenNone;
 
+    // Quest selector or campaign screen that launched the active text quest.
     GlobalsV::TGameScreenId QuestReturnScreenId = GlobalsV::screenNone;
 
+    // Return screen for native screen ID 13; its purpose remains unresolved.
     GlobalsV::TGameScreenId Screen13ReturnScreenId = GlobalsV::screenNone;
 
+    // Set by the star-map/ruins caller; consumed by galaxy-map Back.
     GlobalsV::TGameScreenId GalaxyReturnScreenId = GlobalsV::screenNone;
 
     GlobalsV::TGameScreenId SaveManagerReturnScreenId = GlobalsV::screenNone;
@@ -250,6 +273,7 @@ namespace GlobalsV {
 
     std::int32_t LoadedSaveVersion = 0;
 
+    // -1 outside the film-loading phase.
     std::int32_t LoadingFilmCount = -1;
 
     std::uint8_t BackgroundShade = false;
@@ -268,6 +292,7 @@ namespace GlobalsV {
 
     std::uint8_t SputnikShow = true;
 
+    // Used by TPlanetGI.SetImageFromTemplate when creating its light buffers.
     pas::WideString SatelliteLightMapPath = u"Bm.Planet.S.Light094"_w;
 
     std::int32_t SatelliteTemplateParameter1 = 128;
@@ -276,18 +301,22 @@ namespace GlobalsV {
 
     std::int32_t MinimumSatelliteTemplateRadius = 10;
 
+    // Base for procedural satellite display sizes, separate from render-template limits.
     std::int32_t GeneratedSatelliteBaseRadius = 13;
 
     std::int32_t MaximumSatelliteTemplateRadius = 60;
 
+    // Owns TSputnikTempl instances.
     pas::List* SatelliteRenderTemplates = nullptr;
 
     pas::DynArray<GlobalsV::TSpaceImageTemplate> SpaceImageTemplates = nullptr;
 
     pas::DynArray<GlobalsV::TStarFieldImageTemplate> StarFieldImageTemplates = nullptr;
 
+    // Nonnegative forces this quest ID in government offers; native default is -1.
     std::int32_t ForcedPlanetQuestId = -1;
 
+    // Raises when absent; nil matches the first empty slot.
     TGameScreenId FormToId(pas::Object* Screen) {
         TGameScreenId Id = screenNone;
         do {
@@ -299,6 +328,7 @@ namespace GlobalsV {
         pas::raise(pas::make_exception<pas::Exception>("FormToId"_a));
     }
 
+    // No bounds check.
     pas::Object* GetRegisteredScreenLoop(TGameScreenId ScreenId) {
         return RegisteredScreens[ScreenId];
     }

@@ -51,6 +51,7 @@ namespace EC_CacheAlphaBitmap {
         void* TransBuf16;
         void* TransAlphaBuf16;
         void* AlphaBuf;
+        // Native controls copy these dimensions as one point.
         WindowsSdk::TPoint PixelSize;
         GR_DX::TTextureGR* SurfaceCache;
     };

@@ -18,6 +18,7 @@ namespace ab_W17 {
         void UpdateVisuals() override;
         std::int32_t Damage;
         ab_WorldImage::PabWorldImage Image;
+        // 0 parent, 1 parent explosion, 2 child, 3 child explosion.
         std::int32_t Phase;
         std::int32_t ExpireTick;
         TabW17* Partner;

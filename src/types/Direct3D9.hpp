@@ -35,6 +35,9 @@ namespace Direct3D9 {
 
     using IDirect3DResource9 = pas::ComPtr<IDirect3DResource9_Tag>;
 
+    // D3DPRESENT_PARAMETERS, Win32 SDK layout. Native storage is
+    // copied/cleared as 56 bytes and passed to CreateDevice.
+    // https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dpresent-parameters
     #pragma pack(push, 1)
     struct TD3DPresentParameters {
         std::uint32_t BackBufferWidth;
@@ -93,6 +96,8 @@ namespace Direct3D9 {
     };
     #pragma pack(pop)
 
+    // D3DCAPS9 storage in GR_DXInit is $130 bytes. The texture-capability
+    // fields around this caller's reads are modeled; other SDK fields stay opaque.
     #pragma pack(push, 1)
     struct TD3DCaps9 {
         pas::Array<std::uint8_t, 0, 87> CapabilitiesPrefix;
@@ -106,6 +111,8 @@ namespace Direct3D9 {
     };
     #pragma pack(pop)
 
+    // SDK order and ABI checked against native vtable calls and Wine include/d3d9.h:
+    // https://github.com/wine-mirror/wine/blob/master/include/d3d9.h
     using IDirect3D9 = pas::ComPtr<IDirect3D9_Tag>;
 
     using IDirect3DVertexShader9 = pas::ComPtr<IDirect3DVertexShader9_Tag>;
@@ -120,6 +127,10 @@ namespace Direct3D9 {
 
     using TDirect3DCreate9 = pas::StdcallProc<void*(std::uint32_t)>;
 
+    // SDK constants used by device initialization and the screen vertex layout:
+    // https://github.com/microsoft/win32metadata/blob/main/generation/WinSDK/RecompiledIdlHeaders/shared/d3d9.h
+    // https://github.com/microsoft/win32metadata/blob/main/generation/WinSDK/RecompiledIdlHeaders/shared/d3d9types.h
+    // https://github.com/microsoft/win32metadata/blob/main/generation/WinSDK/RecompiledIdlHeaders/shared/d3d9caps.h
     inline constexpr std::int32_t D3DADAPTER_DEFAULT = 0;
 
     inline constexpr std::int32_t D3DDEVTYPE_HAL = 1;
@@ -178,6 +189,7 @@ namespace Direct3D9 {
 
     inline constexpr std::int32_t D3DPT_TRIANGLEFAN = 6;
 
+    // Direct3D 9 SDK values: https://github.com/wine-mirror/wine/blob/master/include/d3d9types.h
     inline constexpr std::int32_t D3DRS_FILLMODE = 8;
 
     inline constexpr std::int32_t D3DFILL_WIREFRAME = 2;

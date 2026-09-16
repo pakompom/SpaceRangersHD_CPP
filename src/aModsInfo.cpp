@@ -11,17 +11,20 @@
 #include "units/WindowsSdk.hpp"
 #include "units/aModsInfo.hpp"
 
+// Native TModInfo RTTI and module-manager accesses establish the class layout.
 namespace aModsInfo {
-    std::uint8_t HasOtherLanguageResources(pas::WideString& Folder);
-
+    // Owns the TModInfo objects.
     pas::List* ModInfos = nullptr;
 
+    // Non-owning references into ModInfos.
     pas::List* SelectedModInfos = nullptr;
 
     EC_BlockPar::TBlockParEC* ModIdCounts = nullptr;
 
+    // Maps declared conflict IDs to matching mod indices.
     EC_BlockPar::TBlockParEC* ModConflictIndex = nullptr;
 
+    // Maps required mod IDs to matching mod indices.
     EC_BlockPar::TBlockParEC* ModDependencyIndex = nullptr;
 
     std::uint8_t ModInfosInitialized = false;
@@ -82,6 +85,68 @@ namespace aModsInfo {
         pas::WideString Languages{};
         std::int32_t I{};
         std::int32_t Count{};
+        auto HasOtherLanguageResources = [&]() -> std::uint8_t {
+            pas::WideString FileName{};
+            Windows::TWin32FindDataA FindData{};
+            std::uint8_t Result = false;
+            FindData.dwFileAttributes = WindowsImports::FILE_ATTRIBUTE_NORMAL;
+            WindowsImports::THandle Handle = WindowsSdk::FindFirstFile(pas::literal_pointer("*.txt"), FindData);
+            if (Handle != WindowsImports::INVALID_HANDLE_VALUE) {
+                do {
+                    if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) == 0) {
+                        FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements, 260);
+                        FileName = EC_Str::LowerCaseWideString(FileName);
+                        if (([&] {
+                            pas::WideString cpp_string = EC_Str::LowerCaseWideString(pas::concat_wide({u"install_", GR_Main::SelectedLanguage, u".txt"}));
+                            return FileName != cpp_string;
+                        }()) && FileName.length() > 12 && EC_Str::FindTextOffsetW(FileName, u"install_"_wref.get(), 0) == 0) {
+                            Result = true;
+                            WindowsImports::FindClose(Handle);
+                            return Result;
+                        }
+                    }
+                } while (WindowsSdk::FindNextFile(Handle, FindData));
+                WindowsImports::FindClose(Handle);
+            }
+            if (SysUtilsImports::DirectoryExists(static_cast<pas::AnsiString>(pas::concat_wide({Folder, u"\\CFG"})))) {
+                pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+                std::exception_ptr cpp_error{};
+                try {
+                    SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(pas::concat_wide({Folder, u"\\CFG"})));
+                    FindData.dwFileAttributes = WindowsImports::FILE_ATTRIBUTE_NORMAL;
+                    Handle = WindowsSdk::FindFirstFile(pas::literal_pointer("*.*"), FindData);
+                    if (Handle != WindowsImports::INVALID_HANDLE_VALUE) {
+                        do {
+                            if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) != 0) {
+                                FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements, 260);
+                                if (FileName != u"." && FileName != u".." && ([&] {
+                                    pas::WideString cpp_string_2 = EC_Str::LowerCaseWideString(FileName);
+                                    pas::WideString cpp_string_3 = EC_Str::LowerCaseWideString(GR_Main::LanguageInstallConfig->GetParam(u"Lang"_wref.get()));
+                                    return cpp_string_2 != cpp_string_3;
+                                }()) && SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({FileName, u"\\Lang.dat"})))) {
+                                    Result = true;
+                                    WindowsImports::FindClose(Handle);
+                                    cpp_flow = pas::FinallyFlow::Return;
+                                    goto cpp_cleanup;
+                                }
+                            }
+                        } while (WindowsSdk::FindNextFile(Handle, FindData));
+                        WindowsImports::FindClose(Handle);
+                    }
+                } catch (...) {
+                    cpp_error = std::current_exception();
+                }
+                cpp_cleanup:;
+                SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(Folder));
+                if (cpp_error) {
+                    std::rethrow_exception(cpp_error);
+                }
+                if (cpp_flow == pas::FinallyFlow::Return) {
+                    return Result;
+                }
+            }
+            return Result;
+        };
         std::uint8_t HasForeignResources = false;
         std::uint8_t HasLanguageResources = false;
         std::uint8_t HasCommonResources = false;
@@ -100,7 +165,7 @@ namespace aModsInfo {
                     HasLanguageResources = true;
                 }
                 if (static_cast<std::uint8_t>(HasCommonResources ^ 1) && static_cast<std::uint8_t>(HasLanguageResources ^ 1)) {
-                    HasForeignResources = aModsInfo::HasOtherLanguageResources(Folder);
+                    HasForeignResources = HasOtherLanguageResources();
                 }
                 Result = HasCommonResources || HasLanguageResources || HasForeignResources;
                 if (!SysUtilsImports::FileExists("ModuleInfo.txt"_a)) {
@@ -110,7 +175,7 @@ namespace aModsInfo {
                     }
                     if (!HasLanguageResources) {
                         if (!HasForeignResources) {
-                            HasForeignResources = aModsInfo::HasOtherLanguageResources(Folder);
+                            HasForeignResources = HasOtherLanguageResources();
                         }
                         Info->UnsupportedLanguage = HasForeignResources;
                     }
@@ -186,7 +251,7 @@ namespace aModsInfo {
                         }
                     } else if (!HasLanguageResources) {
                         if (!HasForeignResources) {
-                            HasForeignResources = aModsInfo::HasOtherLanguageResources(Folder);
+                            HasForeignResources = HasOtherLanguageResources();
                         }
                         Info->UnsupportedLanguage = HasForeignResources;
                     }
@@ -207,7 +272,7 @@ namespace aModsInfo {
                     Info->Author = pas::WideString();
                     if (!HasLanguageResources) {
                         if (!HasForeignResources) {
-                            HasForeignResources = aModsInfo::HasOtherLanguageResources(Folder);
+                            HasForeignResources = HasOtherLanguageResources();
                         }
                         Info->UnsupportedLanguage = HasForeignResources;
                     } else {
@@ -445,6 +510,7 @@ namespace aModsInfo {
         ModInfosInitialized = true;
     }
 
+    // Frees mod objects and clears the existing containers, retaining their allocation for reload.
     void ClearModInfoState() {
         std::int32_t Index{};
         ModInfosInitialized = false;
@@ -549,69 +615,6 @@ namespace aModsInfo {
             return Result;
         }
         return pas::list_at<TModInfo>(ModInfos, EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Indices, VariantIndex, u","_wref.get())));
-    }
-
-    std::uint8_t HasOtherLanguageResources(pas::WideString& Folder) {
-        pas::WideString FileName{};
-        Windows::TWin32FindDataA FindData{};
-        std::uint8_t Result = false;
-        FindData.dwFileAttributes = WindowsImports::FILE_ATTRIBUTE_NORMAL;
-        WindowsImports::THandle Handle = WindowsSdk::FindFirstFile(pas::literal_pointer("*.txt"), FindData);
-        if (Handle != WindowsImports::INVALID_HANDLE_VALUE) {
-            do {
-                if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) == 0) {
-                    FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements, 260);
-                    FileName = EC_Str::LowerCaseWideString(FileName);
-                    if (([&] {
-                        pas::WideString cpp_string = EC_Str::LowerCaseWideString(pas::concat_wide({u"install_", GR_Main::SelectedLanguage, u".txt"}));
-                        return FileName != cpp_string;
-                    }()) && FileName.length() > 12 && EC_Str::FindTextOffsetW(FileName, u"install_"_wref.get(), 0) == 0) {
-                        Result = true;
-                        WindowsImports::FindClose(Handle);
-                        return Result;
-                    }
-                }
-            } while (WindowsSdk::FindNextFile(Handle, FindData));
-            WindowsImports::FindClose(Handle);
-        }
-        if (SysUtilsImports::DirectoryExists(static_cast<pas::AnsiString>(pas::concat_wide({Folder, u"\\CFG"})))) {
-            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
-            std::exception_ptr cpp_error{};
-            try {
-                SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(pas::concat_wide({Folder, u"\\CFG"})));
-                FindData.dwFileAttributes = WindowsImports::FILE_ATTRIBUTE_NORMAL;
-                Handle = WindowsSdk::FindFirstFile(pas::literal_pointer("*.*"), FindData);
-                if (Handle != WindowsImports::INVALID_HANDLE_VALUE) {
-                    do {
-                        if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) != 0) {
-                            FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements, 260);
-                            if (FileName != u"." && FileName != u".." && ([&] {
-                                pas::WideString cpp_string_2 = EC_Str::LowerCaseWideString(FileName);
-                                pas::WideString cpp_string_3 = EC_Str::LowerCaseWideString(GR_Main::LanguageInstallConfig->GetParam(u"Lang"_wref.get()));
-                                return cpp_string_2 != cpp_string_3;
-                            }()) && SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({FileName, u"\\Lang.dat"})))) {
-                                Result = true;
-                                WindowsImports::FindClose(Handle);
-                                cpp_flow = pas::FinallyFlow::Return;
-                                goto cpp_cleanup;
-                            }
-                        }
-                    } while (WindowsSdk::FindNextFile(Handle, FindData));
-                    WindowsImports::FindClose(Handle);
-                }
-            } catch (...) {
-                cpp_error = std::current_exception();
-            }
-            cpp_cleanup:;
-            SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(Folder));
-            if (cpp_error) {
-                std::rethrow_exception(cpp_error);
-            }
-            if (cpp_flow == pas::FinallyFlow::Return) {
-                return Result;
-            }
-        }
-        return Result;
     }
 
     void TModInfo::p_destroy() {

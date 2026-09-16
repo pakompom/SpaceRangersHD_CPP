@@ -12,16 +12,6 @@
 #include "units/Windows.hpp"
 
 namespace EC_BlockPar {
-    std::uint8_t NextBlockPathComponent(const pas::WideString& Path, std::int32_t& Cursor, std::int32_t& PathLength, std::int32_t& Start, std::int32_t& PartLength);
-
-    void ParseBlockPathOccurrence(const pas::WideString& Path, std::int32_t& Start, std::int32_t& PartLength, std::int32_t& Occurrence);
-
-    std::uint8_t MatchBlockPathComponent(pas::WideString Name, const pas::WideString& Path, std::int32_t& Start, std::int32_t& PartLength);
-
-    void WriteWideBlockEntry(TBlockParEC* Self, EC_Buf::TBufEC*& Dest, std::int32_t& Indent, std::uint8_t& Sorted, TBlockParElEC*& Entry);
-
-    void WriteAnsiBlockEntry(TBlockParEC* Self, EC_Buf::TBufEC*& Dest, std::int32_t& Indent, std::uint8_t& Sorted, TBlockParElEC*& Entry);
-
     const std::uint32_t BlockDatSeedKey = 0xb1e8c689u;
 
     const std::uint32_t BlockDatCrcKey1 = 0x7db6c99du;
@@ -37,6 +27,7 @@ namespace EC_BlockPar {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Frees ChildBlock; links and index metadata remain unchanged.
     void TBlockParElEC::Clear() {
         if (ChildBlock != nullptr) {
             pas::free(ChildBlock);
@@ -48,6 +39,7 @@ namespace EC_BlockPar {
         Comment = pas::WideString();
     }
 
+    // Replaces the owned child; caller must update owner counts and index.
     void TBlockParElEC::MakeChildBlock() {
         if (ChildBlock != nullptr) {
             pas::free(ChildBlock);
@@ -58,6 +50,7 @@ namespace EC_BlockPar {
         StringValue = pas::WideString();
     }
 
+    // Deep-copies ChildBlock; links and index metadata remain unchanged.
     void TBlockParElEC::CopyFrom(TBlockParElEC* Source) {
         Clear();
         ItemType = Source->ItemType;
@@ -81,6 +74,7 @@ namespace EC_BlockPar {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Preserves UseSortedIndex.
     void TBlockParEC::Clear() {
         TBlockParElEC* Removed{};
         TBlockParElEC* Entry = FirstEntry;
@@ -118,6 +112,7 @@ namespace EC_BlockPar {
         }
     }
 
+    // Caller must maintain kind counts and the sorted index.
     TBlockParElEC* TBlockParEC::AddEntry() {
         TBlockParElEC* Entry = pas::construct_call<TBlockParElEC>(TBlockParElEC_Create);
         Entry->OwnerBlock = this;
@@ -134,6 +129,7 @@ namespace EC_BlockPar {
         return Entry;
     }
 
+    // Frees Entry but leaves its sorted-index entry intact.
     void TBlockParEC::DeleteEntry(TBlockParElEC* Entry) {
         if (Entry->Prev != nullptr) {
             Entry->Prev->Next = Entry->Next;
@@ -156,18 +152,69 @@ namespace EC_BlockPar {
         pas::free(Entry);
     }
 
+    // Dot, slash and backslash separate components; a :number suffix selects a zero-based occurrence.
     TBlockParElEC* TBlockParEC::FindEntryByPath(const pas::WideString& Path, std::uint8_t RaiseIfMissing) {
+        std::int32_t Cursor{};
+        std::int32_t PathLength{};
         std::int32_t Start{};
         std::int32_t PartLength{};
         std::int32_t Occurrence{};
         std::int32_t Index{};
         std::int32_t Seen{};
-        std::int32_t PathLength = Path.length();
-        std::int32_t Cursor = 0;
+        // Nested helper of TBlockParEC.FindEntryByPath.
+        auto NextBlockPathComponent = [&]() -> std::uint8_t {
+            char16_t Ch{};
+            if (Cursor >= PathLength) {
+                return false;
+            }
+            Start = Cursor;
+            std::int32_t i = Start;
+            while (PathLength > i) {
+                Ch = Path.read(i + 1);
+                if (Ch == u'.' || Ch == u'/' || Ch == u'\\') {
+                    break;
+                }
+                ++i;
+            }
+            PartLength = i - Start;
+            Cursor = i + 1;
+            return true;
+        };
+        // Nested helper of TBlockParEC.FindEntryByPath.
+        auto ParseBlockPathOccurrence = [&]() -> void {
+            char16_t Ch{};
+            Occurrence = 0;
+            std::int32_t i = Start;
+            std::int32_t Limit = Start + PartLength;
+            while (i < Limit) {
+                if (Path.read(i + 1) == u':') {
+                    PartLength = i - Start;
+                    ++i;
+                    while (i < Limit) {
+                        Ch = Path.read(i + 1);
+                        if (Ch >= u'0' && Ch <= u'9') {
+                            Occurrence = Occurrence * 10 + (Ch - '0');
+                        }
+                        ++i;
+                    }
+                    break;
+                }
+                ++i;
+            }
+        };
+        // Nested helper of TBlockParEC.FindEntryByPath; native clones its value parameter.
+        auto MatchBlockPathComponent = [&](pas::WideString Name) -> std::uint8_t {
+            if (Name.length() != PartLength) {
+                return false;
+            }
+            return SysUtils::CompareMem(reinterpret_cast<std::uint8_t*>(Path.pchar()) + Start * static_cast<std::int32_t>(sizeof(char16_t)), Name.pchar(), PartLength * 2);
+        };
+        PathLength = Path.length();
+        Cursor = 0;
         TBlockParEC* Block = this;
         TBlockParElEC* Entry = nullptr;
-        while (EC_BlockPar::NextBlockPathComponent(Path, Cursor, PathLength, Start, PartLength)) {
-            EC_BlockPar::ParseBlockPathOccurrence(Path, Start, PartLength, Occurrence);
+        while (NextBlockPathComponent()) {
+            ParseBlockPathOccurrence();
             if (Block->UseSortedIndex) {
                 Entry = nullptr;
                 Index = Block->FindSortedNameRangeStartIndex(pas::copy(Path, Start + 1, PartLength));
@@ -186,7 +233,7 @@ namespace EC_BlockPar {
                 Seen = 0;
                 while (Seen <= Occurrence && Entry != nullptr) {
                     while (Entry != nullptr) {
-                        if (EC_BlockPar::MatchBlockPathComponent(Entry->Name, Path, Start, PartLength)) {
+                        if (MatchBlockPathComponent(Entry->Name)) {
                             if (Seen < Occurrence) {
                                 Entry = Entry->Next;
                             }
@@ -223,54 +270,7 @@ namespace EC_BlockPar {
         return Entry;
     }
 
-    std::uint8_t NextBlockPathComponent(const pas::WideString& Path, std::int32_t& Cursor, std::int32_t& PathLength, std::int32_t& Start, std::int32_t& PartLength) {
-        char16_t Ch{};
-        if (Cursor >= PathLength) {
-            return false;
-        }
-        Start = Cursor;
-        std::int32_t i = Start;
-        while (PathLength > i) {
-            Ch = Path.read(i + 1);
-            if (Ch == u'.' || Ch == u'/' || Ch == u'\\') {
-                break;
-            }
-            ++i;
-        }
-        PartLength = i - Start;
-        Cursor = i + 1;
-        return true;
-    }
-
-    void ParseBlockPathOccurrence(const pas::WideString& Path, std::int32_t& Start, std::int32_t& PartLength, std::int32_t& Occurrence) {
-        char16_t Ch{};
-        Occurrence = 0;
-        std::int32_t i = Start;
-        std::int32_t Limit = Start + PartLength;
-        while (i < Limit) {
-            if (Path.read(i + 1) == u':') {
-                PartLength = i - Start;
-                ++i;
-                while (i < Limit) {
-                    Ch = Path.read(i + 1);
-                    if (Ch >= u'0' && Ch <= u'9') {
-                        Occurrence = Occurrence * 10 + (Ch - '0');
-                    }
-                    ++i;
-                }
-                break;
-            }
-            ++i;
-        }
-    }
-
-    std::uint8_t MatchBlockPathComponent(pas::WideString Name, const pas::WideString& Path, std::int32_t& Start, std::int32_t& PartLength) {
-        if (Name.length() != PartLength) {
-            return false;
-        }
-        return SysUtils::CompareMem(reinterpret_cast<std::uint8_t*>(Path.pchar()) + Start * static_cast<std::int32_t>(sizeof(char16_t)), Name.pchar(), PartLength * 2);
-    }
-
+    // Returns -1 when absent.
     std::int32_t TBlockParEC::FindSortedNameRangeStartIndex(const pas::WideString& EntryName) {
         std::int32_t Middle{};
         std::int32_t Order{};
@@ -296,6 +296,7 @@ namespace EC_BlockPar {
         return -1;
     }
 
+    // Also updates duplicate-group metadata.
     std::int32_t TBlockParEC::PrepareSortedInsertion(TBlockParElEC* Entry) {
         std::int32_t Result{};
         std::int32_t Middle{};
@@ -386,6 +387,9 @@ namespace EC_BlockPar {
         }
     }
 
+    // Params are string entries; blocks have separate accessors. ByPath traverses
+    // subtrees, while ParamName addresses a direct child. OrMarker returns
+    // '[name]' or '[path]' when missing; ordinary getters raise instead.
     pas::WideString TBlockParEC::GetParamByPath(const pas::WideString& Path) {
         TBlockParElEC* Entry = FindEntryByPath(Path, true);
         if (Entry->ItemType != bpkString) {
@@ -394,6 +398,7 @@ namespace EC_BlockPar {
         return Entry->StringValue;
     }
 
+    // Returns a marker containing Path when lookup fails, including caught exceptions.
     pas::WideString TBlockParEC::GetParamByPathOrMarker(const pas::WideString& Path) {
         TBlockParElEC* Entry{};
         try {
@@ -407,6 +412,7 @@ namespace EC_BlockPar {
         return pas::concat_wide({u"[", Path, u"]"});
     }
 
+    // Creates missing intermediate subtrees.
     std::int32_t TBlockParEC::CountParamsByPath(const pas::WideString& Path) {
         std::int32_t Count{};
         pas::WideString Part{};
@@ -434,6 +440,7 @@ namespace EC_BlockPar {
         return Entry;
     }
 
+    // Only the first match is affected; raises when absent.
     void TBlockParEC::SetParam(const pas::WideString& ParamName, const pas::WideString& ParamValue) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
@@ -458,6 +465,7 @@ namespace EC_BlockPar {
         AddParam(ParamName, ParamValue);
     }
 
+    // Only the first match is affected; raises when absent.
     void TBlockParEC::DeleteParam(const pas::WideString& ParamName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
@@ -473,6 +481,7 @@ namespace EC_BlockPar {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Par_Delete. name=", ParamName}))));
     }
 
+    // Only the first match is affected; raises when absent.
     void TBlockParEC::DeleteChildBlock(const pas::WideString& BlockName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
@@ -545,6 +554,8 @@ namespace EC_BlockPar {
         return Count;
     }
 
+    // GetParamValue/GetParamName take zero-based string-entry indexes.
+    // Kind-specific indexes use sorted order only when all entries have that kind.
     pas::WideString TBlockParEC::GetParamValue(std::int32_t Index) {
         if (UseSortedIndex && EntryCount == StringParamCount) {
             return SortedEntries[Index]->StringValue;
@@ -579,6 +590,7 @@ namespace EC_BlockPar {
         pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Par_GetName. no=", SysUtils::IntToStr(Index)})));
     }
 
+    // Nested insertion updates the receiver's index and block count.
     TBlockParEC* TBlockParEC::AddBlockByPath(const pas::WideString& Path) {
         std::int32_t Count{};
         pas::WideString Part{};
@@ -601,6 +613,7 @@ namespace EC_BlockPar {
         return Entry->ChildBlock;
     }
 
+    // Raises when Path is absent or is not a block.
     TBlockParEC* TBlockParEC::GetBlockByPath(const pas::WideString& Path) {
         TBlockParElEC* Entry = FindEntryByPath(Path, true);
         if (Entry->ItemType != bpkBlock) {
@@ -636,6 +649,7 @@ namespace EC_BlockPar {
         return Entry->ChildBlock;
     }
 
+    // Raises when absent.
     TBlockParEC* TBlockParEC::GetBlock(const pas::WideString& BlockName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
@@ -731,6 +745,7 @@ namespace EC_BlockPar {
         return EntryCount;
     }
 
+    // Mixed-kind indexes use the sorted array only when it covers every entry.
     TBlockParKind TBlockParEC::GetEntryKindByIndex(std::int32_t Index) {
         if (UseSortedIndex && EntryCount == SortedEntryCount) {
             return SortedEntries[Index]->ItemType;
@@ -815,134 +830,138 @@ namespace EC_BlockPar {
         pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetName. no=", SysUtils::IntToStr(Index)})));
     }
 
+    // Text writers append at Dest.Position. Sorted applies only with UseSortedIndex.
+    // Uses four spaces per indentation level and CRLF line endings.
     void TBlockParEC::WriteWideText(EC_Buf::TBufEC* Dest, std::int32_t Indent, std::uint8_t Sorted) {
         TBlockParElEC* Entry{};
         std::int32_t i{};
+        // Nested helper of TBlockParEC.WriteWideText.
+        auto WriteWideBlockEntry = [&]() -> void {
+            std::int32_t j{};
+            if (Entry->ItemType == bpkText) {
+                if (Entry->Comment != u"") {
+                    Dest->AddWideStringRaw(Entry->Comment);
+                }
+                Dest->AddWord(13);
+                Dest->AddWord(10);
+            } else if (Entry->ItemType == bpkString) {
+                for (auto cpp_range = pas::for_to<std::int32_t>(1, Indent * 4); cpp_range.next(j); ) {
+                    Dest->AddWord(' ');
+                }
+                Dest->AddWideStringRaw(Entry->Name);
+                Dest->AddWord('=');
+                Dest->AddWideStringRaw(Entry->StringValue);
+                if (Entry->Comment != u"") {
+                    Dest->AddWideStringRaw(Entry->Comment);
+                }
+                Dest->AddWord(13);
+                Dest->AddWord(10);
+            } else {
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Indent * 4); cpp_range_2.next(j); ) {
+                    Dest->AddWord(' ');
+                }
+                Dest->AddWideStringRaw(Entry->Name);
+                Dest->AddWord(' ');
+                if (this->UseSortedIndex) {
+                    Dest->AddWord('^');
+                } else {
+                    Dest->AddWord('~');
+                }
+                Dest->AddWord('{');
+                Dest->AddWord(13);
+                Dest->AddWord(10);
+                Entry->ChildBlock->WriteWideText(Dest, Indent + 1, Sorted);
+                for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, Indent * 4); cpp_range_3.next(j); ) {
+                    Dest->AddWord(' ');
+                }
+                Dest->AddWord('}');
+                if (Entry->Comment != u"") {
+                    Dest->AddWideStringRaw(Entry->Comment);
+                }
+                Dest->AddWord(13);
+                Dest->AddWord(10);
+            }
+        };
         if (UseSortedIndex && Sorted) {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, SortedEntryCount); cpp_range.next(i); ) {
                 Entry = SortedEntries[i - 1];
-                EC_BlockPar::WriteWideBlockEntry(this, Dest, Indent, Sorted, Entry);
+                WriteWideBlockEntry();
             }
         } else {
             Entry = FirstEntry;
             while (Entry != nullptr) {
-                EC_BlockPar::WriteWideBlockEntry(this, Dest, Indent, Sorted, Entry);
+                WriteWideBlockEntry();
                 Entry = Entry->Next;
             }
         }
     }
 
-    void WriteWideBlockEntry(TBlockParEC* Self, EC_Buf::TBufEC*& Dest, std::int32_t& Indent, std::uint8_t& Sorted, TBlockParElEC*& Entry) {
-        std::int32_t j{};
-        if (Entry->ItemType == bpkText) {
-            if (Entry->Comment != u"") {
-                Dest->AddWideStringRaw(Entry->Comment);
-            }
-            Dest->AddWord(13);
-            Dest->AddWord(10);
-        } else if (Entry->ItemType == bpkString) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, Indent * 4); cpp_range.next(j); ) {
-                Dest->AddWord(' ');
-            }
-            Dest->AddWideStringRaw(Entry->Name);
-            Dest->AddWord('=');
-            Dest->AddWideStringRaw(Entry->StringValue);
-            if (Entry->Comment != u"") {
-                Dest->AddWideStringRaw(Entry->Comment);
-            }
-            Dest->AddWord(13);
-            Dest->AddWord(10);
-        } else {
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Indent * 4); cpp_range_2.next(j); ) {
-                Dest->AddWord(' ');
-            }
-            Dest->AddWideStringRaw(Entry->Name);
-            Dest->AddWord(' ');
-            if (Self->UseSortedIndex) {
-                Dest->AddWord('^');
-            } else {
-                Dest->AddWord('~');
-            }
-            Dest->AddWord('{');
-            Dest->AddWord(13);
-            Dest->AddWord(10);
-            Entry->ChildBlock->WriteWideText(Dest, Indent + 1, Sorted);
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, Indent * 4); cpp_range_3.next(j); ) {
-                Dest->AddWord(' ');
-            }
-            Dest->AddWord('}');
-            if (Entry->Comment != u"") {
-                Dest->AddWideStringRaw(Entry->Comment);
-            }
-            Dest->AddWord(13);
-            Dest->AddWord(10);
-        }
-    }
-
+    // Uses tabs for indentation and CRLF line endings.
     void TBlockParEC::WriteAnsiText(EC_Buf::TBufEC* Dest, std::int32_t Indent, std::uint8_t Sorted) {
         TBlockParElEC* Entry{};
         std::int32_t i{};
+        // Nested helper of TBlockParEC.WriteAnsiText.
+        auto WriteAnsiBlockEntry = [&]() -> void {
+            std::int32_t j{};
+            if (Entry->ItemType == bpkText) {
+                if (Entry->Comment != u"") {
+                    Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Comment.pchar()));
+                }
+                Dest->AddByte(13);
+                Dest->AddByte(10);
+            } else if (Entry->ItemType == bpkString) {
+                for (auto cpp_range = pas::for_to<std::int32_t>(1, Indent); cpp_range.next(j); ) {
+                    Dest->AddByte(9);
+                }
+                Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Name.pchar()));
+                Dest->AddByte('=');
+                Dest->AddAnsiStringRaw(System::WideCharToString(Entry->StringValue.pchar()));
+                if (Entry->Comment != u"") {
+                    Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Comment.pchar()));
+                }
+                Dest->AddByte(13);
+                Dest->AddByte(10);
+            } else {
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Indent); cpp_range_2.next(j); ) {
+                    Dest->AddByte(9);
+                }
+                Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Name.pchar()));
+                Dest->AddByte(' ');
+                if (this->UseSortedIndex) {
+                    Dest->AddByte('^');
+                } else {
+                    Dest->AddByte('~');
+                }
+                Dest->AddByte('{');
+                Dest->AddByte(13);
+                Dest->AddByte(10);
+                Entry->ChildBlock->WriteAnsiText(Dest, Indent + 1, Sorted);
+                for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, Indent); cpp_range_3.next(j); ) {
+                    Dest->AddByte(9);
+                }
+                Dest->AddByte('}');
+                if (Entry->Comment != u"") {
+                    Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Comment.pchar()));
+                }
+                Dest->AddByte(13);
+                Dest->AddByte(10);
+            }
+        };
         if (UseSortedIndex && Sorted) {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, SortedEntryCount); cpp_range.next(i); ) {
                 Entry = SortedEntries[i - 1];
-                EC_BlockPar::WriteAnsiBlockEntry(this, Dest, Indent, Sorted, Entry);
+                WriteAnsiBlockEntry();
             }
         } else {
             Entry = FirstEntry;
             while (Entry != nullptr) {
-                EC_BlockPar::WriteAnsiBlockEntry(this, Dest, Indent, Sorted, Entry);
+                WriteAnsiBlockEntry();
                 Entry = Entry->Next;
             }
         }
     }
 
-    void WriteAnsiBlockEntry(TBlockParEC* Self, EC_Buf::TBufEC*& Dest, std::int32_t& Indent, std::uint8_t& Sorted, TBlockParElEC*& Entry) {
-        std::int32_t j{};
-        if (Entry->ItemType == bpkText) {
-            if (Entry->Comment != u"") {
-                Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Comment.pchar()));
-            }
-            Dest->AddByte(13);
-            Dest->AddByte(10);
-        } else if (Entry->ItemType == bpkString) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, Indent); cpp_range.next(j); ) {
-                Dest->AddByte(9);
-            }
-            Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Name.pchar()));
-            Dest->AddByte('=');
-            Dest->AddAnsiStringRaw(System::WideCharToString(Entry->StringValue.pchar()));
-            if (Entry->Comment != u"") {
-                Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Comment.pchar()));
-            }
-            Dest->AddByte(13);
-            Dest->AddByte(10);
-        } else {
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Indent); cpp_range_2.next(j); ) {
-                Dest->AddByte(9);
-            }
-            Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Name.pchar()));
-            Dest->AddByte(' ');
-            if (Self->UseSortedIndex) {
-                Dest->AddByte('^');
-            } else {
-                Dest->AddByte('~');
-            }
-            Dest->AddByte('{');
-            Dest->AddByte(13);
-            Dest->AddByte(10);
-            Entry->ChildBlock->WriteAnsiText(Dest, Indent + 1, Sorted);
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, Indent); cpp_range_3.next(j); ) {
-                Dest->AddByte(9);
-            }
-            Dest->AddByte('}');
-            if (Entry->Comment != u"") {
-                Dest->AddAnsiStringRaw(System::WideCharToString(Entry->Comment.pchar()));
-            }
-            Dest->AddByte(13);
-            Dest->AddByte(10);
-        }
-    }
-
+    // Wide output starts with a UTF-16LE BOM.
     void TBlockParEC::WriteTextBuffer(EC_Buf::TBufEC* Dest, std::uint8_t AnsiText, std::uint8_t Sorted) {
         if (!AnsiText) {
             Dest->AddWord(0x0000feff);
@@ -952,6 +971,7 @@ namespace EC_BlockPar {
         }
     }
 
+    // Creates or truncates FileName.
     void TBlockParEC::SaveTextFile(char16_t* FileName, std::uint8_t AnsiText, std::uint8_t Sorted) {
         EC_File::TFileEC* FileObj = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
         EC_Buf::TBufEC* Buf = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
@@ -972,6 +992,7 @@ namespace EC_BlockPar {
         }
     }
 
+    // Text parsers append entries; they do not clear the existing tree.
     void TBlockParEC::ParseTextBuffer(EC_Buf::TBufEC* Buf, const pas::WideString& InitialText, std::uint8_t AnsiText, std::uint8_t PreserveComments) {
         pas::WideString Text{};
         pas::WideString Name{};
@@ -1044,6 +1065,7 @@ namespace EC_BlockPar {
         }
     }
 
+    // Does nothing with at most two bytes remaining; otherwise consumes a UTF-16LE BOM or parses ANSI text.
     void TBlockParEC::LoadFromTextBufferWithEncodingProbe(EC_Buf::TBufEC* Buf, std::uint8_t PreserveComments) {
         if (Buf->DataSize - Buf->Position <= 2) {
             return;
@@ -1070,6 +1092,7 @@ namespace EC_BlockPar {
         }
     }
 
+    // Replaces all same-name string parameters; matches duplicate child blocks by occurrence and merges them recursively.
     void TBlockParEC::MergeFrom(TBlockParEC* Source) {
         TBlockParElEC* Incoming{};
         TBlockParElEC* Removed{};
@@ -1134,6 +1157,7 @@ namespace EC_BlockPar {
         }
     }
 
+    // Omits names and wraps child values in braces; text-only entries are not accepted.
     pas::WideString TBlockParEC::ConcatenateValues() {
         pas::WideString Result{};
         std::int32_t i{};
@@ -1147,6 +1171,7 @@ namespace EC_BlockPar {
         return Result;
     }
 
+    // Replaces existing contents; trusts sorted-group metadata from the stream.
     void TBlockParEC::LoadFromDecodedBuffer(EC_Buf::TBufEC* Buf) {
         std::int32_t i{};
         TBlockParElEC* Entry{};
@@ -1182,6 +1207,7 @@ namespace EC_BlockPar {
         }
     }
 
+    // An inner checksum mismatch leaves the tree unchanged.
     void TBlockParEC::LoadFromEncryptedDatFile(const pas::WideString& FileName) {
         EC_Buf::TBufEC* Buf{};
         std::uint32_t Crc{};

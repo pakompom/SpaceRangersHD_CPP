@@ -12,6 +12,7 @@
 #include "units/ab_Global.hpp"
 #include "units/ab_WorldLine.hpp"
 
+// Grouped by native diagnostic prefix; original source-unit boundaries remain unresolved.
 namespace ab_WorldLine {
     std::uint32_t WorldLineHeap = 0u;
 
@@ -29,6 +30,7 @@ namespace ab_WorldLine {
         }
     }
 
+    // Allocates and links a node owned by the world list.
     PabWorldLine ab_WorldLine_Add() {
         if (WorldLineHeap == 0) {
             WorldLineHeap = WindowsSdk::HeapCreate(1u, 0x00008000u, 0u);

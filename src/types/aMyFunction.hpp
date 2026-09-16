@@ -14,14 +14,17 @@ namespace aMyFunction {
     struct TObjectList : pas::List {
         PAS_CLASS_META(TObjectList, pas::List, "TObjectList", 16)
         void p_destroy() override;
+        // Inherited Clear/Delete do not free objects.
         void FreeItems();
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
     #endif
 
+    // Natural Double alignment is visible in TPlanet.PredictPosition locals.
     #pragma pack(push, 1)
     struct TPolarPoint {
+        // Clockwise from the negative Y axis.
         double AngleDegrees;
         double Radius;
     };

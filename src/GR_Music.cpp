@@ -104,6 +104,7 @@ namespace GR_Music {
             pas::free(Self->DecodeLock);
             Self->DecodeLock = nullptr;
         }
+        // The native destructor leaves Decoder and DecoderLibrary allocated.
         EC_Thread::TThreadEC_Destroy(Self);
     }
 
@@ -245,6 +246,7 @@ namespace GR_Music {
             if (GlobalsV::MusicEnabled) {
                 Self->Current = pas::construct_call<TMusicUnit>(TMusicUnit_Create, pas::literal_pointer(u"vorbisfile.dll"));
                 Self->Queued = pas::construct_call<TMusicUnit>(TMusicUnit_Create, pas::literal_pointer(u"vorbisfile.dll"));
+                // Native order: Current receives the still-zero handle before creation.
                 Self->Current->CompletionEvent = Self->CompletionEvent;
                 Self->Queued->CompletionEvent = 0u;
             }

@@ -111,11 +111,13 @@ namespace VorbisFile {
         VorbisCallbacks.Close = nullptr;
     }
 
+    // Returns bytes read, rather than fread's element count.
     std::uint32_t ReadVorbisSource(void* Buffer, std::uint32_t Size, std::uint32_t Count, void* Source) {
         EC_FileStream::TFileStreamEC* Stream = static_cast<EC_FileStream::TFileStreamEC*>(Source);
         return Stream->Read(Buffer, Size * Count);
     }
 
+    // Always advertises stereo 44100-Hz signed 16-bit PCM; raises if ov_open_callbacks fails.
     std::int32_t PAS_STDCALL OpenVorbisStream(TOggWorker* Decoder, DirectSound::TSoundWaveFormat& Format, EC_FileStream::TFileStreamEC*& Stream) {
         Format.FormatTag = MMSystemSdk::WAVE_FORMAT_PCM;
         Format.Channels = VorbisOutputChannels;
@@ -170,6 +172,7 @@ namespace VorbisFile {
 
     void TOggWorker_Create(TOggWorker* Self, PCriticalSection SharedLock, std::uint8_t UseExternalLibrary) {
         pas::object_create(Self);
+        // Materialize the value before Self, as in the native DCC32 assignment.
         Self->Lock = reinterpret_cast<PCriticalSection>(reinterpret_cast<std::uint8_t*>(SharedLock) + 0);
         if (!UseExternalLibrary) {
             pas::critical_enter(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
@@ -184,10 +187,12 @@ namespace VorbisFile {
         Self->ExternalLibrary = UseExternalLibrary;
     }
 
+    // Decrements the shared use count without unloading or clearing the decoder.
     void TOggWorker_Destroy(TOggWorker* Self) {
         if (!Self->ExternalLibrary) {
             pas::critical_enter(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
             --VorbisUseCount;
+            // The native routine still compares the count, but has no unload body.
             static_cast<void>(VorbisUseCount == 0);
             pas::critical_leave(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
         }

@@ -5,6 +5,7 @@
 #include "types/Windows_group.hpp"
 
 namespace GR_DX {
+    // DisableTextureManager setting.
     extern std::uint8_t TextureManagerDisabled;
 
     extern WindowsSdk::TPoint MaxTextureSize;
@@ -41,14 +42,17 @@ namespace GR_DX {
 
     TTextureGR* CreateTextureCache();
 
+    // Clamps each dimension to at least 16. Returns nil without a device; retries allocation after evicting textures.
     void GR_CreateTexture(std::int32_t Width, std::int32_t Height, std::uint32_t Format, std::uint32_t Pool, Direct3D9::IDirect3DTexture9& Result);
 
+    // Accepts nil.
     void FreeTextureCache(TTextureGR* Cache);
 
     void ClearTexturePixels(pas::ComView<Direct3D9::IDirect3DTexture9_Tag> cpp_value_arg);
 
     void ReleaseAllTextureSurfaces();
 
+    // Counts level zero only. Native format test repeats A8R8G8B8; X8R8G8B8 is not recognized.
     std::uint32_t GetTextureByteSize(pas::ComView<Direct3D9::IDirect3DTexture9_Tag> cpp_value_arg);
 
     void AddResidentTextureBytes(std::uint32_t ByteCount);
@@ -79,8 +83,10 @@ namespace GR_DX {
 
     void DrawTextureSized(pas::ComView<Direct3D9::IDirect3DTexture9_Tag> cpp_value_arg, std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, std::int32_t Alpha, std::uint32_t Color, WindowsSdk::PRect ClipRect, std::uint8_t UsePreparedVertices, std::uint8_t MirrorHorizontal);
 
+    // Native routine ignores the supplied clip rectangle.
     void DrawAntialiasedLineDX(std::int32_t StartX, std::int32_t StartY, std::int32_t FinishX, std::int32_t FinishY, std::uint32_t Color, std::int32_t Alpha, WindowsSdk::PRect UnusedClipRect);
 
+    // Uses LineAlphaTable and advances phase by 20 per column. Ignores the supplied clip rectangle.
     void DrawAnimatedLineDX(std::int32_t StartX, std::int32_t StartY, std::int32_t FinishX, std::int32_t FinishY, std::uint32_t Color, std::int32_t Phase, WindowsSdk::PRect UnusedClipRect);
 
     void TTextureGR_Create(TTextureGR* Self);

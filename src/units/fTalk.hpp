@@ -9,6 +9,7 @@ namespace aItem {
 } // namespace aItem
 
 namespace fTalk {
+    // Shared disabled-choice callback.
     extern GI_MessageLoop::TDialogChoiceEventGI ScriptDialogBlockCallback;
 
     extern std::int32_t TruceOfferAmount;
@@ -19,6 +20,7 @@ namespace fTalk {
 
     extern std::int32_t PartnerGiftAmount;
 
+    // Set by native conversation setup; cleared by cleanup. Suppresses recursive SF_Dialog dispatch.
     extern std::uint8_t TalkDialogActive;
 
     extern pas::Array<float, 0, 15> TalkSlideCurve;
@@ -31,6 +33,7 @@ namespace fTalk {
 
     std::int32_t GetMilitaryEquipmentRepairCost();
 
+    // Native modal conversation wrapper.
     std::uint8_t RunTalk(GI_MessageLoop::TMessageLoopGI* ParentLoop);
 
     void PayPartnerGiftMoney();

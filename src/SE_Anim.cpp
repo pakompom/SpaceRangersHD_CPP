@@ -11,6 +11,7 @@
 #include "units/SE_Anim.hpp"
 #include "units/SE_Space.hpp"
 
+// Native class and methods:.
 namespace SE_Anim {
     void TAnimSE_Destroy(TAnimSE* Self) {
         SE_Space::TObjectSE_Destroy(Self);

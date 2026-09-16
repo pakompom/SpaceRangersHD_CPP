@@ -46,10 +46,14 @@ namespace EC_CacheHSAI {
         PAS_CLASS_META(TCHSAIEC, EC_Cache::TCacheDataEC, "TCHSAIEC", 52)
         void p_destroy() override;
         std::uint32_t GetFrameCount();
+        // Returns nil when FrameIndex is outside the header count.
         void* GetFrameIndexPlane(std::uint32_t FrameIndex);
+        // Returns nil for an invalid frame or absent palette.
         GR_GraphBuf::PColorRGBA GetFramePalette(std::uint32_t FrameIndex);
+        // Requires a valid frame and palette; uses Width rather than PitchBytes as the source pitch.
         void GetOrCreateFrameSurface(std::uint32_t FrameIndex, Direct3D9::IDirect3DTexture9& Result);
         std::int32_t GetSourcePitchBytes();
+        // Only the minimum 0x34-byte header size is validated. Ignores LoadOption.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
         void* BlobData;
         PHSAIHeaderEC Header;
@@ -64,6 +68,7 @@ namespace EC_CacheHSAI {
     #pragma pack(push, 1)
     struct THSAIHeaderEC {
         std::uint8_t cpp_padding[4];
+        // The leading dword and format metadata.. remain unresolved.
         std::int32_t Width;
         std::int32_t Height;
         std::int32_t PitchBytes;

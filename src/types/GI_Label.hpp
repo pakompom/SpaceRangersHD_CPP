@@ -51,6 +51,7 @@ namespace GI_Label {
         void SetTextAlignY(GI_Main::TTextAlignYGI Value);
         void SetWordWrapEnabled(std::uint8_t Value);
         void SetAutoHeightPadding(std::int32_t Value);
+        // An empty path frees the embedded child.
         void SetEmbeddedImagePath(const pas::WideString& ImagePath);
         void SetEmbeddedImageKindX(GI_Main::TImageKindXGI Value);
         void SetEmbeddedImageKindY(GI_Main::TImageKindYGI Value);
@@ -58,11 +59,15 @@ namespace GI_Label {
         void SetTextColor(std::uint32_t Value);
         void SetBorderLightColor(std::uint32_t Value);
         void SetBorderDarkColor(std::uint32_t Value);
+        // TopAdjustment is optional; includes text outline/shadow padding.
         WindowsSdk::TPoint MeasureContentSize(WindowsSdk::PInteger TopAdjustment);
         std::int32_t GetLineHeight();
+        // Includes word wrapping when enabled.
         std::int32_t GetRenderedLineCount();
+        // May resize the control to fit its text.
         void UpdateHitTestBounds() override;
         void SetSize(WindowsSdk::TPoint Size) override;
+        // Missing embedded controls are requested through the creation callback.
         void UpdateEmbeddedControls(EC_CacheFont::TCFontEC* Font);
         void RemoveUnusedEmbeddedControls(EC_CacheFont::TCFontEC* Font);
         void OnMouseEnter() override;

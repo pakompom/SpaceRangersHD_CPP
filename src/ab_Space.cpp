@@ -31,9 +31,8 @@
 #include "units/ab_Space.hpp"
 #include "units/ab_W.hpp"
 
+// Native TabSpace VMT; field recovery is incomplete.
 namespace ab_Space {
-    void InitializeScriptedEncounterShip(TabSpace* Self, std::int32_t& Kind, float& Scale, std::int32_t& Index, ab_ShipAI::TabShipAI*& Ship, std::int32_t& Minimum, std::int32_t& Maximum);
-
     float FindApproachDanger(TabSpace* Space, float Accumulated);
 
     ab_Space::TabSpace* FirstArcadeSpace = nullptr;
@@ -42,6 +41,7 @@ namespace ab_Space {
 
     ab_Space::TabSpace* CurrentArcadeSpace = nullptr;
 
+    // Destination selected before entering a space.
     ab_Space::TabSpace* NextArcadeSpace = nullptr;
 
     ab_Space::TabSpace* StartArcadeSpace = nullptr;
@@ -282,6 +282,7 @@ namespace ab_Space {
     }
 
     void ab_SpaceLink_ClearImages() {
+        // The native routine retains this traversal without any per-link action.
         PabSpaceLink Link = FirstArcadeSpaceLink;
         while (Link != nullptr) {
             Link = Link->Next;
@@ -449,6 +450,7 @@ namespace ab_Space {
         ClearImage();
     }
 
+    // Empty native update hook.
     void TabSpace::UpdateVisuals() {
     }
 
@@ -807,16 +809,111 @@ namespace ab_Space {
         float Scale{};
         std::int32_t Index{};
         ab_ShipAI::TabShipAI* Ship{};
+        std::int32_t Minimum{};
+        std::int32_t Maximum{};
         std::int32_t J{};
         ab_Ship::TabShip* OtherShip{};
+        auto InitializeScriptedEncounterShip = [&]() -> void {
+            std::int32_t WeaponIndex{};
+            std::int32_t Hitpoints{};
+            {
+                std::int32_t cpp_case = aPlayer::GetPlayer()->BlackHoleKillCount;
+                if (cpp_case == 0) {
+                    Scale = 0.1f;
+                } else if (cpp_case >= 1 && cpp_case <= 5) {
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 1.0, 5.0, 0.5, 0.6);
+                } else if (cpp_case >= 6 && cpp_case <= 12) {
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 6.0, 12.0, 0.6, 0.8);
+                } else if (cpp_case >= 13 && cpp_case <= 23) {
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 13.0, 23.0, 0.8, 1.0);
+                } else if (cpp_case >= 24 && cpp_case <= 40) {
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 24.0, 4.0E+1, 1.0, 1.3);
+                } else {
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 41.0, 1.0E+2, 1.3, 1.6);
+                }
+            }
+            Scale = static_cast<long double>(Scale) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth, pas::real_divide(aGalaxy::Galaxy->AverageRangerCapital, 2.0L), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale;
+            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0, 0.5, 1.1)) * Scale;
+            if (Index == 0) {
+                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.5)) * Scale;
+            } else if (Index == 1) {
+                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale;
+            } else {
+                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale;
+            }
+            if (Ship->ConvertedFromGameShip) {
+                Ship->Health = Ship->Health * Ship->HealthScalePercent / 100;
+                Ship->MaxHealth = Ship->MaxHealth * Ship->HealthScalePercent / 100;
+            } else {
+                Hitpoints = System::Round(pas::real_max<pas::Extended>(1.5E+2L, pas::real_min<pas::Extended>(aPlayer::GetPlayer()->GetHull()->Weight * 1.2L, 525.0L * Scale)));
+                Hitpoints = Ship->HealthScalePercent * Hitpoints / 100;
+                if (Ship->SpawnGraphKey.read(1) == u'R') {
+                    Ship->CreateRuinsVisual(Ship->SpawnGraphKey, 128);
+                } else {
+                    Ship->CreateShipVisual(Ship->SpawnGraphKey, System::Round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1)));
+                }
+                Ship->MaxHealth = Hitpoints;
+                Ship->Health = Hitpoints;
+            }
+            Ship->MaxSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 7.0, 5.0);
+            Ship->MaxSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->MaxSpeed;
+            Ship->MaxSpeed = static_cast<long double>(Ship->MaxSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->TurnSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 4.0, 3.0);
+            Ship->TurnSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->TurnSpeed;
+            Ship->TurnSpeed = static_cast<long double>(Ship->TurnSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->Thrust = 0.0;
+            if (!Ship->ConvertedFromGameShip) {
+                Ship->WeaponCount = 0;
+                Kind = Globals::ArcadeBattleScreen->RandomRange(Minimum, Maximum);
+                Ship->AddWeapon(Kind);
+                {
+                    std::int32_t incrementWrapped = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
+                    ab_Ship::TabShip* ship = Ship;
+                    ship->AddWeapon(incrementWrapped);
+                }
+                if (Index == 0) {
+                    {
+                        std::int32_t incrementWrapped_2 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
+                        ab_Ship::TabShip* ship_2 = Ship;
+                        ship_2->AddWeapon(incrementWrapped_2);
+                    }
+                    if (aPlayer::GetPlayer()->BlackHoleKillCount > 0 && aPlayer::GetPlayer()->StrengthInBestRanger > 0.9L || aPlayer::GetPlayer()->WealthInBestRanger > 0.9L) {
+                        std::int32_t incrementWrapped_3 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
+                        ab_Ship::TabShip* ship_3 = Ship;
+                        ship_3->AddWeapon(incrementWrapped_3);
+                    }
+                }
+                if (aPlayer::GetPlayer()->BlackHoleKillCount > 0) {
+                    if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7L || aPlayer::GetPlayer()->WealthInBestRanger > 0.7L) {
+                        std::int32_t incrementWrapped_4 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
+                        ab_Ship::TabShip* ship_4 = Ship;
+                        ship_4->AddWeapon(incrementWrapped_4);
+                    }
+                    {
+                        pas::Extended cpp_left = Globals::ArcadeBattleScreen->RandomRange(0, System::Round(this->Danger));
+                        if (cpp_left < this->Danger) {
+                            std::int32_t incrementWrapped_5 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
+                            ab_Ship::TabShip* ship_5 = Ship;
+                            ship_5->AddWeapon(incrementWrapped_5);
+                        }
+                    }
+                }
+            }
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, Ship->WeaponCount - 1); cpp_range.next(WeaponIndex); ) {
+                Ship->Weapons[WeaponIndex].Damage = Ship->Weapons[WeaponIndex].Damage * Ship->DamageScalePercent / 100;
+            }
+            Ship->PrimaryWeapon = 0;
+            Ship->EncounterTag = 1;
+        };
         if (aPlayer::GetPlayer() == nullptr || ab_MainForm::ActiveArcadeRequestShips == nullptr) {
             return;
         }
-        std::int32_t Minimum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 0.0, 6.0));
-        std::int32_t Maximum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 6.0, 15.0));
+        Minimum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 0.0, 6.0));
+        Maximum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 6.0, 15.0));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ab_MainForm::ActiveArcadeRequestShips) - 1); cpp_range.next(Index); ) {
             Ship = pas::list_at<ab_ShipAI::TabShipAI>(ab_MainForm::ActiveArcadeRequestShips, Index);
-            ab_Space::InitializeScriptedEncounterShip(this, Kind, Scale, Index, Ship, Minimum, Maximum);
+            InitializeScriptedEncounterShip();
             if (Ship->Team == 1) {
                 ab_Ship::PlayerArcadeShip->AddTrackedShip(Ship);
             } else {
@@ -834,100 +931,6 @@ namespace ab_Space {
             pas::list_add(Objects, reinterpret_cast<void*>(Ship));
         }
         pas::list_clear(ab_MainForm::ActiveArcadeRequestShips);
-    }
-
-    void InitializeScriptedEncounterShip(TabSpace* Self, std::int32_t& Kind, float& Scale, std::int32_t& Index, ab_ShipAI::TabShipAI*& Ship, std::int32_t& Minimum, std::int32_t& Maximum) {
-        std::int32_t WeaponIndex{};
-        std::int32_t Hitpoints{};
-        {
-            std::int32_t cpp_case = aPlayer::GetPlayer()->BlackHoleKillCount;
-            if (cpp_case == 0) {
-                Scale = 0.1f;
-            } else if (cpp_case >= 1 && cpp_case <= 5) {
-                Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 1.0, 5.0, 0.5, 0.6);
-            } else if (cpp_case >= 6 && cpp_case <= 12) {
-                Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 6.0, 12.0, 0.6, 0.8);
-            } else if (cpp_case >= 13 && cpp_case <= 23) {
-                Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 13.0, 23.0, 0.8, 1.0);
-            } else if (cpp_case >= 24 && cpp_case <= 40) {
-                Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 24.0, 4.0E+1, 1.0, 1.3);
-            } else {
-                Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 41.0, 1.0E+2, 1.3, 1.6);
-            }
-        }
-        Scale = static_cast<long double>(Scale) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
-        Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth, pas::real_divide(aGalaxy::Galaxy->AverageRangerCapital, 2.0L), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale;
-        Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0, 0.5, 1.1)) * Scale;
-        if (Index == 0) {
-            Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.5)) * Scale;
-        } else if (Index == 1) {
-            Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale;
-        } else {
-            Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale;
-        }
-        if (Ship->ConvertedFromGameShip) {
-            Ship->Health = Ship->Health * Ship->HealthScalePercent / 100;
-            Ship->MaxHealth = Ship->MaxHealth * Ship->HealthScalePercent / 100;
-        } else {
-            Hitpoints = System::Round(pas::real_max<pas::Extended>(1.5E+2L, pas::real_min<pas::Extended>(aPlayer::GetPlayer()->GetHull()->Weight * 1.2L, 525.0L * Scale)));
-            Hitpoints = Ship->HealthScalePercent * Hitpoints / 100;
-            if (Ship->SpawnGraphKey.read(1) == u'R') {
-                Ship->CreateRuinsVisual(Ship->SpawnGraphKey, 128);
-            } else {
-                Ship->CreateShipVisual(Ship->SpawnGraphKey, System::Round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1)));
-            }
-            Ship->MaxHealth = Hitpoints;
-            Ship->Health = Hitpoints;
-        }
-        Ship->MaxSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 7.0, 5.0);
-        Ship->MaxSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->MaxSpeed;
-        Ship->MaxSpeed = static_cast<long double>(Ship->MaxSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
-        Ship->TurnSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 4.0, 3.0);
-        Ship->TurnSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->TurnSpeed;
-        Ship->TurnSpeed = static_cast<long double>(Ship->TurnSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
-        Ship->Thrust = 0.0;
-        if (!Ship->ConvertedFromGameShip) {
-            Ship->WeaponCount = 0;
-            Kind = Globals::ArcadeBattleScreen->RandomRange(Minimum, Maximum);
-            Ship->AddWeapon(Kind);
-            {
-                std::int32_t incrementWrapped = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
-                ab_Ship::TabShip* ship = Ship;
-                ship->AddWeapon(incrementWrapped);
-            }
-            if (Index == 0) {
-                {
-                    std::int32_t incrementWrapped_2 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
-                    ab_Ship::TabShip* ship_2 = Ship;
-                    ship_2->AddWeapon(incrementWrapped_2);
-                }
-                if (aPlayer::GetPlayer()->BlackHoleKillCount > 0 && aPlayer::GetPlayer()->StrengthInBestRanger > 0.9L || aPlayer::GetPlayer()->WealthInBestRanger > 0.9L) {
-                    std::int32_t incrementWrapped_3 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
-                    ab_Ship::TabShip* ship_3 = Ship;
-                    ship_3->AddWeapon(incrementWrapped_3);
-                }
-            }
-            if (aPlayer::GetPlayer()->BlackHoleKillCount > 0) {
-                if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7L || aPlayer::GetPlayer()->WealthInBestRanger > 0.7L) {
-                    std::int32_t incrementWrapped_4 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
-                    ab_Ship::TabShip* ship_4 = Ship;
-                    ship_4->AddWeapon(incrementWrapped_4);
-                }
-                {
-                    pas::Extended cpp_left = Globals::ArcadeBattleScreen->RandomRange(0, System::Round(Self->Danger));
-                    if (cpp_left < Self->Danger) {
-                        std::int32_t incrementWrapped_5 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
-                        ab_Ship::TabShip* ship_5 = Ship;
-                        ship_5->AddWeapon(incrementWrapped_5);
-                    }
-                }
-            }
-        }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, Ship->WeaponCount - 1); cpp_range.next(WeaponIndex); ) {
-            Ship->Weapons[WeaponIndex].Damage = Ship->Weapons[WeaponIndex].Damage * Ship->DamageScalePercent / 100;
-        }
-        Ship->PrimaryWeapon = 0;
-        Ship->EncounterTag = 1;
     }
 
     void TabSpace::PopulateKellerEncounter() {
@@ -1061,6 +1064,7 @@ namespace ab_Space {
         return Result;
     }
 
+    // Native instance receiver is unused; visits the complete graph.
     void TabSpace::PruneApproachDanger() {
         PabSpaceLink Link{};
         TabSpace* Space{};

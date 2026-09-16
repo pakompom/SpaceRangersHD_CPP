@@ -28,6 +28,7 @@ namespace GI_GraphBuf {
         Self->UsesExternalGraphBuf = false;
     }
 
+    // Frees GraphBuf only when it is owned.
     void TGraphBufGI_Destroy(TGraphBufGI* Self) {
         if (!Self->UsesExternalGraphBuf) {
             pas::free(Self->GraphBuf);
@@ -50,6 +51,7 @@ namespace GI_GraphBuf {
         }
     }
 
+    // Detaches borrowed buffers without freeing them.
     void TGraphBufGI::Clear() {
         ImageKindX = GI_Main::ikxCenter;
         ImageKindY = GI_Main::ikyCenter;
@@ -71,6 +73,7 @@ namespace GI_GraphBuf {
         }
     }
 
+    // Does not modify a previously borrowed buffer; the resulting buffer is owned.
     void TGraphBufGI::AllocateBuffer(std::int32_t Width, std::int32_t Height, std::uint8_t UseTexture) {
         if (UsesExternalGraphBuf) {
             GraphBuf = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, UseTexture);
@@ -86,6 +89,7 @@ namespace GI_GraphBuf {
         }
     }
 
+    // Requires equal nonempty extents, in-bounds rectangles and a buffer without per-pixel alpha.
     void TGraphBufGI::CopyScreenRectToBuffer(WindowsSdk::TRect ScreenRect, WindowsSdk::TRect BufferRect) {
         if (SourceHasPerPixelAlpha) {
             return;
@@ -182,6 +186,7 @@ namespace GI_GraphBuf {
         SourceHasPerPixelAlpha = false;
     }
 
+    // Black pixels do not count as hits.
     std::uint8_t TGraphBufGI::HitTestPixel(WindowsSdk::TPoint Point) {
         std::int32_t Left{};
         std::int32_t Right{};
@@ -283,6 +288,7 @@ namespace GI_GraphBuf {
         return Pixel != 0;
     }
 
+    // Uses nonzero pixels. CenterFill is unsupported and can leave bounds changed and temporary storage leaked.
     WindowsSdk::TPoint TGraphBufGI::GetVisualCenter() {
         WindowsSdk::TPoint Result{};
         std::int32_t Left{};
@@ -423,6 +429,7 @@ namespace GI_GraphBuf {
         }
     }
 
+    // Fits the image inside the control size while preserving its aspect ratio.
     void TGraphBufGI::LoadScaledBitmapPathAsRgba(const pas::WideString& BitmapPath) {
         LoadBitmapPathAsRgba(BitmapPath);
         if (GraphBuf->Width * ClientSize.Y >= GraphBuf->Height * ClientSize.X) {
@@ -557,6 +564,7 @@ namespace GI_GraphBuf {
         }
     }
 
+    // Buffer is borrowed; alpha flags are unchanged.
     void TGraphBufGI::BindExternalGraphBuf(GR_GraphBuf::TGraphBufGR* Buffer) {
         if (GraphBuf != nullptr && static_cast<std::uint8_t>(UsesExternalGraphBuf ^ 1)) {
             pas::free(GraphBuf);

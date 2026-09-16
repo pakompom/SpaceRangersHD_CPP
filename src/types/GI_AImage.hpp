@@ -18,17 +18,21 @@ namespace GI_AImage {
     struct TAImageGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TAImageGI, GI_MessageLoop::TObjectGI, "TAImageGI", 300)
         void p_destroy() override;
+        // Does not call inherited Clear.
         void Clear() override;
+        // Returns the componentwise maximum size over child frames.
         Types::TPoint GetContentSize();
         void SetImageKindX(GI_Main::TImageKindXGI Value);
         void SetImageKindY(GI_Main::TImageKindYGI Value);
         void SetHalfAlpha(std::uint8_t Value);
         void SetSize(Types::TPoint Size) override;
         void AdvanceFrame(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
+        // Uses rectangular child bounds, regardless of transparent pixels.
         std::uint8_t HitTest(Types::TPoint Point);
         void OnActivate() override;
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Numeric parameter names supply frame delays; values select child images.
         void LoadAnimationProperties(EC_BlockPar::TBlockParEC* Block);
         void QueueImageLoad(pas::List* PendingLoads) override;
         GI_MessageLoop::PCallbackTimerGI FrameTimer;

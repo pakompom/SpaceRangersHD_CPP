@@ -99,6 +99,7 @@ namespace fEquipmentShop {
         void ShipClicked(GI_MessageLoop::TObjectGI* Sender);
         void UpdateScrollButtons();
         static void StartSlotAnimatedPreview(TShopSlot* Slot);
+        // Playback continues until the current animation cycle ends.
         void ScheduleSlotPreviewStop(TShopSlot* Slot);
         void ItemMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         void ItemMouseLeave(GI_MessageLoop::TObjectGI* Sender);
@@ -122,6 +123,7 @@ namespace fEquipmentShop {
         fPanelLoad::TfPanelLoad* LoadPanel;
         WindowsSdk::TPoint ItemInfoAnchor;
         GI_Window::TWindowGI* ItemInfoWindow;
+        // Cleared when rebuilding the stock controls; purpose unresolved.
         std::int32_t UnknownEC;
         std::int32_t ContentColumnCount;
         std::int32_t TargetScrollX;

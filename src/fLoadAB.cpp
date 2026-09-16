@@ -25,8 +25,6 @@
 #include "units/fLoadAB.hpp"
 
 namespace fLoadAB {
-    pas::WideString ReadArcadeDescription(const pas::WideString& Path, EC_BlockPar::TBlockParEC*& Entry);
-
     std::uint32_t ArcadeNameColor{};
 
     void TfLoadAB_Create(TfLoadAB* Self) {
@@ -166,6 +164,7 @@ namespace fLoadAB {
         std::int32_t I{};
         std::int32_t Index = Entries.length() - 1 + 1;
         Entries.set_length(Entries.length() - 1 + 2);
+        // Retained native insertion loop; appending makes its range empty.
         for (auto cpp_range = pas::for_downto<std::int32_t>(Entries.length() - 1, Index + 1); cpp_range.next(I); ) {
             Entries[I] = Entries[I - 1];
         }
@@ -179,6 +178,18 @@ namespace fLoadAB {
         std::int32_t EntryCategory{};
         GI_Panel::TPanelGI* Row{};
         pas::WideString Name{};
+        auto ReadArcadeDescription = [&](const pas::WideString& Path) -> pas::WideString {
+            pas::WideString Result{};
+            std::int32_t J{};
+            std::int32_t LineCount = Entry->CountParamsByPath(Path);
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, LineCount - 1); cpp_range.next(J); ) {
+                if (Result != u"") {
+                    Result = pas::concat_wide({Result, u"\r\n"});
+                }
+                Result = pas::concat_wide({Result, Entry->GetParamByPath(pas::concat_wide({Path, u":", pas::wide_int_to_str(J)}))});
+            }
+            return Result;
+        };
         GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
         Panel->FreeOwnedChildren();
         TfLoadAB::PrepareCatalog();
@@ -198,7 +209,7 @@ namespace fLoadAB {
                 Entries[Index].Name = Entry->GetParam(u"Name"_wref.get());
                 Entries[Index].ImageName = Entry->GetParamOrMarker(u"Image"_wref.get());
                 Entries[Index].MapName = Entry->GetParam(u"Map"_wref.get());
-                Entries[Index].Description = fLoadAB::ReadArcadeDescription(u"Desc"_wref.get(), Entry);
+                Entries[Index].Description = ReadArcadeDescription(u"Desc"_wref.get());
                 Entries[Index].ConfigIndex = I;
                 Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(Entry->GetParamOrMarker(u"Dif"_wref.get()));
             }
@@ -234,19 +245,6 @@ namespace fLoadAB {
         }
         SelectArena(SelectedIndex);
         Panel->Invalidate();
-    }
-
-    pas::WideString ReadArcadeDescription(const pas::WideString& Path, EC_BlockPar::TBlockParEC*& Entry) {
-        pas::WideString Result{};
-        std::int32_t J{};
-        std::int32_t LineCount = Entry->CountParamsByPath(Path);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, LineCount - 1); cpp_range.next(J); ) {
-            if (Result != u"") {
-                Result = pas::concat_wide({Result, u"\r\n"});
-            }
-            Result = pas::concat_wide({Result, Entry->GetParamByPath(pas::concat_wide({Path, u":", pas::wide_int_to_str(J)}))});
-        }
-        return Result;
     }
 
     void TfLoadAB::InitializeArenaRow(GI_MessageLoop::TObjectGI* Row) {
@@ -440,9 +438,11 @@ namespace fLoadAB {
         }
     }
 
+    // Native empty hook, retained during catalog rebuild.
     void TfLoadAB::PrepareCatalog() {
     }
 
+    // Returns the configured ABMap entry count for the main menu.
     pas::WideString TfLoadAB::GetCatalogSummary() {
         return pas::wide_int_to_str(GR_Main::LanguageDataConfig->GetBlockByPath(u"ABMap"_wref.get())->GetBlockCount());
     }

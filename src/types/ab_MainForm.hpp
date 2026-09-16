@@ -99,6 +99,7 @@ namespace ab_MainForm {
     #pragma pack(push, 1)
     struct TArcadeMapDrag {
         std::uint8_t Active;
+        // Native packed drag state.
         WindowsSdk::TPoint Position;
     };
     #pragma pack(pop)
@@ -195,6 +196,7 @@ namespace ab_MainForm {
         GI_Label::TLabelGI* BattleHelpLabel;
         GI_Panel::TPanelGI* VictoryPanel;
         GI_Panel::TPanelGI* DefeatPanel;
+        // Retained scene object.
         SE_Space::TObjectSE* PlayerVisual;
         EC_Struct::TPointF PlayerMapPosition;
         aPath::TSPath* ShipPath;
@@ -203,6 +205,7 @@ namespace ab_MainForm {
         std::uint8_t cpp_padding[3];
         GI_MessageLoop::PCallbackTimerGI ScrollTimer;
         pas::WideString MapBackgroundPath;
+        // Native access includes explicit graph-button casts.
         pas::Array<GI_MessageLoop::TObjectGI*, 0, 4> WeaponButtons;
         pas::Array<GI_Image::TImageGI*, 0, 4> WeaponIcons;
         pas::Array<GI_Image::TImageGI*, 0, 4> WeaponChargeImages;
@@ -212,59 +215,77 @@ namespace ab_MainForm {
         GI_GraphButton::TGraphButtonGI* PlayButton;
         GI_GraphButton::TGraphButtonGI* PauseButton;
         GI_PolyLine::TPolyLineGI* WorldLines;
+        // Simulation callback TimerTakt.
         GI_MessageLoop::PCallbackTimerGI UpdateTimer;
         std::int32_t WorldCenterX;
         std::int32_t WorldCenterY;
         pas::Array<GI_Image::TImageGI*, 0, 7> BonusIcons;
         pas::Array<GI_GAI::TgaiGI*, 0, 7> BonusRings;
+        // Rotate-image or graph-buffer controls.
         pas::Array<GI_MessageLoop::TObjectGI*, 0, 7> EnemyIcons;
         pas::Array<GI_GAI::TgaiGI*, 0, 7> EnemyHealthRings;
         pas::Array<GI_MessageLoop::TObjectGI*, 0, 7> EnemyRewardIcons;
         pas::Array<GI_MessageLoop::TObjectGI*, 0, 7> EnemyRewardBackdrops;
         pas::Array<GI_MessageLoop::TObjectGI*, 0, 7> TrackedShipIcons;
         pas::Array<GI_GAI::TgaiGI*, 0, 7> TrackedShipHealthRings;
+        // Borrowed equipped campaign weapons.
         pas::Array<aItem::TWeapon*, 0, 4> CampaignWeapons;
         std::uint8_t ForwardKeyDown;
         std::uint8_t ReverseKeyDown;
         std::uint8_t BrakeKeyDown;
         std::uint8_t TurnLeftKeyDown;
         std::uint8_t TurnRightKeyDown;
+        // Ctrl.
         std::uint8_t PrimaryFireKeyDown;
+        // Space/Shift.
         std::uint8_t SecondaryFireKeyDown;
         std::uint8_t cpp_padding_3[1];
+        // Borrowed nodes owned by the world-line list.
         pas::List* GridLines;
+        // Reset by ClearBattle; remaining meaning unresolved.
         std::int32_t MapState2C8;
+        // Native managed field; role unresolved.
         pas::WideString Text2CC;
         std::uint8_t cpp_padding_4[16];
         pas::Array<GI_PolyLine::PPolyLineSegmentGI, 0, 3> OverlaySegments;
         std::uint8_t cpp_padding_5[32];
+        // Set to 10 by BeginMapTransition.
         double TransitionSpeed;
         std::uint8_t CampaignTransitionStarted;
         std::uint8_t CampaignLoadStarted;
         std::uint8_t CampaignLoadFinished;
         std::uint8_t cpp_padding_6[1];
         fLoad::TCacheLoader* CacheLoader;
+        // Starts at 150; decremented after player death.
         std::int32_t DefeatCountdownTicks;
         float CampaignLoadProgress;
         std::int32_t DepartureTurn;
         std::int32_t ArrivalTurn;
+        // Object currently described by InfoPanel/InfoStar; precise type pending.
         pas::Object* InfoObject;
         ab_Item::TabItem* CargoPickupItem;
         ab_Zone::PabZone CargoPickupZone;
         std::uint32_t InitialRandomSeed;
         std::uint32_t RandomSeed;
         std::uint8_t ViewModeBeforeDefeat;
+        // P/Pause toggles; distinct from route pause.
         std::uint8_t SimulationPaused;
         std::uint8_t cpp_padding_7[2];
         GI_MessageLoop::PCallbackTimerGI VictoryTimer;
+        // Owned list; borrowed objects supply text to the battle list controls.
         pas::List* ListedObjects;
+        // Owned.
         fPanelLoad::TfPanelLoad* LoadPanel;
+        // Arena Map value supplied by the standalone selector.
         pas::WideString SelectedMapName;
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
     #endif
 
+    // Variable-length map-color blocks read by LoadMap and used at
+    // . Offsets are relative to the start of each color block.
+    // PInteger(@Field)^ below preserves the native separate address calculation.
     #pragma pack(push, 1)
     struct TArcadeMapColorHeader {
         std::int32_t CurrentColor;
@@ -278,6 +299,7 @@ namespace ab_MainForm {
 
     #pragma pack(push, 1)
     struct TArcadeMapColorVariant {
+        // Relative to the containing color header.
         std::int32_t SequenceOffset;
         std::int32_t AppearanceTag;
     };
@@ -286,6 +308,7 @@ namespace ab_MainForm {
     #pragma pack(push, 1)
     struct TArcadeMapColorSequence {
         std::int32_t FrameIndex;
+        // Followed by FrameCount packed 32-bit colors.
         std::int32_t FrameCount;
     };
     #pragma pack(pop)

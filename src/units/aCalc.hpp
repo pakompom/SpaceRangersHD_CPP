@@ -5,6 +5,7 @@
 namespace aCalc {
     extern ThreadCalc::TTurnCalculationPhase TurnCalculationPhase;
 
+    // UI-facing turn calculation wrappers.
     void WaitForTurnCalculationUI();
 
     std::uint8_t IsTurnCalculationRunningUI();

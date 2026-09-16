@@ -24,6 +24,7 @@ namespace GR_GraphBuf {
 } // namespace GR_GraphBuf
 
 namespace GI_Label {
+    // Includes the native right/bottom padding.
     WindowsSdk::TRect MeasureLabelTextBounds(const pas::WideString& Text, const pas::WideString& FontName);
 
     WindowsSdk::TRect MeasureWrappedLabelBounds(std::int32_t Width, EC_Str::TStringsEC* TextLines, EC_CacheFont::TCFontEC* Font);

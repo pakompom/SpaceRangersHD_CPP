@@ -76,7 +76,9 @@ namespace ab_ShipAI {
         ab_Global::TSphericalBearingDistance DirectBearing;
         double DirectTargetLongitude;
         double DirectTargetPolarAngle;
+        // Native numeric intent; used by scripted/campaign steering.
         std::int32_t Intent;
+        // am* selector; negative values request a new choice.
         std::int32_t CombatManeuver;
         std::int32_t ManeuverUntilTick;
         ab_Item::TabItem* TargetBonus;
@@ -94,6 +96,7 @@ namespace ab_ShipAI {
     #pragma pack(pop)
     #endif
 
+    // Native DecideActions () selects and dispatches these maneuvers.
     inline constexpr std::int32_t amUnselected = -1;
 
     inline constexpr std::int32_t amApproach = 0;

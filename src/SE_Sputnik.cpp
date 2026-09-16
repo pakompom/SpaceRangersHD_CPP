@@ -18,6 +18,7 @@
 #include "units/aMyFunction.hpp"
 
 namespace SE_Sputnik {
+    // Does nothing when satellite graphics are disabled.
     void TSputnikSE::AttachToSpace(SE_Space::TSpaceSE* ASpace) {
         if (!GlobalsV::SputnikShow) {
             return;
@@ -68,6 +69,7 @@ namespace SE_Sputnik {
         return Result;
     }
 
+    // Returns a new buffer owned by the caller; excludes OrbitAngle.
     EC_Buf::TBufEC* TSputnikSE::BuildStateBuffer() {
         EC_Buf::TBufEC* Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         Buffer->AddAnsiChar(DepthOrder);
@@ -83,6 +85,7 @@ namespace SE_Sputnik {
         return Buffer;
     }
 
+    // Rewinds Buffer to zero and rebuilds the orbit transform and display position.
     void TSputnikSE::LoadStateBuffer(EC_Buf::TBufEC* Buffer) {
         Buffer->SetPosition(0);
         DepthOrder = EC_Buf::TBufEC_GetByte(Buffer);
@@ -110,6 +113,7 @@ namespace SE_Sputnik {
         MinOrbitDepth = -MaxOrbitDepth;
     }
 
+    // Requires a nonzero depth range when attached; updates position, apparent radius and drawing depth.
     void TSputnikSE::UpdateOrbitDisplay() {
         Globals::TSputnikTempl* Template{};
         if (!IsAttachedToSpace()) {

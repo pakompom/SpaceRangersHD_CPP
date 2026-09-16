@@ -10,12 +10,16 @@
 #include "units/aMyFunction.hpp"
 
 namespace aMyFunction {
+    // Configured by GI_Main from StyleColor.InfoNameColor / InfoHullSeriesColor.
     pas::WideString InfoNameColorTag = u"<color=57,239,255>"_w;
 
     pas::WideString InfoHullSeriesColorTag = u"<color=82,166,255>"_w;
 
     const float PolarDegreesToRadians = 0.017453292f;
 
+    // Integer ranges include both endpoints and accept either endpoint order.
+    // Seeded helpers read the supplied seed; Next helpers advance it, except in chaotic mode.
+    // Accepts either endpoint order.
     std::int32_t RandomIntRange(std::int32_t BoundA, std::int32_t BoundB) {
         if (BoundA <= BoundB) {
             return pas::random(BoundB - BoundA + 1, &System::RandSeed) + BoundA;
@@ -23,6 +27,7 @@ namespace aMyFunction {
         return pas::random(BoundA - BoundB + 1, &System::RandSeed) + BoundB;
     }
 
+    // Chaotic mode ignores Seed.
     std::int32_t SeededRandomIntRange(std::int32_t BoundA, std::int32_t BoundB, std::uint32_t Seed) {
         if (aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->IsChaoticRandomEnabled()) {
             if (BoundA <= BoundB) {
@@ -36,20 +41,24 @@ namespace aMyFunction {
         }
     }
 
+    // One of 1000 discrete values from 0.001 through 1.0 inclusive.
     float RandomUnitFloat() {
         return pas::real_divide(aMyFunction::RandomIntRange(1, 1000), 1.0E+3L);
     }
 
+    // Chaotic mode ignores Seed.
     float SeededRandomUnitFloat(std::uint32_t Seed) {
         return pas::real_divide(aMyFunction::SeededRandomIntRange(1, 1000, Seed), 1.0E+3L);
     }
 
+    // Endpoints are quantized as Trunc(bound*1000+1)/1000; results have 0.001 resolution.
     double RandomFloatRange(double BoundA, double BoundB) {
         std::int32_t trunc = System::Trunc(BoundB * 1.0E+3L + 1.0L);
         std::int32_t trunc_2 = System::Trunc(BoundA * 1.0E+3L + 1.0L);
         return pas::real_divide(aMyFunction::RandomIntRange(trunc_2, trunc), 1.0E+3L);
     }
 
+    // Uses RandomFloatRange's endpoint quantization; chaotic mode ignores Seed.
     double SeededRandomFloatRange(std::uint32_t Seed, double BoundA, double BoundB) {
         std::int32_t trunc = System::Trunc(BoundB * 1.0E+3L + 1.0L);
         std::int32_t trunc_2 = System::Trunc(BoundA * 1.0E+3L + 1.0L);
@@ -69,6 +78,7 @@ namespace aMyFunction {
         return Seed;
     }
 
+    // Chaotic mode leaves Seed unchanged.
     std::int32_t NextRandomIntRange(std::int32_t BoundA, std::int32_t BoundB, std::uint32_t& Seed) {
         if (aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->IsChaoticRandomEnabled()) {
             return aMyFunction::RandomIntRange(BoundA, BoundB);
@@ -84,6 +94,8 @@ namespace aMyFunction {
         return pas::imod(Seed, static_cast<std::uint32_t>(BoundA - BoundB + 1)) + BoundB;
     }
 
+    // Original source calls RndDoubleOut(BoundA, BoundB, FRndOut); see the market_match fixture evidence.
+    // Uses RandomFloatRange's endpoint quantization; chaotic mode leaves Seed unchanged.
     double NextRandomFloatRange(double BoundA, double BoundB, std::uint32_t& Seed) {
         if (aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->IsChaoticRandomEnabled()) {
             return aMyFunction::RandomFloatRange(BoundA, BoundB);
@@ -98,6 +110,7 @@ namespace aMyFunction {
         return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, Seed), 1.0E+3L);
     }
 
+    // Normally in [0,1). Chaotic mode leaves Seed unchanged and instead yields 0.001..1.001.
     double NextRandomUnitFloat(std::uint32_t& Seed) {
         if (aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->IsChaoticRandomEnabled()) {
             return aMyFunction::RandomFloatRange(0.0, 1.0);
@@ -120,6 +133,7 @@ namespace aMyFunction {
         }
     }
 
+    // Round(Value), then signed integer division by ten and multiplication by ten.
     std::int32_t RoundAndTruncateToTens(double Value) {
         return System::Round(Value) / 10 * 10;
     }
@@ -136,6 +150,7 @@ namespace aMyFunction {
         return System::Sqrt(static_cast<long double>(X) * X + static_cast<long double>(Y) * Y);
     }
 
+    // Adds 360 only once for negative angles; does not fully normalize arbitrary inputs.
     double RadiansToHeadingDegrees(double Angle) {
         double Result = Angle * 57.29578049044296832L;
         if (Result < 0.0L) {
@@ -144,6 +159,7 @@ namespace aMyFunction {
         return Result;
     }
 
+    // Subtracts 360 only once for angles above 180; does not fully normalize arbitrary inputs.
     double HeadingDegreesToRadians(double Angle) {
         if (Angle > 1.8E+2L) {
             Angle = Angle - 3.6E+2L;
@@ -151,10 +167,12 @@ namespace aMyFunction {
         return Angle * 0.017453292222222222223L;
     }
 
+    // Bearing from A to B: zero points upward and angles increase clockwise in screen coordinates.
     double PointBearingDegrees(EC_Struct::TPointF PointA, EC_Struct::TPointF PointB) {
         return aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(static_cast<long double>(PointB.X) - PointA.X, -(static_cast<long double>(PointB.Y) - PointA.Y)));
     }
 
+    // Signed shortest turn from FromHeading to ToHeading; requires headings normalized to [0,360).
     double HeadingDifferenceDegrees(double FromHeading, double ToHeading) {
         double Result = static_cast<long double>(ToHeading) - FromHeading;
         if (FromHeading < 1.8E+2L) {
@@ -169,6 +187,7 @@ namespace aMyFunction {
         }
     }
 
+    // Repeatedly adds or subtracts 360 to reach [0,360); requires a finite value small enough for Single-precision steps to change it.
     float WrapHeadingDegrees(float Angle) {
         while (Angle >= 3.6E+2L) {
             Angle = Angle - 3.6E+2L;
@@ -179,6 +198,9 @@ namespace aMyFunction {
         return Angle;
     }
 
+    // Original unit ownership of this formatting family (aMyFunction/MessageText) is unresolved.
+    // ColorTag is a complete opening tag; empty disables coloring. Replacements are
+    // case-sensitive and append </color> even when the replacement text is empty.
     void ReplaceTextToken(pas::WideString& Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag) {
         if (ColorTag != u"") {
             Replacement = pas::concat_wide({ColorTag, Replacement, u"</color>"});
@@ -200,6 +222,7 @@ namespace aMyFunction {
         return EC_Str::ReplaceAllWideString(Text, Token, Replacement);
     }
 
+    // Multiple replacements run in order, including matches in text inserted earlier.
     pas::WideString FormatText2(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2) {
         if (ColorTag != u"") {
             Replacement1 = pas::concat_wide({ColorTag, Replacement1, u"</color>"});
@@ -217,6 +240,7 @@ namespace aMyFunction {
         return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, Replacement1), Token2, Replacement2), Token3, Replacement3);
     }
 
+    // Returns Text unchanged when either argument is empty.
     pas::WideString WrapTextInColor(pas::WideString Text, pas::WideString ColorTag) {
         if (ColorTag != u"" && Text != u"") {
             return pas::concat_wide({ColorTag, Text, u"</color>"});
@@ -224,6 +248,7 @@ namespace aMyFunction {
         return Text;
     }
 
+    // Normalizes the ray direction, rejects tangencies, and returns whether the selected intersection is ahead of StartPoint. No segment-length bound.
     std::uint8_t RayIntersectsOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF ThroughPoint, EC_Struct::TPointF& Intersection, float Radius) {
         float T2{};
         float DX = static_cast<long double>(ThroughPoint.X) - StartPoint.X;
@@ -255,6 +280,7 @@ namespace aMyFunction {
         return T1 > 0.001L;
     }
 
+    // Returns a decremented value, wrapping below Minimum to Maximum. Value is passed by value.
     std::int32_t DecrementWrappedValue(std::int32_t Value, std::int32_t Minimum, std::int32_t Maximum) {
         if (Value - 1 < Minimum) {
             Value = Maximum;
@@ -264,6 +290,7 @@ namespace aMyFunction {
         return Value;
     }
 
+    // Increments Value, or resets it to Minimum when Value + 1 exceeds Maximum; returns the updated value.
     std::int32_t IncrementWrapped(std::int32_t& Value, std::int32_t Minimum, std::int32_t Maximum) {
         if (Value + 1 > Maximum) {
             Value = Minimum;
@@ -285,6 +312,7 @@ namespace aMyFunction {
         return System::Round(Value) / 100 * 100;
     }
 
+    // Angle is ArcTan2(X,Y), measured from positive Y; squared radius uses signed 32-bit integer arithmetic.
     TPolarRadiansPoint IntegerPointToPolar(Types::TPoint Point) {
         TPolarRadiansPoint Result{};
         Result.Radius = System::Sqrt(Point.X * Point.X + Point.Y * Point.Y);
@@ -300,6 +328,7 @@ namespace aMyFunction {
         return Angle * 1.40625L;
     }
 
+    // Normalizes finite angles to [-180,180).
     float WrapSignedHeadingDegrees(float Angle) {
         while (Angle >= 1.8E+2L) {
             Angle = Angle - 3.6E+2L;
@@ -324,6 +353,7 @@ namespace aMyFunction {
         return true;
     }
 
+    // Within Margin of Radius, scales Point to Radius+Margin; otherwise returns Point.
     EC_Struct::TPointF PushPointOutsideCircleBand(EC_Struct::TPointF Point, float Radius, float Margin) {
         EC_Struct::TPointF Result{};
         float Distance = System::Sqrt(static_cast<long double>(Point.X) * Point.X + static_cast<long double>(Point.Y) * Point.Y);
@@ -361,6 +391,7 @@ namespace aMyFunction {
         return true;
     }
 
+    // Tests top, bottom, left, then right; returns the first edge hit, not the nearest. Corners must be ordered.
     std::uint8_t SegmentIntersectsRectEdges(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, EC_Struct::TPointF TopLeft, EC_Struct::TPointF BottomRight, EC_Struct::TPointF& Intersection) {
         EC_Struct::TPointF A{};
         EC_Struct::TPointF B{};
@@ -403,6 +434,7 @@ namespace aMyFunction {
         return false;
     }
 
+    // Accepts a start inside the circle; rejects tangencies.
     std::uint8_t SegmentIntersectsCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, EC_Struct::TPointF Center, float Radius) {
         float T2{};
         if (pas::sqr(static_cast<long double>(StartPoint.X) - Center.X) + pas::sqr(static_cast<long double>(StartPoint.Y) - Center.Y) < static_cast<long double>(Radius) * Radius) {
@@ -437,6 +469,7 @@ namespace aMyFunction {
         return T1 >= 0.0L && T1 <= SegmentLength || T2 >= 0.0L && T2 <= SegmentLength;
     }
 
+    // Requires both endpoints outside and segment length at least the start's distance from the origin.
     std::uint8_t SegmentCrossesOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, float Radius) {
         EC_Struct::TPointF Delta{};
         std::uint8_t Result = false;
@@ -461,6 +494,7 @@ namespace aMyFunction {
         return StartDistanceSquared - static_cast<long double>(Projection) * Projection < static_cast<long double>(Radius) * Radius;
     }
 
+    // Returns sin(Angle) times the radius of the circle through the endpoints tangent to Heading at StartPoint; angles are degrees.
     double CalculateTangentArcOffset(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, double Heading, double Angle) {
         EC_Struct::TPointF Center{};
         EC_Struct::TPointF Normal{};
@@ -489,6 +523,7 @@ namespace aMyFunction {
         RightPoint.Y = -System::Cos(static_cast<long double>(Angle) - Spread) * Radius;
     }
 
+    // Seed selects a heading offset in [90,269] degrees without advancing.
     EC_Struct::TPointF PointBehindHeading(EC_Struct::TPointF Origin, double Heading, double Distance, std::uint32_t Seed) {
         EC_Struct::TPointF Result{};
         Heading = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Heading + 1.8E+2L + (static_cast<std::int32_t>(Seed % 180) - 90)));
@@ -525,6 +560,7 @@ namespace aMyFunction {
         pas::list_destroy(Self);
     }
 
+    // Inherited Clear/Delete do not free objects.
     void TObjectList::FreeItems() {
         std::int32_t i{};
         pas::Object* Item{};

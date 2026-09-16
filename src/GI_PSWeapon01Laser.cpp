@@ -19,6 +19,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native laser particle beam, configurable width, duration and gradient palette.
 namespace GI_PSWeapon01Laser {
     pas::DynArray<GI_PSWeapon01Laser::TBeamLaserPalette> BeamLaserPalettes{};
 
@@ -115,6 +116,7 @@ namespace GI_PSWeapon01Laser {
         A = (-HalfWidth - 12.0L) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = (HalfWidth + 12.0L) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = (-HalfWidth - 12.0L) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = (HalfWidth + 12.0L) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));

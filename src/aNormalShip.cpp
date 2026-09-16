@@ -27,14 +27,7 @@
 #include "units/aShip.hpp"
 
 namespace aNormalShip {
-    void RecordShipKillCategory(TNormalShip* Ship, aShip::TShip* Victim);
-
-    void LogPlayerEvent(aShip::TShip* Ship, aGalaxy::TStar*& Star);
-
-    void Check(std::int32_t InitialThreshold, std::int32_t Multiplier, std::uint16_t Count, std::uint8_t VictimType, TNormalShip* Self);
-
-    void ShuffleDefinitions(TNormalShip* Self, pas::DynArray<Globals::TShipGreetingsInfo>& Definitions, std::int32_t& LastIndex, Globals::TShipGreetingsInfo& SwapA, Globals::TShipGreetingsInfo& SwapB);
-
+    // Processes qualifying ships after a control change; SourceShip supplies the news-variant seed.
     void ProcessSystemLiberationRewards(TNormalShip* SourceShip, aGalaxy::TStar* Star) {
         std::int32_t I{};
         std::int32_t J{};
@@ -43,6 +36,18 @@ namespace aNormalShip {
         aPlanet::TPlanet* Planet{};
         aPlanet::TPlanet* CeremonyPlanet{};
         pas::WideString Text{};
+        // Nested helper; caller-popped link, Star at ParentFrame-4.
+        auto LogPlayerEvent = [&](aShip::TShip* Ship) -> void {
+            aGalaxyEvent::TGalaxyEvent* Event{};
+            if (aPlayer::GetPlayer() == Ship) {
+                Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerLiberatesSystem"_w, nullptr);
+                Event->AddData(Star->Id);
+                Event->AddData(static_cast<std::uint8_t>(Star->Status.ControlFaction));
+                Event->AddData(static_cast<std::uint8_t>(Star->Status.PreviousControlFaction));
+                Event->AddData(aPlayer::GetPlayer()->PendingLiberationContribution);
+                Event->AddData(aPlayer::GetPlayer()->PendingLiberationCeremonyPlanet->Id);
+            }
+        };
         if (Star->Status.ControlFaction == aGalaxyStruct::sfCoalition) {
             CeremonyPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Star->FindFirstInhabitedPlanet()));
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(I); ) {
@@ -80,7 +85,7 @@ namespace aNormalShip {
                         if (Ship->InNormalSpace() && (aPlayer::GetPlayer() != Ship || aRanger::PlayerAutomaticControl)) {
                             Ship->OrderLanding(CeremonyPlanet, true);
                         }
-                        aNormalShip::LogPlayerEvent(Ship, Star);
+                        LogPlayerEvent(Ship);
                     }
                 }
             }
@@ -147,7 +152,7 @@ namespace aNormalShip {
                         if (Ship->InNormalSpace() && (aPlayer::GetPlayer() != Ship || aRanger::PlayerAutomaticControl)) {
                             Ship->OrderLanding(CeremonyPlanet, true);
                         }
-                        aNormalShip::LogPlayerEvent(Ship, Star);
+                        LogPlayerEvent(Ship);
                         if (aPlayer::GetPlayer() == Ship) {
                             ++aPlayer::GetPlayer()->AchievementStats->SystemsCapturedForPirates;
                             Achievements::TrySetAchievementProgress(u"PIRATE"_w, aPlayer::GetPlayer()->AchievementStats->SystemsCapturedForPirates);
@@ -333,6 +338,7 @@ namespace aNormalShip {
         }
     }
 
+    // Native editable import truncates PirateRankPoints to Word.
     void TNormalShip::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         aShip::TShip::LoadFromBlock(Block);
         Rank = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Roarnuke"_w))));
@@ -382,12 +388,13 @@ namespace aNormalShip {
         }
     }
 
+    // Consumes the pending ceremony, grants rewards and returns the player's presentation text.
     pas::WideString TNormalShip::CollectLiberationRewards() {
         aConst::TRewardInfo cpp_result{};
         pas::WideString Result{};
-        static const pas::Set<0, 255> RewardPrograms = pas::constant_set<pas::Set<0, 255>>({{6, 11}});
-        static const pas::Set<0, 255> RewardKinds = pas::constant_set<pas::Set<0, 255>>({{0}, {1}});
-        static const pas::Set<0, 255> RewardVictims = pas::constant_set<pas::Set<0, 255>>({{0, 13}});
+        static const pas::Set<0, 255> RewardPrograms = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::prgShipwreck, aGalaxyStruct::prgDisconnection}});
+        static const pas::Set<0, 255> RewardKinds = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::atLiberation}, {aGalaxyStruct::atAccomplishment}});
+        static const pas::Set<0, 255> RewardVictims = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::stKling, 13}});
         std::int32_t I{};
         std::int32_t MinimumPriority{};
         std::int32_t RewardKind{};
@@ -602,20 +609,22 @@ namespace aNormalShip {
         return Result;
     }
 
+    // Selects a merit award using the current planet, station or default human owner and returns its name.
     pas::WideString TNormalShip::AwardRandomMedal() {
         aConst::TRewardInfo cpp_result{};
         std::uint8_t Award{};
         if (CurrentPlanet != nullptr) {
-            Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<TAwardTypeMask>({{0}, {1}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+            Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<TAwardTypeMask>({{aGalaxyStruct::atLiberation}, {aGalaxyStruct::atAccomplishment}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
         } else if (DockedTo != nullptr) {
-            Award = SelectAward(aConst::RaceToOwner(DockedTo->PilotRace), pas::constant_set<TAwardTypeMask>({{0}, {1}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+            Award = SelectAward(aConst::RaceToOwner(DockedTo->PilotRace), pas::constant_set<TAwardTypeMask>({{aGalaxyStruct::atLiberation}, {aGalaxyStruct::atAccomplishment}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
         } else {
-            Award = SelectAward(aGalaxyStruct::oiHuman, pas::constant_set<TAwardTypeMask>({{0}, {1}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+            Award = SelectAward(aGalaxyStruct::oiHuman, pas::constant_set<TAwardTypeMask>({{aGalaxyStruct::atLiberation}, {aGalaxyStruct::atAccomplishment}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
         }
         AddAward(Award);
         return (TNormalShip::GetAwardInfo(Award, cpp_result), cpp_result).Name;
     }
 
+    // Distributes kill rewards, career/rank changes and event counters.
     void TNormalShip::ProcessShipKill(aShip::TShip* Victim) {
         std::int32_t I{};
         std::int32_t SharedExperience{};
@@ -625,6 +634,33 @@ namespace aNormalShip {
         TNormalShip* OtherNormal{};
         aGalaxyEvent::TGalaxyEvent* Event{};
         aRanger::PQuest Quest{};
+        // Nested helper; unused caller-popped static link.
+        auto RecordShipKillCategory = [&](TNormalShip* Ship, aShip::TShip* Victim) -> void {
+            switch (Victim->TypeId) {
+                case aGalaxyStruct::stTransport: {
+                    if (Victim->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        ++Ship->CivilianKillCount;
+                        if (aPlayer::GetPlayer() == Ship) {
+                            Achievements::TryAddAchievementProgress(u"BLACKHEAD"_w, 1);
+                        }
+                        Ship->CheckKillCountAwards(Victim);
+                    }
+                    break;
+                }
+                case aGalaxyStruct::stWarrior: {
+                    ++Ship->MilitaryKillCount;
+                    Ship->CheckKillCountAwards(Victim);
+                    break;
+                }
+                case aGalaxyStruct::stRanger: {
+                    if (pas::checked_cast<aRanger::TRanger*>(Victim)->GetDominantCareer() != aGalaxyStruct::rcPirate && Victim->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(pas::checked_cast<aRanger::TRanger*>(Victim)->ExcludedFromRating ^ 1)) {
+                        ++Ship->RangerKillCount;
+                        Ship->CheckKillCountAwards(Victim);
+                    }
+                    break;
+                }
+            }
+        };
         if (this == Victim) {
             return;
         }
@@ -962,7 +998,7 @@ namespace aNormalShip {
             if (aPlayer::GetPlayer() == this && CurrentStar->Status.ControlFaction == aGalaxyStruct::sfCoalition) {
                 static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckHaterAchievement();
             }
-            aNormalShip::RecordShipKillCategory(this, Victim);
+            RecordShipKillCategory(this, Victim);
         }
         if (pas::class_cast_if<aPirate::TPirate*>(this) != nullptr) {
             pas::checked_cast<aPirate::TPirate*>(this)->RaidPressure = 0.0f;
@@ -1132,102 +1168,58 @@ namespace aNormalShip {
                 } else if (pas::in_range(Victim->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[CurrentStar->Status.ControlFaction]), Victim->CurrentStanding)) {
                     aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(pas::byte_offset(&OtherNormal->CurrentSystemKills, CurrentStar->Status.ControlFaction * sizeof(std::uint16_t))));
                 }
-                aNormalShip::RecordShipKillCategory(OtherNormal, Victim);
+                RecordShipKillCategory(OtherNormal, Victim);
             }
-        }
-    }
-
-    void RecordShipKillCategory(TNormalShip* Ship, aShip::TShip* Victim) {
-        switch (Victim->TypeId) {
-            case aGalaxyStruct::stTransport: {
-                if (Victim->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                    ++Ship->CivilianKillCount;
-                    if (aPlayer::GetPlayer() == Ship) {
-                        Achievements::TryAddAchievementProgress(u"BLACKHEAD"_w, 1);
-                    }
-                    Ship->CheckKillCountAwards(Victim);
-                }
-                break;
-            }
-            case aGalaxyStruct::stWarrior: {
-                ++Ship->MilitaryKillCount;
-                Ship->CheckKillCountAwards(Victim);
-                break;
-            }
-            case aGalaxyStruct::stRanger: {
-                if (pas::checked_cast<aRanger::TRanger*>(Victim)->GetDominantCareer() != aGalaxyStruct::rcPirate && Victim->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(pas::checked_cast<aRanger::TRanger*>(Victim)->ExcludedFromRating ^ 1)) {
-                    ++Ship->RangerKillCount;
-                    Ship->CheckKillCountAwards(Victim);
-                }
-                break;
-            }
-        }
-    }
-
-    void LogPlayerEvent(aShip::TShip* Ship, aGalaxy::TStar*& Star) {
-        aGalaxyEvent::TGalaxyEvent* Event{};
-        if (aPlayer::GetPlayer() == Ship) {
-            Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerLiberatesSystem"_w, nullptr);
-            Event->AddData(Star->Id);
-            Event->AddData(static_cast<std::uint8_t>(Star->Status.ControlFaction));
-            Event->AddData(static_cast<std::uint8_t>(Star->Status.PreviousControlFaction));
-            Event->AddData(aPlayer::GetPlayer()->PendingLiberationContribution);
-            Event->AddData(aPlayer::GetPlayer()->PendingLiberationCeremonyPlanet->Id);
         }
     }
 
     void TNormalShip::CheckKillCountAwards(aShip::TShip* Victim) {
+        // Caller-popped static link; ship at ParentFrame-4.
+        auto Check = [&](std::int32_t InitialThreshold, std::int32_t Multiplier, std::uint16_t Count, std::uint8_t VictimType) -> void {
+            aConst::TRewardInfo cpp_result{};
+            static const pas::Set<0, 255> BadAwards = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::atPerfidy}});
+            std::int32_t Award{};
+            pas::WideString Text{};
+            pas::WideString ShipTypeName{};
+            if (aGalaxy::Galaxy->CoalitionDefeatedTurn > 0 || Count == 65535) {
+                return;
+            }
+            std::int32_t Threshold = InitialThreshold;
+            std::int32_t I = 1;
+            do {
+                if (Count < Threshold) {
+                    break;
+                }
+                if (Count == Threshold) {
+                    Award = SelectAward(this->OwnerId, static_cast<TAwardTypeMask>(BadAwards), pas::make_set<aGalaxyStruct::TShipTypeMask>({{static_cast<std::int32_t>(VictimType)}})) & 0x000000ff;
+                    if (Award != aGalaxyStruct::AwardNotFound) {
+                        AddAward(Award);
+                        if (aPlayer::GetPlayer() == this) {
+                            ShipTypeName = aConst::ShipTypeNames[VictimType].Name;
+                            Text = aConst::PickLocalizedTextVariant(pas::concat_wide({u"GalaxyNews.BadReward.Kill", ShipTypeName}), this->Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn / 10));
+                            aMyFunction::ReplaceTextToken(Text, u"<Reward>"_w, (TNormalShip::GetAwardInfo(Award, cpp_result), cpp_result).Name, u"<color=255,240,100>"_w);
+                            Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
+                        }
+                    }
+                    break;
+                }
+                Threshold = std::min<std::int32_t>(Threshold * Multiplier, 10000000);
+                ++I;
+            } while (!(I == 9));
+        };
         switch (Victim->TypeId) {
-            case aGalaxyStruct::stTransport: {
-                aNormalShip::Check(5, 5, CivilianKillCount, aGalaxyStruct::stTransport, this);
-                break;
-            }
-            case aGalaxyStruct::stWarrior: {
-                aNormalShip::Check(3, 3, MilitaryKillCount, aGalaxyStruct::stWarrior, this);
-                break;
-            }
+            case aGalaxyStruct::stTransport: Check(5, 5, CivilianKillCount, aGalaxyStruct::stTransport); break;
+            case aGalaxyStruct::stWarrior: Check(3, 3, MilitaryKillCount, aGalaxyStruct::stWarrior); break;
             case aGalaxyStruct::stRanger: {
                 if (TypeId == aGalaxyStruct::stRanger) {
-                    aNormalShip::Check(2, 4, RangerKillCount, aGalaxyStruct::stRanger, this);
+                    Check(2, 4, RangerKillCount, aGalaxyStruct::stRanger);
                 }
                 break;
             }
         }
     }
 
-    void Check(std::int32_t InitialThreshold, std::int32_t Multiplier, std::uint16_t Count, std::uint8_t VictimType, TNormalShip* Self) {
-        aConst::TRewardInfo cpp_result{};
-        static const pas::Set<0, 255> BadAwards = pas::constant_set<pas::Set<0, 255>>({{4}});
-        std::int32_t Award{};
-        pas::WideString Text{};
-        pas::WideString ShipTypeName{};
-        if (aGalaxy::Galaxy->CoalitionDefeatedTurn > 0 || Count == 65535) {
-            return;
-        }
-        std::int32_t Threshold = InitialThreshold;
-        std::int32_t I = 1;
-        do {
-            if (Count < Threshold) {
-                break;
-            }
-            if (Count == Threshold) {
-                Award = Self->SelectAward(Self->OwnerId, static_cast<TAwardTypeMask>(BadAwards), pas::make_set<aGalaxyStruct::TShipTypeMask>({{static_cast<std::int32_t>(VictimType)}})) & 0x000000ff;
-                if (Award != aGalaxyStruct::AwardNotFound) {
-                    Self->AddAward(Award);
-                    if (aPlayer::GetPlayer() == Self) {
-                        ShipTypeName = aConst::ShipTypeNames[VictimType].Name;
-                        Text = aConst::PickLocalizedTextVariant(pas::concat_wide({u"GalaxyNews.BadReward.Kill", ShipTypeName}), Self->Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn / 10));
-                        aMyFunction::ReplaceTextToken(Text, u"<Reward>"_w, (TNormalShip::GetAwardInfo(Award, cpp_result), cpp_result).Name, u"<color=255,240,100>"_w);
-                        Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
-                    }
-                }
-                break;
-            }
-            Threshold = std::min<std::int32_t>(Threshold * Multiplier, 10000000);
-            ++I;
-        } while (!(I == 9));
-    }
-
+    // Nearby rangers attacking a friend incur a penalty; attacks on an enemy can improve relations.
     void TNormalShip::UpdateRelationsForNearbyCombat() {
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -1261,6 +1253,7 @@ namespace aNormalShip {
         }
     }
 
+    // Returns 255 when no award qualifies; retries duplicates twice.
     std::uint8_t TNormalShip::SelectAward(std::uint8_t Owner, TAwardTypeMask Kinds, aGalaxyStruct::TShipTypeMask VictimTypes) {
         std::uint8_t Result{};
         std::int32_t I{};
@@ -1313,6 +1306,7 @@ namespace aNormalShip {
         return aConst::LocalizedColorText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Rank], u".Text"}));
     }
 
+    // Does not check for maximum rank.
     pas::WideString TNormalShip::GetNextRankName() {
         return aConst::LocalizedText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Rank + 1], u".Name"}));
     }
@@ -1324,6 +1318,7 @@ namespace aNormalShip {
         return 0;
     }
 
+    // Caps the addition at the points needed for the next rank.
     void TNormalShip::AddRankPoints(std::uint16_t Amount) {
         std::int32_t Needed = GetRankPointsToNextRank();
         RankPoints += std::min<std::int32_t>(static_cast<std::int32_t>(Amount), Needed);
@@ -1338,6 +1333,7 @@ namespace aNormalShip {
         }
     }
 
+    // Maximum rank is 7; promotion resets RankPoints.
     std::uint8_t TNormalShip::TryPromoteRank() {
         if (Rank < 7 && GetRankPointsToNextRank() == 0) {
             ++Rank;
@@ -1363,6 +1359,7 @@ namespace aNormalShip {
         return aConst::LocalizedColorText(pas::concat_wide({u"RankPirate.", aConst::PirateRankNames[PirateRank], u".Text"}));
     }
 
+    // Does not check maximum rank.
     pas::WideString TNormalShip::GetNextPirateRankName() {
         return aConst::LocalizedText(pas::concat_wide({u"RankPirate.", aConst::PirateRankNames[PirateRank + 1], u".Name"}));
     }
@@ -1374,11 +1371,13 @@ namespace aNormalShip {
         return 0;
     }
 
+    // Caps the addition at the points needed for the next rank.
     void TNormalShip::AddPirateRankPoints(std::uint32_t Amount) {
         std::int32_t Needed = GetPirateRankPointsToNextRank();
         PirateRankPoints += std::min<std::int64_t>(static_cast<std::int64_t>(Amount), static_cast<std::int64_t>(Needed));
     }
 
+    // Maximum rank is 7; promotion resets PirateRankPoints.
     std::uint8_t TNormalShip::TryPromotePirateRank() {
         if (PirateRank < 7 && GetPirateRankPointsToNextRank() == 0) {
             ++PirateRank;
@@ -1395,8 +1394,10 @@ namespace aNormalShip {
         return PirateRank < 7 && GetPirateRankPointsToNextRank() == 0;
     }
 
+    // Automatic messages suppress object links and select the automatic-message category.
     pas::WideString TNormalShip::SelectSituationalMessage(std::uint8_t Automatic) {
         pas::DynArray<Globals::TShipGreetingsInfo> Definitions{};
+        std::int32_t LastIndex{};
         Globals::TShipGreetingsInfo SwapA{};
         Globals::TShipGreetingsInfo SwapB{};
         pas::WideString ItemTypes{};
@@ -1414,6 +1415,22 @@ namespace aNormalShip {
         std::uint8_t ShipKind{};
         aGalaxyStruct::TGreetingCountMask CountMask{};
         aShip::TShip* Other{};
+        // Nested helper; caller-popped static link. Copies definitions and swaps the first half against deterministic random positions.
+        auto ShuffleDefinitions = [&]() -> void {
+            std::int32_t I{};
+            std::int32_t OtherIndex{};
+            Definitions.set_length(Globals::ShipGreetingCount);
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, LastIndex); cpp_range.next(I); ) {
+                Definitions[I] = Globals::ShipGreetingDefinitions[I];
+            }
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, LastIndex / 2); cpp_range_2.next(I); ) {
+                OtherIndex = aMyFunction::SeededRandomIntRange(0, LastIndex, this->Seed + 7 * I);
+                SwapA = Definitions[OtherIndex];
+                SwapB = Definitions[I];
+                Definitions[I] = SwapA;
+                Definitions[OtherIndex] = SwapB;
+            }
+        };
         if (aPlayer::GetPlayer() == PartnerShip || aPlayer::GetPlayer()->ChameleonActive || HasIndependentScriptFaction()) {
             return pas::WideString();
         }
@@ -1421,8 +1438,8 @@ namespace aNormalShip {
         std::int32_t BestPriority = -1;
         std::int32_t CandidatePriority = -1;
         std::int32_t Minimum = 0;
-        std::int32_t LastIndex = Globals::ShipGreetingCount - 1;
-        aNormalShip::ShuffleDefinitions(this, Definitions, LastIndex, SwapA, SwapB);
+        LastIndex = Globals::ShipGreetingCount - 1;
+        ShuffleDefinitions();
         EntryIndex = aMyFunction::SeededRandomIntRange(0, LastIndex, static_cast<std::int32_t>(Seed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn)) / 20);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LastIndex); cpp_range.next(I); ) {
             MessageText = pas::WideString();
@@ -1433,7 +1450,7 @@ namespace aNormalShip {
             if (Definitions[EntryIndex].CoalitionAlreadyDefeated != 2 && (Definitions[EntryIndex].CoalitionAlreadyDefeated == 0 && !(aGalaxy::Galaxy->CoalitionDefeatedTurn != 0) || Definitions[EntryIndex].CoalitionAlreadyDefeated == 1 && aGalaxy::Galaxy->CoalitionDefeatedTurn != 0)) {
                 continue;
             }
-            if (Definitions[EntryIndex].DominatorsAlreadyDefeated != 2 && (Definitions[EntryIndex].DominatorsAlreadyDefeated == 0 && static_cast<std::uint8_t>(static_cast<std::uint8_t>(aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{0}, {1}, {2}})) ^ 1) ^ 1) || Definitions[EntryIndex].DominatorsAlreadyDefeated == 1 && static_cast<std::uint8_t>(aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{0}, {1}, {2}})) ^ 1))) {
+            if (Definitions[EntryIndex].DominatorsAlreadyDefeated != 2 && (Definitions[EntryIndex].DominatorsAlreadyDefeated == 0 && static_cast<std::uint8_t>(static_cast<std::uint8_t>(aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}})) ^ 1) ^ 1) || Definitions[EntryIndex].DominatorsAlreadyDefeated == 1 && static_cast<std::uint8_t>(aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}})) ^ 1))) {
                 continue;
             }
             if (BestPriority > 0) {
@@ -1600,6 +1617,7 @@ namespace aNormalShip {
                 Item = nullptr;
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Items) - 1); cpp_range_3.next(J); ) {
                     Item = pas::list_at<aItem::TItem>(CurrentStar->Items, J);
+                    // Native accepts either matching coordinate, rather than requiring both.
                     if (GetPickupApproachPosition(Item->Position).X == OrderDestination.X || GetPickupApproachPosition(Item->Position).Y == OrderDestination.Y) {
                         ItemTypes = Definitions[EntryIndex].ItemType;
                         if (ItemTypes == u"" || ItemTypes == u"Any" || EC_Str::FindTextPosW(Item->GetCategoryConfigName(), ItemTypes) != 0) {
@@ -1973,22 +1991,7 @@ namespace aNormalShip {
         return BestText;
     }
 
-    void ShuffleDefinitions(TNormalShip* Self, pas::DynArray<Globals::TShipGreetingsInfo>& Definitions, std::int32_t& LastIndex, Globals::TShipGreetingsInfo& SwapA, Globals::TShipGreetingsInfo& SwapB) {
-        std::int32_t I{};
-        std::int32_t OtherIndex{};
-        Definitions.set_length(Globals::ShipGreetingCount);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, LastIndex); cpp_range.next(I); ) {
-            Definitions[I] = Globals::ShipGreetingDefinitions[I];
-        }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, LastIndex / 2); cpp_range_2.next(I); ) {
-            OtherIndex = aMyFunction::SeededRandomIntRange(0, LastIndex, Self->Seed + 7 * I);
-            SwapA = Definitions[OtherIndex];
-            SwapB = Definitions[I];
-            Definitions[I] = SwapA;
-            Definitions[OtherIndex] = SwapB;
-        }
-    }
-
+    // Enables afterburner for multi-turn orders with a serviceable engine.
     void TNormalShip::UpdateAfterburnerState() {
         AfterburnerActive = GetSlotCount(aConst::sskAfterburner) > 0 && GetEngine() != nullptr && GetEngine()->ConditionPercent > 1.0E+1L && EstimateOrderTravelTurns() > 1;
         RefreshDerivedStats(true);

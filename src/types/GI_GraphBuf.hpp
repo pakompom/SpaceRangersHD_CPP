@@ -26,21 +26,28 @@ namespace GI_GraphBuf {
         void p_destroy() override;
         void SetImageKindX(GI_Main::TImageKindXGI Value);
         void SetImageKindY(GI_Main::TImageKindYGI Value);
+        // Detaches borrowed buffers without freeing them.
         void Clear() override;
         void SetHalfAlpha(std::uint8_t Value);
+        // Does not modify a previously borrowed buffer; the resulting buffer is owned.
         void AllocateBuffer(std::int32_t Width, std::int32_t Height, std::uint8_t UseTexture);
         void ClearOwnedBuffer();
+        // Requires equal nonempty extents, in-bounds rectangles and a buffer without per-pixel alpha.
         void CopyScreenRectToBuffer(WindowsSdk::TRect ScreenRect, WindowsSdk::TRect BufferRect);
         void LoadBitmapPathAsRgba(const pas::WideString& BitmapPath);
         void LoadBitmapPathAsRgb(const pas::WideString& BitmapPath);
+        // Black pixels do not count as hits.
         std::uint8_t HitTestPixel(WindowsSdk::TPoint Point);
+        // Uses nonzero pixels. CenterFill is unsupported and can leave bounds changed and temporary storage leaked.
         WindowsSdk::TPoint GetVisualCenter();
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
+        // Fits the image inside the control size while preserving its aspect ratio.
         void LoadScaledBitmapPathAsRgba(const pas::WideString& BitmapPath);
         void LoadScaledGiPath(const pas::WideString& GiPath);
         void Draw(WindowsSdk::TRect ClipRect) override;
+        // Buffer is borrowed; alpha flags are unchanged.
         void BindExternalGraphBuf(GR_GraphBuf::TGraphBufGR* Buffer);
         GR_GraphBuf::TGraphBufGR* GraphBuf;
         GI_Main::TImageKindXGI ImageKindX;

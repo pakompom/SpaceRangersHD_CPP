@@ -78,6 +78,7 @@ namespace GI_RotateImage5 {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves cache keys, image storage and FrameTexture.
     void TRotateImage5GI::Clear() {
         ImageDirty = true;
         RenderedAngle = 255;
@@ -88,7 +89,9 @@ namespace GI_RotateImage5 {
         GI_MessageLoop::TObjectGI::Clear();
     }
 
+    // A full turn has 256 steps.
     void TRotateImage5GI::SetAngle(std::uint8_t Value) {
+        // Preserve the native byte comparison operand order.
         if (static_cast<std::uint8_t>(Value + 0) != Angle) {
             Angle = Value;
             ImageDirty = true;
@@ -96,6 +99,7 @@ namespace GI_RotateImage5 {
         }
     }
 
+    // Does not validate against the frame count.
     void TRotateImage5GI::SetFrameIndex(std::uint32_t Value) {
         if (Value + 0 != FrameIndex) {
             FrameIndex = Value;
@@ -112,6 +116,7 @@ namespace GI_RotateImage5 {
         }
     }
 
+    // Replaces size and origin with a centered square enclosing all rotations.
     void TRotateImage5GI::SetImage(pas::WideString Path, Types::TPoint ImageSize, Types::TPoint Pivot) {
         EC_CacheHSAI::TCHSAIEC* Data{};
         double Radius{};
@@ -174,6 +179,7 @@ namespace GI_RotateImage5 {
         Invalidate();
     }
 
+    // Uses the last rendered image. Alpha must exceed 8 in software, or 0 in hardware.
     std::uint8_t TRotateImage5GI::HitTestPixel(Types::TPoint Point) {
         Direct3D9::IDirect3DSurface9 Surface{};
         Direct3D9::IDirect3DSurface9 OldSurface{};
@@ -419,6 +425,7 @@ namespace GI_RotateImage5 {
         return Result;
     }
 
+    // Queues an arbitrary HSAI path; does not change this object's image.
     void TRotateImage5GI::QueueImagePath(pas::List* PendingLoads, pas::WideString Path) {
         EC_CacheHSAI::TCHSAIControlEC* Control = pas::construct_call<EC_CacheHSAI::TCHSAIControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Control);

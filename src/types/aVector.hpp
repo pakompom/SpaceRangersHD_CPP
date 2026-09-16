@@ -29,9 +29,11 @@ namespace aVector {
         void p_destroy() override;
         void Clear();
         void SetRectangle(Types::TRect Rect);
+        // Takes ownership of the list and its PPointF entries.
         void TakePoints(pas::List* NewPoints);
         void SetTriangle(EC_Struct::TPointF A, EC_Struct::TPointF B, EC_Struct::TPointF C);
         void RecalculateBounds();
+        // Appends at the tail and sets Polygon.Previous; requires nonnil Polygon.
         void Append(TPolygon2D* Polygon);
         void InsertAfter(TPolygon2D* Polygon);
         void SplitChainByLine(float A, float B, float C);
@@ -42,11 +44,15 @@ namespace aVector {
         TPolygon2D* FindContainingPolygon(EC_Struct::TPointF Point);
         std::uint8_t AssignGroupAtPoint(EC_Struct::TPointF Point, std::int32_t Id);
         pas::List* ExtractBoundaryEdges();
+        // Consumes both lists and frees their edge records.
         static pas::List* MergeUnsharedEdges(pas::List* First, pas::List* Second);
+        // Caller owns the list and its PPolygonEdge entries.
         pas::List* ExtractEdges();
         void ResetChainGroups();
+        // Includes Self; nil returns zero.
         std::int32_t CountChain();
         TPolygon2D* GetChainItem(std::int32_t Index);
+        // The first uncached call fills CachedArea but returns zero; later calls return the cache.
         float GetArea();
         float GetChainArea();
         std::uint8_t IntersectsPolygon(TPolygon2D* Polygon);
@@ -56,8 +62,10 @@ namespace aVector {
         std::uint8_t IntersectsChain(TPolygon2D* Polygon);
         TPolygon2D* Next;
         TPolygon2D* Previous;
+        // Owns PPointF entries.
         pas::List* Points;
         std::int32_t GroupId;
+        // Reset to -1; other meaning unresolved.
         std::int32_t Unknown14;
         EC_Struct::TPointF Extent;
         float CachedArea;
@@ -65,6 +73,7 @@ namespace aVector {
         std::uint8_t cpp_padding[3];
         TRectF Bounds;
         std::uint8_t cpp_padding_2[1];
+        // Cleared on geometry changes; other meaning unresolved.
         std::uint8_t Flag39;
         std::uint8_t cpp_padding_3[2];
     };

@@ -3,6 +3,12 @@
 #include "types/Types.hpp"
 #include "units/WindowsSdk.hpp"
 
+// *******************************************************
+// Borland Delphi Run-time Library
+// Win32 API Interface Unit
+// Copyright (c) 1985-1999, Microsoft Corporation
+// Translator: Borland Software Corporation
+// *******************************************************
 namespace WindowsSdk {
     const WindowsSdk::MakeIntResource IDC_ARROW = reinterpret_cast<WindowsSdk::MakeIntResource>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(32512)));
 

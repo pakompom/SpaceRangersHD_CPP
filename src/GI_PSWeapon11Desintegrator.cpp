@@ -20,6 +20,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native Desintegrator beam and screen-brightness-guided impact sparks.
 namespace GI_PSWeapon11Desintegrator {
     pas::DynArray<GI_PSWeapon11Desintegrator::TDesintegratorPalette> DesintegratorPalettes{};
 
@@ -106,6 +107,7 @@ namespace GI_PSWeapon11Desintegrator {
         A = static_cast<long double>(-HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = static_cast<long double>(HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = static_cast<long double>(-HalfWidth * 2) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth * 2) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
@@ -171,6 +173,7 @@ namespace GI_PSWeapon11Desintegrator {
         LastParticle = nullptr;
     }
 
+    // Native empty override.
     void TPSWeapon11Desintegrator::Invalidate() {
     }
 
@@ -199,6 +202,7 @@ namespace GI_PSWeapon11Desintegrator {
             Y = 0.0f;
             Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
             OriginalLength = Distance;
+            // Native comparison is strictly negative, including its zero-length behavior.
             if (OriginalLength < 0.0L) {
                 OriginalLength = 1.0;
             }

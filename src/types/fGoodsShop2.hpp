@@ -35,6 +35,7 @@ namespace fGoodsShop2 {
 
     struct TfGoodsShop2;
 
+    // Ship-to-ship market row; scalar layout is also consumed by the integrity checksum.
     #pragma pack(push, 1)
     struct TGoodsShopTradeRow {
         std::int32_t Count;
@@ -53,6 +54,7 @@ namespace fGoodsShop2 {
         void InitializeLayout() override;
         void OnOpen() override;
         void OnClose() override;
+        // Rebuilds cargo/market controls and prices for the current trading context.
         void RefreshGoodsDisplay();
         void GoodsMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void GoodsRightMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
@@ -88,13 +90,18 @@ namespace fGoodsShop2 {
         fPanelPlanet::TfPanelPlanet* PlanetPanel;
         fPanelRuins::TfPanelRuins* StationPanel;
         fPanelLoad::TfPanelLoad* LoadPanel;
+        // -1 when no market/cargo row is being dragged.
         std::int32_t DraggedGoodsIndex;
         std::int32_t NameFaceHeight;
+        // Total original extent from name top to character-description bottom.
         std::int32_t FaceCaptionHeight;
+        // Suppresses parent star-map presentation during modal transitions; other uses unresolved.
         std::uint8_t FlagEC;
         std::uint8_t cpp_padding[3];
         pas::Array<TGoodsShopTradeRow, 0, 7> TradeRows;
+        // Trading partner cargo limit.
         std::int32_t PartnerCargoLimit;
+        // Trading partner money limit.
         std::int32_t PartnerMoneyLimit;
         std::uint8_t MoneyWarningActive;
         std::uint8_t cpp_padding_2[3];

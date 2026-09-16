@@ -22,7 +22,9 @@ namespace GI_StatusBar {
     struct TStatusBarGI : GI_Panel::TPanelGI {
         PAS_CLASS_META(TStatusBarGI, GI_Panel::TPanelGI, "TStatusBarGI", 356)
         void p_destroy() override;
+        // Preserves Value; resets the range to 0..100.
         void Clear() override;
+        // If MinValue exceeds MaxValue, lowers MinValue to MaxValue. Does not clamp the stored Value.
         void SetRange(double MinValue, double MaxValue);
         void SetValue(double NewValue);
         void SetSize(Types::TPoint Size) override;

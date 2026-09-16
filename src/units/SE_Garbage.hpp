@@ -6,8 +6,10 @@ namespace SE_Garbage {
 
     extern std::int64_t PreviousPhysicalUsageMB;
 
+    // Recursive checks return immediately.
     extern std::uint8_t CheckingMemoryUsage;
 
+    // At most one warning per process.
     extern std::uint8_t LowMemoryWarningShown;
 
     void CheckMemoryUsage();

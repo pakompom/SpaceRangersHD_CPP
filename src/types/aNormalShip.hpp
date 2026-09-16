@@ -54,41 +54,58 @@ namespace aNormalShip {
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Native editable import truncates PirateRankPoints to Word.
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void NextDay() override;
+        // Consumes the pending ceremony, grants rewards and returns the player's presentation text.
         pas::WideString CollectLiberationRewards();
+        // Selects a merit award using the current planet, station or default human owner and returns its name.
         pas::WideString AwardRandomMedal();
+        // Distributes kill rewards, career/rank changes and event counters.
         void ProcessShipKill(aShip::TShip* Victim);
         void CheckKillCountAwards(aShip::TShip* Victim);
+        // Nearby rangers attacking a friend incur a penalty; attacks on an enemy can improve relations.
         void UpdateRelationsForNearbyCombat();
+        // Returns 255 when no award qualifies; retries duplicates twice.
         std::uint8_t SelectAward(std::uint8_t Owner, TAwardTypeMask Kinds, aGalaxyStruct::TShipTypeMask VictimTypes);
         static void GetAwardInfo(std::uint8_t AwardId, aConst::TRewardInfo& Result);
         pas::WideString GetRankName();
         pas::WideString GetRankLongName();
         pas::WideString GetRankDescription();
+        // Does not check for maximum rank.
         pas::WideString GetNextRankName();
         std::uint16_t GetRankPointsToNextRank();
+        // Caps the addition at the points needed for the next rank.
         void AddRankPoints(std::uint16_t Amount);
+        // Maximum rank is 7; promotion resets RankPoints.
         std::uint8_t TryPromoteRank();
         std::uint8_t CanPromoteRank();
         pas::WideString GetPirateRankName();
         pas::WideString GetPirateRankLongName();
         pas::WideString GetPirateRankDescription();
+        // Does not check maximum rank.
         pas::WideString GetNextPirateRankName();
         std::uint16_t GetPirateRankPointsToNextRank();
+        // Caps the addition at the points needed for the next rank.
         void AddPirateRankPoints(std::uint32_t Amount);
+        // Maximum rank is 7; promotion resets PirateRankPoints.
         std::uint8_t TryPromotePirateRank();
         std::uint8_t CanPromotePirateRank();
+        // Automatic messages suppress object links and select the automatic-message category.
         pas::WideString SelectSituationalMessage(std::uint8_t Automatic);
+        // Enables afterburner for multi-turn orders with a serviceable engine.
         void UpdateAfterburnerState() override;
         void TrainSkillsAutomatically();
         aPlanet::TPlanet* LastDockedPlanet;
         std::int32_t TotalShipKillCount;
         std::int32_t PirateKillCount;
         std::int32_t DominatorKillCount;
+        // Also counts qualifying captures by the pirate side.
         std::int32_t LiberatedSystemCount;
+        // Excludes Pirate Clan civilians.
         std::int32_t CivilianKillCount;
         std::int32_t MilitaryKillCount;
+        // Excludes rangers omitted from the rating.
         std::int32_t RangerKillCount;
         TSystemKillCounts CurrentSystemKills;
         aPlanet::TPlanet* PendingLiberationCeremonyPlanet;
@@ -96,6 +113,7 @@ namespace aNormalShip {
         std::uint8_t Rank;
         std::uint8_t cpp_padding[1];
         std::uint16_t RankPoints;
+        // Shared 30-turn cooldown for money, cargo and paid-truce demands.
         std::int32_t LastPlayerExtortionTurn;
         std::uint8_t PirateRank;
         std::uint8_t cpp_padding_2[3];

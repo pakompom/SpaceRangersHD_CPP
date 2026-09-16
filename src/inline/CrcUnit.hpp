@@ -14,6 +14,7 @@ namespace CrcUnit {
         return ~State;
     }
 
+    // Assembly loop requires nonnegative ByteCount; consumes bytes with LODSB.
     inline std::uint32_t UpdateCrc32Bytes(std::uint32_t State, void* BufferPtr, std::int32_t ByteCount) {
         return pas::crc32_update(State, BufferPtr, ByteCount, Crc32Table.elements);
     }

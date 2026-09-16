@@ -19,6 +19,7 @@ namespace MessageText {
         pas::object_destroy(Self);
     }
 
+    // Returns Path when an intermediate block is missing; a missing final string parameter raises.
     pas::WideString TQuestMessages::GetText(pas::WideString Path) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -37,6 +38,7 @@ namespace MessageText {
         return Block->GetParam(Name);
     }
 
+    // Looks up a direct parameter; returns Key when absent.
     pas::WideString TQuestMessages::GetTextOrKey(pas::WideString Key) {
         if (Entries->CountParams(Key) > 0) {
             return Entries->GetParam(Key);

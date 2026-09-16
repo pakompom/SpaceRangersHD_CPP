@@ -11,6 +11,7 @@ namespace ab_WorldImage {
 
     void ab_WorldImage_Clear();
 
+    // Allocates and links a node owned by the world list.
     PabWorldImage ab_WorldImage_Add();
 
     void ab_WorldImage_Delete(PabWorldImage Entry);

@@ -17,6 +17,8 @@
 #include "units/ab_Polygon.hpp"
 #include "units/ab_StopLine.hpp"
 
+// Native anonymous RTTI and initialization-table evidence identify this unit.
+// Ordinary routines occupy; is compiler finalization.
 namespace ab_Polygon {
     ab_Polygon::PabPolygon FirstPolygon = nullptr;
 

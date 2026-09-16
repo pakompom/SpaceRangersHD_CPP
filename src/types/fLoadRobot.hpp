@@ -19,15 +19,23 @@ namespace fLoadRobot {
 
     struct TfLoadRobot;
 
+    // Native RTTI name and managed-field offsets.
     struct TfLoadRobotSlot {
         pas::WideString Name;
+        // Passed to FRun when starting the battle.
         pas::WideString FileName;
+        // -1 for loose map files absent from configured maps.
         std::int32_t MapIndex;
+        // Borrowed child of the entry panel.
         GI_Image::TImageGI* Image;
+        // Unlock group, zero for loose maps.
         std::int32_t Access;
+        // Red=1, Green=2, Blue=4.
         std::int32_t Side;
+        // Alternates at each unlock group.
         std::uint8_t AlternateBackground;
         std::uint8_t cpp_padding[3];
+        // -1 for an unknown duration.
         std::int32_t Length;
     };
 
@@ -60,18 +68,23 @@ namespace fLoadRobot {
         void SaveCompletionData();
         void RecordCompletion(std::int32_t MapId, std::int32_t Score, std::int32_t Level);
         std::int32_t GetUnlockedAccess();
+        // X completed, Y eligible; groups greater than -1 are eligible.
         WindowsSdk::TPoint GetCompletionCounts();
+        // Menu summary; displayed total includes groups 0..2.
         pas::WideString GetCompletionSummary();
         void SelectMusic() override;
+        // Owned.
         fPanelLoad::TfPanelLoad* LoadPanel;
         pas::DynArray<TfLoadRobotSlot> Entries;
         std::int32_t SelectedIndex;
         std::int32_t HoveredIndex;
+        // Nonzero preserves Entries during the planetary-battle transition.
         std::int32_t BattleResult;
         pas::DynArray<std::int32_t> CompletionData;
         std::int32_t Category;
         std::int32_t UnlockedAccess;
         pas::WideString KeyHistory;
+        // Dif1/Dif2/Dif3 controls.
         std::int32_t Difficulty;
     };
     #if INTPTR_MAX == INT32_MAX

@@ -28,6 +28,7 @@ namespace GI_PSWeapon07Blaster {
         PBlasterParticle AddParticle();
         void ClearParticles();
         void InvalidateRect(Types::TRect Rect) override;
+        // Native empty override.
         void Invalidate() override;
         void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) override;
         void Draw(Types::TRect ClipRect) override;
@@ -53,6 +54,7 @@ namespace GI_PSWeapon07Blaster {
         EC_Struct::TPointF Velocity;
         std::uint8_t State;
         std::uint8_t cpp_padding_2[1];
+        // Initialized to 30000; unused by the native update.
         std::uint16_t Unknown1E;
         std::uint8_t cpp_padding_3[4];
         float BaseX;

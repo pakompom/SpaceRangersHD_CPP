@@ -12,8 +12,8 @@
 #include "units/Windows.hpp"
 
 namespace EC_Data {
-    std::uint8_t NextDataPathComponent(const pas::WideString& Path, std::int32_t& Position, std::int32_t& PathLength, std::int32_t& PartStart, std::int32_t& PartLength);
-
+    // Open addressing by CRC of the ASCII-folded UTF-16 filename. Each
+    // stored filename character is shifted by three; zero hashes end probes.
     const EC_Data::TResourceChecksumTable ResourceChecksums = EC_Data::TResourceChecksumTable{{
         {}, {}, {}, {},
         {.NameCrc = 0xddc6e004u, .FileCrc = 0xf42ed0e3u, .EncodedName = u"gdwd_txhvw_jhu_orjlfbjhu1tpp"_w}, {},
@@ -384,6 +384,7 @@ namespace EC_Data {
 
     const std::uint32_t ResourceDatCrcKey2 = 0xc83fcbf3u;
 
+    // Checks only names present in the built-in checksum table; folds ASCII uppercase for lookup.
     void VerifyResourceFileChecksum(const pas::WideString& FileName) {
         pas::WideString LowerName{};
         std::int32_t CharacterIndex{};
@@ -439,6 +440,7 @@ namespace EC_Data {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Empty in this binary.
     void TDataFileEC::Clear() {
     }
 
@@ -475,6 +477,7 @@ namespace EC_Data {
         return FirstEntry == nullptr;
     }
 
+    // Frees owned files; linked-list head/tail fields remain unchanged.
     void TDataEC::Clear() {
         TDataFileEC* FileEntry{};
         TDataFileEC* RemovedFile{};
@@ -500,6 +503,7 @@ namespace EC_Data {
         IndexedEntryCount = 0;
     }
 
+    // Caller must update the index. Child subtrees share the interned-file list.
     TDataElEC* TDataEC::AddEntry(TDataEntryKind EntryKind) {
         TDataElEC* Entry = pas::construct_call<TDataElEC>(TDataElEC_Create);
         if (LastEntry != nullptr) {
@@ -521,6 +525,7 @@ namespace EC_Data {
         return Entry;
     }
 
+    // Returns nil when absent.
     TDataElEC* TDataEC::FindIndexedEntry(const pas::WideString& Name) {
         std::int32_t Mid{};
         std::int32_t Order{};
@@ -624,14 +629,36 @@ namespace EC_Data {
         return FindIndexedEntry(Name);
     }
 
+    // Accepts dot, slash and backslash separators; returns nil when absent or an intermediate entry is not a subtree.
     TDataElEC* TDataEC::FindEntryByPath(const pas::WideString& Path) {
+        std::int32_t Position{};
+        std::int32_t PathLength{};
         std::int32_t PartStart{};
         std::int32_t PartLength{};
         TDataElEC* Entry{};
-        std::int32_t PathLength = Path.length();
-        std::int32_t Position = 0;
+        // Nested helper of TDataEC.FindEntryByPath; requires its parent stack frame.
+        auto NextDataPathComponent = [&]() -> std::uint8_t {
+            char16_t Ch{};
+            if (Position >= PathLength) {
+                return false;
+            }
+            PartStart = Position;
+            std::int32_t i = PartStart;
+            while (PathLength > i) {
+                Ch = Path.read(i + 1);
+                if (Ch == u'.' || Ch == u'/' || Ch == u'\\') {
+                    break;
+                }
+                ++i;
+            }
+            PartLength = i - PartStart;
+            Position = i + 1;
+            return true;
+        };
+        PathLength = Path.length();
+        Position = 0;
         TDataEC* Data = this;
-        while (EC_Data::NextDataPathComponent(Path, Position, PathLength, PartStart, PartLength)) {
+        while (NextDataPathComponent()) {
             Entry = Data->FindEntry(pas::copy(Path, PartStart + 1, PartLength));
             if (Entry == nullptr) {
                 break;
@@ -647,25 +674,7 @@ namespace EC_Data {
         return nullptr;
     }
 
-    std::uint8_t NextDataPathComponent(const pas::WideString& Path, std::int32_t& Position, std::int32_t& PathLength, std::int32_t& PartStart, std::int32_t& PartLength) {
-        char16_t Ch{};
-        if (Position >= PathLength) {
-            return false;
-        }
-        PartStart = Position;
-        std::int32_t i = PartStart;
-        while (PathLength > i) {
-            Ch = Path.read(i + 1);
-            if (Ch == u'.' || Ch == u'/' || Ch == u'\\') {
-                break;
-            }
-            ++i;
-        }
-        PartLength = i - PartStart;
-        Position = i + 1;
-        return true;
-    }
-
+    // Requires a file entry. Negative ByteCount uses file size minus FileOffset; zero FileOffset skips seeking.
     void TDataEC::ReadEntryBuffer(TDataElEC* Entry, EC_Buf::TBufEC* Dest) {
         std::int32_t Size{};
         EC_Data::VerifyResourceFileChecksum(Entry->SharedFileRef->FileRef->FileName);
@@ -692,6 +701,7 @@ namespace EC_Data {
         }
     }
 
+    // Raises when Name is absent or is not a subtree.
     TDataEC* TDataEC::GetData(const pas::WideString& Name) {
         TDataElEC* Entry = FindEntry(Name);
         if (Entry == nullptr || Entry->Kind != dekSubtree) {
@@ -700,6 +710,7 @@ namespace EC_Data {
         return Entry->ChildData;
     }
 
+    // Raises when Path is absent or is not a file entry.
     void TDataEC::ReadBufferByPath(const pas::WideString& Path, EC_Buf::TBufEC* Dest) {
         TDataElEC* Entry = FindEntryByPath(Path);
         if (Entry == nullptr || Entry->Kind != dekFile) {
@@ -721,6 +732,7 @@ namespace EC_Data {
         return true;
     }
 
+    // Adds only absent names; existing subtrees are not merged recursively.
     void TDataEC::AddMissingFromBlock(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t i{};
         EC_BlockPar::TBlockParKind Kind{};
@@ -764,6 +776,7 @@ namespace EC_Data {
         }
     }
 
+    // Different-kind name matches are skipped.
     void TDataEC::MergeFrom(TDataEC* Source) {
         TDataElEC* Entry{};
         TDataElEC* Existing{};
@@ -791,6 +804,7 @@ namespace EC_Data {
         RebuildIndex();
     }
 
+    // Replaces existing contents; trusts index order from the stream.
     void TDataEC::LoadFromDecodedBuffer(EC_Buf::TBufEC* Buf) {
         TDataElEC* Entry{};
         std::int32_t i{};
@@ -813,6 +827,7 @@ namespace EC_Data {
         }
     }
 
+    // An inner checksum mismatch leaves the tree unchanged.
     void TDataEC::LoadFromEncryptedDatFile(const pas::WideString& FileName) {
         EC_Buf::TBufEC* Buf{};
         std::uint32_t Crc{};

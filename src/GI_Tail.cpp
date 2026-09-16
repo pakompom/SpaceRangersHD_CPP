@@ -17,7 +17,11 @@
 #include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native GI_Tail metadata starts; methods end.
+// TTailGI belongs to GI_Tail through its dynamic-array RTTI.
 namespace GI_Tail {
+    // Segments is a Delphi dynamic array, with inactive slots included in SegmentCapacity.
+    // SegmentVelocity is displacement per 20 ms movement callback.
     void TTailGI_Create(TTailGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
         Self->ImageCache = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
@@ -46,12 +50,14 @@ namespace GI_Tail {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves timers and emission state.
     void TTailGI::ClearSegments() {
         LastSegmentIndex = -1;
         SegmentCapacity = 0;
         Segments = nullptr;
     }
 
+    // Requires at least one GAI sequence. Existing segments are kept.
     void TTailGI::SetImagePath(const pas::WideString& ImagePath) {
         EC_CacheGAI::TCGaiEC* Data{};
         if (ImageCache->CacheKey != ImagePath) {
@@ -84,6 +90,7 @@ namespace GI_Tail {
         return ImageCache->CacheKey;
     }
 
+    // Reuses the last inactive slot or grows by 16. Growth can invalidate earlier pointers; only Active is initialized.
     PTailSegmentGI TTailGI::AllocateSegment() {
         std::int32_t I{};
         PTailSegmentGI Result = nullptr;
@@ -110,6 +117,7 @@ namespace GI_Tail {
             Segment = &Segments[I];
             if (Segment->Active) {
                 ++Segment->FrameIndex;
+                // The neutral additions preserve native operand materialization order.
                 if (Segment->FrameIndex + 0 >= FrameCount) {
                     Segment->Active = false;
                     if (I + 0 == LastSegmentIndex) {
@@ -134,6 +142,7 @@ namespace GI_Tail {
         }
     }
 
+    // Suppresses emission within squared distance 0.001 of the last live segment.
     void TTailGI::EmitSegment(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         EC_Struct::TPointF Position{};
         Position.X = SegmentVelocity.X * 1.0L + EmitterPosition.X;
@@ -165,6 +174,7 @@ namespace GI_Tail {
         }
     }
 
+    // Deactivation cancels timers. Drawing restarts them when Emitting is true.
     void TTailGI::SetActive(std::uint8_t Enabled) {
         if (Active != Enabled) {
             GI_MessageLoop::TObjectGI::SetActive(Enabled);
@@ -185,6 +195,7 @@ namespace GI_Tail {
         }
     }
 
+    // Disabling emission leaves existing segments animating.
     void TTailGI::SetEmitting(std::uint8_t Enabled) {
         if (Emitting != Enabled) {
             Emitting = Enabled;
@@ -239,9 +250,11 @@ namespace GI_Tail {
         TTailGI::LoadTailProperties(Block);
     }
 
+    // Empty in the native binary.
     void TTailGI::LoadTailProperties(EC_BlockPar::TBlockParEC* Block) {
     }
 
+    // Empty; does not call inherited UpdateAutoGeometry.
     void TTailGI::UpdateAutoGeometry() {
     }
 
@@ -299,6 +312,7 @@ namespace GI_Tail {
         }
     }
 
+    // Ignores ClipRect; uses the message loop's update rectangles.
     void TTailGI::DrawUpdateRects(Types::TRect ClipRect) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         PTailSegmentGI Segment{};

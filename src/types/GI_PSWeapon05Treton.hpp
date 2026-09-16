@@ -28,6 +28,7 @@ namespace GI_PSWeapon05Treton {
         Types::TRect GetLocalBounds() override;
         PTretonParticle AddParticle();
         void ClearParticles();
+        // Native empty override.
         void Invalidate() override;
         void InvalidateRect(Types::TRect Rect) override;
         void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) override;

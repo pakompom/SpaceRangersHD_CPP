@@ -1,6 +1,11 @@
 #include "types/Windows_group.hpp"
 #include "units/ActiveXSdk.hpp"
 
+// ***********************************************************************
+// Delphi Runtime Library
+// Copyright (c) 1997-2005 Borland Software Corporation
+// ***********************************************************************
+// ActiveX / OLE 2 Interface Unit
 namespace ActiveXSdk {
     const pas::WideString ole32 = u"ole32.dll"_w;
 

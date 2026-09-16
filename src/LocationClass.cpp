@@ -25,6 +25,7 @@ namespace LocationClass {
     void TLocation_Destroy(TLocation* Self) {
         std::int32_t i{};
         Self->Reset();
+        // Reset retains only the first event; the native loop indexes that slot.
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Self->EventCount); cpp_range.next(i); ) {
             pas::free(Self->Events[1]);
             Self->Events[1] = nullptr;
@@ -37,6 +38,7 @@ namespace LocationClass {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Retains the first event; frees parameter changes and Sequence.
     void TLocation::Reset() {
         std::int32_t i{};
         EditorX = 100;
@@ -73,6 +75,7 @@ namespace LocationClass {
         return pas::list_count(ParameterChanges);
     }
 
+    // Index is one-based.
     ParameterDeltaClass::TParameterDelta* TLocation::GetParameterChange(std::int32_t Index) {
         return pas::list_at<ParameterDeltaClass::TParameterDelta>(ParameterChanges, Index - 1);
     }
@@ -81,6 +84,7 @@ namespace LocationClass {
         pas::list_add(ParameterChanges, reinterpret_cast<void*>(Change));
     }
 
+    // Evaluates every expression before applying any change.
     void TLocation::ApplyParameterChanges(pas::List*& Parameters) {
         std::int32_t i{};
         for (auto cpp_range = pas::for_to<std::int32_t>(1, GetParameterChangeCount()); cpp_range.next(i); ) {
@@ -91,6 +95,7 @@ namespace LocationClass {
         }
     }
 
+    // Removed entries are not freed.
     void TLocation::PruneParameterChanges(pas::List* Parameters) {
         std::int32_t i{};
         {
@@ -161,6 +166,7 @@ namespace LocationClass {
         }
     }
 
+    // Retains at least one event.
     void TLocation::RemoveLastEvent() {
         if (EventCount >= 2) {
             pas::free(Events[EventCount]);
@@ -169,6 +175,7 @@ namespace LocationClass {
         }
     }
 
+    // Location format used by quest versions 1111111126 and later.
     void TLocation::LoadFromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         std::int32_t ParameterIndex{};
@@ -213,6 +220,7 @@ namespace LocationClass {
         EventExpression->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest version 1111111125; repeated parameter indices overwrite earlier changes.
     void TLocation::LoadLegacyV8FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         std::int32_t ParameterIndex{};
@@ -257,6 +265,7 @@ namespace LocationClass {
         EventExpression->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest version 1111111124.
     void TLocation::LoadLegacyV7FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -295,6 +304,7 @@ namespace LocationClass {
         EventExpression->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest version 1111111123.
     void TLocation::LoadLegacyV6FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -333,6 +343,7 @@ namespace LocationClass {
         EventExpression->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest versions 1111111121..1111111122.
     void TLocation::LoadLegacyV5FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -371,6 +382,7 @@ namespace LocationClass {
         EventExpression->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest versions 1111111119..1111111120.
     void TLocation::LoadLegacyV4FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -408,6 +420,7 @@ namespace LocationClass {
         pas::free(DiscardedText);
     }
 
+    // Quest versions 1111111117..1111111118.
     void TLocation::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -444,6 +457,7 @@ namespace LocationClass {
         pas::free(DiscardedText);
     }
 
+    // Quest version 1111111116.
     void TLocation::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -480,6 +494,7 @@ namespace LocationClass {
         pas::free(DiscardedText);
     }
 
+    // Quest version 1111111115.
     void TLocation::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -506,6 +521,7 @@ namespace LocationClass {
         Events[1]->Text->LoadTextLinesFromReader(Reader);
     }
 
+    // Quest versions 1111111111..1111111114.
     void TLocation::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -532,6 +548,7 @@ namespace LocationClass {
         Events[1]->Text->LoadTextLinesFromReader(Reader);
     }
 
+    // Expression selection falls back to random choice.
     EventClass::TEvent* TLocation::SelectEvent(pas::List*& Parameters) {
         std::int32_t i{};
         std::int32_t j{};

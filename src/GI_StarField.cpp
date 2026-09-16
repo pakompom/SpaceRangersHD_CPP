@@ -38,6 +38,7 @@ namespace GI_StarField {
         Count = 0;
     }
 
+    // Grows by 100 when incremented Count reaches Capacity.
     PStarFieldPoint TStarFieldList::AllocatePoint() {
         ++Count;
         if (Count >= Capacity) {
@@ -47,6 +48,7 @@ namespace GI_StarField {
         return static_cast<PStarFieldPoint>(EC_Mem::AddPointerOffset(Points, (Count - 1) * static_cast<std::int32_t>(sizeof(TStarFieldPoint))));
     }
 
+    // Depth must be nonzero; retains the low 16 bits of Color.
     void TStarFieldList::AddPoint(float X, float Y, float Depth, std::int32_t Color) {
         PStarFieldPoint Point = AllocatePoint();
         Point->X = X;
@@ -165,9 +167,11 @@ namespace GI_StarField {
         }
     }
 
+    // Empty in native code.
     void TStarFieldGI::Invalidate() {
     }
 
+    // Updates GlobalsV.SkipSavedPixelRestore from the background rectangle change.
     void TStarFieldGI::UpdateBackgroundBounds() {
         EC_CacheGAI::TCGaiEC* Data{};
         std::int32_t X{};
@@ -375,6 +379,7 @@ namespace GI_StarField {
         Draw(ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
     }
 
+    // Draws all projected pixels, ignoring ClipRect.
     void TStarFieldGI::Draw(WindowsSdk::TRect ClipRect) {
         void* Buffer{};
         PStarFieldPixel Pixel = Pixels;

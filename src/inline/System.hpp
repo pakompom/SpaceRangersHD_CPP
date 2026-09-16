@@ -6,6 +6,7 @@ namespace System {
         return pas::get_fpu_control();
     }
 
+    // Also clears pending x87 exceptions.
     inline void Set8087CW(std::uint16_t ControlWord) {
         pas::set_fpu_control(ControlWord);
     }
@@ -38,10 +39,12 @@ namespace System {
         return pas::real_sqrt(Value);
     }
 
+    // Uses the current x87 rounding mode, normally nearest with ties to even.
     inline std::int64_t Round(pas::Extended Value) {
         return pas::real_round(Value);
     }
 
+    // Independent of the current x87 rounding mode; preserves it.
     inline std::int64_t Trunc(pas::Extended Value) {
         return pas::real_trunc(Value);
     }
@@ -50,6 +53,7 @@ namespace System {
         return pas::AnsiString(Source);
     }
 
+    // DCC32 MAP System.AllocMem. Source rtl/sys/System.pas:2536.
     inline void* AllocMem(std::uint32_t Size) {
         return pas::alloc_mem(Size);
     }

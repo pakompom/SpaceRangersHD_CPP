@@ -73,26 +73,6 @@
 #include "units/fTextBox.hpp"
 
 namespace fShip2 {
-    void Skill(std::int32_t Index, std::int32_t BaseLevel, std::int32_t EffectiveLevel, std::uint8_t CanTrain, TfShip2* Self);
-
-    void RefreshAfterTransfer(TfShip2* Self, std::uint8_t& NeedsRefresh);
-
-    aGalaxyStruct::TDominatorSeries ChameleonDialogChoiceToSeries(std::int32_t Choice);
-
-    void EquipSelected(TfShip2* Self, std::uint32_t& KeyState, aConst::TItemType& ItemType, aConst::TItemType& OtherType, GI_Zone::TZoneGI*& Zone);
-
-    void MeasurePair(GI_Label::TLabelGI* Left, GI_Label::TLabelGI* Right, std::int32_t& Attempts, std::int32_t& LeftWidth, std::int32_t& RightWidth, std::int32_t& TotalHeight);
-
-    void PlacePair(GI_Label::TLabelGI* Left, GI_Label::TLabelGI* Right, GI_Window::TWindowGI*& Window, std::int32_t& Attempts, WindowsSdk::TRect& Borders, std::int32_t& LeftWidth, std::int32_t& RightWidth, std::int32_t& TotalHeight, std::int32_t& EmblemMargin, std::int32_t& CenterX, std::int32_t& CenterY, std::int32_t& RowY);
-
-    void AddLine(std::int32_t Icon, pas::WideString Text, pas::WideString Hint, std::int32_t Data, TfShip2* Self, GI_PanelScrollBar::TPanelScrollBarGI*& Panel, std::int32_t& Height);
-
-    pas::WideString GetShipInfoColor(std::uint8_t ColorIndex);
-
-    std::int32_t Classify(std::uint8_t ItemType);
-
-    std::uint8_t SellItem(aItem::TItem* Item, std::uint8_t IgnoreRequiredEquipment, std::uint8_t& PlaySaleSound, std::uint8_t& Changed);
-
     std::int32_t StorageImageCount = 21;
 
     pas::List* PlayerHoldEntries = nullptr;
@@ -103,6 +83,8 @@ namespace fShip2 {
 
     std::uint32_t OtherSkillPointColor{};
 
+    // Native initialized-WideString descriptor; compiler-generated
+    // finalizer clears these 13 entries (unit counter).
     pas::Array<pas::WideString, 0, 12> ShipEquipmentZoneNames = pas::Array<pas::WideString, 0, 12>{{
         u"S_Hull_0z"_w, u"S_FuelTanks_0z"_w, u"S_Engine_0z"_w, u"S_Radar_0z"_w, u"S_Scaner_0z"_w, u"S_RepairRobot_0z"_w,
         u"S_CargoHook_0z"_w, u"S_DefGenerator_0z"_w, u"S_Weapon_0z"_w, u"S_Weapon_1z"_w, u"S_Weapon_2z"_w,
@@ -134,6 +116,21 @@ namespace fShip2 {
         pas::WideString LeftName{};
         pas::WideString RightName{};
         std::int32_t NameComparison{};
+        // Nested helper; does not read the parent frame.
+        auto Classify = [&](std::uint8_t ItemType) -> std::int32_t {
+            std::int32_t Result = 0;
+            if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
+                return 1;
+            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
+                return 3;
+            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                return 2;
+            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Protoplasm), static_cast<std::int32_t>(aConst::t_UselessCountableItem))) {
+                return 4;
+            } else {
+                return Result;
+            }
+        };
         std::int32_t Result = 0;
         if (Left->Item == nullptr) {
             return -1;
@@ -143,8 +140,8 @@ namespace fShip2 {
         }
         std::uint8_t LeftType = static_cast<std::uint8_t>(Left->Item->ItemType);
         std::uint8_t RightType = static_cast<std::uint8_t>(Right->Item->ItemType);
-        std::int32_t LeftClass = fShip2::Classify(LeftType);
-        std::int32_t RightClass = fShip2::Classify(RightType);
+        std::int32_t LeftClass = Classify(LeftType);
+        std::int32_t RightClass = Classify(RightType);
         if (Sort == phsType) {
             if (LeftClass < RightClass) {
                 return -1;
@@ -253,6 +250,7 @@ namespace fShip2 {
         }
     }
 
+    // Uses PlayerHoldShip, or the player when nil; preserves display order.
     void RefreshPlayerHoldView(std::uint8_t IncludeFilteredItems) {
         aShip::TShip* Ship{};
         std::uint8_t Goods{};
@@ -453,6 +451,7 @@ namespace fShip2 {
         }
     }
 
+    // Returns true for out-of-range indices as well as empty slots.
     std::uint8_t IsPlayerHoldSlotEmpty(std::int32_t Index) {
         std::uint8_t Result = true;
         if (Index < 0 || Index >= pas::list_count(PlayerHoldEntries)) {
@@ -462,6 +461,7 @@ namespace fShip2 {
         return Entry->Kind == phkEmpty;
     }
 
+    // Ascending order; goods prices are total purchase costs, not unit prices.
     std::int32_t ComparePlayerHoldEntries(TPlayerHoldUnit* Left, TPlayerHoldUnit* Right, TPlayerHoldSort Sort) {
         std::int32_t LeftValue{};
         std::int32_t RightValue{};
@@ -494,7 +494,7 @@ namespace fShip2 {
             if (LeftType > RightType) {
                 return 1;
             }
-            if (pas::in_set<2, 3>(Left->Kind) && pas::in_set<2, 3>(Right->Kind) && Left->Item != nullptr && Right->Item != nullptr) {
+            if (pas::is_one_of<phkEquipment, phkArtefact>(Left->Kind) && pas::is_one_of<phkEquipment, phkArtefact>(Right->Kind) && Left->Item != nullptr && Right->Item != nullptr) {
                 if (Left->Item->ItemType == aConst::t_MicroModule && Right->Item->ItemType == aConst::t_MicroModule) {
                     LeftValue = aItem::GetMicroModulePriorityColorTier(pas::checked_cast<aItem::TMicroModule*>(Left->Item)->MicroModuleIndex - 1);
                     RightValue = aItem::GetMicroModulePriorityColorTier(pas::checked_cast<aItem::TMicroModule*>(Right->Item)->MicroModuleIndex - 1);
@@ -602,6 +602,7 @@ namespace fShip2 {
         }
     }
 
+    // Returns -1 when absent.
     std::int32_t FindPlayerHoldIndexByOrder(std::int32_t DisplayOrder) {
         std::int32_t I{};
         TPlayerHoldUnit* Entry{};
@@ -1464,10 +1465,12 @@ namespace fShip2 {
         MainPanel->OnClose();
     }
 
+    // Native Self/result stack ordering establishes this as a method.
     std::uint8_t TfShip2::CanUseLocalStorage() {
         return (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) || aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->RuinsMode == 0) && pas::list_count(aScript::QueuedArcadeBattles) <= 0;
     }
 
+    // Borrows the current planet or docked ship.
     pas::Object* TfShip2::GetLocalStorageOwner() {
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
             return aPlayer::GetPlayer()->CurrentPlanet;
@@ -1491,6 +1494,7 @@ namespace fShip2 {
         std::int32_t Count{};
         HideRewardTooltip();
         if (Ship->AwardIds == nullptr || pas::list_count(Ship->AwardIds) < 1) {
+            // The value expression preserves the native receiver-before-argument order.
             reinterpret_cast<GI_GraphBuf::TGraphBufGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(RewardsBuffer)) + 0)))->SetActive(false);
         } else {
             Count = std::min<std::int32_t>(Ship->AwardVisibleCount, pas::list_count(Ship->AwardIds));
@@ -1669,6 +1673,7 @@ namespace fShip2 {
         Panel->SetPosition(ClassesImports::Point(X, Panel->LocalPosition.Y));
     }
 
+    // Checks integrity outside inspection mode, restores the return screen, closes and raises BreakUiMessage.
     void TfShip2::CloseClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (!FlagD4) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(427);
@@ -1918,9 +1923,11 @@ namespace fShip2 {
         GetByName(u"RankWnd"_wref.get())->SetActive(false);
     }
 
+    // Native empty three-register method; argument purposes unresolved.
     void TfShip2::UpdateInfoHint(std::int32_t First, std::int32_t Second) {
     }
 
+    // Matches the second underscore-delimited component against eight equipment slot names; raises on no match.
     std::uint8_t TfShip2::SlotToTip(pas::WideString SlotName) {
         pas::WideString Name{};
         std::int32_t I{};
@@ -2121,13 +2128,13 @@ namespace fShip2 {
                     Highlight = true;
                 } else if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_MicroModule && Item != nullptr && Item->MicroModuleIndex == 0 && pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->CanInstallOn(Item)) {
                     Highlight = true;
-                } else if (pas::in_set<2, 3>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && Item != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && Item != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
                     Highlight = true;
-                } else if (pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && Item != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && Item != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
                     Highlight = true;
-                } else if (pas::in_set<2, 3>(SelectedHoldKind) && Item != nullptr && pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr && aScript::RunItemConfigActionCode(Item, aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && Item != nullptr && pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr && aScript::RunItemConfigActionCode(Item, aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
                     Highlight = true;
-                } else if (pas::in_set<2, 3>(SelectedHoldKind) && Item != nullptr && Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && Item != nullptr && Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
                     Highlight = true;
                 } else if (SelectedHoldKind == phkGoods && Item != nullptr && Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnCheckingUsabilityGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0) > 0) {
                     Highlight = true;
@@ -2314,11 +2321,11 @@ namespace fShip2 {
             GetByName(u"HullA"_wref.get())->SetActive(true);
         } else if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_MicroModule && PlayerHoldShip->GetHull()->MicroModuleIndex == 0 && pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->CanInstallOn(PlayerHoldShip->GetHull())) {
             GetByName(u"HullA"_wref.get())->SetActive(true);
-        } else if (pas::in_set<2, 3>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
             GetByName(u"HullA"_wref.get())->SetActive(true);
-        } else if (pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
             GetByName(u"HullA"_wref.get())->SetActive(true);
-        } else if (pas::in_set<2, 3>(SelectedHoldKind) && PlayerHoldShip->GetHull()->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && PlayerHoldShip->GetHull()->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
             GetByName(u"HullA"_wref.get())->SetActive(true);
         } else if (SelectedHoldKind == phkGoods && PlayerHoldShip->GetHull()->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnCheckingUsabilityGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0) > 0) {
             GetByName(u"HullA"_wref.get())->SetActive(true);
@@ -2402,6 +2409,65 @@ namespace fShip2 {
         std::int32_t I{};
         std::int32_t TotalRepair{};
         aItem::TEquipment* Equipment{};
+        // Nested in RefreshActionPanels; captures Self.
+        auto Skill = [&](std::int32_t Index, std::int32_t BaseLevel, std::int32_t EffectiveLevel, std::uint8_t CanTrain) -> void {
+            std::int32_t Gap = 2;
+            std::int32_t Step = Gap + 5;
+            std::int32_t Height = 43;
+            {
+                GI_Image::TImageGI* cpp_with = this->SkillImages[Index];
+                cpp_with->SetActive(std::min<std::int32_t>(BaseLevel, EffectiveLevel) > 0);
+                cpp_with->SetSize(ClassesImports::Point(cpp_with->ClientSize.X, Step * std::min<std::int32_t>(BaseLevel, EffectiveLevel)));
+                cpp_with->SetPosition(ClassesImports::Point(cpp_with->LocalPosition.X, this->SkillImageRestTop[Index] + Height - cpp_with->ClientSize.Y));
+                cpp_with->SetImageKindY(GI_Main::ikyBottom);
+            }
+            if (BaseLevel < EffectiveLevel) {
+                {
+                    GI_Panel::TPanelGI* cpp_with_2 = this->SkillPanels[Index];
+                    cpp_with_2->SetSize(ClassesImports::Point(cpp_with_2->ClientSize.X, (EffectiveLevel - BaseLevel) * Step));
+                    cpp_with_2->SetPosition(ClassesImports::Point(cpp_with_2->LocalPosition.X, this->SkillImageRestTop[Index] + Height - Step * EffectiveLevel));
+                }
+                {
+                    GI_Image::TImageGI* cpp_with_3 = this->SkillImagesP[Index];
+                    cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X, -Step * (6 - EffectiveLevel) - 1));
+                    cpp_with_3->SetActive(true);
+                }
+            } else {
+                this->SkillImagesP[Index]->SetActive(false);
+            }
+            if (BaseLevel > EffectiveLevel) {
+                {
+                    GI_Panel::TPanelGI* cpp_with_4 = this->SkillPanels[Index];
+                    cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, (BaseLevel - EffectiveLevel) * Step));
+                    cpp_with_4->SetPosition(ClassesImports::Point(cpp_with_4->LocalPosition.X, this->SkillImageRestTop[Index] + Height - Step * BaseLevel));
+                }
+                {
+                    GI_Image::TImageGI* cpp_with_5 = this->SkillImagesN[Index];
+                    cpp_with_5->SetPosition(ClassesImports::Point(cpp_with_5->LocalPosition.X, -Step * (6 - BaseLevel) - 1));
+                    cpp_with_5->SetActive(true);
+                }
+            } else {
+                this->SkillImagesN[Index]->SetActive(false);
+            }
+            {
+                GI_Label::TLabelGI* cpp_with_6 = this->SkillValueLabels[Index];
+                cpp_with_6->SetText(pas::wide_int_to_str(EffectiveLevel));
+            }
+            {
+                GI_Image::TImageGI* cpp_with_7 = this->SkillProgressImages[Index];
+                if (EffectiveLevel > BaseLevel) {
+                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormShip2.", GR_Main::GiResourceSuffix(), u"DSGreen"}));
+                } else if (EffectiveLevel < BaseLevel) {
+                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormShip2.", GR_Main::GiResourceSuffix(), u"DSRed"}));
+                } else {
+                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormShip2.", GR_Main::GiResourceSuffix(), u"DSBlue"}));
+                }
+            }
+            {
+                GI_Image::TImageGI* cpp_with_8 = this->SkillGainImages[Index];
+                cpp_with_8->SetActive(CanTrain);
+            }
+        };
         std::uint8_t OrdinaryShip = !(pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr) && !(pas::class_cast_if<aTranclucator::TTranclucator*>(PlayerHoldShip) != nullptr);
         {
             GI_Label::TLabelGI* cpp_with = FreeSkillPointsLabel;
@@ -2411,12 +2477,12 @@ namespace fShip2 {
             GI_Label::TLabelGI* cpp_with_2 = ExperienceLabel;
             cpp_with_2->SetText(pas::wide_int_to_str(PlayerHoldShip->FreeExperience));
         }
-        fShip2::Skill(0, PlayerHoldShip->GetBaseSkillLevel(aShip::psAccuracy), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psAccuracy, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psAccuracy), this);
-        fShip2::Skill(1, PlayerHoldShip->GetBaseSkillLevel(aShip::psManeuverability), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psManeuverability, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psManeuverability), this);
-        fShip2::Skill(2, PlayerHoldShip->GetBaseSkillLevel(aShip::psTechnical), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psTechnical, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psTechnical), this);
-        fShip2::Skill(3, PlayerHoldShip->GetBaseSkillLevel(aShip::psTrading), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psTrading, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psTrading) && OrdinaryShip, this);
-        fShip2::Skill(4, PlayerHoldShip->GetBaseSkillLevel(aShip::psCharisma), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psCharisma, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psCharisma) && OrdinaryShip, this);
-        fShip2::Skill(5, PlayerHoldShip->GetBaseSkillLevel(aShip::psLeadership), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psLeadership, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psLeadership) && OrdinaryShip, this);
+        Skill(0, PlayerHoldShip->GetBaseSkillLevel(aShip::psAccuracy), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psAccuracy, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psAccuracy));
+        Skill(1, PlayerHoldShip->GetBaseSkillLevel(aShip::psManeuverability), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psManeuverability, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psManeuverability));
+        Skill(2, PlayerHoldShip->GetBaseSkillLevel(aShip::psTechnical), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psTechnical, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psTechnical));
+        Skill(3, PlayerHoldShip->GetBaseSkillLevel(aShip::psTrading), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psTrading, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psTrading) && OrdinaryShip);
+        Skill(4, PlayerHoldShip->GetBaseSkillLevel(aShip::psCharisma), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psCharisma, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psCharisma) && OrdinaryShip);
+        Skill(5, PlayerHoldShip->GetBaseSkillLevel(aShip::psLeadership), PlayerHoldShip->GetEffectiveSkillLevel(aShip::psLeadership, false) & 0x0000007f, PlayerHoldShip->CanTrainSkill(aShip::psLeadership) && OrdinaryShip);
         {
             GI_GraphButton::TGraphButtonGI* cpp_with_3 = SkillButtons[0];
             cpp_with_3->UserValue = 0;
@@ -2570,65 +2636,6 @@ namespace fShip2 {
             SC_RepareFull_But->UpCallback = pas::bind_method<&TfShip2::RepairAllClicked>(this);
             SC_RepareFull_But->MouseEnterCallback = pas::bind_method<&TfShip2::RepairAllMouseEnter>(this);
             SC_RepareFull_But->MouseLeaveCallback = pas::bind_method<&TfShip2::RepairAllMouseLeave>(this);
-        }
-    }
-
-    void Skill(std::int32_t Index, std::int32_t BaseLevel, std::int32_t EffectiveLevel, std::uint8_t CanTrain, TfShip2* Self) {
-        std::int32_t Gap = 2;
-        std::int32_t Step = Gap + 5;
-        std::int32_t Height = 43;
-        {
-            GI_Image::TImageGI* cpp_with = Self->SkillImages[Index];
-            cpp_with->SetActive(std::min<std::int32_t>(BaseLevel, EffectiveLevel) > 0);
-            cpp_with->SetSize(ClassesImports::Point(cpp_with->ClientSize.X, Step * std::min<std::int32_t>(BaseLevel, EffectiveLevel)));
-            cpp_with->SetPosition(ClassesImports::Point(cpp_with->LocalPosition.X, Self->SkillImageRestTop[Index] + Height - cpp_with->ClientSize.Y));
-            cpp_with->SetImageKindY(GI_Main::ikyBottom);
-        }
-        if (BaseLevel < EffectiveLevel) {
-            {
-                GI_Panel::TPanelGI* cpp_with_2 = Self->SkillPanels[Index];
-                cpp_with_2->SetSize(ClassesImports::Point(cpp_with_2->ClientSize.X, (EffectiveLevel - BaseLevel) * Step));
-                cpp_with_2->SetPosition(ClassesImports::Point(cpp_with_2->LocalPosition.X, Self->SkillImageRestTop[Index] + Height - Step * EffectiveLevel));
-            }
-            {
-                GI_Image::TImageGI* cpp_with_3 = Self->SkillImagesP[Index];
-                cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X, -Step * (6 - EffectiveLevel) - 1));
-                cpp_with_3->SetActive(true);
-            }
-        } else {
-            Self->SkillImagesP[Index]->SetActive(false);
-        }
-        if (BaseLevel > EffectiveLevel) {
-            {
-                GI_Panel::TPanelGI* cpp_with_4 = Self->SkillPanels[Index];
-                cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, (BaseLevel - EffectiveLevel) * Step));
-                cpp_with_4->SetPosition(ClassesImports::Point(cpp_with_4->LocalPosition.X, Self->SkillImageRestTop[Index] + Height - Step * BaseLevel));
-            }
-            {
-                GI_Image::TImageGI* cpp_with_5 = Self->SkillImagesN[Index];
-                cpp_with_5->SetPosition(ClassesImports::Point(cpp_with_5->LocalPosition.X, -Step * (6 - BaseLevel) - 1));
-                cpp_with_5->SetActive(true);
-            }
-        } else {
-            Self->SkillImagesN[Index]->SetActive(false);
-        }
-        {
-            GI_Label::TLabelGI* cpp_with_6 = Self->SkillValueLabels[Index];
-            cpp_with_6->SetText(pas::wide_int_to_str(EffectiveLevel));
-        }
-        {
-            GI_Image::TImageGI* cpp_with_7 = Self->SkillProgressImages[Index];
-            if (EffectiveLevel > BaseLevel) {
-                cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormShip2.", GR_Main::GiResourceSuffix(), u"DSGreen"}));
-            } else if (EffectiveLevel < BaseLevel) {
-                cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormShip2.", GR_Main::GiResourceSuffix(), u"DSRed"}));
-            } else {
-                cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormShip2.", GR_Main::GiResourceSuffix(), u"DSBlue"}));
-            }
-        }
-        {
-            GI_Image::TImageGI* cpp_with_8 = Self->SkillGainImages[Index];
-            cpp_with_8->SetActive(CanTrain);
         }
     }
 
@@ -2817,7 +2824,7 @@ namespace fShip2 {
             if (ActionResult < 0) {
                 CloseClicked(nullptr);
             }
-        } else if (pas::in_set<2, 3>(SelectedHoldKind) && PlayerHoldShip->FindEquippedItemInSlot(ItemType, Slot) != nullptr) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && PlayerHoldShip->FindEquippedItemInSlot(ItemType, Slot) != nullptr) {
             Item = PlayerHoldShip->FindEquippedItemInSlot(ItemType, Slot);
             ActionResult = 0;
             if (SelectedHoldItem->ScriptItem != nullptr) {
@@ -2941,7 +2948,7 @@ namespace fShip2 {
             if (ActionResult < 0) {
                 CloseClicked(nullptr);
             }
-        } else if (pas::in_set<2, 3>(SelectedHoldKind)) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind)) {
             ActionResult = 0;
             if (SelectedHoldItem->ScriptItem != nullptr) {
                 ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
@@ -2978,6 +2985,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::RemoteHoldItemMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         std::int32_t J{};
         std::int32_t Count{};
@@ -2991,7 +2999,20 @@ namespace fShip2 {
         aItem::TCountableItem* Stack{};
         aItem::TFuelTanks* FuelFrom{};
         aItem::TFuelTanks* FuelTo{};
+        std::uint8_t NeedsRefresh{};
         std::int32_t ActionResult{};
+        // Captures Self and NeedsRefresh.
+        auto RefreshAfterTransfer = [&]() -> void {
+            aGalaxy::Galaxy->PrimeIntegrityChecksum1(445);
+            if (PlayerHoldShip->InHyperspace || pas::list_count(aScript::QueuedArcadeBattles) > 0 || this->RemoteHoldVisible && NeedsRefresh) {
+                RefreshShipView();
+            } else if (!this->RemoteHoldVisible) {
+                this->Flag3BC = true;
+                this->FlagD4 = true;
+                this->PlayTransitionSounds = false;
+                CloseClicked(nullptr);
+            }
+        };
         std::int32_t Index = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
         std::uint8_t Expanded = pas::class_cast_if<GI_Image::TImageGI*>(Sender) != nullptr;
         if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_Hull) {
@@ -3021,7 +3042,7 @@ namespace fShip2 {
         if (SelectedHoldKind == phkEmpty && Entry == nullptr) {
             return;
         }
-        std::uint8_t NeedsRefresh = false;
+        NeedsRefresh = false;
         aGalaxy::Galaxy->CheckIntegrityChecksum1(446);
         if (SelectedHoldKind == phkEmpty) {
             if (Entry != nullptr) {
@@ -3031,7 +3052,7 @@ namespace fShip2 {
                 UpdateActionCursor(true);
                 GR_Main::SoundManager->PlaySound(u"Sound.SlotGet"_wref.get());
             }
-            fShip2::RefreshAfterTransfer(this, NeedsRefresh);
+            RefreshAfterTransfer();
             return;
         }
         if (SelectedHoldKind == phkGoods) {
@@ -3062,7 +3083,7 @@ namespace fShip2 {
                 aGalaxy::Galaxy->PrimeIntegrityChecksum1(460);
                 return;
             }
-            if (Entry != nullptr && pas::in_set<2, 3>(Entry->Kind)) {
+            if (Entry != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind)) {
                 if (Entry->Item->ScriptItem != nullptr) {
                     ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aConst::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Count))), 0);
                 } else {
@@ -3162,7 +3183,7 @@ namespace fShip2 {
             }
             PlayerHoldShip->RefreshDerivedStats(true);
             UpdateActionCursor(true);
-            fShip2::RefreshAfterTransfer(this, NeedsRefresh);
+            RefreshAfterTransfer();
             return;
         }
         if (SelectedHoldKind == phkEquipment && pas::class_cast_if<aItem::TCountableItem*>(SelectedHoldItem) != nullptr) {
@@ -3189,7 +3210,7 @@ namespace fShip2 {
                 }
             }
             if (reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount != Count || Entry != nullptr && reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->CanMerge(Entry->Item)) {
-                if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && SelectedHoldOrigin == 0 && Entry != nullptr && Entry->Item != nullptr && pas::in_set<2, 3>(Entry->Kind) && static_cast<std::uint8_t>(reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->CanMerge(Entry->Item) ^ 1)) {
+                if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && SelectedHoldOrigin == 0 && Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->CanMerge(Entry->Item) ^ 1)) {
                     ActionResult = 0;
                     if (SelectedHoldItem->ScriptItem != nullptr) {
                         ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
@@ -3300,7 +3321,7 @@ namespace fShip2 {
                 }
                 PlayerHoldShip->RefreshDerivedStats(true);
                 UpdateActionCursor(true);
-                fShip2::RefreshAfterTransfer(this, NeedsRefresh);
+                RefreshAfterTransfer();
                 return;
             }
         }
@@ -3407,7 +3428,7 @@ namespace fShip2 {
                         return;
                     }
                 }
-                if (Entry != nullptr && Entry->Item != nullptr && pas::in_set<2, 3>(Entry->Kind) && static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0) {
+                if (Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0) {
                     ActionResult = 0;
                     if (SelectedHoldItem->ScriptItem != nullptr) {
                         ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
@@ -3492,11 +3513,11 @@ namespace fShip2 {
             }
             PlayerHoldShip->RefreshDerivedStats(true);
             UpdateActionCursor(true);
-            fShip2::RefreshAfterTransfer(this, NeedsRefresh);
+            RefreshAfterTransfer();
             return;
         }
         if (SelectedHoldKind == phkArtefact) {
-            if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && Entry != nullptr && Entry->Item != nullptr && pas::in_set<2, 3>(Entry->Kind) && static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0) {
+            if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0) {
                 ActionResult = 0;
                 if (SelectedHoldItem->ScriptItem != nullptr) {
                     ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
@@ -3577,22 +3598,10 @@ namespace fShip2 {
             }
             PlayerHoldShip->RefreshDerivedStats(true);
             UpdateActionCursor(true);
-            fShip2::RefreshAfterTransfer(this, NeedsRefresh);
+            RefreshAfterTransfer();
             return;
         }
-        fShip2::RefreshAfterTransfer(this, NeedsRefresh);
-    }
-
-    void RefreshAfterTransfer(TfShip2* Self, std::uint8_t& NeedsRefresh) {
-        aGalaxy::Galaxy->PrimeIntegrityChecksum1(445);
-        if (PlayerHoldShip->InHyperspace || pas::list_count(aScript::QueuedArcadeBattles) > 0 || Self->RemoteHoldVisible && NeedsRefresh) {
-            Self->RefreshShipView();
-        } else if (!Self->RemoteHoldVisible) {
-            Self->Flag3BC = true;
-            Self->FlagD4 = true;
-            Self->PlayTransitionSounds = false;
-            Self->CloseClicked(nullptr);
-        }
+        RefreshAfterTransfer();
     }
 
     void TfShip2::TakeHoldEntry(TPlayerHoldUnit* Entry, std::int32_t Slot, std::uint8_t UsesDisplayOrder) {
@@ -3637,7 +3646,7 @@ namespace fShip2 {
         aItem::THull* OldHull{};
         std::int32_t ActionResult{};
         std::int32_t Quantity{};
-        if (pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem != nullptr && pas::class_cast_if<aItem::THull*>(SelectedHoldItem) != nullptr && PlayerHoldShip->GetHull()->NoDropFlag > 0) {
+        if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem != nullptr && pas::class_cast_if<aItem::THull*>(SelectedHoldItem) != nullptr && PlayerHoldShip->GetHull()->NoDropFlag > 0) {
             return;
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum1(463);
@@ -3684,7 +3693,7 @@ namespace fShip2 {
                 CloseClicked(nullptr);
             }
             return;
-        } else if (pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem != nullptr) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem != nullptr) {
             ActionResult = 0;
             if (SelectedHoldItem->ScriptItem != nullptr) {
                 ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, ActionResult);
@@ -3770,6 +3779,16 @@ namespace fShip2 {
         aGalaxyStruct::TDominatorSeries Series{};
         std::uint8_t VisualType{};
         aShip::TShip* Ship{};
+        // Nested helper; does not access its parent frame.
+        auto ChameleonDialogChoiceToSeries = [&](std::int32_t Choice) -> aGalaxyStruct::TDominatorSeries {
+            aGalaxyStruct::TDominatorSeries Result = aGalaxyStruct::dsBlazer;
+            switch (Choice) {
+                case 2: return aGalaxyStruct::dsBlazer;
+                case 3: return aGalaxyStruct::dsKeller;
+                case 4: return aGalaxyStruct::dsTerron;
+                default: return Result;
+            }
+        };
         std::uint8_t Result = false;
         if (static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0 && static_cast<std::uint8_t>(PlayerHoldShip->ScriptChameleon ^ 1) && (aShip::TShip::HasPlayerChameleonCharges() || PlayerHoldShip->ChameleonActive)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(427);
@@ -3785,7 +3804,7 @@ namespace fShip2 {
                         }
                     }
                 } else {
-                    Series = fShip2::ChameleonDialogChoiceToSeries(Choice);
+                    Series = ChameleonDialogChoiceToSeries(Choice);
                     ExpectedCharges = std::max<std::int32_t>(0, PlayerHoldShip->ChameleonCharges[Series] - 1);
                     PlayerHoldShip->ChameleonCharges[Series] = ExpectedCharges;
                     PlayerHoldShip->ChameleonSeries = Series;
@@ -3804,16 +3823,7 @@ namespace fShip2 {
         return Result;
     }
 
-    aGalaxyStruct::TDominatorSeries ChameleonDialogChoiceToSeries(std::int32_t Choice) {
-        aGalaxyStruct::TDominatorSeries Result = aGalaxyStruct::dsBlazer;
-        switch (Choice) {
-            case 2: return aGalaxyStruct::dsBlazer;
-            case 3: return aGalaxyStruct::dsKeller;
-            case 4: return aGalaxyStruct::dsTerron;
-            default: return Result;
-        }
-    }
-
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::HoldLeftPressed(GI_MessageLoop::TObjectGI* Sender) {
         --HoldFirstIndex;
         RefreshShipView();
@@ -3824,6 +3834,7 @@ namespace fShip2 {
         HoldScrollTimer = ScheduleCallbackTimer(500, 50, pas::bind_method<&TfShip2::ScrollHoldTimer>(this), 0);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::HoldLeftReleased(GI_MessageLoop::TObjectGI* Sender) {
         if (HoldScrollTimer != nullptr) {
             CancelCallbackTimer(HoldScrollTimer);
@@ -3831,6 +3842,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::HoldRightPressed(GI_MessageLoop::TObjectGI* Sender) {
         ++HoldFirstIndex;
         RefreshShipView();
@@ -3841,6 +3853,7 @@ namespace fShip2 {
         HoldScrollTimer = ScheduleCallbackTimer(500, 50, pas::bind_method<&TfShip2::ScrollHoldTimer>(this), 1);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::HoldRightReleased(GI_MessageLoop::TObjectGI* Sender) {
         if (HoldScrollTimer != nullptr) {
             CancelCallbackTimer(HoldScrollTimer);
@@ -4009,6 +4022,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::EquipmentConfigurationClicked(GI_MessageLoop::TObjectGI* Sender) {
         SelectEquipmentConfiguration(EC_Str::ExtractDigitsToIntW(Sender->ControlName));
     }
@@ -4118,6 +4132,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::MainKeyUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
         if (Key == WindowsSdk::VK_SHIFT && SelectedHoldKind == phkEquipment) {
             RefreshActionPanels(SelectedHoldKind, SelectedGoodsIndex, SelectedGoodsQuantity, SelectedGoodsCost, SelectedHoldItem, SelectedHoldOrigin);
@@ -4158,6 +4173,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::MainLeftButtonUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         GI_MessageLoop::TObjectGI* Panels{};
         GI_MessageLoop::TObjectGI* Child{};
@@ -4227,6 +4243,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::MainRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         aConst::TItemType ItemType{};
         aConst::TItemType OtherType{};
@@ -4234,6 +4251,81 @@ namespace fShip2 {
         std::int32_t I{};
         GI_MessageLoop::TObjectGI* Control{};
         GI_GraphButton::TGraphButtonGI* Button{};
+        // Nested helper captures selected item types, KeyState, Zone and Self.
+        auto EquipSelected = [&]() -> void {
+            std::int32_t Slot{};
+            std::int32_t Index{};
+            aItem::TEquipment* Equipment{};
+            if (this->SelectedHoldItem == nullptr) {
+                return;
+            }
+            if (pas::in_range(this->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
+                Slot = 0;
+                ItemType = this->SelectedHoldItem->ItemType;
+                if (pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(ItemType) && reinterpret_cast<aItem::TArtefactCustom*>(this->SelectedHoldItem)->SharedUse) {
+                    ItemType = reinterpret_cast<aItem::TArtefactCustom*>(this->SelectedHoldItem)->CountsAsItemType;
+                }
+                if (pas::in_set<aConst::t_Artefact, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtDefToArms1, aConst::t_ArtFastRacks>(ItemType) && (static_cast<std::uint8_t>(PlayerHoldShip->HasEquippedArtefactOfSameUseGroup(this->SelectedHoldItem) ^ 1) || aGalaxy::Galaxy->AreDuplicateArtefactsEnabled())) {
+                    Index = 0;
+                    while (Index < PlayerHoldShip->GetSlotCount(aConst::sskArtefact)) {
+                        Equipment = PlayerHoldShip->FindEquippedItemInSlot(static_cast<std::uint8_t>(ItemType), Index);
+                        if (Equipment == nullptr) {
+                            Slot += Index;
+                            break;
+                        }
+                        if (aGalaxy::Galaxy->AreDuplicateArtefactsEnabled()) {
+                            ++Index;
+                            continue;
+                        }
+                        OtherType = Equipment->ItemType;
+                        if (pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(OtherType) && reinterpret_cast<aItem::TArtefactCustom*>(Equipment)->SharedUse) {
+                            OtherType = reinterpret_cast<aItem::TArtefactCustom*>(Equipment)->CountsAsItemType;
+                        }
+                        if (ItemType == OtherType && static_cast<std::uint8_t>(pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(ItemType) ^ 1)) {
+                            Slot += Index;
+                            break;
+                        }
+                        if (ItemType == OtherType && pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(ItemType) && Equipment->ConfigBlockName == reinterpret_cast<aItem::TEquipment*>(this->SelectedHoldItem)->ConfigBlockName) {
+                            Slot += Index;
+                            break;
+                        }
+                        ++Index;
+                    }
+                    if (Index < PlayerHoldShip->GetSlotCount(aConst::sskArtefact)) {
+                        ArtefactSlotMouseDown(this->ArtefactSlotZones[Slot], KeyState, Zone->LocalPosition);
+                    }
+                }
+            } else {
+                Slot = -1;
+                if (pas::in_range(this->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+                    Slot = this->SelectedHoldItem->ItemType - 42;
+                } else if (pas::in_range(this->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                    Slot = 8;
+                }
+                if (Slot < 0) {
+                    return;
+                }
+                if (Slot >= 8) {
+                    Index = 0;
+                    while (Index < PlayerHoldShip->GetSlotCount(aConst::sskWeapon)) {
+                        if (PlayerHoldShip->FindEquippedItemInSlot(static_cast<std::uint8_t>(this->SelectedHoldItem->ItemType), Index) == nullptr) {
+                            Slot += Index;
+                            break;
+                        }
+                        ++Index;
+                    }
+                    if (Index == PlayerHoldShip->GetSlotCount(aConst::sskWeapon)) {
+                        return;
+                    }
+                }
+                Zone = pas::checked_cast<GI_Zone::TZoneGI*>(GetByName(ShipEquipmentZoneNames[Slot]));
+                if (Slot < 13) {
+                    EquipmentSlotMouseDown(Zone, KeyState, Zone->LocalPosition);
+                } else {
+                    ArtefactSlotMouseDown(Zone, KeyState, Zone->LocalPosition);
+                }
+            }
+        };
         if (PlayerHoldShip->InHyperspace || pas::list_count(aScript::QueuedArcadeBattles) > 0) {
             return;
         }
@@ -4371,7 +4463,7 @@ namespace fShip2 {
                             if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
                                 StorageItemMouseUp(RemoteHoldImages[0], KeyState, RemoteHoldImages[0]->LocalPosition);
                             } else {
-                                fShip2::EquipSelected(this, KeyState, ItemType, OtherType, Zone);
+                                EquipSelected();
                                 RemoteHoldItemMouseDown(RemoteHoldImages[I], KeyState, Point);
                             }
                             Changed = true;
@@ -4391,7 +4483,7 @@ namespace fShip2 {
                             if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
                                 StorageItemMouseUp(StorageImages[0], KeyState, StorageImages[0]->LocalPosition);
                             } else {
-                                fShip2::EquipSelected(this, KeyState, ItemType, OtherType, Zone);
+                                EquipSelected();
                                 RemoteHoldItemMouseDown(Control, KeyState, Point);
                             }
                             Changed = true;
@@ -4411,7 +4503,7 @@ namespace fShip2 {
                             if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
                                 RemoteHoldItemMouseDown(Control, KeyState, Control->LocalPosition);
                             } else {
-                                fShip2::EquipSelected(this, KeyState, ItemType, OtherType, Zone);
+                                EquipSelected();
                                 StorageItemMouseUp(StorageImages[I], KeyState, Point);
                             }
                             aPlayer::GetPlayer()->CloseVacantStorageSlot(TfShip2::GetLocalStorageOwner(), I);
@@ -4489,7 +4581,7 @@ namespace fShip2 {
                         RemoteHoldVisible = true;
                         RemoteHoldItemMouseDown(RemoteHoldImages[I], KeyState, Point);
                         if (SelectedHoldKind != phkEmpty) {
-                            fShip2::EquipSelected(this, KeyState, ItemType, OtherType, Zone);
+                            EquipSelected();
                             RemoteHoldItemMouseDown(RemoteHoldImages[I], KeyState, Point);
                             Changed = true;
                         }
@@ -4505,7 +4597,7 @@ namespace fShip2 {
                         RemoteHoldVisible = true;
                         RemoteHoldItemMouseDown(Control, KeyState, Point);
                         if (SelectedHoldKind != phkEmpty) {
-                            fShip2::EquipSelected(this, KeyState, ItemType, OtherType, Zone);
+                            EquipSelected();
                             RemoteHoldItemMouseDown(Control, KeyState, Point);
                             Changed = true;
                         }
@@ -4549,81 +4641,6 @@ namespace fShip2 {
             FlagD4 = true;
             PlayTransitionSounds = false;
             CloseClicked(nullptr);
-        }
-    }
-
-    void EquipSelected(TfShip2* Self, std::uint32_t& KeyState, aConst::TItemType& ItemType, aConst::TItemType& OtherType, GI_Zone::TZoneGI*& Zone) {
-        std::int32_t Slot{};
-        std::int32_t Index{};
-        aItem::TEquipment* Equipment{};
-        if (Self->SelectedHoldItem == nullptr) {
-            return;
-        }
-        if (pas::in_range(Self->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
-            Slot = 0;
-            ItemType = Self->SelectedHoldItem->ItemType;
-            if (pas::in_set<8, 9>(ItemType) && reinterpret_cast<aItem::TArtefactCustom*>(Self->SelectedHoldItem)->SharedUse) {
-                ItemType = reinterpret_cast<aItem::TArtefactCustom*>(Self->SelectedHoldItem)->CountsAsItemType;
-            }
-            if (pas::in_set<8, 22, 26, 34, 36, 41>(ItemType) && (static_cast<std::uint8_t>(PlayerHoldShip->HasEquippedArtefactOfSameUseGroup(Self->SelectedHoldItem) ^ 1) || aGalaxy::Galaxy->AreDuplicateArtefactsEnabled())) {
-                Index = 0;
-                while (Index < PlayerHoldShip->GetSlotCount(aConst::sskArtefact)) {
-                    Equipment = PlayerHoldShip->FindEquippedItemInSlot(static_cast<std::uint8_t>(ItemType), Index);
-                    if (Equipment == nullptr) {
-                        Slot += Index;
-                        break;
-                    }
-                    if (aGalaxy::Galaxy->AreDuplicateArtefactsEnabled()) {
-                        ++Index;
-                        continue;
-                    }
-                    OtherType = Equipment->ItemType;
-                    if (pas::in_set<8, 9>(OtherType) && reinterpret_cast<aItem::TArtefactCustom*>(Equipment)->SharedUse) {
-                        OtherType = reinterpret_cast<aItem::TArtefactCustom*>(Equipment)->CountsAsItemType;
-                    }
-                    if (ItemType == OtherType && static_cast<std::uint8_t>(pas::in_set<8, 9>(ItemType) ^ 1)) {
-                        Slot += Index;
-                        break;
-                    }
-                    if (ItemType == OtherType && pas::in_set<8, 9>(ItemType) && Equipment->ConfigBlockName == reinterpret_cast<aItem::TEquipment*>(Self->SelectedHoldItem)->ConfigBlockName) {
-                        Slot += Index;
-                        break;
-                    }
-                    ++Index;
-                }
-                if (Index < PlayerHoldShip->GetSlotCount(aConst::sskArtefact)) {
-                    Self->ArtefactSlotMouseDown(Self->ArtefactSlotZones[Slot], KeyState, Zone->LocalPosition);
-                }
-            }
-        } else {
-            Slot = -1;
-            if (pas::in_range(Self->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-                Slot = Self->SelectedHoldItem->ItemType - 42;
-            } else if (pas::in_range(Self->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-                Slot = 8;
-            }
-            if (Slot < 0) {
-                return;
-            }
-            if (Slot >= 8) {
-                Index = 0;
-                while (Index < PlayerHoldShip->GetSlotCount(aConst::sskWeapon)) {
-                    if (PlayerHoldShip->FindEquippedItemInSlot(static_cast<std::uint8_t>(Self->SelectedHoldItem->ItemType), Index) == nullptr) {
-                        Slot += Index;
-                        break;
-                    }
-                    ++Index;
-                }
-                if (Index == PlayerHoldShip->GetSlotCount(aConst::sskWeapon)) {
-                    return;
-                }
-            }
-            Zone = pas::checked_cast<GI_Zone::TZoneGI*>(Self->GetByName(ShipEquipmentZoneNames[Slot]));
-            if (Slot < 13) {
-                Self->EquipmentSlotMouseDown(Zone, KeyState, Zone->LocalPosition);
-            } else {
-                Self->ArtefactSlotMouseDown(Zone, KeyState, Zone->LocalPosition);
-            }
         }
     }
 
@@ -4941,11 +4958,12 @@ namespace fShip2 {
         }
     }
 
+    // Transfers the selected cargo to arcade space, or destroys it in arcade view mode.
     void TfShip2::DropSelectedInArcade() {
         aItem::TCountableItem* Item{};
         aItem::TGoods* Goods{};
         std::int32_t Quantity{};
-        if (pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem != nullptr && SelectedHoldItem->NoDropFlag > 0) {
+        if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem != nullptr && SelectedHoldItem->NoDropFlag > 0) {
             ShowNoDropMessage(SelectedHoldItem->NoDropFlag);
             return;
         }
@@ -5069,7 +5087,7 @@ namespace fShip2 {
             return;
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum1(493);
-        if (pas::in_set<2, 3>(SelectedHoldKind) && pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)->NeedsRepair()) {
+        if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)->NeedsRepair()) {
             if (!aPlayer::GetPlayer()->CanRepairEquipmentTech(pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem))) {
                 Flag3BC = true;
                 GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedText(u"FormShip.TooAdvancedForRepair"_wref.get()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
@@ -5181,7 +5199,7 @@ namespace fShip2 {
         std::int32_t Price{};
         aItem::TItem* Item{};
         aGalaxyEvent::TGalaxyEvent* Event{};
-        if (pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem != nullptr && SelectedHoldItem->NoDropFlag > 0) {
+        if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem != nullptr && SelectedHoldItem->NoDropFlag > 0) {
             ShowNoDropMessage(SelectedHoldItem->NoDropFlag);
             return;
         }
@@ -5381,6 +5399,7 @@ namespace fShip2 {
         }
     }
 
+    // Returns whether a video timer was active.
     std::uint8_t TfShip2::StopScriptVideo() {
         std::uint8_t Result = ScriptVideoTimer != nullptr;
         if (GlobalsV::MusicEnabled && Result) {
@@ -5401,6 +5420,7 @@ namespace fShip2 {
         return Result;
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::UseMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         pas::WideString Text{};
         aItem::TItem* Item{};
@@ -5408,7 +5428,7 @@ namespace fShip2 {
         if (UsePanelSlideTimer != nullptr) {
             return;
         }
-        if (aPlayer::GetPlayer() == PlayerHoldShip && pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->OnUseText != u"") {
+        if (aPlayer::GetPlayer() == PlayerHoldShip && pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->OnUseText != u"") {
             Item = SelectedHoldItem;
             aGalaxy::Galaxy->CheckIntegrityChecksum1(521);
             aGalaxy::Galaxy->CheckIntegrityChecksum2(522);
@@ -6240,33 +6260,63 @@ namespace fShip2 {
         Title->SetSize(ClassesImports::Point(Window->ClientSize.X - Window->WorkSubRect.Right - Title->LocalPosition.X - 15, Title->ClientSize.Y));
     }
 
+    // Two-column planet/ship statistics, shared with live and recorded star-map panels.
     void TfShip2::LayoutObjectInfo(GI_Window::TWindowGI* Window, GI_Label::TLabelGI* Title, GI_Label::TLabelGI* Left1, GI_Label::TLabelGI* Right1, GI_Label::TLabelGI* Left2, GI_Label::TLabelGI* Right2, GI_Label::TLabelGI* Left3, GI_Label::TLabelGI* Right3, GI_Label::TLabelGI* Left4, GI_Label::TLabelGI* Right4, GI_Label::TLabelGI* Left5, GI_Label::TLabelGI* Right5, GI_Label::TLabelGI* Left6, GI_Label::TLabelGI* Right6, GI_Label::TLabelGI* Left7, GI_Label::TLabelGI* Right7, GI_Label::TLabelGI* Left8, GI_Label::TLabelGI* Right8, GI_MessageLoop::TObjectGI* Emblem, std::uint8_t KeepMinimumHeight, std::int32_t MinimumWidth) {
         float Ratio{};
         WindowsSdk::TPoint TextSize{};
         WindowsSdk::TPoint WindowSize{};
         WindowsSdk::TPoint TargetSize{};
+        // Native frame retains one unused local.
+        std::int32_t Attempts{};
         WindowsSdk::TRect Borders{};
+        std::int32_t LeftWidth{};
+        std::int32_t RightWidth{};
+        std::int32_t TotalHeight{};
+        std::int32_t EmblemMargin{};
         std::int32_t CenterX{};
         std::int32_t CenterY{};
+        std::int32_t RowY{};
+        // Nested in LayoutObjectInfo; captures column widths, total height and row count.
+        auto MeasurePair = [&](GI_Label::TLabelGI* Left, GI_Label::TLabelGI* Right) -> void {
+            if (Left != nullptr && Right != nullptr && Left->Active && Right->Active) {
+                Left->SetTextAlignX(GI_Main::taxAuto);
+                Right->SetTextAlignX(GI_Main::taxAuto);
+                LeftWidth = std::max<std::int32_t>(LeftWidth, Left->ClientSize.X);
+                RightWidth = std::max<std::int32_t>(RightWidth, Right->ClientSize.X);
+                TotalHeight += std::max<std::int32_t>(Left->ClientSize.Y, Right->ClientSize.Y);
+                ++Attempts;
+            }
+        };
+        // Nested in LayoutObjectInfo; captures window, border dimensions and accumulated row position.
+        auto PlacePair = [&](GI_Label::TLabelGI* Left, GI_Label::TLabelGI* Right) -> void {
+            if (Left != nullptr && Right != nullptr && Left->Active && Right->Active) {
+                CenterX = (Window->ClientSize.X - Borders.Left - Borders.Right) / 2 - (LeftWidth + RightWidth + EmblemMargin) / 2;
+                CenterY = (Window->ClientSize.Y - Borders.Top - Borders.Bottom) / 2 - TotalHeight / 2;
+                Left->SetPosition(ClassesImports::Point(Borders.Left + CenterX + LeftWidth - Left->ClientSize.X, RowY + Borders.Top + CenterY));
+                Right->SetPosition(ClassesImports::Point(Borders.Left + CenterX + LeftWidth, RowY + Borders.Top + CenterY));
+                RowY += std::max<std::int32_t>(Left->ClientSize.Y, Right->ClientSize.Y);
+                ++Attempts;
+            }
+        };
         float TargetRatio = 1.6230366f;
-        std::int32_t LeftWidth = 0;
-        std::int32_t RightWidth = 0;
-        std::int32_t TotalHeight = 0;
-        std::int32_t RowY = 0;
-        std::int32_t Attempts = 0;
-        std::int32_t EmblemMargin = 0;
+        LeftWidth = 0;
+        RightWidth = 0;
+        TotalHeight = 0;
+        RowY = 0;
+        Attempts = 0;
+        EmblemMargin = 0;
         if (Emblem != nullptr) {
             EmblemMargin = Emblem->ClientSize.X / 2;
         }
         Borders = Window->WorkSubRect;
-        fShip2::MeasurePair(Left1, Right1, Attempts, LeftWidth, RightWidth, TotalHeight);
-        fShip2::MeasurePair(Left2, Right2, Attempts, LeftWidth, RightWidth, TotalHeight);
-        fShip2::MeasurePair(Left3, Right3, Attempts, LeftWidth, RightWidth, TotalHeight);
-        fShip2::MeasurePair(Left4, Right4, Attempts, LeftWidth, RightWidth, TotalHeight);
-        fShip2::MeasurePair(Left5, Right5, Attempts, LeftWidth, RightWidth, TotalHeight);
-        fShip2::MeasurePair(Left6, Right6, Attempts, LeftWidth, RightWidth, TotalHeight);
-        fShip2::MeasurePair(Left7, Right7, Attempts, LeftWidth, RightWidth, TotalHeight);
-        fShip2::MeasurePair(Left8, Right8, Attempts, LeftWidth, RightWidth, TotalHeight);
+        MeasurePair(Left1, Right1);
+        MeasurePair(Left2, Right2);
+        MeasurePair(Left3, Right3);
+        MeasurePair(Left4, Right4);
+        MeasurePair(Left5, Right5);
+        MeasurePair(Left6, Right6);
+        MeasurePair(Left7, Right7);
+        MeasurePair(Left8, Right8);
         TargetSize = Window->AlignSizeToBorderTiles(ClassesImports::Point(0, 0));
         Attempts = 100;
         while (Attempts > 0) {
@@ -6291,39 +6341,17 @@ namespace fShip2 {
         Window->SetSize(ClassesImports::Point(std::max<std::int32_t>(MinimumWidth, Window->ClientSize.X), Window->ClientSize.Y));
         Window->UpdateAutoGeometry();
         Attempts = 0;
-        fShip2::PlacePair(Left1, Right1, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
-        fShip2::PlacePair(Left2, Right2, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
-        fShip2::PlacePair(Left3, Right3, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
-        fShip2::PlacePair(Left4, Right4, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
-        fShip2::PlacePair(Left5, Right5, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
-        fShip2::PlacePair(Left6, Right6, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
-        fShip2::PlacePair(Left7, Right7, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
-        fShip2::PlacePair(Left8, Right8, Window, Attempts, Borders, LeftWidth, RightWidth, TotalHeight, EmblemMargin, CenterX, CenterY, RowY);
+        PlacePair(Left1, Right1);
+        PlacePair(Left2, Right2);
+        PlacePair(Left3, Right3);
+        PlacePair(Left4, Right4);
+        PlacePair(Left5, Right5);
+        PlacePair(Left6, Right6);
+        PlacePair(Left7, Right7);
+        PlacePair(Left8, Right8);
         Title->SetSize(ClassesImports::Point(Window->ClientSize.X - Window->WorkSubRect.Right - Title->LocalPosition.X - 15, Title->ClientSize.Y));
         if (Emblem != nullptr) {
             Emblem->SetPosition(ClassesImports::Point(Window->ClientSize.X + ItemRaceImagePosition.X, Window->ClientSize.Y + ItemRaceImagePosition.Y - GR_Main::GiScalePixels(5)));
-        }
-    }
-
-    void MeasurePair(GI_Label::TLabelGI* Left, GI_Label::TLabelGI* Right, std::int32_t& Attempts, std::int32_t& LeftWidth, std::int32_t& RightWidth, std::int32_t& TotalHeight) {
-        if (Left != nullptr && Right != nullptr && Left->Active && Right->Active) {
-            Left->SetTextAlignX(GI_Main::taxAuto);
-            Right->SetTextAlignX(GI_Main::taxAuto);
-            LeftWidth = std::max<std::int32_t>(LeftWidth, Left->ClientSize.X);
-            RightWidth = std::max<std::int32_t>(RightWidth, Right->ClientSize.X);
-            TotalHeight += std::max<std::int32_t>(Left->ClientSize.Y, Right->ClientSize.Y);
-            ++Attempts;
-        }
-    }
-
-    void PlacePair(GI_Label::TLabelGI* Left, GI_Label::TLabelGI* Right, GI_Window::TWindowGI*& Window, std::int32_t& Attempts, WindowsSdk::TRect& Borders, std::int32_t& LeftWidth, std::int32_t& RightWidth, std::int32_t& TotalHeight, std::int32_t& EmblemMargin, std::int32_t& CenterX, std::int32_t& CenterY, std::int32_t& RowY) {
-        if (Left != nullptr && Right != nullptr && Left->Active && Right->Active) {
-            CenterX = (Window->ClientSize.X - Borders.Left - Borders.Right) / 2 - (LeftWidth + RightWidth + EmblemMargin) / 2;
-            CenterY = (Window->ClientSize.Y - Borders.Top - Borders.Bottom) / 2 - TotalHeight / 2;
-            Left->SetPosition(ClassesImports::Point(Borders.Left + CenterX + LeftWidth - Left->ClientSize.X, RowY + Borders.Top + CenterY));
-            Right->SetPosition(ClassesImports::Point(Borders.Left + CenterX + LeftWidth, RowY + Borders.Top + CenterY));
-            RowY += std::max<std::int32_t>(Left->ClientSize.Y, Right->ClientSize.Y);
-            ++Attempts;
         }
     }
 
@@ -6344,7 +6372,7 @@ namespace fShip2 {
                 ItemInfoHideTimer = nullptr;
             }
             ItemInfoHideTimer = ScheduleCallbackTimer(100, 99999, pas::bind_method<&TfShip2::HideItemInfo>(this), 0);
-            if (aPlayer::GetPlayer() == PlayerHoldShip && pas::in_set<2, 3>(SelectedHoldKind) && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->OnUseText != u"") {
+            if (aPlayer::GetPlayer() == PlayerHoldShip && pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->OnUseText != u"") {
                 OpenUseSidePanel();
             } else if (aPlayer::GetPlayer() == PlayerHoldShip && SelectedHoldKind == phkArtefact && pas::class_cast_if<aItem::TArtefact*>(SelectedHoldItem) != nullptr && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && static_cast<aItem::TArtefact*>(SelectedHoldItem)->GetOnUseCodeText() != u"") {
                 OpenUseSidePanel();
@@ -6367,7 +6395,7 @@ namespace fShip2 {
                     aScript::RunItemConfigActionCode(Item, aConst::satOnShowingItemInfo, PlayerHoldShip, nullptr, nullptr, 0);
                 }
             }
-            if (aPlayer::GetPlayer() == PlayerHoldShip && pas::in_set<2, 3>(SelectedHoldKind) && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->OnUseText != u"") {
+            if (aPlayer::GetPlayer() == PlayerHoldShip && pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->OnUseText != u"") {
                 OpenUseSidePanel();
             } else if (aPlayer::GetPlayer() == PlayerHoldShip && SelectedHoldKind == phkArtefact && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && pas::class_cast_if<aItem::TArtefact*>(SelectedHoldItem) != nullptr && static_cast<aItem::TArtefact*>(SelectedHoldItem)->GetOnUseCodeText() != u"") {
                 OpenUseSidePanel();
@@ -6805,6 +6833,7 @@ namespace fShip2 {
         GI_MessageBox::ShowMessageBoxGI(this, Text, Options, 0, 0, 0);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::GateMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
         if (SelectedHoldKind == phkEquipment && pas::class_cast_if<aItem::THull*>(static_cast<pas::Object*>(SelectedHoldItem)) != nullptr) {
             CloseGate();
@@ -6815,6 +6844,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::GateMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
         CloseGate();
     }
@@ -6866,10 +6896,12 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::GateMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         DropSelectedOutside(Sender, KeyState, Point);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::UseMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
         if (SelectedHoldKind != phkEmpty) {
             OpenUsePanel();
@@ -6878,6 +6910,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::UseMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
         CloseUsePanel();
     }
@@ -7097,6 +7130,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::StorageDownClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (StorageSlideTimer != nullptr) {
             CancelCallbackTimer(StorageSlideTimer);
@@ -7107,6 +7141,7 @@ namespace fShip2 {
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"SC_Down"_wref.get()))->SetActive(false);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::StorageUpClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (StorageSlideTimer != nullptr) {
             CancelCallbackTimer(StorageSlideTimer);
@@ -7203,7 +7238,7 @@ namespace fShip2 {
         if (!StorageUpButton->Active) {
             StorageUpButton->SetActive(true);
         }
-        if (pas::in_set<2, 3>(SelectedHoldKind) && SelectedHoldItem != nullptr && SelectedHoldItem->NoDropFlag > 0 && SelectedHoldOrigin != 1) {
+        if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem != nullptr && SelectedHoldItem->NoDropFlag > 0 && SelectedHoldOrigin != 1) {
             ShowNoDropMessage(SelectedHoldItem->NoDropFlag);
             return;
         }
@@ -7404,6 +7439,8 @@ namespace fShip2 {
     }
 
     void TfShip2::BuildAdditionalInfoPanel() {
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel{};
+        std::int32_t Height{};
         std::int32_t I{};
         std::int32_t Kind{};
         std::int32_t Turn{};
@@ -7419,11 +7456,52 @@ namespace fShip2 {
         std::uint8_t ColorIndex{};
         aShip::PCustomShipInfo Info{};
         EC_BlockPar::TBlockParEC* Block{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelAddInfo"_wref.get()));
+        // Nested helper captures the panel, accumulated height and Self.
+        auto AddLine = [&](std::int32_t Icon, pas::WideString Text, pas::WideString Hint, std::int32_t Data) -> void {
+            GI_Label::TLabelGI* LabelControl = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
+            LabelControl->SetFontName(GlobalsV::SmallFontName);
+            LabelControl->SetPosition(ClassesImports::Point(0, Height));
+            LabelControl->SetSize(ClassesImports::Point(Panel->ClientSize.X, 1));
+            LabelControl->SetTextAlignX(GI_Main::taxLeft);
+            LabelControl->SetTextAlignY(GI_Main::tayAuto);
+            LabelControl->SetWordWrapEnabled(true);
+            if (GR_Main::GiResourceVariant() == 1) {
+                LabelControl->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(Icon), ",", SysUtils::IntToStr(21), ",", SysUtils::IntToStr(17), ",0>"}))}));
+            } else {
+                LabelControl->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(Icon), ",", SysUtils::IntToStr(25), ",", SysUtils::IntToStr(20), ",0>"}))}));
+            }
+            LabelControl->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
+            LabelControl->SetTextAlignY(GI_Main::tayCenterEx);
+            LabelControl->SetPositionModeW(true);
+            LabelControl->CreateEmbeddedControl = pas::bind_static_method<&TfShip2::CreateShipInfoImage>(this);
+            LabelControl->MouseEnterCallback = pas::bind_method<&TfShip2::ShowShipPropertyInfo>(this);
+            LabelControl->MouseLeaveCallback = pas::bind_method<&TfShip2::HideShipPropertyInfo>(this);
+            LabelControl->UserValue = -1;
+            LabelControl->UserIndex = Icon;
+            LabelControl->UserData = Data;
+            LabelControl->HelpText = std::move(Hint);
+            Height += LabelControl->ClientSize.Y;
+            {
+                std::int32_t lineHeight = LabelControl->GetLineHeight();
+                GI_ScrollBar::TScrollBarGI* verticalScrollBar = Panel->VerticalScrollBar;
+                verticalScrollBar->SetSmallChange(lineHeight);
+            }
+        };
+        // Nested in BuildAdditionalInfoPanel; does not access its parent frame.
+        auto GetShipInfoColor = [&](std::uint8_t ColorIndex) -> pas::WideString {
+            pas::WideString Result{};
+            switch (ColorIndex) {
+                case 0: return u"<color=255,0,0>"_w;
+                case 1: return u"<color=0,128,255>"_w;
+                case 2: return u"<color=0,255,0>"_w;
+                default: return Result;
+            }
+        };
+        Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelAddInfo"_wref.get()));
         Panel->FreeOwnedChildren();
         Panel->SetScrollOffset(ClassesImports::Point(0, 0));
         Panel->SetDragScrollingEnabled(true);
-        std::int32_t Height = 0;
+        Height = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 24); cpp_range.next(I); ) {
             if (PlayerHoldShip->IsHealthEffectActive(I)) {
                 if (I < 13) {
@@ -7448,7 +7526,7 @@ namespace fShip2 {
                         }())});
                     }
                 }
-                fShip2::AddLine(Kind, aConst::CaptainHealthDefinitions[I].Name, Name, 0, this, Panel, Height);
+                AddLine(Kind, aConst::CaptainHealthDefinitions[I].Name, Name, 0);
             }
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, 1); cpp_range_2.next(I); ) {
@@ -7462,7 +7540,7 @@ namespace fShip2 {
                         return aMyFunction::FormatText1(std::move(localizedText_3), u"<color=255,240,100>"_w, u"<Percent>"_w, std::move(cpp_arg));
                     }())});
                 }
-                fShip2::AddLine(1, aConst::RadiationHealthDefinitions[I].Name, Name, 0, this, Panel, Height);
+                AddLine(1, aConst::RadiationHealthDefinitions[I].Name, Name, 0);
             }
         }
         if (aPlayer::GetPlayer() == PlayerHoldShip) {
@@ -7473,16 +7551,16 @@ namespace fShip2 {
                     return aMyFunction::FormatText1(std::move(localizedText_4), u"<color=255,240,100>"_w, u"<Date>"_w, std::move(formatTurnDate_3));
                 }())});
                 pas::WideString localizedText_5 = aConst::LocalizedText(u"ShipInfo.AddInfo.MedPolicy.Name"_wref.get());
-                fShip2::AddLine(0, std::move(localizedText_5), std::move(cpp_arg_2), 0, this, Panel, Height);
+                AddLine(0, std::move(localizedText_5), std::move(cpp_arg_2), 0);
             }
             if (aPlayer::GetPlayer()->DebtAmount > 0) {
                 Name = aConst::LocalizedText(u"ShipInfo.AddInfo.DebtInfo.Name"_wref.get());
-                fShip2::AddLine(0, Name, pas::concat_wide({Name, u"~", ([&] {
+                AddLine(0, Name, pas::concat_wide({Name, u"~", ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount);
                     pas::WideString formatTurnDate_4 = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->DebtDueTurn);
                     pas::WideString localizedText_6 = aConst::LocalizedText(u"ShipInfo.AddInfo.DebtInfo.Text"_wref.get());
                     return aMyFunction::FormatText2(std::move(localizedText_6), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr), u"<Date>"_w, std::move(formatTurnDate_4));
-                }())}), 0, this, Panel, Height);
+                }())}), 0);
             }
             if (aPlayer::GetPlayer()->DepositAmount > 0) {
                 Name = aConst::LocalizedText(u"ShipInfo.AddInfo.DepositInfo.Name"_wref.get());
@@ -7491,13 +7569,13 @@ namespace fShip2 {
                 aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DepositAmount), u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(aPlayer::GetPlayer()->DepositInterestRate, SysUtilsImports::ffFixed, 1, 1)), u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(Text, u"<Sum>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ComputeDepositAccruedValue()), u"<color=255,240,100>"_w);
-                fShip2::AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0, this, Panel, Height);
+                AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0);
             }
             if (aPlayer::GetPlayer()->PirateLicenseTicks > 0) {
                 Name = aConst::LocalizedText(u"ShipInfo.AddInfo.PirateLicenseInfo.Name"_wref.get());
                 Text = aConst::LocalizedText(u"ShipInfo.AddInfo.PirateLicenseInfo.Text"_wref.get());
                 aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + aPlayer::GetPlayer()->PirateLicenseTicks), u"<color=255,240,100>"_w);
-                fShip2::AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0, this, Panel, Height);
+                AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0);
             }
             if (aPlayer::GetPlayer()->ChameleonActive || (static_cast<void>(aPlayer::GetPlayer()), aShip::TShip::HasPlayerChameleonCharges())) {
                 Name = aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Name"_wref.get());
@@ -7525,18 +7603,18 @@ namespace fShip2 {
                             if (ChargesText.length() > 0) {
                                 ChargesText = pas::concat_wide({ChargesText, u"\r\n"});
                             }
-                            ChargesText = pas::concat_wide({ChargesText, aMyFunction::WrapTextInColor(SeriesName, fShip2::GetShipInfoColor(ColorIndex)), u" - ", CountText});
+                            ChargesText = pas::concat_wide({ChargesText, aMyFunction::WrapTextInColor(SeriesName, GetShipInfoColor(ColorIndex)), u" - ", CountText});
                         }
                     }
                     Text = pas::concat_wide({Text, u"\r\n", ChargesText});
                 }
-                fShip2::AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0, this, Panel, Height);
+                AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0);
             }
             for (ProgramIndex = static_cast<std::uint8_t>(0); ProgramIndex <= static_cast<std::uint8_t>(11); ++ProgramIndex) {
                 if (aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] > 0) {
                     pas::WideString cpp_arg_3 = pas::concat_wide({(static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(ProgramIndex)), u"~", aPlayer::GetPlayer()->GetProgramInfoText(ProgramIndex)});
                     pas::WideString programName = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(ProgramIndex));
-                    fShip2::AddLine(3, std::move(programName), std::move(cpp_arg_3), 0, this, Panel, Height);
+                    AddLine(3, std::move(programName), std::move(cpp_arg_3), 0);
                 }
             }
         }
@@ -7565,7 +7643,7 @@ namespace fShip2 {
                     {
                         std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Icon"_wref.get())));
                         pas::WideString cpp_arg_4 = pas::concat_wide({Title, u"~", Description});
-                        fShip2::AddLine(strToInt, Title, std::move(cpp_arg_4), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Info)), this, Panel, Height);
+                        AddLine(strToInt, Title, std::move(cpp_arg_4), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Info)));
                     }
                 }
             }
@@ -7575,47 +7653,6 @@ namespace fShip2 {
         if (Panel->VerticalScrollBar->Active) {
             Panel->VerticalScrollBar->SetLargeChange(Panel->ClientSize.Y);
             Panel->VerticalScrollBar->SetPageSize(Panel->ClientSize.Y);
-        }
-    }
-
-    void AddLine(std::int32_t Icon, pas::WideString Text, pas::WideString Hint, std::int32_t Data, TfShip2* Self, GI_PanelScrollBar::TPanelScrollBarGI*& Panel, std::int32_t& Height) {
-        GI_Label::TLabelGI* LabelControl = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
-        LabelControl->SetFontName(GlobalsV::SmallFontName);
-        LabelControl->SetPosition(ClassesImports::Point(0, Height));
-        LabelControl->SetSize(ClassesImports::Point(Panel->ClientSize.X, 1));
-        LabelControl->SetTextAlignX(GI_Main::taxLeft);
-        LabelControl->SetTextAlignY(GI_Main::tayAuto);
-        LabelControl->SetWordWrapEnabled(true);
-        if (GR_Main::GiResourceVariant() == 1) {
-            LabelControl->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(Icon), ",", SysUtils::IntToStr(21), ",", SysUtils::IntToStr(17), ",0>"}))}));
-        } else {
-            LabelControl->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(Icon), ",", SysUtils::IntToStr(25), ",", SysUtils::IntToStr(20), ",0>"}))}));
-        }
-        LabelControl->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
-        LabelControl->SetTextAlignY(GI_Main::tayCenterEx);
-        LabelControl->SetPositionModeW(true);
-        LabelControl->CreateEmbeddedControl = pas::bind_static_method<&TfShip2::CreateShipInfoImage>(Self);
-        LabelControl->MouseEnterCallback = pas::bind_method<&TfShip2::ShowShipPropertyInfo>(Self);
-        LabelControl->MouseLeaveCallback = pas::bind_method<&TfShip2::HideShipPropertyInfo>(Self);
-        LabelControl->UserValue = -1;
-        LabelControl->UserIndex = Icon;
-        LabelControl->UserData = Data;
-        LabelControl->HelpText = std::move(Hint);
-        Height += LabelControl->ClientSize.Y;
-        {
-            std::int32_t lineHeight = LabelControl->GetLineHeight();
-            GI_ScrollBar::TScrollBarGI* verticalScrollBar = Panel->VerticalScrollBar;
-            verticalScrollBar->SetSmallChange(lineHeight);
-        }
-    }
-
-    pas::WideString GetShipInfoColor(std::uint8_t ColorIndex) {
-        pas::WideString Result{};
-        switch (ColorIndex) {
-            case 0: return u"<color=255,0,0>"_w;
-            case 1: return u"<color=0,128,255>"_w;
-            case 2: return u"<color=0,255,0>"_w;
-            default: return Result;
         }
     }
 
@@ -7681,6 +7718,7 @@ namespace fShip2 {
         return pas::class_cast_if<aNormalShip::TNormalShip*>(PlayerHoldShip) != nullptr;
     }
 
+    // Ruins with modernization sponsorship or a player-owned tranclucator.
     std::uint8_t TfShip2::CanUsePlayerExperience() {
         std::uint8_t Result = true;
         if (!(pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr && static_cast<aRuins::TRuins*>(PlayerHoldShip)->ModernizationSponsor) && !(pas::class_cast_if<aTranclucator::TTranclucator*>(PlayerHoldShip) != nullptr && static_cast<aTranclucator::TTranclucator*>(PlayerHoldShip)->OwnerShip == aPlayer::GetPlayer())) {
@@ -7689,6 +7727,7 @@ namespace fShip2 {
         return Result;
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::ToggleRemoteHoldClicked(GI_MessageLoop::TObjectGI* Sender) {
         RemoteHoldMode = static_cast<std::uint8_t>(RemoteHoldMode ^ 1);
         {
@@ -7716,6 +7755,7 @@ namespace fShip2 {
         MainPanel->ShowControlHelp(nullptr, false);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::RemoteHoldUpPressed(GI_MessageLoop::TObjectGI* Sender) {
         RemoteHoldFirstOrder = std::max<std::int32_t>(0, RemoteHoldFirstOrder - 5);
         RefreshShipView();
@@ -7726,6 +7766,7 @@ namespace fShip2 {
         HoldScrollTimer = ScheduleCallbackTimer(500, 50, pas::bind_method<&TfShip2::ScrollRemoteHoldTimer>(this), 0);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::RemoteHoldUpReleased(GI_MessageLoop::TObjectGI* Sender) {
         if (HoldScrollTimer != nullptr) {
             CancelCallbackTimer(HoldScrollTimer);
@@ -7733,6 +7774,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::RemoteHoldDownPressed(GI_MessageLoop::TObjectGI* Sender) {
         RemoteHoldFirstOrder = std::min<std::int32_t>(TfShip2::GetRemoteHoldScrollLimit(), RemoteHoldFirstOrder + 5);
         RefreshShipView();
@@ -7743,6 +7785,7 @@ namespace fShip2 {
         HoldScrollTimer = ScheduleCallbackTimer(500, 50, pas::bind_method<&TfShip2::ScrollRemoteHoldTimer>(this), 1);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::RemoteHoldDownReleased(GI_MessageLoop::TObjectGI* Sender) {
         if (HoldScrollTimer != nullptr) {
             CancelCallbackTimer(HoldScrollTimer);
@@ -7785,11 +7828,13 @@ namespace fShip2 {
         return std::max<std::int32_t>(0, (Result / 5 + 1) * 5 - 50);
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::SortRemoteHoldClicked(GI_MessageLoop::TObjectGI* Sender) {
         fShip2::SortPlayerHoldEntries(static_cast<TPlayerHoldSort>(Sender->UserValue));
         RefreshShipView();
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::StorageToShipClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0 && (aPlayer::GetPlayer() == PlayerHoldShip || pas::class_cast_if<aTranclucator::TTranclucator*>(PlayerHoldShip) != nullptr) && aPlayer::GetPlayer()->RuinsMode <= 0) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(515);
@@ -7848,6 +7893,7 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::ShipToStorageClicked(GI_MessageLoop::TObjectGI* Sender) {
         if ((aPlayer::GetPlayer() == PlayerHoldShip || pas::class_cast_if<aTranclucator::TTranclucator*>(PlayerHoldShip) != nullptr) && aPlayer::GetPlayer()->RuinsMode <= 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(519);
@@ -7861,27 +7907,32 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::SortStorageByTypeClicked(GI_MessageLoop::TObjectGI* Sender) {
         SortStorage(phsType);
         RefreshStorageView();
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::SortStorageBySizeClicked(GI_MessageLoop::TObjectGI* Sender) {
         SortStorage(phsSize);
         RefreshStorageView();
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::SortStorageByPriceClicked(GI_MessageLoop::TObjectGI* Sender) {
         SortStorage(phsPrice);
         RefreshStorageView();
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::LoadHoldRocketsClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (aPlayer::GetPlayer()->RuinsMode <= 0) {
             LoadRockets(false);
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::SellHoldClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString Text{};
         std::int32_t Value{};
@@ -7926,24 +7977,10 @@ namespace fShip2 {
         }
     }
 
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::LoadEquippedRocketsClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (aPlayer::GetPlayer()->RuinsMode <= 0) {
             LoadRockets(true);
-        }
-    }
-
-    std::int32_t Classify(std::uint8_t ItemType) {
-        std::int32_t Result = 0;
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
-            return 1;
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
-            return 3;
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-            return 2;
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Protoplasm), static_cast<std::int32_t>(aConst::t_UselessCountableItem))) {
-            return 4;
-        } else {
-            return Result;
         }
     }
 
@@ -8005,7 +8042,10 @@ namespace fShip2 {
         }
     }
 
+    // Zero sells hold contents; one sells local storage.
     void TfShip2::SellAllItems(std::int32_t Origin) {
+        std::uint8_t PlaySaleSound{};
+        std::uint8_t Changed{};
         std::int32_t I{};
         std::int32_t StorageIndex{};
         std::int32_t SavedCount{};
@@ -8013,6 +8053,71 @@ namespace fShip2 {
         aItem::TItem* Item{};
         std::uint8_t Good{};
         aPlayer::PStorageEntry Entry{};
+        // Nested helper captures sale/change flags.
+        auto SellItem = [&](aItem::TItem* Item, std::uint8_t IgnoreRequiredEquipment) -> std::uint8_t {
+            std::int32_t Count{};
+            std::int32_t Cost{};
+            std::int32_t Price{};
+            aGalaxyEvent::TGalaxyEvent* Event{};
+            std::uint8_t Result = false;
+            if (Item == nullptr) {
+                return Result;
+            }
+            if (!IgnoreRequiredEquipment) {
+                if (pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr) {
+                    if (PlayerHoldShip->NeedsEquipmentType(Item->ItemType)) {
+                        return Result;
+                    }
+                } else if ((Item->ItemType == aConst::t_FuelTanks || Item->ItemType == aConst::t_Engine) && PlayerHoldShip->NeedsEquipmentType(Item->ItemType)) {
+                    return Result;
+                }
+            }
+            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
+                Count = aPlayer::GetPlayer()->CargoGoods[Item->ItemType].Count;
+                Cost = aPlayer::GetPlayer()->CargoGoods[Item->ItemType].TotalCost;
+                aPlayer::GetPlayer()->CargoGoods[Item->ItemType].Count = pas::checked_cast<aItem::TGoods*>(Item)->Quantity;
+                aPlayer::GetPlayer()->CargoGoods[Item->ItemType].TotalCost = pas::checked_cast<aItem::TGoods*>(Item)->Cost;
+                aPlayer::GetPlayer()->SellGoodsToLocation(static_cast<std::uint8_t>(Item->ItemType), pas::checked_cast<aItem::TGoods*>(Item)->Quantity);
+                PlaySaleSound = true;
+                aPlayer::GetPlayer()->CargoGoods[Item->ItemType].Count = Count;
+                aPlayer::GetPlayer()->CargoGoods[Item->ItemType].TotalCost = Cost;
+                pas::free(Item);
+            } else {
+                if (!(pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr)) {
+                    Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
+                    Event->AddData(Item->ItemType);
+                    Event->AddData(Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                    Event->AddData(Item->Weight);
+                    Event->AddData(Item->Id);
+                    Event->AddTextData(Item->GetDisplayName());
+                    Event->AddTextData(Item->GetCategoryConfigName());
+                }
+                Price = Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
+                if (Price != 0) {
+                    PlaySaleSound = true;
+                }
+                if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
+                    pas::checked_cast<aItem::TWeapon*>(Item)->Target = nullptr;
+                }
+                if (Item->ItemType == aConst::t_Hull && pas::checked_cast<aItem::THull*>(Item)->HullType == aGalaxyStruct::htSpecial) {
+                    pas::free(Item);
+                } else if (pas::in_set<0, 4, 7, 7>(Item->OwnerId) && pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && (!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair)) {
+                    fEquipmentShop::RestoreTemporaryShopStock();
+                    if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
+                        pas::list_add(aPlayer::GetPlayer()->CurrentPlanet->EquipmentShop, reinterpret_cast<void*>(Item));
+                    } else {
+                        pas::list_add(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->EquipmentShop, reinterpret_cast<void*>(Item));
+                    }
+                    fEquipmentShop::BuildTemporaryShopSlotGrid();
+                } else {
+                    pas::free(Item);
+                }
+            }
+            Result = true;
+            Changed = true;
+            return Result;
+        };
         if (aPlayer::GetPlayer()->InNormalSpace() || aPlayer::GetPlayer()->InHyperspace || aPlayer::GetPlayer()->RuinsMode > 0 || pas::list_count(aScript::QueuedArcadeBattles) > 0 || aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
             return;
         }
@@ -8033,8 +8138,8 @@ namespace fShip2 {
             return;
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum1(517);
-        std::uint8_t Changed = false;
-        std::uint8_t PlaySaleSound = false;
+        Changed = false;
+        PlaySaleSound = false;
         std::uint8_t AllowIllegal = false;
         std::uint8_t DeclineIllegal = false;
         if (Origin == 0) {
@@ -8042,7 +8147,7 @@ namespace fShip2 {
             while (I >= 0) {
                 Item = pas::list_at<aItem::TItem>(PlayerHoldShip->Inventory, I);
                 if (Item->NoDropFlag == 0 && Item->ItemType != aConst::t_Hull && reinterpret_cast<aItem::TEquipment*>(Item)->EquippedFlag == 0 && (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->CanSell) && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessStoredItem(Item))) {
-                    if (fShip2::SellItem(Item, false, PlaySaleSound, Changed)) {
+                    if (SellItem(Item, false)) {
                         pas::list_delete(PlayerHoldShip->Inventory, I);
                     }
                 }
@@ -8063,7 +8168,7 @@ namespace fShip2 {
                         }
                     }
                     pas::list_delete(PlayerHoldShip->Artefacts, I);
-                    fShip2::SellItem(Item, true, PlaySaleSound, Changed);
+                    SellItem(Item, true);
                 }
                 --I;
             }
@@ -8134,7 +8239,7 @@ namespace fShip2 {
                     Entry->Item = nullptr;
                     pas::list_delete(aPlayer::GetPlayer()->StorageEntries, StorageIndex);
                     pas::dispose(Entry);
-                    fShip2::SellItem(Item, true, PlaySaleSound, Changed);
+                    SellItem(Item, true);
                 }
                 --I;
             }
@@ -8152,71 +8257,7 @@ namespace fShip2 {
         }
     }
 
-    std::uint8_t SellItem(aItem::TItem* Item, std::uint8_t IgnoreRequiredEquipment, std::uint8_t& PlaySaleSound, std::uint8_t& Changed) {
-        std::int32_t Count{};
-        std::int32_t Cost{};
-        std::int32_t Price{};
-        aGalaxyEvent::TGalaxyEvent* Event{};
-        std::uint8_t Result = false;
-        if (Item == nullptr) {
-            return Result;
-        }
-        if (!IgnoreRequiredEquipment) {
-            if (pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr) {
-                if (PlayerHoldShip->NeedsEquipmentType(Item->ItemType)) {
-                    return Result;
-                }
-            } else if ((Item->ItemType == aConst::t_FuelTanks || Item->ItemType == aConst::t_Engine) && PlayerHoldShip->NeedsEquipmentType(Item->ItemType)) {
-                return Result;
-            }
-        }
-        if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
-            Count = aPlayer::GetPlayer()->CargoGoods[Item->ItemType].Count;
-            Cost = aPlayer::GetPlayer()->CargoGoods[Item->ItemType].TotalCost;
-            aPlayer::GetPlayer()->CargoGoods[Item->ItemType].Count = pas::checked_cast<aItem::TGoods*>(Item)->Quantity;
-            aPlayer::GetPlayer()->CargoGoods[Item->ItemType].TotalCost = pas::checked_cast<aItem::TGoods*>(Item)->Cost;
-            aPlayer::GetPlayer()->SellGoodsToLocation(static_cast<std::uint8_t>(Item->ItemType), pas::checked_cast<aItem::TGoods*>(Item)->Quantity);
-            PlaySaleSound = true;
-            aPlayer::GetPlayer()->CargoGoods[Item->ItemType].Count = Count;
-            aPlayer::GetPlayer()->CargoGoods[Item->ItemType].TotalCost = Cost;
-            pas::free(Item);
-        } else {
-            if (!(pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr)) {
-                Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
-                Event->AddData(Item->ItemType);
-                Event->AddData(Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
-                Event->AddData(Item->Weight);
-                Event->AddData(Item->Id);
-                Event->AddTextData(Item->GetDisplayName());
-                Event->AddTextData(Item->GetCategoryConfigName());
-            }
-            Price = Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
-            aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
-            if (Price != 0) {
-                PlaySaleSound = true;
-            }
-            if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                pas::checked_cast<aItem::TWeapon*>(Item)->Target = nullptr;
-            }
-            if (Item->ItemType == aConst::t_Hull && pas::checked_cast<aItem::THull*>(Item)->HullType == aGalaxyStruct::htSpecial) {
-                pas::free(Item);
-            } else if (pas::in_set<0, 4, 7, 7>(Item->OwnerId) && pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && (!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair)) {
-                fEquipmentShop::RestoreTemporaryShopStock();
-                if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
-                    pas::list_add(aPlayer::GetPlayer()->CurrentPlanet->EquipmentShop, reinterpret_cast<void*>(Item));
-                } else {
-                    pas::list_add(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->EquipmentShop, reinterpret_cast<void*>(Item));
-                }
-                fEquipmentShop::BuildTemporaryShopSlotGrid();
-            } else {
-                pas::free(Item);
-            }
-        }
-        Result = true;
-        Changed = true;
-        return Result;
-    }
-
+    // Verified callback assignment in InitializeLayout.
     void TfShip2::EnterBridgeClicked(GI_MessageLoop::TObjectGI* Sender) {
         aGalaxy::Galaxy->CheckIntegrityChecksum1(416);
         if (SelectedHoldKind != phkEmpty) {
@@ -8231,7 +8272,7 @@ namespace fShip2 {
     }
 
     void TfShip2::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(10012);
             aGalaxy::Galaxy->CheckIntegrityChecksum2(10013);
             aScript::ExecuteGameplayUiCode(Block, Key);

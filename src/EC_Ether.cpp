@@ -11,6 +11,7 @@ namespace EC_Ether {
         Self->Lock = pas::make_critical_section<pas::CriticalSection>();
     }
 
+    // Native destructor leaves the critical section; it does not free the lock or clear entries.
     void TEther_Destroy(TEther* Self) {
         pas::critical_leave(Self->Lock);
         EC_Struct::TObjectEx_Destroy(Self);
@@ -41,6 +42,7 @@ namespace EC_Ether {
         return Item;
     }
 
+    // Unlinks and frees the entry without updating SortedItems or Count.
     void TEther::RemoveEntry(TEtherUnit* Item) {
         if (Item->Prev != nullptr) {
             Item->Prev->Next = Item->Next;
@@ -57,7 +59,9 @@ namespace EC_Ether {
         pas::free(Item);
     }
 
+    // Native assembly restores EAX after loading the entry, returning Self instead of the indexed value.
     TEtherUnit* TEther::GetIndexedEntry(std::int32_t Index) {
+        // Manual port: the native routine restores EAX, returning Self (not the entry).
         return reinterpret_cast<TEtherUnit*>(this);
     }
 
@@ -104,6 +108,7 @@ namespace EC_Ether {
         SortedItems = static_cast<PEtherIndex>(EC_Mem::ReAllocREC(SortedItems, Count * static_cast<std::int32_t>(sizeof(TEtherUnit*))));
         std::int32_t MoveCount = Count - 1 - Index;
         if (MoveCount > 0) {
+            // The assembly shifts the overlapping pointer range backward.
             pas::move_memory(reinterpret_cast<TEtherUnit**>(pas::byte_offset(SortedItems, Index * sizeof(TEtherUnit*))), reinterpret_cast<TEtherUnit**>(pas::byte_offset(SortedItems, (Index + 1) * sizeof(TEtherUnit*))), MoveCount * static_cast<std::int32_t>(sizeof(TEtherUnit*)));
         }
         SetIndexedEntry(Index, Item);

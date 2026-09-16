@@ -49,8 +49,10 @@ namespace fMainForm {
         std::int32_t BackgroundScrollOffset;
         std::int32_t LastMenuShipAnimation;
         std::int32_t LastGaalShipAnimation;
+        // Cleared on open; other use remains unresolved.
         pas::WideString MenuTextState;
         std::uint8_t cpp_padding[8];
+        // Cleared when closing PanelAB.
         std::int32_t PopupState;
         fPanelLoad::TfPanelLoad* LoadPanel;
     };

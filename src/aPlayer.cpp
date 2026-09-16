@@ -35,26 +35,25 @@
 namespace aPlayer {
     using TOwnerMasks = pas::Array<aGalaxyStruct::TOwnerMask, 0, 2>;
 
-    std::uint8_t IsEmpty(TPlayer* Self, std::int32_t& Index);
-
+    // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
     std::uint8_t SupportsItem(aItem::TItem* Item);
 
+    // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
     std::int32_t FindSlot(aItem::TItem* Item, TPlayer* Self, std::int32_t& Index);
 
-    void UnequipAll(TPlayer* Self);
-
+    // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
     void ReleaseStorageEntry(PStorageEntry Entry);
 
+    // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
     void TakeStoredItem(PStorageEntry Entry, std::int32_t Slot, TPlayer* Self);
 
-    void EquipCarriedItems(TPlayer* Self, std::int32_t& Index);
-
-    void EquipStoredItems(TPlayer* Self, std::int32_t& Index);
-
+    // Native campaign reward guard.
     std::int32_t ArcadeKellerDefeats{};
 
+    // Owned reward item pending transfer.
     pas::Object* ArcadeKellerReward{};
 
+    // The native initial DWORD decodes to nil; zero would decode to a non-null pointer.
     std::uint32_t EncodedPlayer = 0xb1cd15d3u;
 
     aPlayer::TStorageHeaderColumnTable StorageHeaderColumns = aPlayer::TStorageHeaderColumnTable{{{.Size = 300, .Cost = 380}, {.Size = 400, .Cost = 490}}};
@@ -67,6 +66,7 @@ namespace aPlayer {
 
     aPlayer::TStorageItemColumnTable StorageItemColumns = aPlayer::TStorageItemColumnTable{{{.Heading = 190, .Size = 300, .Cost = 380}, {.Heading = 250, .Size = 400, .Cost = 490}}};
 
+    // Updates Galaxy.PlayerRangerIndex; a nil Galaxy leaves the current player unchanged.
     void SetPlayer(TPlayer* Player, aGalaxy::TGalaxy* Galaxy) {
         if (Galaxy != nullptr) {
             EncodedPlayer = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Player)) ^ 0xb1cd15d3u;
@@ -104,6 +104,7 @@ namespace aPlayer {
         Text = Buffer->ReadWideString();
     }
 
+    // Native constructor initializes lists/defaults; does not register or generate the player loadout.
     void TPlayer_Create(TPlayer* Self) {
         std::uint8_t ServiceIndex{};
         std::int32_t I{};
@@ -131,6 +132,7 @@ namespace aPlayer {
         Self->DepositStartTurn = 0;
         Self->DepositDayCount = 0;
         Self->DepositInterestRate = 0.0f;
+        // The native constructor really uses the current turn for this duration field.
         if (aGalaxy::Galaxy != nullptr) {
             Self->MedicalPolicyTicks = aGalaxy::Galaxy->CurrentTurn;
         }
@@ -186,6 +188,7 @@ namespace aPlayer {
         Self->QueuedTravelTarget = nullptr;
     }
 
+    // Requires the inherited ranger registration state for final cleanup.
     void TPlayer_Destroy(TPlayer* Self) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -817,6 +820,7 @@ namespace aPlayer {
         ExperienceByTraderCareer = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Ekx7peTwr3af"_w))));
     }
 
+    // Inherited ranger registration followed by player career/skill defaults; CharacterPreset is unused here.
     void TPlayer::InitializePlayerAtPlanet(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset) {
         aRanger::TRanger::InitializeAtPlanet(Planet, InitialMoney);
         BaseNodes = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(BaseNodes) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].ArcadeRewardScale);
@@ -835,6 +839,7 @@ namespace aPlayer {
         BaseSkills[5] = 0;
     }
 
+    // Twenty-five race/preset loadouts, stored cargo and initial planet relations. Planet is unused.
     void TPlayer::ApplyCharacterPreset(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset) {
         std::int32_t I{};
         std::int32_t Quantity{};
@@ -1568,6 +1573,7 @@ namespace aPlayer {
             if (pas::imod(aGalaxy::Galaxy->CurrentTurn, (static_cast<std::int32_t>(aGalaxy::Galaxy->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn) / 1000 % 10 + 2) == 0 && DiseaseImmunity > 0) {
                 --DiseaseImmunity;
             }
+            // Native O- code retains this unreachable lower clamp on the byte field.
             if (DiseaseImmunity < 0) {
                 DiseaseImmunity = 0;
             }
@@ -1835,6 +1841,7 @@ namespace aPlayer {
             }
             Stage = 10;
             StimulantExcess = CountActiveStimulants() - aPlayer::GetPlayer()->GetTotalStatBonus(aConst::bonStimCapacity);
+            // The native one-pass loop retains its dormant footer after Break.
             while (StimulantExcess >= 2) {
                 I = 6;
                 if (CaptainHealth[I].Progress <= 0.0L) {
@@ -1933,6 +1940,7 @@ namespace aPlayer {
         }
     }
 
+    // Capped at 100000000; zero for nonpositive principal.
     std::int32_t TPlayer::ComputeDepositAccruedValue() {
         pas::Extended Base{};
         pas::Extended Exponent{};
@@ -1953,6 +1961,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Increments every carried transmitter in the global player's artefact list, including unequipped ones.
     void TPlayer::RechargeTransmitters() {
         aItem::TItem* Item{};
         aItem::TArtefactTransmitter* Transmitter{};
@@ -1966,6 +1975,7 @@ namespace aPlayer {
         }
     }
 
+    // Each active Bio artefact may shorten a disease and extend a stimulant by one turn.
     void TPlayer::ApplyBioArtefactHealthEffects() {
         std::int32_t Selected{};
         std::int32_t I{};
@@ -2001,14 +2011,17 @@ namespace aPlayer {
         }
     }
 
+    // Terron unresolved, late-game offer cadence and no program 4 already carried.
     std::uint8_t TPlayer::MayTakeSubCrack() {
         return aGalaxy::Galaxy->IsDominatorSeriesUnresolved(aGalaxyStruct::dsTerron) && aGalaxy::Galaxy->CurrentTurn > 2000 && (pas::imod(aGalaxy::Galaxy->CurrentTurn, aGalaxy::Galaxy->CurrentTurn % 11 + 20) == 0 || aGalaxy::Galaxy->CurrentTurn > 4000) && static_cast<std::uint8_t>(HasProgram(aGalaxyStruct::prgSabCrack) ^ 1);
     }
 
+    // Difficulty-scaled price.
     std::int32_t TPlayer::GetSubCrackCost() {
         return System::Round(pas::real_divide(1.0E+5L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestMoneyFactor));
     }
 
+    // Rounded pirate career status / 1.3, plus one percentage point.
     std::uint8_t TPlayer::GetPirateServiceDiscount() {
         return System::Round(pas::real_divide(CareerStatus[aGalaxyStruct::rcPirate], 1.3L)) + 1;
     }
@@ -2022,11 +2035,12 @@ namespace aPlayer {
         return Result;
     }
 
+    // Requires a TKling victim; records its hull capacity even when no reward is due.
     std::uint8_t TPlayer::TryAwardDominatorPrograms(aShip::TShip* Victim) {
         std::uint8_t ProgramIndex{};
         std::int32_t Count{};
         DestroyedDominatorHullMass += Victim->GetHull()->Weight;
-        if (pas::in_set<1, 3, 6, 6>(pas::checked_cast<aKling::TKling*>(Victim)->KlingType) && DestroyedDominatorHullMass > static_cast<long double>(aGalaxy::Galaxy->ScaleIntByTechLevel(500, 3000)) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor && aGalaxy::Galaxy->CurrentTurn > 365.0L * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor + LastDominatorProgramRewardTurn) {
+        if (pas::in_set<aGalaxyStruct::ktEquentor, aGalaxyStruct::ktSmersh, aGalaxyStruct::ktBertor, aGalaxyStruct::ktBertor>(pas::checked_cast<aKling::TKling*>(Victim)->KlingType) && DestroyedDominatorHullMass > static_cast<long double>(aGalaxy::Galaxy->ScaleIntByTechLevel(500, 3000)) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor && aGalaxy::Galaxy->CurrentTurn > 365.0L * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor + LastDominatorProgramRewardTurn) {
             LastDominatorProgramRewardTurn = aGalaxy::Galaxy->CurrentTurn;
             DestroyedDominatorHullMass = 0;
             ProgramIndex = SelectProgramReward();
@@ -2047,6 +2061,7 @@ namespace aPlayer {
         return false;
     }
 
+    // Returns the highest-scoring visible Coalition trade route; retains output arguments on failure and excludes their previous endpoints.
     std::uint8_t TPlayer::FindProfitableTradeRoute(std::uint8_t Nearby, std::uint32_t Seed, aPlanet::TPlanet*& PurchasePlanet, aPlanet::TPlanet*& SalePlanet, std::uint8_t& Good, aGalaxyStruct::TItemTypeMask GoodsMask) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2144,6 +2159,7 @@ namespace aPlayer {
         return false;
     }
 
+    // Uses Self.Satellites.Count but reads the global player's list.
     std::uint8_t TPlayer::HasDeployedSatellites() {
         std::int32_t I{};
         aItem::TSatellite* Satellite{};
@@ -2156,6 +2172,7 @@ namespace aPlayer {
         return false;
     }
 
+    // Requires Self=GetPlayer(): uses Self for the list count but fetches entries from the global player's deployed satellites.
     std::uint8_t TPlayer::HasSatelliteOnPlanet(aPlanet::TPlanet* Planet) {
         std::int32_t I{};
         aItem::TSatellite* Satellite{};
@@ -2286,6 +2303,7 @@ namespace aPlayer {
         return Text;
     }
 
+    // Remaining duration at the current planet using combined operational probe rates; capped at 999 per terrain.
     std::int32_t TPlayer::GetSatelliteExplorationTurns(aItem::TSatellite* Satellite) {
         std::int32_t I{};
         aItem::TSatellite* Probe{};
@@ -2329,10 +2347,12 @@ namespace aPlayer {
         return Result;
     }
 
+    // Native stub always returns true; Self and Item are unused. Called by treasure-map selection and planet loot reset.
     std::uint8_t TPlayer::CanAccessSurfaceLootItem(aItem::TItem* Item) {
         return true;
     }
 
+    // Reports inactive deployed satellites in the entered star; records up to three target planets.
     void TPlayer::ReportIdleSatellites(aGalaxy::TStar* Star) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2378,17 +2398,21 @@ namespace aPlayer {
         }
     }
 
+    // Native empty turn-start hook.
     void TPlayer::BeginStorageTurn() {
     }
 
+    // Native always-true permission hook; Good is passed in DL.
     std::uint8_t TPlayer::CanAccessHoldGoods(std::uint8_t Good) {
         return true;
     }
 
+    // Native always-true permission hook used by storage lookup, counting and slot allocation.
     std::uint8_t TPlayer::CanAccessStoredItem(aItem::TItem* Item) {
         return true;
     }
 
+    // Location=nil includes all storage locations. Goods and item types 69/75 count by weight; other matching items count individually.
     std::int32_t TPlayer::CountStoredItemUnits(pas::Object* Location, std::uint8_t ItemType) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2408,6 +2432,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Reassigns later accessible entries with duplicate slot indices.
     void TPlayer::RepairDuplicateStorageSlots(pas::Object* Location) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2429,6 +2454,7 @@ namespace aPlayer {
         }
     }
 
+    // Returns a nonnegative slot local to Location.
     std::int32_t TPlayer::FindNextStorageSlot(pas::Object* Location) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2451,6 +2477,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Maximum accessible slot index plus one, or zero.
     std::int32_t TPlayer::GetStorageSlotExtent(pas::Object* Location) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2464,6 +2491,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Returns a zero-based StorageEntries index, or -1.
     std::int32_t TPlayer::FindStorageIndexByLocationAndSlot(pas::Object* Location, std::int32_t Slot) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2476,6 +2504,7 @@ namespace aPlayer {
         return -1;
     }
 
+    // Returns a zero-based StorageEntries index, or -1.
     std::int32_t TPlayer::FindStorageGoodsByLocationAndType(pas::Object* Location, std::uint8_t Good) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2488,6 +2517,7 @@ namespace aPlayer {
         return -1;
     }
 
+    // Returns a zero-based StorageEntries index, or -1.
     std::int32_t TPlayer::FindMergeableStorageItemByLocation(pas::Object* Location, aItem::TCountableItem* Item) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2511,6 +2541,7 @@ namespace aPlayer {
         }
     }
 
+    // Shifts later slots down only if Slot is unoccupied.
     void TPlayer::CloseVacantStorageSlot(pas::Object* Location, std::int32_t Slot) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2526,6 +2557,7 @@ namespace aPlayer {
         }
     }
 
+    // With nil, returns whether the entire storage list is empty.
     std::uint8_t TPlayer::HasAccessibleStorageAt(pas::Object* Location) {
         std::int32_t I{};
         PStorageEntry Entry{};
@@ -2541,6 +2573,7 @@ namespace aPlayer {
         return false;
     }
 
+    // Counts ships following Self in the current system, wrapping at 256.
     std::uint8_t TPlayer::CountPartnersInNormalSpace() {
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -2554,6 +2587,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Native compares ranger TotalExperience with the global player's PlaceInRating after refreshing rankings.
     std::uint8_t TPlayer::GetShipRatingComparison(aShip::TShip* Ship) {
         aRanger::TRanger* Ranger{};
         std::uint8_t Result = 0;
@@ -2581,6 +2615,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Returns 1..5 for relative Coalition rank, zero for non-normal ships.
     std::uint8_t TPlayer::GetShipRankComparison(aShip::TShip* Ship) {
         aNormalShip::TNormalShip* Normal{};
         std::uint8_t Result = 0;
@@ -2607,6 +2642,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Returns 1..5 for relative pirate rank, zero for non-normal ships.
     std::uint8_t TPlayer::GetShipPirateRankComparison(aShip::TShip* Ship) {
         aNormalShip::TNormalShip* Normal{};
         std::uint8_t Result = 0;
@@ -2633,6 +2669,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Returns 1..5 from strength relative to the global player.
     std::uint8_t TPlayer::GetShipStrengthComparison(aShip::TShip* Ship) {
         std::uint8_t Result = 0;
         {
@@ -2691,6 +2728,7 @@ namespace aPlayer {
         return Text;
     }
 
+    // Compares star/location IDs, type, module priority/index, weight and cost; ignores slot indices.
     std::int32_t TPlayer::CompareStorageEntries(PStorageEntry Left, PStorageEntry Right) {
         std::uint32_t LeftStarId{};
         std::uint32_t RightStarId{};
@@ -2809,6 +2847,7 @@ namespace aPlayer {
         BuildStorageBubbles();
     }
 
+    // Publishes paginated storage summaries, including deployed probes; uses the global player's bubble list.
     void TPlayer::BuildStorageBubbles() {
         std::int32_t I{};
         std::int32_t LineCount{};
@@ -2882,6 +2921,7 @@ namespace aPlayer {
                 ++LineCount;
             }
             if (HasDeployedSatellites()) {
+                // Native computes the probe text once for its line count, then again below.
                 BuildDeployedSatelliteSummary(AddedLines);
                 if (AddedLines + LineCount > 45) {
                     if (Page == 1) {
@@ -2916,6 +2956,7 @@ namespace aPlayer {
         Globals::RemovePlayerBubbleByKey(u"sys_storage"_wref.get());
     }
 
+    // Returns a map ID or -1; updates shared map play-count scratch from the player's history.
     std::int32_t TPlayer::SelectPlanetBattleMap() {
         std::int32_t I{};
         std::int32_t MapIndex{};
@@ -2998,6 +3039,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Index is zero-based and unchecked; the selected preset is unchanged.
     void TPlayer::SaveEquipmentConfiguration(std::int32_t Index) {
         std::int32_t I{};
         std::int32_t NextSlot{};
@@ -3047,31 +3089,95 @@ namespace aPlayer {
         }
     }
 
+    // Can draw from storage at the current dock. Index is unchecked; the selected preset is unchanged.
     void TPlayer::ApplyEquipmentConfiguration(std::int32_t Index) {
-        if (!aPlayer::IsEmpty(this, Index)) {
-            aPlayer::UnequipAll(this);
-            aPlayer::EquipCarriedItems(this, Index);
-            aPlayer::EquipStoredItems(this, Index);
+        // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
+        auto IsEmpty = [&]() -> std::uint8_t {
+            std::int32_t I{};
+            std::uint8_t Result = true;
+            {
+                TEquipmentConfiguration& cpp_with = this->EquipmentConfigurations[Index];
+                for (I = 0; I <= 11; ++I) {
+                    if (cpp_with.EquipmentIds[I] != 0) {
+                        return false;
+                    }
+                }
+                for (I = 0; I <= 31; ++I) {
+                    if (cpp_with.ArtefactIds[I] != 0) {
+                        return false;
+                    }
+                }
+                return Result;
+            }
+        };
+        // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
+        auto UnequipAll = [&]() -> void {
+            std::int32_t I{};
+            aItem::TEquipment* Item{};
+            aItem::TArtefact* Artefact{};
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(this->Inventory) - 1); cpp_range.next(I); ) {
+                Item = pas::list_at<aItem::TEquipment>(this->Inventory, I);
+                if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                    Item->Unequip();
+                }
+            }
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(this->Artefacts) - 1); cpp_range_2.next(I); ) {
+                Artefact = pas::list_at<aItem::TArtefact>(this->Artefacts, I);
+                Artefact->Unequip();
+            }
+            this->WeaponCount = 0;
+            for (I = 1; I <= 5; ++I) {
+                this->Weapons[I] = nullptr;
+            }
+        };
+        // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
+        auto EquipCarriedItems = [&]() -> void {
+            std::int32_t I{};
+            std::int32_t Slot{};
+            aItem::TEquipment* Equipment{};
+            aItem::TArtefact* Artefact{};
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(this->Inventory) - 1); cpp_range.next(I); ) {
+                Equipment = pas::list_at<aItem::TEquipment>(this->Inventory, I);
+                Slot = aPlayer::FindSlot(Equipment, this, Index);
+                if (Slot >= 0) {
+                    Equipment->Equip();
+                    Equipment->AssignedSlotData = Equipment->AssignedSlotData & aItem::EquipmentSecondaryFireFlag | static_cast<std::uint32_t>(Slot);
+                }
+            }
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(this->Artefacts) - 1); cpp_range_2.next(I); ) {
+                Artefact = pas::list_at<aItem::TArtefact>(this->Artefacts, I);
+                Slot = aPlayer::FindSlot(Artefact, this, Index);
+                if (Slot >= 0) {
+                    Artefact->Equip();
+                    Artefact->AssignedSlotData = Artefact->AssignedSlotData & aItem::EquipmentSecondaryFireFlag | static_cast<std::uint32_t>(Slot);
+                }
+            }
+        };
+        // Nested in ApplyEquipmentConfiguration; caller-popped static link, player -4 and preset index -8.
+        auto EquipStoredItems = [&]() -> void {
+            std::int32_t I{};
+            std::int32_t Slot{};
+            PStorageEntry Entry{};
+            if (this->StorageEntries != nullptr && (IsDockedToShip() || IsOnPlanet())) {
+                const std::int32_t cpp_first = pas::list_count(this->StorageEntries) - 1;
+                if (cpp_first >= 0) {
+                    for (I = cpp_first; I >= 0; --I) {
+                        Entry = pas::list_at<TStorageEntry>(this->StorageEntries, I);
+                        if (Entry != nullptr && Entry->Item != nullptr && (this->DockedTo == Entry->LocationOwner || this->CurrentPlanet == Entry->LocationOwner)) {
+                            Slot = aPlayer::FindSlot(Entry->Item, this, Index);
+                            if (Slot >= 0) {
+                                aPlayer::TakeStoredItem(Entry, Slot, this);
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        if (!IsEmpty()) {
+            UnequipAll();
+            EquipCarriedItems();
+            EquipStoredItems();
             RebuildEquipmentCache();
-        }
-    }
-
-    std::uint8_t IsEmpty(TPlayer* Self, std::int32_t& Index) {
-        std::int32_t I{};
-        std::uint8_t Result = true;
-        {
-            TEquipmentConfiguration& cpp_with = Self->EquipmentConfigurations[Index];
-            for (I = 0; I <= 11; ++I) {
-                if (cpp_with.EquipmentIds[I] != 0) {
-                    return false;
-                }
-            }
-            for (I = 0; I <= 31; ++I) {
-                if (cpp_with.ArtefactIds[I] != 0) {
-                    return false;
-                }
-            }
-            return Result;
         }
     }
 
@@ -3130,26 +3236,6 @@ namespace aPlayer {
         return Result;
     }
 
-    void UnequipAll(TPlayer* Self) {
-        std::int32_t I{};
-        aItem::TEquipment* Item{};
-        aItem::TArtefact* Artefact{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->Inventory) - 1); cpp_range.next(I); ) {
-            Item = pas::list_at<aItem::TEquipment>(Self->Inventory, I);
-            if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-                Item->Unequip();
-            }
-        }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Self->Artefacts) - 1); cpp_range_2.next(I); ) {
-            Artefact = pas::list_at<aItem::TArtefact>(Self->Artefacts, I);
-            Artefact->Unequip();
-        }
-        Self->WeaponCount = 0;
-        for (I = 1; I <= 5; ++I) {
-            Self->Weapons[I] = nullptr;
-        }
-    }
-
     void ReleaseStorageEntry(PStorageEntry Entry) {
         Entry->Item = nullptr;
         pas::list_delete(aPlayer::GetPlayer()->StorageEntries, pas::list_indexof(aPlayer::GetPlayer()->StorageEntries, static_cast<void*>(Entry)));
@@ -3177,49 +3263,7 @@ namespace aPlayer {
         }
     }
 
-    void EquipCarriedItems(TPlayer* Self, std::int32_t& Index) {
-        std::int32_t I{};
-        std::int32_t Slot{};
-        aItem::TEquipment* Equipment{};
-        aItem::TArtefact* Artefact{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range.next(I); ) {
-            Equipment = pas::list_at<aItem::TEquipment>(Self->Inventory, I);
-            Slot = aPlayer::FindSlot(Equipment, Self, Index);
-            if (Slot >= 0) {
-                Equipment->Equip();
-                Equipment->AssignedSlotData = Equipment->AssignedSlotData & aItem::EquipmentSecondaryFireFlag | static_cast<std::uint32_t>(Slot);
-            }
-        }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Self->Artefacts) - 1); cpp_range_2.next(I); ) {
-            Artefact = pas::list_at<aItem::TArtefact>(Self->Artefacts, I);
-            Slot = aPlayer::FindSlot(Artefact, Self, Index);
-            if (Slot >= 0) {
-                Artefact->Equip();
-                Artefact->AssignedSlotData = Artefact->AssignedSlotData & aItem::EquipmentSecondaryFireFlag | static_cast<std::uint32_t>(Slot);
-            }
-        }
-    }
-
-    void EquipStoredItems(TPlayer* Self, std::int32_t& Index) {
-        std::int32_t I{};
-        std::int32_t Slot{};
-        PStorageEntry Entry{};
-        if (Self->StorageEntries != nullptr && (Self->IsDockedToShip() || Self->IsOnPlanet())) {
-            const std::int32_t cpp_first = pas::list_count(Self->StorageEntries) - 1;
-            if (cpp_first >= 0) {
-                for (I = cpp_first; I >= 0; --I) {
-                    Entry = pas::list_at<TStorageEntry>(Self->StorageEntries, I);
-                    if (Entry != nullptr && Entry->Item != nullptr && (Self->DockedTo == Entry->LocationOwner || Self->CurrentPlanet == Entry->LocationOwner)) {
-                        Slot = aPlayer::FindSlot(Entry->Item, Self, Index);
-                        if (Slot >= 0) {
-                            aPlayer::TakeStoredItem(Entry, Slot, Self);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    // Does not validate Index.
     std::uint8_t TPlayer::HasEquipmentConfiguration(std::int32_t Index) {
         std::int32_t I{};
         std::uint8_t Result = false;
@@ -3239,6 +3283,7 @@ namespace aPlayer {
         }
     }
 
+    // Includes the carrier's hold and the player's current-location storage.
     std::int32_t TPlayer::GetAvailableNodeCount(aShip::TShip* Carrier) {
         std::int32_t Result{};
         std::int32_t I{};
@@ -3267,6 +3312,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Uses the carrier's hold, then current-location storage; refreshes Self even when Carrier differs.
     void TPlayer::ConsumeAvailableNodes(std::int32_t Count, aShip::TShip* Carrier) {
         std::int32_t I{};
         std::int32_t Remaining{};
@@ -3355,6 +3401,7 @@ namespace aPlayer {
         RefreshDerivedStats(true);
     }
 
+    // Pirate career thresholds, eminent title and active license.
     std::int32_t TPlayer::GetMaxPiratePartners() {
         std::int32_t Result = 0;
         if (CareerStatus[aGalaxyStruct::rcPirate] > 60) {
@@ -3372,6 +3419,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // As pirate partners, with an additional threshold above career status 50.
     std::int32_t TPlayer::GetMaxDominionShips() {
         std::int32_t Result = 0;
         if (CareerStatus[aGalaxyStruct::rcPirate] > 50) {
@@ -3392,6 +3440,7 @@ namespace aPlayer {
         return Result;
     }
 
+    // Dates the new record with the current turn.
     void TPlayer::AddJournalRecord(pas::WideString Text) {
         TJournalRecord* Entry = pas::construct_call<TJournalRecord>(TJournalRecord_Create);
         pas::list_add(JournalRecords, reinterpret_cast<void*>(Entry));
@@ -3399,6 +3448,7 @@ namespace aPlayer {
         Entry->DateTurn = aGalaxy::Galaxy->CurrentTurn;
     }
 
+    // Native guard accepts Index=Count, leaving the list accessor to raise.
     void TPlayer::DeleteJournalRecord(std::int32_t Index) {
         if (Index >= 0 && pas::list_count(JournalRecords) >= Index) {
             pas::free(pas::list_at<TJournalRecord>(JournalRecords, Index));
@@ -3432,6 +3482,7 @@ namespace aPlayer {
         return static_cast<pas::WideString>(FileName);
     }
 
+    // Ascending ID, using pairwise swaps.
     void TPlayer::SortNewsEntries() {
         std::int32_t I{};
         std::int32_t J{};
@@ -3451,6 +3502,7 @@ namespace aPlayer {
         }
     }
 
+    // Removes and finalizes the oldest Count-KeepCount entries; unchecked argument.
     void TPlayer::TrimNewsEntries(std::int32_t KeepCount) {
         std::int32_t I{};
         aGalaxy::PPlanetNewsEntry Entry{};
@@ -3486,6 +3538,7 @@ namespace aPlayer {
         return static_cast<pas::WideString>(FileName);
     }
 
+    // Copies galaxy news whose IDs are absent locally.
     void TPlayer::MergeGalaxyNews() {
         std::int32_t I{};
         std::int32_t J{};
@@ -3513,6 +3566,7 @@ namespace aPlayer {
         }
     }
 
+    // Updates eligible docked players after turn 300 and retains the newest 100 entries.
     void TPlayer::RefreshNewsAtLocation() {
         if (aGalaxy::Galaxy->CurrentTurn > 300 && (IsOnPlanet() || IsDockedToShip())) {
             if (CurrentPlanet == nullptr || pas::in_set<0, 4, 7, 7>(CurrentPlanet->OwnerId) && CurrentPlanet->GetRelationLevelToShip(this) > aGalaxyStruct::rlBad) {
@@ -3527,12 +3581,14 @@ namespace aPlayer {
         return aShip::TShip::CalculateSpeed();
     }
 
+    // Creates a military-base proxy and removes it from the ordinary system ship list.
     void TPlayer::CreateRuinsProxy() {
         RuinsProxy = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
         pas::checked_cast<aRuins::TRuins*>(RuinsProxy)->Init(aGalaxyStruct::rstMilitaryBase, aPlayer::GetPlayer()->CurrentStar, pas::WideString());
         pas::list_delete(CurrentStar->Ships, pas::list_indexof(CurrentStar->Ships, reinterpret_cast<void*>(RuinsProxy)));
     }
 
+    // Nonpositive Mode uses the installed hull's CapitalShip kind.
     void TPlayer::EnterRuinsMode(std::int32_t Mode) {
         std::int32_t SelectedMode{};
         if (InHyperspace) {
@@ -3565,6 +3621,7 @@ namespace aPlayer {
         reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
     }
 
+    // Returns to the saved location or star screen and requests screen closure.
     void TPlayer::CloseRuinsModeScreen() {
         RuinsStatusText = pas::WideString();
         if (RuinsSavedPlanet == nullptr && RuinsSavedDockedTo == nullptr) {
@@ -3589,6 +3646,7 @@ namespace aPlayer {
         reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
     }
 
+    // Restores the real docking target and rebuilds its temporary shop stock.
     void TPlayer::ExitRuinsMode() {
         aGalaxy::Galaxy->CheckIntegrityChecksum(403);
         if (fEquipmentShop::TemporaryShopSlots != nullptr) {
@@ -3605,6 +3663,7 @@ namespace aPlayer {
         aGalaxy::Galaxy->PrimeIntegrityChecksum(404);
     }
 
+    // Includes the player's current-system kill counts and main pirate planet exception.
     void TPlayer::RefreshCurrentStanding() {
         if (IsInPrison()) {
             CurrentStanding = aGalaxyStruct::ssNeutral;
@@ -3624,6 +3683,7 @@ namespace aPlayer {
         }
     }
 
+    // Honors scripted targeting restrictions, chameleon logic and friendly station standing masks.
     std::uint8_t TPlayer::CanSelectShipTarget(aShip::TShip* Ship) {
         std::uint8_t Faction{};
         std::uint8_t Result = false;
@@ -3643,6 +3703,7 @@ namespace aPlayer {
         return true;
     }
 
+    // Checks station/Dominator restrictions and invokes the player's scan-permission item scripts.
     std::uint8_t TPlayer::CanScanShip(aShip::TShip* Ship) {
         std::uint8_t Result = true;
         if (aGalaxy::Galaxy->UltraScanModEnabled == 0) {

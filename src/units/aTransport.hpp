@@ -4,6 +4,7 @@
 namespace aTransport {
     extern pas::Array<std::int32_t, 22, 27> TransportSkillBonusWeights;
 
+    // Native eight-entry slot table; artefact/afterburner weights are zero.
     extern pas::Array<std::int32_t, 13, 20> TransportSlotBonusWeights;
 
     void TTransport_Destroy(TTransport* Self);

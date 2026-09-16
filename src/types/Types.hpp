@@ -13,6 +13,7 @@ namespace Types {
     };
     #pragma pack(pop)
 
+    // Delphi 2007 RTL variant views share these sixteen bytes.
     #pragma pack(push, 1)
     struct TRect {
         std::int32_t Left;

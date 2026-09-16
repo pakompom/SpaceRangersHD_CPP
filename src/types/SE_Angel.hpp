@@ -52,6 +52,7 @@ namespace SE_Angel {
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
         std::int32_t TimerInterval;
         SE_Space::PSpaceTimerSE MoveTimer;
+        // Native managed slot consumed by QueueImageLoad; LoadTemplate does not assign it.
         pas::WideString ImagePath;
         std::int32_t ImageCount;
         pas::Array<pas::WideString, 0, 7> ImagePaths;
@@ -66,6 +67,7 @@ namespace SE_Angel {
         std::int32_t EntryCount;
         EC_Struct::TPointF Target;
         std::int32_t TargetDelay;
+        // 0=wander, 1=seek target, 2=turn before seeking.
         std::uint8_t MoveState;
         std::uint8_t cpp_padding[3];
     };

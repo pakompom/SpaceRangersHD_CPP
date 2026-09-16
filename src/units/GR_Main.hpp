@@ -43,18 +43,22 @@ namespace GR_Sound {
 } // namespace GR_Sound
 
 namespace GR_Main {
+    // Message pump returns without sleeping when active; cleared during device loss.
     extern std::uint8_t RuntimeActive;
 
     extern std::uint8_t VSyncEnabled;
 
+    // User setting PathGrow; permits extending the shared path-node pool.
     extern std::uint8_t PathGrowEnabled;
 
+    // User setting ShowSystemMouse; uses Windows cursor handles instead of drawing the image child.
     extern std::uint8_t ShowSystemMouse;
 
     extern GR_GraphBuf::TGraphBufGR* ScreenRenderBuffer;
 
     extern GR_GraphBuf::TGraphBufGR* RenderScratchBuffer;
 
+    // Second shared scratch buffer, also used for captured screen backgrounds.
     extern GR_GraphBuf::TGraphBufGR* AuxRenderBuffer;
 
     extern pas::WideString SelectedLanguage;
@@ -77,6 +81,7 @@ namespace GR_Main {
 
     extern WindowsSdk::TPoint ViewportOffset;
 
+    // Enables scaled or panned software presentation and mouse-coordinate conversion.
     extern std::uint8_t AlternateViewportEnabled;
 
     extern WindowsSdk::TRect GameScreenRect;
@@ -107,6 +112,7 @@ namespace GR_Main {
 
     extern pas::WideString LoadedSaveModSet;
 
+    // Startup failure guard; other writers remain to be recovered.
     extern std::uint8_t SuppressModRetryPrompt;
 
     extern std::uint8_t SkipModsOnReload;
@@ -129,6 +135,7 @@ namespace GR_Main {
 
     extern std::uint32_t OffscreenLastPresentationTick;
 
+    // 256 RGB565 colors blended between (8,32,255) and (200,128,128).
     extern void* InterfaceBlendPalette;
 
     extern std::int32_t RequestedRefreshRate;
@@ -141,8 +148,10 @@ namespace GR_Main {
 
     extern std::uint8_t DisableTripleBuffer;
 
+    // Owns TBlockParEC entries loaded from selected mods' Install.txt files.
     extern pas::List* ModInstallConfigs;
 
+    // Owns the selected mods' language-specific install blocks.
     extern pas::List* ModLanguageInstallConfigs;
 
     extern std::uint8_t ApplyEditableSaveOnLoad;
@@ -153,6 +162,7 @@ namespace GR_Main {
 
     extern EC_BlockPar::TBlockParEC* ModRuinNameConfig;
 
+    // User-supplied galaxy seed, edited by CheatSeed.
     extern pas::WideString NewGameSeedText;
 
     extern std::uint8_t CacheLoadLoggingEnabled;
@@ -175,26 +185,36 @@ namespace GR_Main {
 
     extern pas::CriticalSection* SessionLogLock;
 
+    // Receives Ctrl+Shift keys when Alt is not held.
     extern GR_Main::TDebugKeyCallbackGR DebugKeyCallback;
 
+    // Gates message-loop cursor selection and restoration.
     extern std::uint8_t CustomCursorEnabled;
 
     extern std::uint32_t DirectXVersion;
 
     extern std::int32_t RecordingFrameCount;
 
+    // 1000 div FilmFPS; native does not check for zero.
     extern std::int32_t RecordingFrameInterval;
 
     extern std::uint32_t LastRecordingFrameTick;
 
+    // Keep these zero-filled globals consecutive and in this order. Native
+    // VerifyStartupModuleChecksum subtracts 8 from StartupChecksumAnchor's address;
+    // other routines access each variable directly. DCC32 preserves this storage order.
+    // Signed integrity marker: positive after a failed startup module checksum, negative after a clean check; reset by TMessageLoopGI.Present.
     extern std::int32_t UnknownPresentState;
 
     extern std::uint32_t LastMouseMessageTick;
 
+    // Checksum helper accesses UnknownPresentState at byte offset -8; original anchor meaning unresolved.
     extern std::int32_t StartupChecksumAnchor;
 
+    // Set across MatrixGame Run, including its exception handler.
     extern std::uint8_t RobotBattleActive;
 
+    // Counts CentralProcessor registry subkeys, with a minimum of one.
     extern std::int32_t ProcessorCoreCount;
 
     extern Direct3D9::IDirect3D9 Direct3D;
@@ -203,6 +223,7 @@ namespace GR_Main {
 
     extern Direct3D9::IDirect3DTexture9 OffscreenTexture;
 
+    // Fill/crop instead of fitting the entire video frame.
     extern std::uint8_t OffscreenFillViewport;
 
     extern std::uint8_t UseDesktopDisplayMode;
@@ -231,10 +252,13 @@ namespace GR_Main {
 
     extern EC_BlockPar::TBlockParEC* EditableSaveBlock;
 
+    // Borrowed MainDataConfig.Data block; contains StyleColor.
     extern EC_BlockPar::TBlockParEC* GameDataConfig;
 
+    // Optional user-directory newgame.txt.
     extern EC_BlockPar::TBlockParEC* NewGameSettingsConfig;
 
+    // Borrowed MainDataConfig.ZPos depth-name table.
     extern EC_BlockPar::TBlockParEC* UiDepthConfig;
 
     extern EC_Data::TDataEC* CacheDataRoot;
@@ -251,22 +275,28 @@ namespace GR_Main {
 
     extern std::uint32_t DebugCommandMessage;
 
+    // Consumed by to skip the separate exception-log copy.
     extern std::uint8_t SuppressExceptionLogCopy;
 
     extern GR_Main::TBlendPixel16 BlendPixel16;
 
+    // OKGF_Triangle_16 callback; cdecl pixel, pitch, vertex/color arguments.
     extern GR_Main::TTriangleRasterizer16 TriangleRasterizer16;
 
+    // OKGF_LineIp_16 callback; cdecl pixel, pitch, vertex/color arguments.
     extern GR_Main::TLineRasterizer16 LineRasterizer16;
 
+    // Assigned by Rangers.start; no native reads indexed.
     extern pas::Proc<void()> RuntimeExitCheckCallback1;
 
+    // Assigned by Rangers.start; no native reads indexed.
     extern pas::Proc<void()> RuntimeExitCheckCallback2;
 
     extern GR_Main::TRuntimeCallbackGR OnMessageIdle;
 
     extern GR_Main::TRuntimeCallbackGR OnMessageResume;
 
+    // Owned here: direct startup/helper accesses; other units use reference cell.
     extern GR_Main::TCCInterface* CCInterface;
 
     extern std::uint32_t RuntimeStartupTick;
@@ -289,6 +319,7 @@ namespace GR_Main {
 
     extern pas::WideString CachedGameUserDirectory;
 
+    // Cleared by settings initialization; no retained reader found, original meaning unresolved.
     extern std::uint32_t StartupState;
 
     extern std::uint32_t ScreenCenterX;
@@ -303,32 +334,41 @@ namespace GR_Main {
 
     void RemoveCursorUnit(TCursorUnit* Cursor);
 
+    // Case-sensitive lookup; raises when absent.
     TCursorUnit* FindCursorByName(const pas::WideString& Name);
 
+    // Uses a zero key/button state.
     void PostMouseMoveMessage();
 
+    // Native uses an explicit indirect jump into a generated fault sequence if the watchdog stops.
     void CheckRuntimeWatchdog();
 
     std::int32_t PAS_STDCALL MainWindowProc(std::uint32_t Window, std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam);
 
+    // Creates a 300x225 RGB preview and equally sized scratch buffer.
     void CaptureSavePreview();
 
     void FreeSavePreviewBuffers();
 
+    // Returns a trailing directory separator.
     pas::WideString GetGameUserDirectory();
 
     void CreateStartupLogFile();
 
+    // Samples the low 32 bits of RDTSC over 200ms; returns 1500 on an exception.
     double MeasureCpuClockMHz();
 
+    // ANSI registry API, fixed 2048-byte buffer, REG_SZ only.
     pas::WideString ReadRegistryText(std::uint32_t Root, pas::WideString KeyPath, pas::WideString ValueName, pas::WideString DefaultValue);
 
     void ApplyProcessAffinity();
 
+    // Native entry exits before the retained module/process checks; the entire dormant body is preserved.
     void CheckPlatformModules();
 
     void InitializePlatformRuntimeAndMainWindow();
 
+    // Falls back to Russian when the selected language is unavailable; raises on package-open failure.
     void LoadLanguageAndPackages();
 
     void LoadSelectedModInstallBlocks();
@@ -337,6 +377,7 @@ namespace GR_Main {
 
     void FinalizePlatformRuntime();
 
+    // Requires a WOW64 process and the filesystem-redirection and extended registry APIs.
     std::uint8_t HasWow64Support();
 
     void ApplyMainWindowGeometry();
@@ -355,6 +396,7 @@ namespace GR_Main {
 
     void FinalizeRuntimeAndSettings();
 
+    // Keeps the highest refresh rate for each size. A zero-width entry means automatic resolution; a custom size may be appended.
     void EnumerateAndSelectDisplayModes();
 
     void ConfigureDefaultRenderState();
@@ -369,62 +411,86 @@ namespace GR_Main {
 
     void GR_DXInit();
 
+    // Linear RGB ramp with brightness/contrast endpoints; returns when no device is present.
     void ApplyGammaRamp(float Brightness, float Contrast);
 
     void GR_DXReset();
 
+    // Increments the nesting count and always returns true.
     std::uint8_t BeginFramePresentation();
 
+    // Presents at the outermost level, subject to the frame-rate limit.
     void EndFramePresentation();
 
+    // Hardware mode ends/presents/restarts the scene; software mode draws the buffer texture unless OffscreenTexture is assigned.
     void PresentScreenBuffer();
 
+    // Method callback receives Context/EAX, Message/EDX, WParam/ECX and LParam on stack. Returns zero when exiting.
     std::int32_t GR_WinMessage(TWindowMessageCallbackGR Callback);
 
+    // Presents OffscreenTexture, fitting or cropping it to the viewport.
     void DrawOffscreenTexture();
 
     void CaptureScreenBackground(std::uint8_t ApplyEffects, std::uint8_t UnusedOption);
 
     void CopyBgraToRgb24(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height);
 
+    // Copies a due software frame into the recording ring and flushes it when full.
     void CaptureRecordingFrame();
 
+    // Writes pending RGB565 frames as sequential Film\NNNNNN.bmp files.
     void FlushRecordingFrames();
 
+    // Tests bit 15 of GetAsyncKeyState.
     std::uint8_t IsVirtualKeyDown(std::int32_t Key);
 
+    // Returns one raw value, or a marker containing Path on lookup failure.
     pas::WideString LookupLocalizedTextByKey(const pas::WideString& Path);
 
+    // Returns one raw value; missing paths return empty and may create intermediate blocks.
     pas::WideString LookupLocalizedTextOrEmpty(const pas::WideString& Path);
 
     pas::WideString FormatUnixDateTime(std::uint32_t Value);
 
+    // Always returns 2 in this binary.
     pas::WideString GiResourceSuffix();
 
+    // Always returns 2; variant 1 retains the legacy quest-picture downscaling branch.
     std::int32_t GiResourceVariant();
 
+    // Appends a line to the session log and closes the file. The lock is not released if a write raises.
     void AppendLogLineThreadSafe(const pas::AnsiString& Text);
 
+    // Creates #####add.log when absent; native unchecked TextFile I/O.
     void AppendDebugLogLine(const pas::AnsiString& Text);
 
+    // Appends only when #####add.log already exists; shares SessionLogLock and native unchecked TextFile I/O.
     void AppendOptionalDebugLogLine(const pas::AnsiString& Text);
 
+    // Appends without a newline, flushes and closes the file.
     void AppendLogTextThreadSafe(const pas::AnsiString& Text);
 
     void LogMemoryUsage();
 
+    // Delphi wrappers translate DLL exceptions into Exception objects.
+    // Borrows Source until ReadImagePixels consumes the context. Returns nil for unsupported input. Detection requires at least 34 bytes and accepts BMP, JFIF JPEG, PNG and supported PSD modes.
     EC_OKGF::POkgfReadContext BeginImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height);
 
+    // Consumes Context on success; returns nonzero on success.
     std::int32_t ReadImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t BytesPerPixel);
 
+    // Borrows Source; accepts indexed PNG and indexed or grayscale PSD. Returns nil on failure. BytesPerPixel is one or two.
     EC_OKGF::POkgfReadContext BeginIndexedImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height, std::int32_t& PaletteCount, std::int32_t& BytesPerPixel);
 
+    // Consumes Context on success. Palette requires the count returned by BeginIndexedImageRead.
     std::int32_t ReadIndexedImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, GR_GraphBuf::PColorRGBA Palette);
 
     std::int32_t WritePngFile(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t Width, std::int32_t Height, std::int32_t HasAlpha, std::int32_t SwapRedBlue);
 
     std::int32_t WriteBmpFile(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t BitsPerPixel, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t Width, std::int32_t Height);
 
+    // Delphi exception wrappers around the named OKGF/OKGR DLL exports.
+    // Ex_ distinguishes wrappers from DLL import symbols; full parameter types remain unresolved.
     void* Ex_OKGF_MulTable256x256();
 
     std::uint32_t Ex_OKGF_DXVersion();
@@ -555,6 +621,7 @@ namespace GR_Main {
 
     std::int32_t Ex_OKGR_Line_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, const WindowsSdk::TRect& Clip);
 
+    // Native implementation ignores Pixels/Pitch and draws into ScreenRenderBuffer.
     void DrawGradientLine16Clipped(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, WindowsSdk::TRect Clip);
 
     std::int32_t Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::uint32_t> Color1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, pas::Var<std::uint32_t> Color2, const WindowsSdk::TRect& Clip);
@@ -565,6 +632,7 @@ namespace GR_Main {
 
     std::int32_t Ex_OKGR_Line_CopyToBuf_WORD(void* Dest, void* Source, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2);
 
+    // Restores one saved 16-bit pixel per rasterized line point; returns the pixel count.
     std::int32_t Ex_OKGR_Line_CopyFromBuf_WORD(void* Source, void* Dest, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2);
 
     void Ex_OKGR_Line_DrawClip_Alpha_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::uint8_t Alpha, const WindowsSdk::TRect& Clip);
@@ -585,10 +653,16 @@ namespace GR_Main {
 
     void Ex_OKGR_F6_DrawRGBA(void* Dest, std::int32_t Pitch, void* Source);
 
+    // Decoded: 'libogg-0', 'libvorbis-0', 'libvorbisfile', 'matrixgame',
+    // 'okgf', 'steam_ach', 'steam_api', 'xvidcore', 'zlib'.
+    // Differences from the 1024x768 UI baseline; may be negative.
+    // Identity function in this binary.
     std::int32_t GiScalePixels(std::int32_t Value);
 
+    // Returns Value; AlternateValue is unused in this binary.
     std::int32_t GiScalePixelsEx(std::int32_t Value, std::int32_t AlternateValue);
 
+    // Converts the borrowed UTF-16 message to AnsiString and raises Exception.
     void RaiseWideMessage(const pas::WideString& Message);
 
     void DrawTransparentBuffer16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, WindowsSdk::TRect Clip, std::uint8_t HalfAlpha);
@@ -601,8 +675,10 @@ namespace GR_Main {
 
     void ExpandPaletteToBgra(void* Dest, std::int32_t DestPitch, std::uint32_t Width, std::uint32_t Height, void* Source, std::int32_t SourcePitch, void* Palette);
 
+    // Uses Data.StyleColor from Main.dat and the current pixel format. Missing entries use the defaults; malformed configured RGB text may raise.
     std::uint32_t GetStyleColorGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen, std::int32_t DefaultBlue);
 
+    // Returns a complete opening <color=...> tag. Configured Data.StyleColor text is inserted verbatim; missing entries use the default RGB values.
     pas::WideString GetStyleColorTagGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen, std::int32_t DefaultBlue);
 
     void CopyGraphBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, GR_GraphBuf::TGraphBufGR* Source, WindowsSdk::TRect Clip, std::uint8_t HalfAlpha, std::uint8_t UnusedOption);
@@ -621,6 +697,7 @@ namespace GR_Main {
 
     void WriteTextFileThreadSafe(pas::AnsiString FileName, pas::AnsiString Text);
 
+    // CRC32 of the C: volume serial and ANSI processor name. Native code ignores volume-query failure.
     std::uint32_t ComputeMachineFingerprintCRC();
 
     std::int32_t PAS_STDCALL OKGF_ZLib_Compress(void* Dest, void* Source, std::int32_t SourceSize, std::int32_t Mode);
@@ -717,6 +794,7 @@ namespace GR_Main {
 
     void* OKGR_Planet2_TemplBuild(void* Source, std::int32_t Pitch, std::int32_t Height, std::int32_t TextureWidth, std::int32_t TextureHeight, std::int32_t& ByteCount);
 
+    // The native Delphi binding preserves EAX, but the DLL defines no result contract.
     std::int32_t OKGR_Planet2_TemplDel(void* TemplateData);
 
     void OKGR_Planet2_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y);
@@ -801,8 +879,10 @@ namespace GR_Main {
 
     void OKGR_F6_DrawRGBA(void* Dest, std::int32_t Pitch, void* Source);
 
+    // Cdecl triangle ABI verified at native caller.
     void OKGF_Triangle_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, std::int32_t X3, std::int32_t Y3, std::uint32_t Color3, WindowsSdk::PRect Clip);
 
+    // Cdecl gradient-line ABI verified at native caller.
     void OKGF_LineIp_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2);
 
     void TCCInterface_Create(TCCInterface* Self);

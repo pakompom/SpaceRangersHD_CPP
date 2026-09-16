@@ -42,12 +42,19 @@ namespace ParameterDeltaClass {
         void ClearChange();
         std::uint8_t HasNoValueConstraint(pas::List* Parameters);
         std::uint8_t HasNoChange(pas::List* Parameters);
+        // An empty or invalid expression preserves the current parameter value.
         void EvaluateChangeExpression(pas::List*& Parameters);
         void ApplyChange(pas::List*& Parameters);
+        // Invalid indices and disabled parameters pass; full noncritical bounds impose no constraint.
         std::uint8_t AcceptsParameter(pas::List* Parameters);
+        // Legacy readers leave ParameterIndex zero; the location/path reader assigns it.
+        // Quest versions 1111111111..1111111115.
         void LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader);
+        // Quest version 1111111116.
         void LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader);
+        // Quest versions 1111111117..1111111118.
         void LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader);
+        // Quest versions 1111111119..1111111124.
         void LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader);
         void LoadValueConstraintsFromReader(EC_Buf::TBufEC* Reader);
         void LoadChangeFromReader(EC_Buf::TBufEC* Reader);
@@ -64,6 +71,7 @@ namespace ParameterDeltaClass {
         TextFieldClass::TTextField* ExpressionText;
         EventClass::TEvent* CriticalEvent;
         TParameterVisibilityChange VisibilityChange;
+        // Loaded and cleared, but not read by the execution routines.
         std::uint8_t LegacyFlag;
         std::uint8_t cpp_padding_2[3];
     };

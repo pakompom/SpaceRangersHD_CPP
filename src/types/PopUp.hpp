@@ -12,7 +12,9 @@ namespace PopUp {
         PAS_CLASS_META(TfPopUpController, GI_MessageLoop::TObjectGI, "TfPopUpController", 316)
         void p_destroy() override;
         GI_MessageLoop::TObjectGI* CreatePopup(pas::WideString Text, pas::WideString ImagePath);
+        // Drains queued notifications, advances their vertical animation, and retires off-screen controls.
         void AdvancePopups(std::uint32_t Tick);
+        // Enqueues parallel managed-string cells under QueueLock.
         void QueueNotification(pas::WideString Text, pas::WideString ImagePath);
         std::uint32_t LastTick;
         std::uint32_t PauseRemaining;
@@ -20,7 +22,9 @@ namespace PopUp {
         std::uint8_t cpp_padding[3];
         float MotionRemainder;
         pas::CriticalSection* QueueLock;
+        // Entries point to WideString cells.
         pas::List* TextQueue;
+        // Parallel WideString cells for image paths.
         pas::List* ImageQueue;
     };
     #if INTPTR_MAX == INT32_MAX

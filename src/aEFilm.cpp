@@ -30,6 +30,7 @@
 #include "units/aPlayer.hpp"
 
 namespace aEFilm {
+    // Native writer format, read from initialized storage.
     const std::int32_t FilmFormatVersion = 6;
 
     void TEFilm_Create(TEFilm* Self) {
@@ -85,6 +86,7 @@ namespace aEFilm {
         CameraEventCount = 0;
     }
 
+    // Grows capacity and advances the used count without writing the new slot.
     void TEFilm::ReserveCameraEventSlot() {
         if (CameraEvents.length() - 1 <= CameraEventCount) {
             CameraEvents.set_length(CameraEventCount + 30);
@@ -106,6 +108,7 @@ namespace aEFilm {
         ++CameraEventCount;
     }
 
+    // Appends an object owned by this film.
     TEFilmObj* TEFilm::AllocateObject() {
         TEFilmObj* Obj{};
         try {
@@ -167,6 +170,7 @@ namespace aEFilm {
         return Count;
     }
 
+    // Zero-based list index; nil maps to 65535. Raises for an object outside this film.
     std::int32_t TEFilm::ObjToNom(TEFilmObj* Obj) {
         if (Obj == nullptr) {
             return FilmNullObjectIndex;
@@ -183,6 +187,7 @@ namespace aEFilm {
         pas::raise(pas::make_exception<pas::Exception>("Error in TEFilm.ObjToNom"_a));
     }
 
+    // Nil maps to 65535; an absent non-nil object maps to -1.
     std::int32_t TEFilm::FindObjectIndex(TEFilmObj* Obj) {
         if (Obj == nullptr) {
             return FilmNullObjectIndex;
@@ -199,6 +204,7 @@ namespace aEFilm {
         return -1;
     }
 
+    // Returns a borrowed object. Index 65535 maps to nil; other missing indexes raise.
     TEFilmObj* TEFilm::NomToObj(std::int32_t Index) {
         if (Index == FilmNullObjectIndex) {
             return nullptr;
@@ -225,6 +231,7 @@ namespace aEFilm {
         return false;
     }
 
+    // Matches all three keys; returns a borrowed object or nil.
     TEFilmObj* TEFilm::FindObject(const pas::WideString& KindName, const pas::WideString& GraphKey, std::uint32_t ObjectId) {
         TEFilmObj* Entry = FirstObject;
         while (Entry != nullptr) {
@@ -264,6 +271,7 @@ namespace aEFilm {
         }
     }
 
+    // Moves an inclusive linked range to the free list.
     void TEFilm::RecycleCommands(PEFilmCommand First, PEFilmCommand Last) {
         if (First->Prev != nullptr) {
             First->Prev->Next = Last->Next;
@@ -300,6 +308,7 @@ namespace aEFilm {
         }
     }
 
+    // Nil Before appends.
     void TEFilm::InsertCommand(PEFilmCommand Before, PEFilmCommand Command) {
         if (Before != nullptr) {
             Command->Prev = Before->Prev;
@@ -324,6 +333,7 @@ namespace aEFilm {
         }
     }
 
+    // Returns a zeroed pooled command without linking it into the command list.
     PEFilmCommand TEFilm::AllocateCommand() {
         PEFilmCommand Command{};
         if (FirstFreeCommand == LastFreeCommand) {
@@ -336,6 +346,7 @@ namespace aEFilm {
         return Command;
     }
 
+    // Stable insertion by step index.
     PEFilmCommand TEFilm::AddCommand(std::int32_t StepIndex) {
         PEFilmCommand Command = AllocateCommand();
         Command->StepIndex = StepIndex;
@@ -367,6 +378,7 @@ namespace aEFilm {
         return Count;
     }
 
+    // Retains SceneObject and copies its class name and graph key. Both stack arguments are unused.
     TEFilmObj* TEFilm::AddObject(std::uint32_t ObjectId, SE_Space::TObjectSE* SceneObject, std::int32_t Unused1, std::int32_t Unused2) {
         TEFilmObj* Obj{};
         Obj = AllocateObject();
@@ -404,6 +416,7 @@ namespace aEFilm {
         Command->Value = Alpha;
     }
 
+    // A full turn is 256 angle units.
     void TEFilm::SetObjectAngle(std::int32_t StepIndex, TEFilmObj* Obj, std::uint8_t Angle) {
         if (Obj == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("obj=nil"_a));
@@ -414,11 +427,13 @@ namespace aEFilm {
         Command->Value = Angle;
     }
 
+    // Queues slot 0x40 on each retained scene object.
     void TEFilm::AdvanceObjects(std::int32_t StepIndex) {
         PEFilmObjectCommand Command = reinterpret_cast<PEFilmObjectCommand>(AddCommand(StepIndex));
         Command->Kind = efcAdvanceObjects;
     }
 
+    // Scale is decoded as a signed 16-bit value divided by 1000 during playback.
     void TEFilm::SetPlanetState(std::int32_t StepIndex, TEFilmObj* Obj, std::int32_t RotationInterval, std::int32_t SurfaceMapStep, std::uint16_t ScaleThousandths, std::uint8_t RingKind, std::uint8_t Owner) {
         if (Obj == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("obj=nil"_a));
@@ -465,6 +480,7 @@ namespace aEFilm {
         Command->PlaySound = PlaySound;
     }
 
+    // Source and Target may be nil; Obj must exist.
     void TEFilm::SetWeaponEndpoints(std::int32_t StepIndex, TEFilmObj* Obj, TEFilmObj* Source, TEFilmObj* Target) {
         if (Obj == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("obj=nil"_a));
@@ -476,6 +492,7 @@ namespace aEFilm {
         Command->Target = Target;
     }
 
+    // Playback selects TWeaponSE destruction effects: 1=bomb, 2=asteroid, 5=kamikaze; other modes include fades and immediate removal.
     void TEFilm::SetDestructionEffect(std::int32_t StepIndex, TEFilmObj* Obj, std::int32_t Value) {
         PEFilmObjectCommand Command = reinterpret_cast<PEFilmObjectCommand>(AddCommand(StepIndex));
         Command->Kind = efcSetDestructionEffect;
@@ -490,10 +507,12 @@ namespace aEFilm {
         pas::store_unaligned<Types::TPoint>(&Command->Size, Position);
     }
 
+    // Records the Single duration multiplier consumed by TGAIEffectSE.SetDurationScale.
     void TEFilm::SetEffectDurationScale(std::int32_t StepIndex, TEFilmObj* Obj, float Scale) {
         PEFilmObjectCommand Command = reinterpret_cast<PEFilmObjectCommand>(AddCommand(StepIndex));
         Command->Kind = efcSetEffectDurationScale;
         Command->Obj = Obj;
+        // Copy the Single payload without floating-point conversion or rounding.
         Command->Value = pas::load_unaligned<std::int32_t>(&Scale);
     }
 
@@ -515,6 +534,7 @@ namespace aEFilm {
         Command->Obj = Obj;
     }
 
+    // Playback detaches and releases the scene reference, retaining the film entry.
     void TEFilm::ReleaseObject(std::int32_t StepIndex, TEFilmObj* Obj) {
         PEFilmObjectCommand Command = reinterpret_cast<PEFilmObjectCommand>(AddCommand(StepIndex));
         Command->Kind = efcReleaseObject;
@@ -551,6 +571,7 @@ namespace aEFilm {
         Command->Obj = Obj;
     }
 
+    // Playback changes gate state 2 to 3 and resets its timer.
     void TEFilm::CloseGate(std::int32_t StepIndex, TEFilmObj* Obj) {
         PEFilmObjectCommand Command = reinterpret_cast<PEFilmObjectCommand>(AddCommand(StepIndex));
         Command->Kind = efcCloseGate;
@@ -601,6 +622,7 @@ namespace aEFilm {
         Command->Value = StringTable->GetCount() - 1;
     }
 
+    // Transfers ownership of Buffer to the film.
     void TEFilm::SetObjectStateBuffer(std::int32_t StepIndex, TEFilmObj* Obj, EC_Buf::TBufEC* Buffer) {
         PEFilmObjectCommand Command = reinterpret_cast<PEFilmObjectCommand>(AddCommand(StepIndex));
         Command->Kind = efcSetObjectStateBuffer;
@@ -609,6 +631,7 @@ namespace aEFilm {
         Command->Value = pas::list_count(DataBuffers) - 1;
     }
 
+    // Appends the kind-24 boundary consumed by film playback.
     void TEFilm::BeginTrailingEffects(std::int32_t StepIndex) {
         PEFilmObjectCommand Command = reinterpret_cast<PEFilmObjectCommand>(AddCommand(StepIndex));
         Command->Kind = efcBeginTrailingEffects;
@@ -627,6 +650,7 @@ namespace aEFilm {
         std::int32_t ErrorStep{};
         SE_Ship2::TShip2SE* Ship{};
         SE_Ruins::TRuinsSE* Ruins{};
+        // Process is unused in the native routine; playback uses the global SpaceProcess.
         ErrorStep = 0;
         try {
             switch (Command->Kind) {
@@ -707,6 +731,7 @@ namespace aEFilm {
                     break;
                 }
                 case efcSetWeaponEndpoints: {
+                    // Both endpoint scene-object tests are repeated in the native code.
                     Source = nullptr;
                     if (reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source != nullptr && reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject != nullptr && reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject != nullptr) {
                         Source = reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject;
@@ -885,6 +910,7 @@ namespace aEFilm {
         }
     }
 
+    // Detaches weapon effects and releases their retained scene references.
     void TEFilm::ReleaseWeaponSceneObjects() {
         TEFilmObj* Entry{};
         Entry = FirstObject;
@@ -915,6 +941,7 @@ namespace aEFilm {
         }
     }
 
+    // Clears Buffer. Serializes object identities and commands, excluding live scene references and Turn.
     void TEFilm::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
         TEFilmObj* Obj{};
         std::int32_t I{};
@@ -1083,6 +1110,7 @@ namespace aEFilm {
         pas::checked_cast<aEObjInfo::TEObjInfo*>(ObjectInfo)->SaveToBuffer(Buffer);
     }
 
+    // Clears the film and rewinds Buffer before reading. Scene objects are recreated separately.
     void TEFilm::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         std::int32_t I{};
         TEFilmObj* Obj{};

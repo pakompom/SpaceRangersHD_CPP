@@ -59,20 +59,27 @@ namespace EC_Expression {
     struct TVarArrayEC : pas::Object {
         PAS_CLASS_META(TVarArrayEC, pas::Object, "TVarArrayEC", 16)
         void p_destroy() override;
+        // Does not free cells; use Clear for owned entries.
         void ClearStorage();
         void Clear();
         void CopyFrom(TVarArrayEC* Source, std::uint8_t CopyArrays);
+        // Returns -1 when absent.
         std::int32_t FindNameOrderIndex(const pas::WideString& Name);
         std::int32_t FindNameInsertionIndex(const pas::WideString& Name);
+        // Returns nil for an out-of-range index.
         TVarEC* GetItemNE(std::int32_t Index);
         TVarEC* GetVar(const pas::WideString& Name);
+        // Returns nil when absent.
         TVarEC* GetVarNE(const pas::WideString& Name);
+        // Frees the cell; ignores invalid indexes.
         void Delete(std::int32_t Index);
         void Remove(TVarEC* Value);
         void DeleteByName(const pas::WideString& Name);
+        // Takes ownership of Value.
         void AddItem(TVarEC* Value);
         TVarEC* Add(const pas::WideString& Name, TVarKind Kind);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
+        // Clears existing cells before reading.
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer);
         void AppendFromBuffer(EC_Buf::TBufEC* Buffer);
         std::int32_t Count;
@@ -89,33 +96,50 @@ namespace EC_Expression {
     struct TVarEC : pas::Object {
         PAS_CLASS_META(TVarEC, pas::Object, "TVarEC", 56)
         void p_destroy() override;
+        // Preserves the value where conversion is supported; ResetKind discards it.
         void ConvertToKind(TVarKind NewKind);
         void ResetKind(TVarKind NewKind);
+        // Returns vkRef for an unresolved reference.
         TVarKind RealVType();
         void AssignFrom(TVarEC* Source, std::uint8_t CopyArrays);
+        // Tests this cell's tag without dereferencing.
         std::uint8_t IsEmpty();
         std::int32_t GetInt();
+        // Reference cells delegate to GetInt, then reinterpret its bits.
         std::uint32_t GetDword();
         double GetFloat();
+        // Library cells return their import specification string.
         pas::WideString GetString();
         void* GetExternFun();
         TCodeEC* GetFunction();
+        // Reference cells delegate to GetFunction in the native code.
         TCodeEC* GetClass();
         TVarArrayEC* GetArray();
         void SetInt(std::int32_t Value);
+        // Reference cells delegate to SetInt with the same bits.
         void SetDword(std::uint32_t Value);
         void SetFloat(double Value);
+        // Assigns through references and converts to an existing destination kind; an empty cell becomes a string.
         void SetString(const pas::WideString& Value);
         void SetExternFun(void* Value);
+        // Native leaves empty and function cells unchanged; other kinds clear their payload or delegate through a reference.
         void SetFunction(TCodeEC* Value);
+        // Value is borrowed; vkRef assignment uses the function-value setter.
         void SetClass(TCodeEC* Value);
+        // Value is borrowed; follows references.
         void SetArray(TVarArrayEC* Value);
         void SetRef(TVarEC* Value);
+        // May return nil.
         TVarEC* Resolve();
+        // Stores ANSI bytes inside StringValue's UTF-16 allocation.
         void PackAnsiString();
+        // Non-string cells are converted to string without unpacking.
         void UnpackAnsiString();
+        // Requires at least one dimension.
         void CreateArray(pas::OpenArray<std::int32_t> Dimensions);
+        // Nonpositive Count frees the array; positive Count resizes only when Dimension <= 0.
         void ResizeArray(std::int32_t Count, std::int32_t Dimension);
+        // Frees nested arrays; retains vkArray with a nil pointer.
         void FreeArray();
         void OAdd(TVarEC* Left, TVarEC* Right);
         void OSub(TVarEC* Left, TVarEC* Right);
@@ -138,13 +162,16 @@ namespace EC_Expression {
         void OMinus(TVarEC* Value);
         void OBitNot(TVarEC* Value);
         void ONot(TVarEC* Value);
+        // Assigns through references, converting to the destination kind.
         void Assume(TVarEC* Source, std::uint8_t CopyArrays);
         std::uint8_t EqualsValue(TVarEC* Other);
         std::uint8_t LessThan(TVarEC* Other);
         std::uint8_t GreaterThan(TVarEC* Other);
         std::uint8_t IsTrue();
+        // Only scalar, string and array kinds have serialized payloads.
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer);
+        // Does not change Kind.
         void SetLibrarySignature(pas::OpenArray<std::uint32_t> Signature);
         pas::WideString Name;
         TVarKind Kind;
@@ -154,6 +181,8 @@ namespace EC_Expression {
         pas::WideString StringValue;
         double FloatValue;
         void* ExternFunValue;
+        // Delphi dynamic array: TLibraryValueKind return kind, native address,
+        // then TLibraryValueKind argument kinds. Address word is not an enum.
         pas::DynArray<std::uint32_t> LibraryFunData;
         TCodeEC* FunctionValue;
         TCodeEC* ClassValue;
@@ -176,11 +205,14 @@ namespace EC_Expression {
         void p_destroy() override;
         void Clear();
         void CopyFrom(TCodeEC* Source);
+        // Expression instructions remain shared with Source.
         void CopyFromFast(TCodeEC* Source);
         TVarEC* FindVar(pas::WideString Name);
         void DeleteCodeUnit(TCodeUnitEC* CodeUnit);
         TCodeUnitEC* AddCodeUnit();
+        // Inserts before BeforeUnit; nil appends.
         TCodeUnitEC* InsertCodeUnitBefore(TCodeUnitEC* BeforeUnit);
+        // NextToken may be nil.
         void Compile(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* FirstToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText);
         void CompileBlock(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* Token, TCodeUnitEC* BeforeUnit, PCodeAnalyzerUnitEC NextToken, PCodeAnalyzerUnitEC StatementEnd, TCodeUnitEC* BreakTarget, TCodeUnitEC* ContinueTarget, pas::WideString& ErrorText);
         void LinkAll(TVarArrayEC* Scope, std::uint8_t OnlyUnlinked);
@@ -229,6 +261,7 @@ namespace EC_Expression {
         TVarEC* ExceptionVar;
         std::int32_t SourceStart;
         std::int32_t SourceLength;
+        // Compiler-supplied source/debug identity.
         void* SourceContext;
         std::uint8_t Breakpoint;
         std::uint8_t cpp_padding_2[3];
@@ -245,11 +278,14 @@ namespace EC_Expression {
         void p_destroy() override;
         void Clear();
         void CopyFrom(TExpressionEC* Source);
+        // Borrows Source's instruction array.
         void CopyFromFast(TExpressionEC* Source);
+        // Returns a zero-based index; the new slot starts with zero-initialized evNamed kind.
         std::int32_t AddVariable();
         void DeleteVariable(std::int32_t Index);
         std::int32_t AddInstruction();
         void DeleteInstruction(std::int32_t Index);
+        // EndToken is exclusive; nil FirstToken starts at Analyzer.First. NextToken may be nil. Clears the previous expression before compiling.
         void Compile(TCodeAnalyzerEC* Analyzer, TCodeAnalyzerUnitEC* FirstToken, TCodeAnalyzerUnitEC* EndToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText);
         void Link(TVarArrayEC* Scope, std::uint8_t OnlyUnlinked);
         TVarEC* GetResult();
@@ -278,8 +314,10 @@ namespace EC_Expression {
         PAS_CLASS_META(TExpressionVarEC, pas::Object, "TExpressionVarEC", 20)
         void p_destroy() override;
         void CopyFrom(TExpressionVarEC* Source);
+        // Replaces Name with its root component. Always returns true.
         std::uint8_t SplitMemberPath();
         pas::WideString GetFullName();
+        // Only evOwned slots allocate values.
         TVarEC* Resolve(TVarKind InitialKind);
         TExpressionVarKind Kind;
         std::uint8_t cpp_padding[3];
@@ -328,6 +366,8 @@ namespace EC_Expression {
         TExpressionOpcode Opcode;
         std::uint8_t cpp_padding[3];
         std::int32_t OperandCount;
+        // Indices into TExpressionEC.Variables: destination first, then sources.
+        // eoCall uses destination, callee, arguments; eoIndex uses destination, array, indices.
         pas::DynArray<std::int32_t> Operands;
     };
     #if INTPTR_MAX == INT32_MAX
@@ -347,6 +387,7 @@ namespace EC_Expression {
         void PopHandler();
         PCodeExceptionHandler GetHandler();
         void PushException(TVarEC* Value);
+        // Does not free the exception value; the caller assumes ownership.
         void PopException();
         PVarEC GetException();
         void RaiseUnhandledExceptions();
@@ -357,6 +398,8 @@ namespace EC_Expression {
     #pragma pack(pop)
     #endif
 
+    // Class form is inferred from the first field at +4 and the native anonymous
+    // type counter after the public class declarations; no retained VMT is known.
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -394,6 +437,7 @@ namespace EC_Expression {
 
     using TScriptStepCallback = pas::Proc<void(std::int32_t)>;
 
+    // DLL signature words use a separate numbering from TVarKind.
     enum TLibraryValueKind : std::uint32_t {
         lvVoid = 0,
         lvInt = 1,
@@ -412,17 +456,22 @@ namespace EC_Expression {
     struct TCodeAnalyzerEC : pas::Object {
         PAS_CLASS_META(TCodeAnalyzerEC, pas::Object, "TCodeAnalyzerEC", 20)
         void p_destroy() override;
+        // Also frees pooled nodes.
         void Clear();
         void ReserveTokens(std::int32_t Count);
         TCodeAnalyzerUnitEC* AcquireToken();
         void RecycleToken(TCodeAnalyzerUnitEC* Token);
+        // Retains token storage for reuse.
         void ClearTokens();
         TCodeAnalyzerUnitEC* AddToken();
         void DeleteToken(TCodeAnalyzerUnitEC* Token);
+        // Replaces existing tokens; source offsets start at zero.
         void Tokenize(pas::WideString Text, std::int32_t NewlineOffset);
+        // Returns an empty string on success.
         pas::WideString ValidateDelimiters();
         void RemoveWhitespace();
         void RemoveNewlines();
+        // Supports nested block comments.
         void RemoveComments();
         TCodeAnalyzerUnitEC* FirstFree;
         TCodeAnalyzerUnitEC* LastFree;
@@ -501,6 +550,7 @@ namespace EC_Expression {
         void Clear();
         TCompilerUnitEC* AddUnit();
         void DeleteUnit(TCompilerUnitEC* UnitNode);
+        // Returns nil when no operator qualifies.
         TCompilerUnitEC* FindReducibleOperator();
         TCompilerUnitEC* FindReducibleIndex();
         TCompilerUnitEC* FindReducibleCall();

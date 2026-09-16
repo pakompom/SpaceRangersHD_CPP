@@ -4,6 +4,7 @@
 #include "units/aMyFunction.hpp"
 
 namespace aMyFunction {
+    // Copies the 16-byte input; X = sin(angle)*radius, Y = -cos(angle)*radius.
     inline EC_Struct::TPointF PolarToPoint(TPolarPoint Polar) {
         EC_Struct::TPointF Result{};
         Result.X = Polar.Radius * System::Sin(static_cast<long double>(Polar.AngleDegrees) * PolarDegreesToRadians);
@@ -11,6 +12,7 @@ namespace aMyFunction {
         return Result;
     }
 
+    // Angle is in radians, measured from the positive X axis.
     inline EC_Struct::TPointF PointFromRadiusAngle(float Radius, float Angle) {
         EC_Struct::TPointF Result{};
         Result.X = Radius * System::Cos(Angle);

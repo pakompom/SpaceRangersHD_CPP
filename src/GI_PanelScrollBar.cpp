@@ -38,6 +38,7 @@ namespace GI_PanelScrollBar {
         Self->ScrollChangedCallback = pas::bind_method<&TPanelScrollBarGI::PanelScrollChanged>(Self);
     }
 
+    // Frees both scrollbars, including when parented outside this panel.
     void TPanelScrollBarGI_Destroy(TPanelScrollBarGI* Self) {
         if (Self->HorizontalScrollBar != nullptr) {
             pas::free(Self->HorizontalScrollBar);
@@ -80,6 +81,7 @@ namespace GI_PanelScrollBar {
         }
     }
 
+    // The panel retains ownership of scrollbars parented outside it.
     void TPanelScrollBarGI::SetScrollbarsOutside(std::uint8_t Value) {
         if (Value != ScrollbarsOutside) {
             ScrollbarsOutside = Value;
@@ -168,6 +170,7 @@ namespace GI_PanelScrollBar {
         }
     }
 
+    // Only active PositionModeW children contribute; scrollbars are excluded.
     void TPanelScrollBarGI::UpdateScrollRanges() {
         Types::TRect Bounds{};
         Types::TRect ChildBounds{};
@@ -213,6 +216,7 @@ namespace GI_PanelScrollBar {
         SetScrollOffset(ClassesImports::Point(HorizontalScrollBar->Position, VerticalScrollBar->Position));
     }
 
+    // Clamps the panel back to scrollbar positions when UnlimitedWorld is false.
     void TPanelScrollBarGI::PanelScrollChanged(GI_MessageLoop::TObjectGI* Sender) {
         HorizontalScrollBar->SetPositionInternal(ScrollOffset.X);
         VerticalScrollBar->SetPositionInternal(ScrollOffset.Y);

@@ -20,6 +20,7 @@ namespace fPanelRuins {
         void p_destroy() override;
         void InitializeLayout(GI_MessageLoop::TMessageLoopGI* Screen);
         void OnOpen();
+        // Native no-op lifecycle hook.
         static void OnClose();
         void Show();
         void Hide();

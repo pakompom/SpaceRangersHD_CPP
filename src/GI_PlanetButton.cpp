@@ -27,6 +27,7 @@ namespace GI_PlanetButton {
         GI_Panel::TPanelGI_Destroy(Self);
     }
 
+    // The native implementation is empty; it does not reset panel or child state.
     void TPlanetButtonGI::Clear() {
     }
 

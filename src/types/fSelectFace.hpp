@@ -33,6 +33,7 @@ namespace fSelectFace {
         std::uint8_t cpp_padding[3];
         std::int32_t CaptainPortraitIndex;
         pas::Array<std::int32_t, 0, 4> LastPortraitByRace;
+        // Bound to the player-name edit control in OnOpen.
         pas::WideString PlayerName;
         std::uint8_t PlayerNameEdited;
         std::uint8_t cpp_padding_2[3];

@@ -44,6 +44,7 @@ namespace SE_Weapon {
         void AttachToSpace(SE_Space::TSpaceSE* ASpace) override;
         void DetachFromSpace() override;
         void SetHit(std::int32_t Color, std::int32_t Damage, std::uint8_t Destroyed, std::uint8_t PlaySound);
+        // Retains both scene references.
         void SetEndpoints(SE_Space::TObjectSE* Source, SE_Space::TObjectSE* Target);
         EC_Struct::TPointF GetTargetPoint();
         EC_Struct::TPointF GetSourcePoint();
@@ -68,6 +69,7 @@ namespace SE_Weapon {
         std::int32_t TargetAnimationInterval;
         TWeaponEffect* HitEffect;
         std::int32_t HitVariant;
+        // Nonzero selects removal from trailing effects at end turn.
         GI_PSWeapon::TPSWeaponGI* Projectile;
         GI_GAI::TgaiGI* DestructionAnimation;
         pas::Array<GI_GAI::TgaiGI*, 0, 5> ExtraDestructionAnimations;
@@ -131,6 +133,7 @@ namespace SE_Weapon {
         PWeaponEffectItem Next;
         PWeaponEffectItem Prev;
         GI_GAI::TgaiGI* Image;
+        // Y is the evolving radial distance; X starts at zero.
         EC_Struct::TPointF Position;
         float Angle;
         std::int32_t Lifetime;

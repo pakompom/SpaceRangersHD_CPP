@@ -5,6 +5,7 @@
 #include "units/ValueListClass.hpp"
 
 namespace ValueListClass {
+    // The initial character filter is overwritten; unrelated characters survive. Does not modify Self.
     pas::WideString TValuesList::NormalizeSemicolonText(pas::WideString Text) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -16,6 +17,7 @@ namespace ValueListClass {
             }
         }
         Result = Normalized;
+        // The native routine discards the character-filtered string here.
         Normalized = pas::concat_wide({u"(", Text, u")"});
         do {
             Result = Normalized;
@@ -75,6 +77,7 @@ namespace ValueListClass {
             }
             Values.set_length(Count + 2);
             Count = 0;
+            // Native parsing starts at zero, including Text[0].
             i = 0;
             while (i <= Text.length()) {
                 if (Text.read(i) != u';') {
@@ -90,6 +93,7 @@ namespace ValueListClass {
         }
     }
 
+    // An empty list accepts every value, regardless of AcceptListed.
     std::uint8_t TValuesList::AcceptsValue(std::int32_t Value) {
         std::int32_t i{};
         std::uint8_t Result = true;
@@ -105,6 +109,7 @@ namespace ValueListClass {
         return Result;
     }
 
+    // Zero divisors are unchecked.
     std::uint8_t TValuesList::AcceptsMultiple(std::int32_t Value) {
         std::int32_t i{};
         std::uint8_t Result = true;

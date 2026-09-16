@@ -41,7 +41,9 @@ namespace fFilm {
         void OnOpen() override;
         void OnClose() override;
         WindowsSdk::TPoint GetViewOffset();
+        // Disables automatic camera following.
         void SetViewOffset(WindowsSdk::TPoint Offset);
+        // Ignored while automatic camera following is disabled.
         void FollowViewOffset(WindowsSdk::TPoint Offset);
         void PanView(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void KeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
@@ -50,6 +52,7 @@ namespace fFilm {
         void CopyFilmVisualStateToLive();
         void ExitClicked(GI_MessageLoop::TObjectGI* Sender);
         void CenterShipClicked(GI_MessageLoop::TObjectGI* Sender);
+        // Waits for the loader, swaps film buffers, resets the command cursor, then preloads the following entry. Requires a valid index and nonempty command stream.
         void SelectHistoryEntry(std::int32_t Index, std::uint8_t InitialLoad);
         static void CreateFilmSceneObjects(aEFilm::TEFilm* Film);
         static void ReleaseFilmSceneObjects(aEFilm::TEFilm* Film, std::uint8_t ReleaseTrailingReferences);
@@ -57,12 +60,16 @@ namespace fFilm {
         static void AdvancePausedEffects(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void SetFrameInterval(std::int32_t IntervalMs, std::uint8_t UpdateSlider);
         void SpeedSliderChanged(GI_MessageLoop::TObjectGI* Sender);
+        // Backward seeking reloads the recording and executes commands forward to the requested step.
         void FrameSliderChanged(GI_MessageLoop::TObjectGI* Sender);
         void PlayStopClicked(GI_MessageLoop::TObjectGI* Sender);
         void TurnSliderChanged(GI_MessageLoop::TObjectGI* Sender);
         void StartPlayback();
+        // Trailing effects continue on a separate timer.
         void PausePlayback();
+        // Automatically advances to the following retained recording when this one ends.
         void AdvancePlayback(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
+        // Requires NextCommand <> nil.
         void AdvanceOneStep();
         void InvalidateAnimatedControls();
         void DrawFrame() override;

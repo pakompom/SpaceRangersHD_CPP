@@ -84,6 +84,7 @@ namespace SE_Space {
     struct TObjectSE : EC_Struct::TObjectEx {
         PAS_CLASS_META(TObjectSE, EC_Struct::TObjectEx, "TObjectSE", 76)
         void p_destroy() override;
+        // Copies graph key, size, position and depth expression only.
         virtual void CopyTo(TObjectSE* Destination);
         virtual void AttachToSpace(TSpaceSE* ASpace);
         virtual void DetachFromSpace();
@@ -92,11 +93,14 @@ namespace SE_Space {
         virtual void SetDepth(float Value);
         virtual float GetDepth();
         virtual void SetOrbitCenter(EC_Struct::TPointF Center);
+        // Subclasses interpret this point differently: Sputnik returns the orbit center, Ship2 returns scaled dimensions.
         virtual EC_Struct::TPointF GetOrbitCenter();
         virtual std::uint8_t GetAlpha();
         virtual void SetAlpha(std::uint8_t Value);
+        // Base returns zero; TGateSE returns its stored angle.
         virtual std::uint8_t GetAngle();
         virtual void SetAngle(std::uint8_t Value);
+        // Base returns empty; TGateSE overrides it with the label text.
         virtual pas::WideString GetText();
         virtual void SetText(const pas::WideString& Value);
         virtual EC_Buf::TBufEC* BuildStateBuffer();
@@ -143,13 +147,18 @@ namespace SE_Space {
     struct TSpaceSE : pas::Object {
         PAS_CLASS_META(TSpaceSE, pas::Object, "TSpaceSE", 108)
         void p_destroy() override;
+        // Only changes list links; does not retain Obj or set Obj.Space.
         void LinkObject(TObjectSE* Obj);
+        // Does not release Obj or clear its links.
         void UnlinkObject(TObjectSE* Obj);
+        // Converts milliseconds to ticks by rounding division by 18. Callback receives Context, Timer, UserData in Delphi registers. Zero delay still waits for AdvanceTimers.
         PSpaceTimerSE CreateTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TSpaceTimerEventSE Callback, std::int32_t UserData);
+        // Raises if Timer is NextTimerToProcess.
         void DeleteTimer(PSpaceTimerSE Timer);
         void AdvanceTimers();
         void AdvanceObjects();
         void ClearPath();
+        // Copies Count points. A nonpositive count clears the path.
         void SetPath(EC_Struct::PPointF Points, std::int32_t Count);
         void DrawMinimap();
         void CreateMinimapViewport();
@@ -178,11 +187,14 @@ namespace SE_Space {
         GI_StarFieldImg::TStarFieldImgGI* StarFieldImages;
         std::uint8_t MinimapDragging;
         std::uint8_t cpp_padding[3];
+        // Native consumers cast this generic owner to TProcessSE.
         pas::Object* Process;
         std::uint8_t cpp_padding_2[4];
         TSpaceScrollEventSE ScrollChangedCallback;
+        // Owned copy, not a Delphi dynamic array.
         EC_Struct::PPointF PathPoints;
         std::int32_t PathPointCount;
+        // Ship2 alpha is shifted by this amount.
         std::int32_t AlphaShift;
     };
     #if INTPTR_MAX == INT32_MAX

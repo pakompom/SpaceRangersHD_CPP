@@ -38,12 +38,15 @@ namespace SE_Laser {
         EC_Str::TStringsEC* FrameImages;
         std::uint32_t FrameInterval;
         EC_Struct::TPointF TargetPosition;
+        // Template RadiusUnit; used as sprite dimensions and beam spacing.
         std::int32_t SegmentSize;
+        // Owned rotated image controls while attached.
         pas::List* Segments;
         std::int32_t FrameIndex;
         GI_MessageLoop::PCallbackTimerGI AnimationTimer;
         std::uint8_t ManualAnimation;
         std::uint8_t cpp_padding[3];
+        // Rebuilt endpoint after the final segment.
         EC_Struct::TPointF EndPosition;
     };
     #if INTPTR_MAX == INT32_MAX

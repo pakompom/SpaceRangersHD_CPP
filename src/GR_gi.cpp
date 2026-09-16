@@ -37,6 +37,7 @@ namespace GR_gi {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Borrowed data is detached without freeing it.
     void TgiGR::ClearData() {
         if (Data != nullptr && static_cast<std::uint8_t>(UsesExternalData ^ 1)) {
             EC_Mem::FreeEC(Data);
@@ -51,6 +52,7 @@ namespace GR_gi {
         return Header == nullptr;
     }
 
+    // BufferPtr is borrowed; its header and length are not validated.
     void TgiGR::LoadRawGiBytes(void* BufferPtr, std::int32_t ByteCount) {
         ClearData();
         Data = BufferPtr;
@@ -59,6 +61,7 @@ namespace GR_gi {
         Header = static_cast<PgiHeaderGR>(Data);
     }
 
+    // Owns its copy; ignores SourceBuffer.Position.
     void TgiGR::LoadRawGiFromBuffer(EC_Buf::TBufEC* SourceBuffer) {
         ClearData();
         DataSize = SourceBuffer->DataSize;
@@ -68,6 +71,7 @@ namespace GR_gi {
         Header = static_cast<PgiHeaderGR>(Data);
     }
 
+    // Owns decompressed storage; empty on decompression failure.
     void TgiGR::LoadCompressedGiBytes(void* BufferPtr, std::int32_t ByteCount) {
         ClearData();
         if (ByteCount < 8) {
@@ -112,6 +116,7 @@ namespace GR_gi {
         return Header->Format;
     }
 
+    // Does not validate PlaneIndex.
     PgiPlaneGR TgiGR::GetPlane(std::int32_t PlaneIndex) {
         return static_cast<PgiPlaneGR>(static_cast<void*>(PlaneIndex * static_cast<std::int32_t>(sizeof(TgiPlaneGR)) + static_cast<std::int32_t>(sizeof(TgiHeaderGR)) + static_cast<std::uint8_t*>(Data)));
     }
@@ -120,6 +125,7 @@ namespace GR_gi {
         return Header->ClipRectCount;
     }
 
+    // Does not validate RectIndex.
     WindowsSdk::TRect TgiGR::GetClipRect(std::int32_t RectIndex) {
         WindowsSdk::TRect Result{};
         PgiClipRectDiskGR Rect = static_cast<PgiClipRectDiskGR>(static_cast<void*>(static_cast<std::uint8_t*>(Data) + Header->ClipRectTableOffset + 1 + RectIndex * static_cast<std::int32_t>(sizeof(TgiClipRectDiskGR))));
@@ -130,6 +136,7 @@ namespace GR_gi {
         return Result;
     }
 
+    // Modifies Data even when borrowed.
     void TgiGR::BuildPalettedFormat4ColorCache() {
         std::int32_t Index{};
         std::uint32_t Color{};
@@ -322,6 +329,7 @@ namespace GR_gi {
         }
     }
 
+    // Formats 0..4 create a 32-bit destination; formats 5/6 decode into an existing sufficiently large buffer. Keep16BitPixels affects format 0 without an alpha mask.
     void TgiGR::DecodeToGraphBuf(GR_GraphBuf::TGraphBufGR* GraphBuf, std::uint8_t Keep16BitPixels) {
         PgiPlaneGR Plane{};
         PgiPlaneGR PalettePlane{};
@@ -457,6 +465,7 @@ namespace GR_gi {
         }
     }
 
+    // Only format 0 is supported; other formats report an error.
     void TgiGR::DecodeRawRegion(void* Destination, std::int32_t PitchBytes, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height, std::uint8_t Keep16BitPixels) {
         PgiPlaneGR Plane{};
         std::int32_t Y{};
@@ -544,6 +553,7 @@ namespace GR_gi {
         }
     }
 
+    // Mode 1 uses RGB565; mode 0 uses ARGB masks. Native allocation reserves two bytes per pixel except for mode 2, whose payload is left uninitialized.
     void TgiGR::CreateFromGraphBuf(GR_GraphBuf::TGraphBufGR* GraphBuf, std::int32_t StorageMode) {
         ClearData();
         std::uint32_t ByteCount = GraphBuf->Width * GraphBuf->Height;
@@ -598,6 +608,7 @@ namespace GR_gi {
         }
     }
 
+    // Uses RGB565 masks.
     void TgiGR::CreateFormat2FromGraphBuf(GR_GraphBuf::TGraphBufGR* GraphBuf, WindowsSdk::TPoint TopLeft) {
         ClearData();
         std::int32_t height = GraphBuf->Height;

@@ -11,6 +11,7 @@ namespace EC_Expression {
 } // namespace EC_Expression
 
 namespace aScriptFun {
+    // av[0] holds the script result.
     void SF_GRun(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
     void SF_GCntRun(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
@@ -323,6 +324,7 @@ namespace aScriptFun {
 
     void SF_GalaxyMoney(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
+    // Queues destruction without removing the ship immediately; returns the previous flag. An omitted second argument queues destruction, a negative one only queries.
     void SF_ShipDestroy(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
     void SF_ShipDestroyType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
@@ -595,6 +597,7 @@ namespace aScriptFun {
 
     void SF_StartAB(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
+    // No arguments returns queue length; otherwise queues name and optional success/failure captions, setting GQuestStatus to 1.
     void SF_StartTextQuest(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
     void SF_StartRobots(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
@@ -613,8 +616,10 @@ namespace aScriptFun {
 
     void SF_GetShipExpByType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
+    // Moving a star updates its drawn StarLinks, but not distance caches, sector boundaries or adjacency.
     void SF_CoordX(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
+    // Moving a star updates its drawn StarLinks, but not distance caches, sector boundaries or adjacency.
     void SF_CoordY(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
     void SF_ShipSetCoords(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
@@ -681,6 +686,7 @@ namespace aScriptFun {
 
     void SF_PlanetPopulation(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
+    // Updates planet ownership flags, not the containing star's faction or its other planets.
     void SF_PlanetOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
     void SF_PlanetRace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
@@ -919,6 +925,7 @@ namespace aScriptFun {
 
     void SF_CustomLose(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
+    // Returns the previous ending; accepts only 1..5 when setting. Does not remove clan objects. Calling at turn zero leaves the ending timestamp zero.
     void SF_PirateWin(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);
 
     void SF_StartVideo(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code);

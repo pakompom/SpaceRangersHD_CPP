@@ -45,8 +45,7 @@
 #include "units/aMyFunction.hpp"
 
 namespace SE_Weapon {
-    pas::WideString GetWeaponTemplateParam(pas::WideString Name, EC_BlockPar::TBlockParEC*& Block, EC_BlockPar::TBlockParEC*& PaletteBlock);
-
+    // The owner-color helper's original unit ownership is unresolved.
     void InitializeWeaponVisualResources() {
         GI_PSWeapon01Laser::LoadBeamLaserPalettes();
         GI_PSWeapon02FragCannon::LoadFragCannonPalettes();
@@ -68,6 +67,7 @@ namespace SE_Weapon {
         GI_RadialEffect::LoadRadiationPalettes();
     }
 
+    // Stores visual/variant and appends them to GraphKey. Position is passed through the base constructor.
     void TWeaponSE_Create(TWeaponSE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition, std::int32_t ShotVisual, std::int32_t Variant) {
         Self->ShotVisual = ShotVisual;
         Self->HitVariant = Variant;
@@ -118,6 +118,7 @@ namespace SE_Weapon {
         }
         std::uint8_t UseRandomHit = true;
         if (Key == u"Weapon.Star") {
+            // Native allocates this child and then clears the retained projectile reference.
             Projectile = pas::construct_call<GI_PSWeapon12Turbogravir::TPSBlueWhirlGI>(GI_PSWeapon12Turbogravir::TPSBlueWhirlGI_Create, Space->MapPanel);
             Projectile = nullptr;
             UseRandomHit = false;
@@ -630,6 +631,7 @@ namespace SE_Weapon {
         PlayShotSound = PlaySound;
     }
 
+    // Retains both scene references.
     void TWeaponSE::SetEndpoints(SE_Space::TObjectSE* Source, SE_Space::TObjectSE* Target) {
         SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&SourceObject), Source);
         SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&TargetObject), Target);
@@ -850,31 +852,31 @@ namespace SE_Weapon {
     }
 
     void TWeaponSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
+        EC_BlockPar::TBlockParEC* PaletteBlock{};
         EC_BlockPar::TBlockParEC* Palettes{};
+        auto GetWeaponTemplateParam = [&](pas::WideString Name) -> pas::WideString {
+            if (PaletteBlock != nullptr && PaletteBlock->CountParams(Name) > 0) {
+                return PaletteBlock->GetParam(Name);
+            } else if (Block->CountParams(Name) > 0) {
+                return Block->GetParam(Name);
+            } else {
+                return pas::WideString();
+            }
+        };
         SE_Space::TObjectSE::LoadTemplate(Block);
-        EC_BlockPar::TBlockParEC* PaletteBlock = nullptr;
+        PaletteBlock = nullptr;
         if (Block->CountBlocks(u"Palettes"_wref.get()) > 0) {
             Palettes = Block->GetBlock(u"Palettes"_wref.get());
             if (Palettes->CountBlocks(pas::wide_int_to_str(ShotVisual)) > 0) {
                 PaletteBlock = Palettes->GetBlock(pas::wide_int_to_str(ShotVisual));
             }
         }
-        ShotSoundPath = SE_Weapon::GetWeaponTemplateParam(u"SoundShot"_w, Block, PaletteBlock);
-        HitSoundPath = SE_Weapon::GetWeaponTemplateParam(u"SoundExpl"_w, Block, PaletteBlock);
+        ShotSoundPath = GetWeaponTemplateParam(u"SoundShot"_w);
+        HitSoundPath = GetWeaponTemplateParam(u"SoundExpl"_w);
         if (PaletteBlock != nullptr && PaletteBlock->CountParams(u"PosZ"_wref.get()) > 0) {
             DepthExpression = PaletteBlock->GetParam(u"PosZ"_wref.get());
         } else if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
             DepthExpression = Block->GetParam(u"PosZ"_wref.get());
-        }
-    }
-
-    pas::WideString GetWeaponTemplateParam(pas::WideString Name, EC_BlockPar::TBlockParEC*& Block, EC_BlockPar::TBlockParEC*& PaletteBlock) {
-        if (PaletteBlock != nullptr && PaletteBlock->CountParams(Name) > 0) {
-            return PaletteBlock->GetParam(Name);
-        } else if (Block->CountParams(Name) > 0) {
-            return Block->GetParam(Name);
-        } else {
-            return pas::WideString();
         }
     }
 
@@ -1082,6 +1084,7 @@ namespace SE_Weapon {
 
     void TWeaponEffect::Advance() {
         PWeaponEffectItem Previous{};
+        // Preserve the native shared animation countdown and the per-item angle - 90 update.
         PWeaponEffectItem Item = FirstItem;
         while (Item != nullptr) {
             if (Item->SkipTime == 0) {

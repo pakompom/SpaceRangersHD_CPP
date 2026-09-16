@@ -33,6 +33,7 @@ namespace GI_Panel {
         ScrollAxis = psaBoth;
     }
 
+    // Only ModeW children are affected by scrolling.
     Types::TPoint TPanelGI::GetChildAbsolutePosition(Types::TPoint LocalPosition, std::uint8_t ModeW) {
         Types::TPoint Result{};
         if (!ModeW) {

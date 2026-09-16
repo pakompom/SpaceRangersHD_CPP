@@ -177,6 +177,7 @@ namespace EC_Thread {
         }
     }
 
+    // Schedules Execute on the existing OS thread; does nothing while a run is pending or active.
     void TThreadEC::Start() {
         pas::critical_enter(Lock);
         {
@@ -201,6 +202,7 @@ namespace EC_Thread {
         return Result;
     }
 
+    // False only on timeout; a wait failure also returns true.
     std::uint8_t TThreadEC::WaitForIdle(std::uint32_t TimeoutMs) {
         return !(WindowsSdk::WaitForSingleObject(IdleEvent, TimeoutMs) == WindowsSdk::WAIT_TIMEOUT);
     }

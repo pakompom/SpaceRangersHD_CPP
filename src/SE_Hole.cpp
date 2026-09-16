@@ -26,6 +26,7 @@ namespace SE_Hole {
         ConfigureRandomSound(u"Hole"_wref.get());
         SE_Space::TObjectSE::AttachToSpace(ASpace);
         Animation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
+        // Both native state branches load the same resource.
         if (State == 1) {
             Animation->SetImagePath(ImagePath);
         } else {
@@ -85,6 +86,7 @@ namespace SE_Hole {
         SE_Space::TObjectSE::DetachFromSpace();
     }
 
+    // Preserves state 1 when asked to reset an attached effect to state 0.
     void THoleSE::SetState(std::int32_t Value) {
         if (State == 1 && Value == 0 && IsAttachedToSpace()) {
             return;

@@ -46,18 +46,23 @@ namespace Rangers {
 
     void TSteamCallbacksThread_Execute(TSteamCallbacksThread* Self);
 
+    // Changes the process working directory and does not restore it; paths pass through the ANSI filesystem API.
     void ClearReadOnlyAttributesRecursive(pas::WideString DirectoryPath);
 
     void HandleApplicationActivated();
 
     void HandleApplicationDeactivated();
 
+    // Checks background work, but this build performs no idle action. Assigned to GR_Main.OnMessageIdle. Removing the empty tests changes native behavior and bytes.
     void HandleMessageIdle();
 
+    // Empty conditional callback assigned to GR_Main.OnMessageResume.
     void HandleMessageResume();
 
+    // Nonrecursive; restores the previous working directory.
     void PurgeCacheDirectoryFiles();
 
+    // Comma-separated lowercase names from INSTALL_*.txt in the current directory.
     pas::WideString CollectInstallLanguageCodes();
 
     void ProgramMain();

@@ -51,10 +51,13 @@
 #include "units/fShip2.hpp"
 
 namespace fGoodsShop2 {
+    // Native unit-local copy of the goods presentation order.
     const aGalaxyStruct::TGoodsTextOrder ShopGoodsOrder = aGalaxyStruct::TGoodsTextOrder{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(5), static_cast<std::uint8_t>(4), static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(2), static_cast<std::uint8_t>(6), static_cast<std::uint8_t>(7)}};
 
+    // Native style-derived out-of-stock price markup.
     pas::WideString OutOfStockColor{};
 
+    // Native modal wrapper used while talking to another ship.
     std::uint8_t RunGoodsShop(GI_MessageLoop::TMessageLoopGI* ParentLoop) {
         std::uint8_t Result{};
         ParentLoop->RootUiObject->NativeHook50();
@@ -584,6 +587,7 @@ namespace fGoodsShop2 {
         }
     }
 
+    // Rebuilds cargo/market controls and prices for the current trading context.
     void TfGoodsShop2::RefreshGoodsDisplay() {
         std::uint8_t Good{};
         std::int32_t I{};
@@ -713,6 +717,7 @@ namespace fGoodsShop2 {
             } else if (aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count == 0) {
                 Color = OutOfStockColor;
             }
+            // Native writes this sell-price label once with the market color, then again with the cargo color below.
             {
                 const pas::WideString& wrapTextInColor = ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, nullptr));
@@ -751,6 +756,7 @@ namespace fGoodsShop2 {
             for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, IconCount - 1); cpp_range_7.next(J); ) {
                 Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
                 Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"Goods", pas::wide_int_to_str(I + 1)}));
+                // Unlike the market row, native cargo-icon spacing does not use GiScalePixels.
                 if (pas::in_set<4, 6>(I)) {
                     Image->SetPosition(ClassesImports::Point(J * 12, 0));
                 } else {
@@ -955,6 +961,8 @@ namespace fGoodsShop2 {
                         std::int32_t cpp_left_4 = GetMaximumTradeCount(DraggedGoodsIndex, static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1));
                         return cpp_left_4 >= Count;
                     }())) {
+                        // Native legality check uses the hovered row, even when a different
+                        // row supplied the dragged good; preserve that original selection.
                         if (aPlayer::GetPlayer()->IsCargoGoodIllegalOnCurrentPlanet(ShopGoodsOrder[Index % 10])) {
                             if (([&] {
                                 const pas::WideString& paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormGS.NotPermitGoods"_wref.get());
@@ -1303,6 +1311,7 @@ namespace fGoodsShop2 {
             Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(335)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Location)), pas::WideString()), u"</align>"});
             SavedPlanet = aPlayer::GetPlayer()->CurrentPlanet;
             SavedDockedTo = aPlayer::GetPlayer()->DockedTo;
+            // Both native writes clear CurrentPlanet; retain the original duplicate assignment.
             aPlayer::GetPlayer()->CurrentPlanet = nullptr;
             aPlayer::GetPlayer()->CurrentPlanet = nullptr;
             if (pas::class_cast_if<aPlanet::TPlanet*>(Location) != nullptr) {
@@ -1683,7 +1692,7 @@ namespace fGoodsShop2 {
         if (GR_Main::ExitScreenLoop) {
             return;
         }
-        if (pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10006);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20006);

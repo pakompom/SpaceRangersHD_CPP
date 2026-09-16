@@ -61,8 +61,6 @@
 namespace fPlanetQuest {
     void AddQuestTextParagraph(const pas::WideString& Text, std::int32_t FontMode, TfPlanetQuest* Self, GI_PanelScrollBar::TPanelScrollBarGI*& Panel, std::int32_t& NextTop);
 
-    void AddQuestTextLines(const pas::WideString& Text, std::int32_t FontMode, TfPlanetQuest* Self, GI_PanelScrollBar::TPanelScrollBarGI*& Panel, std::int32_t& NextTop);
-
     std::int32_t QuestStyleCount = 0;
 
     aRanger::PQuest ActiveGovernmentQuest = nullptr;
@@ -92,6 +90,7 @@ namespace fPlanetQuest {
         return S;
     }
 
+    // A nonempty string without a comma is read past its end.
     pas::WideString TfPlanetQuest::GetTextAfterComma(const pas::WideString& Text, char16_t IgnoredDelimiter) {
         std::int32_t I{};
         pas::WideString S{};
@@ -110,6 +109,7 @@ namespace fPlanetQuest {
         return S;
     }
 
+    // Hexadecimal complement of the quest buffer's CRC32.
     pas::WideString TfPlanetQuest::GetQuestContentHash(std::int32_t QuestId) {
         pas::WideString Result{};
         EC_CacheBuf::TCBufEC* Data{};
@@ -203,6 +203,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // Applies PQI overrides only through quest version 1111111124.
     void TfPlanetQuest::StartLoadedQuest() {
         ClearChoices();
         DaysElapsed = 0;
@@ -313,6 +314,7 @@ namespace fPlanetQuest {
         ++ChoiceCount;
     }
 
+    // Value and callback are ignored.
     void TfPlanetQuest::AddDisabledChoice(pas::WideString Text, std::int32_t Value, TQuestChoiceEvent Callback) {
         pas::WideString Path{};
         std::int32_t Skip = 0;
@@ -455,6 +457,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // Only exact deltas of +120 and -120 are handled.
     void TfPlanetQuest::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
         GI_PanelScrollBar::TPanelScrollBarGI* Panel1{};
         GI_PanelScrollBar::TPanelScrollBarGI* Panel2{};
@@ -641,18 +644,37 @@ namespace fPlanetQuest {
         }
     }
 
+    // <fix> sections use the fixed-width font.
     void TfPlanetQuest::SetQuestText(const pas::WideString& Text) {
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel{};
         std::int32_t NextTop{};
         EC_Str::TStringsEC* Lines{};
         pas::WideString LowerText{};
         std::int32_t StartIndex{};
         std::int32_t TagIndex{};
         std::int32_t TextLength{};
+        auto AddQuestTextLines = [&](const pas::WideString& Text, std::int32_t FontMode) -> void {
+            std::int32_t N{};
+            std::int32_t StartIndex{};
+            std::int32_t EndIndex{};
+            N = Text.length();
+            StartIndex = 0;
+            while (StartIndex < N) {
+                EndIndex = EC_Str::FindTextOffsetW(Text, u"\n"_wref.get(), StartIndex);
+                if (EndIndex < 0) {
+                    fPlanetQuest::AddQuestTextParagraph(pas::copy(Text, StartIndex + 1, N - StartIndex), FontMode, this, Panel, NextTop);
+                    break;
+                }
+                fPlanetQuest::AddQuestTextParagraph(pas::copy(Text, StartIndex + 1, EndIndex - StartIndex + 1), FontMode, this, Panel, NextTop);
+                StartIndex = EndIndex + 1;
+            }
+        };
         CurrentText = Text;
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
+        Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
         Panel->FreeOwnedChildren();
         if (Text != u"") {
             NextTop = 0;
+            // The native routine retains this allocation although the nested helpers do not use it.
             Lines = pas::construct_call<EC_Str::TStringsEC>(EC_Str::TStringsEC_Create);
             TextLength = Text.length();
             LowerText = EC_Str::LowerCaseWideString(Text);
@@ -660,7 +682,7 @@ namespace fPlanetQuest {
             while (StartIndex < TextLength) {
                 TagIndex = EC_Str::FindTextOffsetW(LowerText, u"<fix>"_wref.get(), StartIndex);
                 if (StartIndex < TagIndex) {
-                    fPlanetQuest::AddQuestTextLines(pas::copy(Text, StartIndex + 1, TagIndex - StartIndex), 0, this, Panel, NextTop);
+                    AddQuestTextLines(pas::copy(Text, StartIndex + 1, TagIndex - StartIndex), 0);
                 }
                 if (TagIndex >= 0) {
                     TagIndex += 5;
@@ -675,7 +697,7 @@ namespace fPlanetQuest {
                     StartIndex = TagIndex;
                     TagIndex = EC_Str::FindTextOffsetW(LowerText, u"</fix>"_wref.get(), StartIndex);
                     if (StartIndex < TagIndex) {
-                        fPlanetQuest::AddQuestTextLines(pas::copy(Text, StartIndex + 1, TagIndex - StartIndex), 1, this, Panel, NextTop);
+                        AddQuestTextLines(pas::copy(Text, StartIndex + 1, TagIndex - StartIndex), 1);
                     }
                     if (TagIndex >= 0) {
                         TagIndex += 6;
@@ -689,11 +711,11 @@ namespace fPlanetQuest {
                         }
                         StartIndex = TagIndex;
                     } else {
-                        fPlanetQuest::AddQuestTextLines(pas::copy(Text, StartIndex + 1, TextLength - StartIndex), 1, this, Panel, NextTop);
+                        AddQuestTextLines(pas::copy(Text, StartIndex + 1, TextLength - StartIndex), 1);
                         break;
                     }
                 } else {
-                    fPlanetQuest::AddQuestTextLines(pas::copy(Text, StartIndex + 1, TextLength - StartIndex), 0, this, Panel, NextTop);
+                    AddQuestTextLines(pas::copy(Text, StartIndex + 1, TextLength - StartIndex), 0);
                     break;
                 }
             }
@@ -760,6 +782,7 @@ namespace fPlanetQuest {
             TextLabel->SetPositionModeW(true);
             TextLabel->SetTextColor(Self->GetTextColor(GlobalsV::QuestStyleIndex));
             TextLabel->SetTextAlignY(GI_Main::tayTop);
+            // Preserve native getter order: rendered line count, then line height.
             {
                 std::int32_t cpp_left = std::max<std::int32_t>(1, TextLabel->GetRenderedLineCount());
                 std::int32_t cpp_arg = cpp_left * TextLabel->GetLineHeight() + 4;
@@ -767,23 +790,6 @@ namespace fPlanetQuest {
                 TextLabel->SetSize(ClassesImports::Point(x, cpp_arg));
             }
             NextTop = TextLabel->LocalPosition.Y + TextLabel->ClientSize.Y - 2;
-        }
-    }
-
-    void AddQuestTextLines(const pas::WideString& Text, std::int32_t FontMode, TfPlanetQuest* Self, GI_PanelScrollBar::TPanelScrollBarGI*& Panel, std::int32_t& NextTop) {
-        std::int32_t N{};
-        std::int32_t StartIndex{};
-        std::int32_t EndIndex{};
-        N = Text.length();
-        StartIndex = 0;
-        while (StartIndex < N) {
-            EndIndex = EC_Str::FindTextOffsetW(Text, u"\n"_wref.get(), StartIndex);
-            if (EndIndex < 0) {
-                fPlanetQuest::AddQuestTextParagraph(pas::copy(Text, StartIndex + 1, N - StartIndex), FontMode, Self, Panel, NextTop);
-                break;
-            }
-            fPlanetQuest::AddQuestTextParagraph(pas::copy(Text, StartIndex + 1, EndIndex - StartIndex + 1), FontMode, Self, Panel, NextTop);
-            StartIndex = EndIndex + 1;
         }
     }
 
@@ -1097,6 +1103,7 @@ namespace fPlanetQuest {
         if (aPlayer::GetPlayer() != nullptr) {
             Player = aPlayer::GetPlayer();
             Money = aPlayer::GetPlayer()->Money;
+            // The native inlined Int64 minimum compares an unsigned limit with signed money.
             if (static_cast<std::int64_t>(MoneyLimitComplement ^ 0xffffffffu) < Money) {
                 CappedMoney = MoneyLimitComplement ^ 0xffffffffu;
             } else {
@@ -1116,6 +1123,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // StyleIndex is zero-based.
     pas::WideString TfPlanetQuest::GetTextColorTag(std::int32_t StyleIndex) {
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(u"Style"_wref.get());
         if (Block->CountBlocks(u"QTextColor"_wref.get()) > 0) {
@@ -1334,6 +1342,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // Suppresses repeated picture names.
     void TfPlanetQuest::SetQuestPicture(pas::WideString Name) {
         GI_GraphBuf::TGraphBufGI* Image{};
         if (CurrentPicture != Name) {
@@ -1530,6 +1539,7 @@ namespace fPlanetQuest {
         if (pas::pos(u"<", Expanded) > 0) {
             Expanded = EC_Str::ReplaceAllWideString(Expanded, u"<br>"_wref.get(), u"\r\n"_wref.get());
             Expanded = EC_Str::ReplaceAllWideString(Expanded, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            // Native quirk: <Player> is expanded into Result, then overwritten below.
             if (aPlayer::GetPlayer() != nullptr) {
                 Result = ([&] {
                     const pas::WideString& wrapTextInColor_9 = ([&] {
@@ -1551,6 +1561,7 @@ namespace fPlanetQuest {
         return Expanded;
     }
 
+    // Empty callback.
     void TfPlanetQuest::IgnoreChoice(std::int32_t Value) {
     }
 
@@ -1564,11 +1575,13 @@ namespace fPlanetQuest {
         Quest->FollowPath(PathId);
     }
 
+    // Value is unused.
     void TfPlanetQuest::ContinueToOutcome(std::int32_t Value) {
         ClearChoices();
         Quest->ShowOutcome();
     }
 
+    // Queued script quests report status 2.
     void TfPlanetQuest::CompleteQuestSuccess(std::int32_t Value) {
         pas::WideString News{};
         pas::WideString ItemName{};
@@ -1629,6 +1642,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // Queued script quests report status 3.
     void TfPlanetQuest::CompleteQuestFailure(std::int32_t Value) {
         pas::WideString News{};
         aRanger::PQuest GovernmentQuest{};
@@ -1702,6 +1716,7 @@ namespace fPlanetQuest {
         RequestClose(1);
     }
 
+    // PQI keys are quest,L|P|PAR,indices; picture names lose the Bm.PQI. prefix.
     void TfPlanetQuest::ApplyLegacyPictureOverrides() {
         std::int32_t Found{};
         std::int32_t I{};
@@ -1769,6 +1784,7 @@ namespace fPlanetQuest {
         pas::destroy(Values);
     }
 
+    // Uses the first enabled money parameter; writes the player's clamped balance back.
     void TfPlanetQuest::ExportMoneyToPlayer() {
         std::int32_t I{};
         if (aPlayer::GetPlayer() != nullptr) {
@@ -1784,6 +1800,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // Uses the first enabled money parameter.
     void TfPlanetQuest::ImportMoneyFromPlayer() {
         std::int32_t I{};
         if (aPlayer::GetPlayer() != nullptr) {
@@ -1798,6 +1815,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // ext_name maps to GQuestVarExt_name; queued-script scope takes precedence over global scope.
     void TfPlanetQuest::ExportExternalParameters() {
         std::int32_t I{};
         pas::WideString Name{};
@@ -1825,6 +1843,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // Writes clamped parameter values back to the script variables.
     void TfPlanetQuest::ImportExternalParameters() {
         std::int32_t I{};
         pas::WideString Name{};
@@ -1857,6 +1876,7 @@ namespace fPlanetQuest {
         }
     }
 
+    // <txt_name> uses global GQuestVarExt_name; queued-script scope is ignored.
     pas::WideString TfPlanetQuest::ExpandExternalText(pas::WideString Text) {
         std::int32_t I{};
         pas::WideString Name{};
@@ -1864,6 +1884,7 @@ namespace fPlanetQuest {
         pas::WideString Expanded{};
         EC_Expression::TVarEC* Variable{};
         Expanded = std::move(Text);
+        // +0 preserves the native argument-load order; see docs/development.md.
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Quest->GetParameterCount()); cpp_range.next(I); ) {
             if (EC_Str::FindTextPosW(u"ext_"_wref.get(), Quest->GetParameter(I + 0)->NameText->Text) == 1) {
                 Name = Quest->GetParameter(I + 0)->NameText->Text;
@@ -1890,6 +1911,7 @@ namespace fPlanetQuest {
         return Expanded;
     }
 
+    // Suppresses repeated text after template expansion.
     void TTextQuestPlayerInterface::ShowText(pas::WideString Text) {
         pas::WideString ExpandedText{};
         ExpandedText = Globals::PlanetQuestScreen->ExpandTemplateText(Text);
@@ -2007,6 +2029,7 @@ namespace fPlanetQuest {
         Globals::PlanetQuestScreen->ExportExternalParameters();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Days); cpp_range.next(I); ) {
             ++Globals::PlanetQuestScreen->DaysElapsed;
+            // The native standalone path stops after one increment, even when Days is greater than one.
             if (Globals::StandaloneQuestMode) {
                 break;
             }

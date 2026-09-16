@@ -6,6 +6,7 @@
 #include "units/WindowsSdk.hpp"
 
 namespace EC_Mem {
+    // Uses the process heap; allocation failure can evict texture caches before raising.
     void* AllocEC(std::int32_t ByteCount) {
         void* Memory = WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, ByteCount);
         if (Memory == nullptr) {
@@ -40,6 +41,7 @@ namespace EC_Mem {
         return Memory;
     }
 
+    // Nonpositive sizes free Data and return nil; allocation failure can evict texture caches.
     void* ReAllocREC(void* Data, std::int32_t ByteCount) {
         void* Memory{};
         if (ByteCount <= 0 && Data != nullptr) {
@@ -87,6 +89,8 @@ namespace EC_Mem {
         WindowsSdk::HeapFree(Heap, 0u, Data);
     }
 
+    // The diagnostics retain AllocEC/AllocClearEC/ReAllocREC for these explicit-heap variants.
+    // Raises on allocation failure; does not evict caches.
     void* AllocFromHeapEC(std::uint32_t Heap, std::int32_t ByteCount) {
         void* Memory = WindowsSdk::HeapAlloc(Heap, 0u, ByteCount);
         if (Memory == nullptr) {
@@ -95,6 +99,7 @@ namespace EC_Mem {
         return Memory;
     }
 
+    // Raises on allocation failure; does not evict caches.
     void* AllocClearFromHeapEC(std::uint32_t Heap, std::int32_t ByteCount) {
         void* Memory = WindowsSdk::HeapAlloc(Heap, WindowsSdk::HEAP_ZERO_MEMORY, ByteCount);
         if (Memory == nullptr) {
@@ -103,6 +108,7 @@ namespace EC_Mem {
         return Memory;
     }
 
+    // Nonpositive sizes free Data and return nil. Raises on allocation failure; does not evict caches.
     void* ReAllocFromHeapREC(std::uint32_t Heap, void* Data, std::int32_t ByteCount) {
         if (ByteCount <= 0 && Data != nullptr) {
             WindowsSdk::HeapFree(Heap, 0u, Data);

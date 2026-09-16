@@ -16,15 +16,8 @@
 #include "units/aMyFunction.hpp"
 #include "units/fChameleon.hpp"
 
+// Native TfChameleon VMT and callers establish this unit's ownership.
 namespace fChameleon {
-    std::uint8_t ChameleonChargeUnavailable(std::int32_t Count);
-
-    pas::WideString FormatChameleonChargeCount(std::int32_t Count);
-
-    pas::WideString ChameleonSeriesColor(std::uint8_t Series);
-
-    void Advance(std::int32_t& Delta, std::int32_t& Index);
-
     std::uint32_t ShowChameleonDialog(GI_MessageLoop::TMessageLoopGI* Parent, std::int32_t BlazerCharges, std::int32_t KellerCharges, std::int32_t TerronCharges, std::uint8_t VisualType, std::uint8_t Active, std::int32_t& Choice) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI CursorState{};
@@ -71,6 +64,26 @@ namespace fChameleon {
         std::uint8_t Series{};
         std::uint8_t Disabled{};
         WindowsSdk::TRect WorkRect{};
+        // Nested OnOpen helper; does not access its parent frame.
+        auto ChameleonChargeUnavailable = [&](std::int32_t Count) -> std::uint8_t {
+            return !(Count > 0);
+        };
+        auto FormatChameleonChargeCount = [&](std::int32_t Count) -> pas::WideString {
+            return pas::concat_wide({u" (", ([&] {
+                pas::WideString intToStr = pas::wide_int_to_str(Count);
+                pas::WideString localizedText = aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Count"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Count>"_w, std::move(intToStr));
+            }()), u")"});
+        };
+        auto ChameleonSeriesColor = [&](std::uint8_t Series) -> pas::WideString {
+            pas::WideString Result{};
+            switch (Series) {
+                case 0: return u"<color=255,0,0>"_w;
+                case 1: return u"<color=0,128,255>"_w;
+                case 2: return u"<color=45,105,45>"_w;
+                default: return Result;
+            }
+        };
         ContentPanel->KeyDownCallback = pas::bind_method<&TfChameleon::MainKeyDown>(this);
         GI_Window::TWindowGI* Window = pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create, ContentPanel);
         Window->SetDepth(1.0);
@@ -136,9 +149,9 @@ namespace fChameleon {
             Y += 20;
             ++Index;
             NameText = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[Series], u".0"}));
-            Disabled = fChameleon::ChameleonChargeUnavailable(Charges[Series]);
+            Disabled = ChameleonChargeUnavailable(Charges[Series]);
             {
-                pas::WideString cpp_arg_2 = pas::concat_wide({SeriesText, u" ", aMyFunction::WrapTextInColor(NameText, fChameleon::ChameleonSeriesColor(Series)), fChameleon::FormatChameleonChargeCount(Charges[Series])});
+                pas::WideString cpp_arg_2 = pas::concat_wide({SeriesText, u" ", aMyFunction::WrapTextInColor(NameText, ChameleonSeriesColor(Series)), FormatChameleonChargeCount(Charges[Series])});
                 TfChameleon* self_2 = this;
                 self_2->AddChoice(Index, 20, Y, std::move(cpp_arg_2), NeedSelection && static_cast<std::uint8_t>(Disabled ^ 1), Disabled);
             }
@@ -156,28 +169,6 @@ namespace fChameleon {
         ContentPanel->SetSize(Size);
         ContentPanel->UpdateAbsolutePosition();
         ContentPanel->UpdateSubtreeHitBounds();
-    }
-
-    std::uint8_t ChameleonChargeUnavailable(std::int32_t Count) {
-        return !(Count > 0);
-    }
-
-    pas::WideString FormatChameleonChargeCount(std::int32_t Count) {
-        return pas::concat_wide({u" (", ([&] {
-            pas::WideString intToStr = pas::wide_int_to_str(Count);
-            pas::WideString localizedText = aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Count"_wref.get());
-            return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Count>"_w, std::move(intToStr));
-        }()), u")"});
-    }
-
-    pas::WideString ChameleonSeriesColor(std::uint8_t Series) {
-        pas::WideString Result{};
-        switch (Series) {
-            case 0: return u"<color=255,0,0>"_w;
-            case 1: return u"<color=0,128,255>"_w;
-            case 2: return u"<color=45,105,45>"_w;
-            default: return Result;
-        }
     }
 
     void TfChameleon::AddChoice(std::int32_t Index, std::int32_t X, std::int32_t Y, pas::WideString Text, std::uint8_t Selected, std::uint8_t Disabled) {
@@ -282,22 +273,22 @@ namespace fChameleon {
     }
 
     void TfChameleon::MoveChoice(std::int32_t Delta) {
-        std::int32_t Index = Choice;
-        fChameleon::Advance(Delta, Index);
+        std::int32_t Index{};
+        auto Advance = [&]() -> void {
+            Index += Delta;
+            if (Index < 1) {
+                Index = 4;
+            } else if (Index > 4) {
+                Index = 1;
+            }
+        };
+        Index = Choice;
+        Advance();
         while (ChoiceImages[Index] == nullptr && Index != Choice) {
-            fChameleon::Advance(Delta, Index);
+            Advance();
         }
         if (ChoiceImages[Index] != nullptr) {
             ChoiceMouseDown(ChoiceImages[Index], 0u, ChoiceImages[Index]->LocalPosition);
-        }
-    }
-
-    void Advance(std::int32_t& Delta, std::int32_t& Index) {
-        Index += Delta;
-        if (Index < 1) {
-            Index = 4;
-        } else if (Index > 4) {
-            Index = 1;
         }
     }
 

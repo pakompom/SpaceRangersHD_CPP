@@ -19,18 +19,10 @@
 #include "units/aTranclucator.hpp"
 
 namespace aTranclucator {
-    std::int32_t RandomHullLevel(TTranclucator* Self);
-
-    std::int32_t RandomEquipmentLevel(TTranclucator* Self);
-
-    std::int32_t RandomEquipmentSize(std::int32_t BaseSize, TTranclucator* Self);
-
-    void ReadOldPermission(std::uint8_t ItemType, TTranclucator* Self, EC_Buf::TBufEC*& Buffer);
-
-    void AddGoods(std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost, aShip::TShip*& Destination);
-
     pas::Array<std::int32_t, 22, 27> TranclucatorSkillBonusWeights = pas::Array<std::int32_t, 22, 27>{{100, 100, 80, 80, 60, 60}};
 
+    // The dispatch table confines these reads to BonusKind=13..20.
+    // Each reloads the unchanged byte at EBP-5; is the base biased by -13*4.
     pas::Array<std::int32_t, 13, 20> TranclucatorSlotBonusWeights = pas::Array<std::int32_t, 13, 20>{{100, 100, 200, 100, 200, 75, 10, 30}};
 
     void TTranclucator_Create(TTranclucator* Self) {
@@ -61,6 +53,7 @@ namespace aTranclucator {
         return CollectionPermissions[Kind];
     }
 
+    // Enables planets and disables stations.
     void TTranclucator::ResetStoragePermissions() {
         std::int32_t Kind{};
         for (Kind = 1; Kind <= 2; ++Kind) {
@@ -76,6 +69,7 @@ namespace aTranclucator {
         }
     }
 
+    // Unknown kinds return false.
     std::uint8_t TTranclucator::GetStoragePermission(TTranclucatorStorageKind Kind) {
         std::uint8_t Result = false;
         switch (Kind) {
@@ -88,6 +82,17 @@ namespace aTranclucator {
     void TTranclucator::Init(aShip::TShip* AOwnerShip, std::uint8_t Faction, std::uint8_t BasicEquipment) {
         std::uint8_t WeaponType{};
         std::int32_t MaximumHullSize{};
+        auto RandomHullLevel = [&]() -> std::int32_t {
+            return aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 1.0, 8.0)), this->RandomState);
+        };
+        auto RandomEquipmentLevel = [&]() -> std::int32_t {
+            return aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 1.0, 4.0)), this->RandomState);
+        };
+        auto RandomEquipmentSize = [&](std::int32_t BaseSize) -> std::int32_t {
+            std::int32_t round = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[4]);
+            std::int32_t round_2 = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[3]);
+            return aMyFunction::NextRandomIntRange(round_2, round, this->RandomState);
+        };
         TypeId = aGalaxyStruct::stTranclucator;
         if (AOwnerShip != nullptr) {
             OwnerShip = AOwnerShip;
@@ -116,14 +121,14 @@ namespace aTranclucator {
             CreateAndEquipFuelTanks(10, 1, OwnerId);
             {
                 std::uint8_t ownerId_2 = OwnerId;
-                std::int32_t randomEquipmentSize = aTranclucator::RandomEquipmentSize(aConst::EngineBaseSize, this);
+                std::int32_t randomEquipmentSize = RandomEquipmentSize(aConst::EngineBaseSize);
                 aShip::TShip* self_2 = this;
                 self_2->CreateAndEquipEngine(randomEquipmentSize, 2, ownerId_2);
             }
             WeaponType = aMyFunction::NextRandomIntRange(0, 2, RandomState) + 50;
             {
                 std::uint8_t ownerId_3 = OwnerId;
-                std::int32_t randomEquipmentSize_2 = aTranclucator::RandomEquipmentSize(aConst::WeaponInfos[WeaponType].AverageSize, this);
+                std::int32_t randomEquipmentSize_2 = RandomEquipmentSize(aConst::WeaponInfos[WeaponType].AverageSize);
                 aShip::TShip* self_3 = this;
                 self_3->CreateAndEquipWeapon(WeaponType, randomEquipmentSize_2, 1, ownerId_3);
             }
@@ -132,43 +137,43 @@ namespace aTranclucator {
             {
                 std::uint8_t ownerId_4 = OwnerId;
                 std::uint16_t nextRandomIntRange = aMyFunction::NextRandomIntRange(System::Round(aConst::HullCapacityScale * 2.0E+2L), MaximumHullSize, RandomState);
-                std::uint8_t randomHullLevel = aTranclucator::RandomHullLevel(this);
+                std::uint8_t randomHullLevel = RandomHullLevel();
                 aShip::TShip* self_4 = this;
                 self_4->CreateAndEquipHull(nextRandomIntRange, randomHullLevel, ownerId_4, -1, false);
             }
             {
                 std::uint8_t ownerId_5 = OwnerId;
-                std::int32_t randomEquipmentSize_3 = aTranclucator::RandomEquipmentSize(aConst::EngineBaseSize, this);
-                std::uint8_t randomEquipmentLevel = aTranclucator::RandomEquipmentLevel(this);
+                std::int32_t randomEquipmentSize_3 = RandomEquipmentSize(aConst::EngineBaseSize);
+                std::uint8_t randomEquipmentLevel = RandomEquipmentLevel();
                 aShip::TShip* self_5 = this;
                 self_5->CreateAndEquipEngine(randomEquipmentSize_3, randomEquipmentLevel, ownerId_5);
             }
             CreateAndEquipFuelTanks(10, 1, OwnerId);
             {
                 std::uint8_t ownerId_6 = OwnerId;
-                std::int32_t randomEquipmentSize_4 = aTranclucator::RandomEquipmentSize(aConst::DefGeneratorBaseSize, this);
-                std::uint8_t randomEquipmentLevel_2 = aTranclucator::RandomEquipmentLevel(this);
+                std::int32_t randomEquipmentSize_4 = RandomEquipmentSize(aConst::DefGeneratorBaseSize);
+                std::uint8_t randomEquipmentLevel_2 = RandomEquipmentLevel();
                 aShip::TShip* self_6 = this;
                 self_6->CreateAndEquipDefGenerator(randomEquipmentSize_4, randomEquipmentLevel_2, ownerId_6);
             }
             {
                 std::uint8_t ownerId_7 = OwnerId;
-                std::int32_t randomEquipmentSize_5 = aTranclucator::RandomEquipmentSize(aConst::RepairRobotBaseSize, this);
-                std::uint8_t randomEquipmentLevel_3 = aTranclucator::RandomEquipmentLevel(this);
+                std::int32_t randomEquipmentSize_5 = RandomEquipmentSize(aConst::RepairRobotBaseSize);
+                std::uint8_t randomEquipmentLevel_3 = RandomEquipmentLevel();
                 aShip::TShip* self_7 = this;
                 self_7->CreateAndEquipRepairRobot(randomEquipmentSize_5, randomEquipmentLevel_3, ownerId_7);
             }
             {
                 std::uint8_t ownerId_8 = OwnerId;
-                std::int32_t randomEquipmentSize_6 = aTranclucator::RandomEquipmentSize(aConst::CargoHookBaseSize, this);
-                std::uint8_t randomEquipmentLevel_4 = aTranclucator::RandomEquipmentLevel(this);
+                std::int32_t randomEquipmentSize_6 = RandomEquipmentSize(aConst::CargoHookBaseSize);
+                std::uint8_t randomEquipmentLevel_4 = RandomEquipmentLevel();
                 aShip::TShip* self_8 = this;
                 self_8->CreateAndEquipCargoHook(randomEquipmentSize_6, randomEquipmentLevel_4, ownerId_8);
             }
             WeaponType = aMyFunction::NextRandomIntRange(0, 2, RandomState) + 50;
             {
                 std::uint8_t ownerId_9 = OwnerId;
-                std::int32_t randomEquipmentSize_7 = aTranclucator::RandomEquipmentSize(aConst::WeaponInfos[WeaponType].AverageSize, this);
+                std::int32_t randomEquipmentSize_7 = RandomEquipmentSize(aConst::WeaponInfos[WeaponType].AverageSize);
                 aShip::TShip* self_9 = this;
                 self_9->CreateAndEquipWeapon(WeaponType, randomEquipmentSize_7, 1, ownerId_9);
             }
@@ -183,20 +188,6 @@ namespace aTranclucator {
         RefreshGraphicSize();
         RefreshDerivedStats(true);
         RefreshCurrentStanding();
-    }
-
-    std::int32_t RandomHullLevel(TTranclucator* Self) {
-        return aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 1.0, 8.0)), Self->RandomState);
-    }
-
-    std::int32_t RandomEquipmentLevel(TTranclucator* Self) {
-        return aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 1.0, 4.0)), Self->RandomState);
-    }
-
-    std::int32_t RandomEquipmentSize(std::int32_t BaseSize, TTranclucator* Self) {
-        std::int32_t round = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[4]);
-        std::int32_t round_2 = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[3]);
-        return aMyFunction::NextRandomIntRange(round_2, round, Self->RandomState);
     }
 
     void TTranclucator::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
@@ -232,6 +223,17 @@ namespace aTranclucator {
         std::int32_t OldItemCount{};
         TTranclucatorCollectionKind Kind{};
         std::int32_t StorageKind{};
+        auto ReadOldPermission = [&](std::uint8_t ItemType) -> void {
+            std::uint8_t Enabled = EC_Buf::TBufEC_GetBoolean(Buffer);
+            switch (ItemType) {
+                case 0: this->CollectionPermissions[tckGoods] = Enabled; break;
+                case 8: this->CollectionPermissions[tckArtefact] = Enabled; break;
+                case 43: this->CollectionPermissions[tckEquipment] = Enabled; break;
+                case 69: this->CollectionPermissions[tckCountable] = Enabled; break;
+                case 70: this->CollectionPermissions[tckUseless] = Enabled; break;
+                case 71: this->CollectionPermissions[tckMicroModule] = Enabled; break;
+            }
+        };
         aShip::TShip::LoadFromBuffer(Buffer, Galaxy);
         OwnerShip = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
         FollowOwner = EC_Buf::TBufEC_GetBoolean(Buffer);
@@ -259,25 +261,13 @@ namespace aTranclucator {
                 OldItemCount = 74;
             }
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, OldItemCount - 1); cpp_range_2.next(I); ) {
-                aTranclucator::ReadOldPermission(static_cast<std::uint8_t>(aItem::MigrateSavedItemType(I)), this, Buffer);
+                ReadOldPermission(static_cast<std::uint8_t>(aItem::MigrateSavedItemType(I)));
             }
         }
         for (StorageKind = 1; StorageKind <= 2; ++StorageKind) {
             StoragePermissions[StorageKind] = EC_Buf::TBufEC_GetBoolean(Buffer);
         }
         StoreOnLanding = EC_Buf::TBufEC_GetBoolean(Buffer);
-    }
-
-    void ReadOldPermission(std::uint8_t ItemType, TTranclucator* Self, EC_Buf::TBufEC*& Buffer) {
-        std::uint8_t Enabled = EC_Buf::TBufEC_GetBoolean(Buffer);
-        switch (ItemType) {
-            case 0: Self->CollectionPermissions[tckGoods] = Enabled; break;
-            case 8: Self->CollectionPermissions[tckArtefact] = Enabled; break;
-            case 43: Self->CollectionPermissions[tckEquipment] = Enabled; break;
-            case 69: Self->CollectionPermissions[tckCountable] = Enabled; break;
-            case 70: Self->CollectionPermissions[tckUseless] = Enabled; break;
-            case 71: Self->CollectionPermissions[tckMicroModule] = Enabled; break;
-        }
     }
 
     void TTranclucator::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
@@ -299,6 +289,7 @@ namespace aTranclucator {
         }
     }
 
+    // Zero-byte pointer additions retain the native evaluation order of IndexOf.
     void TTranclucator::NextDayLogic() {
         std::int32_t Stage = 1;
         try {
@@ -397,6 +388,7 @@ namespace aTranclucator {
         return aGalaxyStruct::gscTransport;
     }
 
+    // Always rcWarrior.
     aGalaxyStruct::TRangerCareer TTranclucator::GetDominantCareer() {
         return aGalaxyStruct::rcWarrior;
     }
@@ -413,10 +405,12 @@ namespace aTranclucator {
         return 0;
     }
 
+    // Checks FollowOwner, owner presence, shared star and owner hyperspace state; does not require docking.
     std::uint8_t TTranclucator::CanFollowOwnerInCurrentStar() {
         return FollowOwner && OwnerShip != nullptr && OwnerShip->CurrentStar == CurrentStar && static_cast<std::uint8_t>(OwnerShip->InHyperspace ^ 1);
     }
 
+    // Fills installed fuel tanks without charging Money.
     void TTranclucator::RefuelAtLocation() {
         if (GetFuelTanks() != nullptr) {
             GetFuelTanks()->Fuel = GetFuelTanks()->Capacity;
@@ -434,11 +428,19 @@ namespace aTranclucator {
         }
     }
 
+    // Moves unequipped inventory and artefacts plus all goods; refreshes Self and the destination player's storage bubbles.
     void TTranclucator::TransferUnequippedCargo(aShip::TShip* Destination) {
         std::int32_t I{};
         aItem::TEquipment* Item{};
         aItem::TArtefact* Artefact{};
         std::uint8_t Good{};
+        // Nested helper; caller-popped static link, destination at ParentFrame-4.
+        auto AddGoods = [&](std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost) -> void {
+            if (Quantity > 0) {
+                Destination->CargoGoods[Good].Count += Quantity;
+                Destination->CargoGoods[Good].TotalCost += Cost;
+            }
+        };
         {
             const std::int32_t cpp_first = pas::list_count(Inventory) - 1;
             if (cpp_first >= 0) {
@@ -465,7 +467,7 @@ namespace aTranclucator {
         }
         for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
             aShip::TCargoGoodsEntry& cpp_with = CargoGoods[Good];
-            aTranclucator::AddGoods(Good, cpp_with.Count, cpp_with.TotalCost, Destination);
+            AddGoods(Good, cpp_with.Count, cpp_with.TotalCost);
             cpp_with.Count = 0;
             cpp_with.TotalCost = 0;
             cpp_with.PurchasedCount = 0;
@@ -477,13 +479,7 @@ namespace aTranclucator {
         }
     }
 
-    void AddGoods(std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost, aShip::TShip*& Destination) {
-        if (Quantity > 0) {
-            Destination->CargoGoods[Good].Count += Quantity;
-            Destination->CargoGoods[Good].TotalCost += Cost;
-        }
-    }
-
+    // The +0 index/pointer expressions below preserve native DCC32 argument scheduling.
     void TTranclucator::StoreUnequippedCargoAt(pas::Object* Location) {
         std::uint8_t Good{};
         std::int32_t I{};
@@ -675,6 +671,7 @@ namespace aTranclucator {
         return false;
     }
 
+    // Returns whether a move order is active; nearby pickups can be queued even when the result is false.
     std::uint8_t TTranclucator::TryCollectPreferredFloatingLoot(std::int32_t MaxTravelDays) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -794,6 +791,7 @@ namespace aTranclucator {
         }
         std::int32_t AssignedCount = 0;
         if (OwnerShip != nullptr) {
+            // The native code repeats the owner guard before following its enemy.
             if (OwnerShip != nullptr && OwnerShip->EnemyShip != nullptr && OwnerShip->EnemyShip != this && OwnerShip->EnemyShip->CurrentStar == CurrentStar && OwnerShip->EnemyShip->InNormalSpace()) {
                 const std::int32_t cpp_last_2 = static_cast<std::int32_t>(WeaponCount);
                 if (1 <= cpp_last_2) {
@@ -907,7 +905,7 @@ namespace aTranclucator {
     }
 
     std::uint8_t TTranclucator::RelationToNonRanger(aShip::TShip* Ship) {
-        if (pas::in_set<0, 0, 5, 5>(Ship->TypeId)) {
+        if (pas::is_one_of<aGalaxyStruct::stKling, aGalaxyStruct::stTranclucator>(Ship->TypeId)) {
             return 50;
         }
         return 100;
@@ -996,15 +994,15 @@ namespace aTranclucator {
                 CurrentStanding = aGalaxyStruct::ssUnaligned;
             } else {
                 OwnerShip->RefreshCurrentStanding();
-                if (OwnerShip->CurrentStar == CurrentStar || pas::in_set<2, 2, 8, 8>(OwnerShip->CurrentStanding)) {
+                if (OwnerShip->CurrentStar == CurrentStar || pas::is_one_of<aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssPirateMilitary>(OwnerShip->CurrentStanding)) {
                     CurrentStanding = OwnerShip->CurrentStanding;
-                } else if (pas::in_set<3, 4>(OwnerShip->CurrentStanding)) {
+                } else if (pas::is_one_of<aGalaxyStruct::ssCoalitionActive, aGalaxyStruct::ssCoalitionPassive>(OwnerShip->CurrentStanding)) {
                     if (pas::in_set<0, 1>(static_cast<std::uint8_t>(CurrentStar->Status.ControlFaction))) {
                         CurrentStanding = aGalaxyStruct::ssCoalitionActive;
                     } else {
                         CurrentStanding = aGalaxyStruct::ssNeutral;
                     }
-                } else if (pas::in_set<6, 7>(OwnerShip->CurrentStanding)) {
+                } else if (pas::is_one_of<aGalaxyStruct::ssPiratePassive, aGalaxyStruct::ssPirateActive>(OwnerShip->CurrentStanding)) {
                     if (pas::in_set<1, 2>(static_cast<std::uint8_t>(CurrentStar->Status.ControlFaction))) {
                         CurrentStanding = aGalaxyStruct::ssPirateActive;
                     } else {
@@ -1018,7 +1016,7 @@ namespace aTranclucator {
     }
 
     float TTranclucator::EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
-        static const pas::Set<0, 255> ScannableDamageFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
+        static const pas::Set<0, 255> ScannableDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         float Result = 0.0f;
         if (Value == 0) {
             return Result;

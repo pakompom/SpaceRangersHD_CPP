@@ -43,8 +43,10 @@ namespace fRewards {
         void SelectMusic() override;
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
         GI_PanelScrollBar::TPanelScrollBarGI* AwardsPanel;
+        // Borrowed from the shared inspected-ship selection.
         aShip::TShip* Ship;
         GI_MessageLoop::TObjectGI* DraggedAward;
+        // -1 when no medal is under the pointer.
         std::int32_t HoveredAwardId;
         std::uint8_t ReadOnly;
         std::uint8_t cpp_padding[3];

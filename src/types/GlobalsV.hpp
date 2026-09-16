@@ -46,20 +46,29 @@ namespace GlobalsV {
         screenAchievements = 41,
     };
 
+    // Keep the registry independent of UI/cache implementation units. Consumers
+    // cast these object references to the concrete cache and message-loop types.
     #pragma pack(push, 1)
     struct TSpaceImageTemplate {
+        // SpaceImg parameter name; used for weighted selection.
         std::int32_t Kind;
         std::int32_t Weight;
+        // Owned, released by UI shutdown.
         pas::Object* CacheControl;
+        // Borrowed during rendering.
         pas::Object* CachedData;
     };
     #pragma pack(pop)
 
     #pragma pack(push, 1)
     struct TStarFieldImageTemplate {
+        // Zero-initialized; use not yet established.
         std::int32_t Reserved;
+        // StarFieldImg parameter name.
         std::int32_t Weight;
+        // Owned, released by UI shutdown.
         pas::Object* CacheControl;
+        // Borrowed during rendering.
         pas::Object* CachedData;
     };
     #pragma pack(pop)

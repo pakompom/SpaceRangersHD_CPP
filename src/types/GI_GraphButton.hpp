@@ -45,6 +45,7 @@ namespace GI_GraphButton {
         void Clear() override;
         void SetCaptionFontName(const pas::WideString& FontName);
         void SetCaption(const pas::WideString& Text);
+        // Applies to every button state.
         void SetCaptionColor(std::uint32_t Value);
         void SetCaptionShadowOffset(std::int32_t Value);
         void SetImageNormalPath(const pas::WideString& Path);
@@ -55,11 +56,14 @@ namespace GI_GraphButton {
         void SetImageDisabledActivePath(const pas::WideString& Path);
         void SetImageHitPath(const pas::WideString& Path);
         void SetKind(TGraphButtonKindGI Value);
+        // Graph mode accepts a hit on any state image, including inactive states.
         std::uint8_t HitTest(WindowsSdk::TPoint Point);
         void SetDown(std::uint8_t Value);
         void SetDisabled(std::uint8_t Value);
         std::uint8_t IsHovered();
+        // Does not change keyboard focus.
         void SetHovered(std::uint8_t Value);
+        // Native code compares an uninitialized temporary size when the first state image is absent.
         WindowsSdk::TPoint GetMaxStateImageSize();
         void UpdateStateVisuals();
         void UpdateStateImagePlacement();
@@ -78,6 +82,7 @@ namespace GI_GraphButton {
         void ProcessLeftButtonDoubleClick(std::uint32_t KeyState, WindowsSdk::TPoint Point) override;
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Configured state-image positions are absolute; stored positions are relative to this control.
         void LoadButtonProperties(EC_BlockPar::TBlockParEC* Block);
         void UpdateAutoGeometry() override;
         TGraphButtonKindGI Kind;
@@ -106,7 +111,9 @@ namespace GI_GraphButton {
         pas::WideString EnterSound;
         pas::WideString LeaveSound;
         pas::WideString ClickSound;
+        // // Left/Top for normal, Right/Bottom for down.
         WindowsSdk::TRect CaptionOffsets;
+        // Color order: normal, normal-active, down, down-active, disabled, disabled-active.
         pas::Array<std::uint32_t, 0, 5> CaptionColors;
         pas::Array<std::uint32_t, 0, 5> CaptionShadowColors;
         GI_Main::TTextAlignXGI CaptionAlignX;

@@ -26,6 +26,7 @@ namespace fSaveManager {
         PAS_CLASS_META(TfSaveManager, GI_MessageLoop::TMessageLoopGI, "TfSaveManager", 228)
         void p_destroy() override;
         void InitializeLayout() override;
+        // Waits for the save writer before scanning slots.
         void OnOpen() override;
         void OnClose() override;
         void RebuildSlotControls();
@@ -44,23 +45,32 @@ namespace fSaveManager {
         void ClearSlotSelection();
         std::uint8_t AutoSaveExists();
         static pas::WideString GetAutoSavePath();
+        // Checks only the last list entry; returns -1 when absent.
         std::int32_t FindAutoSaveSlot();
+        // Requires the current player and star; station-control mode uses the player's saved docking location.
         static pas::WideString BuildCurrentSaveDescription();
+        // Uses the current Slots list, without rescanning disk. SuffixIndex is zero when no numbered suffix is needed.
         pas::WideString BuildUniqueSavePath(const pas::WideString& FileName, std::int32_t& SuffixIndex);
         static pas::WideString GetSaveConfigPath(const pas::WideString& FileName);
         std::uint8_t QuickSaveExists(std::int32_t SlotIndex);
+        // One-based quick-save index (1..3); unchecked.
         static pas::WideString GetQuickSavePath(std::int32_t SlotIndex);
         static pas::WideString GetTurnSavePath();
         void SlotMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         void SlotMouseLeave(GI_MessageLoop::TObjectGI* Sender);
+        // Owns TSMSlot records, newest first; optional new-save entry comes first and autosave last. Rejects malformed headers and versions outside 13..CurrentSaveVersion.
         void ScanSaveFiles();
+        // True for an out-of-range index or empty FileName.
         std::uint8_t IsSlotEmpty(std::int32_t SlotIndex);
+        // Returns -1 when no timestamp is greater than zero; ties retain the first match.
         std::int32_t FindNewestSlot();
+        // Reads the first two strings without checking the RSG magic.
         static std::int32_t ReadSaveVersion(pas::WideString FileName);
         void LoadSavePreviews(pas::WideString FileName);
         void FinishPreviewDelay(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void SelectMusic() override;
         std::int32_t SelectedSlot;
+        // Owns PSMSlot records; an empty FileName marks the new-save slot.
         pas::List* Slots;
         GI_MessageLoop::PCallbackTimerGI PreviewTimer;
         GR_Sound::TSoundBufferControl* PreviewSound;

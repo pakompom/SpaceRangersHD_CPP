@@ -13,6 +13,7 @@ namespace GI_Cursor {
 
     void TCursorGI_Destroy(TCursorGI* Self);
 
+    // This local import has its own native thunk and IAT entry, separate from Windows.
     WindowsSdk::HBITMAP PAS_STDCALL CreateDIBSection(WindowsSdk::HDC DC, pas::ConstRef<WindowsSdk::TBitmapInfo> BitmapInfo, std::uint32_t Usage, void*& Bits, WindowsImports::THandle Section, std::uint32_t Offset);
 
 } // namespace GI_Cursor

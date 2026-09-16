@@ -19,6 +19,7 @@ namespace CPVarClass {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Resets to integer zero; retains the range object.
     void TCPVariant::Reset() {
         FloatValue = 0.0L;
         IntValue = 0;
@@ -26,6 +27,7 @@ namespace CPVarClass {
         ValueKind = cpvkInteger;
     }
 
+    // Deep-copies the range.
     void TCPVariant::Assign(TCPVariant* Source, std::uint8_t FreeSource) {
         Range->Assign(Source->Range);
         FloatValue = Source->FloatValue;
@@ -36,6 +38,7 @@ namespace CPVarClass {
         }
     }
 
+    // Comma decimals use Single precision; uppercase E is ignored. Ranges require h, not '..'. Failure preserves the value; empty text becomes zero.
     std::uint8_t TCPVariant::TryLoadFromText(pas::WideString Text) {
         std::int32_t i{};
         std::uint8_t Result = false;
@@ -74,6 +77,7 @@ namespace CPVarClass {
         }
     }
 
+    // Permits digits, comma and uppercase E; not a syntax check.
     std::uint8_t TCPVariant::HasNumericChars(pas::WideString& Text, std::int32_t TextLength) {
         std::int32_t i{};
         std::uint8_t Result = false;
@@ -85,6 +89,7 @@ namespace CPVarClass {
         return true;
     }
 
+    // Permits digits and uppercase E; not a syntax check.
     std::uint8_t TCPVariant::HasIntegerChars(pas::WideString& Text, std::int32_t TextLength) {
         std::int32_t i{};
         std::uint8_t Result = false;
@@ -96,6 +101,7 @@ namespace CPVarClass {
         return true;
     }
 
+    // Numeric conversions resample ranges; unknown tags return zero.
     pas::Extended TCPVariant::AsExtended() {
         pas::Extended Result{};
         Result = 0.0L;
@@ -110,6 +116,7 @@ namespace CPVarClass {
         }
     }
 
+    // Float conversion clamps at +/-2000000000; within bounds, uses System.Round(value + 1E-11).
     std::int32_t TCPVariant::AsInteger() {
         std::int32_t Result = 0;
         if (ValueKind == cpvkRange) {

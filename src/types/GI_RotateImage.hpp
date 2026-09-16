@@ -27,10 +27,15 @@ namespace GI_RotateImage {
     struct TRotateImageGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TRotateImageGI, GI_MessageLoop::TObjectGI, "TRotateImageGI", 300)
         void p_destroy() override;
+        // Preserves both cache keys.
         void Clear() override;
+        // A full turn has 256 steps.
         void SetAngle(std::uint8_t Value);
+        // Leaves bounds unchanged when the rotation cache key is empty.
         void UpdateHitTestBounds() override;
+        // Leaves Result unwritten when the rotation cache key is empty.
         Types::TRect GetLocalBounds() override;
+        // Uses the current Origin as the rotation pivot.
         void SetImage(pas::WideString Path, Types::TPoint ImageSize);
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;

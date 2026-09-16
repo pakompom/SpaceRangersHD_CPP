@@ -42,14 +42,20 @@ namespace fCfgSettings {
         void OptionChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         static void OptionChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void OptionChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);
+        // Invokes Callback immediately with the new slider.
         void AddOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TOptionSliderEvent Callback);
+        // Searches only the active group.
         std::uint8_t HasOptionValue(pas::WideString OptionName);
+        // Searches only the active group; raises when no selected choice or slider exists.
         std::int32_t GetOptionValue(pas::WideString OptionName);
+        // Searches only the active group; missing options are ignored.
         void SetOptionValue(pas::WideString OptionName, std::int32_t Value);
         static void FormatResolution(GI_MessageLoop::TObjectGI* Sender);
         static void FormatRobotResolution(GI_MessageLoop::TObjectGI* Sender);
         static void FormatRobotFsaaSamples(GI_MessageLoop::TObjectGI* Sender);
+        // Changes display gamma before settings are applied.
         void PreviewBrightness(GI_MessageLoop::TObjectGI* Sender);
+        // Changes display gamma before settings are applied.
         void PreviewContrast(GI_MessageLoop::TObjectGI* Sender);
         static void FormatInteger(GI_MessageLoop::TObjectGI* Sender);
         static void FormatTurnSaveStep(GI_MessageLoop::TObjectGI* Sender);
@@ -67,7 +73,9 @@ namespace fCfgSettings {
         void ModeMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
+        // Persists CFG.TXT; changes requiring rebuilt resources request another runtime session.
         void ApplyClicked(GI_MessageLoop::TObjectGI* Sender);
+        // Embedded-item data is ignored.
         static GI_MessageLoop::TObjectGI* CreateWarningImage(GI_Label::TLabelGI* Owner, EC_CacheFont::PFontObjectEC Item);
         void SelectMusic() override;
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
@@ -76,7 +84,9 @@ namespace fCfgSettings {
         pas::WideString CurrentOptionName;
         pas::Array<GI_Panel::TPanelGI*, 0, 5> GroupPanels;
         pas::Array<std::int32_t, 0, 5> GroupNextY;
+        // // 0: game; 1: robot battles.
         std::int32_t SettingsMode;
+        // // 0: normal; 1: hovered; 2: pressed.
         std::int32_t ModeButtonState;
         WindowsSdk::TPoint ModeLeftPosition;
         WindowsSdk::TPoint ModeRightPosition;

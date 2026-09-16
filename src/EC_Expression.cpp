@@ -12,13 +12,10 @@
 #include "units/WindowsSdk.hpp"
 
 namespace EC_Expression {
+    // Nested in ResizeScriptArray; collects dimensions by following each first child.
     void CollectScriptArrayDimensions(TVarArrayEC* Values, pas::DynArray<std::int32_t>& Dimensions);
 
     void AddScriptLocal(pas::WideString TypeName, pas::WideString Name, TCodeEC* Self);
-
-    std::uint8_t IsScriptLocalDeclaration(TCodeAnalyzerUnitEC* Token);
-
-    pas::WideString CompileScriptLocals(TCodeAnalyzerUnitEC*& Token, TCodeEC* Self, TCodeAnalyzerEC*& Analyzer, void*& SourceContext, TCodeUnitEC*& BeforeUnit);
 
     pas::Array<EC_Expression::TVarEC*, 0, 19> ScriptCallTrace{};
 
@@ -35,11 +32,13 @@ namespace EC_Expression {
 
     EC_Expression::TScriptStepCallback ScriptStepCallback = nullptr;
 
+    // Callback is a Delphi register procedure taking the cumulative statement count.
     void SetScriptStepCallback(TScriptStepCallback Callback, std::int32_t Interval) {
         ScriptStepCallback = Callback;
         ScriptStepInterval = Interval;
     }
 
+    // Requires an acyclic ownership tree.
     void FreeScriptArrayTree(TVarArrayEC* Values) {
         std::int32_t i{};
         TVarEC* Item{};
@@ -54,6 +53,7 @@ namespace EC_Expression {
         pas::free(Values);
     }
 
+    // Does not shrink or resize existing children.
     void GrowScriptArray(TVarArrayEC* Values, pas::OpenArray<std::int32_t> Dimensions, std::int32_t DimensionIndex) {
         auto cpp_array_copy = pas::copy_open_array(Dimensions);
         Dimensions = pas::open_array(cpp_array_copy);
@@ -73,6 +73,7 @@ namespace EC_Expression {
         }
     }
 
+    // Only the outer dimension changes; new children inherit the first child's dimensions.
     void ResizeScriptArray(TVarArrayEC* Values, std::int32_t Count) {
         std::int32_t i{};
         TVarEC* Item{};
@@ -169,6 +170,7 @@ namespace EC_Expression {
         return pas::copy(Text, First + 1, Last - First + 1);
     }
 
+    // Collects decimal digits while ignoring other characters; negative only for a leading minus.
     std::int32_t ScriptStringToInt(pas::WideString Text) {
         std::int32_t i{};
         std::int32_t Result = 0;
@@ -184,6 +186,7 @@ namespace EC_Expression {
         return Sign * Result;
     }
 
+    // Uses a dot decimal separator.
     pas::WideString ScriptFloatToString(double Value) {
         pas::WideString Result{};
         std::uint8_t SavedSeparator = SysUtils::DecimalSeparator;
@@ -205,6 +208,7 @@ namespace EC_Expression {
         return Result;
     }
 
+    // Ignores nonnumeric characters; not a strict literal validator.
     double ScriptStringToFloat(pas::WideString Text) {
         std::int32_t i{};
         std::int32_t C{};
@@ -240,6 +244,7 @@ namespace EC_Expression {
         return Value;
     }
 
+    // Also accepts empty text and a lone minus.
     std::uint8_t IsScriptIntegerText(pas::WideString Text) {
         std::int32_t i{};
         std::int32_t Count = Text.length();
@@ -255,6 +260,7 @@ namespace EC_Expression {
         return static_cast<std::uint8_t>(EC_Expression::IsScriptIntegerText(Text) ^ 1);
     }
 
+    // Requires a decimal point and fractional digits; supports an exponent suffix. Token advances only on success; Value may change on failure.
     std::uint8_t TryReadFloatLiteral(TCodeAnalyzerUnitEC*& Token, double& Value) {
         char16_t C{};
         pas::WideString ExponentText{};
@@ -395,6 +401,7 @@ namespace EC_Expression {
         return true;
     }
 
+    // Reads h/H hexadecimal and b/B binary suffixes. Token advances only on success; Value may change on failure.
     std::uint8_t TryReadDwordLiteral(TCodeAnalyzerUnitEC*& Token, std::uint32_t& Value) {
         std::int32_t i{};
         Value = 0u;
@@ -441,6 +448,7 @@ namespace EC_Expression {
         return true;
     }
 
+    // Requires a nonnil initial Token.
     std::uint8_t TryReadMemberName(TCodeAnalyzerUnitEC*& Token, pas::WideString& Name) {
         Name = pas::WideString();
         while (Token->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(Token->Text)) {
@@ -459,6 +467,7 @@ namespace EC_Expression {
         return Name != u"";
     }
 
+    // Native expression callbacks: av[0] is the script result; code is the caller.
     void EF_Min(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -469,10 +478,10 @@ namespace EC_Expression {
         }
         av[0]->Assume(av[1], false);
         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
-            if (av[0]->RealVType() == vkString && pas::in_set<1, 3>(av[i]->RealVType())) {
+            if (av[0]->RealVType() == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(av[i]->RealVType())) {
                 av[0]->ConvertToKind(av[i]->RealVType());
             } else if (av[i]->RealVType() == vkFloat) {
-                if (pas::in_set<1, 2>(av[0]->RealVType())) {
+                if (pas::is_one_of<vkInt, vkDword>(av[0]->RealVType())) {
                     av[0]->ConvertToKind(av[i]->RealVType());
                 }
             }
@@ -492,10 +501,10 @@ namespace EC_Expression {
         }
         av[0]->Assume(av[1], false);
         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
-            if (av[0]->RealVType() == vkString && pas::in_set<1, 3>(av[i]->RealVType())) {
+            if (av[0]->RealVType() == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(av[i]->RealVType())) {
                 av[0]->ConvertToKind(av[i]->RealVType());
             } else if (av[i]->RealVType() == vkFloat) {
-                if (pas::in_set<1, 2>(av[0]->RealVType())) {
+                if (pas::is_one_of<vkInt, vkDword>(av[0]->RealVType())) {
                     av[0]->ConvertToKind(av[i]->RealVType());
                 }
             }
@@ -930,6 +939,7 @@ namespace EC_Expression {
             av[0]->SetString(Text);
         } else {
             AnsiText = static_cast<pas::AnsiString>(Text);
+            // Native ANSI fallback lowercases even for UpperCase.
             WindowsImports::CharLowerBuffA(AnsiText.pchar() + Start, Count);
             av[0]->SetString(static_cast<pas::WideString>(AnsiText));
         }
@@ -962,6 +972,7 @@ namespace EC_Expression {
         }
     }
 
+    // av[1..3] are the module handle, return-kind name and export name; later arguments name parameter kinds.
     void EF_LibraryFunction(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -1019,6 +1030,7 @@ namespace EC_Expression {
         }
     }
 
+    // Looks up class definitions in the root scope; the instance shares their expression instructions.
     void EF_New(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -1049,6 +1061,7 @@ namespace EC_Expression {
         }
     }
 
+    // Also resets av[1].
     void EF_Delete(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -1061,6 +1074,7 @@ namespace EC_Expression {
         }
     }
 
+    // Sets Opcode only. Accepts arithmetic, logical and comparison tokens; other tokens raise.
     void InitInstr(TExpressionInstrEC* Instruction, TCodeTokenKind Token) {
         if (Token == ctAdd) {
             Instruction->Opcode = eoAdd;
@@ -1107,10 +1121,12 @@ namespace EC_Expression {
         }
     }
 
+    // Encodes error code and source position as a comma-separated decimal pair.
     void FormatScriptError(std::int32_t Code, std::int32_t Position, pas::WideString& Text) {
         Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Code), ",", SysUtils::IntToStr(Position)}));
     }
 
+    // Reference parameters avoid copies of Self and RunStart in composed inline calls.
     void FlushTokenRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart, std::int32_t RunLength) {
         if (RunStart >= 0 && RunLength > 0) {
             Analyzer->Last->Text = pas::concat_wide({Analyzer->Last->Text, pas::copy(Text, RunStart + 1, RunLength)});
@@ -1125,6 +1141,7 @@ namespace EC_Expression {
         }
     }
 
+    // Reference parameters preserve caller storage when DCC32 expands these helpers.
     void EmitSourceToken(TCodeAnalyzerEC*& Analyzer, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength) {
         Token = Analyzer->AddToken();
         Token->TokenKind = Kind;
@@ -1132,6 +1149,7 @@ namespace EC_Expression {
         Token->SourceLength = SourceLength;
     }
 
+    // Finish the pending text before beginning a punctuation or newline token.
     void EmitToken(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart, std::int32_t RunLength, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength) {
         EC_Expression::FlushTokenRun(Analyzer, Text, RunStart, RunLength);
         RunStart = -1;
@@ -1155,6 +1173,7 @@ namespace EC_Expression {
         pas::object_destroy(Self);
     }
 
+    // Preserves the value where conversion is supported; ResetKind discards it.
     void TVarEC::ConvertToKind(TVarKind NewKind) {
         if (FunctionValue != nullptr) {
             pas::free(FunctionValue);
@@ -1359,6 +1378,7 @@ namespace EC_Expression {
         }
     }
 
+    // Returns vkRef for an unresolved reference.
     TVarKind TVarEC::RealVType() {
         TVarEC* Value = Resolve();
         if (Value == nullptr) {
@@ -1416,6 +1436,7 @@ namespace EC_Expression {
         }
     }
 
+    // Tests this cell's tag without dereferencing.
     std::uint8_t TVarEC::IsEmpty() {
         return Kind == vkEmpty;
     }
@@ -1451,6 +1472,7 @@ namespace EC_Expression {
         }
     }
 
+    // Reference cells delegate to GetInt, then reinterpret its bits.
     std::uint32_t TVarEC::GetDword() {
         if (Kind == vkEmpty) {
             return 0u;
@@ -1513,6 +1535,7 @@ namespace EC_Expression {
         }
     }
 
+    // Library cells return their import specification string.
     pas::WideString TVarEC::GetString() {
         if (Kind == vkEmpty) {
             return pas::WideString();
@@ -1606,6 +1629,7 @@ namespace EC_Expression {
         }
     }
 
+    // Reference cells delegate to GetFunction in the native code.
     TCodeEC* TVarEC::GetClass() {
         if (Kind == vkEmpty) {
             return nullptr;
@@ -1699,6 +1723,7 @@ namespace EC_Expression {
         }
     }
 
+    // Reference cells delegate to SetInt with the same bits.
     void TVarEC::SetDword(std::uint32_t Value) {
         if (Kind == vkEmpty) {
             ResetKind(vkDword);
@@ -1761,6 +1786,7 @@ namespace EC_Expression {
         }
     }
 
+    // Assigns through references and converts to an existing destination kind; an empty cell becomes a string.
     void TVarEC::SetString(const pas::WideString& Value) {
         if (Kind == vkEmpty) {
             ResetKind(vkString);
@@ -1823,6 +1849,7 @@ namespace EC_Expression {
         }
     }
 
+    // Native leaves empty and function cells unchanged; other kinds clear their payload or delegate through a reference.
     void TVarEC::SetFunction(TCodeEC* Value) {
         if (!(Kind == vkEmpty)) {
             if (Kind == vkInt) {
@@ -1853,6 +1880,7 @@ namespace EC_Expression {
         }
     }
 
+    // Value is borrowed; vkRef assignment uses the function-value setter.
     void TVarEC::SetClass(TCodeEC* Value) {
         if (Kind == vkEmpty) {
             ResetKind(vkClass);
@@ -1884,6 +1912,7 @@ namespace EC_Expression {
         }
     }
 
+    // Value is borrowed; follows references.
     void TVarEC::SetArray(TVarArrayEC* Value) {
         if (Kind == vkEmpty) {
             ResetKind(vkArray);
@@ -1944,6 +1973,7 @@ namespace EC_Expression {
         }
     }
 
+    // May return nil.
     TVarEC* TVarEC::Resolve() {
         TVarEC* Result = this;
         while (Result != nullptr && Result->Kind == vkRef) {
@@ -1952,6 +1982,7 @@ namespace EC_Expression {
         return Result;
     }
 
+    // Stores ANSI bytes inside StringValue's UTF-16 allocation.
     void TVarEC::PackAnsiString() {
         pas::AnsiString Text{};
         std::int32_t i{};
@@ -1973,6 +2004,7 @@ namespace EC_Expression {
         }
     }
 
+    // Non-string cells are converted to string without unpacking.
     void TVarEC::UnpackAnsiString() {
         pas::AnsiString Text{};
         std::int32_t Count{};
@@ -1995,6 +2027,7 @@ namespace EC_Expression {
         }
     }
 
+    // Requires at least one dimension.
     void TVarEC::CreateArray(pas::OpenArray<std::int32_t> Dimensions) {
         auto cpp_array_copy = pas::copy_open_array(Dimensions);
         Dimensions = pas::open_array(cpp_array_copy);
@@ -2003,6 +2036,7 @@ namespace EC_Expression {
         EC_Expression::GrowScriptArray(ArrayValue, Dimensions, 0);
     }
 
+    // Nonpositive Count frees the array; positive Count resizes only when Dimension <= 0.
     void TVarEC::ResizeArray(std::int32_t Count, std::int32_t Dimension) {
         pas::Array<std::int32_t, 0, 0> Dimensions{};
         if (RealVType() == vkArray) {
@@ -2019,6 +2053,7 @@ namespace EC_Expression {
         }
     }
 
+    // Frees nested arrays; retains vkArray with a nil pointer.
     void TVarEC::FreeArray() {
         if (RealVType() == vkArray && GetArray() != nullptr) {
             EC_Expression::FreeScriptArrayTree(GetArray());
@@ -2665,6 +2700,7 @@ namespace EC_Expression {
         }
     }
 
+    // Assigns through references, converting to the destination kind.
     void TVarEC::Assume(TVarEC* Source, std::uint8_t CopyArrays) {
         std::int32_t i{};
         TVarEC* Dest = this;
@@ -2834,6 +2870,7 @@ namespace EC_Expression {
         }
     }
 
+    // Only scalar, string and array kinds have serialized payloads.
     void TVarEC::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
         Buffer->AddWideStringZ(Name);
         Buffer->AddAnsiChar(static_cast<std::uint8_t>(Kind));
@@ -2900,6 +2937,7 @@ namespace EC_Expression {
         pas::object_destroy(Self);
     }
 
+    // Does not free cells; use Clear for owned entries.
     void TVarArrayEC::ClearStorage() {
         if (Data != nullptr) {
             WindowsSdk::HeapFree(WindowsSdk::GetProcessHeap(), 0u, Data);
@@ -2944,6 +2982,7 @@ namespace EC_Expression {
         }
     }
 
+    // Returns -1 when absent.
     std::int32_t TVarArrayEC::FindNameOrderIndex(const pas::WideString& Name) {
         std::int32_t Middle{};
         std::int32_t Comparison{};
@@ -2997,6 +3036,7 @@ namespace EC_Expression {
         return Middle + 1;
     }
 
+    // Returns nil for an out-of-range index.
     TVarEC* TVarArrayEC::GetItemNE(std::int32_t Index) {
         if (Index < 0 || Index >= Count) {
             return nullptr;
@@ -3012,6 +3052,7 @@ namespace EC_Expression {
         return Result;
     }
 
+    // Returns nil when absent.
     TVarEC* TVarArrayEC::GetVarNE(const pas::WideString& Name) {
         std::int32_t Middle{};
         std::int32_t Comparison{};
@@ -3037,6 +3078,7 @@ namespace EC_Expression {
         return nullptr;
     }
 
+    // Frees the cell; ignores invalid indexes.
     void TVarArrayEC::Delete(std::int32_t Index) {
         std::int32_t i{};
         std::int32_t DataIndex{};
@@ -3103,6 +3145,7 @@ namespace EC_Expression {
         }
     }
 
+    // Takes ownership of Value.
     void TVarArrayEC::AddItem(TVarEC* Value) {
         std::int32_t i{};
         if (Data == nullptr) {
@@ -3150,6 +3193,7 @@ namespace EC_Expression {
         }
     }
 
+    // Clears existing cells before reading.
     void TVarArrayEC::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         std::int32_t i{};
         TVarEC* Item{};
@@ -3182,6 +3226,7 @@ namespace EC_Expression {
         pas::object_destroy(Self);
     }
 
+    // Also frees pooled nodes.
     void TCodeAnalyzerEC::Clear() {
         TCodeAnalyzerUnitEC* Previous{};
         TCodeAnalyzerUnitEC* Token = First;
@@ -3251,6 +3296,7 @@ namespace EC_Expression {
         }
     }
 
+    // Retains token storage for reuse.
     void TCodeAnalyzerEC::ClearTokens() {
         while (First != nullptr) {
             DeleteToken(Last);
@@ -3287,6 +3333,7 @@ namespace EC_Expression {
         RecycleToken(Token);
     }
 
+    // NewlineOffset is added to the source-position base at each newline.
     void TCodeAnalyzerEC_AppendText(TCodeAnalyzerEC* Self, pas::WideString Text, std::int32_t SourceOffset, std::int32_t NewlineOffset) {
         char16_t C{};
         std::int32_t Index{};
@@ -3324,6 +3371,7 @@ namespace EC_Expression {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctLineComment, Index, SourceOffset, 2);
                     ++Index;
                 } else if (C == u'.') {
+                    // The native tokenizer counts a dot as two source characters.
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctDot, Index, SourceOffset, 2);
                 } else if (C == u'-' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'>') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctArrow, Index, SourceOffset, 2);
@@ -3492,11 +3540,13 @@ namespace EC_Expression {
         }
     }
 
+    // Replaces existing tokens; source offsets start at zero.
     void TCodeAnalyzerEC::Tokenize(pas::WideString Text, std::int32_t NewlineOffset) {
         ClearTokens();
         EC_Expression::TCodeAnalyzerEC_AppendText(this, Text, 0, NewlineOffset);
     }
 
+    // Returns an empty string on success.
     pas::WideString TCodeAnalyzerEC::ValidateDelimiters() {
         pas::WideString Result{};
         std::int32_t Depth{};
@@ -3539,6 +3589,7 @@ namespace EC_Expression {
                     Stack[Depth] = 4;
                     ++Depth;
                 } else if (Token->TokenKind == ctCloseParen) {
+                    // Native checks total openings here, not the current stack depth.
                     if (OpenCount < 1 || Stack[Depth - 1] != 1) {
                         EC_Expression::FormatScriptError(0, Token->SourceStart, Result);
                         Stack = nullptr;
@@ -3606,6 +3657,7 @@ namespace EC_Expression {
         }
     }
 
+    // Supports nested block comments.
     void TCodeAnalyzerEC::RemoveComments() {
         TCodeAnalyzerUnitEC* Previous{};
         std::uint8_t LineComment = false;
@@ -3685,6 +3737,7 @@ namespace EC_Expression {
         }
     }
 
+    // Replaces Name with its root component. Always returns true.
     std::uint8_t TExpressionVarEC::SplitMemberPath() {
         std::int32_t i{};
         pas::WideString Text{};
@@ -3741,6 +3794,7 @@ namespace EC_Expression {
         return Result;
     }
 
+    // Only evOwned slots allocate values.
     TVarEC* TExpressionVarEC::Resolve(TVarKind InitialKind) {
         TVarEC* Result{};
         std::int32_t i{};
@@ -3811,6 +3865,7 @@ namespace EC_Expression {
         ResultIndex = Source->ResultIndex;
     }
 
+    // Borrows Source's instruction array.
     void TExpressionEC::CopyFromFast(TExpressionEC* Source) {
         std::int32_t i{};
         Clear();
@@ -3825,6 +3880,7 @@ namespace EC_Expression {
         ResultIndex = Source->ResultIndex;
     }
 
+    // Returns a zero-based index; the new slot starts with zero-initialized evNamed kind.
     std::int32_t TExpressionEC::AddVariable() {
         ++VariableCount;
         if (Variables == nullptr) {
@@ -3879,7 +3935,9 @@ namespace EC_Expression {
         }
     }
 
+    // Extract whole conditions: a helper inside an and/or chain adds DCC32 temporaries.
     std::uint8_t IsBinaryToken(TCodeAnalyzerUnitEC* Token) {
+        // The native test includes ctSubtract twice.
         return Token->TokenKind == ctAdd || Token->TokenKind == ctSubtract || Token->TokenKind == ctMultiply || Token->TokenKind == ctDivide || Token->TokenKind == ctModulo || Token->TokenKind == ctSubtract || Token->TokenKind == ctBitAnd || Token->TokenKind == ctBitOr || Token->TokenKind == ctBitXor || Token->TokenKind == ctAnd || Token->TokenKind == ctOr || Token->TokenKind == ctShiftLeft || Token->TokenKind == ctShiftRight || Token->TokenKind == ctEqual || Token->TokenKind == ctNotEqual || Token->TokenKind == ctLess || Token->TokenKind == ctGreater || Token->TokenKind == ctLessEqual || Token->TokenKind == ctGreaterEqual;
     }
 
@@ -3899,11 +3957,13 @@ namespace EC_Expression {
         return Item->Kind == cuUnaryOperator && (Item->Next == nullptr || !(Item->Next->Kind == cuName || Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuDwordLiteral || Item->Next->Kind == cuFloatLiteral || Item->Next->Kind == cuStringLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall || Item->Next->Kind == cuIndex || Item->Next->Kind == cuUnaryOperator));
     }
 
+    // Callers exit immediately after this; Compiler has been freed.
     void RejectExpression(TCompilerEC*& Compiler, std::int32_t SourceStart, pas::WideString& ErrorText) {
         EC_Expression::FormatScriptError(0, SourceStart, ErrorText);
         pas::free(Compiler);
     }
 
+    // EndToken is exclusive; nil FirstToken starts at Analyzer.First. NextToken may be nil. Clears the previous expression before compiling.
     void TExpressionEC::Compile(TCodeAnalyzerEC* Analyzer, TCodeAnalyzerUnitEC* FirstToken, TCodeAnalyzerUnitEC* EndToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText) {
         TCodeAnalyzerUnitEC* Next{};
         TCompilerEC* Compiler{};
@@ -4628,6 +4688,7 @@ namespace EC_Expression {
                                     }
                                     default: LibraryWord = 0u; break;
                                 }
+                                // The imported function consumes its dynamically constructed argument stack.
                                 LibraryArguments[j] = LibraryWord;
                             }
                         }
@@ -4770,6 +4831,7 @@ namespace EC_Expression {
         pas::free(UnitNode);
     }
 
+    // Returns nil when no operator qualifies.
     TCompilerUnitEC* TCompilerEC::FindReducibleOperator() {
         std::int32_t i{};
         TCompilerUnitEC* Following{};
@@ -4964,6 +5026,7 @@ namespace EC_Expression {
         pas::list_add(Exceptions, static_cast<void*>(Entry));
     }
 
+    // Does not free the exception value; the caller assumes ownership.
     void TCodeProcessEC::PopException() {
         std::int32_t Count = pas::list_count(Exceptions);
         if (Count < 1) {
@@ -5063,6 +5126,7 @@ namespace EC_Expression {
         ScriptFunLinked = Source->ScriptFunLinked;
     }
 
+    // Expression instructions remain shared with Source.
     void TCodeEC::CopyFromFast(TCodeEC* Source) {
         TCodeUnitEC* Dest{};
         TCodeUnitEC* Src{};
@@ -5164,6 +5228,7 @@ namespace EC_Expression {
         return Item;
     }
 
+    // Inserts before BeforeUnit; nil appends.
     TCodeUnitEC* TCodeEC::InsertCodeUnitBefore(TCodeUnitEC* BeforeUnit) {
         if (BeforeUnit == nullptr) {
             return AddCodeUnit();
@@ -5181,6 +5246,7 @@ namespace EC_Expression {
         return Item;
     }
 
+    // NextToken may be nil.
     void TCodeEC::Compile(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* FirstToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText) {
         ErrorText = pas::WideString();
         if (FirstToken == nullptr) {
@@ -5208,13 +5274,59 @@ namespace EC_Expression {
         std::int32_t IntValue{};
         pas::WideString Text{};
         std::uint8_t InsertSource{};
+        auto IsScriptLocalDeclaration = [&](TCodeAnalyzerUnitEC* Token) -> std::uint8_t {
+            return Token != nullptr && Token->Next != nullptr && Token->Next->TokenKind == ctText && Token->TokenKind == ctText && (Token->Text == u"unknown" || Token->Text == u"int" || Token->Text == u"dword" || Token->Text == u"float" || Token->Text == u"str" || Token->Text == u"ref" || Token->Text == u"array") && EC_Expression::IsNonIntegerScriptText(Token->Next->Text);
+        };
+        auto CompileScriptLocals = [&](TCodeAnalyzerUnitEC*& Token) -> pas::WideString {
+            pas::WideString Result{};
+            TCodeUnitEC* Item{};
+            TCodeAnalyzerUnitEC* Next{};
+            pas::WideString TypeName{};
+            Result = pas::WideString();
+            TypeName = Token->Text;
+            Token = Token->Next;
+            while (Token->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(Token->Text)) {
+                if (this->LocalVar->GetVarNE(Token->Text) != nullptr) {
+                    EC_Expression::FormatScriptError(0, Token->SourceStart, Result);
+                    return Result;
+                }
+                EC_Expression::AddScriptLocal(TypeName, Token->Text, this);
+                if (Token->Next == nullptr) {
+                    EC_Expression::FormatScriptError(0, Token->SourceStart + Token->SourceLength, Result);
+                    return Result;
+                }
+                Token = Token->Next;
+                if (Token->TokenKind == ctComma) {
+                    Token = Token->Next;
+                    continue;
+                }
+                if (Token->TokenKind == ctAssign) {
+                    Item = InsertCodeUnitBefore(BeforeUnit);
+                    Item->Opcode = coExpression;
+                    Item->Expression = pas::construct_call<TExpressionEC>(TExpressionEC_Create);
+                    Item->SourceStart = Token->Prev->SourceStart;
+                    Item->SourceLength = 0;
+                    Item->SourceContext = SourceContext;
+                    Item->Expression->Compile(Analyzer, Token->Prev, nullptr, &Next, Result);
+                    if (Result != u"") {
+                        return Result;
+                    }
+                    Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength - Item->SourceStart;
+                    Token = Next;
+                    if (Token->TokenKind == ctComma) {
+                        Token = Token->Next;
+                    }
+                }
+            }
+            return Result;
+        };
         ErrorText = pas::WideString();
         std::int32_t Depth = 0;
         while (Token != nullptr) {
             if (Token->TokenKind == ctText) {
                 Keyword = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Token->Text)));
-                if (EC_Expression::IsScriptLocalDeclaration(Token)) {
-                    ErrorText = EC_Expression::CompileScriptLocals(Token, this, Analyzer, SourceContext, BeforeUnit);
+                if (IsScriptLocalDeclaration(Token)) {
+                    ErrorText = CompileScriptLocals(Token);
                     if (ErrorText != u"") {
                         return;
                     }
@@ -5391,8 +5503,8 @@ namespace EC_Expression {
                     }
                     Token = Token->Next->Next;
                     if (Token->TokenKind != ctSemicolon) {
-                        if (EC_Expression::IsScriptLocalDeclaration(Token)) {
-                            ErrorText = EC_Expression::CompileScriptLocals(Token, this, Analyzer, SourceContext, BeforeUnit);
+                        if (IsScriptLocalDeclaration(Token)) {
+                            ErrorText = CompileScriptLocals(Token);
                             if (ErrorText != u"") {
                                 return;
                             }
@@ -6024,54 +6136,6 @@ namespace EC_Expression {
         }
     }
 
-    std::uint8_t IsScriptLocalDeclaration(TCodeAnalyzerUnitEC* Token) {
-        return Token != nullptr && Token->Next != nullptr && Token->Next->TokenKind == ctText && Token->TokenKind == ctText && (Token->Text == u"unknown" || Token->Text == u"int" || Token->Text == u"dword" || Token->Text == u"float" || Token->Text == u"str" || Token->Text == u"ref" || Token->Text == u"array") && EC_Expression::IsNonIntegerScriptText(Token->Next->Text);
-    }
-
-    pas::WideString CompileScriptLocals(TCodeAnalyzerUnitEC*& Token, TCodeEC* Self, TCodeAnalyzerEC*& Analyzer, void*& SourceContext, TCodeUnitEC*& BeforeUnit) {
-        pas::WideString Result{};
-        TCodeUnitEC* Item{};
-        TCodeAnalyzerUnitEC* Next{};
-        pas::WideString TypeName{};
-        Result = pas::WideString();
-        TypeName = Token->Text;
-        Token = Token->Next;
-        while (Token->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(Token->Text)) {
-            if (Self->LocalVar->GetVarNE(Token->Text) != nullptr) {
-                EC_Expression::FormatScriptError(0, Token->SourceStart, Result);
-                return Result;
-            }
-            EC_Expression::AddScriptLocal(TypeName, Token->Text, Self);
-            if (Token->Next == nullptr) {
-                EC_Expression::FormatScriptError(0, Token->SourceStart + Token->SourceLength, Result);
-                return Result;
-            }
-            Token = Token->Next;
-            if (Token->TokenKind == ctComma) {
-                Token = Token->Next;
-                continue;
-            }
-            if (Token->TokenKind == ctAssign) {
-                Item = Self->InsertCodeUnitBefore(BeforeUnit);
-                Item->Opcode = coExpression;
-                Item->Expression = pas::construct_call<TExpressionEC>(TExpressionEC_Create);
-                Item->SourceStart = Token->Prev->SourceStart;
-                Item->SourceLength = 0;
-                Item->SourceContext = SourceContext;
-                Item->Expression->Compile(Analyzer, Token->Prev, nullptr, &Next, Result);
-                if (Result != u"") {
-                    return Result;
-                }
-                Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength - Item->SourceStart;
-                Token = Next;
-                if (Token->TokenKind == ctComma) {
-                    Token = Token->Next;
-                }
-            }
-        }
-        return Result;
-    }
-
     void TCodeEC::LinkAll(TVarArrayEC* Scope, std::uint8_t OnlyUnlinked) {
         std::int32_t i{};
         TCodeUnitEC* Item = First;
@@ -6302,6 +6366,7 @@ namespace EC_Expression {
         ScriptCallTraceCount = 0;
     }
 
+    // Does not change Kind.
     void TVarEC::SetLibrarySignature(pas::OpenArray<std::uint32_t> Signature) {
         auto cpp_array_copy = pas::copy_open_array(Signature);
         Signature = pas::open_array(cpp_array_copy);

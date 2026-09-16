@@ -38,6 +38,7 @@ namespace fTalk {
         void EnableCloseButton();
         void CloseClicked(GI_MessageLoop::TObjectGI* Sender);
         void ClearChoices(std::uint8_t AllowClose);
+        // ExtraValue is stored in the choice object at $1C; its wider meaning remains unresolved.
         void AddChoice(pas::WideString Text, std::int32_t Value, GI_MessageLoop::TDialogChoiceEventGI Callback, std::int32_t ExtraValue);
         GI_MessageLoop::TObjectGI* CreateDialogObject(GI_Label::TLabelGI* LabelControl, EC_CacheFont::PFontObjectEC Item);
         void CenterEmbeddedObject(GI_MessageLoop::TObjectGI* Sender);
@@ -183,7 +184,9 @@ namespace fTalk {
         GI_MessageLoop::PCallbackTimerGI SlideTimer;
         float SlideProgress;
         std::int32_t DialogPanelLeft;
+        // Nonzero suppresses parent star-map presentation during modal transitions; other uses unresolved.
         std::int32_t Flag128;
+        // Set after the star-map goods-trading modal returns; remaining readers need recovery.
         std::uint8_t Flag12C;
         std::uint8_t cpp_padding_4[3];
         std::int32_t SavedChoiceScroll;
@@ -200,11 +203,13 @@ namespace fTalk {
     struct TfTalkA : EC_Struct::TObjectEx {
         PAS_CLASS_META(TfTalkA, EC_Struct::TObjectEx, "TfTalkA", 36)
         void p_destroy() override;
+        // No managed cleanup at this offset.
         std::int32_t Reserved04;
         GI_MessageLoop::TDialogChoiceEventGI Callback;
         TDialogTextChoiceEvent FallbackCallback;
         std::int32_t Value;
         std::int32_t ExtraValue;
+        // Native cleanup table owns this string.
         pas::WideString FallbackText;
     };
     #if INTPTR_MAX == INT32_MAX

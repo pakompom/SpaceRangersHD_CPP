@@ -80,6 +80,7 @@ namespace ab_Ship {
         std::int32_t LastPrimaryFireTick;
         std::int32_t LastSecondaryWeapon;
         std::int32_t LastSecondaryFireTick;
+        // Repair, speed, slow, weapon lock, damage, recharge, shield, invisibility.
         pas::Array<std::int32_t, 0, 7> BonusTicks;
         std::int32_t RevealTicks;
         std::uint8_t cpp_padding_3[4];
@@ -90,18 +91,29 @@ namespace ab_Ship {
         std::uint8_t cpp_padding_4[4];
         pas::Array<double, 0, 7> ObstacleDistances;
         pas::Array<std::int32_t, 0, 7> ObstacleLevels;
+        // Population tag; native campaign encounters set 1.
         std::int32_t EncounterTag;
+        // Modulo-10000 per-ship tick counter.
         std::int32_t TickCounter;
+        // Marks a converted game ship (); preserves copied health and weapons during encounter setup.
         std::uint8_t ConvertedFromGameShip;
+        // Scripted ships disable random rewards unless the reward argument is -1 ().
         std::uint8_t RandomRewardsDisabled;
         std::uint8_t cpp_padding_5[2];
+        // CreateABShip graph argument; consumed by PopulateScriptedEncounter.
         pas::WideString SpawnGraphKey;
+        // Label included in LabeledShipKilledInAB / LabeledShipSurvivedInAB events.
         pas::WideString ScriptLabel;
+        // Owned until transferred as a reward. The script API also accepts unchecked objects ().
         pas::Object* RewardObject;
+        // Scripted encounter allegiance; 1 joins the player.
         std::uint8_t Team;
         std::uint8_t cpp_padding_6[3];
+        // Scripted encounter health multiplier.
         std::int32_t HealthScalePercent;
+        // Scripted encounter weapon damage multiplier.
         std::int32_t DamageScalePercent;
+        // Set by firing; retained for the no-shots victory check.
         std::uint8_t HasFiredWeapon;
         std::uint8_t cpp_padding_7[3];
     };

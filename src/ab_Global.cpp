@@ -11,27 +11,31 @@
 #include "units/aMyFunction.hpp"
 #include "units/ab_Global.hpp"
 
+// Native math contribution:.
+// Native PACKAGEINFO visits ab_Global from the arcade geometry family.
+// Shared globals retain direct accesses.
 namespace ab_Global {
-    void SolveMatrix4DLuSystem(const TMatrix4D& Factors, pas::Array<std::int32_t, 0, 3>& Permutations, pas::Array<double, 0, 3>& Solution);
-
-    void DecomposeMatrix4DLu(TMatrix4D& Matrix, double& PermutationSign, pas::Array<std::int32_t, 0, 3>& Permutations);
-
+    // Shared camera/transition state; native TfAB accesses it through an external reference cell. Original unit unresolved.
     std::uint8_t ArcadeViewMode = 0;
 
+    // Shared scene process; native TfAB accesses it through external reference. Original unit unresolved.
     SE_Process::TProcessSE* ArcadeSpaceProcess = nullptr;
 
     std::int32_t ArcadeTickCount{};
 
     std::int32_t ArcadeFrameCount{};
 
+    // Second dword of the native abwm map header.
     std::uint32_t ArcadeMapVersion{};
 
+    // Shared view state; original data ownership unresolved.
     ab_Global::TSphericalBearingState SphereViewState{};
 
     ab_Global::TMatrix4D SphereViewMatrix{};
 
     ab_Global::TMatrix4D SpherePerspectiveMatrix{};
 
+    // Shared projection matrix via reference cell; original data ownership unresolved.
     ab_Global::TMatrix4D SphereProjectionMatrix{};
 
     Types::TPoint ArcadeMapViewPosition{};
@@ -42,6 +46,7 @@ namespace ab_Global {
 
     std::int32_t ArcadeGridMode{};
 
+    // Loaded by the arcade map reader; stop lines and triangles borrow color pointers into Data.
     EC_Buf::TBufEC* ArcadeMapColorBuffer{};
 
     std::uint8_t ArcadeAutopilotEnabled{};
@@ -60,12 +65,15 @@ namespace ab_Global {
 
     double SphereFieldOfView = 88.0;
 
+    // Maximum camera travel per tick; doubled for Keller dialogue framing.
     double CameraFollowStep = 14.0;
 
+    // Forward offset from the player when following.
     double CameraLookAheadDistance = 0.0;
 
     float PlayerDriftTurnStep = 1.8f;
 
+    // Set on the player ship during TfAB.OnOpen.
     float PlayerInitialTurnSpeed = 3.3f;
 
     float PlayerFastTurnSpeed = 2.5f;
@@ -80,8 +88,10 @@ namespace ab_Global {
 
     std::int32_t ArcadeMapPanMargin = 200;
 
+    // Heading increment, straight-path spacing and endpoint snap distance.
     float ArcadePathStep = 4.0f;
 
+    // Initial spacing along turning arcs.
     float ArcadePathArcStep = 4.0f;
 
     float SphereProjectedRadius = 1.0f;
@@ -114,6 +124,7 @@ namespace ab_Global {
 
     float ExplosionBackDepth = 28.0f;
 
+    // Six colors for each of six difficulty appearances.
     pas::Array<std::uint32_t, 0, 35> ArcadeMapPalette = pas::Array<std::uint32_t, 0, 35>{{
         0xff28ac00u, 0x8028ac00u, 0xc028ac00u, 0x0028ac00u, 0xc028ac00u, 0xc0ffffffu, 0xff003cffu, 0x80003cffu,
         0xc0003cffu, 0x00003cffu, 0xc0003cffu, 0xc0ffffffu, 0xffffff00u, 0x80ffff00u, 0xc0ffff00u, 0x00ffff00u,
@@ -172,12 +183,14 @@ namespace ab_Global {
         return Result;
     }
 
+    // Requires a nonzero vector.
     void VectorToSphericalAngles(EC_Struct::TVector3D Vector, double& LongitudeDegrees, double& PolarAngleDegrees) {
         double Radius = System::Sqrt(pas::sqr(static_cast<pas::Extended>(Vector.X)) + pas::sqr(static_cast<pas::Extended>(Vector.Y)) + pas::sqr(static_cast<pas::Extended>(Vector.Z)));
         PolarAngleDegrees = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcCos(pas::real_divide(-Vector.Y, Radius)));
         LongitudeDegrees = aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi - Math::ArcTan2(Vector.X, Vector.Z));
     }
 
+    // Negative distance moves backward. Longitude and bearing pass through Single precision when wrapped.
     void AdvanceSphericalBearingState(double& LongitudeDegrees, double& PolarAngleDegrees, double& BearingDegrees, double SphereRadius, double ArcDistance) {
         double InvSin{};
         std::uint8_t Reverse{};
@@ -245,6 +258,7 @@ namespace ab_Global {
         return Result;
     }
 
+    // Uses the current sphere radius; preserves the body's bearing relative to travel.
     TSphericalBearingState AdvanceSphericalStateAlongBearing(TSphericalBearingState Source, double TravelBearingDegrees, double ArcDistance) {
         TSphericalBearingState Result{};
         Result = Source;
@@ -254,6 +268,7 @@ namespace ab_Global {
         return Result;
     }
 
+    // Uses the current sphere radius; updates travel bearing and preserves the body's bearing relative to it.
     TSphericalBearingState AdvanceSphericalStateAndTravelBearing(TSphericalBearingState Source, double& TravelBearingDegrees, double ArcDistance) {
         TSphericalBearingState Result{};
         Result = Source;
@@ -263,6 +278,7 @@ namespace ab_Global {
         return Result;
     }
 
+    // Bearing is relative to SourceBearingDegrees; coincident points return zero bearing delta and distance.
     void ComputeSphericalBearingAndDistance(double& BearingDeltaDegrees, pas::Var<double> Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius) {
         double TargetPolar = aMyFunction::HeadingDegreesToRadians(TargetPolarAngleDegrees);
         double SourcePolar = aMyFunction::HeadingDegreesToRadians(SourcePolarAngleDegrees);
@@ -321,12 +337,14 @@ namespace ab_Global {
         Distance = pas::real_divide(ArcAngle, pas::constant(2.0L * SystemImports::Pi)) * 2.0L * SystemImports::Pi * SphereRadius;
     }
 
+    // Uses the current sphere radius; ignores Target.BearingDegrees.
     TSphericalBearingDistance GetSphericalBearingAndDistance(TSphericalBearingState Source, TSphericalBearingState Target) {
         TSphericalBearingDistance Result{};
         ab_Global::ComputeSphericalBearingAndDistance(Result.BearingDeltaDegrees, pas::Var<double>(&Result.Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Target.LongitudeDegrees, Target.PolarAngleDegrees, SphereRadius);
         return Result;
     }
 
+    // Uses the shared sphere radius, camera distance, field of view and projection scale.
     void UpdateSphereProjectionMetrics() {
         EC_Struct::TVector3D V{};
         EC_Struct::TVector3D Target{};
@@ -355,10 +373,12 @@ namespace ab_Global {
         SphereProjectedRadius = pas::real_max<pas::Extended>(std::fabs(static_cast<pas::Extended>(V.X)), std::fabs(static_cast<pas::Extended>(V.Y)));
     }
 
+    // Compares against the horizon depth set by UpdateSphereProjectionMetrics.
     std::uint8_t IsDepthBeforeSphereHorizon(double ProjectedDepth) {
         return ProjectedDepth < SphereHorizonDepth;
     }
 
+    // Requires a nonzero vector.
     EC_Struct::TVector3D NormalizeVector3D(const EC_Struct::TVector3D& Source) {
         EC_Struct::TVector3D Result{};
         double Scale = pas::real_divide(1.0L, System::Sqrt(static_cast<long double>(Source.X) * Source.X + static_cast<long double>(Source.Y) * Source.Y + static_cast<long double>(Source.Z) * Source.Z));
@@ -409,6 +429,7 @@ namespace ab_Global {
         Matrix[3][3] = 1.0;
     }
 
+    // Rotates clockwise in the XY plane for positive angles.
     TMatrix4D BuildZAxisRotationMatrix(double AngleRadians) {
         TMatrix4D Result{};
         double C = System::Cos(AngleRadians);
@@ -421,6 +442,7 @@ namespace ab_Global {
         return Result;
     }
 
+    // Uses the same scale for X and Y; projects NearPlane to depth 0 and FarPlane to depth 1.
     TMatrix4D BuildPerspectiveProjectionMatrix(double NearPlane, double FarPlane, double FovRadians, double ProjectionScale) {
         TMatrix4D Result{};
         double C = System::Cos(FovRadians * 0.5L);
@@ -435,6 +457,7 @@ namespace ab_Global {
         return Result;
     }
 
+    // CameraPos must differ from TargetPos; UpVector must not be parallel to the viewing direction.
     TMatrix4D BuildLookAtMatrix(const EC_Struct::TVector3D& CameraPos, const EC_Struct::TVector3D& TargetPos, const EC_Struct::TVector3D& UpVector) {
         TMatrix4D Result{};
         EC_Struct::TVector3D Forward{};
@@ -462,6 +485,7 @@ namespace ab_Global {
         return Result;
     }
 
+    // Does not report singularity; zero pivots are replaced by 1e-20.
     TMatrix4D InvertMatrix4D(const TMatrix4D& Matrix) {
         TMatrix4D Result{};
         pas::Array<std::int32_t, 0, 3> Permutations{};
@@ -470,14 +494,126 @@ namespace ab_Global {
         std::int32_t J{};
         double PermutationSign{};
         TMatrix4D Factors{};
+        auto SolveMatrix4DLuSystem = [&](const TMatrix4D& Factors) -> void {
+            std::int32_t I{};
+            std::int32_t J{};
+            std::int32_t Pivot{};
+            double Sum{};
+            std::int32_t FirstNonzero = -1;
+            for (I = 0; I <= 3; ++I) {
+                Pivot = Permutations[I];
+                Sum = Solution[Pivot];
+                Solution[Pivot] = Solution[I];
+                if (FirstNonzero >= 0) {
+                    for (auto cpp_range = pas::for_to<std::int32_t>(FirstNonzero, I - 1); cpp_range.next(J); ) {
+                        Sum = Sum - static_cast<long double>(Factors[I][J]) * Solution[J];
+                    }
+                } else if (Sum != 0.0L) {
+                    FirstNonzero = I;
+                }
+                Solution[I] = Sum;
+            }
+            for (I = 3; I >= 0; --I) {
+                Sum = Solution[I];
+                {
+                    const std::int32_t cpp_first = I + 1;
+                    if (cpp_first <= 3) {
+                        for (J = cpp_first; J <= 3; ++J) {
+                            Sum = Sum - static_cast<long double>(Factors[I][J]) * Solution[J];
+                        }
+                    }
+                }
+                Solution[I] = pas::real_divide(Sum, Factors[I][I]);
+            }
+        };
+        auto DecomposeMatrix4DLu = [&](TMatrix4D& Matrix, double& PermutationSign) -> void {
+            double Big{};
+            double Temp{};
+            double Sum{};
+            double Magnitude{};
+            std::int32_t I{};
+            std::int32_t Pivot{};
+            std::int32_t J{};
+            std::int32_t K{};
+            pas::Array<double, 0, 3> Scales{};
+            PermutationSign = 1.0;
+            for (I = 0; I <= 3; ++I) {
+                Big = 0.0;
+                for (J = 0; J <= 3; ++J) {
+                    Magnitude = std::fabs(static_cast<pas::Extended>(Matrix[I][J]));
+                    if (Magnitude > Big) {
+                        Big = Magnitude;
+                    }
+                }
+                Scales[I] = pas::real_divide(1.0L, Big);
+            }
+            for (J = 0; J <= 3; ++J) {
+                I = 0;
+                while (I < J) {
+                    Sum = Matrix[I][J];
+                    K = 0;
+                    while (K < I) {
+                        Sum = Sum - static_cast<long double>(Matrix[I][K]) * Matrix[K][J];
+                        ++K;
+                    }
+                    Matrix[I][J] = Sum;
+                    ++I;
+                }
+                Pivot = 0;
+                Big = 0.0;
+                {
+                    const std::int32_t cpp_first = J;
+                    if (cpp_first <= 3) {
+                        for (I = cpp_first; I <= 3; ++I) {
+                            Sum = Matrix[I][J];
+                            K = 0;
+                            while (K < J) {
+                                Sum = Sum - static_cast<long double>(Matrix[I][K]) * Matrix[K][J];
+                                ++K;
+                            }
+                            Matrix[I][J] = Sum;
+                            Temp = std::fabs(static_cast<pas::Extended>(Sum)) * Scales[I];
+                            if (Temp >= Big) {
+                                Big = Temp;
+                                Pivot = I;
+                            }
+                        }
+                    }
+                }
+                if (J != Pivot) {
+                    for (K = 0; K <= 3; ++K) {
+                        Temp = Matrix[Pivot][K];
+                        Matrix[Pivot][K] = Matrix[J][K];
+                        Matrix[J][K] = Temp;
+                    }
+                    PermutationSign = -PermutationSign;
+                    Scales[Pivot] = Scales[J];
+                }
+                Permutations[J] = Pivot;
+                if (Matrix[J][J] == 0.0L) {
+                    Matrix[J][J] = 1.0E-20;
+                }
+                if (J != 3) {
+                    Temp = pas::real_divide(1.0L, Matrix[J][J]);
+                    {
+                        const std::int32_t cpp_first_2 = J + 1;
+                        if (cpp_first_2 <= 3) {
+                            for (I = cpp_first_2; I <= 3; ++I) {
+                                Matrix[I][J] = static_cast<long double>(Matrix[I][J]) * Temp;
+                            }
+                        }
+                    }
+                }
+            }
+        };
         Factors = Matrix;
-        ab_Global::DecomposeMatrix4DLu(Factors, PermutationSign, Permutations);
+        DecomposeMatrix4DLu(Factors, PermutationSign);
         for (J = 0; J <= 3; ++J) {
             for (I = 0; I <= 3; ++I) {
                 Solution[I] = 0.0;
             }
             Solution[J] = 1.0;
-            ab_Global::SolveMatrix4DLuSystem(Factors, Permutations, Solution);
+            SolveMatrix4DLuSystem(Factors);
             for (I = 0; I <= 3; ++I) {
                 Result[I][J] = Solution[I];
             }
@@ -501,12 +637,14 @@ namespace ab_Global {
         return Result;
     }
 
+    // Includes perspective division; homogeneous W must be nonzero.
     EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source) {
         EC_Struct::TVector3D Result{};
         pas::Extended X{};
         pas::Extended Y{};
         pas::Extended Z{};
         pas::Extended ReciprocalW{};
+        // Manual x87 port. Keep extended intermediates and the native Z summation order.
         X = pas::load_unaligned<EC_Struct::TVector3D>(Source.address).X;
         Y = pas::load_unaligned<EC_Struct::TVector3D>(Source.address).Y;
         Z = pas::load_unaligned<EC_Struct::TVector3D>(Source.address).Z;
@@ -517,6 +655,7 @@ namespace ab_Global {
         return Result;
     }
 
+    // Ray points must differ. Rejects tangency. May write HitPoint on false; true requires forward distance greater than 0.001.
     std::uint8_t TryIntersectRayWithSphere(EC_Struct::TVector3D RayOrigin, EC_Struct::TVector3D RayPointOnRay, EC_Struct::TVector3D SphereCenter, double SphereRadius, EC_Struct::TVector3D& HitPoint) {
         double OtherT{};
         EC_Struct::TVector3D Direction{};
@@ -552,120 +691,6 @@ namespace ab_Global {
         HitPoint.Y = static_cast<long double>(Direction.Y) * T + RayOrigin.Y;
         HitPoint.Z = static_cast<long double>(Direction.Z) * T + RayOrigin.Z;
         return T > 0.001L;
-    }
-
-    void SolveMatrix4DLuSystem(const TMatrix4D& Factors, pas::Array<std::int32_t, 0, 3>& Permutations, pas::Array<double, 0, 3>& Solution) {
-        std::int32_t I{};
-        std::int32_t J{};
-        std::int32_t Pivot{};
-        double Sum{};
-        std::int32_t FirstNonzero = -1;
-        for (I = 0; I <= 3; ++I) {
-            Pivot = Permutations[I];
-            Sum = Solution[Pivot];
-            Solution[Pivot] = Solution[I];
-            if (FirstNonzero >= 0) {
-                for (auto cpp_range = pas::for_to<std::int32_t>(FirstNonzero, I - 1); cpp_range.next(J); ) {
-                    Sum = Sum - static_cast<long double>(Factors[I][J]) * Solution[J];
-                }
-            } else if (Sum != 0.0L) {
-                FirstNonzero = I;
-            }
-            Solution[I] = Sum;
-        }
-        for (I = 3; I >= 0; --I) {
-            Sum = Solution[I];
-            {
-                const std::int32_t cpp_first = I + 1;
-                if (cpp_first <= 3) {
-                    for (J = cpp_first; J <= 3; ++J) {
-                        Sum = Sum - static_cast<long double>(Factors[I][J]) * Solution[J];
-                    }
-                }
-            }
-            Solution[I] = pas::real_divide(Sum, Factors[I][I]);
-        }
-    }
-
-    void DecomposeMatrix4DLu(TMatrix4D& Matrix, double& PermutationSign, pas::Array<std::int32_t, 0, 3>& Permutations) {
-        double Big{};
-        double Temp{};
-        double Sum{};
-        double Magnitude{};
-        std::int32_t I{};
-        std::int32_t Pivot{};
-        std::int32_t J{};
-        std::int32_t K{};
-        pas::Array<double, 0, 3> Scales{};
-        PermutationSign = 1.0;
-        for (I = 0; I <= 3; ++I) {
-            Big = 0.0;
-            for (J = 0; J <= 3; ++J) {
-                Magnitude = std::fabs(static_cast<pas::Extended>(Matrix[I][J]));
-                if (Magnitude > Big) {
-                    Big = Magnitude;
-                }
-            }
-            Scales[I] = pas::real_divide(1.0L, Big);
-        }
-        for (J = 0; J <= 3; ++J) {
-            I = 0;
-            while (I < J) {
-                Sum = Matrix[I][J];
-                K = 0;
-                while (K < I) {
-                    Sum = Sum - static_cast<long double>(Matrix[I][K]) * Matrix[K][J];
-                    ++K;
-                }
-                Matrix[I][J] = Sum;
-                ++I;
-            }
-            Pivot = 0;
-            Big = 0.0;
-            {
-                const std::int32_t cpp_first = J;
-                if (cpp_first <= 3) {
-                    for (I = cpp_first; I <= 3; ++I) {
-                        Sum = Matrix[I][J];
-                        K = 0;
-                        while (K < J) {
-                            Sum = Sum - static_cast<long double>(Matrix[I][K]) * Matrix[K][J];
-                            ++K;
-                        }
-                        Matrix[I][J] = Sum;
-                        Temp = std::fabs(static_cast<pas::Extended>(Sum)) * Scales[I];
-                        if (Temp >= Big) {
-                            Big = Temp;
-                            Pivot = I;
-                        }
-                    }
-                }
-            }
-            if (J != Pivot) {
-                for (K = 0; K <= 3; ++K) {
-                    Temp = Matrix[Pivot][K];
-                    Matrix[Pivot][K] = Matrix[J][K];
-                    Matrix[J][K] = Temp;
-                }
-                PermutationSign = -PermutationSign;
-                Scales[Pivot] = Scales[J];
-            }
-            Permutations[J] = Pivot;
-            if (Matrix[J][J] == 0.0L) {
-                Matrix[J][J] = 1.0E-20;
-            }
-            if (J != 3) {
-                Temp = pas::real_divide(1.0L, Matrix[J][J]);
-                {
-                    const std::int32_t cpp_first_2 = J + 1;
-                    if (cpp_first_2 <= 3) {
-                        for (I = cpp_first_2; I <= 3; ++I) {
-                            Matrix[I][J] = static_cast<long double>(Matrix[I][J]) * Temp;
-                        }
-                    }
-                }
-            }
-        }
     }
 
 } // namespace ab_Global

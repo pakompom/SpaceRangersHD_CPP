@@ -211,6 +211,7 @@ namespace fLoad {
         }
     }
 
+    // Takes ownership; waits for the previous run before replacing the list.
     void TCacheLoader::SetPendingLoads(pas::List* Loads, std::uint8_t StartImmediately) {
         if (IsRunning()) {
             WaitForIdle(WindowsSdk::INFINITE);

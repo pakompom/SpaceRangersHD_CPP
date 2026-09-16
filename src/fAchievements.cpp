@@ -111,6 +111,7 @@ namespace fAchievements {
         }
     }
 
+    // Ignores the argument and appends. The native insertion-shift loop is retained even though it has no iterations.
     std::int32_t TfAchievements::AppendRow(std::int32_t UnusedIndex) {
         std::int32_t I{};
         std::int32_t Index = Rows.length() - 1 + 1;
@@ -145,6 +146,7 @@ namespace fAchievements {
             if (0 <= cpp_last) {
                 for (I = 0; I <= cpp_last; ++I) {
                     if (Achievements::AchievementDefinitionTable[I + 1].Key != "HULL" || Rows[I].Data->Achieved) {
+                        // The native row-spacing branch survives even though its spacing is zero.
                         if (I != 0) {
                             Y += 0;
                         }

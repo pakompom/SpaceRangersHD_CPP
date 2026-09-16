@@ -20,6 +20,7 @@ namespace GI_PSWeapon06Phaser {
     struct TPSWeapon06Phaser : GI_PSWeapon::TPSWeaponGI {
         PAS_CLASS_META(TPSWeapon06Phaser, GI_PSWeapon::TPSWeaponGI, "TPSWeapon06Phaser", 324)
         void p_destroy() override;
+        // Native empty override.
         void Invalidate() override;
         void SetPosition(Types::TPoint Position) override;
         void SetTargetPoint(Types::TPoint Point) override;

@@ -8,6 +8,7 @@
 #include "units/GR_Main.hpp"
 #include "units/SysUtils.hpp"
 
+// Native class ownership follows reference/unit_ownership.json.
 namespace GI_Door {
     void TDoorGI_Create(TDoorGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);

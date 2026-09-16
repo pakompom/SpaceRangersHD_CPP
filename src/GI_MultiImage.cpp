@@ -15,6 +15,8 @@
 #include "units/GlobalsV.hpp"
 
 namespace GI_MultiImage {
+    // Neutral integer expressions retain DCC32 operand materialization order.
+    // See docs/development.md; they emit no extra arithmetic.
     void TMultiImageImageGI_Create(TMultiImageImageGI* Self) {
         pas::object_create(Self);
         Self->ImageCache = pas::construct_call<EC_CacheGI::TCGiControlEC>(EC_Cache::TCacheControlEC_Create);
@@ -102,6 +104,7 @@ namespace GI_MultiImage {
         }
     }
 
+    // Prunes empty columns and rows.
     void TMultiImageGI::UnlinkUnitFromColumn(TMultiImageUnitGI* Item) {
         TMultiImageColGI* Column{};
         TMultiImageRowGI* Row{};
@@ -158,6 +161,7 @@ namespace GI_MultiImage {
         }
     }
 
+    // Preserves units and clears their spatial links.
     void TMultiImageGI::ClearSpatialIndex() {
         TMultiImageRowGI* OldRow{};
         TMultiImageColGI* Column{};
@@ -260,8 +264,10 @@ namespace GI_MultiImage {
         return Result;
     }
 
+    // Native early-out compares the control's Position, not the item's old position. CellSize must be nonzero.
     void TMultiImageGI::SetUnitPosition(TMultiImageUnitGI* Item, Types::TPoint Position) {
         TMultiImageColGI* Column{};
+        // Preserve the native comparison against the control's position.
         if (Item->Column == nullptr || LocalPosition.X != Position.X || LocalPosition.Y != Position.Y) {
             Item->Position = Position;
             {
@@ -314,6 +320,7 @@ namespace GI_MultiImage {
         TMultiImageGI::LoadImageProperties(Block);
     }
 
+    // Empty in native code.
     void TMultiImageGI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
     }
 

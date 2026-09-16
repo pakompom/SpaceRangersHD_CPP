@@ -13,7 +13,10 @@
 #include "units/PopUp.hpp"
 #include "units/System.hpp"
 
+// Placement follows the reviewed PopUp association in reference/unit_ownership.json.
+// Native TfPopUpController VMT:.
 namespace PopUp {
+    // Created.
     PopUp::TfPopUpController* PopupController = nullptr;
 
     void TfPopUpController_Create(TfPopUpController* Self) {
@@ -23,6 +26,7 @@ namespace PopUp {
         Self->ImageQueue = pas::make_object<pas::List>();
     }
 
+    // Frees queued cells without finalizing their strings; does not call inherited Destroy.
     void TfPopUpController_Destroy(TfPopUpController* Self) {
         pas::critical_enter(Self->QueueLock);
         while (pas::list_count(Self->TextQueue) > 0) {
@@ -66,6 +70,7 @@ namespace PopUp {
         return Panel;
     }
 
+    // Drains queued notifications, advances their vertical animation, and retires off-screen controls.
     void TfPopUpController::AdvancePopups(std::uint32_t Tick) {
         GI_MessageLoop::TObjectGI* Popup{};
         GI_MessageLoop::TObjectGI* Previous{};
@@ -146,6 +151,7 @@ namespace PopUp {
         }
     }
 
+    // Enqueues parallel managed-string cells under QueueLock.
     void TfPopUpController::QueueNotification(pas::WideString Text, pas::WideString ImagePath) {
         System::PWideString Cell{};
         pas::critical_enter(QueueLock);

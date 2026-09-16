@@ -11,6 +11,7 @@
 #include "units/ab_W14.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW14 projectile family:.
 namespace ab_W14 {
     void TabW14_Create(TabW14* Self) {
         ab_Object::TabObject_Create(Self);
@@ -56,6 +57,7 @@ namespace ab_W14 {
                 Collision = nullptr;
             }
         }
+        // Native launch sets ExpireTick, but flight expires by half-circumference.
         if ((DistanceTravelled > SystemImports::Pi * ab_Global::SphereRadius || Collision != nullptr) && Phase != 1) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, false);

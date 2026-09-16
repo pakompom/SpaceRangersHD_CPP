@@ -59,6 +59,7 @@ namespace fJournal {
         void PasteInputClicked(GI_MessageLoop::TObjectGI* Sender);
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
         GI_PanelScrollBar::TPanelScrollBarGI* InfoPanel;
+        // Accumulated height while building entries.
         std::int32_t ContentHeight;
         std::uint8_t JournalSelected;
         std::uint8_t cpp_padding[3];

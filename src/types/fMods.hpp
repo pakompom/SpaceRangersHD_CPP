@@ -17,6 +17,7 @@ namespace GI_Panel {
 namespace fMods {
     struct TfModsManager;
 
+    // Native RTTI name.
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif

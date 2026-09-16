@@ -33,6 +33,7 @@ namespace SE_Hole {
         PAS_CLASS_META(THoleSE, SE_Space::TObjectSE, "THoleSE", 120)
         void AttachToSpace(SE_Space::TSpaceSE* ASpace) override;
         void DetachFromSpace() override;
+        // Preserves state 1 when asked to reset an attached effect to state 0.
         void SetState(std::int32_t Value);
         void SetPosition(EC_Struct::TPointF APosition) override;
         void DrawMap() override;
@@ -41,16 +42,20 @@ namespace SE_Hole {
         void ApplyConfig(EC_BlockPar::TBlockParEC* Block) override;
         void AnimationCycleComplete(GI_MessageLoop::TObjectGI* Sender);
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
+        // Animation resource used by star-map information thumbnails.
         pas::WideString ImagePath;
         pas::WideString MapImagePath;
         GI_GAI::TgaiGI* Animation;
         GI_Image::TImageGI* MapImage;
         std::int32_t SavedSequenceFrameIndex;
         std::int32_t State;
+        // Used by star-map film-object hit testing.
         std::int32_t HitRadius;
         pas::WideString GalaxyImagePath;
         std::int32_t GalaxyPriority;
+        // Localization key read by TfStarMap.ShowFilmObjectInfo.
         pas::WideString NameTextPath;
+        // Localization key read by TfStarMap.ShowFilmObjectInfo.
         pas::WideString InfoTextPath;
     };
     #if INTPTR_MAX == INT32_MAX

@@ -28,7 +28,9 @@ namespace GI_CountBar {
         PAS_CLASS_META(TCountBarGI, GI_MessageLoop::TObjectGI, "TCountBarGI", 348)
         void p_destroy() override;
         void SetRange(std::int32_t MinValue, std::int32_t MaxValue);
+        // Clamps without invoking PositionChangedCallback.
         void SetPositionInternal(std::int32_t Value);
+        // Notifies only while Active and when the requested value differs from the previous position.
         void SetPosition_2(std::int32_t Value);
         void UpdateLayout();
         void AutoRepeat(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);

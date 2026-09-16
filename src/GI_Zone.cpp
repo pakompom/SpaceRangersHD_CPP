@@ -23,9 +23,11 @@ namespace GI_Zone {
         }
     }
 
+    // Native no-op: hit zones do not draw.
     void TZoneGI::Invalidate() {
     }
 
+    // Circle mode ignores Active and HitTestDisabled.
     std::uint8_t TZoneGI::HitTest(Types::TPoint Point) {
         std::int32_t Diameter{};
         std::uint8_t Result = false;
@@ -43,6 +45,7 @@ namespace GI_Zone {
         }
     }
 
+    // May invoke cursor enter/leave callbacks.
     void TZoneGI::OnActivate() {
         GI_MessageLoop::TObjectGI::OnActivate();
         if (HitTest(MessageLoop->GetCursorPoint())) {
@@ -134,6 +137,7 @@ namespace GI_Zone {
         }
     }
 
+    // Native calls inherited ProcessLeftButtonDown before the zone's up callback.
     void TZoneGI::ProcessLeftButtonUp(std::uint32_t KeyState, Types::TPoint Point) {
         GI_MessageLoop::TObjectGI::ProcessLeftButtonDown(KeyState, Point);
         if (HitTest(Point)) {

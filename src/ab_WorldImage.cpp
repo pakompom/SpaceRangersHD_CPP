@@ -16,6 +16,7 @@
 #include "units/ab_Global.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Grouped by native diagnostic prefix; original source-unit boundaries remain unresolved.
 namespace ab_WorldImage {
     std::uint32_t WorldImageHeap = 0u;
 
@@ -33,6 +34,7 @@ namespace ab_WorldImage {
         }
     }
 
+    // Allocates and links a node owned by the world list.
     PabWorldImage ab_WorldImage_Add() {
         if (WorldImageHeap == 0) {
             WorldImageHeap = WindowsSdk::HeapCreate(1u, 0x00008000u, 0u);

@@ -31,6 +31,8 @@ namespace SystemImports {
     };
     #pragma pack(pop)
 
+    // DCC32 _ValExt spelling of System.Pi: $4000:C90FDAA22168C235.
+    // The longer mathematical decimal rounds one ulp higher in this compiler.
     inline constexpr long double Pi = 3.1415926535897932385L;
 
     inline constexpr std::int32_t MaxInt = 0x7fffffff;

@@ -4,6 +4,7 @@
 #include "units/aPacket.hpp"
 
 namespace aPacket {
+    // Creates the loose-file package and returns true regardless of OpenAllPackages' result.
     std::uint8_t InitializePackageCollection() {
         EC_HsFile::PackageFileLock = pas::make_critical_section<pas::CriticalSection>();
         std::uint8_t Result = true;
@@ -17,6 +18,7 @@ namespace aPacket {
         return Result;
     }
 
+    // Appends packages in language-mod, language, mod, then base order; existing entries are retained.
     std::uint8_t LoadConfiguredPackages() {
         EC_HsFile::TPackFileEC* Pack{};
         EC_BlockPar::TBlockParEC* Block{};
@@ -56,6 +58,7 @@ namespace aPacket {
         return EC_HsFile::PackageCollection->OpenAllPackages();
     }
 
+    // Requires an initialized package collection.
     void FinalizePackageCollection() {
         EC_HsFile::PackageCollection->CloseAllPackages();
         EC_HsFile::PackageCollection->Clear(true);

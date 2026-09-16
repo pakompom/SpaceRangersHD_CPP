@@ -19,6 +19,7 @@ namespace GR_Main {
 
     struct TCCInterface;
 
+    // VMT and methods share the native GR_Main contribution.
     using PCCSnapshot = TCCSnapshot*;
 
     #if INTPTR_MAX == INT32_MAX
@@ -36,14 +37,22 @@ namespace GR_Main {
         void ClearSnapshots();
         std::uint8_t GetResourceChecksumFailed();
         void SetResourceChecksumFailed(std::uint8_t Value);
+        // Reads the protected tamper flag under Lock. SetMoney checks its encoded mirror and rereads after Sleep(1); NextDay similarly checks ammunition.
         std::uint8_t GetTamperDetected();
+        // Copies the current snapshot, replaces byte 9 and commits it under Lock.
         void SetTamperDetected(std::uint8_t Value);
+        // Protected flag consumed by the dormant galaxy checksum; purpose unresolved.
         std::uint8_t GetFlag0A();
         void SetFlag0A(std::uint8_t Value);
+        // Read under Lock; used for the score-mod cheat warning.
         std::uint8_t GetEditableStateApplied();
+        // Replaces the protected score-mod warning flag.
         void SetEditableStateApplied(std::uint8_t Value);
+        // Protected-state XOR seed; zero denotes restored state. Rangers reads it after the screen loop.
         std::int32_t GetProtectedStateXorSeed();
+        // Protected-state XOR seed; zero denotes restored state.
         void SetProtectedStateXorSeed(std::int32_t Value);
+        // Protected payload with unresolved purpose.
         std::int32_t GetValue10();
         void SetValue10(std::int32_t Value);
         std::int32_t GetIntegrityStatus();
@@ -66,6 +75,8 @@ namespace GR_Main {
     #pragma pack(pop)
     #endif
 
+    // Links hide the live snapshot among randomized decoys. Unidentified payload
+    // slots remain explicit alongside the recovered status/checksum channels.
     #pragma pack(push, 1)
     struct TCCSnapshot {
         PCCSnapshot Prev;
@@ -74,6 +85,7 @@ namespace GR_Main {
         std::uint8_t TamperDetected;
         std::uint8_t Flag0A;
         std::uint8_t cpp_padding[1];
+        // Nonzero while galaxy state is XOR-obfuscated ().
         std::int32_t ProtectedStateXorSeed;
         std::int32_t Value10;
         std::int32_t IntegrityStatus;
@@ -82,6 +94,7 @@ namespace GR_Main {
         std::uint32_t IntegrityChecksum1;
         std::uint32_t IntegrityChecksum2;
         std::int32_t EncodedCheatPoints;
+        // Set by ApplyEditableState (); saved and checked for score eligibility and cheat warnings.
         std::uint8_t EditableStateApplied;
         std::uint8_t cpp_padding_2[3];
     };

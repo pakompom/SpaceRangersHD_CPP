@@ -16,7 +16,10 @@
 #include "units/aConst.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native linked unit spelling. Local achievement loading, persistence and notification.
+// NotifyLocalAchievement precedes the inferred bracket; original ownership remains unresolved.
 namespace NoSteamAchievemens {
+    // Fills caller-owned strings/counters for a registered local achievement.
     void GetLocalAchievementData(pas::WideString Key, SimpleSteamApi::PAchievementData Data) {
         EC_BlockPar::TBlockParEC* Block{};
         Block = Achievements::AchievementDefinitions->FindBlock(Key);
@@ -33,6 +36,7 @@ namespace NoSteamAchievemens {
         }
     }
 
+    // Reads achievements.dat, expands zlib, decodes its payload and verifies the additive checksum. Unknown keys do not consume their value fields in the native reader.
     void LoadLocalAchievements() {
         std::int32_t Index{};
         std::int32_t Size{};
@@ -103,6 +107,7 @@ namespace NoSteamAchievemens {
         }
     }
 
+    // Returns true even if already unlocked; absent timestamps allow a fresh unlock.
     std::uint8_t UnlockLocalAchievement(EC_BlockPar::TBlockParEC* Block) {
         std::uint8_t Result = true;
         if (static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(Block->GetParam(u"Achieved"_wref.get())) ^ 1) || Block->GetParam(u"Date"_wref.get()) == u"0") {
@@ -114,6 +119,7 @@ namespace NoSteamAchievemens {
         return Result;
     }
 
+    // Positive increments only; clamps to MaxValue and saves accepted changes.
     std::uint8_t IncreaseLocalAchievementProgress(EC_BlockPar::TBlockParEC* Block, std::int32_t Amount) {
         std::int32_t NewValue{};
         std::uint8_t Result = false;
@@ -143,6 +149,7 @@ namespace NoSteamAchievemens {
         return Result;
     }
 
+    // Writes the native checksummed, encoded and compressed achievements.dat format.
     void SaveLocalAchievements() {
         std::int32_t Index{};
         EC_BlockPar::TBlockParEC* Block{};
@@ -190,6 +197,7 @@ namespace NoSteamAchievemens {
         pas::free(Buffer);
     }
 
+    // Queues the localized achievement toast when its controller exists.
     void NotifyLocalAchievement(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         pas::WideString ImagePath{};

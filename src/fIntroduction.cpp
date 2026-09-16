@@ -27,6 +27,7 @@
 namespace fIntroduction {
     std::int32_t IntroductionPulseCounter = 0;
 
+    // Shared with TThreadCreateNewGame; stage 8 means generation completed.
     std::int32_t NewGameGenerationStage{};
 
     std::uint32_t IntroductionBlinkColorA{};

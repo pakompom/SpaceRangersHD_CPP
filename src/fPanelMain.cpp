@@ -45,8 +45,10 @@
 #include "units/fShip2.hpp"
 
 namespace fPanelMain {
+    // Normal date text style, selected during layout.
     std::uint32_t CurrentDateColor{};
 
+    // Date-transition text style, selected during layout.
     std::uint32_t AdvancingDateColor{};
 
     void TfPanelMain_Create(TfPanelMain* Self) {
@@ -1099,6 +1101,7 @@ namespace fPanelMain {
                 return;
             }
             Globals::RemovePersistentPlayerMessage(reinterpret_cast<Globals::TMessagePlayer*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue))), true);
+            // Native retains this cast even though the with-scope uses the outer Sender.
             {
                 GI_GAI::TgaiGI* cpp_with = pas::checked_cast<GI_GAI::TgaiGI*>(Sender);
                 pas::free(Sender);

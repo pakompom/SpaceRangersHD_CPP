@@ -21,6 +21,7 @@
 #include "units/ab_Ship.hpp"
 #include "units/ab_Zone.hpp"
 
+// TabItem VMT and helpers:; original unit boundary unresolved.
 namespace ab_Item {
     void ab_Item_Update() {
         ab_Zone::PabZone Zone{};

@@ -32,6 +32,7 @@ namespace GI_PanelScrollBar {
         void SetHorizontalScrollbarEnabled(std::uint8_t Value);
         std::uint8_t IsVerticalScrollbarEnabled();
         void SetVerticalScrollbarEnabled(std::uint8_t Value);
+        // The panel retains ownership of scrollbars parented outside it.
         void SetScrollbarsOutside(std::uint8_t Value);
         void SetUnlimitedWorldEnabled(std::uint8_t Value);
         void SetSize(Types::TPoint Size) override;
@@ -39,8 +40,10 @@ namespace GI_PanelScrollBar {
         void SetScrollOffset(Types::TPoint Offset) override;
         void SetDepth(double NewDepth) override;
         void UpdateScrollbarPlacement();
+        // Only active PositionModeW children contribute; scrollbars are excluded.
         void UpdateScrollRanges();
         void ScrollbarPositionChanged(GI_MessageLoop::TObjectGI* Sender);
+        // Clamps the panel back to scrollbar positions when UnlimitedWorld is false.
         void PanelScrollChanged(GI_MessageLoop::TObjectGI* Sender);
         void ScrollbarDestroyed(GI_MessageLoop::TObjectGI* Sender);
         void LoadFromConfigPath(const pas::WideString& Path) override;

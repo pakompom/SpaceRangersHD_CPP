@@ -20,6 +20,8 @@
 #include "units/SysUtils.hpp"
 
 namespace GI_Grid {
+    // Rows points into a Delphi dynamic array. ColumnWidths uses the EC heap.
+    // Each cell is a TLabelGI child with column/row packed into the dword.
     void TGridGI_Create(TGridGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_PanelScrollBar::TPanelScrollBarGI_Create(Self, Owner);
         Self->TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(255, 255, 255);
@@ -124,6 +126,7 @@ namespace GI_Grid {
         UpdateScrollRanges();
     }
 
+    // Type 0 hides lines, 1 draws both axes, 2 horizontal separators, 3 vertical separators; nonzero types include the outer border.
     void TGridGI::RebuildGridLines() {
         GI_MessageLoop::TObjectGI* Current{};
         std::int32_t I{};
@@ -247,6 +250,7 @@ namespace GI_Grid {
         }
     }
 
+    // New columns default to 100 pixels.
     void TGridGI::SetColumnCount(std::int32_t Value) {
         GI_MessageLoop::TObjectGI* Child{};
         GI_MessageLoop::TObjectGI* Current{};
@@ -281,6 +285,7 @@ namespace GI_Grid {
         Invalidate();
     }
 
+    // New rows default to 15 pixels.
     void TGridGI::SetRowCount(std::int32_t Value) {
         GI_MessageLoop::TObjectGI* Child{};
         GI_MessageLoop::TObjectGI* Current{};
@@ -350,6 +355,7 @@ namespace GI_Grid {
         return Rows[RowIndex].Height;
     }
 
+    // Also updates AutoHeightMinimum when the row's AutoHeight flag is set.
     void TGridGI::SetRowHeight(std::int32_t RowIndex, std::int32_t Height) {
         WindowsSdk::TPoint Cell{};
         if (GetRowHeight(RowIndex) != Height) {
@@ -366,6 +372,7 @@ namespace GI_Grid {
         }
     }
 
+    // Does not validate RowIndex.
     void TGridGI::SetRowAutoHeightEnabled(std::int32_t RowIndex, std::uint8_t Enabled) {
         if (Rows[RowIndex].AutoHeight != Enabled) {
             Rows[RowIndex].AutoHeight = Enabled;
@@ -373,6 +380,7 @@ namespace GI_Grid {
         }
     }
 
+    // Raises for out-of-range coordinates or a missing cell label.
     GI_Label::TLabelGI* TGridGI::GetCell(std::int32_t CellX, std::int32_t CellY) {
         if (CellX < 0 || ColumnCount <= CellX || CellY < 0 || RowCount <= CellY) {
             pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TGridGI.GetCell. Cell=", SysUtils::IntToStr(CellX), ",", SysUtils::IntToStr(CellY), "  Count=", SysUtils::IntToStr(ColumnCount), ",", SysUtils::IntToStr(RowCount)})));
@@ -444,6 +452,7 @@ namespace GI_Grid {
         }
     }
 
+    // Invalid coordinates become (-1,-1); valid cells are scrolled into view.
     void TGridGI::SetActiveCell(WindowsSdk::TPoint Cell) {
         GI_Label::TLabelGI* LabelControl{};
         if (ActiveCell.X == Cell.X && ActiveCell.Y == Cell.Y) {
@@ -490,6 +499,7 @@ namespace GI_Grid {
         Invalidate();
     }
 
+    // Selection can be vetoed by the callback.
     void TGridGI::SelectCell(WindowsSdk::TPoint Cell) {
         if (Cell.X < 0 || Cell.X >= ColumnCount || Cell.Y < 0 || Cell.Y >= RowCount) {
             return;

@@ -165,6 +165,7 @@ namespace GI_RotateImageGAI {
         }
     }
 
+    // Diagnostic retains TgaiGI.AfterLoad, but this is TRotateImageGaiGI's geometry-update override.
     void TRotateImageGaiGI::UpdateAutoGeometry() {
         EC_CacheGAI::TCGaiEC* Data{};
         if (AnimationIndex >= 0) {
@@ -297,6 +298,7 @@ namespace GI_RotateImageGAI {
                         PalettePlane = FrameGi->GetPlane(1);
                         RotatedImage->SetPalette(reinterpret_cast<GR_GraphBuf::PColorRGBA>(static_cast<std::uint8_t*>(FrameGi->Data) + PalettePlane->DataOffset), static_cast<std::uint32_t>(PalettePlane->DataSize) >> 2);
                         GR_Main::Ex_OKGR_RotateBuf_Draw_BYTE(RotatedImage->Pixels, RotatedImage->PitchBytes, static_cast<std::uint8_t*>(FrameGi->Data) + IndexPlane->DataOffset, FrameGi->GetContentSize().X, OriginPoint.X, OriginPoint.Y, Angle, Rotation->Buffer);
+                        // Native software alpha adjustment uses Pixels with a four-byte stride.
                         if (Alpha != 255) {
                             GR_Main::Ex_OKGR_Light_BYTE(EC_Mem::AddPointerOffset(RotatedImage->Pixels, 3), 4, RotatedImage->PitchBytes - RotatedImage->Width * 4, RotatedImage->Width, RotatedImage->Height, Alpha);
                         }

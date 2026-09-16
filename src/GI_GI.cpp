@@ -46,6 +46,7 @@ namespace GI_GI {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves alpha and the cache key.
     void TgiGI::Clear() {
         ImageKindX = GI_Main::ikxCenter;
         ImageKindY = GI_Main::ikyCenter;
@@ -106,6 +107,7 @@ namespace GI_GI {
         }
     }
 
+    // Black pixels do not count as hits.
     std::uint8_t TgiGI::HitTestPixel(Types::TPoint Point) {
         std::int32_t Width{};
         std::int32_t Height{};
@@ -191,6 +193,7 @@ namespace GI_GI {
         return Pixel != 0;
     }
 
+    // Returns the mean coordinates of nonzero rendered pixels, or (0,0) when none exist.
     Types::TPoint TgiGI::GetVisualCenter() {
         Types::TPoint Result{};
         std::int32_t Width{};

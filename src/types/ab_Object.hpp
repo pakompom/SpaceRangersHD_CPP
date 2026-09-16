@@ -56,6 +56,9 @@ namespace ab_Object {
         std::uint8_t ZoneDamageEnabled;
         std::uint8_t Active;
         std::uint8_t cpp_padding_3[3];
+        // Non-owning original firing object: Launch stores Owner (), child
+        // projectiles inherit it, and hits pass it as damage source ().
+        // Used to exclude self-collisions and select enemies; cleared on destruction.
         TabObject* SourceObject;
         std::uint32_t InitialRandomSeed;
         std::uint32_t RandomState;
@@ -69,6 +72,7 @@ namespace ab_Object {
         float GravityScale;
         float RegenerationRate;
         float DamageTakenScale;
+        // Default 1; SF_ABShipModifiers exposes luck. Multiplies the random reward roll.
         float LuckScale;
     };
     #if INTPTR_MAX == INT32_MAX

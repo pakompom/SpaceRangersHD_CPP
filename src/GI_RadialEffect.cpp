@@ -17,16 +17,11 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native expanding radiation field, hexagonal lattice and palette resources.
 namespace GI_RadialEffect {
     std::uint32_t RadiationRingColor(std::int32_t Value, TPSRadEffectGI* Self);
 
     std::int32_t RadiationRingAlpha(float Distance, TPSRadEffectGI* Self);
-
-    void QueueRadiationOctants(std::int32_t X, std::int32_t Y, TPSRadEffectGI* Self, std::int32_t& DistanceSquared, std::int32_t& FadeRadius, std::int32_t& CenterX, std::int32_t& CenterY);
-
-    void BlendRadiationOctants(std::int32_t X, std::int32_t Y, TPSRadEffectGI* Self, Types::TRect& ClipRect, std::int32_t& DistanceSquared, std::int32_t& FadeRadius, std::int32_t& CenterX, std::int32_t& CenterY, std::int32_t& Edge);
-
-    void BlendRadiationPoint(std::int32_t X, std::int32_t Y, Types::TRect& ClipRect, std::uint32_t& PixelColor, std::int32_t& PixelAlpha);
 
     pas::DynArray<pas::WideString> AuraAnimationPaths{};
 
@@ -103,6 +98,7 @@ namespace GI_RadialEffect {
     void TPSRadEffectGI_Create(TPSRadEffectGI* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->RemainingTicks = 340;
+        // Native initializes bounds before assigning the requested palette index.
         Self->UpdateProjectionBounds();
         Self->PositionInitialized = false;
         Self->PaletteIndex = APaletteIndex;
@@ -275,17 +271,71 @@ namespace GI_RadialEffect {
 
     void TPSRadEffectGI::Draw(Types::TRect ClipRect) {
         std::int32_t DistanceSquared{};
+        std::int32_t FadeRadius{};
+        std::int32_t CenterX{};
+        std::int32_t CenterY{};
         std::int32_t Edge{};
         PRadiationParticle Particle{};
         std::int32_t X{};
         std::int32_t Y{};
+        auto QueueRadiationOctants = [&](std::int32_t X, std::int32_t Y) -> void {
+            std::uint32_t PixelColor{};
+            float Distance = System::Sqrt(DistanceSquared);
+            std::int32_t PixelAlpha = GI_RadialEffect::RadiationRingAlpha(static_cast<long double>(Distance) - FadeRadius, this);
+            if (PixelAlpha > 0) {
+                PixelColor = GR_DX::Color565ToArgb(GI_RadialEffect::RadiationRingColor(PixelAlpha, this));
+                GR_DX::QueueDrawPoint(X + CenterX, Y + CenterY, PixelColor, PixelAlpha);
+                GR_DX::QueueDrawPoint(-X + CenterX, -Y + CenterY, PixelColor, PixelAlpha);
+                if (X > 0 && Y > 0) {
+                    GR_DX::QueueDrawPoint(-X + CenterX, Y + CenterY, PixelColor, PixelAlpha);
+                    GR_DX::QueueDrawPoint(X + CenterX, -Y + CenterY, PixelColor, PixelAlpha);
+                }
+                if (X != Y) {
+                    GR_DX::QueueDrawPoint(Y + CenterX, X + CenterY, PixelColor, PixelAlpha);
+                    GR_DX::QueueDrawPoint(-Y + CenterX, -X + CenterY, PixelColor, PixelAlpha);
+                    if (X > 0 && Y > 0) {
+                        GR_DX::QueueDrawPoint(-Y + CenterX, X + CenterY, PixelColor, PixelAlpha);
+                        GR_DX::QueueDrawPoint(Y + CenterX, -X + CenterY, PixelColor, PixelAlpha);
+                    }
+                }
+            }
+        };
+        auto BlendRadiationOctants = [&](std::int32_t X, std::int32_t Y) -> void {
+            std::uint32_t PixelColor{};
+            std::int32_t PixelAlpha{};
+            auto BlendRadiationPoint = [&](std::int32_t X, std::int32_t Y) -> void {
+                if (ClipRect.Left <= X && ClipRect.Right > X && ClipRect.Top <= Y && ClipRect.Bottom > Y) {
+                    GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, PixelColor, PixelAlpha);
+                }
+            };
+            float Distance = System::Sqrt(DistanceSquared);
+            PixelAlpha = GI_RadialEffect::RadiationRingAlpha(System::Round(Distance) - FadeRadius, this);
+            if (PixelAlpha > 0) {
+                PixelColor = GI_RadialEffect::RadiationRingColor(PixelAlpha, this);
+                Edge = 0;
+                BlendRadiationPoint(X + CenterX, Y + CenterY);
+                BlendRadiationPoint(-X + CenterX, -Y + CenterY);
+                if (X > 0 && Y > 0) {
+                    BlendRadiationPoint(-X + CenterX, Y + CenterY);
+                    BlendRadiationPoint(X + CenterX, -Y + CenterY);
+                }
+                if (X != Y) {
+                    BlendRadiationPoint(Y + CenterX, X + CenterY);
+                    BlendRadiationPoint(-Y + CenterX, -X + CenterY);
+                    if (X > 0 && Y > 0) {
+                        BlendRadiationPoint(-Y + CenterX, X + CenterY);
+                        BlendRadiationPoint(Y + CenterX, -X + CenterY);
+                    }
+                }
+            }
+        };
         std::int32_t OuterRadius = Radius;
         std::int32_t InnerRadius = std::max<std::int32_t>(OuterRadius - 100, 0);
-        std::int32_t FadeRadius = std::max<std::int32_t>(OuterRadius - 10, 0);
+        FadeRadius = std::max<std::int32_t>(OuterRadius - 10, 0);
         std::int32_t OuterSquared = pas::sqr(OuterRadius);
         std::int32_t InnerSquared = pas::sqr(InnerRadius);
-        std::int32_t CenterX = AbsolutePosition.X;
-        std::int32_t CenterY = AbsolutePosition.Y;
+        CenterX = AbsolutePosition.X;
+        CenterY = AbsolutePosition.Y;
         if (GlobalsV::HardwareRenderingEnabled) {
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -313,7 +363,7 @@ namespace GI_RadialEffect {
                     }
                     continue;
                 }
-                GI_RadialEffect::QueueRadiationOctants(X, Y, this, DistanceSquared, FadeRadius, CenterX, CenterY);
+                QueueRadiationOctants(X, Y);
                 ++X;
             }
             GR_DX::FlushDrawPoints(&ClipRect);
@@ -322,6 +372,7 @@ namespace GI_RadialEffect {
             while (Particle != nullptr) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 11); cpp_range_2.next(Edge); ) {
                     if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))) > 0) {
+                        // The native software path retains this second, identical test.
                         if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))) > 0) {
                             GR_Main::ScreenRenderBuffer->DrawAntialiasedLine16(AbsolutePosition.X + Particle->Position.X + RadiationEdgeStarts[Edge].X, AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeStarts[Edge].Y, AbsolutePosition.X + Particle->Position.X + RadiationEdgeEnds[Edge].X, AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeEnds[Edge].Y, Particle->Color, *static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))), ClipRect);
                         }
@@ -346,7 +397,7 @@ namespace GI_RadialEffect {
                     }
                     continue;
                 }
-                GI_RadialEffect::BlendRadiationOctants(X, Y, this, ClipRect, DistanceSquared, FadeRadius, CenterX, CenterY, Edge);
+                BlendRadiationOctants(X, Y);
                 ++X;
             }
         }
@@ -363,59 +414,6 @@ namespace GI_RadialEffect {
             return System::Round(pas::real_max<pas::Extended>(0.0L, 1.0E+1L * Distance + Self->Alpha));
         } else {
             return System::Round(pas::real_max<pas::Extended>(0.0L, (Distance + 1.0E+1L) * 3.0L + (Self->Alpha - 100)));
-        }
-    }
-
-    void QueueRadiationOctants(std::int32_t X, std::int32_t Y, TPSRadEffectGI* Self, std::int32_t& DistanceSquared, std::int32_t& FadeRadius, std::int32_t& CenterX, std::int32_t& CenterY) {
-        std::uint32_t PixelColor{};
-        float Distance = System::Sqrt(DistanceSquared);
-        std::int32_t PixelAlpha = GI_RadialEffect::RadiationRingAlpha(static_cast<long double>(Distance) - FadeRadius, Self);
-        if (PixelAlpha > 0) {
-            PixelColor = GR_DX::Color565ToArgb(GI_RadialEffect::RadiationRingColor(PixelAlpha, Self));
-            GR_DX::QueueDrawPoint(X + CenterX, Y + CenterY, PixelColor, PixelAlpha);
-            GR_DX::QueueDrawPoint(-X + CenterX, -Y + CenterY, PixelColor, PixelAlpha);
-            if (X > 0 && Y > 0) {
-                GR_DX::QueueDrawPoint(-X + CenterX, Y + CenterY, PixelColor, PixelAlpha);
-                GR_DX::QueueDrawPoint(X + CenterX, -Y + CenterY, PixelColor, PixelAlpha);
-            }
-            if (X != Y) {
-                GR_DX::QueueDrawPoint(Y + CenterX, X + CenterY, PixelColor, PixelAlpha);
-                GR_DX::QueueDrawPoint(-Y + CenterX, -X + CenterY, PixelColor, PixelAlpha);
-                if (X > 0 && Y > 0) {
-                    GR_DX::QueueDrawPoint(-Y + CenterX, X + CenterY, PixelColor, PixelAlpha);
-                    GR_DX::QueueDrawPoint(Y + CenterX, -X + CenterY, PixelColor, PixelAlpha);
-                }
-            }
-        }
-    }
-
-    void BlendRadiationOctants(std::int32_t X, std::int32_t Y, TPSRadEffectGI* Self, Types::TRect& ClipRect, std::int32_t& DistanceSquared, std::int32_t& FadeRadius, std::int32_t& CenterX, std::int32_t& CenterY, std::int32_t& Edge) {
-        std::uint32_t PixelColor{};
-        float Distance = System::Sqrt(DistanceSquared);
-        std::int32_t PixelAlpha = GI_RadialEffect::RadiationRingAlpha(System::Round(Distance) - FadeRadius, Self);
-        if (PixelAlpha > 0) {
-            PixelColor = GI_RadialEffect::RadiationRingColor(PixelAlpha, Self);
-            Edge = 0;
-            GI_RadialEffect::BlendRadiationPoint(X + CenterX, Y + CenterY, ClipRect, PixelColor, PixelAlpha);
-            GI_RadialEffect::BlendRadiationPoint(-X + CenterX, -Y + CenterY, ClipRect, PixelColor, PixelAlpha);
-            if (X > 0 && Y > 0) {
-                GI_RadialEffect::BlendRadiationPoint(-X + CenterX, Y + CenterY, ClipRect, PixelColor, PixelAlpha);
-                GI_RadialEffect::BlendRadiationPoint(X + CenterX, -Y + CenterY, ClipRect, PixelColor, PixelAlpha);
-            }
-            if (X != Y) {
-                GI_RadialEffect::BlendRadiationPoint(Y + CenterX, X + CenterY, ClipRect, PixelColor, PixelAlpha);
-                GI_RadialEffect::BlendRadiationPoint(-Y + CenterX, -X + CenterY, ClipRect, PixelColor, PixelAlpha);
-                if (X > 0 && Y > 0) {
-                    GI_RadialEffect::BlendRadiationPoint(-Y + CenterX, X + CenterY, ClipRect, PixelColor, PixelAlpha);
-                    GI_RadialEffect::BlendRadiationPoint(Y + CenterX, -X + CenterY, ClipRect, PixelColor, PixelAlpha);
-                }
-            }
-        }
-    }
-
-    void BlendRadiationPoint(std::int32_t X, std::int32_t Y, Types::TRect& ClipRect, std::uint32_t& PixelColor, std::int32_t& PixelAlpha) {
-        if (ClipRect.Left <= X && ClipRect.Right > X && ClipRect.Top <= Y && ClipRect.Bottom > Y) {
-            GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, PixelColor, PixelAlpha);
         }
     }
 

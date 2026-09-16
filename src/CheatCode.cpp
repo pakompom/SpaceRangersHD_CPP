@@ -58,11 +58,9 @@
 #include "units/fShip2.hpp"
 #include "units/fTextBox.hpp"
 
+// TCheatList VMT and its registration initializer identify the native cheat-code unit.
+// Command identities and encoded spellings come from the native registration order.
 namespace CheatCode {
-    void CheatHoleAddName(pas::WideString Text, pas::List*& Items);
-
-    std::int32_t SumCheatPrefix(std::int32_t Index, std::int32_t Count);
-
     std::int32_t CheatCandidateIndex = 0;
 
     std::int32_t CheatPrefixLength = 0;
@@ -90,13 +88,23 @@ namespace CheatCode {
         return Result;
     }
 
+    // Ctrl+Shift key callback installed by Rangers. Ignores input during message boxes, disabled cheats and active calculation phases.
     void HandleDebugKey(std::uint16_t Key) {
+        auto SumCheatPrefix = [&](std::int32_t Index, std::int32_t Count) -> std::int32_t {
+            std::int32_t Position{};
+            std::int32_t Result = 0;
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(Position); ) {
+                Result += CheatEntries->GetEntry(Index)->Text.read(Position);
+            }
+            return Result;
+        };
         if (CheatCode::IsCheatMessageBoxOpen()) {
             return;
         }
         if (aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->CheatsDisabled) {
             return;
         }
+        // The native subtract/test chain is DCC32 set membership, not a case statement.
         if (!pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(static_cast<std::int32_t>(aCalc::TurnCalculationPhase))) {
             return;
         }
@@ -107,7 +115,7 @@ namespace CheatCode {
                 CheatPrefixSum = 0;
                 return;
             }
-            if (CheatEntries->GetEntry(CheatCandidateIndex)->Text.length() >= CheatPrefixLength + 1 && CheatEntries->GetEntry(CheatCandidateIndex)->Text.read(CheatPrefixLength + 1) == Key && CheatCode::SumCheatPrefix(CheatCandidateIndex, CheatPrefixLength) == CheatPrefixSum) {
+            if (CheatEntries->GetEntry(CheatCandidateIndex)->Text.length() >= CheatPrefixLength + 1 && CheatEntries->GetEntry(CheatCandidateIndex)->Text.read(CheatPrefixLength + 1) == Key && SumCheatPrefix(CheatCandidateIndex, CheatPrefixLength) == CheatPrefixSum) {
                 break;
             }
             ++CheatCandidateIndex;
@@ -124,6 +132,8 @@ namespace CheatCode {
         }
     }
 
+    // Nested in HandleDebugKey; the native parent frame is passed but not read.
+    // Actions registered by the native unit initializer.
     void AddCheatPoints(std::int32_t Points) {
         std::int32_t PreviousPoints = aGalaxy::Galaxy->GetCheatPoints();
         aGalaxy::Galaxy->SetCheatPoints(PreviousPoints + Points);
@@ -146,6 +156,7 @@ namespace CheatCode {
             Event->AddData(Points);
         }
         Text = pas::concat_wide({Text, u"\r\n", aConst::LocalizedColorText(u"Cheat.Ok"_wref.get())});
+        // Native code reads the total without a nil-galaxy guard.
         aMyFunction::ReplaceTextToken(Text, u"<AllPoints>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->GetCheatPoints()), u"<color=255,240,100>"_w);
         if (Globals::ShipScreen->IsOpen) {
             Parent = Globals::ShipScreen;
@@ -206,6 +217,7 @@ namespace CheatCode {
                             if (PlanetIndex >= pas::list_count(Star->Planets)) {
                                 PlanetIndex = 0;
                             }
+                            // Preserve DCC32 O- receiver-before-index evaluation.
                             Planet = pas::list_at<aPlanet::TPlanet>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Planets) + 0), PlanetIndex);
                         } while (!(Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)));
                         Planet->SpawnWeightedDominatorShip();
@@ -288,7 +300,7 @@ namespace CheatCode {
             Sent = 0;
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(DistanceIndex); ) {
                 Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[DistanceIndex].Star));
-                if (Star->Status.ControlFaction == aGalaxyStruct::sfDominators && Star->Status.Battle == 0 && aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{0}, {1}, {2}})) && Star->Status.CustomFaction == u"") {
+                if (Star->Status.ControlFaction == aGalaxyStruct::sfDominators && Star->Status.Battle == 0 && aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}})) && Star->Status.CustomFaction == u"") {
                     Eligible = 0;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(ShipIndex); ) {
                         Ship = pas::list_at<aShip::TShip>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Ships) + 0), ShipIndex);
@@ -640,7 +652,7 @@ namespace CheatCode {
                 Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(J); ) {
                     Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-                    if (!pas::in_set<0, 0, 5, 13>(Ship->TypeId)) {
+                    if (!pas::in_set<aGalaxyStruct::stKling, aGalaxyStruct::stKling, aGalaxyStruct::stTranclucator, 13>(Ship->TypeId)) {
                         if (!(Ship->TypeId == aGalaxyStruct::stPirate || aPlayer::GetPlayer() == Ship || Ship->TypeId == aGalaxyStruct::stRanger && pas::checked_cast<aRanger::TRanger*>(Ship)->PreferredCareer == aGalaxyStruct::rcPirate)) {
                             if (aPlayer::GetPlayer() != Ship->PartnerShip) {
                                 Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), -60);
@@ -749,6 +761,7 @@ namespace CheatCode {
         std::int32_t Remaining{};
         std::int32_t Choice{};
         std::uint8_t Kind{};
+        // Shared DCU set has the native word-aligned local layout.
         aGalaxyStruct::TShipTypeMask Kinds{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             TotalKinds = 7;
@@ -784,6 +797,7 @@ namespace CheatCode {
         aGalaxy::TConstellation* Constellation{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
             I = 0;
+            // Native search skips hidden sectors here, then randomly seeks a hidden one.
             while (I < pas::list_count(aGalaxy::Galaxy->Constellations)) {
                 if (pas::list_at<aGalaxy::TConstellation>(aGalaxy::Galaxy->Constellations, I)->Visible) {
                     break;
@@ -876,7 +890,7 @@ namespace CheatCode {
     }
 
     void CheatHaterangers() {
-        static const pas::Set<0, 255> ShipTypes = pas::constant_set<pas::Set<0, 255>>({{2, 5}});
+        static const pas::Set<0, 255> ShipTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htPirate, aGalaxyStruct::htDiplomat}});
         static const pas::Set<0, 255> Owners = pas::constant_set<pas::Set<0, 255>>({{0, 7}});
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -897,7 +911,7 @@ namespace CheatCode {
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
                 Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
-                if (pas::in_set<0, 0, 2, 2>(Star->Status.ControlFaction) && Star->Status.CustomFaction == u"") {
+                if (pas::is_one_of<aGalaxyStruct::sfCoalition, aGalaxyStruct::sfPirates>(Star->Status.ControlFaction) && Star->Status.CustomFaction == u"") {
                     Attempts = 0;
                     do {
                         {
@@ -1214,6 +1228,13 @@ namespace CheatCode {
         GI_MessageLoop::TMessageLoopGI* Parent{};
         EC_BlockPar::TBlockParEC* Block{};
         aGalaxyEvent::TGalaxyEvent* Event{};
+        // Nested in CheatHole; appends an owned PWideString to the list at ParentFrame-4. Caller removes the static link.
+        auto CheatHoleAddName = [&](pas::WideString Text) -> void {
+            System::PWideString Cell{};
+            pas::new_value(Cell);
+            *Cell = std::move(Text);
+            pas::list_add(Items, static_cast<void*>(Cell));
+        };
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
             Parent = pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
             Items = pas::make_object<pas::List>();
@@ -1221,9 +1242,9 @@ namespace CheatCode {
             Count = Block->GetBlockCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count); cpp_range.next(Index); ) {
                 if (Index < Count) {
-                    CheatCode::CheatHoleAddName(Block->GetBlockByIndex(Index)->GetParam(u"Path"_wref.get()), Items);
+                    CheatHoleAddName(Block->GetBlockByIndex(Index)->GetParam(u"Path"_wref.get()));
                 } else {
-                    CheatCode::CheatHoleAddName(u"ABMap.map_boss"_w, Items);
+                    CheatHoleAddName(u"ABMap.map_boss"_w);
                 }
             }
             if (fListBox::ShowListDialog(Parent, Index, aConst::LocalizedColorText(u"Cheat.SelectABMap"_wref.get()), Items, 0, 0) == 1) {
@@ -1260,6 +1281,7 @@ namespace CheatCode {
                 pas::list_add(aGalaxy::Galaxy->Holes, reinterpret_cast<void*>(Hole));
             }
             while (pas::list_count(Items) > 0) {
+                // Native cleanup frees only the cell, leaving its string allocation intact.
                 pas::dispose(pas::list_get(Items, 0));
                 pas::list_delete(Items, 0);
             }
@@ -1292,7 +1314,7 @@ namespace CheatCode {
                     cpp_with->MaxDamage = cpp_with->CalculateStandardMaxDamage();
                     cpp_with->Range = cpp_with->CalculateStandardRange();
                     cpp_with->Cost = aItem::CalculateGeneratedWeaponCost(cpp_with->GetWeaponInfo(), cpp_with->Weight, cpp_with->TechLevel, cpp_with->OwnerId);
-                    if (pas::in_set<5, 7>(cpp_with->GetWeaponInfo()->ShotType)) {
+                    if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(cpp_with->GetWeaponInfo()->ShotType)) {
                         cpp_with->AmmoCapacity = cpp_with->CalculateGeneratedAmmoCapacity();
                         if (cpp_with->MicroModuleIndex != 0) {
                             cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
@@ -1357,6 +1379,7 @@ namespace CheatCode {
         std::int32_t I{};
         aItem::TEquipment* Item{};
         if (aPlayer::GetPlayer() != nullptr) {
+            // The native loop deliberately starts at one.
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
                 if (Item->EquippedFlag != 0) {
@@ -1388,7 +1411,7 @@ namespace CheatCode {
     }
 
     void CheatMakedump() {
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->IronWill ^ 1) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && aGalaxy::Galaxy->FinalizationNameEncoded == u"" && pas::in_set<4, 6, 8, 8, 15, 16, 20, 20, 28, 28, 34, 34>(GlobalsV::CurrentScreenId) && reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->ChildLoop == nullptr) {
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->IronWill ^ 1) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && aGalaxy::Galaxy->FinalizationNameEncoded == u"" && pas::is_one_of<GlobalsV::screenHangar, GlobalsV::screenPlanet, GlobalsV::screenPlanetNO, GlobalsV::screenEquipmentShop, GlobalsV::screenGovernment, GlobalsV::screenStarMap, GlobalsV::screenRuinsTalk, GlobalsV::screenInfo, GlobalsV::screenGoodsShop>(GlobalsV::CurrentScreenId) && reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->ChildLoop == nullptr) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(888);
             aGalaxy::Galaxy->CampaignFlag183 = 1;
             GR_Main::CaptureSavePreview();
@@ -1501,6 +1524,7 @@ namespace CheatCode {
                 Count = Value.length();
                 if (Count > 0) {
                     Quote = Value.read(1);
+                    // The native double-quote test compares against two characters.
                     if (Quote == u'\'' || static_cast<pas::WideString>(Quote) == u"\"\"") {
                         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count); cpp_range.next(Index); ) {
                             if (Value.read(Index) == Quote) {
@@ -1650,22 +1674,7 @@ namespace CheatCode {
         return AddEntry(Entry);
     }
 
-    void CheatHoleAddName(pas::WideString Text, pas::List*& Items) {
-        System::PWideString Cell{};
-        pas::new_value(Cell);
-        *Cell = std::move(Text);
-        pas::list_add(Items, static_cast<void*>(Cell));
-    }
-
-    std::int32_t SumCheatPrefix(std::int32_t Index, std::int32_t Count) {
-        std::int32_t Position{};
-        std::int32_t Result = 0;
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(Position); ) {
-            Result += CheatEntries->GetEntry(Index)->Text.read(Position);
-        }
-        return Result;
-    }
-
+    // Compiler unit entry registers the native command order.
     void UnitInitialize() {
         CheatEntries = pas::make_object<TCheatList>();
         CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ROEMPOAYIURU"_w), TCheatCallback(CheatRepair));
@@ -1732,6 +1741,7 @@ namespace CheatCode {
         CheatEntries->AddCheat(EC_Str::DecodeTextW(u"IONOFROSS"_w), TCheatCallback(CheatInfos));
     }
 
+    // Compiler unit entry calls the virtual destructor directly.
     void UnitFinalize() {
         pas::destroy(CheatEntries);
     }

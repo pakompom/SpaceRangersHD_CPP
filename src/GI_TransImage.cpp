@@ -28,6 +28,7 @@ namespace GI_TransImage {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves HalfAlpha and the cache key.
     void TTransImageGI::Clear() {
         ImageKindX = GI_Main::ikxCenter;
         ImageKindY = GI_Main::ikyCenter;

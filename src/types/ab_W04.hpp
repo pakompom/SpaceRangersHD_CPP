@@ -18,6 +18,7 @@ namespace ab_W04 {
         void UpdateVisuals() override;
         std::int32_t Damage;
         ab_WorldImage::PabWorldImage Image;
+        // 0 parent, 1 parent explosion, 2 child coasting, 3 child tracking, 4 child explosion.
         std::int32_t Phase;
         std::int32_t ExpireTick;
         std::int32_t AimTick;

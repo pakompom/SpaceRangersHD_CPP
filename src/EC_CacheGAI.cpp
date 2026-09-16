@@ -14,10 +14,6 @@
 #include "units/Windows.hpp"
 
 namespace EC_CacheGAI {
-    void LogGaiRescaleStart(const pas::WideString& ResourceKey);
-
-    void LogGaiRescaleDone();
-
     TCGaiEC* AcquireCachedGai(EC_Cache::TCacheControlEC* Control) {
         return pas::checked_cast<TCGaiEC*>(Control->AcquireDataFromConfig(pas::class_ref<TCGaiEC>()));
     }
@@ -49,6 +45,7 @@ namespace EC_CacheGAI {
         return EC_CacheGAI::AcquireCachedGai(this);
     }
 
+    // CachedFrameOrigins has Header.FrameCount entries.
     void TCGaiEC_Create(TCGaiEC* Self) {
         EC_Cache::TCacheDataEC_Create(Self);
         Self->DecodedFrameGi = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
@@ -132,12 +129,14 @@ namespace EC_CacheGAI {
         return;
     }
 
+    // Requires a valid index and a prior GetOrCreateFrameSurface call.
     WindowsSdk::TPoint TCGaiEC::GetFrameOrigin(std::int32_t FrameIndex) {
         WindowsSdk::TPoint Result{};
         Result = CachedFrameOrigins[FrameIndex];
         return Result;
     }
 
+    // Returns borrowed, reused DecodedFrameGi storage, or nil.
     GR_gi::TgiGR* TCGaiEC::LoadFrameGi(std::int32_t FrameIndex) {
         GR_gi::TgiGR* Result = nullptr;
         if (FrameIndex < 0 || Header->FrameCount <= FrameIndex) {
@@ -161,6 +160,7 @@ namespace EC_CacheGAI {
         return Result;
     }
 
+    // Does not validate FrameIndex.
     std::uint8_t TCGaiEC::IsFrameCompressed(std::int32_t FrameIndex) {
         std::int32_t Offset = EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(RawGaiData, FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader))));
         if (Offset == 0) {
@@ -169,6 +169,7 @@ namespace EC_CacheGAI {
         return EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(RawGaiData, Offset)) == 0x00004c5a;
     }
 
+    // Returns zero when no sequence table exists. Other sequence accessors require a valid table and indexes.
     std::int32_t TCGaiEC::GetSequenceCount() {
         if (SequenceTableData == nullptr) {
             return 0;
@@ -212,6 +213,7 @@ namespace EC_CacheGAI {
         return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, SequenceIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDirectoryEntry)) + 4 + 4)) + (FrameInSequence * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceFrameEntry)) + 4 + 4)));
     }
 
+    // NoConvertPF disables palette conversion. Only the minimum header size is validated; frame and sequence offsets are trusted.
     void TCGaiEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         std::int32_t FrameIndex{};
         GR_gi::TgiGR* Frame{};
@@ -246,14 +248,21 @@ namespace EC_CacheGAI {
         CachedFrameOrigins.set_length(Header->FrameCount);
     }
 
+    // Only affects the single-frame Bm.FormAB2.2bg resource; replaces SourceBuffer with RGB565 GI data.
     void TCGaiEC::ApplyAB2BackgroundFixup(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& ResourceKey) {
         GR_gi::TgiGR* Image{};
         GR_GraphBuf::TGraphBufGR* GraphBuf{};
         std::int32_t ByteCount{};
         std::int32_t Offset{};
         GR_gi::TGaiHeader OldHeader{};
+        auto LogGaiRescaleStart = [&]() -> void {
+            GR_Main::AppendLogTextThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Rescaling ", ResourceKey, u"... "})));
+        };
+        auto LogGaiRescaleDone = [&]() -> void {
+            GR_Main::AppendLogLineThreadSafe("ok"_a);
+        };
         if (EC_Str::FindTextOffsetW(ResourceKey, u"Bm.FormAB2.2bg"_wref.get(), 0) == 0) {
-            EC_CacheGAI::LogGaiRescaleStart(ResourceKey);
+            LogGaiRescaleStart();
             Windows::CopyMemory(&OldHeader, SourceBuffer->Data, static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)));
             if (OldHeader.FrameCount != 1) {
                 return;
@@ -288,16 +297,8 @@ namespace EC_CacheGAI {
             SourceBuffer->AddBytes(Image->Data, Image->DataSize);
             Image->ClearData();
             pas::free(Image);
-            EC_CacheGAI::LogGaiRescaleDone();
+            LogGaiRescaleDone();
         }
-    }
-
-    void LogGaiRescaleStart(const pas::WideString& ResourceKey) {
-        GR_Main::AppendLogTextThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Rescaling ", ResourceKey, u"... "})));
-    }
-
-    void LogGaiRescaleDone() {
-        GR_Main::AppendLogLineThreadSafe("ok"_a);
     }
 
     void TCGaiEC::p_destroy() {

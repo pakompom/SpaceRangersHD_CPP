@@ -31,12 +31,16 @@ namespace fEquipmentShop {
 
     extern pas::Array<pas::WideString, 0, 2> ShopDominatorImagePrefixes;
 
+    // Native no-op. Sole caller passes nil; original parameter meaning is unresolved.
     void TemporaryShopStockHook(void* Argument);
 
+    // Transfers ownership of market inventory into the temporary slots.
     void BuildTemporaryShopSlotGrid();
 
+    // Returns ownership of remaining items to the original market.
     void RestoreTemporaryShopStock();
 
+    // Frees remaining items without returning them to the market.
     void ClearTemporaryShopSlotGrid();
 
     TShopSlot* FindShopSlotByGridPoint(WindowsSdk::TPoint Point);
@@ -45,6 +49,7 @@ namespace fEquipmentShop {
 
     pas::WideString GetShopItemIconName(aItem::TItem* Item);
 
+    // Owns Item while the location's shop list is detached, and frees remaining controls.
     void TShopSlot_Create(TShopSlot* Self);
 
     void TShopSlot_Destroy(TShopSlot* Self);

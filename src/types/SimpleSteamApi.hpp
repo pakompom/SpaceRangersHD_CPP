@@ -19,6 +19,7 @@ namespace SimpleSteamApi {
 
     using PAchievementData = TAchievementData*;
 
+    // Caller-owned buffers used by both Steam and local achievement queries.
     #pragma pack(push, 1)
     struct TAchievementData {
         WStringUtils::PStartupWideString Name;
@@ -26,6 +27,7 @@ namespace SimpleSteamApi {
         std::uint8_t Achieved;
         std::uint8_t HasProgress;
         std::uint8_t cpp_padding[2];
+        // Native local backend and allocator set zero; meaning unresolved.
         std::int32_t Reserved0C;
         std::int32_t MaxValue;
         std::int32_t Value;

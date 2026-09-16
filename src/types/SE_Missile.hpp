@@ -27,6 +27,7 @@ namespace SE_Missile {
     struct TMissileSE : SE_Space::TObjectSE {
         PAS_CLASS_META(TMissileSE, SE_Space::TObjectSE, "TMissileSE", 92)
         void p_destroy() override;
+        // Native diagnostic name: TMissileSE.Connect.
         void AttachToSpace(SE_Space::TSpaceSE* ASpace) override;
         void DetachFromSpace() override;
         void SetPosition(EC_Struct::TPointF APosition) override;
@@ -36,7 +37,9 @@ namespace SE_Missile {
         void AdvanceAnimationTimer(SE_Space::PSpaceTimerSE Timer, std::int32_t UserData);
         void DrawMap() override;
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;
+        // Native empty override.
         void ApplyConfig(EC_BlockPar::TBlockParEC* Block) override;
+        // Native empty override.
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
         std::uint8_t Angle;
         std::uint8_t cpp_padding[3];

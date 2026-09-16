@@ -69,6 +69,7 @@ namespace fInfo {
         void FinishInfoLayout();
         void AddInfoSpacing(std::int32_t Pixels);
         void AddInfoSeparator();
+        // LayoutKind zero centers the heading; nonzero aligns it to the right.
         void AddInfoHeading(pas::WideString Title, pas::WideString BookmarkText, std::int32_t LayoutKind, std::int32_t BookmarkIndex, std::int32_t GoodsReference);
         void AddSearchPriceLabel(pas::WideString Text);
         void AddInfoText(pas::WideString Text, GI_Main::TTextAlignXGI Alignment, pas::WideString Font);
@@ -89,6 +90,7 @@ namespace fInfo {
         void SearchClicked(GI_MessageLoop::TObjectGI* Sender);
         void RunSearch(GI_MessageLoop::TObjectGI* Sender);
         void AddEquipmentInfoText(aItem::TItem* Item, pas::WideString Text);
+        // The explicit receiver value preserves native loading before the False argument.
         void ToggleVisibleBookmark();
         static std::uint8_t IsAtBusinessCenter();
         void CategoryStateChanged(GI_MessageLoop::TObjectGI* Sender);
@@ -131,6 +133,7 @@ namespace fInfo {
         std::int32_t InfoContentHeight;
         std::uint8_t SearchMode;
         std::uint8_t cpp_padding[3];
+        // Zero selects the general name search.
         std::int32_t SelectedSearchCategory;
         std::int32_t PreviousSearchCategory;
         std::uint8_t HasSearchResults;

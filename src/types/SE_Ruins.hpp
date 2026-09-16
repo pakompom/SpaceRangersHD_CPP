@@ -57,6 +57,7 @@ namespace SE_Ruins {
         pas::Array<EC_Struct::TPointF, 1, 10> WeaponPorts;
         std::uint8_t HasTransitionImages;
         std::uint8_t cpp_padding_2[3];
+        // 2 disappears, 3 appears, 4 finishes the To animation.
         std::int32_t State;
         GI_MessageLoop::PCallbackTimerGI FadeTimer;
         std::uint8_t KeepSize;

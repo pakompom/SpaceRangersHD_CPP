@@ -14,11 +14,15 @@ namespace GR_DX {
         PAS_CLASS_META(TTextureGR, pas::Object, "TTextureGR", 20)
         void p_destroy() override;
         void Clear();
+        // Retains the array and SurfaceCount.
         void ReleaseSurfaces();
+        // Returns nil when out of range; successful access refreshes LastUseTick.
         void GetSurface(std::int32_t Index, Direct3D9::IDirect3DTexture9& Result);
+        // A negative index appends; indexes beyond the end create nil holes.
         void SetSurface(pas::ComView<Direct3D9::IDirect3DTexture9_Tag> Value, std::int32_t Index);
         std::uint32_t LastUseTick;
         std::int32_t SurfaceCount;
+        // Delphi dynamic array of reference-counted surface interfaces.
         pas::DynArray<Direct3D9::IDirect3DTexture9> Surfaces;
         std::uint32_t ResidentBytes;
     };

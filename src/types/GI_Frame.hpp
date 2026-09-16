@@ -22,6 +22,7 @@ namespace GI_Frame {
     struct TFrameGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TFrameGI, GI_MessageLoop::TObjectGI, "TFrameGI", 304)
         void p_destroy() override;
+        // Preserves fill and color fields.
         void Clear() override;
         void SetKind(TFrameKindGI Value);
         void SetColor(std::uint32_t Value);
@@ -30,6 +31,7 @@ namespace GI_Frame {
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadFrameProperties(EC_BlockPar::TBlockParEC* Block);
+        // Fill is independent of Kind. FillAlpha values other than 255 all produce alpha 64.
         void Draw(Types::TRect ClipRect) override;
         TFrameKindGI Kind;
         std::uint8_t cpp_padding[3];

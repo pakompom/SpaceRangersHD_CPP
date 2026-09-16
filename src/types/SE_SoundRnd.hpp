@@ -12,9 +12,12 @@ namespace SE_SoundRnd {
 
     struct TSoundRndSE;
 
+    // Native record RTTI.
     struct TSoundRndUnitSE {
         std::int32_t Weight;
+        // Native Group parameter.
         std::int32_t Group;
+        // Native NextTime pair.
         std::int32_t NextTimeMin;
         std::int32_t NextTimeMax;
         pas::DynArray<pas::WideString> SoundNames;

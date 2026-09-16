@@ -17,6 +17,7 @@ namespace GI_PSWeapon12Turbogravir {
 
     void TPSWeapon12Turbogravir_Destroy(TPSWeapon12Turbogravir* Self);
 
+    // $2B4..$2B7 is inherited alignment padding, not an additional field.
     void TPSBlueWhirlGI_Create(TPSBlueWhirlGI* Self, GI_MessageLoop::TObjectGI* Owner);
 
 } // namespace GI_PSWeapon12Turbogravir

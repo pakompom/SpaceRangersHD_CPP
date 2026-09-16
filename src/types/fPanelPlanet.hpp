@@ -19,7 +19,9 @@ namespace fPanelPlanet {
         PAS_CLASS_META(TfPanelPlanet, EC_Struct::TObjectEx, "TfPanelPlanet", 8)
         void p_destroy() override;
         void InitializeLayout(GI_MessageLoop::TMessageLoopGI* Screen);
+        // Native no-op lifecycle hook.
         static void OnOpen();
+        // Native no-op lifecycle hook.
         static void OnClose();
         void Show();
         void Hide();

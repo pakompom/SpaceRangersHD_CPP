@@ -7,6 +7,7 @@
 #include "units/ab_W04.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW04 projectile family:.
 namespace ab_W04 {
     void TabW04_Create(TabW04* Self) {
         ab_Object::TabObject_Create(Self);

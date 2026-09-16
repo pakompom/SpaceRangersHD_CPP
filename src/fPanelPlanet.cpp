@@ -42,9 +42,11 @@ namespace fPanelPlanet {
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Info"_wref.get()))->UpCallback = pas::bind_method<&TfPanelPlanet::InformationClicked>(this);
     }
 
+    // Native no-op lifecycle hook.
     void TfPanelPlanet::OnOpen() {
     }
 
+    // Native no-op lifecycle hook.
     void TfPanelPlanet::OnClose() {
     }
 

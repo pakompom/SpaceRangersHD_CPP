@@ -465,6 +465,10 @@ constexpr bool in_set(Integer value) noexcept {
   if constexpr (sizeof...(Rest) == 0) return here;
   else return here || in_set<Rest...>(value);
 }
+template<Integer... Values>
+constexpr bool is_one_of(Integer value) noexcept {
+  return ((value == Values) || ...);
+}
 struct Object {
   using pas_parent = void;
   static constexpr const char *pas_name = "TObject";

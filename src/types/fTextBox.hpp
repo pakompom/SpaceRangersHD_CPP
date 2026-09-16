@@ -32,6 +32,7 @@ namespace fTextBox {
         void ProcessCallbackTimers() override;
         pas::WideString Caption;
         GI_Edit::TEditGI* Edit;
+        // Accepted text; cancellation preserves the initial value.
         pas::WideString Value;
         GI_GraphButton::TGraphButtonGI* AcceptButton;
         std::int32_t MaximumLength;

@@ -19,6 +19,7 @@
 #include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native eye/lightning effect, particles and dormant line-list storage.
 namespace GI_PSEyes {
     pas::DynArray<GI_PSEyes::TEyesPalette> EyesPalettes{};
 
@@ -162,6 +163,7 @@ namespace GI_PSEyes {
         A = static_cast<long double>(-HalfWidth) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = static_cast<long double>(HalfWidth) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = static_cast<long double>(-HalfWidth) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
@@ -221,6 +223,7 @@ namespace GI_PSEyes {
         LastLine = nullptr;
     }
 
+    // Native empty override.
     void TPSEyesGI::Invalidate() {
     }
 

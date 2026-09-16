@@ -35,10 +35,12 @@ namespace Robot {
 
     using TRobotRun = pas::StdcallProc<std::int32_t(std::uint32_t, std::uint32_t, char16_t*, PRobotDisplaySettings, char16_t*, char16_t*, char16_t*, char16_t*, char16_t*, WindowsSdk::PInteger)>;
 
+    // Dispatch table returned by GetRobotInterface.
     #pragma pack(push, 1)
     struct TRobotInterfacePrefix {
         TRobotInitialize Initialize;
         TRobotAction Finalize;
+        // Zero allows entry.
         TRobotSupportQuery Support;
         TRobotRun Run;
     };
@@ -70,6 +72,7 @@ namespace Robot {
 
     using TRobotSetVolume = pas::StdcallProc<void(float)>;
 
+    // Rangers callbacks passed to MatrixGame.dll.
     #pragma pack(push, 1)
     struct TRobotCallbacks {
         TRobotPlaySound PlaySound;
@@ -91,6 +94,7 @@ namespace Robot {
     };
     #pragma pack(pop)
 
+    // Owned raster returned to the DLL.
     #pragma pack(push, 1)
     struct TRobotTextImage {
         GR_GraphBuf::TGraphBufGR* Buffer;
@@ -101,9 +105,12 @@ namespace Robot {
     };
     #pragma pack(pop)
 
+    // Native settings block.
     #pragma pack(push, 1)
     struct TRobotDisplaySettingsPrefix {
+        // Borrowed, no interface reference counting.
         void* Direct3D;
+        // Borrowed.
         void* Device;
         std::uint8_t ShowStencilShadows;
         std::uint8_t ShowProjShadows;
@@ -116,6 +123,7 @@ namespace Robot {
         std::int32_t ColorDepth;
         std::int32_t ScreenWidth;
         std::int32_t ScreenHeight;
+        // Zero in windowed mode.
         std::int32_t RefreshRate;
         float Brightness;
         float Contrast;

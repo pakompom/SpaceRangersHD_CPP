@@ -32,6 +32,7 @@ namespace SE_BGObj {
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
         pas::WideString ImagePath;
+        // Loaded but not used by this scene unit.
         float Radius;
         GI_Image::TImageGI* Image;
     };

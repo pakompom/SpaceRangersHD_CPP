@@ -5,6 +5,7 @@
 #include "units/ab_W03.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW03 projectile family:.
 namespace ab_W03 {
     std::int32_t ProjectileCount = 0;
 

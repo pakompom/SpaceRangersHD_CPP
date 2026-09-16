@@ -74,6 +74,7 @@ namespace fPlanet {
         GI_MessageLoop::TObjectGI* Info = Panel->FindByNameRecursive(u"PanelInfo"_wref.get());
         Info->SetPosition(ClassesImports::Point(Info->LocalPosition.X + GR_Main::ExtraScreenWidth, Info->LocalPosition.Y));
         GI_MessageLoop::TObjectGI* Quest = Panel->FindByNameRecursive(u"QuestInfo"_wref.get());
+        // Native layout adds the extra width to both coordinates here.
         Quest->SetPosition(ClassesImports::Point(Quest->LocalPosition.X + GR_Main::ExtraScreenWidth, Quest->LocalPosition.Y + GR_Main::ExtraScreenWidth));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfPlanet::EndTurnClicked>(this);
@@ -346,7 +347,7 @@ namespace fPlanet {
         if (GR_Main::ExitScreenLoop) {
             return;
         }
-        if (pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10002);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20002);

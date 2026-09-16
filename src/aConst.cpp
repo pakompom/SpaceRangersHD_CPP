@@ -21,16 +21,6 @@
 #include "units/aPlayer.hpp"
 
 namespace aConst {
-    float ExtrapolateLinearDifficulty(std::uint8_t Level, float Level2, float Level3);
-
-    float ExtrapolateGeometricDifficulty(std::uint8_t Level, float Level2, float Level3);
-
-    pas::WideString ReadMicroModuleParam(pas::WideString ParamName, EC_BlockPar::TBlockParEC*& Block);
-
-    std::uint8_t ConsumeMicroModuleToken(pas::WideString Token, pas::WideString& Tokens);
-
-    pas::WideString ReadHullSeriesParam(pas::WideString ParamName, EC_BlockPar::TBlockParEC*& Block);
-
     struct CppGlobalRegion0 {
         std::uint32_t IntegrityDataBegin;
         std::int32_t CurrentSaveVersion;
@@ -153,7 +143,7 @@ namespace aConst {
         u"t_OnCustomTargetting"_w, u"t_OnCustomTargettingCheck"_w, u"t_OnStartAB"_w, u"t_OnABItemDrop"_w,
         u"t_OnGovItemReward"_w, u"t_OnCheckingUsability"_w, u"t_OnCheckingUsability2"_w, u"t_OnCheckingUsabilityGoods"_w,
         u"t_OnDeath"_w,
-    }}, .NonNegotiatingShipTypes = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0}, {5, 13}}), .EquipmentSlotLayouts = pas::Array<aConst::SEquipment, 0, 7>{{{.ItemType = aConst::t_FuelTanks, .Name = u"FuelTanks"_w}, {.ItemType = aConst::t_Engine, .Name = u"Engine"_w}, {.ItemType = aConst::t_Radar, .Name = u"Radar"_w}, {.ItemType = aConst::t_Scaner, .Name = u"Scaner"_w}, {.ItemType = aConst::t_RepairRobot, .Name = u"RepairRobot"_w}, {.ItemType = aConst::t_CargoHook, .Name = u"CargoHook"_w}, {.ItemType = aConst::t_DefGenerator, .Name = u"DefGenerator"_w}, {.ItemType = aConst::t_Weapon1, .Name = u"Weapon"_w}}}, .ItemTypeNames = pas::Array<pas::WideString, 0, 75>{{
+    }}, .NonNegotiatingShipTypes = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling}, {aGalaxyStruct::stTranclucator, 13}}), .EquipmentSlotLayouts = pas::Array<aConst::SEquipment, 0, 7>{{{.ItemType = aConst::t_FuelTanks, .Name = u"FuelTanks"_w}, {.ItemType = aConst::t_Engine, .Name = u"Engine"_w}, {.ItemType = aConst::t_Radar, .Name = u"Radar"_w}, {.ItemType = aConst::t_Scaner, .Name = u"Scaner"_w}, {.ItemType = aConst::t_RepairRobot, .Name = u"RepairRobot"_w}, {.ItemType = aConst::t_CargoHook, .Name = u"CargoHook"_w}, {.ItemType = aConst::t_DefGenerator, .Name = u"DefGenerator"_w}, {.ItemType = aConst::t_Weapon1, .Name = u"Weapon"_w}}}, .ItemTypeNames = pas::Array<pas::WideString, 0, 75>{{
         u"Food"_w, u"Medicine"_w, u"Technics"_w, u"Luxury"_w, u"Minerals"_w, u"Alcohol"_w, u"Arms"_w, u"Narcotics"_w,
         u"Artefact"_w, u"Artefact2"_w, u"ArtHull"_w, u"ArtFuel"_w, u"ArtSpeed"_w, u"ArtPower"_w, u"ArtRadar"_w,
         u"ArtScaner"_w, u"ArtDroid"_w, u"ArtNano"_w, u"ArtHook"_w, u"ArtDef"_w, u"ArtAnalyzer"_w, u"ArtMiniExpl"_w,
@@ -446,18 +436,24 @@ namespace aConst {
         300, 200, 1200, 900,
     }}, .GoodsMarketBaseCaptured = false, .IntegrityDataEnd = 0u};
 
+    // Four-byte zero boundary marker for the dormant native data checksum; original name unresolved.
     std::uint32_t& IntegrityDataBegin = cpp_global_region_0.IntegrityDataBegin;
 
+    // 167 in this binary.
     std::int32_t& CurrentSaveVersion = cpp_global_region_0.CurrentSaveVersion;
 
+    // 44 in this binary; enforced by the save-manager load action.
     std::int32_t& MinimumLoadableSaveVersion = cpp_global_region_0.MinimumLoadableSaveVersion;
 
     pas::WideString& LocalizedTextLinePrefix = cpp_global_region_0.LocalizedTextLinePrefix;
 
+    // Constellations.GalaxyCountStars config; SF_GalaxyPtr('StarCnt') exposes its address.
     std::int32_t& GalaxyStarCount = cpp_global_region_0.GalaxyStarCount;
 
+    // Constellations.GalaxySizeY config; also scales hyperspace route length.
     std::int32_t& GalaxySizeY = cpp_global_region_0.GalaxySizeY;
 
+    // Constellations.GalaxySizeX configuration.
     std::int32_t& GalaxySizeX = cpp_global_region_0.GalaxySizeX;
 
     const std::uint8_t& MaximumNewGameDifficulty = cpp_global_region_0.MaximumNewGameDifficulty;
@@ -470,8 +466,10 @@ namespace aConst {
 
     pas::Array<aConst::TShipTypeInfo, 0, 13>& ShipTypeNames = cpp_global_region_0.ShipTypeNames;
 
+    // Standing used to gate station spawning by faction, including the custom station.
     pas::Array<std::uint8_t, 6, 13>& StationDefaultStandings = cpp_global_region_0.StationDefaultStandings;
 
+    // Standing masks used by TPlayer.CanSelectShipTarget.
     aGalaxyStruct::TFactionStandingMasks& NonTargetableStationStandingMasks = cpp_global_region_0.NonTargetableStationStandingMasks;
 
     aGalaxyStruct::TFactionStandingMasks& FactionStandingMasks = cpp_global_region_0.FactionStandingMasks;
@@ -484,18 +482,22 @@ namespace aConst {
 
     pas::Array<pas::WideString, 0, 7>& DominatorShipTypeNames = cpp_global_region_0.DominatorShipTypeNames;
 
+    // TKlingType order; native name initializer pairs.
     pas::Array<aConst::TKlingTypeInfo, 0, 7>& DominatorShipDefinitions = cpp_global_region_0.DominatorShipDefinitions;
 
+    // Minimum reinforced-system strength by constellation distance tier.
     pas::Array<double, 0, 3>& DominatorRetreatStrengthByTier = cpp_global_region_0.DominatorRetreatStrengthByTier;
 
     pas::Array<pas::WideString, 0, 2>& DominatorSeriesNames = cpp_global_region_0.DominatorSeriesNames;
 
+    // Native Blazer, Keller, Terron research multipliers.
     pas::Array<double, 0, 2>& DominatorResearchRateMultipliers = cpp_global_region_0.DominatorResearchRateMultipliers;
 
     pas::Array<double, 0, 2>& ResearchProgramCostFactors = cpp_global_region_0.ResearchProgramCostFactors;
 
     pas::Array<pas::WideString, 0, 61>& ScriptActionTypeNames = cpp_global_region_0.ScriptActionTypeNames;
 
+    // Excluded from ransom offers and ordinary ally requests.
     aGalaxyStruct::TShipTypeMask& NonNegotiatingShipTypes = cpp_global_region_0.NonNegotiatingShipTypes;
 
     const pas::Array<aConst::SEquipment, 0, 7>& EquipmentSlotLayouts = cpp_global_region_0.EquipmentSlotLayouts;
@@ -524,86 +526,113 @@ namespace aConst {
 
     aGalaxyStruct::TPlanetEquipmentOfferQuotaTable& PlanetEquipmentOfferQuotas = cpp_global_region_0.PlanetEquipmentOfferQuotas;
 
+    // Native defaults; aRuins accesses this table through an external-unit reference. Original defining unit is inferred.
     aConst::TStationEquipmentOfferQuotaTable& StationEquipmentOfferQuotas = cpp_global_region_0.StationEquipmentOfferQuotas;
 
     pas::Array<pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>, 6, 13>& StationGoodsFactors = cpp_global_region_0.StationGoodsFactors;
 
     pas::Array<aConst::TGovermentInfo, 0, 4>& PlanetGovernmentMarket = cpp_global_region_0.PlanetGovernmentMarket;
 
+    // Indexed by goods, native race and government; False marks prohibited goods.
     aConst::TGoodsLegalityTable& GoodsLegalOnPlanet = cpp_global_region_0.GoodsLegalOnPlanet;
 
     pas::Array<pas::WideString, 0, 5>& MedalNames = cpp_global_region_0.MedalNames;
 
+    // Native initialization table.
     pas::Array<pas::WideString, 0, 7>& CoalitionRankNames = cpp_global_region_0.CoalitionRankNames;
 
+    // Zero threshold at the maximum rank.
     pas::Array<std::uint16_t, 0, 7>& CoalitionRankPointThresholds = cpp_global_region_0.CoalitionRankPointThresholds;
 
     pas::Array<pas::WideString, 0, 7>& PirateRankNames = cpp_global_region_0.PirateRankNames;
 
+    // Zero threshold at the maximum rank.
     pas::Array<std::uint16_t, 0, 7>& PirateRankPointThresholds = cpp_global_region_0.PirateRankPointThresholds;
 
     pas::Array<pas::WideString, 0, 5>& SkillConfigNames = cpp_global_region_0.SkillConfigNames;
 
+    // Native race, then TPilotSkill; used by ranger bonus evaluation and character setup.
     pas::Array<pas::Array<float, 0, 5>, 0, 4>& RaceSkillEvaluationFactors = cpp_global_region_0.RaceSkillEvaluationFactors;
 
+    // Level, then TPilotSkill; Trading supplies the item resale percentage.
     pas::Array<pas::Array<std::uint16_t, 0, 5>, 0, 6>& PilotSkillEffects = cpp_global_region_0.PilotSkillEffects;
 
     pas::Array<std::uint16_t, 0, 6>& TechnicalSkillSatelliteLimits = cpp_global_region_0.TechnicalSkillSatelliteLimits;
 
+    // Fraction of the purchase/sale spread recovered by the Trading skill.
     pas::Array<std::uint16_t, 0, 6>& TradingSkillSalePercent = cpp_global_region_0.TradingSkillSalePercent;
 
     pas::Array<std::uint16_t, 0, 6>& LeadershipExperiencePercent = cpp_global_region_0.LeadershipExperiencePercent;
 
+    // Loaded from GalaxyNews.MaxCntPlanetNews; caps visible-system economic events.
     std::int32_t& MaxPlanetNews = cpp_global_region_0.MaxPlanetNews;
 
     pas::Array<pas::WideString, 0, 5>& SizeTagNames = cpp_global_region_0.SizeTagNames;
 
+    // Fractions of cached ship wealth used for negotiated amounts.
     pas::Array<float, 0, 5>& WealthDemandScales = cpp_global_region_0.WealthDemandScales;
 
+    // Includes the unsupported-slot sentinel.
     pas::Array<std::int32_t, 0, 10>& MinimumHullSlotCounts = cpp_global_region_0.MinimumHullSlotCounts;
 
+    // Artefact limit can be overridden by gameplay configuration.
     pas::Array<std::int32_t, 0, 10>& DefaultHullSlotCounts = cpp_global_region_0.DefaultHullSlotCounts;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& RangerHullSlots = cpp_global_region_0.RangerHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& WarriorHullSlots = cpp_global_region_0.WarriorHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& PirateHullSlots = cpp_global_region_0.PirateHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& TransportHullSlots = cpp_global_region_0.TransportHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& LinerHullSlots = cpp_global_region_0.LinerHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& DiplomatHullSlots = cpp_global_region_0.DiplomatHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<std::int32_t, 0, 10>& TranclucatorHullSlots = cpp_global_region_0.TranclucatorHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& StationHullSlots = cpp_global_region_0.StationHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& DominatorHullSlots = cpp_global_region_0.DominatorHullSlots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<std::int32_t, 0, 10>& HullType9Slots = cpp_global_region_0.HullType9Slots;
 
+    // Native base slot counts; final column is unsupported kind.
     pas::Array<std::int32_t, 0, 10>& HullType10Slots = cpp_global_region_0.HullType10Slots;
 
     pas::Array<aConst::TEquipmentBonusKind, 0, 10>& HullSlotBonusKinds = cpp_global_region_0.HullSlotBonusKinds;
 
     aConst::TOwnerWeaponAvailabilityTable& OwnerWeaponAvailability = cpp_global_region_0.OwnerWeaponAvailability;
 
+    // Native managed-string descriptors.
     pas::Array<pas::WideString, 0, 20>& WeaponDamageFlagNames = cpp_global_region_0.WeaponDamageFlagNames;
 
     pas::Array<aConst::TPrimaryDamageTypeInfo, 0, 2>& WeaponDamageClasses = cpp_global_region_0.WeaponDamageClasses;
 
+    // Indexed by TCombatStatusEffectType.
     pas::Array<float, 0, 6>& CombatStatusHullFactors = cpp_global_region_0.CombatStatusHullFactors;
 
     pas::Array<float, 0, 6>& CombatStatusAccumulationFactors = cpp_global_region_0.CombatStatusAccumulationFactors;
 
     pas::Array<pas::WideString, 0, 42>& EquipmentBonusNames = cpp_global_region_0.EquipmentBonusNames;
 
+    // Maps bonSkill1..bonSkill6 to native pilot skills.
     pas::Array<std::uint8_t, 0, 5>& EquipmentBonusSkills = cpp_global_region_0.EquipmentBonusSkills;
 
     aConst::TEquipmentSizeFactorTable& EquipmentSizeFactors = cpp_global_region_0.EquipmentSizeFactors;
 
+    // Native technology multiplier, immediately after EquipmentSizeFactors.
     aConst::TWeaponRangeLevelFactors& WeaponRangeLevelFactors = cpp_global_region_0.WeaponRangeLevelFactors;
 
     pas::Array<aConst::tInventionInfo, 0, 19>& PlanetInventionInfo = cpp_global_region_0.PlanetInventionInfo;
@@ -622,146 +651,208 @@ namespace aConst {
 
     aGalaxyStruct::TQuestTuningTable QuestTuning{};
 
+    // Levels 1..6 loaded from configuration; level zero is cleared.
     pas::Array<pas::Array<std::uint16_t, 0, 5>, 0, 6> SkillTrainingCosts{};
 
+    // Sum of all six levels of all six skills.
     std::int32_t TotalSkillTrainingCost{};
 
     aGalaxyStruct::TQuestExperienceTable QuestExperience{};
 
+    // Config kArtefactHull.
     std::int32_t HullArtefactArmor{};
 
+    // Set to 1.5 by native configuration loading.
     float HullArtefactStatusDecayFactor{};
 
     std::int32_t FuelArtefactBase{};
 
+    // Config kArtefactSpeed.
     float SpeedArtefactFactor{};
 
     std::int32_t EngineArtefactBase{};
 
+    // Config kArtefactRadar.
     std::int32_t RadarArtefactRange{};
 
+    // Config kArtefactScaner.
     std::int32_t ScannerArtefactPower{};
 
+    // Config kArtefactDroid.
     std::int32_t DroidArtefactRepair{};
 
+    // Config kArtefactDroidWear.
     float DroidArtefactWear{};
 
+    // Set to 1.5 by native configuration loading.
     float DroidArtefactStatusDecayFactor{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t NanoArtefactRepair{};
 
+    // Config kArtefactDef.
     float DefenseArtefactBonus{};
 
+    // Config kArtefactAntigrav.
     float AntigravityArtefactMassFactor{};
 
+    // Config kArtefactHook.
     std::int32_t CargoHookArtefactPower{};
 
+    // Config kArtefactHookRaduis.
     std::int32_t CargoHookArtefactRange{};
 
+    // Config kArtefactHookSpeed.
     std::int32_t CargoHookArtefactSpeed{};
 
+    // Config kArtWeaponToSpeed.
     std::int32_t WeaponToSpeedArtefactBonus{};
 
+    // Config kArtDefToEnergyUp.
     float DefenseToEnergyUpperFactor{};
 
+    // Config kArtDefToEnergyMin.
     float DefenseToEnergyMinimumFactor{};
 
+    // Config kArtDefToEnergyPenalty.
     float DefenseToEnergyPenalty{};
 
+    // Config kArtDefToArms1Penalty.
     float DefenseToWeaponPenalty{};
 
+    // Config kArtEnergyPulse.
     float EnergyPulseArtefactFactor{};
 
+    // Config kArtEnergyPulseChance.
     float EnergyPulseArtefactChance{};
 
+    // Config kArtSplinter.
     float SplinterArtefactFactor{};
 
+    // Config kArtGiperJump.
     std::int32_t HyperJumpArtefactRange{};
 
+    // Configured star-heat reduction per active artefact.
     float StarHeatArtefactReduction{};
 
     float ExtraMissileChance{};
 
+    // Config kArtForsage.
     float AfterburnerArtefactWearFactor{};
 
+    // Config kArtefactHullEx.
     std::int32_t HullArtefactBoostArmor{};
 
+    // Set to 0.5 by native configuration loading.
     float HullArtefactBoostStatusDecay{};
 
     std::int32_t FuelArtefactBoost{};
 
+    // Config kArtefactSpeedEx.
     float SpeedArtefactBoostFactor{};
 
     std::int32_t EngineArtefactBoost{};
 
+    // Config kArtefactRadarEx.
     std::int32_t RadarArtefactBoostRange{};
 
+    // Config kArtefactScanerEx.
     std::int32_t ScannerArtefactBoostPower{};
 
+    // Config kArtefactDroidEx.
     std::int32_t DroidArtefactBoostRepair{};
 
+    // Config kArtefactDroidWearEx.
     float DroidArtefactBoostWear{};
 
+    // Set to 0.5 by native configuration loading.
     float DroidArtefactBoostStatusDecay{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t NanoArtefactBoostRepair{};
 
+    // Config kArtefactDefEx.
     float DefenseArtefactBoost{};
 
+    // Config kArtefactAntigravEx.
     float AntigravityArtefactBoostFactor{};
 
+    // Config kArtefactHookEx.
     std::int32_t CargoHookArtefactBoostPower{};
 
+    // Config kArtefactHookRaduisEx.
     std::int32_t CargoHookArtefactBoostRange{};
 
+    // Config kArtefactHookSpeedEx.
     std::int32_t CargoHookArtefactBoostSpeed{};
 
+    // Config kArtWeaponToSpeedEx.
     std::int32_t WeaponToSpeedArtefactBoost{};
 
+    // Config kArtDefToEnergyUpEx.
     float DefenseToEnergyUpperBoost{};
 
+    // Config kArtDefToEnergyMinEx.
     float DefenseToEnergyMinimumBoost{};
 
+    // Config kArtDefToEnergyPenaltyEx.
     float DefenseToEnergyBoostPenalty{};
 
+    // Config kArtEnergyPulseEx.
     float EnergyPulseArtefactBoostFactor{};
 
+    // Config kArtSplinterEx.
     float SplinterArtefactBoostFactor{};
 
+    // Config kArtGiperJumpEx.
     std::int32_t HyperJumpArtefactBoostRange{};
 
+    // Boosted additional reduction.
     float StarHeatArtefactBoostReduction{};
 
+    // Loaded from Artefacts.NumericValues.
     float ExtraMissileBoostChance{};
 
+    // Config kArtForsageEx.
     float AfterburnerArtefactBoostWearFactor{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t MinTransmitterPower{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t AverageTransmitterPower{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t MaxTransmitterPower{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t TransmitterSameSystemPenalty{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t TransmitterAnySystemPenalty{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t TransmitterSameSystemPenaltyTurns{};
 
+    // Loaded from Artefacts.NumericValues.
     std::int32_t TransmitterAnySystemPenaltyTurns{};
 
     std::int32_t SubportalRewardPenalty{};
 
     std::int32_t SubportalRewardPenaltyTurns{};
 
+    // Added when Item.DestroyFlag is two.
     std::int32_t ItemExplosionBonusDamage{};
 
+    // Damage at the blast radius.
     std::int32_t BombMinimumDamage{};
 
+    // Damage at the center.
     std::int32_t BombMaximumDamage{};
 
     std::int32_t BombDamageRadius{};
 
+    // Square of configured BombRadius.
     std::int32_t ItemExplosionRadiusSquared{};
 
     std::int32_t PointDefensePassCount{};
@@ -770,14 +861,19 @@ namespace aConst {
 
     std::int32_t PointDefenseBonusRange{};
 
+    // Asteroid.kAsteroidMinDamagePercent divided by 100; fraction of hull capacity.
     float AsteroidMinDamageFactor{};
 
+    // Asteroid.kAsteroidMaxDamagePercent divided by 100.
     float AsteroidMaxDamageFactor{};
 
+    // Asteroid.kAsteroidMinDamagePercentDef divided by 100.
     float AsteroidMinDamageFactorWithDefGenerator{};
 
+    // Asteroid.kAsteroidMaxDamagePercentDef divided by 100.
     float AsteroidMaxDamageFactorWithDefGenerator{};
 
+    // Hull capacities are multiplied by this configuration value.
     float HullCapacityScale{};
 
     std::int32_t HullBaseSize{};
@@ -796,24 +892,32 @@ namespace aConst {
 
     std::int32_t DefGeneratorBaseSize{};
 
+    // Config native equipment configuration.
     float AfterburnerSpeedFactor{};
 
+    // Loaded from equipment configuration.
     pas::Array<std::uint8_t, 1, 8> FuelCapacityByLevel{};
 
+    // Loaded by the native equipment configuration initializer.
     aGalaxyStruct::TEngineLevelStatsTable EngineLevelStats{};
 
+    // Native per-technology armor table; remaining fields unresolved.
     aConst::THullLevelStatsTable HullLevelStats{};
 
+    // Loaded from mRepair.
     pas::Array<std::uint8_t, 1, 8> RepairRobotLevelPoints{};
 
     pas::Array<float, 1, 8> DefGeneratorLevelFactors{};
 
+    // Loaded from equipment configuration.
     pas::Array<std::uint16_t, 1, 8> RadarLevelRanges{};
 
     aGalaxyStruct::TCargoHookLevelStatsTable CargoHookLevelStats{};
 
+    // Damage class, then owner; loaded from mFragilityByOwner*.
     pas::Array<pas::Array<float, 0, 7>, 0, 2> HullFragilityByOwner{};
 
+    // Loaded from mFragilityByShipType.
     pas::Array<float, 0, 10> HullFragilityByType{};
 
     pas::Array<aConst::TWeaponInfo, 50, 67> WeaponInfos{};
@@ -832,14 +936,19 @@ namespace aConst {
 
     pas::Array<std::int32_t, 0, 11>& PirateProgramBaseCosts = cpp_global_region_0.PirateProgramBaseCosts;
 
+    // Set after the one-time localized base-table copy.
     std::uint8_t& GoodsMarketBaseCaptured = cpp_global_region_0.GoodsMarketBaseCaptured;
 
+    // Four-byte zero marker at the exclusive boundary of that native checksum span.
     std::uint32_t& IntegrityDataEnd = cpp_global_region_0.IntegrityDataEnd;
 
+    // Updated by TPlayer.NextDay and read by TfGameEnd.OnOpen; score-related role not fully recovered.
     std::int32_t LastMedicalPolicyTicks = 0;
 
+    // Initialized from HullBaseSize and EquipmentSizeFactors[5].
     std::int32_t HullMassEvaluationStart{};
 
+    // Initialized from HullBaseSize and EquipmentSizeFactors[1].
     std::int32_t HullMassEvaluationEnd{};
 
     std::int32_t WearMassMin{};
@@ -852,14 +961,19 @@ namespace aConst {
 
     std::int32_t MicroModuleTemplateCount{};
 
+    // Loaded from HullType configuration, sorted by numeric suffix.
     pas::DynArray<aConst::THullTypeInfo> HullSeriesDefinitions{};
 
+    // Native count used by CheatIdeal and hull-series configuration.
     std::int32_t HullSeriesCount{};
 
+    // Native disease/stimulant definitions; eligibility and progression fields verified in TPlayer.NextDay.
     pas::Array<aConst::TIllnessInfo, 1, 24> CaptainHealthDefinitions{};
 
+    // Finalized as one TIllnessInfo alongside the 24 captain effects.
     aConst::TRadiationHealthDefinitions RadiationHealthDefinitions{};
 
+    // Shared selection scratch, sized to MicroModuleTemplateCount when templates load. Callers track the used prefix separately.
     pas::DynArray<std::int32_t> MicroModuleCandidateIndices{};
 
     void IncrementWordSaturating(pas::Var<std::uint16_t> Value) {
@@ -910,10 +1024,12 @@ namespace aConst {
         return Result;
     }
 
+    // Unrecognized names act as a wildcard.
     std::uint8_t MatchesOwnerName(std::uint8_t OwnerId, const pas::WideString& Name) {
         return static_cast<std::uint8_t>(aConst::IsKnownOwnerName(Name) ^ 1) || Name == aConst::OwnerToSys(OwnerId);
     }
 
+    // Case-sensitive substring, Any, or empty string.
     std::uint8_t MatchesCareerName(std::uint8_t Career, const pas::WideString& Names) {
         return pas::pos(CareerTuning[Career].Name, Names) > 0 || Names == u"Any" || Names == u"";
     }
@@ -1362,7 +1478,7 @@ namespace aConst {
                         cpp_with.ShotType = aGalaxyStruct::wstChain;
                     }
                 }
-                if (pas::in_set<1, 1, 6, 7>(cpp_with.ShotType)) {
+                if (pas::is_one_of<aGalaxyStruct::wstChain, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(cpp_with.ShotType)) {
                     cpp_with.ShotCount = EC_Str::ExtractDigitsToIntW(Values);
                 }
                 cpp_with.AttackCount = 1;
@@ -1395,7 +1511,7 @@ namespace aConst {
             Kind = aConst::GetItemTypeFromMask(static_cast<TItemTypeSelection>(WeaponTypes), Level);
             WeaponInfos[Kind].PrimarySE = static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(Kind - 50)}));
             WeaponInfos[Kind].SecondarySE = u"Weapon.NoGraph"_w;
-            if (pas::in_set<5, 7>(WeaponInfos[Kind].ShotType)) {
+            if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(WeaponInfos[Kind].ShotType)) {
                 WeaponInfos[Kind].AreaSE = u"Weapon.MissileHit"_w;
             } else {
                 WeaponInfos[Kind].AreaSE = pas::WideString();
@@ -1448,6 +1564,34 @@ namespace aConst {
         std::uint8_t StationKind{};
         pas::DynArray<std::int32_t> BlockIndices{};
         pas::DynArray<std::int32_t> SortKeys{};
+        // Nested in LoadMicroModuleConfiguration; reads its current Block through the caller-popped static link.
+        auto ReadMicroModuleParam = [&](pas::WideString ParamName) -> pas::WideString {
+            pas::WideString Result{};
+            std::int32_t I{};
+            Result = pas::WideString();
+            std::int32_t Count = Block->CountParams(ParamName);
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
+                if (Result != u"") {
+                    Result = pas::concat_wide({Result, u"\r\n"});
+                }
+                Result = pas::concat_wide_reverse({Block->GetParamByPath(pas::concat_wide({ParamName, u":", pas::wide_int_to_str(I)})), Result});
+            }
+            if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
+                Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
+                return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            }
+            return Result;
+        };
+        // Nested in LoadMicroModuleConfiguration; removes every occurrence of Token from its remaining-token string.
+        auto ConsumeMicroModuleToken = [&](pas::WideString Token) -> std::uint8_t {
+            std::uint8_t Result{};
+            if (pas::pos(Token, Tokens) > 0) {
+                Result = true;
+                Tokens = EC_Str::ReplaceAllWideString(Tokens, Token, u""_wref.get());
+                return Result;
+            }
+            return false;
+        };
         Block = GR_Main::LanguageDataConfig->GetBlock(u"MicroModuls"_wref.get());
         MicroModuleTemplateCount = Block->GetBlockCount();
         MicroModuleTemplates.set_length(MicroModuleTemplateCount);
@@ -1480,17 +1624,17 @@ namespace aConst {
                 cpp_with.ConfigNameHash = CrcUnit::UpdateCrc32(cpp_with.ConfigNameHash, cpp_with.ConfigName.pchar(), cpp_with.ConfigName.length() * 2);
                 cpp_with.ConfigNameHash = CrcUnit::FinishCrc32(cpp_with.ConfigNameHash);
                 Block = Block->GetBlockByIndex(BlockIndices[Index]);
-                cpp_with.SpecialOnly = EC_Str::ExtractDigitsToIntW(aConst::ReadMicroModuleParam(u"Special"_w, Block)) != 0;
-                cpp_with.BlocksMicroModuleSlot = EC_Str::ExtractDigitsToIntW(aConst::ReadMicroModuleParam(u"BlockMM"_w, Block)) != 0;
-                cpp_with.BlocksSpecialSlot = EC_Str::ExtractDigitsToIntW(aConst::ReadMicroModuleParam(u"BlockImp"_w, Block)) != 0;
-                cpp_with.RacialRestriction = EC_Str::ExtractDigitsToIntW(aConst::ReadMicroModuleParam(u"RacialRestriction"_w, Block)) != 0;
-                cpp_with.SeparatedNumbers = EC_Str::ExtractDigitsToIntW(aConst::ReadMicroModuleParam(u"SeparatedNumbers"_w, Block)) != 0;
-                cpp_with.Name = aConst::ReadMicroModuleParam(u"Name"_w, Block);
-                cpp_with.NamePrefix = aConst::ReadMicroModuleParam(u"NamePrefix"_w, Block);
-                cpp_with.Color = aConst::ReadMicroModuleParam(u"Color"_w, Block);
-                cpp_with.TextReplace = aConst::ReadMicroModuleParam(u"TextReplace"_w, Block);
+                cpp_with.SpecialOnly = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"Special"_w)) != 0;
+                cpp_with.BlocksMicroModuleSlot = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"BlockMM"_w)) != 0;
+                cpp_with.BlocksSpecialSlot = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"BlockImp"_w)) != 0;
+                cpp_with.RacialRestriction = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"RacialRestriction"_w)) != 0;
+                cpp_with.SeparatedNumbers = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"SeparatedNumbers"_w)) != 0;
+                cpp_with.Name = ReadMicroModuleParam(u"Name"_w);
+                cpp_with.NamePrefix = ReadMicroModuleParam(u"NamePrefix"_w);
+                cpp_with.Color = ReadMicroModuleParam(u"Color"_w);
+                cpp_with.TextReplace = ReadMicroModuleParam(u"TextReplace"_w);
                 for (BonusKind = static_cast<std::uint8_t>(0); BonusKind <= static_cast<std::uint8_t>(42); ++BonusKind) {
-                    Value = aConst::ReadMicroModuleParam(EquipmentBonusNames[BonusKind], Block);
+                    Value = ReadMicroModuleParam(EquipmentBonusNames[BonusKind]);
                     if (Value == u"") {
                         cpp_with.StatBonuses[BonusKind] = 0;
                     } else if (pas::in_set<29, 30>(BonusKind)) {
@@ -1499,33 +1643,33 @@ namespace aConst {
                         cpp_with.StatBonuses[BonusKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                     }
                 }
-                Value = aConst::ReadMicroModuleParam(u"Cost"_w, Block);
+                Value = ReadMicroModuleParam(u"Cost"_w);
                 if (Value == u"") {
                     cpp_with.CostPercent = 100;
                 } else {
                     cpp_with.CostPercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadMicroModuleParam(u"Size"_w, Block);
+                Value = ReadMicroModuleParam(u"Size"_w);
                 if (Value == u"") {
                     cpp_with.SizePercent = 100;
                 } else {
                     cpp_with.SizePercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadMicroModuleParam(u"Fragility"_w, Block);
+                Value = ReadMicroModuleParam(u"Fragility"_w);
                 if (Value == u"") {
                     cpp_with.FragilityFactor = 1.0f;
                 } else {
                     cpp_with.FragilityFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                 }
                 for (DamageClass = static_cast<std::uint8_t>(0); DamageClass <= static_cast<std::uint8_t>(2); ++DamageClass) {
-                    Value = aConst::ReadMicroModuleParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageClass].Name}), Block);
+                    Value = ReadMicroModuleParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageClass].Name}));
                     if (Value == u"") {
                         cpp_with.FragilityFactorByDamageClass[DamageClass] = cpp_with.FragilityFactor;
                     } else {
                         cpp_with.FragilityFactorByDamageClass[DamageClass] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                     }
                 }
-                Value = aConst::ReadMicroModuleParam(u"Owner"_w, Block);
+                Value = ReadMicroModuleParam(u"Owner"_w);
                 if (Value == u"" || Value == u"Any") {
                     if (cpp_with.SpecialOnly) {
                         pas::store_unaligned<aGalaxyStruct::TOwnerMask>(&cpp_with.AllowedHullOwnerMask, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 4}, {7}}));
@@ -1539,51 +1683,51 @@ namespace aConst {
                     pas::store_unaligned<aGalaxy::TDominatorSeriesMask>(&cpp_with.AllowedDominatorSeriesMask, pas::constant_set<aGalaxy::TDominatorSeriesMask>({}));
                     Tokens = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""_wref.get());
                     Tokens = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(Tokens, u","_wref.get(), u">,<"_wref.get()), u">"});
-                    if (aConst::ConsumeMicroModuleToken(u"<Maloc>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Maloc>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiMaloc);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Peleng>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Peleng>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiPeleng);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<People>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<People>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiHuman);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Fei>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Fei>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiFeyan);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Gaal>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Gaal>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiGaal);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<PirateClan>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<PirateClan>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiPirate);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<None>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<None>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiUninhabited);
                     }
                     if (cpp_with.SpecialOnly) {
-                        if (aConst::ConsumeMicroModuleToken(u"<Kling>"_w, Tokens)) {
+                        if (ConsumeMicroModuleToken(u"<Kling>"_w)) {
                             pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
                         }
-                        aConst::ConsumeMicroModuleToken(u"<NonKling>"_w, Tokens);
+                        ConsumeMicroModuleToken(u"<NonKling>"_w);
                     } else {
-                        if (!aConst::ConsumeMicroModuleToken(u"<NonKling>"_w, Tokens)) {
+                        if (!ConsumeMicroModuleToken(u"<NonKling>"_w)) {
                             pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
                         }
-                        aConst::ConsumeMicroModuleToken(u"<Kling>"_w, Tokens);
+                        ConsumeMicroModuleToken(u"<Kling>"_w);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Blazer>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Blazer>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxy::TDominatorSeriesMask*>(&cpp_with.AllowedDominatorSeriesMask), aGalaxyStruct::dsBlazer);
                         if (cpp_with.SpecialOnly) {
                             pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
                         }
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Terron>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Terron>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxy::TDominatorSeriesMask*>(&cpp_with.AllowedDominatorSeriesMask), aGalaxyStruct::dsTerron);
                         if (cpp_with.SpecialOnly) {
                             pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
                         }
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Keller>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Keller>"_w)) {
                         pas::include_at(reinterpret_cast<aGalaxy::TDominatorSeriesMask*>(&cpp_with.AllowedDominatorSeriesMask), aGalaxyStruct::dsKeller);
                         if (cpp_with.SpecialOnly) {
                             pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
@@ -1604,14 +1748,14 @@ namespace aConst {
                         }
                     }
                 }
-                cpp_with.CustomFaction = aConst::ReadMicroModuleParam(u"CustomFaction"_w, Block);
-                Value = aConst::ReadMicroModuleParam(u"Priority"_w, Block);
+                cpp_with.CustomFaction = ReadMicroModuleParam(u"CustomFaction"_w);
+                Value = ReadMicroModuleParam(u"Priority"_w);
                 if (Value == u"") {
                     cpp_with.Priority = 100;
                 } else {
                     cpp_with.Priority = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadMicroModuleParam(u"Equipments"_w, Block);
+                Value = ReadMicroModuleParam(u"Equipments"_w);
                 if (Value == u"" || Value == u"Any") {
                     pas::store_unaligned<TItemTypeSelection>(&cpp_with.AllowedItemTypes, pas::constant_set<TItemTypeSelection>({{42, 68}}));
                     cpp_with.AllowedCustomWeaponTypes = u"Any"_w;
@@ -1620,33 +1764,33 @@ namespace aConst {
                     cpp_with.AllowedCustomWeaponTypes = pas::WideString();
                     Tokens = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""_wref.get());
                     Tokens = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(Tokens, u","_wref.get(), u">,<"_wref.get()), u">"});
-                    if (aConst::ConsumeMicroModuleToken(u"<Hull>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Hull>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Hull);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<FuelTank>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<FuelTank>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_FuelTanks);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Engine>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Engine>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Engine);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Radar>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Radar>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Radar);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Scaner>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Scaner>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Scaner);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Droid>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Droid>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_RepairRobot);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<Hook>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<Hook>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_CargoHook);
                     }
-                    if (aConst::ConsumeMicroModuleToken(u"<DefGenerator>"_w, Tokens)) {
+                    if (ConsumeMicroModuleToken(u"<DefGenerator>"_w)) {
                         pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_DefGenerator);
                     }
                     for (auto cpp_range_6 = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(static_cast<TItemTypeSelection>(WeaponTypes))); cpp_range_6.next(Part); ) {
                         Kind = aConst::GetItemTypeFromMask(static_cast<TItemTypeSelection>(pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 49}}) - pas::constant_set<pas::Set<0, 255>>({{68, 79}})), Part);
-                        if (aConst::ConsumeMicroModuleToken(pas::concat_wide({u"<", ItemTypeNames[Kind], u">"}), Tokens)) {
+                        if (ConsumeMicroModuleToken(pas::concat_wide({u"<", ItemTypeNames[Kind], u">"}))) {
                             pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), Kind);
                         } else if (pas::pos(u"<WMissile>", Tokens) > 0 && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&WeaponInfos[Kind].DamageFlags), aGalaxyStruct::dkMissile)) {
                             pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), Kind);
@@ -1667,7 +1811,7 @@ namespace aConst {
                         }
                     }
                 }
-                Value = aConst::ReadMicroModuleParam(u"Ruins"_w, Block);
+                Value = ReadMicroModuleParam(u"Ruins"_w);
                 pas::store_unaligned<aGalaxyStruct::TShipTypeMask>(&cpp_with.OfferStationTypes, pas::constant_set<aGalaxyStruct::TShipTypeMask>({}));
                 cpp_with.OfferStationNames = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""_wref.get());
                 cpp_with.OfferStationNames = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(cpp_with.OfferStationNames, u","_wref.get(), u">,<"_wref.get()), u">"});
@@ -1680,8 +1824,8 @@ namespace aConst {
                         }
                     }
                 }
-                cpp_with.OnPlanets = EC_Str::ExtractDigitsToIntW(aConst::ReadMicroModuleParam(u"OnPlanets"_w, Block)) != 0;
-                Value = aConst::ReadMicroModuleParam(u"WeaponMods"_w, Block);
+                cpp_with.OnPlanets = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"OnPlanets"_w)) != 0;
+                Value = ReadMicroModuleParam(u"WeaponMods"_w);
                 pas::store_unaligned<aGalaxyStruct::TDamageFlagSet>(&cpp_with.WeaponDamageFlags, pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}));
                 if (Value != u"") {
                     for (DamageKind = static_cast<std::uint8_t>(0); DamageKind <= static_cast<std::uint8_t>(20); ++DamageKind) {
@@ -1690,21 +1834,21 @@ namespace aConst {
                         }
                     }
                 }
-                cpp_with.KindGraph = aConst::ReadMicroModuleParam(u"KindGraph"_w, Block);
-                cpp_with.MissileGraph = aConst::ReadMicroModuleParam(u"MissileGraph"_w, Block);
-                Value = aConst::ReadMicroModuleParam(u"ShotVisual"_w, Block);
+                cpp_with.KindGraph = ReadMicroModuleParam(u"KindGraph"_w);
+                cpp_with.MissileGraph = ReadMicroModuleParam(u"MissileGraph"_w);
+                Value = ReadMicroModuleParam(u"ShotVisual"_w);
                 if (Value == u"") {
                     cpp_with.ShotVisual = -1;
                 } else {
                     cpp_with.ShotVisual = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadMicroModuleParam(u"HullGraphSize"_w, Block);
+                Value = ReadMicroModuleParam(u"HullGraphSize"_w);
                 if (Value == u"") {
                     cpp_with.HullGraphSizePercent = 100;
                 } else {
                     cpp_with.HullGraphSizePercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                cpp_with.CustomTag = aConst::ReadMicroModuleParam(u"CustomTag"_w, Block);
+                cpp_with.CustomTag = ReadMicroModuleParam(u"CustomTag"_w);
             }
         }
         BlockIndices = nullptr;
@@ -1996,6 +2140,24 @@ namespace aConst {
         std::uint8_t DamageKind{};
         pas::DynArray<std::int32_t> BlockIndices{};
         pas::DynArray<std::int32_t> SortKeys{};
+        // Nested in LoadHullSeriesConfiguration; reads its current Block through the caller-popped static link.
+        auto ReadHullSeriesParam = [&](pas::WideString ParamName) -> pas::WideString {
+            pas::WideString Result{};
+            std::int32_t I{};
+            Result = pas::WideString();
+            std::int32_t Count = Block->CountParams(ParamName);
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
+                if (Result != u"") {
+                    Result = pas::concat_wide({Result, u"\r\n"});
+                }
+                Result = pas::concat_wide_reverse({Block->GetParamByPath(pas::concat_wide({ParamName, u":", pas::wide_int_to_str(I)})), Result});
+            }
+            if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
+                Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
+                return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            }
+            return Result;
+        };
         Block = GR_Main::LanguageDataConfig->GetBlock(u"HullType"_wref.get());
         HullSeriesCount = Block->GetBlockCount();
         BlockIndices.set_length(HullSeriesCount);
@@ -2034,9 +2196,9 @@ namespace aConst {
                 cpp_with.SystemNameCRC = CrcUnit::UpdateCrc32(cpp_with.SystemNameCRC, cpp_with.SystemName.pchar(), cpp_with.SystemName.length() * 2);
                 cpp_with.SystemNameCRC = CrcUnit::FinishCrc32(cpp_with.SystemNameCRC);
                 Block = Block->GetBlockByIndex(BlockIndices[Index]);
-                cpp_with.Name = aConst::ReadHullSeriesParam(u"Name"_w, Block);
-                cpp_with.Text = aConst::ReadHullSeriesParam(u"Text"_w, Block);
-                Value = aConst::ReadHullSeriesParam(u"Race"_w, Block);
+                cpp_with.Name = ReadHullSeriesParam(u"Name"_w);
+                cpp_with.Text = ReadHullSeriesParam(u"Text"_w);
+                Value = ReadHullSeriesParam(u"Race"_w);
                 cpp_with.AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
                 if (Value == u"" || Value == u"Any") {
                     cpp_with.AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 4}});
@@ -2057,10 +2219,10 @@ namespace aConst {
                         pas::include_at(&cpp_with.AllowedOwners, 4);
                     }
                 }
-                Value = aConst::ReadHullSeriesParam(u"ShipType"_w, Block);
+                Value = ReadHullSeriesParam(u"ShipType"_w);
                 cpp_with.AllowedShipTypes = pas::constant_set<THullShipTypeMask>({});
                 if (Value == u"" || Value == u"Any") {
-                    cpp_with.AllowedShipTypes = pas::constant_set<THullShipTypeMask>({{0, 5}});
+                    cpp_with.AllowedShipTypes = pas::constant_set<THullShipTypeMask>({{aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat}});
                 } else {
                     if (pas::pos(u"Transport", Value) > 0) {
                         pas::include_at(&cpp_with.AllowedShipTypes, aGalaxyStruct::htTransport);
@@ -2087,87 +2249,87 @@ namespace aConst {
                 cpp_with.SlotBonuses[0] = 0;
                 cpp_with.SlotBonuses[1] = 0;
                 cpp_with.SlotBonuses[10] = 0;
-                Value = aConst::ReadHullSeriesParam(u"Radar"_w, Block);
+                Value = ReadHullSeriesParam(u"Radar"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[2] = 0;
                 } else {
                     cpp_with.SlotBonuses[2] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Scaner"_w, Block);
+                Value = ReadHullSeriesParam(u"Scaner"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[3] = 0;
                 } else {
                     cpp_with.SlotBonuses[3] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Droid"_w, Block);
+                Value = ReadHullSeriesParam(u"Droid"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[4] = 0;
                 } else {
                     cpp_with.SlotBonuses[4] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Hook"_w, Block);
+                Value = ReadHullSeriesParam(u"Hook"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[5] = 0;
                 } else {
                     cpp_with.SlotBonuses[5] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Def"_w, Block);
+                Value = ReadHullSeriesParam(u"Def"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[6] = 0;
                 } else {
                     cpp_with.SlotBonuses[6] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Weapon"_w, Block);
+                Value = ReadHullSeriesParam(u"Weapon"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[7] = 0;
                 } else {
                     cpp_with.SlotBonuses[7] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Artefact"_w, Block);
+                Value = ReadHullSeriesParam(u"Artefact"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[8] = 0;
                 } else {
                     cpp_with.SlotBonuses[8] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Forsage"_w, Block);
+                Value = ReadHullSeriesParam(u"Forsage"_w);
                 if (Value == u"") {
                     cpp_with.SlotBonuses[9] = 0;
                 } else {
                     cpp_with.SlotBonuses[9] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Size"_w, Block);
+                Value = ReadHullSeriesParam(u"Size"_w);
                 if (Value == u"") {
                     cpp_with.SizePercent = 100;
                 } else {
                     cpp_with.SizePercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Cost"_w, Block);
+                Value = ReadHullSeriesParam(u"Cost"_w);
                 if (Value == u"") {
                     cpp_with.CostPercent = 100;
                 } else {
                     cpp_with.CostPercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Fragility"_w, Block);
+                Value = ReadHullSeriesParam(u"Fragility"_w);
                 if (Value == u"") {
                     cpp_with.FragilityFactor = 1.0f;
                 } else {
                     cpp_with.FragilityFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                 }
                 for (DamageKind = static_cast<std::uint8_t>(0); DamageKind <= static_cast<std::uint8_t>(2); ++DamageKind) {
-                    Value = aConst::ReadHullSeriesParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageKind].Name}), Block);
+                    Value = ReadHullSeriesParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageKind].Name}));
                     if (Value == u"") {
                         cpp_with.FragilityByDamageClass[DamageKind] = cpp_with.FragilityFactor;
                     } else {
                         cpp_with.FragilityByDamageClass[DamageKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                     }
                 }
-                Value = aConst::ReadHullSeriesParam(u"Year"_w, Block);
+                Value = ReadHullSeriesParam(u"Year"_w);
                 if (Value == u"") {
                     cpp_with.Year = 0;
                 } else {
                     cpp_with.Year = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
-                Value = aConst::ReadHullSeriesParam(u"Probability"_w, Block);
+                Value = ReadHullSeriesParam(u"Probability"_w);
                 if (Value == u"") {
                     cpp_with.ProbabilityWeight = 1;
                 } else {
@@ -2187,6 +2349,16 @@ namespace aConst {
         std::uint8_t Owner{};
         std::uint8_t Economy{};
         aGalaxyStruct::TGalaxyDifficultyTuning* Difficulty{};
+        // Nested in InitializeGameplayConfig; unused caller-popped static link.
+        auto ExtrapolateLinearDifficulty = [&](std::uint8_t Level, float Level2, float Level3) -> float {
+            std::int32_t Delta = Level - 3;
+            return Level3 + (static_cast<long double>(Level3) - Level2) * Delta;
+        };
+        // Nested in InitializeGameplayConfig; unused caller-popped static link.
+        auto ExtrapolateGeometricDifficulty = [&](std::uint8_t Level, float Level2, float Level3) -> float {
+            std::int32_t Delta = Level - 3;
+            return Level3 * System::Exp(System::Ln(pas::real_divide(Level3, Level2)) * Delta);
+        };
         if (GR_Main::LanguageDataConfig->CountParamsByPath(u"Constellations.GalaxyCountStars"_wref.get()) > 0) {
             GalaxyStarCount = EC_Str::ExtractDigitsToIntW(GR_Main::LanguageDataConfig->GetParamByPath(u"Constellations.GalaxyCountStars"_wref.get()));
         } else {
@@ -2210,20 +2382,20 @@ namespace aConst {
         for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(4), static_cast<std::uint8_t>(9)); cpp_range.next(Level); ) {
             Difficulty = &GalaxyDifficultyTuning[Level];
             Difficulty->MaximumQuestProgramRewardCount = 1;
-            Difficulty->GoodsEventDurationFactor = aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].GoodsEventDurationFactor, GalaxyDifficultyTuning[3].GoodsEventDurationFactor);
-            Difficulty->QuestTimeAndExperienceFactor = aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].QuestTimeAndExperienceFactor, GalaxyDifficultyTuning[3].QuestTimeAndExperienceFactor);
-            Difficulty->EquipmentWearFactor = aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].EquipmentWearFactor, GalaxyDifficultyTuning[3].EquipmentWearFactor);
-            Difficulty->DifficultyValue1C = System::Round(aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyValue1C, GalaxyDifficultyTuning[3].DifficultyValue1C));
-            Difficulty->MarketPriceBandSqueeze = aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].MarketPriceBandSqueeze, GalaxyDifficultyTuning[3].MarketPriceBandSqueeze);
-            Difficulty->RandomHoleSpawnRollMaximum = System::Round(aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].RandomHoleSpawnRollMaximum, GalaxyDifficultyTuning[3].RandomHoleSpawnRollMaximum));
-            Difficulty->MaximumResearchMaterialConsumption = System::Round(aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].MaximumResearchMaterialConsumption, GalaxyDifficultyTuning[3].MaximumResearchMaterialConsumption));
-            Difficulty->ArcadeDamageTakenScale = aConst::ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].ArcadeDamageTakenScale, GalaxyDifficultyTuning[3].ArcadeDamageTakenScale);
-            Difficulty->InventionProgressScale = aConst::ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].InventionProgressScale, GalaxyDifficultyTuning[3].InventionProgressScale);
-            Difficulty->ArcadeRewardScale = aConst::ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].ArcadeRewardScale, GalaxyDifficultyTuning[3].ArcadeRewardScale);
-            Difficulty->QuestMoneyFactor = aConst::ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].QuestMoneyFactor, GalaxyDifficultyTuning[3].QuestMoneyFactor);
-            Difficulty->DifficultyValue18 = System::Round(aConst::ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyValue18, GalaxyDifficultyTuning[3].DifficultyValue18));
-            Difficulty->MaximumDominatorResearchRate = aConst::ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].MaximumDominatorResearchRate, GalaxyDifficultyTuning[3].MaximumDominatorResearchRate);
-            Difficulty->DifficultyFactor34 = aConst::ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyFactor34, GalaxyDifficultyTuning[3].DifficultyFactor34);
+            Difficulty->GoodsEventDurationFactor = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].GoodsEventDurationFactor, GalaxyDifficultyTuning[3].GoodsEventDurationFactor);
+            Difficulty->QuestTimeAndExperienceFactor = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].QuestTimeAndExperienceFactor, GalaxyDifficultyTuning[3].QuestTimeAndExperienceFactor);
+            Difficulty->EquipmentWearFactor = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].EquipmentWearFactor, GalaxyDifficultyTuning[3].EquipmentWearFactor);
+            Difficulty->DifficultyValue1C = System::Round(ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyValue1C, GalaxyDifficultyTuning[3].DifficultyValue1C));
+            Difficulty->MarketPriceBandSqueeze = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].MarketPriceBandSqueeze, GalaxyDifficultyTuning[3].MarketPriceBandSqueeze);
+            Difficulty->RandomHoleSpawnRollMaximum = System::Round(ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].RandomHoleSpawnRollMaximum, GalaxyDifficultyTuning[3].RandomHoleSpawnRollMaximum));
+            Difficulty->MaximumResearchMaterialConsumption = System::Round(ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].MaximumResearchMaterialConsumption, GalaxyDifficultyTuning[3].MaximumResearchMaterialConsumption));
+            Difficulty->ArcadeDamageTakenScale = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].ArcadeDamageTakenScale, GalaxyDifficultyTuning[3].ArcadeDamageTakenScale);
+            Difficulty->InventionProgressScale = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].InventionProgressScale, GalaxyDifficultyTuning[3].InventionProgressScale);
+            Difficulty->ArcadeRewardScale = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].ArcadeRewardScale, GalaxyDifficultyTuning[3].ArcadeRewardScale);
+            Difficulty->QuestMoneyFactor = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].QuestMoneyFactor, GalaxyDifficultyTuning[3].QuestMoneyFactor);
+            Difficulty->DifficultyValue18 = System::Round(ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyValue18, GalaxyDifficultyTuning[3].DifficultyValue18));
+            Difficulty->MaximumDominatorResearchRate = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].MaximumDominatorResearchRate, GalaxyDifficultyTuning[3].MaximumDominatorResearchRate);
+            Difficulty->DifficultyFactor34 = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyFactor34, GalaxyDifficultyTuning[3].DifficultyFactor34);
         }
         for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_2.next(GoodsIndex); ) {
             GoodsMarket[GoodsIndex].DisplayName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Name.", SysUtils::IntToStr(GoodsIndex + 1)})));
@@ -2245,6 +2417,7 @@ namespace aConst {
         for (auto cpp_range_8 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_8.next(Owner); ) {
             OwnerInfo[Owner].DisplayName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"Race.Name.", OwnerInfo[Owner].InternalName}));
         }
+        // Both identical localization passes are present in the native initializer.
         for (auto cpp_range_9 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_9.next(Owner); ) {
             OwnerInfo[Owner].DisplayName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"Race.Name.", OwnerInfo[Owner].InternalName}));
         }
@@ -2298,6 +2471,7 @@ namespace aConst {
         }
     }
 
+    // Missile bit takes precedence over splinter; otherwise energy.
     TWeaponDamageClass ClassifyWeaponDamageFlags(std::uint32_t Flags) {
         if ((Flags & 4) != 0) {
             return wdcMissile;
@@ -2308,6 +2482,7 @@ namespace aConst {
         }
     }
 
+    // Class/subtype mapping used by hull generation and legacy saves; only TObject RTTI operations precede explicit subclass casts.
     std::uint8_t ShipToHullType(pas::Object* Ship) {
         std::uint8_t Result = aGalaxyStruct::htRanger;
         if (pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
@@ -2336,6 +2511,7 @@ namespace aConst {
         }
     }
 
+    // Identity conversion for Coalition races 0..4; raises for all other values.
     std::uint8_t RaceToOwner(std::uint8_t RaceId) {
         switch (RaceId) {
             case aGalaxyStruct::oiMaloc: return static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
@@ -2374,6 +2550,7 @@ namespace aConst {
         return static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
     }
 
+    // Identity conversion for Coalition owners 0..4; raises for all other values.
     std::uint8_t OwnerToRace(std::uint8_t OwnerId) {
         switch (OwnerId) {
             case aGalaxyStruct::oiMaloc: return static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
@@ -2385,6 +2562,7 @@ namespace aConst {
         }
     }
 
+    // Raises outside Coalition races 0..4.
     pas::WideString RaceToSys(std::uint8_t RaceId) {
         switch (RaceId) {
             case aGalaxyStruct::oiMaloc: return u"Maloc"_w;
@@ -2396,6 +2574,7 @@ namespace aConst {
         }
     }
 
+    // Accepts 0..4; raises otherwise.
     std::uint8_t NumberToRace(std::int32_t Value) {
         switch (Value) {
             case 0: return static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
@@ -2407,6 +2586,7 @@ namespace aConst {
         }
     }
 
+    // Case-sensitive lookup; raises for an unknown name.
     std::uint8_t SysToReward(const pas::WideString& Name) {
         if (Name == u"ForLiberationSystem") {
             return aGalaxyStruct::atLiberation;
@@ -2426,6 +2606,7 @@ namespace aConst {
         }
     }
 
+    // Case-sensitive lookup among 14 ship types; raises for an unknown name.
     std::uint8_t SysToShipType(const pas::WideString& Name) {
         std::uint8_t Kind{};
         for (Kind = static_cast<std::uint8_t>(0); Kind <= static_cast<std::uint8_t>(13); ++Kind) {
@@ -2437,6 +2618,7 @@ namespace aConst {
         return 0;
     }
 
+    // Maps owner IDs 0..5 and 7 to fixed RGB colors through CurrentPixelFormat; other values use magenta.
     std::uint32_t OwnerToFilmColor(std::int8_t OwnerId) {
         switch (static_cast<std::uint8_t>(OwnerId)) {
             case aGalaxyStruct::oiMaloc: return GR_Main::CurrentPixelFormat->PackRgbBytes(255, 0, 0);
@@ -2471,6 +2653,7 @@ namespace aConst {
         return aConst::OwnerToFilmColor(aGalaxyStruct::oiUninhabited);
     }
 
+    // Race.PlanetIconNum lookup; returns -1 for an absent entry. Film owner codes offset a nonnegative result by eight.
     std::int32_t GetCustomFactionPlanetIconNumber(pas::WideString Faction) {
         EC_BlockPar::TBlockParEC* Block{};
         Block = GR_Main::GameDataConfig->GetBlock(u"Race"_wref.get())->FindBlock(u"PlanetIconNum"_wref.get());
@@ -2480,6 +2663,7 @@ namespace aConst {
         return -1;
     }
 
+    // Zero, Mini, Small, Average, Big, Huge map to 0..5; unknown tags map to zero.
     std::uint8_t SizeTagToLevel(const pas::WideString& Tag) {
         if (Tag == u"Zero") {
             return 0;
@@ -2498,6 +2682,7 @@ namespace aConst {
         }
     }
 
+    // Seeded variation around a size bucket; unknown nonzero levels use the midpoint.
     std::int32_t GenerateValueForSizeLevel(std::uint8_t Level, std::int32_t Minimum, std::int32_t Maximum, std::uint8_t VariationPercent, std::uint32_t Seed) {
         std::int32_t Center{};
         std::int32_t Bound{};
@@ -2590,6 +2775,7 @@ namespace aConst {
         return ItemType;
     }
 
+    // Selects a set bit among 0..75 while advancing Seed; an empty mask returns 76.
     std::uint8_t PickRandomItemTypeFromSeed(TItemTypeSelection Mask, std::uint32_t& Seed) {
         std::uint8_t ItemType{};
         std::int32_t Count = 0;
@@ -2610,6 +2796,7 @@ namespace aConst {
         return ItemType;
     }
 
+    // Copies the ten-byte mask, then counts bits 0..75; ignores storage bits 76..79.
     std::int32_t CountItemTypesInMask(TItemTypeSelection Mask) {
         std::uint8_t ItemType{};
         std::int32_t Count = 0;
@@ -2621,6 +2808,7 @@ namespace aConst {
         return Count;
     }
 
+    // One-based selected-bit index among types 0..75; returns zero if no index matches.
     std::uint8_t GetItemTypeFromMask(TItemTypeSelection Mask, std::int32_t Index) {
         std::uint8_t ItemType{};
         std::int32_t Count = 0;
@@ -2636,6 +2824,7 @@ namespace aConst {
         return Result;
     }
 
+    // Only Coalition manufacturers are eligible.
     std::uint8_t PickRandomEquipmentOwner(std::uint32_t RandomValue) {
         return aMyFunction::SeededRandomIntRange(0, 4, RandomValue);
     }
@@ -2654,6 +2843,10 @@ namespace aConst {
         return u"<color=255,000,255>"_w;
     }
 
+    // Repeated Path values are joined with CRLF; no separator precedes an empty accumulator.
+    // Missing paths return empty and may create intermediate blocks.
+    // Both lookups expand <br>, <ll> and <Player>; the player's name is highlighted.
+    // LocalizedText leaves <clr>/<clrEnd> intact; LocalizedColorText expands them.
     pas::WideString LocalizedText(const pas::WideString& Path) {
         pas::WideString Result{};
         std::int32_t I{};
@@ -2675,6 +2868,7 @@ namespace aConst {
         return Result;
     }
 
+    // Also expands <clr> and <clrEnd> to yellow opening and closing color tags.
     pas::WideString LocalizedColorText(const pas::WideString& Path) {
         pas::WideString Result{};
         std::int32_t I{};
@@ -2698,6 +2892,7 @@ namespace aConst {
         return Result;
     }
 
+    // Expands <br>, <ll>, <Player>, <clr> and <clrEnd>; leaves <Player> intact when no player exists.
     void ExpandLocalizedTextMarkup(pas::WideString& Text) {
         if (EC_Str::FindTextPosW(u"<"_wref.get(), Text) > 0) {
             Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get());
@@ -2710,6 +2905,7 @@ namespace aConst {
         }
     }
 
+    // Expands markup, trims outer whitespace, then applies LocalizedTextLinePrefix to the first line and after each CRLF.
     void ExpandLocalizedTextMarkupAndPrefixLines(pas::WideString& Text) {
         if (EC_Str::FindTextPosW(u"<"_wref.get(), Text) > 0) {
             Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get());
@@ -2724,6 +2920,9 @@ namespace aConst {
         Text = EC_Str::ReplaceAllWideString(Text, u"\r\n"_wref.get(), pas::concat_wide({u"\r\n", LocalizedTextLinePrefix}));
     }
 
+    // Collects at most ten nonempty variants: Path, then contiguous numeric suffixes
+    // starting at 1 (0 when the base lookup is empty). A missing suffix prevents reaching later ones.
+    // Selection uses (CurrentTurn + SeedOffset) div 10, except in chaotic mode. No variants produces an unavailable-text diagnostic.
     pas::WideString PickLocalizedTextVariant(const pas::WideString& Path, std::int32_t SeedOffset) {
         std::int32_t Count{};
         pas::Array<pas::WideString, 0, 9> Variants{};
@@ -2750,6 +2949,7 @@ namespace aConst {
         }
     }
 
+    // Buckets 0..100; out-of-range values map to normal.
     aGalaxyStruct::TRelationLevel RelationValueToLevel(std::uint8_t Value) {
         std::uint8_t cpp_case = Value;
         if (cpp_case >= 0 && cpp_case <= 9) {
@@ -2771,6 +2971,7 @@ namespace aConst {
         return GR_Main::GameDataConfig->GetParamByPathOrMarker(pas::concat_wide({u"Race.Emblem.2", Faction}));
     }
 
+    // First matching template; -1 when absent.
     std::int32_t FindMicroModuleTemplateByCustomTag(pas::WideString CustomTag) {
         std::int32_t I{};
         {
@@ -2784,62 +2985,6 @@ namespace aConst {
             }
         }
         return -1;
-    }
-
-    float ExtrapolateLinearDifficulty(std::uint8_t Level, float Level2, float Level3) {
-        std::int32_t Delta = Level - 3;
-        return Level3 + (static_cast<long double>(Level3) - Level2) * Delta;
-    }
-
-    float ExtrapolateGeometricDifficulty(std::uint8_t Level, float Level2, float Level3) {
-        std::int32_t Delta = Level - 3;
-        return Level3 * System::Exp(System::Ln(pas::real_divide(Level3, Level2)) * Delta);
-    }
-
-    pas::WideString ReadMicroModuleParam(pas::WideString ParamName, EC_BlockPar::TBlockParEC*& Block) {
-        pas::WideString Result{};
-        std::int32_t I{};
-        Result = pas::WideString();
-        std::int32_t Count = Block->CountParams(ParamName);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            if (Result != u"") {
-                Result = pas::concat_wide({Result, u"\r\n"});
-            }
-            Result = pas::concat_wide_reverse({Block->GetParamByPath(pas::concat_wide({ParamName, u":", pas::wide_int_to_str(I)})), Result});
-        }
-        if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
-            Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
-            return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
-        }
-        return Result;
-    }
-
-    std::uint8_t ConsumeMicroModuleToken(pas::WideString Token, pas::WideString& Tokens) {
-        std::uint8_t Result{};
-        if (pas::pos(Token, Tokens) > 0) {
-            Result = true;
-            Tokens = EC_Str::ReplaceAllWideString(Tokens, Token, u""_wref.get());
-            return Result;
-        }
-        return false;
-    }
-
-    pas::WideString ReadHullSeriesParam(pas::WideString ParamName, EC_BlockPar::TBlockParEC*& Block) {
-        pas::WideString Result{};
-        std::int32_t I{};
-        Result = pas::WideString();
-        std::int32_t Count = Block->CountParams(ParamName);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            if (Result != u"") {
-                Result = pas::concat_wide({Result, u"\r\n"});
-            }
-            Result = pas::concat_wide_reverse({Block->GetParamByPath(pas::concat_wide({ParamName, u":", pas::wide_int_to_str(I)})), Result});
-        }
-        if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
-            Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
-            return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
-        }
-        return Result;
     }
 
 } // namespace aConst

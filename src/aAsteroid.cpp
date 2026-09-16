@@ -40,6 +40,7 @@ namespace aAsteroid {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Requires an unassigned GraphObject.
     void TAsteroid::Init(aGalaxy::TStar* Star, const pas::WideString& GraphKey) {
         CurrentStar = Star;
         {
@@ -61,6 +62,7 @@ namespace aAsteroid {
         Buffer->AddIntegerValue(MineralCount);
     }
 
+    // Caller sets CurrentStar. Requires an unassigned GraphObject.
     void TAsteroid::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         Id = EC_Buf::TBufEC_GetUInt32(Buffer);
         if (Galaxy->NextAsteroidId <= Id) {
@@ -104,6 +106,7 @@ namespace aAsteroid {
         }
     }
 
+    // Keeps the ID and visual. May spawn another asteroid under the galaxy's special mode.
     void TAsteroid::Respawn() {
         Mass = 1.0E+6f;
         InverseMass = pas::real_divide(1.0L, Mass);
@@ -139,6 +142,7 @@ namespace aAsteroid {
         }
     }
 
+    // The new asteroid belongs to CurrentStar.Asteroids; it does not copy this asteroid's visual or motion.
     void TAsteroid::SpawnSiblingAsteroidInCurrentStar() {
         pas::WideString Text{};
         std::int32_t Index{};
@@ -190,6 +194,7 @@ namespace aAsteroid {
         Position.Y = PhysicsPosition.Y * AsteroidWorldScale;
     }
 
+    // Writes Count future positions at TimeScale=1, excluding the current position, then restores the live motion state. Caller supplies Count * 8 bytes.
     void TAsteroid::WritePredictedPositions(EC_Struct::PPointF Positions, std::int32_t Count) {
         EC_Struct::TPointF SavedPosition{};
         EC_Struct::TPointF SavedPhysicsPosition{};

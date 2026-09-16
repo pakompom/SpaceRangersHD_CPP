@@ -84,6 +84,7 @@ namespace Rangers {
         }
     }
 
+    // Changes the process working directory and does not restore it; paths pass through the ANSI filesystem API.
     void ClearReadOnlyAttributesRecursive(pas::WideString DirectoryPath) {
         Windows::TWin32FindDataA FindData{};
         SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(DirectoryPath));
@@ -148,6 +149,7 @@ namespace Rangers {
         Rangers::HandleApplicationDeactivated();
     }
 
+    // Checks background work, but this build performs no idle action. Assigned to GR_Main.OnMessageIdle. Removing the empty tests changes native behavior and bytes.
     void HandleMessageIdle() {
         if (GlobalsV::MemorySnapshotActive) {
             return;
@@ -166,6 +168,7 @@ namespace Rangers {
         }
     }
 
+    // Empty conditional callback assigned to GR_Main.OnMessageResume.
     void HandleMessageResume() {
         if (GlobalsV::MemorySnapshotActive) {
             return;
@@ -175,6 +178,7 @@ namespace Rangers {
         }
     }
 
+    // Nonrecursive; restores the previous working directory.
     void PurgeCacheDirectoryFiles() {
         pas::AnsiString FileName{};
         pas::AnsiString OldDirectory{};
@@ -193,6 +197,7 @@ namespace Rangers {
         SysUtilsImports::SetCurrentDir(OldDirectory);
     }
 
+    // Comma-separated lowercase names from INSTALL_*.txt in the current directory.
     pas::WideString CollectInstallLanguageCodes() {
         pas::WideString Result{};
         pas::WideString FileName{};
@@ -221,8 +226,11 @@ namespace Rangers {
         Forms::UnitInitialize();
         {
             try {
+                // Native initializer saves and replaces the RTL raise hook.
                 ExceptionInfo::UnitInitialize();
+                // Compiler unit entry registers the native command order.
                 CheatCode::UnitInitialize();
+                // Compiler unit entry calls the virtual destructor directly.
                 {
                     try {
                         SysUtils::DecimalSeparator = '.';
@@ -337,6 +345,7 @@ namespace Rangers {
                                                 if (WineGetHostVersion != nullptr) {
                                                     Rangers::WineGetHostVersion(WineHostOS, WineHostVersion);
                                                     GR_Main::AppendLogTextThreadSafe("Host OS="_a);
+                                                    // Native startup reports Darwin as Linux; retain that behavior.
                                                     if (static_cast<pas::AnsiString>(WineHostOS) == "Darwin") {
                                                         GR_Main::AppendLogTextThreadSafe("Linux"_a);
                                                     } else {
@@ -458,6 +467,7 @@ namespace Rangers {
                                         }
                                         GR_Main::SkipModsOnReload = false;
                                         if (aGalaxy::Galaxy != nullptr) {
+                                            // Native passes the event field, not the thread handle.
                                             if (ThreadCalc::IsTurnCalculationRunning()) {
                                                 WindowsImports::TerminateThread(Globals::TurnCalculationThread->IdleEvent, 0u);
                                             }

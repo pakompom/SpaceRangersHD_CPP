@@ -71,6 +71,7 @@ namespace SE_Laser {
             pas::list_add(Segments, reinterpret_cast<void*>(Segment));
             Distance = static_cast<long double>(Distance) + SegmentSize - 4.0L;
         }
+        // Native code retains this empty check of the final segment.
         static_cast<void>(Segment != nullptr);
         {
             float cpp_arg = pas::real_divide(SegmentSize, 2.0L) * AngleSin + EndPosition.X;

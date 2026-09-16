@@ -116,6 +116,7 @@ namespace fStarMap {
         smpShip = 2,
     };
 
+    // Native anonymous array element size; no element accesses found in the indexed screen methods.
     #pragma pack(push, 1)
     struct TStarMapReservedEntry {
         pas::Array<std::uint8_t, 0, 7> Data;
@@ -129,6 +130,7 @@ namespace fStarMap {
         PAS_CLASS_META(TfStarMap, fPanelMain::TMessageLoopGIWithMainPanel, "TfStarMap", 668)
         void p_destroy() override;
         WindowsSdk::TPoint GetMapCenter();
+        // Disables automatic film-camera following.
         void SetMapCenterManually(WindowsSdk::TPoint Point);
         void SetMapCenter(WindowsSdk::TPoint Center);
         void CenterMapForTalk(EC_Struct::TPointF Position);
@@ -145,6 +147,7 @@ namespace fStarMap {
         void MapKeyUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void OpenFilmHistoryClicked(GI_MessageLoop::TObjectGI* Sender);
         void RefreshScoreModsLabel();
+        // May rebuild the ship movement path and update its order destination.
         void BuildShipPathOverlay(aShip::TShip* Ship, std::uint8_t DelayEndImage, pas::WideString InitialImagePath);
         void UpdatePathEndImage(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void ClearPathOverlay(std::uint8_t PlayerPath);
@@ -159,6 +162,7 @@ namespace fStarMap {
         void AddMapAnimation(EC_Struct::TPointF Position, pas::WideString ImagePath, std::int32_t DelayMs);
         void ClearMapAnimations();
         static void MapAnimationFinished(GI_MessageLoop::TObjectGI* Sender);
+        // Returns a borrowed game object or nil; updates HitObjectPosition and HitObjectSize.
         pas::Object* FindObjectAtCursor();
         void QueueInterfaceImages();
         void ShowLargeHelp(const pas::WideString& Text);
@@ -184,11 +188,13 @@ namespace fStarMap {
         void OrderKeyUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void SelectAllUsableWeapons();
         void SelectUntargetedWeapons();
+        // Nil hides the object panels. Accepts game objects, not scene objects.
         void ShowObjectInfo(pas::Object* Obj);
         void MapScrollChanged();
         static pas::WideString GetPriceSnapshotKey(pas::Object* Obj);
         void SaveVisiblePriceSnapshots();
         void CenterOnShip(aShip::TShip* Ship);
+        // Selection 1 chooses the nearest TKling; 2 chooses the farthest.
         void CenterOnDominator(std::int32_t Selection);
         void CenterShipClicked(GI_MessageLoop::TObjectGI* Sender);
         void CenterShipMouseEnter(GI_MessageLoop::TObjectGI* Sender);
@@ -208,9 +214,11 @@ namespace fStarMap {
         void ClearTargetMarkers();
         void UpdateActionCursor(std::uint8_t CanTake) override;
         void UpdateWeaponPanelPosition();
+        // Stores the animation direction; native toggle passes -1 to hide and +1 to show.
         void AnimateWeaponPanel(std::int32_t Target);
         void AdvanceWeaponPanel(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void UpdateSpacePanelPosition();
+        // Stores the signed animation direction.
         void AnimateSpacePanel(std::int32_t Target);
         void AdvanceSpacePanel(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
@@ -226,7 +234,9 @@ namespace fStarMap {
         void CenterFilmShipMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         void CenterFilmShipMouseLeave(GI_MessageLoop::TObjectGI* Sender);
         void FilmMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        // Returns a borrowed scene object; sets ObjectId to zero on failure.
         SE_Space::TObjectSE* FindFilmObjectAtCursor(std::uint32_t& ObjectId);
+        // Nil hides the object panels. ObjectId resolves recorded information in the current film.
         void ShowFilmObjectInfo(SE_Space::TObjectSE* Obj, std::uint32_t ObjectId);
         void PrepareTalkDisplay();
         void WaitForTurnOrTalk();
@@ -255,6 +265,7 @@ namespace fStarMap {
         std::int32_t PlanetBattleMapId;
         std::int32_t PlanetBattleState;
         pas::Object* DisplayedObject;
+        // Left-button selection sets this for a newly selected follow target.
         std::uint8_t SuppressMiddleFollowCycle;
         std::uint8_t cpp_padding_3[3];
         GI_MessageLoop::PCallbackTimerGI SpaceEffectsTimer;
@@ -299,7 +310,9 @@ namespace fStarMap {
         std::uint8_t ContinueTurnCalculation;
         std::uint8_t BreakRequested;
         std::uint8_t BreakOnNextFilm;
+        // Set at film start; no reads found in indexed screen methods.
         std::uint8_t Flag19F;
+        // Cleared at film start; no reads found.
         std::int32_t ReservedFilmState1A0;
         float FilmFrameIntervalMs;
         float FilmFrameIntervalDelta;
@@ -313,8 +326,11 @@ namespace fStarMap {
         float FilmCameraSpeed;
         std::uint8_t FilmCameraMoving;
         std::uint8_t cpp_padding_7[3];
+        // 250 entries; native RTTI. Allocated/freed, purpose unresolved.
         pas::DynArray<TStarMapReservedEntry> ReservedEntries1;
+        // 250 entries; native RTTI. Allocated/freed, purpose unresolved.
         pas::DynArray<TStarMapReservedEntry> ReservedEntries2;
+        // Cleared at film start/restart; no reads found.
         std::int32_t ReservedFilmState1E4;
         std::uint8_t cpp_padding_8[4];
         std::int32_t TrailingEffectSteps;

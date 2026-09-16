@@ -122,6 +122,7 @@ namespace GI_PolyLine {
         TPolyLineGI::LoadPolyLineProperties(Block);
     }
 
+    // Empty in native code.
     void TPolyLineGI::LoadPolyLineProperties(EC_BlockPar::TBlockParEC* Block) {
     }
 
@@ -444,6 +445,7 @@ namespace GI_PolyLine {
         }
     }
 
+    // Empty in native code.
     void TPolyLineGI::CommitFrameDraw() {
     }
 

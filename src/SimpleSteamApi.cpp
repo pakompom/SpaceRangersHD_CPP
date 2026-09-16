@@ -26,26 +26,32 @@ namespace SimpleSteamApi {
 
     SimpleSteamApi::TSteamLocal SteamLocal{};
 
+    // steamCallBacks export loaded from steam_ach.dll; called without arguments by TSteamCallbacksThread.
     SimpleSteamApi::TSteamRunCallbacks SteamRunCallbacks{};
 
+    // steamResetAchievements export; full signature remains unresolved.
     void* SteamResetAchievements{};
 
     SimpleSteamApi::TSteamUnlockAchievement SteamUnlockAchievement{};
 
+    // steamStat export; full signature remains unresolved.
     void* SteamStat{};
 
     SimpleSteamApi::TSteamIncreaseStat SteamIncreaseStat{};
 
     SimpleSteamApi::TSteamFree SteamFree{};
 
+    // steamAchievementsOverlay export; full signature remains unresolved.
     void* SteamAchievementsOverlay{};
 
     SimpleSteamApi::TSteamAchievementsCount SteamAchievementsCount{};
 
     SimpleSteamApi::TSteamAchievementData SteamAchievementData{};
 
+    // steamStatus export; full signature remains unresolved.
     void* SteamStatus{};
 
+    // Loads steam_ach.dll and resolves exports without checking individual addresses.
     void LoadSteamApi() {
         std::int32_t Error{};
         WindowsSdk::HMODULE Module = WindowsImports::LoadLibrary(pas::literal_pointer("steam_ach.dll"));
@@ -79,6 +85,7 @@ namespace SimpleSteamApi {
         SteamStatus = WindowsImports::GetProcAddress(Module, pas::literal_pointer("steamStatus"));
     }
 
+    // Calls steamFree and releases the module if present; export pointers are left unchanged.
     void UnloadSteamApi() {
         WindowsSdk::HMODULE Module = WindowsSdk::GetModuleHandle(pas::literal_pointer("steam_ach.dll"));
         if (Module != 0) {

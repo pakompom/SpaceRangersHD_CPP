@@ -3,18 +3,21 @@
 #include "types/Types.hpp"
 
 namespace EC_Struct {
+    // Freed on both startup shutdown paths; concrete class unresolved.
     extern pas::Object* StartupCleanupObject;
 
     TVector3D MakeVector3D(double X, double Y, double Z);
 
     TPointF MakePointF(float X, float Y);
 
+    // Truncates each coordinate toward zero.
     Types::TPoint TruncatePointF(TPointF Point);
 
     Types::TPoint RoundPointF(TPointF Point);
 
     TPointF PointToPointF(Types::TPoint Point);
 
+    // Integer division rounds toward zero.
     Types::TPoint HalfPoint(Types::TPoint Point);
 
     Types::TPoint AddPoints(Types::TPoint Left, Types::TPoint Right);
@@ -27,6 +30,7 @@ namespace EC_Struct {
 
     TPointF SubtractPointsF(TPointF Left, TPointF Right);
 
+    // Returns false without writing Intersection when the rectangles do not overlap.
     inline std::uint8_t IntersectRects(Types::TRect& Intersection, const Types::TRect& First, const Types::TRect& Second);
 
     void TObjectEx_Create(TObjectEx* Self);

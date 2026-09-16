@@ -32,8 +32,6 @@
 #include "units/fPanelLoad.hpp"
 
 namespace fJump {
-    void BeginTravel(TfJump* Self);
-
     void TfJump_Create(TfJump* Self) {
         GI_MessageLoop::TMessageLoopGI_Create(Self);
         Self->LoadPanel = pas::construct_call<fPanelLoad::TfPanelLoad>(fPanelLoad::TfPanelLoad_Create);
@@ -64,6 +62,15 @@ namespace fJump {
     void TfJump::OnOpen() {
         pas::WideString MovieConfig{};
         pas::WideString MoviePath{};
+        auto BeginTravel = [&]() -> void {
+            if (this->TransitionTimer != nullptr) {
+                CancelCallbackTimer(this->TransitionTimer);
+                this->TransitionTimer = nullptr;
+            }
+            this->TransitionTimer = ScheduleCallbackTimer(20, 20, pas::bind_method<&TfJump::AdvanceTravel>(this), 0);
+            this->LoadPanel->SetProgress(0.0f);
+            this->LoadPanel->Show();
+        };
         EC_Cache::EvictStarAndBackgroundCaches();
         GR_DX::ReleaseAllTextureSurfaces();
         if (!aPlayer::GetPlayer()->IsDockedToShip()) {
@@ -90,7 +97,7 @@ namespace fJump {
             Progress = 0.0f;
             Present();
             if (Globals::SkipVideo) {
-                fJump::BeginTravel(this);
+                BeginTravel();
                 return;
             }
             LoadPanel->SetProgress(1.0f);
@@ -100,7 +107,7 @@ namespace fJump {
             } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion)) {
                 MovieConfig = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.CB.HyperJumpVideo"_wref.get());
             } else {
-                fJump::BeginTravel(this);
+                BeginTravel();
                 return;
             }
             MoviePath = EC_Str::ExtractDelimitedPartW(MovieConfig, 0, u","_wref.get());
@@ -126,20 +133,10 @@ namespace fJump {
                     MovieTimer = ScheduleCallbackTimer(5, 5, pas::bind_method<&TfJump::AdvanceMovie>(this), 0);
                 } else {
                     Film->SetActive(false);
-                    fJump::BeginTravel(this);
+                    BeginTravel();
                 }
             }
         }
-    }
-
-    void BeginTravel(TfJump* Self) {
-        if (Self->TransitionTimer != nullptr) {
-            Self->CancelCallbackTimer(Self->TransitionTimer);
-            Self->TransitionTimer = nullptr;
-        }
-        Self->TransitionTimer = Self->ScheduleCallbackTimer(20, 20, pas::bind_method<&TfJump::AdvanceTravel>(Self), 0);
-        Self->LoadPanel->SetProgress(0.0f);
-        Self->LoadPanel->Show();
     }
 
     void TfJump::OnClose() {
@@ -174,7 +171,7 @@ namespace fJump {
             Progress = 0.5f;
         }
         LoadPanel->SetProgress(Progress);
-        if (aCalc::IsTurnCalculationRunningUI() || pas::in_set<1, 1, 3, 3>(aCalc::TurnCalculationPhase)) {
+        if (aCalc::IsTurnCalculationRunningUI() || pas::is_one_of<ThreadCalc::tcpGalaxyRunning, ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase)) {
             return;
         }
         if (aCalc::TurnCalculationPhase == ThreadCalc::tcpGalaxyFinished) {
@@ -200,7 +197,7 @@ namespace fJump {
             aCalc::QueueGalaxyTurnCalculation();
             Present();
         } else {
-            if (static_cast<std::uint8_t>(pas::in_set<3, 4, 7, 7>(aPlayer::GetPlayer()->Order) ^ 1) || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == -65536) {
+            if (static_cast<std::uint8_t>(pas::is_one_of<aShip::soJump, aShip::soJumpHole, aShip::soTeleport>(aPlayer::GetPlayer()->Order) ^ 1) || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == -65536) {
                 aCalc::QueueGalaxyTurnCalculation();
                 Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position));
                 Globals::StarMapScreen->ResumeMode = fStarMap::smrTurnFilm;

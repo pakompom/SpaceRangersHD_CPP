@@ -11,6 +11,9 @@
 #include "units/System.hpp"
 
 namespace CalcParseClass {
+    // Operators borrow operands; OutValue must be an existing, distinct object.
+    // Power/add/subtract/multiply promote floats; integer results saturate at +/-2000000000.
+    // Negative bases stay negative even for even exponents; integer results round.
     void TCalcParse::ApplyPower(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
@@ -174,6 +177,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Returns float Left * (1 + Right * 0.01).
     void TCalcParse::ApplyPercentChange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkFloat;
@@ -183,6 +187,7 @@ namespace CalcParseClass {
         }());
     }
 
+    // Exact integer quotients stay integer. Zero divisor: +/-2000000000 for integers; float operands incorrectly leave integer zero.
     void TCalcParse::ApplyDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
@@ -238,6 +243,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Truncates toward zero; zero-divisor behavior matches ApplyDivide.
     void TCalcParse::ApplyIntDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
@@ -280,6 +286,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Float operands produce a float remainder after truncation. Zero-divisor behavior matches ApplyDivide.
     void TCalcParse::ApplyModulo(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         pas::Extended X{};
         pas::Extended Y{};
@@ -338,6 +345,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Uses operand extrema, rounds floats and swaps reversed bounds. Range operands must be nonempty.
     void TCalcParse::ApplyRange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         std::int64_t Maximum = 0;
@@ -360,6 +368,7 @@ namespace CalcParseClass {
         OutValue->Range->AddRange(Minimum, Maximum);
     }
 
+    // Two ranges sample Left once; scalar/range membership rounds the scalar.
     void TCalcParse::ApplyMembership(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
@@ -397,6 +406,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Comparisons return integer 0 or 1 and sample each range operand once.
     void TCalcParse::ApplyLessThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
@@ -475,6 +485,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Range operands concatenate rather than intersect; duplicates remain.
     void TCalcParse::ApplyAnd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         if (Left->ValueKind != CPVarClass::cpvkRange && Right->ValueKind > CPVarClass::cpvkRange) {
@@ -504,6 +515,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Range operands concatenate; duplicates remain.
     void TCalcParse::ApplyOr(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
         if (Left->ValueKind != CPVarClass::cpvkRange && Right->ValueKind > CPVarClass::cpvkRange) {
             OutValue->ValueKind = CPVarClass::cpvkInteger;
@@ -532,6 +544,9 @@ namespace CalcParseClass {
         }
     }
 
+    // External spellings -> internal tokens: pct %, div f, mod g, in #,
+    // to $, or |, and &, <> e, >= c, <= b, .. h, and decimal dot -> comma.
+    // Text is read-only despite var. Uses ANSI lowercase and boundary-free substitutions; always wraps the result in parentheses.
     pas::WideString TCalcParse::NormalizeTokens(pas::WideString& Text) {
         pas::WideString Previous{};
         pas::WideString Current{};
@@ -575,6 +590,7 @@ namespace CalcParseClass {
         return pas::concat_wide({u"(", Previous, u")"});
     }
 
+    // Text is read-only despite var. Removes at most one enclosing parenthesis pair; leaves outer whitespace.
     pas::WideString TCalcParse::FormatTokens(pas::WideString& Text) {
         pas::WideString Previous{};
         pas::WideString Current{};
@@ -609,6 +625,9 @@ namespace CalcParseClass {
         return Previous;
     }
 
+    // Lower ranks bind tighter; -1 means not an operator.
+    // 1: ^ / f g; 2: * %; 3: -; 4: +; 5: $; 6: #;
+    // 7: < > = b c e; 8: &; 9: |.
     std::int32_t TCalcParse::GetOperatorRank(char16_t Token) {
         std::int32_t Rank = -1;
         switch (Token) {
@@ -634,6 +653,7 @@ namespace CalcParseClass {
         return Rank;
     }
 
+    // Requires a nonempty operator run. Minus parity controls the sign; ties choose the leftmost weakest operator.
     pas::WideString TCalcParse::CollapseOperatorRun(const pas::WideString& Text) {
         std::int32_t i{};
         pas::WideString Operators{};
@@ -672,6 +692,7 @@ namespace CalcParseClass {
         return static_cast<pas::WideString>(Operators.read(PlusCount));
     }
 
+    // Square brackets do not nest. An unmatched opening bracket silently discards the remaining suffix.
     pas::WideString TCalcParse::NormalizeFragments(const pas::WideString& Text) {
         pas::WideString Fragment{};
         pas::WideString Output{};
@@ -709,6 +730,7 @@ namespace CalcParseClass {
         return Output;
     }
 
+    // Silently discards unsupported characters, including decimal dots; call NormalizeTokens first.
     pas::WideString TCalcParse::NormalizeScalarFragment(pas::WideString Text) {
         pas::WideString Previous{};
         pas::WideString Working{};
@@ -845,6 +867,7 @@ namespace CalcParseClass {
         return Text;
     }
 
+    // Any lowercase p selects parameter parsing, even outside the [pN] form.
     pas::WideString TCalcParse::NormalizeBracketFragment(pas::WideString Text) {
         if (EC_Str::ReplaceAllWideString(Text, u"p"_wref.get(), u""_wref.get()) != Text) {
             return NormalizeParameterReference(Text);
@@ -852,6 +875,7 @@ namespace CalcParseClass {
         return NormalizeRangeLiteral(Text);
     }
 
+    // Uses only the first three digits; zero/missing digits produce [err]. Does not check parameter-list bounds.
     pas::WideString TCalcParse::NormalizeParameterReference(pas::WideString Text) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -876,6 +900,7 @@ namespace CalcParseClass {
         return Result;
     }
 
+    // Requires internal h notation, not '..'. Empty or rejected input yields [err]; existing errors remain set.
     pas::WideString TCalcParse::NormalizeRangeLiteral(pas::WideString Text) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -961,6 +986,7 @@ namespace CalcParseClass {
         return Text;
     }
 
+    // One-based; zero when absent. Rightmost ties give left associativity. Delimiter balance is unchecked.
     std::int32_t TCalcParse::FindTopLevelOperator(const pas::WideString& Text, std::int32_t TextLength) {
         std::int32_t Rank{};
         std::int32_t i{};
@@ -992,6 +1018,7 @@ namespace CalcParseClass {
         return BestIndex;
     }
 
+    // Caller owns the result. Evaluates right before left without short-circuiting. EvaluationError blocks evaluation; HasError alone does not. Native recursive intermediates leak.
     CPVarClass::TCPVariant* TCalcParse::EvaluateExpression(pas::WideString Text) {
         std::int32_t Count{};
         pas::WideString Inner{};
@@ -1115,6 +1142,7 @@ namespace CalcParseClass {
         return Result;
     }
 
+    // Existing HasError preserves ResultValue; flags are not reset. Native scratch and returned variants leak.
     void TCalcParse::Evaluate(pas::List* Parameters) {
         CPVarClass::TCPVariant* Value = pas::construct_call<CPVarClass::TCPVariant>(CPVarClass::TCPVariant_Create);
         if (!HasError) {
@@ -1137,6 +1165,7 @@ namespace CalcParseClass {
         }
     }
 
+    // Resets state; stores Expression even on error. Empty input becomes (), not the default parameter.
     void TCalcParse::Prepare(pas::WideString Text, std::int32_t DefaultParameterIndex) {
         std::int32_t Count{};
         std::int32_t i{};
@@ -1191,6 +1220,7 @@ namespace CalcParseClass {
         HasError = false;
     }
 
+    // One-based inclusive bounds, unchecked. Empty slices pass; square brackets are ignored.
     std::uint8_t TCalcParse::HasBalancedParenthesesInSlice(const pas::WideString& Text, std::int32_t FirstIndex, std::int32_t LastIndex) {
         std::int32_t i{};
         std::int32_t Depth = 0;
@@ -1213,6 +1243,8 @@ namespace CalcParseClass {
         return Balanced;
     }
 
+    // Parameters: borrowed, non-nil TList of TParameter; [pN] is one-based.
+    // Unmatched references remain unchanged; negative values are parenthesized.
     pas::WideString TCalcParse::SubstituteParameters(pas::List* Parameters) {
         std::int32_t i{};
         pas::WideString Text{};
@@ -1237,11 +1269,13 @@ namespace CalcParseClass {
         return Text;
     }
 
+    // Empty text passes.
     std::uint8_t TCalcParse::HasBalancedParentheses(const pas::WideString& Text) {
         std::uint8_t Balanced = TCalcParse::HasBalancedParenthesesInSlice(Text, 1, Text.length());
         return Balanced;
     }
 
+    // Nonzero limits: 0.0001..999999999. The lower clamp emits a dot-decimal literal that evaluation rejects. Drops trailing numbers; conversion errors set flags and leave the caller's result storage unchanged.
     pas::WideString TCalcParse::ClampNumericLiterals(pas::WideString Text) {
         pas::WideString Result{};
         pas::Extended Value{};

@@ -45,7 +45,9 @@ namespace fCfgSettings {
 
     std::uint32_t SettingsModeColorHighlighted{};
 
+    // Uses the low 32 bits of a timestamp-counter delta across a 200 ms sleep; temporarily raises process/thread priority.
     double EstimateCpuClockMHz() {
+        // Manual port: this duplicates GR_Main's RDTSC sampling and priority restoration.
         return GR_Main::MeasureCpuClockMHz();
     }
 
@@ -1253,6 +1255,7 @@ namespace fCfgSettings {
     GI_Label::TLabelGI* TfCfgSettings::AddOptionLabel(pas::WideString OptionName, pas::WideString Caption, std::uint8_t UnusedFlag) {
         CurrentOptionName = std::move(OptionName);
         if (GroupNextY[BuildGroupIndex] != 0) {
+            // Native retains a zero-spacing adjustment before the separator.
             GroupNextY[BuildGroupIndex] = GroupNextY[BuildGroupIndex];
             {
                 GI_Image::TImageGI* cpp_with = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, GroupPanels[BuildGroupIndex]);
@@ -1388,6 +1391,7 @@ namespace fCfgSettings {
         }
     }
 
+    // Invokes Callback immediately with the new slider.
     void TfCfgSettings::AddOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TOptionSliderEvent Callback) {
         GI_CountBar::TCountBarGI* Slider = pas::construct_call<GI_CountBar::TCountBarGI>(GI_CountBar::TCountBarGI_Create, GroupPanels[BuildGroupIndex]);
         GroupNextY[BuildGroupIndex] = GroupNextY[BuildGroupIndex];
@@ -1436,6 +1440,7 @@ namespace fCfgSettings {
         Callback(Slider);
     }
 
+    // Searches only the active group.
     std::uint8_t TfCfgSettings::HasOptionValue(pas::WideString OptionName) {
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
         while (Control != nullptr) {
@@ -1457,6 +1462,7 @@ namespace fCfgSettings {
         return false;
     }
 
+    // Searches only the active group; raises when no selected choice or slider exists.
     std::int32_t TfCfgSettings::GetOptionValue(pas::WideString OptionName) {
         std::int32_t Result = 0;
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
@@ -1480,6 +1486,7 @@ namespace fCfgSettings {
         return Result;
     }
 
+    // Searches only the active group; missing options are ignored.
     void TfCfgSettings::SetOptionValue(pas::WideString OptionName, std::int32_t Value) {
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
         while (Control != nullptr) {
@@ -1542,6 +1549,7 @@ namespace fCfgSettings {
         }
     }
 
+    // Changes display gamma before settings are applied.
     void TfCfgSettings::PreviewBrightness(GI_MessageLoop::TObjectGI* Sender) {
         GI_Label::TLabelGI* ValueLabel{};
         if (HasOptionValue(u"Contrast"_w) && HasOptionValue(u"Brightness"_w)) {
@@ -1559,6 +1567,7 @@ namespace fCfgSettings {
         }
     }
 
+    // Changes display gamma before settings are applied.
     void TfCfgSettings::PreviewContrast(GI_MessageLoop::TObjectGI* Sender) {
         GI_Label::TLabelGI* ValueLabel{};
         if (HasOptionValue(u"Contrast"_w) && HasOptionValue(u"Brightness"_w)) {
@@ -2151,6 +2160,7 @@ namespace fCfgSettings {
         }
     }
 
+    // Persists CFG.TXT; changes requiring rebuilt resources request another runtime session.
     void TfCfgSettings::ApplyClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString cpp_text{};
         pas::WideString Text{};
@@ -2442,6 +2452,7 @@ namespace fCfgSettings {
         RequestClose(1);
     }
 
+    // Embedded-item data is ignored.
     GI_MessageLoop::TObjectGI* TfCfgSettings::CreateWarningImage(GI_Label::TLabelGI* Owner, EC_CacheFont::PFontObjectEC Item) {
         GI_MessageLoop::TObjectGI* Result = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Owner);
         {

@@ -3,21 +3,31 @@
 #include "units/SysUtils.hpp"
 #include "units/aGalaxy.hpp"
 
+// Memory diagnostics. SE_Garbage ownership is inferred
+// from the native aGalaxy dependency family beside FGInt/FGIntRSA and the
+// process API units; the original discarded declarations remain unknown.
 namespace SE_Garbage {
-    void ShowLowMemoryWarning(pas::WideString TextKey);
-
     std::int64_t PreviousVirtualUsageMB = 0;
 
     std::int64_t PreviousPhysicalUsageMB = 0;
 
+    // Recursive checks return immediately.
     std::uint8_t CheckingMemoryUsage = false;
 
+    // At most one warning per process.
     std::uint8_t LowMemoryWarningShown = false;
 
     void CheckMemoryUsage() {
         std::int64_t Usage{};
         std::uint8_t Changed{};
         GR_Main::TMemoryStatusEx Status{};
+        // Nested in CheckMemoryUsage; unused caller-popped static link.
+        auto ShowLowMemoryWarning = [&](pas::WideString TextKey) -> void {
+            if (static_cast<std::uint8_t>(LowMemoryWarningShown ^ 1) && aGalaxy::Galaxy != nullptr) {
+                LowMemoryWarningShown = true;
+                aGalaxy::TGalaxy::ShowLocalizedWarning(TextKey);
+            }
+        };
         if (!CheckingMemoryUsage) {
             CheckingMemoryUsage = true;
             Changed = false;
@@ -36,7 +46,7 @@ namespace SE_Garbage {
                 PreviousVirtualUsageMB = Usage;
             }
             if (Status.AvailVirtual >> 20 < 100) {
-                SE_Garbage::ShowLowMemoryWarning(u"Warning.LowVirtualMemory"_w);
+                ShowLowMemoryWarning(u"Warning.LowVirtualMemory"_w);
             }
             Usage = Status.TotalPhys - Status.AvailPhys >> 20;
             if (Usage > 512 && pas::abs(Usage - PreviousPhysicalUsageMB) > 256) {
@@ -51,19 +61,12 @@ namespace SE_Garbage {
                 PreviousPhysicalUsageMB = Usage;
             }
             if (Status.AvailPhys >> 20 < 100) {
-                SE_Garbage::ShowLowMemoryWarning(u"Warning.LowPhysicalMemory"_w);
+                ShowLowMemoryWarning(u"Warning.LowPhysicalMemory"_w);
             }
             if (Changed) {
                 GR_Main::LogMemoryUsage();
             }
             CheckingMemoryUsage = false;
-        }
-    }
-
-    void ShowLowMemoryWarning(pas::WideString TextKey) {
-        if (static_cast<std::uint8_t>(LowMemoryWarningShown ^ 1) && aGalaxy::Galaxy != nullptr) {
-            LowMemoryWarningShown = true;
-            aGalaxy::TGalaxy::ShowLocalizedWarning(TextKey);
         }
     }
 

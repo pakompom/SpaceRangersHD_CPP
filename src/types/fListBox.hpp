@@ -32,11 +32,13 @@ namespace fListBox {
         void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void ChoiceDoubleClick(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void ProcessCallbackTimers() override;
+        // Reset to -1 on opening; set only on acceptance.
         std::int32_t SelectedIndex;
         GI_GraphButton::TGraphButtonGI* AcceptButton;
         GI_PanelScrollBar::TPanelScrollBarGI* ScrollPanel;
         GI_MessageLoop::TObjectGI* SelectedControl;
         pas::WideString Caption;
+        // Borrowed PWideString entries.
         pas::List* Items;
         std::int32_t OffsetX;
         std::int32_t OffsetY;

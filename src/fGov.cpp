@@ -59,10 +59,11 @@
 #include "units/fTalk.hpp"
 
 namespace fGov {
-    void LayoutPortrait(pas::WideString Name, GI_MessageLoop::TMessageLoopGI* Screen, TfGov* Self, std::int32_t& HalfWidth);
-
+    // Native battle launch selector, 1..3.
     std::int32_t GovernmentBattleDifficulty{};
 
+    // Preserve the native receiver evaluation before the bounded payment,
+    // with the clamp cells allocated before the receiver cell.
     void PayBailMoney(aShip::TShip* Ship) {
         std::int32_t Payment{};
         aPlayer::TPlayer* Player = aPlayer::GetPlayer();
@@ -102,6 +103,55 @@ namespace fGov {
         std::int32_t HalfWidth{};
         std::int32_t ChoiceGrowth{};
         std::uint8_t Owner{};
+        // Nested in TfGov.InitializeLayout; captures half-width and Self.
+        auto LayoutPortrait = [&](pas::WideString Name, GI_MessageLoop::TMessageLoopGI* Screen) -> void {
+            std::int32_t I{};
+            std::int32_t PortraitX{};
+            std::int32_t PortraitY{};
+            std::int32_t TableY{};
+            std::int32_t Bottom{};
+            std::int32_t DeltaX{};
+            std::int32_t DeltaY{};
+            GI_MessageLoop::TObjectGI* Panel = Screen->FindControlByPath(Name);
+            if (Panel != nullptr) {
+                Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+                PortraitY = static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 10;
+                TableY = PortraitY + Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->ClientSize.Y / 10 * 6;
+                Bottom = TableY + Panel->FindByNameRecursive(u"Table"_wref.get())->ClientSize.Y / 10 * 9;
+                DeltaX = Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->LocalPosition.X - Panel->FindByNameRecursive(u"Gov_Anim1"_wref.get())->LocalPosition.X;
+                DeltaY = Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->ClientSize.Y - Panel->FindByNameRecursive(u"Gov_Anim1"_wref.get())->ClientSize.Y;
+                if (GR_Main::GameScreenHeight > Bottom) {
+                    PortraitY = PortraitY + GR_Main::GameScreenHeight - Bottom;
+                    TableY = TableY + GR_Main::GameScreenHeight - Bottom;
+                }
+                {
+                    GI_MessageLoop::TObjectGI* Table = Panel->FindByNameRecursive(u"Table"_wref.get());
+                    Table->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table->ClientSize.X) / 2, TableY));
+                    Table->SetActive(this->UseClassicPortrait);
+                }
+                if (Panel->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
+                    GI_MessageLoop::TObjectGI* Table2 = Panel->FindByNameRecursive(u"Table2"_wref.get());
+                    Table2->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table2->ClientSize.X) / 2, TableY));
+                    Table2->SetActive(false);
+                }
+                PortraitX = HalfWidth / 2 * 3 - Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->ClientSize.X / 2;
+                for (auto cpp_range = pas::for_to<std::int32_t>(0, 1); cpp_range.next(I); ) {
+                    {
+                        GI_MessageLoop::TObjectGI* cpp_with_3 = Panel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"Gov_Anim", SysUtils::IntToStr(I)})));
+                        if (!this->UseClassicPortrait) {
+                            cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X + GR_Main::ExtraScreenWidth, cpp_with_3->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        } else {
+                            cpp_with_3->SetPosition(ClassesImports::Point(PortraitX - I * DeltaX, PortraitY + I * DeltaY));
+                        }
+                    }
+                    {
+                        GI_MessageLoop::TObjectGI* cpp_with_4 = Panel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"GovHD_Anim", SysUtils::IntToStr(I)})));
+                        cpp_with_4->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - cpp_with_4->ClientSize.X) / 2, cpp_with_4->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    }
+                }
+                Panel->FindByNameRecursive(u"BG"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            }
+        };
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         MainPanel->InitializeLayout(this);
         PlanetPanel->InitializeLayout(this);
@@ -119,7 +169,7 @@ namespace fGov {
                 UseClassicPortrait = GlobalsV::UseTablesForGov;
             }
             for (Owner = static_cast<std::uint8_t>(0); Owner <= static_cast<std::uint8_t>(7); ++Owner) {
-                fGov::LayoutPortrait(pas::concat_wide({u"Gov", aConst::OwnerInfo[Owner].InternalName}), this, this, HalfWidth);
+                LayoutPortrait(pas::concat_wide({u"Gov", aConst::OwnerInfo[Owner].InternalName}), this);
             }
             {
                 GI_MessageLoop::TObjectGI* PanelTalk = MainPanel->FindByNameRecursive(u"PanelTalk"_wref.get());
@@ -191,55 +241,11 @@ namespace fGov {
         }
     }
 
-    void LayoutPortrait(pas::WideString Name, GI_MessageLoop::TMessageLoopGI* Screen, TfGov* Self, std::int32_t& HalfWidth) {
-        std::int32_t I{};
-        std::int32_t PortraitX{};
-        std::int32_t PortraitY{};
-        std::int32_t TableY{};
-        std::int32_t Bottom{};
-        std::int32_t DeltaX{};
-        std::int32_t DeltaY{};
-        GI_MessageLoop::TObjectGI* Panel = Screen->FindControlByPath(Name);
-        if (Panel != nullptr) {
-            Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            PortraitY = static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 10;
-            TableY = PortraitY + Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->ClientSize.Y / 10 * 6;
-            Bottom = TableY + Panel->FindByNameRecursive(u"Table"_wref.get())->ClientSize.Y / 10 * 9;
-            DeltaX = Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->LocalPosition.X - Panel->FindByNameRecursive(u"Gov_Anim1"_wref.get())->LocalPosition.X;
-            DeltaY = Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->ClientSize.Y - Panel->FindByNameRecursive(u"Gov_Anim1"_wref.get())->ClientSize.Y;
-            if (GR_Main::GameScreenHeight > Bottom) {
-                PortraitY = PortraitY + GR_Main::GameScreenHeight - Bottom;
-                TableY = TableY + GR_Main::GameScreenHeight - Bottom;
-            }
-            {
-                GI_MessageLoop::TObjectGI* Table = Panel->FindByNameRecursive(u"Table"_wref.get());
-                Table->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table->ClientSize.X) / 2, TableY));
-                Table->SetActive(Self->UseClassicPortrait);
-            }
-            if (Panel->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-                GI_MessageLoop::TObjectGI* Table2 = Panel->FindByNameRecursive(u"Table2"_wref.get());
-                Table2->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table2->ClientSize.X) / 2, TableY));
-                Table2->SetActive(false);
-            }
-            PortraitX = HalfWidth / 2 * 3 - Panel->FindByNameRecursive(u"Gov_Anim0"_wref.get())->ClientSize.X / 2;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, 1); cpp_range.next(I); ) {
-                {
-                    GI_MessageLoop::TObjectGI* cpp_with_3 = Panel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"Gov_Anim", SysUtils::IntToStr(I)})));
-                    if (!Self->UseClassicPortrait) {
-                        cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X + GR_Main::ExtraScreenWidth, cpp_with_3->LocalPosition.Y + GR_Main::ExtraScreenHeight));
-                    } else {
-                        cpp_with_3->SetPosition(ClassesImports::Point(PortraitX - I * DeltaX, PortraitY + I * DeltaY));
-                    }
-                }
-                {
-                    GI_MessageLoop::TObjectGI* cpp_with_4 = Panel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"GovHD_Anim", SysUtils::IntToStr(I)})));
-                    cpp_with_4->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - cpp_with_4->ClientSize.X) / 2, cpp_with_4->LocalPosition.Y + GR_Main::ExtraScreenHeight));
-                }
-            }
-            Panel->FindByNameRecursive(u"BG"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        }
-    }
-
+    // Reviewed compiler-layout difference: native reserves one extra, unreferenced
+    // dword at EBP-$F4, before its managed-string temporaries, and emits an extra
+    // push ECX in the prologue. Rebuilt temporaries from $F8 onward are four bytes
+    // nearer EBP. Calls, branches, constants and field accesses agree throughout.
+    // Native diagnostic name: TfGov.BeforeRun.
     void TfGov::OnOpen() {
         std::uint8_t Owner{};
         std::int32_t MapIndex{};
@@ -1048,6 +1054,7 @@ namespace fGov {
         }
     }
 
+    // DL flag: true suppresses selecting/appending response text from the script-choice list; script execution and choice construction still run. Callers pass 0 or 1.
     void TfGov::BuildGovernmentChoices(std::uint8_t SkipScriptResponseText) {
         aScript::TScript* Script{};
         pas::WideString Text{};
@@ -1849,7 +1856,7 @@ namespace fGov {
         if (GR_Main::ExitScreenLoop) {
             return;
         }
-        if (pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10008);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20008);

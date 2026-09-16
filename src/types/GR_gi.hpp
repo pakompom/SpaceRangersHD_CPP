@@ -39,9 +39,11 @@ namespace GR_gi {
 
     using PGaiSequenceTableHeader = TGaiSequenceTableHeader*;
 
+    // Shared GI/GAI disk structures; ownership inferred from both readers and unit order.
     #pragma pack(push, 1)
     struct TGaiHeader {
         std::uint8_t cpp_padding[8];
+        // .. and.. metadata remain unresolved.
         WindowsSdk::TRect Bounds;
         std::int32_t FrameCount;
         std::uint32_t Flags;
@@ -60,24 +62,35 @@ namespace GR_gi {
     struct TgiGR : EC_Struct::TObjectEx {
         PAS_CLASS_META(TgiGR, EC_Struct::TObjectEx, "TgiGR", 20)
         void p_destroy() override;
+        // Borrowed data is detached without freeing it.
         void ClearData();
         std::uint8_t IsEmpty();
+        // BufferPtr is borrowed; its header and length are not validated.
         void LoadRawGiBytes(void* BufferPtr, std::int32_t ByteCount);
+        // Owns its copy; ignores SourceBuffer.Position.
         void LoadRawGiFromBuffer(EC_Buf::TBufEC* SourceBuffer);
+        // Owns decompressed storage; empty on decompression failure.
         void LoadCompressedGiBytes(void* BufferPtr, std::int32_t ByteCount);
         WindowsSdk::TRect GetBoundsRect();
         WindowsSdk::TPoint GetContentSize();
         WindowsSdk::TPoint GetTopLeft();
         std::int32_t GetFormat();
+        // Does not validate PlaneIndex.
         PgiPlaneGR GetPlane(std::int32_t PlaneIndex);
         std::int32_t GetClipRectCount();
+        // Does not validate RectIndex.
         WindowsSdk::TRect GetClipRect(std::int32_t RectIndex);
+        // Modifies Data even when borrowed.
         void BuildPalettedFormat4ColorCache();
         void DrawToGraphBuf(GR_GraphBuf::TGraphBufGR* GraphBuf, std::int32_t X, std::int32_t Y, WindowsSdk::TRect DrawRect, std::uint8_t BlendMode, std::uint8_t Alpha);
+        // Formats 0..4 create a 32-bit destination; formats 5/6 decode into an existing sufficiently large buffer. Keep16BitPixels affects format 0 without an alpha mask.
         void DecodeToGraphBuf(GR_GraphBuf::TGraphBufGR* GraphBuf, std::uint8_t Keep16BitPixels);
+        // Only format 0 is supported; other formats report an error.
         void DecodeRawRegion(void* Destination, std::int32_t PitchBytes, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height, std::uint8_t Keep16BitPixels);
         void DecodeToPixels(void* Destination, std::int32_t PitchBytes, std::int32_t Width, std::int32_t Height, std::uint8_t Keep16BitPixels);
+        // Mode 1 uses RGB565; mode 0 uses ARGB masks. Native allocation reserves two bytes per pixel except for mode 2, whose payload is left uninitialized.
         void CreateFromGraphBuf(GR_GraphBuf::TGraphBufGR* GraphBuf, std::int32_t StorageMode);
+        // Uses RGB565 masks.
         void CreateFormat2FromGraphBuf(GR_GraphBuf::TGraphBufGR* GraphBuf, WindowsSdk::TPoint TopLeft);
         void* Data;
         std::int32_t DataSize;

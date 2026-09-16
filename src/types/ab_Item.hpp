@@ -29,8 +29,11 @@ namespace ab_Item {
         void UpdateState() override;
         void Advance() override;
         void UpdateVisuals() override;
+        // Campaign equipment; nil for arena bonuses.
         aItem::TItem* Item;
+        // -1 for equipment; otherwise index into the eight ship bonus timers.
         std::int32_t BonusKind;
+        // Uses the unknown-bonus image.
         std::uint8_t HiddenBonus;
         std::uint8_t cpp_padding[3];
         SE_Space::TObjectSE* Visual;

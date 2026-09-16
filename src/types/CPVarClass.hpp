@@ -22,13 +22,21 @@ namespace CPVarClass {
     struct TCPVariant : EC_Struct::TObjectEx {
         PAS_CLASS_META(TCPVariant, EC_Struct::TObjectEx, "TCPVariant", 28)
         void p_destroy() override;
+        // Resets to integer zero; retains the range object.
         void Reset();
+        // Deep-copies the range.
         void Assign(TCPVariant* Source, std::uint8_t FreeSource);
+        // Comma decimals use Single precision; uppercase E is ignored. Ranges require h, not '..'. Failure preserves the value; empty text becomes zero.
         std::uint8_t TryLoadFromText(pas::WideString Text);
+        // Permits digits, comma and uppercase E; not a syntax check.
         static std::uint8_t HasNumericChars(pas::WideString& Text, std::int32_t TextLength);
+        // Permits digits and uppercase E; not a syntax check.
         static std::uint8_t HasIntegerChars(pas::WideString& Text, std::int32_t TextLength);
+        // Numeric conversions resample ranges; unknown tags return zero.
         pas::Extended AsExtended();
+        // Float conversion clamps at +/-2000000000; within bounds, uses System.Round(value + 1E-11).
         std::int32_t AsInteger();
+        // Owned for every ValueKind.
         CPDiapClass::TCPDiapazone* Range;
         pas::Extended FloatValue;
         std::uint8_t cpp_padding[2];

@@ -16,6 +16,7 @@
 #include "units/SE_Container.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native class and methods:.
 namespace SE_Container {
     void TContainerSE::CopyTo(SE_Space::TObjectSE* Destination) {
         SE_Space::TObjectSE::CopyTo(Destination);

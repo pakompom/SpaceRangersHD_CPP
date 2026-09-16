@@ -22,6 +22,7 @@ namespace SE_Missile {
         SE_Space::TObjectSE_Destroy(Self);
     }
 
+    // Native diagnostic name: TMissileSE.Connect.
     void TMissileSE::AttachToSpace(SE_Space::TSpaceSE* ASpace) {
         std::int32_t Stage = 0;
         try {
@@ -157,9 +158,11 @@ namespace SE_Missile {
         }
     }
 
+    // Native empty override.
     void TMissileSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {
     }
 
+    // Native empty override.
     void TMissileSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {
     }
 

@@ -17,6 +17,7 @@ namespace EventClass {
         PAS_CLASS_META(TEvent, EC_Struct::TObjectEx, "TEvent", 20)
         void p_destroy() override;
         void ClearTextFields();
+        // Trims the copied text.
         void Assign(TEvent* Source);
         TextFieldClass::TTextField* Text;
         TextFieldClass::TTextField* Picture;

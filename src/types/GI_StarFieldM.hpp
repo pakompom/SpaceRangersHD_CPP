@@ -12,12 +12,15 @@ namespace GI_StarFieldM {
 
     using PMovingStarPixel = TMovingStarPixel*;
 
+    // Native constructor allocates $400 bytes and iterates 32 colors
+    // per row and 16 rows. Palette reads retain native helpers.
     using TMovingStarPalette = pas::Array<std::uint16_t, 0, 31>;
 
     using TMovingStarColorTable = pas::Array<TMovingStarPalette, 0, 15>;
 
     using PMovingStarColorTable = TMovingStarColorTable*;
 
+    // Native VMT.
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -53,6 +56,7 @@ namespace GI_StarFieldM {
         float CurrentFocusDistance;
         std::int32_t MotionTicks;
         GI_MessageLoop::PCallbackTimerGI AnimationTimer;
+        // Owns sixteen rows of 32 RGB words; initialization currently selects row zero.
         PMovingStarColorTable ColorTable;
     };
     #if INTPTR_MAX == INT32_MAX

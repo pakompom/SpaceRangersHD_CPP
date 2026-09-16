@@ -6,6 +6,7 @@ namespace ab_Ship {
 
     extern ab_Ship::TabShip* KellerArcadeShip;
 
+    // Keeps Keller alive while present; exact visual role under review.
     extern ab_Ship::TabShip* KellerAuxiliaryShip;
 
     extern std::uint8_t ArcadePaused;

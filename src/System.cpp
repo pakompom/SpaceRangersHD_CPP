@@ -8,6 +8,7 @@ namespace System {
 
     System::TSystemThreadFuncProc SystemThreadFuncProc{};
 
+    // RTL hook, called with the Windows RaiseException stdcall ABI.
     void* RaiseExceptionProc{};
 
     std::uint32_t HInstance{};

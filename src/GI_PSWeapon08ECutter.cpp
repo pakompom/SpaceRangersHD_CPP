@@ -16,6 +16,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native TPSWeapon08ECutter and methods; includes its configuration palette loader.
 namespace GI_PSWeapon08ECutter {
     pas::DynArray<GI_PSWeapon08ECutter::TECutterPalette> ECutterPalettes{};
 
@@ -70,6 +71,7 @@ namespace GI_PSWeapon08ECutter {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Native empty override.
     void TPSWeapon08ECutter::Invalidate() {
     }
 

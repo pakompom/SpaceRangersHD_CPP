@@ -7,6 +7,7 @@
 #include "units/ab_W11.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW11 projectile family:.
 namespace ab_W11 {
     void TabW11_Create(TabW11* Self) {
         ab_Object::TabObject_Create(Self);

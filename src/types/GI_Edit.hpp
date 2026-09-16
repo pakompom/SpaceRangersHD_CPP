@@ -34,17 +34,21 @@ namespace GI_Edit {
         void Clear() override;
         void SetFontName(pas::WideString FontName);
         void SetBorderEnabled(std::uint8_t Value);
+        // Resets CaretPosition on change; does not clamp to MaxLength or invoke ChangedCallback.
         void SetText(pas::WideString Value);
         std::uint8_t HasGlyph(char16_t Character);
         void SetTextColor(std::uint32_t Value);
         void SetBorderLightColor(std::uint32_t Value);
         void SetBorderDarkColor(std::uint32_t Value);
+        // Only Left and Center are accepted; other values raise.
         void SetTextAlignX(GI_Main::TTextAlignXGI Value);
+        // Clamps to 0..Length(Text).
         void SetCaretPosition(std::int32_t Value);
         void ProcessLeftButtonDown(std::uint32_t KeyState, WindowsSdk::TPoint Point) override;
         void OnFocusGained() override;
         void OnFocusLost() override;
         void ProcessKeyDown(std::int32_t Key) override;
+        // Requires a font glyph, acceptance by the optional callback, and length below MaxLength.
         void ProcessCharacter(char16_t Character) override;
         void OnCaretBlink() override;
         void LoadFromConfigPath(const pas::WideString& Path) override;

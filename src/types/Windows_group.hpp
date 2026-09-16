@@ -373,6 +373,7 @@ namespace WindowsSdk {
         std::uint32_t dwMinorVersion;
         std::uint32_t dwBuildNumber;
         std::uint32_t dwPlatformId;
+        // Maintenance AnsiString for PSS usage
         pas::Array<std::uint8_t, 0, 127> szCSDVersion;
     };
     #pragma pack(pop)
@@ -402,22 +403,28 @@ namespace WindowsSdk {
 
     using LCID = std::uint32_t;
 
+    // Primary language IDs.
     inline constexpr std::int32_t LANG_NEUTRAL = 0x00000000;
 
+    // user default
     inline constexpr std::int32_t SUBLANG_DEFAULT = 0x00000001;
 
+    // Sorting IDs.
+    // sorting default
     inline constexpr std::int32_t SORT_DEFAULT = 0x00000000;
 
     inline constexpr std::int32_t LANG_USER_DEFAULT = WindowsSdk::SUBLANG_DEFAULT << 10 | WindowsSdk::LANG_NEUTRAL;
 
     inline constexpr std::int32_t LOCALE_USER_DEFAULT = WindowsSdk::SORT_DEFAULT << 16 | WindowsSdk::LANG_USER_DEFAULT;
 
+    // line 724
     inline constexpr std::int32_t STATUS_WAIT_0 = 0x00000000;
 
     inline constexpr std::int32_t STATUS_ABANDONED_WAIT_0 = 0x00000080;
 
     inline constexpr std::int32_t STATUS_TIMEOUT = 0x00000102;
 
+    // value that gets a thread to LowRealtime-1
     inline constexpr std::int32_t THREAD_BASE_PRIORITY_LOWRT = 15;
 
     inline constexpr std::int32_t SYNCHRONIZE = 0x00100000;
@@ -426,12 +433,16 @@ namespace WindowsSdk {
 
     inline constexpr std::int32_t READ_CONTROL = 0x00020000;
 
+    // SYNCHRONIZE              = $00100000; defined above
+    // STANDARD_RIGHTS_REQUIRED = $000F0000; defined above
     inline constexpr std::int32_t STANDARD_RIGHTS_READ = WindowsSdk::READ_CONTROL;
 
     inline constexpr std::int32_t STANDARD_RIGHTS_WRITE = WindowsSdk::READ_CONTROL;
 
     inline constexpr std::int32_t STANDARD_RIGHTS_ALL = 0x001f0000;
 
+    // line 4700
+    // Registry Specific Access Rights.
     inline constexpr std::int32_t KEY_QUERY_VALUE = 0x00000001;
 
     inline constexpr std::int32_t KEY_SET_VALUE = 0x00000002;
@@ -472,6 +483,7 @@ namespace WindowsSdk {
 
     inline constexpr std::int32_t THREAD_PRIORITY_TIME_CRITICAL = WindowsSdk::THREAD_BASE_PRIORITY_LOWRT;
 
+    // Infinite timeout
     inline constexpr std::uint32_t INFINITE = 0xffffffffu;
 
     inline constexpr std::int32_t HEAP_ZERO_MEMORY = 0x00000008;
@@ -482,12 +494,15 @@ namespace WindowsSdk {
 
     inline constexpr std::int32_t FORMAT_MESSAGE_ARGUMENT_ARRAY = 0x00002000;
 
+    // Define the severity codes
+    // The operation completed successfully.
     inline constexpr std::int32_t ERROR_SUCCESS = 0;
 
     inline constexpr std::int32_t BI_RGB = 0;
 
     inline constexpr std::int32_t BLACK_BRUSH = 4;
 
+    // color table in RGBs
     inline constexpr std::int32_t DIB_RGB_COLORS = 0;
 
     inline constexpr std::int32_t SW_SHOWNORMAL = 1;
@@ -566,6 +581,7 @@ namespace WindowsSdk {
 
     inline constexpr std::int32_t GWL_STYLE = -16;
 
+    // Value for rolling one detent
     inline constexpr std::int32_t WHEEL_DELTA = 120;
 
     inline constexpr std::int32_t MK_LBUTTON = 1;

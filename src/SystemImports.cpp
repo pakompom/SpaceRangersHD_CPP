@@ -4,6 +4,7 @@
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
 
+// Required Delphi 2007 System algorithms, translated as ordinary Pascal.
 namespace SystemImports {
     pas::Proc<void()> InitProc{};
 
@@ -26,6 +27,9 @@ namespace SystemImports {
         }
     }
 
+    // Delphi 2007 Win32 command-line parsing, including adjacent quotes and DBCS
+    // character boundaries. Keep it as Pascal so ordinary pointer/string lowering
+    // handles it; this is not the host C runtime's different argv parser.
     std::uint8_t* GetParamStr(std::uint8_t* P, pas::AnsiString& Param) {
         std::uint8_t* Q{};
         while (true) {
@@ -144,6 +148,7 @@ namespace SystemImports {
         TThreadStart Start{};
         Start = pas::load_unaligned<TThreadStart>(static_cast<PThreadStart>(Parameter));
         pas::dispose(static_cast<PThreadStart>(Parameter));
+        // Selected Delphi 2007 _FpuInit default; this game never changes Default8087CW.
         System::Set8087CW(0x00001332);
         return Start.Func(Start.Parameter);
     }

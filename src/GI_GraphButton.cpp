@@ -96,6 +96,7 @@ namespace GI_GraphButton {
         CaptionLabel->SetText(Text);
     }
 
+    // Applies to every button state.
     void TGraphButtonGI::SetCaptionColor(std::uint32_t Value) {
         CaptionColors[0] = Value;
         CaptionColors[1] = Value;
@@ -236,6 +237,7 @@ namespace GI_GraphButton {
         }
     }
 
+    // Graph mode accepts a hit on any state image, including inactive states.
     std::uint8_t TGraphButtonGI::HitTest(WindowsSdk::TPoint Point) {
         std::uint8_t Result = false;
         if (HitKind == gbhRect) {
@@ -302,6 +304,7 @@ namespace GI_GraphButton {
         return MessageLoop->HoveredControl == this;
     }
 
+    // Does not change keyboard focus.
     void TGraphButtonGI::SetHovered(std::uint8_t Value) {
         if (Value) {
             MessageLoop->SetHoveredControl(this);
@@ -310,11 +313,13 @@ namespace GI_GraphButton {
         }
     }
 
+    // Native code compares an uninitialized temporary size when the first state image is absent.
     WindowsSdk::TPoint TGraphButtonGI::GetMaxStateImageSize() {
         WindowsSdk::TPoint Result{};
         WindowsSdk::TPoint Size{};
         Result.X = 0;
         Result.Y = 0;
+        // Native comparisons are unconditional, including before Size is initialized.
         if (ImageNormal != nullptr) {
             Size = ImageNormal->GetContentSize();
         }
@@ -684,6 +689,7 @@ namespace GI_GraphButton {
         LoadButtonProperties(Block);
     }
 
+    // Configured state-image positions are absolute; stored positions are relative to this control.
     void TGraphButtonGI::LoadButtonProperties(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         if (Block->CountParams(u"CaptionAlignY"_wref.get()) > 0) {

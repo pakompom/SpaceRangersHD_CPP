@@ -2,6 +2,7 @@
 #include "units/Registry.hpp"
 #include "units/WindowsSdk.hpp"
 
+// Selected Delphi 2007 TRegistry surface used by this game's CPU enumeration.
 namespace Registry {
     std::uint8_t IsRelative(const pas::AnsiString& Value) {
         return !(Value != "" && Value.read(1) == '\\');

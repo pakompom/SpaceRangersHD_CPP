@@ -58,12 +58,6 @@
 #include "units/fPanelMain.hpp"
 
 namespace fGalaxy2 {
-    void AccumulateShip(TfGalaxy2* Self, aGalaxy::TStar*& Star, aShip::TShip*& Ship, std::int32_t& UnknownCount, std::int32_t& OtherFactionCount, pas::WideString& OtherFaction, pas::WideString& StarFaction, std::int32_t& StarFactionCount, aKling::TKling*& Kling, pas::Array<pas::Array<std::int32_t, 0, 7>, 0, 2>& DominatorCounts, std::int32_t& ScriptedPirates, std::int32_t& ScriptedCoalition, pas::Array<std::int32_t, 0, 13>& RoleCounts, aTransport::TTransport*& Transport, std::int32_t& CoalitionTranclucators, std::int32_t& PirateTranclucators, std::int32_t& CoalitionStations, std::int32_t& PirateStations);
-
-    pas::WideString SeriesColor(aGalaxyStruct::TDominatorSeries& Series);
-
-    void AppendLine(std::int32_t& LineCount, std::uint8_t& LineActive, pas::WideString& Summary, pas::WideString& Line);
-
     const pas::Array<std::uint8_t, 1, 7> GalaxyMapFriendlyShipOrder = pas::Array<std::uint8_t, 1, 7>{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(2), static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(4), static_cast<std::uint8_t>(5)}};
 
     void CaptureGalaxyPreview(GI_MessageLoop::TMessageLoopGI* ParentLoop) {
@@ -442,6 +436,7 @@ namespace fGalaxy2 {
                     KellerCount = Star->CountDominatorForces(aGalaxyStruct::dsKeller, false, false, Strength);
                     TerronCount = Star->CountDominatorForces(aGalaxyStruct::dsTerron, false, false, Strength);
                     PirateCount = Star->CountPirateForces(false, Strength, true, true);
+                    // Keep the recovered out-string clearing explicit at these two call sites.
                     CustomFaction = pas::WideString();
                     CustomCount = Star->CountCustomFactionForces(false, CustomFaction, Strength);
                     OtherFaction = pas::WideString();
@@ -761,6 +756,7 @@ namespace fGalaxy2 {
         }
     }
 
+    // Requires an active Prolonger effect as well as radar coverage.
     std::uint8_t TfGalaxy2::CanShowExtendedRadarInfo(aGalaxy::TStar* Star) {
         EC_Struct::TPointF First{};
         EC_Struct::TPointF Second{};
@@ -779,6 +775,7 @@ namespace fGalaxy2 {
         return Result;
     }
 
+    // Measured in radar-summary units of 150 range units.
     std::int32_t TfGalaxy2::GetRadarSummaryRadius() {
         return System::Round(pas::real_divide(aPlayer::GetPlayer()->GetRadarRange(), 1.5E+2L));
     }
@@ -797,6 +794,7 @@ namespace fGalaxy2 {
         return Result;
     }
 
+    // Uses the horizontal projection scale.
     std::int32_t TfGalaxy2::GalaxyDistanceToMapDistance(double Distance) {
         return System::Round(pas::real_divide(Distance, GalaxyExtent.X) * (MapPixelBounds.Right - MapPixelBounds.Left + 1));
     }
@@ -1275,6 +1273,7 @@ namespace fGalaxy2 {
         }
     }
 
+    // Nil hides the panel; cancels StarInfoHideTimer.
     void TfGalaxy2::ShowStarInfo(aGalaxy::TStar* Star) {
         pas::List* Objects{};
         std::int32_t I{};
@@ -1543,7 +1542,7 @@ namespace fGalaxy2 {
                         cpp_with_10->SetPosition(ClassesImports::Point(IconX + RowHeight + 2, RowHeight * I + 1));
                     }
                     IconX = IconX + RowHeight + 2;
-                    if (pas::in_set<0, 0, 2, 2>(Planet->Economy)) {
+                    if (pas::is_one_of<aGalaxyStruct::peAgricultural, aGalaxyStruct::peIndustrial>(Planet->Economy)) {
                         GI_Image::TImageGI* cpp_with_11 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Owner);
                         switch (Planet->Economy) {
                             case aGalaxyStruct::peAgricultural: {
@@ -1632,6 +1631,7 @@ namespace fGalaxy2 {
         }
     }
 
+    // Requires boss-specific scanner technology; does not test general visibility.
     std::uint8_t TfGalaxy2::CanRevealBossPresence(aShip::TShip* Ship) {
         if (Ship == nullptr) {
             return false;
@@ -1658,13 +1658,23 @@ namespace fGalaxy2 {
 
     pas::WideString TfGalaxy2::BuildStarShipSummary(aGalaxy::TStar* Star, std::int32_t& LineCount) {
         aShip::TShip* Ship{};
+        std::int32_t UnknownCount{};
+        std::int32_t OtherFactionCount{};
         pas::WideString OtherFaction{};
         pas::WideString StarFaction{};
+        std::int32_t StarFactionCount{};
         aKling::TKling* Kling{};
         pas::Array<pas::Array<std::int32_t, 0, 7>, 0, 2> DominatorCounts{};
+        std::int32_t ScriptedPirates{};
+        std::int32_t ScriptedCoalition{};
         pas::Array<std::int32_t, 0, 13> RoleCounts{};
         aTransport::TTransport* Transport{};
+        std::int32_t CoalitionTranclucators{};
+        std::int32_t PirateTranclucators{};
+        std::int32_t CoalitionStations{};
+        std::int32_t PirateStations{};
         aGalaxyStruct::TDominatorSeries Series{};
+        std::uint8_t LineActive{};
         pas::WideString Summary{};
         pas::WideString Line{};
         std::int32_t I{};
@@ -1675,16 +1685,169 @@ namespace fGalaxy2 {
         std::uint8_t Role{};
         std::int32_t PirateRole{};
         pas::WideString ColorTag{};
-        std::int32_t UnknownCount = 0;
-        std::int32_t OtherFactionCount = 0;
-        std::int32_t StarFactionCount = 0;
-        std::int32_t CoalitionTranclucators = 0;
-        std::int32_t PirateTranclucators = 0;
-        std::int32_t CoalitionStations = 0;
-        std::int32_t PirateStations = 0;
-        std::int32_t ScriptedCoalition = 0;
-        std::int32_t ScriptedPirates = 0;
+        auto AccumulateShip = [&]() -> void {
+            pas::WideString Faction{};
+            if (Ship->InHyperspace) {
+                return;
+            }
+            if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) ^ 1) || static_cast<std::uint8_t>(TfGalaxy2::CanRevealBossPresence(Ship) ^ 1)) {
+                ++UnknownCount;
+                return;
+            }
+            if (Ship->CurrentStanding == aGalaxyStruct::ssCustom) {
+                if (Ship->ScriptShip == nullptr || reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText == u"") {
+                    ++OtherFactionCount;
+                    OtherFaction = pas::WideString();
+                } else {
+                    Faction = reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText;
+                    if (Faction == StarFaction) {
+                        ++StarFactionCount;
+                    } else {
+                        if (OtherFactionCount == 0) {
+                            OtherFaction = Faction;
+                        } else if (OtherFaction != Faction) {
+                            OtherFaction = pas::WideString();
+                        }
+                        ++OtherFactionCount;
+                    }
+                }
+            } else if (Ship->TypeId == aGalaxyStruct::stKling) {
+                Kling = pas::checked_cast<aKling::TKling*>(Ship);
+                ++DominatorCounts[Kling->DominatorSeries][Kling->KlingType];
+            } else {
+                switch (Ship->TypeId) {
+                    case aGalaxyStruct::stRanger: {
+                        if (reinterpret_cast<aRanger::TRanger*>(Ship)->ExcludedFromRating || Ship->HasScriptStateText()) {
+                            if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                                ++ScriptedPirates;
+                            } else {
+                                ++ScriptedCoalition;
+                            }
+                        } else if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                            ++RoleCounts[11];
+                        } else {
+                            ++RoleCounts[0];
+                        }
+                        break;
+                    }
+                    case aGalaxyStruct::stPirate: {
+                        if (Ship->HasScriptStateText()) {
+                            if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                                ++ScriptedPirates;
+                            } else {
+                                ++ScriptedCoalition;
+                            }
+                        } else if (Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                            ++RoleCounts[2];
+                        } else if (reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
+                            ++RoleCounts[12];
+                        } else {
+                            ++RoleCounts[13];
+                        }
+                        break;
+                    }
+                    case aGalaxyStruct::stWarrior: {
+                        if (Ship->HasScriptStateText()) {
+                            ++ScriptedCoalition;
+                        } else if (pas::checked_cast<aWarrior::TWarrior*>(Ship)->WarriorType == aWarrior::wtFlagship) {
+                            ++RoleCounts[10];
+                        } else {
+                            ++RoleCounts[1];
+                        }
+                        break;
+                    }
+                    case aGalaxyStruct::stTransport: {
+                        Transport = pas::checked_cast<aTransport::TTransport*>(Ship);
+                        if (Ship->HasScriptStateText()) {
+                            ++ScriptedCoalition;
+                        } else {
+                            switch (Transport->TransportType) {
+                                case aTransport::ttTransport: ++RoleCounts[3]; break;
+                                case aTransport::ttLiner: ++RoleCounts[4]; break;
+                                case aTransport::ttDiplomat: ++RoleCounts[5]; break;
+                            }
+                        }
+                        break;
+                    }
+                    case aGalaxyStruct::stTranclucator: {
+                        if (Ship->HasScriptStateText()) {
+                            if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == nullptr) {
+                                ++ScriptedCoalition;
+                            } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                                ++ScriptedCoalition;
+                            } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                                ++ScriptedPirates;
+                            }
+                        } else if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == nullptr) {
+                            ++CoalitionTranclucators;
+                        } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                            ++CoalitionTranclucators;
+                        } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                            ++PirateTranclucators;
+                        }
+                        break;
+                    }
+                    default: {
+                        if (pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
+                            switch (Star->Status.ControlFaction) {
+                                case aGalaxyStruct::sfCoalition: {
+                                    if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssPiratePassive)) {
+                                        ++CoalitionStations;
+                                    } else if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssPirateActive, aGalaxyStruct::ssPirateMilitary)) {
+                                        ++PirateStations;
+                                    }
+                                    break;
+                                }
+                                case aGalaxyStruct::sfPirates: {
+                                    if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionPassive, aGalaxyStruct::ssPirateMilitary)) {
+                                        ++PirateStations;
+                                    } else if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssCoalitionActive)) {
+                                        ++CoalitionStations;
+                                    }
+                                    break;
+                                }
+                                default: {
+                                    if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssNeutral)) {
+                                        ++CoalitionStations;
+                                    } else if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssPiratePassive, aGalaxyStruct::ssPirateMilitary)) {
+                                        ++PirateStations;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        };
+        auto SeriesColor = [&]() -> pas::WideString {
+            pas::WideString Result{};
+            switch (Series) {
+                case aGalaxyStruct::dsBlazer: return u"<color=255,0,0>"_w;
+                case aGalaxyStruct::dsKeller: return u"<color=0,128,255>"_w;
+                case aGalaxyStruct::dsTerron: return u"<color=0,255,0>"_w;
+                default: return Result;
+            }
+        };
+        auto AppendLine = [&]() -> void {
+            if (LineActive) {
+                Summary = pas::concat_wide({Summary, Line, u"\r\n"});
+                ++LineCount;
+            }
+        };
+        UnknownCount = 0;
+        OtherFactionCount = 0;
+        StarFactionCount = 0;
+        CoalitionTranclucators = 0;
+        PirateTranclucators = 0;
+        CoalitionStations = 0;
+        PirateStations = 0;
+        ScriptedCoalition = 0;
+        ScriptedPirates = 0;
         StarFaction = Star->Status.CustomFaction;
+        OtherFaction = pas::WideString();
+        Summary = pas::WideString();
         for (auto cpp_range = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range.next(Series); ) {
             for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_2.next(Kind); ) {
                 DominatorCounts[Series][Kind] = 0;
@@ -1696,7 +1859,7 @@ namespace fGalaxy2 {
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
             if (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
-                fGalaxy2::AccumulateShip(this, Star, Ship, UnknownCount, OtherFactionCount, OtherFaction, StarFaction, StarFactionCount, Kling, DominatorCounts, ScriptedPirates, ScriptedCoalition, RoleCounts, Transport, CoalitionTranclucators, PirateTranclucators, CoalitionStations, PirateStations);
+                AccumulateShip();
             }
         }
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_4.next(I); ) {
@@ -1704,11 +1867,12 @@ namespace fGalaxy2 {
             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Planet->Warriors) - 1); cpp_range_5.next(J); ) {
                 Ship = pas::list_at<aShip::TShip>(Planet->Warriors, J);
                 if (Ship->CurrentStar == Star && pas::list_indexof(Star->Ships, reinterpret_cast<void*>(Ship)) < 0) {
-                    fGalaxy2::AccumulateShip(this, Star, Ship, UnknownCount, OtherFactionCount, OtherFaction, StarFaction, StarFactionCount, Kling, DominatorCounts, ScriptedPirates, ScriptedCoalition, RoleCounts, Transport, CoalitionTranclucators, PirateTranclucators, CoalitionStations, PirateStations);
+                    AccumulateShip();
                 }
             }
         }
-        std::uint8_t LineActive = false;
+        Line = pas::WideString();
+        LineActive = false;
         std::uint8_t HasSeparator = false;
         for (auto cpp_range_6 = pas::for_to<std::int32_t>(1, 7); cpp_range_6.next(GroupIndex); ) {
             Role = GalaxyMapFriendlyShipOrder[GroupIndex];
@@ -1745,7 +1909,7 @@ namespace fGalaxy2 {
             Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
             LineActive = true;
         }
-        fGalaxy2::AppendLine(LineCount, LineActive, Summary, Line);
+        AppendLine();
         Line = pas::WideString();
         LineActive = false;
         HasSeparator = false;
@@ -1783,7 +1947,7 @@ namespace fGalaxy2 {
             Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
             LineActive = true;
         }
-        fGalaxy2::AppendLine(LineCount, LineActive, Summary, Line);
+        AppendLine();
         Line = pas::WideString();
         if (StarFactionCount > 0) {
             Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("_w, u"<color=127,127,127>"_w)});
@@ -1809,12 +1973,12 @@ namespace fGalaxy2 {
             Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
             LineActive = true;
         }
-        fGalaxy2::AppendLine(LineCount, LineActive, Summary, Line);
+        AppendLine();
         for (auto cpp_range_8 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_8.next(Series); ) {
             Line = pas::WideString();
             LineActive = false;
             HasSeparator = false;
-            ColorTag = fGalaxy2::SeriesColor(Series);
+            ColorTag = SeriesColor();
             for (auto cpp_range_9 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_9.next(Kind); ) {
                 if (aConst::DominatorDisplayOrder[Kind] != aGalaxyStruct::ktBoss && DominatorCounts[Series][aConst::DominatorDisplayOrder[Kind]] > 0) {
                     if (HasSeparator) {
@@ -1826,13 +1990,13 @@ namespace fGalaxy2 {
                     Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(DominatorCounts[Series][aConst::DominatorDisplayOrder[Kind]]), u"<color=255,255,254>"_w)});
                 }
             }
-            fGalaxy2::AppendLine(LineCount, LineActive, Summary, Line);
+            AppendLine();
         }
         Line = pas::WideString();
         LineActive = false;
         GroupIndex = 1;
         for (auto cpp_range_10 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_10.next(Series); ) {
-            ColorTag = fGalaxy2::SeriesColor(Series);
+            ColorTag = SeriesColor();
             if (DominatorCounts[Series][aGalaxyStruct::ktBoss] > 0) {
                 if (LineActive) {
                     Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u", "_w, u"<color=127,127,127>"_w)});
@@ -1842,7 +2006,7 @@ namespace fGalaxy2 {
             }
             ++GroupIndex;
         }
-        fGalaxy2::AppendLine(LineCount, LineActive, Summary, Line);
+        AppendLine();
         Line = pas::WideString();
         LineActive = false;
         if (UnknownCount > 0) {
@@ -1850,162 +2014,8 @@ namespace fGalaxy2 {
             Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(UnknownCount), u"<color=255,255,254>"_w)});
             LineActive = true;
         }
-        fGalaxy2::AppendLine(LineCount, LineActive, Summary, Line);
+        AppendLine();
         return Summary;
-    }
-
-    void AccumulateShip(TfGalaxy2* Self, aGalaxy::TStar*& Star, aShip::TShip*& Ship, std::int32_t& UnknownCount, std::int32_t& OtherFactionCount, pas::WideString& OtherFaction, pas::WideString& StarFaction, std::int32_t& StarFactionCount, aKling::TKling*& Kling, pas::Array<pas::Array<std::int32_t, 0, 7>, 0, 2>& DominatorCounts, std::int32_t& ScriptedPirates, std::int32_t& ScriptedCoalition, pas::Array<std::int32_t, 0, 13>& RoleCounts, aTransport::TTransport*& Transport, std::int32_t& CoalitionTranclucators, std::int32_t& PirateTranclucators, std::int32_t& CoalitionStations, std::int32_t& PirateStations) {
-        pas::WideString Faction{};
-        if (Ship->InHyperspace) {
-            return;
-        }
-        if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) ^ 1) || static_cast<std::uint8_t>(TfGalaxy2::CanRevealBossPresence(Ship) ^ 1)) {
-            ++UnknownCount;
-            return;
-        }
-        if (Ship->CurrentStanding == aGalaxyStruct::ssCustom) {
-            if (Ship->ScriptShip == nullptr || reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText == u"") {
-                ++OtherFactionCount;
-                OtherFaction = pas::WideString();
-            } else {
-                Faction = reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText;
-                if (Faction == StarFaction) {
-                    ++StarFactionCount;
-                } else {
-                    if (OtherFactionCount == 0) {
-                        OtherFaction = Faction;
-                    } else if (OtherFaction != Faction) {
-                        OtherFaction = pas::WideString();
-                    }
-                    ++OtherFactionCount;
-                }
-            }
-        } else if (Ship->TypeId == aGalaxyStruct::stKling) {
-            Kling = pas::checked_cast<aKling::TKling*>(Ship);
-            ++DominatorCounts[Kling->DominatorSeries][Kling->KlingType];
-        } else {
-            switch (Ship->TypeId) {
-                case aGalaxyStruct::stRanger: {
-                    if (reinterpret_cast<aRanger::TRanger*>(Ship)->ExcludedFromRating || Ship->HasScriptStateText()) {
-                        if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                            ++ScriptedPirates;
-                        } else {
-                            ++ScriptedCoalition;
-                        }
-                    } else if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                        ++RoleCounts[11];
-                    } else {
-                        ++RoleCounts[0];
-                    }
-                    break;
-                }
-                case aGalaxyStruct::stPirate: {
-                    if (Ship->HasScriptStateText()) {
-                        if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                            ++ScriptedPirates;
-                        } else {
-                            ++ScriptedCoalition;
-                        }
-                    } else if (Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                        ++RoleCounts[2];
-                    } else if (reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
-                        ++RoleCounts[12];
-                    } else {
-                        ++RoleCounts[13];
-                    }
-                    break;
-                }
-                case aGalaxyStruct::stWarrior: {
-                    if (Ship->HasScriptStateText()) {
-                        ++ScriptedCoalition;
-                    } else if (pas::checked_cast<aWarrior::TWarrior*>(Ship)->WarriorType == aWarrior::wtFlagship) {
-                        ++RoleCounts[10];
-                    } else {
-                        ++RoleCounts[1];
-                    }
-                    break;
-                }
-                case aGalaxyStruct::stTransport: {
-                    Transport = pas::checked_cast<aTransport::TTransport*>(Ship);
-                    if (Ship->HasScriptStateText()) {
-                        ++ScriptedCoalition;
-                    } else {
-                        switch (Transport->TransportType) {
-                            case aTransport::ttTransport: ++RoleCounts[3]; break;
-                            case aTransport::ttLiner: ++RoleCounts[4]; break;
-                            case aTransport::ttDiplomat: ++RoleCounts[5]; break;
-                        }
-                    }
-                    break;
-                }
-                case aGalaxyStruct::stTranclucator: {
-                    if (Ship->HasScriptStateText()) {
-                        if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == nullptr) {
-                            ++ScriptedCoalition;
-                        } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
-                            ++ScriptedCoalition;
-                        } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
-                            ++ScriptedPirates;
-                        }
-                    } else if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == nullptr) {
-                        ++CoalitionTranclucators;
-                    } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
-                        ++CoalitionTranclucators;
-                    } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
-                        ++PirateTranclucators;
-                    }
-                    break;
-                }
-                default: {
-                    if (pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
-                        switch (Star->Status.ControlFaction) {
-                            case aGalaxyStruct::sfCoalition: {
-                                if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssPiratePassive)) {
-                                    ++CoalitionStations;
-                                } else if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssPirateActive, aGalaxyStruct::ssPirateMilitary)) {
-                                    ++PirateStations;
-                                }
-                                break;
-                            }
-                            case aGalaxyStruct::sfPirates: {
-                                if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionPassive, aGalaxyStruct::ssPirateMilitary)) {
-                                    ++PirateStations;
-                                } else if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssCoalitionActive)) {
-                                    ++CoalitionStations;
-                                }
-                                break;
-                            }
-                            default: {
-                                if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssNeutral)) {
-                                    ++CoalitionStations;
-                                } else if (pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssPiratePassive, aGalaxyStruct::ssPirateMilitary)) {
-                                    ++PirateStations;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    pas::WideString SeriesColor(aGalaxyStruct::TDominatorSeries& Series) {
-        pas::WideString Result{};
-        switch (Series) {
-            case aGalaxyStruct::dsBlazer: return u"<color=255,0,0>"_w;
-            case aGalaxyStruct::dsKeller: return u"<color=0,128,255>"_w;
-            case aGalaxyStruct::dsTerron: return u"<color=0,255,0>"_w;
-            default: return Result;
-        }
-    }
-
-    void AppendLine(std::int32_t& LineCount, std::uint8_t& LineActive, pas::WideString& Summary, pas::WideString& Line) {
-        if (LineActive) {
-            Summary = pas::concat_wide({Summary, Line, u"\r\n"});
-            ++LineCount;
-        }
     }
 
     void TfGalaxy2::UpdateJumpAnimations(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
@@ -2138,7 +2148,7 @@ namespace fGalaxy2 {
     }
 
     void TfGalaxy2::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10005);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20005);

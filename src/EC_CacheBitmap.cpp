@@ -50,6 +50,7 @@ namespace EC_CacheBitmap {
         EC_Cache::TCacheDataEC_Destroy(Self);
     }
 
+    // LoadOption accepts RGBA, Gray and RGB; other values select default decoding.
     void TCBitmapEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         if (LoadOption == u"RGBA") {
             Bitmap->LoadImageRgba(SourceBuffer);

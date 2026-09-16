@@ -6,6 +6,7 @@
 #include "units/SE_SoundRnd.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native class metadata and dynamic-array RTTI identify SE_SoundRnd.
 namespace SE_SoundRnd {
     SE_SoundRnd::TSoundRndSE* FirstRandomSound = nullptr;
 
@@ -25,6 +26,7 @@ namespace SE_SoundRnd {
         return Sound;
     }
 
+    // Unlinks and frees a nonnil registered sound.
     void FreeRandomSound(TSoundRndSE* Sound) {
         if (Sound->Prev != nullptr) {
             Sound->Prev->Next = Sound->Next;
@@ -47,6 +49,7 @@ namespace SE_SoundRnd {
         }
     }
 
+    // Creates and loads an uncached name, then selects a weighted group; -1 for zero total weight.
     TSoundRndSE* FindRandomSound(pas::WideString Name, std::int32_t& GroupIndex) {
         std::int32_t Index{};
         TSoundRndSE* Sound = FirstRandomSound;

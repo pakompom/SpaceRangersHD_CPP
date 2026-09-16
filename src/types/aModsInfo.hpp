@@ -19,24 +19,33 @@ namespace aModsInfo {
         pas::WideString GetDisplayName();
         TModInfo* GetConflict(std::int32_t Index, std::int32_t VariantIndex);
         TModInfo* GetDependency(std::int32_t Index, std::int32_t VariantIndex);
+        // Relative path beneath Mods.
         pas::WideString Folder;
+        // Borrowed module-manager control.
         GI_Image::TImageGI* SwitchImage;
+        // Decimal index in ModInfos.
         pas::WideString IndexText;
+        // Metadata ID; duplicates are permitted.
         pas::WideString Name;
         pas::WideString Section;
         pas::WideString SmallDescription;
         pas::WideString FullDescription;
         pas::WideString Author;
+        // Comma-separated IDs.
         pas::WideString DependencyNames;
         std::int32_t DependencyCount;
+        // Borrowed references.
         pas::DynArray<TModInfo*> Dependencies;
+        // Comma-separated IDs.
         pas::WideString ConflictNames;
         std::int32_t ConflictCount;
+        // Borrowed references.
         pas::DynArray<TModInfo*> Conflicts;
         std::uint32_t Priority;
         std::uint8_t UnsupportedLanguage;
         std::uint8_t MissingFolder;
         std::uint8_t MissingDependency;
+        // Reported as ProblemsInfoMisplaced by the module manager.
         std::uint8_t Misplaced;
         std::uint8_t DuplicateName;
         std::uint8_t ReferencedAsConflict;

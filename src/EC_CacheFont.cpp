@@ -15,8 +15,7 @@
 #include "units/WindowsSdk.hpp"
 
 namespace EC_CacheFont {
-    WindowsSdk::TPoint MeasureFontTextureTextSize(TCFontEC* Self, std::int32_t& Width, std::uint8_t& WordWrap, std::int32_t& TopAdjustment, std::int32_t& CurrentY, EC_Str::TStringsEC*& Lines, WindowsSdk::TRect& Bounds, EC_Str::TStringsEC*& WrappedLines);
-
+    // Also clears the shared font's color stack, disables ARGB colors and enables color tags.
     TCFontEC* AcquireCachedFont(EC_Cache::TCacheControlEC* Control) {
         TCFontEC* Result = pas::checked_cast<TCFontEC*>(Control->AcquireDataFromConfig(pas::class_ref<TCFontEC>()));
         Result->ClearColorStack();
@@ -25,6 +24,8 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // The + 0 expressions below, including those in Self casts, preserve DCC32's
+    // native operand evaluation order. They emit no additional instructions.
     void IncludeGlyphBounds(WindowsSdk::TRect& Bounds, std::int32_t& X, std::int32_t& Y, PAftGlyphEC& Glyph) {
         if (Glyph->AlphaMaskPlane.DataOffset != 0) {
             if (X + 0 + Glyph->AlphaMaskPlane.Left < Bounds.Left) {
@@ -83,6 +84,7 @@ namespace EC_CacheFont {
         return EC_CacheFont::AcquireCachedFont(this);
     }
 
+    // ColorStack is a separately allocated buffer.
     void TCFontEC_Create(TCFontEC* Self) {
         EC_Cache::TCacheDataEC_Create(Self);
         Self->ColorTagsEnabled = true;
@@ -114,10 +116,12 @@ namespace EC_CacheFont {
         return FontData->CenteringHeight;
     }
 
+    // Includes two extra pixels beyond the stored line height.
     std::int32_t TCFontEC::GetLineHeight() {
         return FontData->LineHeight + 2;
     }
 
+    // Preserves allocated storage.
     void TCFontEC::ResetTextMeasureState() {
         ObjectCount = 0;
         FixedWidthDepth = 0;
@@ -127,6 +131,7 @@ namespace EC_CacheFont {
         return &Objects[Index];
     }
 
+    // Restores ObjectCount; FixedWidthDepth remains affected by the processed tags.
     WindowsSdk::TRect TCFontEC::MeasureTaggedTextBounds(const pas::WideString& Text, std::int32_t X, std::int32_t Y, WindowsSdk::PInteger TopAdjustment) {
         WindowsSdk::TRect Result{};
         std::int32_t GlyphIndex{};
@@ -238,6 +243,7 @@ namespace EC_CacheFont {
         return EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, CharCode * 2)) > 0;
     }
 
+    // Replaces Lines, preserves tags in its output, and restores ObjectCount.
     void TCFontEC::WrapTaggedTextIntoLines(EC_Str::TStringsEC* Lines, const pas::WideString& Text, std::int32_t MaxWidth) {
         std::int32_t TokenLength{};
         std::int32_t Index{};
@@ -961,6 +967,7 @@ namespace EC_CacheFont {
         }
     }
 
+    // Returns zero for incomplete tokens or a doubled opening bracket.
     std::int32_t TCFontEC::GetTaggedTextTokenLength(char16_t* Text, std::int32_t CharCount) {
         std::int32_t Result = 0;
         if (CharCount < 2) {
@@ -985,6 +992,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // For td=n, raises X to at least n and returns the token length.
     std::int32_t TCFontEC::ParseTabTagAndAdjustX(char16_t* Text, std::int32_t CharCount, std::int32_t& X) {
         std::int32_t Result = 0;
         if (CharCount < 4) {
@@ -1020,6 +1028,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Handles align=right/center and restores ObjectCount. Uppercase value checks use incorrect source positions in the native code.
     std::int32_t TCFontEC::ParseAlignTagAndAdjustX(char16_t* Text, std::int32_t CharCount, std::int32_t& X) {
         char16_t Ch{};
         std::int32_t GlyphIndex{};
@@ -1200,6 +1209,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Returns the token length; Alignment is -1 for left, 0 for center, 1 for right. FieldWidth counts characters.
     std::int32_t TCFontEC::ParseFormatTag(char16_t* Text, std::int32_t CharCount, std::int32_t& FieldWidth, std::int32_t& Alignment) {
         std::int32_t Result = 0;
         if (CharCount < 13) {
@@ -1299,6 +1309,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Only characters present in GlyphLookup count.
     std::int32_t TCFontEC::CountVisibleTaggedCharsUntilFormatEnd(char16_t* Text, std::int32_t CharCount) {
         std::int32_t GlyphIndex{};
         std::int32_t TokenLength{};
@@ -1324,6 +1335,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Native capacity check is reversed: it reallocates when ObjectCount <= ObjectCapacity.
     std::int32_t TCFontEC::ParseObjectTagCached(char16_t* Text, std::int32_t CharCount, std::int32_t& ObjectIndex) {
         if (ObjectCount <= ObjectCapacity) {
             ObjectCapacity = ObjectCount + 4;
@@ -1338,6 +1350,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Parses object=id,width,height,verticalMode; leaves X and Y unchanged.
     std::int32_t TCFontEC::ParseObjectTag(char16_t* Text, std::int32_t CharCount, TFontObjectEC& Item) {
         std::int32_t Result = 0;
         if (CharCount < 13) {
@@ -1427,6 +1440,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Parses color=r,g,b; emits ARGB or the current packed pixel format according to UseARGBColors.
     std::int32_t TCFontEC::ParseColorTag(char16_t* Text, std::int32_t CharCount, std::uint32_t& Color) {
         std::int32_t Result = 0;
         if (CharCount < 13) {
@@ -1539,6 +1553,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Pushes or pops a color only while ColorTagsEnabled is true.
     void TCFontEC::ApplyColorTag(char16_t* Text, std::int32_t CharCount) {
         std::uint32_t Color{};
         if (ParseColorTag(Text, CharCount, Color) > 0) {
@@ -1566,6 +1581,7 @@ namespace EC_CacheFont {
         EC_Mem::WriteIntegerEC(EC_Mem::AddPointerOffset(ColorStack, (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))), Color);
     }
 
+    // Returns zero when empty.
     std::uint32_t TCFontEC::PopColor() {
         if (ColorStackCount < 1) {
             return 0u;
@@ -1575,6 +1591,7 @@ namespace EC_CacheFont {
         return Result;
     }
 
+    // Returns DefaultColor when tags are disabled or the stack is empty.
     std::uint32_t TCFontEC::GetCurrentColor() {
         if (static_cast<std::uint8_t>(ColorTagsEnabled ^ 1) || ColorStackCount < 1) {
             return DefaultColor;
@@ -1582,6 +1599,7 @@ namespace EC_CacheFont {
         return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(ColorStack, (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))));
     }
 
+    // Requires aft version 1 and at least 0x20 bytes; glyph offsets and counts are trusted. Ignores LoadOption; ResidentBytes remains zero.
     void TCFontEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         std::int32_t Index{};
         ClearLoadedFontData();
@@ -1627,6 +1645,7 @@ namespace EC_CacheFont {
         ResidentBytes = 0;
     }
 
+    // Zero dimensions use measured text size. ActualSize may be nil. Enables UseARGBColors on the shared font.
     void TCFontEC::RenderTaggedTextToTexture(const pas::WideString& Text, std::int32_t Width, std::int32_t Height, std::int32_t AlignX, std::int32_t AlignY, std::uint8_t WordWrap, WindowsSdk::PPoint ActualSize, Direct3D9::IDirect3DTexture9& Texture) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         std::int32_t TopAdjustment{};
@@ -1642,6 +1661,55 @@ namespace EC_CacheFont {
         Direct3D9::IDirect3DTexture9 Image{};
         Direct3D9::TD3DLockedRect Locked{};
         WindowsSdk::TRect Clip{};
+        auto MeasureFontTextureTextSize = [&]() -> WindowsSdk::TPoint {
+            WindowsSdk::TPoint Result{};
+            std::uint8_t First{};
+            WindowsSdk::TRect MergedBounds{};
+            MergedBounds.Left = 0;
+            MergedBounds.Right = 0;
+            MergedBounds.Top = 0;
+            MergedBounds.Bottom = 0;
+            CurrentY = 0;
+            std::int32_t ExtraHeight = 0;
+            Lines->First();
+            if (!WordWrap) {
+                if (!Lines->IsAtEnd()) {
+                    MergedBounds = MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, CurrentY, &TopAdjustment);
+                    CurrentY += GetLineHeight();
+                    Lines->Next();
+                }
+                while (!Lines->IsAtEnd()) {
+                    Bounds = MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, CurrentY, nullptr);
+                    WindowsSdk::UnionRect(MergedBounds, MergedBounds, Bounds);
+                    CurrentY += GetLineHeight();
+                    Lines->Next();
+                }
+            } else {
+                First = true;
+                while (!Lines->IsAtEnd()) {
+                    WrapTaggedTextIntoLines(WrappedLines, Lines->GetCurrentText(), Width - 4);
+                    if (!WrappedLines->IsEmpty()) {
+                        WrappedLines->First();
+                        if (First) {
+                            MergedBounds = MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, CurrentY, &TopAdjustment);
+                            First = false;
+                            CurrentY += GetLineHeight();
+                            WrappedLines->Next();
+                        }
+                        while (!WrappedLines->IsAtEnd()) {
+                            Bounds = MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, CurrentY, nullptr);
+                            WindowsSdk::UnionRect(MergedBounds, MergedBounds, Bounds);
+                            CurrentY += GetLineHeight();
+                            WrappedLines->Next();
+                        }
+                    }
+                    Lines->Next();
+                }
+                ExtraHeight = 2;
+            }
+            Result = ClassesImports::Point(MergedBounds.Right - MergedBounds.Left, ExtraHeight + MergedBounds.Bottom - MergedBounds.Top);
+            return Result;
+        };
         Lines = nullptr;
         WrappedLines = nullptr;
         Image = nullptr;
@@ -1660,7 +1728,7 @@ namespace EC_CacheFont {
                 if (Width == 0 && WordWrap) {
                     GR_Main::RaiseWideMessage(u"draw text to texture 1"_wref.get());
                 }
-                ImageSize = EC_CacheFont::MeasureFontTextureTextSize(this, Width, WordWrap, TopAdjustment, CurrentY, Lines, Bounds, WrappedLines);
+                ImageSize = MeasureFontTextureTextSize();
                 if (Width == 0) {
                     Width = ImageSize.X;
                 }
@@ -1754,56 +1822,6 @@ namespace EC_CacheFont {
             pas::store_unaligned<Types::TPoint>(ActualSize, ClassesImports::Point(Width, Height));
         }
         Texture = Image;
-    }
-
-    WindowsSdk::TPoint MeasureFontTextureTextSize(TCFontEC* Self, std::int32_t& Width, std::uint8_t& WordWrap, std::int32_t& TopAdjustment, std::int32_t& CurrentY, EC_Str::TStringsEC*& Lines, WindowsSdk::TRect& Bounds, EC_Str::TStringsEC*& WrappedLines) {
-        WindowsSdk::TPoint Result{};
-        std::uint8_t First{};
-        WindowsSdk::TRect MergedBounds{};
-        MergedBounds.Left = 0;
-        MergedBounds.Right = 0;
-        MergedBounds.Top = 0;
-        MergedBounds.Bottom = 0;
-        CurrentY = 0;
-        std::int32_t ExtraHeight = 0;
-        Lines->First();
-        if (!WordWrap) {
-            if (!Lines->IsAtEnd()) {
-                MergedBounds = Self->MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, CurrentY, &TopAdjustment);
-                CurrentY += Self->GetLineHeight();
-                Lines->Next();
-            }
-            while (!Lines->IsAtEnd()) {
-                Bounds = Self->MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, CurrentY, nullptr);
-                WindowsSdk::UnionRect(MergedBounds, MergedBounds, Bounds);
-                CurrentY += Self->GetLineHeight();
-                Lines->Next();
-            }
-        } else {
-            First = true;
-            while (!Lines->IsAtEnd()) {
-                Self->WrapTaggedTextIntoLines(WrappedLines, Lines->GetCurrentText(), Width - 4);
-                if (!WrappedLines->IsEmpty()) {
-                    WrappedLines->First();
-                    if (First) {
-                        MergedBounds = Self->MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, CurrentY, &TopAdjustment);
-                        First = false;
-                        CurrentY += Self->GetLineHeight();
-                        WrappedLines->Next();
-                    }
-                    while (!WrappedLines->IsAtEnd()) {
-                        Bounds = Self->MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, CurrentY, nullptr);
-                        WindowsSdk::UnionRect(MergedBounds, MergedBounds, Bounds);
-                        CurrentY += Self->GetLineHeight();
-                        WrappedLines->Next();
-                    }
-                }
-                Lines->Next();
-            }
-            ExtraHeight = 2;
-        }
-        Result = ClassesImports::Point(MergedBounds.Right - MergedBounds.Left, ExtraHeight + MergedBounds.Bottom - MergedBounds.Top);
-        return Result;
     }
 
     void TCFontEC::p_destroy() {

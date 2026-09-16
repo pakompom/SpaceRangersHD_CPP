@@ -161,6 +161,7 @@ namespace GI_SpaceCircle {
         }
     }
 
+    // Deactivation is deferred until CommitFrameDraw.
     void TSpaceCircleGI::SetActive(std::uint8_t Enabled) {
         if (Active != Enabled) {
             if (Enabled) {
@@ -210,9 +211,11 @@ namespace GI_SpaceCircle {
         TSpaceCircleGI::LoadSpaceCircleProperties(Block);
     }
 
+    // Empty in native code.
     void TSpaceCircleGI::LoadSpaceCircleProperties(EC_BlockPar::TBlockParEC* Block) {
     }
 
+    // Empty in native code.
     void TSpaceCircleGI::Invalidate() {
     }
 
@@ -325,6 +328,7 @@ namespace GI_SpaceCircle {
     }
 
     void TSpaceCircleGI::CommitFrameDraw() {
+        // Native code retains this empty renderer test before deferred deactivation.
         static_cast<void>(!GlobalsV::HardwareRenderingEnabled);
         if (DeactivateAfterFrame) {
             GI_MessageLoop::TObjectGI::SetActive(false);

@@ -7,6 +7,7 @@
 #include "units/ab_W15.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW15 projectile family:.
 namespace ab_W15 {
     std::int32_t W15ProjectileCount = 0;
 

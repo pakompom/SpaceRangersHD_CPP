@@ -32,6 +32,7 @@ namespace GI_PSEyes {
         PEyesParticle AddParticle();
         void ClearParticles();
         void ClearLines();
+        // Native empty override.
         void Invalidate() override;
         void InvalidateRect(Types::TRect Rect) override;
         void EmitBurst(Types::TPoint Point, std::int32_t Radius);
@@ -78,6 +79,7 @@ namespace GI_PSEyes {
         Types::TPoint Last;
         std::uint16_t Color;
         std::uint8_t cpp_padding_2[1];
+        // Other native line-cache fields are unused by this renderer.
         std::uint8_t Alpha;
     };
     #pragma pack(pop)

@@ -25,6 +25,7 @@ namespace abWall {
         PAS_CLASS_META(TabWall, ab_Hit::TabHit, "TabWall", 224)
         void p_destroy() override;
         void BindZone(ab_Zone::PabZone Value);
+        // Empty in this native version; called after arena wall setup.
         static void AttachVisual();
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
         void ApplyDamage(std::int32_t Amount, ab_Object::TabObject* Source, std::uint8_t Disrupt) override;

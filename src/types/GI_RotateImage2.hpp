@@ -32,9 +32,12 @@ namespace GI_RotateImage2 {
     struct TRotateImage2GI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TRotateImage2GI, GI_MessageLoop::TObjectGI, "TRotateImage2GI", 304)
         void p_destroy() override;
+        // Preserves cache keys and the allocated image buffer.
         void Clear() override;
+        // A full turn has 256 steps.
         void SetAngle(std::uint8_t Value);
         void SetAlpha(std::uint8_t Value);
+        // Appends ?RGBA to Path; replaces size and origin with a centered square enclosing all rotations.
         void SetImage(pas::WideString Path, Types::TPoint ImageSize, Types::TPoint Pivot);
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;

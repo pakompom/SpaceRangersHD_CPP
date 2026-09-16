@@ -32,6 +32,7 @@ namespace GI_MessageLoop {
 namespace SE_Star {
     struct TStarSE;
 
+    // Native VMT; used for the first minimap drawing pass.
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -47,11 +48,14 @@ namespace SE_Star {
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
         pas::WideString AnimationPath;
+        // Used by TfAB.ShowSpaceInfo for the star thumbnail.
         pas::WideString StaticImagePath;
+        // Loaded from SmeImage; drawing centers the control instead.
         Types::TPoint ImageOrigin;
         pas::WideString MapImagePath;
         Types::TPoint MapImageOrigin;
         GI_Image::TImageGI* StaticImage;
+        // Native Terron transformation installs its cycle callback here.
         GI_GAI::TgaiGI* Animation;
         GI_GI::TgiGI* MapImage;
         std::int32_t SavedSequenceFrameIndex;

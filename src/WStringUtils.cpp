@@ -1,5 +1,7 @@
 #include "units/WStringUtils.hpp"
 
+// Shared string helpers before NoSteamAchievemens. WStringUtils is the native
+// linked unit in this dependency family; attribution is inferred from that context.
 namespace WStringUtils {
     PStartupWideString AllocateStartupWideString(std::int32_t Length) {
         PStartupWideString Result{};
@@ -8,6 +10,7 @@ namespace WStringUtils {
         return Result;
     }
 
+    // Does not clear the disposed pointer.
     std::uint8_t FreeStartupWideString(pas::Var<PStartupWideString> Text) {
         std::uint8_t Result = false;
         if (pas::load_unaligned<PStartupWideString>(Text.address) != nullptr) {
@@ -17,6 +20,7 @@ namespace WStringUtils {
         return Result;
     }
 
+    // Shrinks a caller-provided WideString to its first zero. Requires a valid pointer and a terminator within the buffer.
     PStartupWideString TruncateStartupWideString(pas::Var<PStartupWideString> Text) {
         std::int32_t Count = 0;
         while ((*pas::load_unaligned<PStartupWideString>(Text.address)).read(Count + 1) != u'\000') {

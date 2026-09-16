@@ -53,22 +53,7 @@
 #include "units/fTalk.hpp"
 
 namespace fTalk {
-    void AddAvailableAttackTargets(TfTalk* Self, std::int32_t& RadarRangeSquared, aShip::TShip*& Ship);
-
-    void AddTranclucatorCollectionOption(std::int32_t Kind, TfTalk* Self, aTranclucator::TTranclucator*& Ship);
-
-    pas::WideString GetTranclucatorCollectionText(aTranclucator::TTranclucator*& Ship);
-
-    void AddTranclucatorStorageOption(std::int32_t Kind, TfTalk* Self, aTranclucator::TTranclucator*& Ship);
-
-    pas::WideString GetTranclucatorStorageText(aTranclucator::TTranclucator*& Ship);
-
-    void AddTranclucatorArrangeOption(TfTalk* Self, aTranclucator::TTranclucator*& Ship);
-
-    pas::WideString GetTranclucatorArrangeText(aTranclucator::TTranclucator*& Ship);
-
-    void PopTranclucatorOptionDigit(std::int32_t& Action, std::uint32_t& Digit);
-
+    // Shared disabled-choice callback.
     GI_MessageLoop::TDialogChoiceEventGI ScriptDialogBlockCallback = nullptr;
 
     std::int32_t TruceOfferAmount{};
@@ -79,6 +64,7 @@ namespace fTalk {
 
     std::int32_t PartnerGiftAmount{};
 
+    // Set by native conversation setup; cleared by cleanup. Suppresses recursive SF_Dialog dispatch.
     std::uint8_t TalkDialogActive = false;
 
     pas::Array<float, 0, 15> TalkSlideCurve = pas::Array<float, 0, 15>{{
@@ -154,6 +140,7 @@ namespace fTalk {
         return Result;
     }
 
+    // Native modal conversation wrapper.
     std::uint8_t RunTalk(GI_MessageLoop::TMessageLoopGI* ParentLoop) {
         std::uint8_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
@@ -521,6 +508,7 @@ namespace fTalk {
         Panel->Invalidate();
     }
 
+    // ExtraValue is stored in the choice object at $1C; its wider meaning remains unresolved.
     void TfTalk::AddChoice(pas::WideString Text, std::int32_t Value, GI_MessageLoop::TDialogChoiceEventGI Callback, std::int32_t ExtraValue) {
         std::int32_t I{};
         SystemImports::TMethod ExitCallback{};
@@ -770,6 +758,7 @@ namespace fTalk {
         if (static_cast<std::uint8_t>(Sender->IsOccludedAtPoint(Point) ^ 1) && ChoiceMousePressed) {
             ChoiceMousePressed = false;
             Choice = reinterpret_cast<TfTalkA*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+            // DCC32 evaluates the callback receiver first with this identity expression.
             if (pas::assigned(Choice->Callback)) {
                 reinterpret_cast<TfTalkA*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Choice)) * 1)))->Callback(Choice->Value);
             } else if (pas::assigned(Choice->FallbackCallback)) {
@@ -1851,6 +1840,19 @@ namespace fTalk {
         std::int32_t RadarRangeSquared{};
         aShip::TShip* Ship{};
         pas::WideString SavedText{};
+        auto AddAvailableAttackTargets = [&]() -> void {
+            std::int32_t I{};
+            {
+                std::int32_t cpp_left = aPlayer::GetPlayer()->GetRadarRange();
+                RadarRangeSquared = cpp_left * aPlayer::GetPlayer()->GetRadarRange();
+            }
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
+                Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
+                if (Globals::TalkShip->OrderTarget != Ship && aPlayer::GetPlayer() != Ship && Ship != Globals::TalkShip && aPlayer::GetPlayer() != Ship->PartnerShip && Ship->InNormalSpace() && static_cast<long double>(RadarRangeSquared) > aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Ship->Position) && static_cast<std::uint8_t>(pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) ^ 1) && aPlayer::GetPlayer()->CanSelectShipTarget(Ship) && static_cast<std::uint8_t>(pas::in_set<1, 2>(Ship->TargetingRestriction) ^ 1)) {
+                    AddChoice(pas::concat_wide({u"- ", Ship->GetFullName(u" "_wref.get()), aGalaxy::GetLocalObjectLink(Ship, false)}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfTalk::RequestAttackTarget>(this), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)));
+                }
+            }
+        };
         std::uint8_t AllowTargets = true;
         ClearChoices(false);
         if (Globals::TalkShip->RecomputeFearState() && aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip) {
@@ -1881,29 +1883,16 @@ namespace fTalk {
         } else {
             DialogText = Globals::TalkShip->LookupTalkText(u"Talk.Attack.ComputerAsk"_wref.get());
         }
+        // The native routine clears the ready-attack choice above before listing targets.
         ClearChoices(false);
         if (AllowTargets) {
-            fTalk::AddAvailableAttackTargets(this, RadarRangeSquared, Ship);
+            AddAvailableAttackTargets();
             AddChoice(pas::concat_wide({u"- ", aPlayer::GetPlayer()->LookupTalkText(u"Talk.Cancel"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowGreeting>(this), 0);
             AddChoice(pas::concat_wide({u"- ", aPlayer::GetPlayer()->LookupTalkText(u"Talk.Exit"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
         } else {
             SavedText = DialogText;
             BuildStandardChoices(true);
             DialogText = SavedText;
-        }
-    }
-
-    void AddAvailableAttackTargets(TfTalk* Self, std::int32_t& RadarRangeSquared, aShip::TShip*& Ship) {
-        std::int32_t I{};
-        {
-            std::int32_t cpp_left = aPlayer::GetPlayer()->GetRadarRange();
-            RadarRangeSquared = cpp_left * aPlayer::GetPlayer()->GetRadarRange();
-        }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-            if (Globals::TalkShip->OrderTarget != Ship && aPlayer::GetPlayer() != Ship && Ship != Globals::TalkShip && aPlayer::GetPlayer() != Ship->PartnerShip && Ship->InNormalSpace() && static_cast<long double>(RadarRangeSquared) > aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Ship->Position) && static_cast<std::uint8_t>(pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) ^ 1) && aPlayer::GetPlayer()->CanSelectShipTarget(Ship) && static_cast<std::uint8_t>(pas::in_set<1, 2>(Ship->TargetingRestriction) ^ 1)) {
-                Self->AddChoice(pas::concat_wide({u"- ", Ship->GetFullName(u" "_wref.get()), aGalaxy::GetLocalObjectLink(Ship, false)}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfTalk::RequestAttackTarget>(Self), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)));
-            }
         }
     }
 
@@ -2430,27 +2419,101 @@ namespace fTalk {
     }
 
     void TfTalk::ShowTranclucatorOptions(std::int32_t Action) {
+        aTranclucator::TTranclucator* Ship{};
         std::uint32_t Digit{};
         std::int32_t I{};
         pas::WideString Text{};
+        auto AddTranclucatorCollectionOption = [&](std::int32_t Kind) -> void {
+            std::int32_t Value{};
+            pas::WideString Caption{};
+            if (Ship->GetCollectionPermission(static_cast<aTranclucator::TTranclucatorCollectionKind>(Kind))) {
+                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectNo"_wref.get()), u"<color=255,0,0>"_w);
+                Value = Kind * 10;
+            } else {
+                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectYes"_wref.get()), u"<color=45,105,45>"_w);
+                Value = Kind * 10 + 1;
+            }
+            AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Item>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Collect", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
+        };
+        auto GetTranclucatorCollectionText = [&]() -> pas::WideString {
+            pas::WideString Result{};
+            std::int32_t Kind{};
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, 6); cpp_range.next(Kind); ) {
+                if (Ship->GetCollectionPermission(static_cast<aTranclucator::TTranclucatorCollectionKind>(Kind))) {
+                    if (Result.length() > 0) {
+                        Result = pas::concat_wide({Result, u", "});
+                    }
+                    Result = pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Collect", SysUtils::IntToStr(Kind)})))});
+                }
+            }
+            return Result;
+        };
+        auto AddTranclucatorStorageOption = [&](std::int32_t Kind) -> void {
+            std::int32_t Value{};
+            pas::WideString Caption{};
+            if (Ship->GetStoragePermission(static_cast<aTranclucator::TTranclucatorStorageKind>(Kind))) {
+                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandNo"_wref.get()), u"<color=255,0,0>"_w);
+                Value = Kind * 1000;
+            } else {
+                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandYes"_wref.get()), u"<color=45,105,45>"_w);
+                Value = Kind * 1000 + 100;
+            }
+            AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Land>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Land", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
+        };
+        auto GetTranclucatorStorageText = [&]() -> pas::WideString {
+            pas::WideString Result{};
+            std::int32_t Kind{};
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, 2); cpp_range.next(Kind); ) {
+                if (Ship->GetStoragePermission(static_cast<aTranclucator::TTranclucatorStorageKind>(Kind))) {
+                    if (Result.length() > 0) {
+                        Result = pas::concat_wide({Result, u", "});
+                    }
+                    Result = pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Land", SysUtils::IntToStr(Kind)})))});
+                }
+            }
+            return Result;
+        };
+        auto AddTranclucatorArrangeOption = [&]() -> void {
+            std::int32_t Value{};
+            pas::WideString Caption{};
+            if (Ship->AutoArrange) {
+                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeNo"_wref.get()), u"<color=255,0,0>"_w);
+                Value = 10000;
+            } else {
+                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeYes"_wref.get()), u"<color=45,105,45>"_w);
+                Value = 20000;
+            }
+            AddChoice(pas::concat_wide({u"- ", Caption}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
+        };
+        auto GetTranclucatorArrangeText = [&]() -> pas::WideString {
+            pas::WideString Result{};
+            if (Ship->AutoArrange) {
+                return pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(u"Talk.Tranclucator.Options.ArrangeText"_wref.get())});
+            }
+            return pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(u"Talk.Tranclucator.Options.ArrangeBad"_wref.get())});
+        };
+        auto PopTranclucatorOptionDigit = [&]() -> void {
+            Digit = static_cast<std::uint32_t>(Action) % 10;
+            pas::store_unaligned<std::uint32_t>(&Action, static_cast<std::uint32_t>(Action) / 10);
+        };
         DialogText = pas::WideString();
-        aTranclucator::TTranclucator* Ship = pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip);
-        fTalk::PopTranclucatorOptionDigit(Action, Digit);
+        Ship = pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip);
+        PopTranclucatorOptionDigit();
         std::uint8_t Enabled = Digit == 1;
-        fTalk::PopTranclucatorOptionDigit(Action, Digit);
+        PopTranclucatorOptionDigit();
         Ship->SetCollectionPermission(static_cast<aTranclucator::TTranclucatorCollectionKind>(Digit), Enabled);
-        fTalk::PopTranclucatorOptionDigit(Action, Digit);
+        PopTranclucatorOptionDigit();
         Enabled = Digit == 1;
-        fTalk::PopTranclucatorOptionDigit(Action, Digit);
+        PopTranclucatorOptionDigit();
         Ship->SetStoragePermission(static_cast<aTranclucator::TTranclucatorStorageKind>(Digit), Enabled);
-        fTalk::PopTranclucatorOptionDigit(Action, Digit);
+        PopTranclucatorOptionDigit();
         if (Digit == 2) {
             Ship->AutoArrange = true;
         } else if (Digit == 1) {
             Ship->AutoArrange = false;
         }
         if (Ship->GetCargoHook() != nullptr) {
-            Text = fTalk::GetTranclucatorCollectionText(Ship);
+            Text = GetTranclucatorCollectionText();
         } else {
             Text = pas::WideString();
         }
@@ -2465,7 +2528,7 @@ namespace fTalk {
         }()), DialogText});
         DialogText = pas::concat_wide({DialogText, u"\r\n"});
         if (Ship->GetCargoHook() != nullptr) {
-            Text = fTalk::GetTranclucatorStorageText(Ship);
+            Text = GetTranclucatorStorageText();
         } else {
             Text = pas::WideString();
         }
@@ -2480,103 +2543,23 @@ namespace fTalk {
             DialogText = pas::concat_wide_reverse({aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandBad"_wref.get()), DialogText});
         }
         DialogText = pas::concat_wide({DialogText, u"\r\n"});
-        Text = fTalk::GetTranclucatorArrangeText(Ship);
+        Text = GetTranclucatorArrangeText();
         aConst::ExpandLocalizedTextMarkup(Text);
         DialogText = pas::concat_wide({DialogText, Text});
         RememberChoiceScroll();
         ClearChoices(true);
         if (Ship->GetCargoHook() != nullptr) {
             for (I = 1; I <= 6; ++I) {
-                fTalk::AddTranclucatorCollectionOption(I, this, Ship);
+                AddTranclucatorCollectionOption(I);
             }
         }
         if (Ship->GetCargoHook() != nullptr) {
             for (I = 1; I <= 2; ++I) {
-                fTalk::AddTranclucatorStorageOption(I, this, Ship);
+                AddTranclucatorStorageOption(I);
             }
         }
-        fTalk::AddTranclucatorArrangeOption(this, Ship);
+        AddTranclucatorArrangeOption();
         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"Talk.Tranclucator.Options.PlayerBack"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowGreeting>(this), 0);
-    }
-
-    void AddTranclucatorCollectionOption(std::int32_t Kind, TfTalk* Self, aTranclucator::TTranclucator*& Ship) {
-        std::int32_t Value{};
-        pas::WideString Caption{};
-        if (Ship->GetCollectionPermission(static_cast<aTranclucator::TTranclucatorCollectionKind>(Kind))) {
-            Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectNo"_wref.get()), u"<color=255,0,0>"_w);
-            Value = Kind * 10;
-        } else {
-            Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectYes"_wref.get()), u"<color=45,105,45>"_w);
-            Value = Kind * 10 + 1;
-        }
-        Self->AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Item>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Collect", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(Self), 0);
-    }
-
-    pas::WideString GetTranclucatorCollectionText(aTranclucator::TTranclucator*& Ship) {
-        pas::WideString Result{};
-        std::int32_t Kind{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, 6); cpp_range.next(Kind); ) {
-            if (Ship->GetCollectionPermission(static_cast<aTranclucator::TTranclucatorCollectionKind>(Kind))) {
-                if (Result.length() > 0) {
-                    Result = pas::concat_wide({Result, u", "});
-                }
-                Result = pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Collect", SysUtils::IntToStr(Kind)})))});
-            }
-        }
-        return Result;
-    }
-
-    void AddTranclucatorStorageOption(std::int32_t Kind, TfTalk* Self, aTranclucator::TTranclucator*& Ship) {
-        std::int32_t Value{};
-        pas::WideString Caption{};
-        if (Ship->GetStoragePermission(static_cast<aTranclucator::TTranclucatorStorageKind>(Kind))) {
-            Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandNo"_wref.get()), u"<color=255,0,0>"_w);
-            Value = Kind * 1000;
-        } else {
-            Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandYes"_wref.get()), u"<color=45,105,45>"_w);
-            Value = Kind * 1000 + 100;
-        }
-        Self->AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Land>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Land", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(Self), 0);
-    }
-
-    pas::WideString GetTranclucatorStorageText(aTranclucator::TTranclucator*& Ship) {
-        pas::WideString Result{};
-        std::int32_t Kind{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, 2); cpp_range.next(Kind); ) {
-            if (Ship->GetStoragePermission(static_cast<aTranclucator::TTranclucatorStorageKind>(Kind))) {
-                if (Result.length() > 0) {
-                    Result = pas::concat_wide({Result, u", "});
-                }
-                Result = pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Land", SysUtils::IntToStr(Kind)})))});
-            }
-        }
-        return Result;
-    }
-
-    void AddTranclucatorArrangeOption(TfTalk* Self, aTranclucator::TTranclucator*& Ship) {
-        std::int32_t Value{};
-        pas::WideString Caption{};
-        if (Ship->AutoArrange) {
-            Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeNo"_wref.get()), u"<color=255,0,0>"_w);
-            Value = 10000;
-        } else {
-            Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeYes"_wref.get()), u"<color=45,105,45>"_w);
-            Value = 20000;
-        }
-        Self->AddChoice(pas::concat_wide({u"- ", Caption}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(Self), 0);
-    }
-
-    pas::WideString GetTranclucatorArrangeText(aTranclucator::TTranclucator*& Ship) {
-        pas::WideString Result{};
-        if (Ship->AutoArrange) {
-            return pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(u"Talk.Tranclucator.Options.ArrangeText"_wref.get())});
-        }
-        return pas::concat_wide({Result, Globals::TalkShip->LookupTalkText(u"Talk.Tranclucator.Options.ArrangeBad"_wref.get())});
-    }
-
-    void PopTranclucatorOptionDigit(std::int32_t& Action, std::uint32_t& Digit) {
-        Digit = static_cast<std::uint32_t>(Action) % 10;
-        pas::store_unaligned<std::uint32_t>(&Action, static_cast<std::uint32_t>(Action) / 10);
     }
 
     void TfTalk::OrderTranclucatorDropCargo(std::int32_t Action) {
@@ -2975,7 +2958,7 @@ namespace fTalk {
         if (aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] != Remaining && static_cast<std::uint8_t>(GR_Main::CCInterface->GetTamperDetected() ^ 1)) {
             GR_Main::CCInterface->SetTamperDetected(true);
         }
-        if (pas::in_set<0, 0, 6, 6>(pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->KlingType)) {
+        if (pas::is_one_of<aGalaxyStruct::ktBoss, aGalaxyStruct::ktBertor>(pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->KlingType)) {
             DialogText = Globals::TalkShip->LookupTalkText(u"Talk.Dominator.ProgrammNo"_wref.get());
             pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->DetectAttackingPlayer(aPlayer::GetPlayer());
             ClearChoices(false);
@@ -3252,6 +3235,7 @@ namespace fTalk {
         aPlayer::GetPlayer()->RefreshDerivedStats(true);
         SE_Weapon::TWeaponSE* Effect = pas::construct_call<SE_Weapon::TWeaponSE>(SE_Weapon::TWeaponSE_Create, u"Weapon.NoGraph"_wref.get(), ClassesImports::Point(0, 0), 0, -1);
         Effect->SetEndpoints(aPlayer::GetPlayer()->Graphic, aPlayer::GetPlayer()->Graphic);
+        // Multiplication by -1 retains the native DCC32 register copy before NEG.
         Effect->SetHit(aConst::OwnerToFilmColor(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)), RepairAmount * -1, false, false);
         pas::list_add(Globals::StarMapScreen->PendingSceneObjects, reinterpret_cast<void*>(Effect));
         GR_Main::SoundManager->PlaySound(u"Sound.Repair"_wref.get());

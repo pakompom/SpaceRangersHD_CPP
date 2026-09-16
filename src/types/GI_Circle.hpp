@@ -45,6 +45,7 @@ namespace GI_Circle {
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadShapeProperties(EC_BlockPar::TBlockParEC* Block);
+        // MulLight is unimplemented.
         void Draw(Types::TRect ClipRect) override;
         TCircleKindGI Kind;
         std::uint8_t cpp_padding[3];

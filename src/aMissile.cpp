@@ -28,8 +28,6 @@
 #include "units/aPlayer.hpp"
 
 namespace aMissile {
-    std::int32_t FindLegacyMissileMicroModuleIndex(std::int32_t ConfigNumber);
-
     void TMissile_Create(TMissile* Self) {
         EC_Struct::TObjectEx_Create(Self);
         if (aGalaxy::Galaxy != nullptr) {
@@ -56,6 +54,7 @@ namespace aMissile {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Registers the missile in Star, copies weapon data and initializes position, heading and speed.
     void TMissile::InitializeShot(aGalaxy::TStar* Star, aShip::TShip* OwnerShip, aItem::TWeapon* Weapon, pas::Object* Target, std::int32_t ShotIndex) {
         float DY{};
         float DX{};
@@ -97,6 +96,7 @@ namespace aMissile {
         MaximumSpeed = pas::real_max<pas::Extended>(static_cast<pas::Extended>(GetWeaponInfo()->MissileMinSpeed / 10), static_cast<long double>(aMyFunction::RemapClamped(TechLevel, 1.0, 8.0, GetWeaponInfo()->MissileMinSpeed, GetWeaponInfo()->MissileMaxSpeed)) + SpeedBonus);
     }
 
+    // Caches Weapon.GetWeaponInfo before the base initializer.
     void TCustomMissile::InitializeShot_2(aGalaxy::TStar* Star, aShip::TShip* OwnerShip, aItem::TWeapon* Weapon, pas::Object* Target, std::int32_t ShotIndex) {
         WeaponInfo = Weapon->GetWeaponInfo();
         InitializeShot(Star, OwnerShip, Weapon, Target, ShotIndex);
@@ -205,6 +205,22 @@ namespace aMissile {
 
     void TMissile::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* World) {
         std::int32_t ModuleNumber{};
+        // Nested legacy lookup; caller pops the unused static link.
+        auto FindLegacyMissileMicroModuleIndex = [&](std::int32_t ConfigNumber) -> std::int32_t {
+            std::int32_t I{};
+            std::int32_t Result = 0;
+            {
+                const std::int32_t cpp_last = aConst::MicroModuleTemplates.length() - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        if (aConst::MicroModuleTemplates[I].ConfigNumber == ConfigNumber) {
+                            return I + 1;
+                        }
+                    }
+                }
+            }
+            return Result;
+        };
         Id = EC_Buf::TBufEC_GetUInt32(Buffer);
         if (Id >= World->NextMissileId) {
             World->NextMissileId = Id + 1;
@@ -231,13 +247,13 @@ namespace aMissile {
                 if (MicroModuleIndex > 0) {
                     ModuleNumber = EC_Buf::TBufEC_GetInt32(Buffer);
                     if (aConst::MicroModuleTemplates.length() - 1 + 1 < MicroModuleIndex || aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber != ModuleNumber) {
-                        MicroModuleIndex = aMissile::FindLegacyMissileMicroModuleIndex(ModuleNumber);
+                        MicroModuleIndex = FindLegacyMissileMicroModuleIndex(ModuleNumber);
                     }
                 }
                 if (SpecialModuleIndex > 0) {
                     ModuleNumber = EC_Buf::TBufEC_GetInt32(Buffer);
                     if (aConst::MicroModuleTemplates.length() - 1 + 1 < SpecialModuleIndex || aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ConfigNumber != ModuleNumber) {
-                        SpecialModuleIndex = aMissile::FindLegacyMissileMicroModuleIndex(ModuleNumber);
+                        SpecialModuleIndex = FindLegacyMissileMicroModuleIndex(ModuleNumber);
                     }
                 }
             }
@@ -301,22 +317,6 @@ namespace aMissile {
         LastTargetDistance = EC_Buf::TBufEC_GetSingle(Buffer);
     }
 
-    std::int32_t FindLegacyMissileMicroModuleIndex(std::int32_t ConfigNumber) {
-        std::int32_t I{};
-        std::int32_t Result = 0;
-        {
-            const std::int32_t cpp_last = aConst::MicroModuleTemplates.length() - 1;
-            if (0 <= cpp_last) {
-                for (I = 0; I <= cpp_last; ++I) {
-                    if (aConst::MicroModuleTemplates[I].ConfigNumber == ConfigNumber) {
-                        return I + 1;
-                    }
-                }
-            }
-        }
-        return Result;
-    }
-
     void TCustomMissile::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* World) {
         WeaponInfo = World->RequireCustomWeaponInfo(Buffer->ReadWideString());
         aMissile::TMissile::LoadFromBuffer(Buffer, World);
@@ -345,6 +345,7 @@ namespace aMissile {
         }
     }
 
+    // Lazily creates and initializes the retained missile scene object.
     SE_Space::TObjectSE* TMissile::GetGraphObject() {
         if (Graphic == nullptr) {
             {
@@ -416,6 +417,7 @@ namespace aMissile {
                 } else {
                     TurnDirection = 1.0f;
                 }
+                // The initial maximum above is overwritten in the native routine too.
                 Speed = PathLength + 1.0E+2L;
                 if (Speed < 2.0E+2L) {
                     Speed = 2.0E+2f;
@@ -430,6 +432,7 @@ namespace aMissile {
         OvershootTicks = -1;
     }
 
+    // Returns a hit ship, item or asteroid, or nil when no object was hit.
     pas::Object* TMissile::StepDay(std::int32_t StepIndex, std::uint8_t RecordFilm) {
         pas::Object* Result{};
         double StepScale{};
@@ -863,6 +866,7 @@ namespace aMissile {
         }
     }
 
+    // Special micromodule override unless -1, otherwise the weapon-info default.
     std::int32_t TMissile::GetShotVisual() {
         if (SpecialModuleIndex == 0 || aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ShotVisual == -1) {
             return GetWeaponInfo()->DefaultPalette;

@@ -36,6 +36,7 @@ namespace EC_CacheBitmap {
     struct TCBitmapEC : EC_Cache::TCacheDataEC {
         PAS_CLASS_META(TCBitmapEC, EC_Cache::TCacheDataEC, "TCBitmapEC", 36)
         void p_destroy() override;
+        // LoadOption accepts RGBA, Gray and RGB; other values select default decoding.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
         GR_GraphBuf::TGraphBufGR* Bitmap;
     };

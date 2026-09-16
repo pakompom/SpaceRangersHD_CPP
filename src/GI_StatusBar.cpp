@@ -38,12 +38,14 @@ namespace GI_StatusBar {
         GI_Panel::TPanelGI_Destroy(Self);
     }
 
+    // Preserves Value; resets the range to 0..100.
     void TStatusBarGI::Clear() {
         Minimum = 0.0;
         Maximum = 1.0E+2;
         GI_Panel::TPanelGI::Clear();
     }
 
+    // If MinValue exceeds MaxValue, lowers MinValue to MaxValue. Does not clamp the stored Value.
     void TStatusBarGI::SetRange(double MinValue, double MaxValue) {
         if (MinValue > MaxValue) {
             MinValue = MaxValue;

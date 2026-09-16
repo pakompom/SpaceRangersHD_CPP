@@ -42,6 +42,7 @@ namespace aPirate {
     struct TPirate : aNormalShip::TNormalShip {
         PAS_CLASS_META(TPirate, aNormalShip::TNormalShip, "TPirate", 1308)
         void p_destroy() override;
+        // Sets location, money and PirateType; registers the ship with its star.
         void InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::uint8_t Kind);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
@@ -50,9 +51,12 @@ namespace aPirate {
         std::uint8_t NavigateToServicePlanet(std::uint8_t Absolute);
         aPlanet::TPlanet* SelectServicePlanet();
         void BuildReachablePlanetQueue() override;
+        // AI ownership check only; does not test travel range.
         std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
+        // The native entry stores but never reads dl; the sole caller passes zero.
         void TryJumpToNearbyBattle(std::uint8_t UnusedMode);
         std::uint8_t TryDockAtStation(aGalaxyStruct::TShipTypeMask Types);
+        // Prefers the leader's route, then nearby service locations or reachable non-Dominator stars.
         void SelectNearestReachableDestination();
         void SellAllCargoGoods();
         void RepairBrokenEquipmentAtLocation() override;
@@ -60,9 +64,11 @@ namespace aPirate {
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         std::uint8_t GetGreetingShipCategory() override;
+        // Always rcPirate.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         std::uint8_t GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
+        // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
         void ProcessUnseenProgression();
         std::uint8_t RelationToNonRanger(aShip::TShip* Ship) override;
@@ -74,6 +80,7 @@ namespace aPirate {
         std::uint8_t AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t TrustsAttackRequester(aShip::TShip* Ship) override;
         std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        // True while the current turn is spent in prison.
         std::uint8_t ProcessImprisonment();
         void AssignWeaponTargetsInStar() override;
         void SelectEnemyShipInStar() override;
@@ -98,8 +105,10 @@ namespace aPirate {
         std::uint8_t AcceptPickupDistance(aItem::TItem* Item, double Distance) override;
         void RefreshCurrentStanding() override;
         std::uint32_t PrisonTermRemaining;
+        // Zero denotes an independent pirate; nonzero values select clan variants.
         std::uint8_t PirateType;
         std::uint8_t cpp_padding[3];
+        // AI pressure affecting target selection and departure decisions.
         float RaidPressure;
     };
     #if INTPTR_MAX == INT32_MAX

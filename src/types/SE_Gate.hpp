@@ -41,10 +41,14 @@ namespace SE_Gate {
         void SetAngle(std::uint8_t Value) override;
         pas::WideString GetText() override;
         void SetText(const pas::WideString& Value) override;
+        // Changes idle state 0 to opening state 1.
         void Open();
+        // Changes open state 2 to closing state 3.
         void Close();
+        // Resets StateStep and rebuilds attached graphics.
         void SetState(std::int32_t Value);
         void RebuildStateGraphics();
+        // Both native callers pass nil, 0; timer payload is unused.
         void AdvanceAnimation(void* UnusedTimer, std::int32_t UnusedData);
         void Advance() override;
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;
@@ -78,6 +82,7 @@ namespace SE_Gate {
         std::uint8_t GetAngle() override;
         void SetAngle(std::uint8_t Value) override;
         void RebuildStateGraphics();
+        // Both native callers pass nil, 0; timer payload is unused.
         void AdvanceAnimation(void* UnusedTimer, std::int32_t UnusedData);
         void Advance() override;
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;

@@ -41,6 +41,7 @@ namespace GI_SpaceImg {
         ImageCount = 0;
     }
 
+    // Inserts in descending depth order; reallocates and invalidates earlier pointers.
     PSpaceImageGI TSpaceImgGI::AllocateImage(float Depth) {
         ++ImageCount;
         Images = static_cast<PSpaceImageGI>(EC_Mem::ReAllocREC(Images, ImageCount * static_cast<std::int32_t>(sizeof(TSpaceImageGI))));
@@ -220,9 +221,11 @@ namespace GI_SpaceImg {
         TSpaceImgGI::LoadSpaceImageProperties(Block);
     }
 
+    // Empty in native code.
     void TSpaceImgGI::LoadSpaceImageProperties(EC_BlockPar::TBlockParEC* Block) {
     }
 
+    // Empty in native code.
     void TSpaceImgGI::UpdateAutoGeometry() {
     }
 

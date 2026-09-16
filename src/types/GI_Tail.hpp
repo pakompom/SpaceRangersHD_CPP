@@ -38,22 +38,31 @@ namespace GI_Tail {
     struct TTailGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TTailGI, GI_MessageLoop::TObjectGI, "TTailGI", 352)
         void p_destroy() override;
+        // Preserves timers and emission state.
         void ClearSegments();
+        // Requires at least one GAI sequence. Existing segments are kept.
         void SetImagePath(const pas::WideString& ImagePath);
         pas::WideString GetImagePath();
+        // Reuses the last inactive slot or grows by 16. Growth can invalidate earlier pointers; only Active is initialized.
         PTailSegmentGI AllocateSegment();
         void AdvanceSegmentFrames(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void MoveSegments(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
+        // Suppresses emission within squared distance 0.001 of the last live segment.
         void EmitSegment(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void OffsetSegments(EC_Struct::TPointF Delta);
+        // Deactivation cancels timers. Drawing restarts them when Emitting is true.
         void SetActive(std::uint8_t Enabled) override;
+        // Disabling emission leaves existing segments animating.
         void SetEmitting(std::uint8_t Enabled);
         void Invalidate() override;
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Empty in the native binary.
         static void LoadTailProperties(EC_BlockPar::TBlockParEC* Block);
+        // Empty; does not call inherited UpdateAutoGeometry.
         void UpdateAutoGeometry() override;
         void Draw(Types::TRect ClipRect) override;
+        // Ignores ClipRect; uses the message loop's update rectangles.
         void DrawUpdateRects(Types::TRect ClipRect) override;
         EC_CacheGAI::TCGaiControlEC* ImageCache;
         std::int32_t FrameCount;

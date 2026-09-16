@@ -39,24 +39,15 @@
 #include "units/fShip2.hpp"
 
 namespace aItem {
-    void CreateContainer(pas::WideString GraphKey, TItem* Self);
-
-    std::int32_t FindLegacyMicroModuleIndex(std::int32_t ConfigNumber);
-
-    pas::WideString ExpandModuleTokens(pas::WideString Text, std::int32_t ModuleIndexPlusOne, std::int32_t Count, pas::WideString& ColorTag, pas::WideString& Description, std::int32_t& EffectPercent, std::int32_t& PenaltyPercent);
-
-    std::int32_t ReadSavedHullSeriesIndex(EC_Buf::TBufEC* Buffer);
-
-    void UndoSizePercent(std::int32_t Percent, std::int32_t& Result);
-
-    pas::WideString ItemColorTag(TItem* Item);
-
+    // Native managed-string defaults.
     pas::Array<pas::WideString, 1, 8> EquipmentLevelLetters = pas::Array<pas::WideString, 1, 8>{{u"A"_w, u"B"_w, u"C"_w, u"D"_w, u"E"_w, u"F"_w, u"G"_w, u"H"_w}};
 
     pas::Array<pas::Array<std::int32_t, 0, 3>, 1, 2> TreasureMapColumnPositions = pas::Array<pas::Array<std::int32_t, 0, 3>, 1, 2>{{pas::Array<std::int32_t, 0, 3>{{20, 40, 280, 380}}, pas::Array<std::int32_t, 0, 3>{{20, 40, 380, 490}}}};
 
     pas::Array<std::int32_t, 1, 2> TreasureMapRuleLengths = pas::Array<std::int32_t, 1, 2>{{76, 98}};
 
+    // Nested native helpers include the caller's saved EBP explicitly in the IDA ABI.
+    // Selects across built-in artefacts, custom artefacts and configured useless items. Pool must be nonempty; AnyAvailable is the union of the three eligibility flags.
     TEquipmentWithActCode* CreateRandomLootItem(TItemLootPool Pool, std::uint8_t Owner, std::uint32_t Seed) {
         TEquipmentWithActCode* Result{};
         std::int32_t Count = aConst::ArtefactLootPools[Pool].length();
@@ -83,6 +74,7 @@ namespace aItem {
         return Result;
     }
 
+    // Returns a one-based template index, or 0 if the saved template cannot be resolved.
     std::int32_t ReadSavedMicroModuleIndex(EC_Buf::TBufEC* Buffer) {
         std::int32_t I{};
         std::uint32_t NameHash{};
@@ -107,6 +99,7 @@ namespace aItem {
         return Result;
     }
 
+    // Applies the ordered item-type insertions for save versions before 164, 78, 131, 78 and 127; arithmetic wraps in a byte.
     aConst::TItemType MigrateSavedItemType(std::uint8_t ItemType) {
         if (GlobalsV::LoadedSaveVersion < 164 && static_cast<aConst::TItemType>(ItemType) > aConst::t_Artefact) {
             ++ItemType;
@@ -262,6 +255,7 @@ namespace aItem {
         return 1.0L - Percent * 0.01L;
     }
 
+    // ModuleIndex is zero-based. Expands all bonus tokens in the configured description.
     pas::WideString GetMicroModuleInfoText(std::int32_t ModuleIndex, pas::WideString ColorTag) {
         pas::WideString Result{};
         std::int32_t Value{};
@@ -347,6 +341,7 @@ namespace aItem {
         return pas::concat_wide({u"Bm.Micromoduls.", GR_Main::GiResourceSuffix(), u"MM", pas::wide_int_to_str(static_cast<std::int32_t>(aItem::GetMicroModulePriorityColorTier(ModuleIndex))), u"_"});
     }
 
+    // Returns nil outside item types 10..41.
     TArtefact* CreateConfiguredArtefactByItemType(aConst::TItemType ItemType, std::uint8_t Owner) {
         TArtefact* Item{};
         TArtefact* Result = nullptr;
@@ -369,6 +364,7 @@ namespace aItem {
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(Info->AverageSize, Weight), 0.5, 2.0, 1.0, 2.0)) * LevelCost * 2.5E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
+    // Constructs the instance without calling its Init routine.
     TItem* CreateItemByType(aConst::TItemType ItemType) {
         TItem* Result = nullptr;
         switch (ItemType) {
@@ -454,6 +450,7 @@ namespace aItem {
         }
     }
 
+    // Clamps Level to 1..8; custom weapons require CreateGeneratedWeapon.
     TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level, std::uint8_t Owner) {
         TItem* Item{};
         std::uint8_t ActualLevel{};
@@ -524,6 +521,7 @@ namespace aItem {
         return Result;
     }
 
+    // Module indices are zero-based; compatibility checks also accept special bonuses.
     std::uint8_t CanInstallMicroModule(std::int32_t ModuleIndex, TEquipment* Item) {
         std::uint8_t Result = false;
         if (Item->MicroModuleIndex != 0) {
@@ -622,6 +620,7 @@ namespace aItem {
         return Result;
     }
 
+    // Does not check compatibility or remove an existing module; -1 or nil returns False.
     std::uint8_t ApplyMicroModule(std::int32_t ModuleIndex, TEquipment* Item) {
         std::uint8_t BonusKind{};
         if (ModuleIndex == -1 || Item == nullptr) {
@@ -832,6 +831,7 @@ namespace aItem {
         return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType]});
     }
 
+    // Goods use their market display name; nodes use the generic node name; other types return empty.
     pas::WideString GetStackableItemTypeName(aConst::TItemType ItemType) {
         pas::WideString Result{};
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
@@ -843,6 +843,7 @@ namespace aItem {
         }
     }
 
+    // Custom countables use their configured name; all other types use GetStackableItemTypeName. Ignores per-instance name overrides.
     pas::WideString GetStackableItemName(TItem* Item) {
         if (Item->ItemType == aConst::t_UselessCountableItem) {
             return aConst::LocalizedText(pas::concat_wide({u"Items.CustomCountables.", pas::checked_cast<TCountableItem*>(Item)->ConfigBlockName, u".Name"}));
@@ -850,6 +851,8 @@ namespace aItem {
         return aItem::GetStackableItemTypeName(Item->ItemType);
     }
 
+    // Preserve the native evaluation order: select the percentage before clamping
+    // capacity. The inline helper also retains the compiler's separate temporaries.
     void CalculateHullCapacityIncrease(THull* Hull, std::int32_t LowPercent, std::int32_t HighPercent, std::int32_t& Increase) {
         std::int32_t Capacity{};
         std::int32_t Percent = aMyFunction::SeededRandomIntRange(LowPercent, HighPercent, Hull->Id * 214571);
@@ -903,6 +906,7 @@ namespace aItem {
         Buffer->AddAnsiChar(NoDropFlag);
     }
 
+    // Object-reference fields in descendants hold saved IDs until ResolveLoadedReferences; updates Galaxy.NextItemId.
     void TItem::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         Id = EC_Buf::TBufEC_GetUInt32(Buffer);
         if (Galaxy->NextItemId <= static_cast<std::uint32_t>(Id)) {
@@ -983,10 +987,12 @@ namespace aItem {
     void TItem::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
     }
 
+    // Generic Items.SmallInfo label used outside radar range.
     pas::WideString TItem::GetSmallInfoText() {
         return GR_Main::LookupLocalizedTextByKey(u"Items.SmallInfo"_wref.get());
     }
 
+    // Applies the trading-skill percentage to Cost minus repair cost; equipment has a minimum value of 1. Goods use Cost directly.
     std::int32_t TItem::CalculateResaleValue(std::uint8_t TradingSkill) {
         if (pas::class_cast_if<TEquipment*>(this) != nullptr) {
             return std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round((Cost - pas::checked_cast<TEquipment*>(this)->CalculateRepairCost()) * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]));
@@ -994,6 +1000,7 @@ namespace aItem {
         return System::Round(Cost * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]);
     }
 
+    // Equipment deducts repair cost, with a minimum result of 1; goods return Cost unchanged.
     std::int32_t TItem::GetConditionAdjustedCost() {
         if (pas::class_cast_if<TEquipment*>(this) != nullptr) {
             return std::max<std::int32_t>(1, Cost - pas::checked_cast<TEquipment*>(this)->CalculateRepairCost());
@@ -1001,6 +1008,7 @@ namespace aItem {
         return Cost;
     }
 
+    // Groups weapon types under Weapon and built-in artefacts under Artefact; otherwise returns the item-type configuration name.
     pas::WideString TItem::GetCategoryConfigName() {
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             return u"Weapon"_w;
@@ -1019,7 +1027,14 @@ namespace aItem {
         return pas::WideString();
     }
 
+    // Lazily creates and initializes the retained scene container; returns a borrowed reference. Appearance depends on item kind, size, faction, and drop flags.
     SE_Space::TObjectSE* TItem::GetGraphObject() {
+        // Captures the item at ParentFrame-4; caller removes ParentFrame.
+        auto CreateContainer = [&](pas::WideString GraphKey) -> void {
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"_wref.get(), pas::concat_wide({u"Item.", GraphKey}), ClassesImports::Point(0, 0));
+            pas::Var<SE_Space::TObjectSE*> graphObject = pas::Var<SE_Space::TObjectSE*>(&this->GraphObject);
+            SE_Space::RetainSpaceObject(graphObject, createSpaceObjectByName);
+        };
         if (GraphObject == nullptr) {
             if (pas::class_cast_if<TMicroModule*>(this) != nullptr) {
                 if (aConst::MicroModuleTemplates[pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1].KindGraph != u"" && ([&] {
@@ -1027,110 +1042,104 @@ namespace aItem {
                     EC_BlockPar::TBlockParEC* block = GR_Main::GameDataConfig->GetBlock(u"SE"_wref.get())->GetBlock(u"Item"_wref.get());
                     return block->FindBlock(cpp_arg);
                 }()) != nullptr) {
-                    aItem::CreateContainer(pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1].KindGraph}), this);
+                    CreateContainer(pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1].KindGraph}));
                 } else {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"mm_", SysUtils::IntToStr(aItem::GetMicroModulePriorityColorTier(pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1))})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"mm_", SysUtils::IntToStr(aItem::GetMicroModulePriorityColorTier(pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1))})));
                 }
             } else if (ItemType == aConst::t_ArtefactBomb) {
-                aItem::CreateContainer(u"Bomb"_w, this);
+                CreateContainer(u"Bomb"_w);
             } else if (pas::class_cast_if<TUselessItem*>(this) != nullptr && ([&] {
                 EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Item"_wref.get());
                 const pas::WideString& configBlockName = reinterpret_cast<TUselessItem*>(this)->ConfigBlockName;
                 return blockByPath->CountBlocks(configBlockName);
             }()) > 0) {
-                aItem::CreateContainer(reinterpret_cast<TUselessItem*>(this)->ConfigBlockName, this);
+                CreateContainer(reinterpret_cast<TUselessItem*>(this)->ConfigBlockName);
             } else if (pas::class_cast_if<TCistern*>(this) != nullptr) {
-                aItem::CreateContainer(u"Cistern"_w, this);
+                CreateContainer(u"Cistern"_w);
             } else if (pas::class_cast_if<TGoods*>(this) != nullptr && static_cast<TGoods*>(this)->NaturalFlag) {
                 if (Weight <= 29) {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m0_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m0_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
                 } else if (Weight <= 59) {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m1_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m1_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
                 } else {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m2_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m2_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
                 }
             } else if (pas::class_cast_if<TProtoplasm*>(this) != nullptr && static_cast<TProtoplasm*>(this)->DropFlag != 0) {
                 if (Weight <= 29) {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n0_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n0_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
                 } else if (Weight <= 59) {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n1_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n1_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
                 } else if (Weight <= 99) {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n2_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n2_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
                 } else {
-                    aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n3_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})), this);
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n3_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
                 }
             } else if (pas::class_cast_if<TCountableItem*>(this) != nullptr && static_cast<TCountableItem*>(this)->DropFlag != 0) {
                 if (Weight <= 29) {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"0_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"0_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 59) {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"1_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"1_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 99) {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"2_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"2_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"3_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"3_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 }
             } else if (pas::class_cast_if<TEquipment*>(this) != nullptr && static_cast<TEquipment*>(this)->CustomFaction != u"") {
                 if (Weight <= 29) {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"0"}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"0"}));
                 } else if (Weight <= 59) {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"1"}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"1"}));
                 } else if (Weight <= 99) {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"2"}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"2"}));
                 } else {
-                    aItem::CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"3"}), this);
+                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"3"}));
                 }
             } else if (pas::class_cast_if<TEquipment*>(this) != nullptr && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
                 if (pas::checked_cast<TEquipment*>(this)->DominatorSeries == aGalaxyStruct::dsBlazer) {
                     if (Weight <= 29) {
-                        aItem::CreateContainer(u"db0"_w, this);
+                        CreateContainer(u"db0"_w);
                     } else if (Weight <= 59) {
-                        aItem::CreateContainer(u"db1"_w, this);
+                        CreateContainer(u"db1"_w);
                     } else if (Weight <= 99) {
-                        aItem::CreateContainer(u"db2"_w, this);
+                        CreateContainer(u"db2"_w);
                     } else {
-                        aItem::CreateContainer(u"db3"_w, this);
+                        CreateContainer(u"db3"_w);
                     }
                 } else if (pas::checked_cast<TEquipment*>(this)->DominatorSeries == aGalaxyStruct::dsKeller) {
                     if (Weight <= 29) {
-                        aItem::CreateContainer(u"dk0"_w, this);
+                        CreateContainer(u"dk0"_w);
                     } else if (Weight <= 59) {
-                        aItem::CreateContainer(u"dk1"_w, this);
+                        CreateContainer(u"dk1"_w);
                     } else if (Weight <= 99) {
-                        aItem::CreateContainer(u"dk2"_w, this);
+                        CreateContainer(u"dk2"_w);
                     } else {
-                        aItem::CreateContainer(u"dk3"_w, this);
+                        CreateContainer(u"dk3"_w);
                     }
                 } else if (pas::checked_cast<TEquipment*>(this)->DominatorSeries == aGalaxyStruct::dsTerron) {
                     if (Weight <= 29) {
-                        aItem::CreateContainer(u"dt0"_w, this);
+                        CreateContainer(u"dt0"_w);
                     } else if (Weight <= 59) {
-                        aItem::CreateContainer(u"dt1"_w, this);
+                        CreateContainer(u"dt1"_w);
                     } else if (Weight <= 99) {
-                        aItem::CreateContainer(u"dt2"_w, this);
+                        CreateContainer(u"dt2"_w);
                     } else {
-                        aItem::CreateContainer(u"dt3"_w, this);
+                        CreateContainer(u"dt3"_w);
                     }
                 } else {
                     GR_Main::RaiseWideMessage(u"Item graph"_wref.get());
                 }
             } else if (Weight <= 29) {
-                aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c0_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})), this);
+                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c0_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
             } else if (Weight <= 59) {
-                aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c1_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})), this);
+                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c1_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
             } else if (Weight <= 99) {
-                aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c2_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})), this);
+                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c2_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
             } else {
-                aItem::CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c3_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})), this);
+                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c3_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
             }
             GraphObject->SetPosition(Position);
         }
         return GraphObject;
-    }
-
-    void CreateContainer(pas::WideString GraphKey, TItem* Self) {
-        SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"_wref.get(), pas::concat_wide({u"Item.", GraphKey}), ClassesImports::Point(0, 0));
-        pas::Var<SE_Space::TObjectSE*> graphObject = pas::Var<SE_Space::TObjectSE*>(&Self->GraphObject);
-        SE_Space::RetainSpaceObject(graphObject, createSpaceObjectByName);
     }
 
     void TItem::ReleaseGraphObject() {
@@ -1139,6 +1148,7 @@ namespace aItem {
         }
     }
 
+    // Manufacturer/faction resource key, including custom factions and Dominator series.
     pas::WideString TItem::GetOwnerConfigName() {
         if (pas::class_cast_if<TGoods*>(this) != nullptr) {
             return aConst::OwnerInfo[aGalaxyStruct::oiUninhabited].InternalName;
@@ -1226,6 +1236,23 @@ namespace aItem {
         std::int32_t ExistingIndex{};
         std::int32_t ModuleIndex{};
         PExtraSpecial Entry{};
+        // Returns a one-based template index, or 0 if absent.
+        auto FindLegacyMicroModuleIndex = [&](std::int32_t ConfigNumber) -> std::int32_t {
+            std::int32_t I{};
+            std::int32_t Result = 0;
+            {
+                const std::int32_t cpp_last = aConst::MicroModuleTemplates.length() - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        if (aConst::MicroModuleTemplates[I].ConfigNumber == ConfigNumber) {
+                            Result = I + 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            return Result;
+        };
         aItem::TItem::LoadFromBuffer(Buffer, Galaxy);
         if (GlobalsV::LoadedSaveVersion >= 152) {
             if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
@@ -1251,13 +1278,13 @@ namespace aItem {
                 if (MicroModuleIndex > 0) {
                     ConfigNumber = EC_Buf::TBufEC_GetInt32(Buffer);
                     if (aConst::MicroModuleTemplates.length() - 1 + 1 < MicroModuleIndex || aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber != ConfigNumber) {
-                        MicroModuleIndex = aItem::FindLegacyMicroModuleIndex(ConfigNumber);
+                        MicroModuleIndex = FindLegacyMicroModuleIndex(ConfigNumber);
                     }
                 }
                 if (SpecialModuleIndex > 0) {
                     ConfigNumber = EC_Buf::TBufEC_GetInt32(Buffer);
                     if (aConst::MicroModuleTemplates.length() - 1 + 1 < SpecialModuleIndex || aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ConfigNumber != ConfigNumber) {
-                        SpecialModuleIndex = aItem::FindLegacyMicroModuleIndex(ConfigNumber);
+                        SpecialModuleIndex = FindLegacyMicroModuleIndex(ConfigNumber);
                     }
                 }
             }
@@ -1300,7 +1327,7 @@ namespace aItem {
                         ModuleIndex = EC_Buf::TBufEC_GetInt32(Buffer);
                         ConfigNumber = EC_Buf::TBufEC_GetInt32(Buffer);
                         if (aConst::MicroModuleTemplates.length() - 1 + 1 < ModuleIndex || aConst::MicroModuleTemplates[ModuleIndex - 1].ConfigNumber != ConfigNumber) {
-                            ModuleIndex = aItem::FindLegacyMicroModuleIndex(ConfigNumber);
+                            ModuleIndex = FindLegacyMicroModuleIndex(ConfigNumber);
                         }
                     }
                     if (ModuleIndex == 0) {
@@ -1333,23 +1360,7 @@ namespace aItem {
         DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(EC_Buf::TBufEC_GetByte(Buffer));
     }
 
-    std::int32_t FindLegacyMicroModuleIndex(std::int32_t ConfigNumber) {
-        std::int32_t I{};
-        std::int32_t Result = 0;
-        {
-            const std::int32_t cpp_last = aConst::MicroModuleTemplates.length() - 1;
-            if (0 <= cpp_last) {
-                for (I = 0; I <= cpp_last; ++I) {
-                    if (aConst::MicroModuleTemplates[I].ConfigNumber == ConfigNumber) {
-                        Result = I + 1;
-                        break;
-                    }
-                }
-            }
-        }
-        return Result;
-    }
-
+    // Allocates a new item ID and resolves references in the current galaxy; changes LoadedSaveVersion.
     aItem::TItem* TEquipment::Clone() {
         std::uint32_t NewId = aGalaxy::Galaxy->NextItemId;
         aItem::TItem* Result = aItem::CreateItemByType(ItemType);
@@ -1472,6 +1483,7 @@ namespace aItem {
         BrokenFlag = 0;
     }
 
+    // Tests hull damage or supported equipment below 90 percent condition.
     std::uint8_t TEquipment::NeedsRepair() {
         static const pas::Set<0, 255> RepairableTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         if (ItemType == aConst::t_Hull) {
@@ -1481,6 +1493,7 @@ namespace aItem {
         return pas::contains(RepairableTypes, static_cast<std::uint8_t>(ItemType)) && ConditionPercent < 9.0E+1L;
     }
 
+    // Undiscounted cost; hulls use HullPoints, other supported equipment uses ConditionPercent and BrokenFlag.
     std::int32_t TEquipment::CalculateRepairCost() {
         std::int32_t Result{};
         double DamagePercent{};
@@ -1501,7 +1514,7 @@ namespace aItem {
                 }
             }
             return Result;
-        } else if (pas::in_set<43, 68, 73, 73>(ItemType)) {
+        } else if (pas::in_set<aConst::t_FuelTanks, aConst::t_CustomWeapon, aConst::t_Satellite, aConst::t_Satellite>(ItemType)) {
             if (ConditionPercent == 1.0E+2L) {
                 Result = 0;
             } else {
@@ -1512,7 +1525,7 @@ namespace aItem {
                 return System::Round(Result * 1.3L);
             }
             return Result;
-        } else if (pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(ItemType)) {
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
             if (ConditionPercent == 1.0E+2L) {
                 Result = 0;
             } else {
@@ -1528,6 +1541,7 @@ namespace aItem {
         }
     }
 
+    // Includes player technology restrictions as well as wear and breakage.
     pas::WideString TEquipment::GetConditionText(std::uint8_t PrefixNewLine) {
         pas::WideString Result{};
         static const pas::Set<0, 255> SupportedTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
@@ -1553,7 +1567,7 @@ namespace aItem {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Weapon.Broken"_wref.get())}), u"<color=255,0,0>"_w);
             } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".Broken"}))}), u"<color=255,0,0>"_w);
-            } else if (pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(ItemType)) {
+            } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Broken"}))}), u"<color=255,0,0>"_w);
             } else if (ItemType == aConst::t_Satellite) {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Satellite.Broken"_wref.get())}), u"<color=255,0,0>"_w);
@@ -1561,6 +1575,7 @@ namespace aItem {
                 Result = pas::WideString();
             }
         } else if (pas::class_cast_if<TArtefact*>(this) != nullptr) {
+            // Native retains this transmitter branch despite the initial supported-type set.
             if (ItemType == aConst::t_ArtefactTransmitter && pas::checked_cast<TArtefactTransmitter*>(this)->Power < aConst::MinTransmitterPower) {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Artefacts.ArtTransmitter.Broken"_wref.get())}), u"<color=254,217,7>"_w);
             } else {
@@ -1591,7 +1606,7 @@ namespace aItem {
             return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(displayName));
         } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
             return aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".BrokenInBattle"}));
-        } else if (pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(ItemType)) {
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
             return aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".BrokenInBattle"}));
         } else {
             return pas::WideString();
@@ -1607,7 +1622,7 @@ namespace aItem {
             return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(displayName));
         } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
             return aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".BrokenInUse"}));
-        } else if (pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(ItemType)) {
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
             return aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".BrokenInUse"}));
         } else {
             return pas::WideString();
@@ -1626,7 +1641,7 @@ namespace aItem {
             }());
         } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
             Result = aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".BrokenByForce"}));
-        } else if (pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(ItemType)) {
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
             Result = aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".BrokenByForce"}));
         } else {
             return Result;
@@ -1637,6 +1652,7 @@ namespace aItem {
         return Result;
     }
 
+    // Returns 0 for unsupported item types.
     std::int32_t TEquipment::GetLevel() {
         switch (ItemType) {
             case aConst::t_Hull: return pas::checked_cast<THull*>(this)->TechLevel;
@@ -1656,6 +1672,7 @@ namespace aItem {
         }
     }
 
+    // A through H for levels 1 through 8; empty for unsupported levels.
     pas::WideString TEquipment::GetLevelLetter() {
         pas::WideString Result{};
         std::int32_t Level = GetLevel();
@@ -1714,6 +1731,7 @@ namespace aItem {
         }
     }
 
+    // Selects strength and stat emphasis from Id, then calls Improve. Charging and eligibility checks belong to the caller.
     void TEquipment::ImproveAtScientificBase() {
         DetailImprovement = static_cast<std::uint32_t>(Id) % 2 + 1;
         {
@@ -1749,9 +1767,11 @@ namespace aItem {
         return pas::WideString();
     }
 
+    // Base is a no-op. Overrides change statistics and Cost without checking CanImprove or charging money; ikAny selects one of the three strengths.
     void TEquipment::Improve(TImprovementKind Kind) {
     }
 
+    // Only ikMinor, ikMedium and ikMajor are valid: Cost times 0.3, 0.6 or 1.2, rounded then truncated to a multiple of 10, before service discounts.
     std::int32_t TEquipment::CalculateImprovementCost(TImprovementKind Kind) {
         switch (Kind) {
             case ikMinor: return aMyFunction::RoundAndTruncateToTens(Cost * 0.3L);
@@ -1764,6 +1784,7 @@ namespace aItem {
         }
     }
 
+    // Tests expected generated statistics after accounting for installed bonuses; this is not a stored upgraded flag. The base implementation returns True.
     std::uint8_t TEquipment::HasStandardStats() {
         return true;
     }
@@ -1825,12 +1846,12 @@ namespace aItem {
         std::int32_t I{};
         std::int32_t SpecialBonus{};
         PExtraSpecial Entry{};
-        if (pas::in_set<22, 27, 37, 37>(BonusKind) && MicroModuleIndex != 0) {
+        if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity, aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0) {
             Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         } else {
             Result = 0;
         }
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<9, 12, 33, 33>(BonusKind)) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<aConst::bonWEnergy, aConst::bonWRadius, aConst::bonMissileSpeed, aConst::bonMissileSpeed>(BonusKind)) {
             return Result;
         }
         if (SpecialModuleIndex != 0) {
@@ -1844,7 +1865,7 @@ namespace aItem {
                 SpecialBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
             }
         }
-        if (SpecialBonus != 0 && MicroModuleIndex != 0 && static_cast<std::uint8_t>(pas::in_set<29, 30>(BonusKind) ^ 1)) {
+        if (SpecialBonus != 0 && MicroModuleIndex != 0 && static_cast<std::uint8_t>(pas::is_one_of<aConst::bonExtraAkrinEff, aConst::bonExtraAkrinPenalty>(BonusKind) ^ 1)) {
             if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == SpecialBonus > 0) {
                 SpecialBonus += System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] * SpecialBonus * 1.0E-4L);
             } else {
@@ -1855,18 +1876,19 @@ namespace aItem {
         return Result;
     }
 
+    // Aggregate used by the bonus description, with SeparatedNumbers effects handled separately.
     std::int32_t TEquipment::GetDescriptionStatBonus(aConst::TEquipmentBonusKind BonusKind) {
         std::int32_t Result{};
         std::int32_t Index{};
         std::int32_t EffectPercent{};
         std::int32_t PenaltyPercent{};
         PExtraSpecial Entry{};
-        if (pas::in_set<22, 27, 37, 37>(BonusKind) && MicroModuleIndex != 0 && static_cast<std::uint8_t>(aConst::MicroModuleTemplates[MicroModuleIndex - 1].SeparatedNumbers ^ 1)) {
+        if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity, aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0 && static_cast<std::uint8_t>(aConst::MicroModuleTemplates[MicroModuleIndex - 1].SeparatedNumbers ^ 1)) {
             Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         } else {
             Result = 0;
         }
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<9, 12, 33, 33>(BonusKind)) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<aConst::bonWEnergy, aConst::bonWRadius, aConst::bonMissileSpeed, aConst::bonMissileSpeed>(BonusKind)) {
             return Result;
         }
         std::int32_t CombinedBonus = 0;
@@ -1927,6 +1949,37 @@ namespace aItem {
         aConst::TEquipmentBonusKind BonusKind{};
         std::int32_t Index{};
         std::int32_t ModuleIndexPlusOne{};
+        // Uses the parent description, bonus multipliers and color. RET 4 removes Result; the caller removes ParentFrame. Count 0 suppresses numeric bonuses.
+        auto ExpandModuleTokens = [&](pas::WideString Text, std::int32_t ModuleIndexPlusOne, std::int32_t Count) -> pas::WideString {
+            pas::WideString Result{};
+            std::uint8_t BonusIndex{};
+            std::int32_t Value{};
+            // The native helper reads the captured description; Text remains an unused managed parameter.
+            Result = Description;
+            for (BonusIndex = static_cast<std::uint8_t>(0); BonusIndex <= static_cast<std::uint8_t>(42); ++BonusIndex) {
+                Value = aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].StatBonuses[BonusIndex];
+                Value *= Count;
+                if (Count != 0 && EffectPercent != 0 && static_cast<std::uint8_t>(pas::in_range(BonusIndex, 29, 30) ^ 1)) {
+                    if (pas::in_range(BonusIndex, 28, 28) == Value > 0) {
+                        Value += System::Round(Value * PenaltyPercent * 1.0E-4L);
+                    } else {
+                        Value += System::Round(Value * EffectPercent * 1.0E-4L);
+                    }
+                }
+                if (Value > 0) {
+                    pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
+                    pas::WideString cpp_arg_2 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"});
+                    aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_2), std::move(cpp_arg), ColorTag);
+                } else if (Value < 0) {
+                    pas::WideString intToStr = pas::wide_int_to_str(Value);
+                    pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"});
+                    aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_3), std::move(intToStr), ColorTag);
+                } else {
+                    aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"}), u"--"_w, ColorTag);
+                }
+            }
+            return Result;
+        };
         Result = pas::WideString();
         if (MicroModuleIndex != 0) {
             EffectPercent = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff];
@@ -1938,7 +1991,7 @@ namespace aItem {
         if (SpecialModuleIndex != 0) {
             Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ConfigName, u".Text"}));
             if (aConst::MicroModuleTemplates[SpecialModuleIndex - 1].SeparatedNumbers) {
-                Description = aItem::ExpandModuleTokens(Description, SpecialModuleIndex, 1, ColorTag, Description, EffectPercent, PenaltyPercent);
+                Description = ExpandModuleTokens(Description, SpecialModuleIndex, 1);
             }
             if (pas::class_cast_if<TWeapon*>(this) != nullptr && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].TextReplace == u"" && GetSpecialModuleName() != u"") {
                 Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(GetSpecialModuleName(), u"<color=255,240,100>"_w)});
@@ -1953,7 +2006,7 @@ namespace aItem {
             Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigName, u".ExText"}));
             if (Description != u"") {
                 if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].SeparatedNumbers) {
-                    Description = aItem::ExpandModuleTokens(Description, MicroModuleIndex, 0, ColorTag, Description, EffectPercent, PenaltyPercent);
+                    Description = ExpandModuleTokens(Description, MicroModuleIndex, 0);
                 }
                 Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(MicroModuleIndex - 1))});
             }
@@ -1966,7 +2019,7 @@ namespace aItem {
                     if (Description != u"") {
                         aMyFunction::ReplaceTextToken(Description, u"<ExCount>"_w, pas::wide_int_to_str(pas::list_at<TExtraSpecial>(ExtraSpecials, Index)->Count), ColorTag);
                         if (aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
-                            Description = aItem::ExpandModuleTokens(Description, ModuleIndexPlusOne, pas::list_at<TExtraSpecial>(ExtraSpecials, Index)->Count, ColorTag, Description, EffectPercent, PenaltyPercent);
+                            Description = ExpandModuleTokens(Description, ModuleIndexPlusOne, pas::list_at<TExtraSpecial>(ExtraSpecials, Index)->Count);
                         }
                         Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(ModuleIndexPlusOne - 1))});
                     }
@@ -1992,36 +2045,7 @@ namespace aItem {
         return Result;
     }
 
-    pas::WideString ExpandModuleTokens(pas::WideString Text, std::int32_t ModuleIndexPlusOne, std::int32_t Count, pas::WideString& ColorTag, pas::WideString& Description, std::int32_t& EffectPercent, std::int32_t& PenaltyPercent) {
-        pas::WideString Result{};
-        std::uint8_t BonusIndex{};
-        std::int32_t Value{};
-        Result = Description;
-        for (BonusIndex = static_cast<std::uint8_t>(0); BonusIndex <= static_cast<std::uint8_t>(42); ++BonusIndex) {
-            Value = aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].StatBonuses[BonusIndex];
-            Value *= Count;
-            if (Count != 0 && EffectPercent != 0 && static_cast<std::uint8_t>(pas::in_range(BonusIndex, 29, 30) ^ 1)) {
-                if (pas::in_range(BonusIndex, 28, 28) == Value > 0) {
-                    Value += System::Round(Value * PenaltyPercent * 1.0E-4L);
-                } else {
-                    Value += System::Round(Value * EffectPercent * 1.0E-4L);
-                }
-            }
-            if (Value > 0) {
-                pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
-                pas::WideString cpp_arg_2 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"});
-                aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_2), std::move(cpp_arg), ColorTag);
-            } else if (Value < 0) {
-                pas::WideString intToStr = pas::wide_int_to_str(Value);
-                pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"});
-                aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_3), std::move(intToStr), ColorTag);
-            } else {
-                aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"}), u"--"_w, ColorTag);
-            }
-        }
-        return Result;
-    }
-
+    // Requires HasStandardStats and no special module that blocks the special slot; does not check technology access.
     std::uint8_t TEquipment::CanImprove() {
         return HasStandardStats() && (SpecialModuleIndex == 0 || static_cast<std::uint8_t>(aConst::MicroModuleTemplates[SpecialModuleIndex - 1].BlocksSpecialSlot ^ 1));
     }
@@ -2049,6 +2073,7 @@ namespace aItem {
         InterceptorTarget = nullptr;
     }
 
+    // Applies the current hull series, resets HullPoints to capacity, and bounds Cost.
     void THull::ApplySeriesSizeAndCost() {
         std::int32_t NewWeight{};
         if (HullSeries != -1) {
@@ -2093,6 +2118,30 @@ namespace aItem {
     }
 
     void THull::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
+        // Returns a zero-based series index, or -1 if absent or unresolved.
+        auto ReadSavedHullSeriesIndex = [&](EC_Buf::TBufEC* Buffer) -> std::int32_t {
+            std::int32_t I{};
+            std::uint32_t CRC{};
+            std::int32_t Result = EC_Buf::TBufEC_GetInt32(Buffer);
+            if (Result != -1) {
+                CRC = EC_Buf::TBufEC_GetUInt32(Buffer);
+                if (Result > aConst::HullSeriesDefinitions.length() - 1 || aConst::HullSeriesDefinitions[Result].SystemNameCRC != CRC) {
+                    Result = -1;
+                    {
+                        const std::int32_t cpp_last = aConst::HullSeriesDefinitions.length() - 1;
+                        if (0 <= cpp_last) {
+                            for (I = 0; I <= cpp_last; ++I) {
+                                if (aConst::HullSeriesDefinitions[I].SystemNameCRC == CRC) {
+                                    Result = I;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return Result;
+        };
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
         if (GlobalsV::LoadedSaveVersion >= 51) {
             HullPoints = EC_Buf::TBufEC_GetInt32(Buffer);
@@ -2127,7 +2176,7 @@ namespace aItem {
             HullType = aGalaxyStruct::htRanger;
         }
         if (GlobalsV::LoadedSaveVersion >= 163) {
-            HullSeries = aItem::ReadSavedHullSeriesIndex(Buffer);
+            HullSeries = ReadSavedHullSeriesIndex(Buffer);
         } else {
             HullSeries = EC_Buf::TBufEC_GetByte(Buffer);
             if (HullSeries == 255 || aConst::HullSeriesDefinitions.length() - 1 < HullSeries) {
@@ -2171,30 +2220,6 @@ namespace aItem {
             InterceptorTargetingStrategy = itsManual;
             InterceptorPassCountOverride = 0;
         }
-    }
-
-    std::int32_t ReadSavedHullSeriesIndex(EC_Buf::TBufEC* Buffer) {
-        std::int32_t I{};
-        std::uint32_t CRC{};
-        std::int32_t Result = EC_Buf::TBufEC_GetInt32(Buffer);
-        if (Result != -1) {
-            CRC = EC_Buf::TBufEC_GetUInt32(Buffer);
-            if (Result > aConst::HullSeriesDefinitions.length() - 1 || aConst::HullSeriesDefinitions[Result].SystemNameCRC != CRC) {
-                Result = -1;
-                {
-                    const std::int32_t cpp_last = aConst::HullSeriesDefinitions.length() - 1;
-                    if (0 <= cpp_last) {
-                        for (I = 0; I <= cpp_last; ++I) {
-                            if (aConst::HullSeriesDefinitions[I].SystemNameCRC == CRC) {
-                                Result = I;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return Result;
     }
 
     void THull::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
@@ -2256,6 +2281,7 @@ namespace aItem {
         return aConst::HullLevelStats[TechLevel].Armor;
     }
 
+    // If cost generation overflows negative, repeatedly halves capacity and resets HullPoints before retrying.
     std::int32_t THull::CalculateGeneratedCost() {
         std::int32_t Value = aItem::CalculateGeneratedHullCost(Weight, TechLevel, OwnerId, HullType);
         while (Value < 0) {
@@ -2413,9 +2439,9 @@ namespace aItem {
     void THull::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseArmor{};
-        aMyFunction::ReplaceTextToken(Text, u"<FragilityE>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{0}})) * 1.0E+2L)), ColorTag);
-        aMyFunction::ReplaceTextToken(Text, u"<FragilityS>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{1}})) * 1.0E+2L)), ColorTag);
-        aMyFunction::ReplaceTextToken(Text, u"<FragilityM>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{2}})) * 1.0E+2L)), ColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<FragilityE>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkEnergy}})) * 1.0E+2L)), ColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<FragilityS>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkSplinter}})) * 1.0E+2L)), ColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<FragilityM>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkMissile}})) * 1.0E+2L)), ColorTag);
         if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] == 0) {
             BonusText = pas::WideString();
         } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] > 0) {
@@ -2493,6 +2519,7 @@ namespace aItem {
         return Result;
     }
 
+    // Returns the special module KindGraph, or the literal 1 as fallback.
     pas::WideString THull::GetSpecialKindGraph() {
         pas::WideString Result{};
         Result = u"1"_w;
@@ -2531,10 +2558,12 @@ namespace aItem {
         return Result;
     }
 
+    // Round(capacity * (0.6 + 0.2 * (clamped level - 1) / 7)); excludes carried cargo and ship mass modifiers.
     std::int32_t THull::CalculateMass() {
         return System::Round(aMyFunction::RemapClamped(TechLevel, 1.0, 8.0, Weight * 0.6L, Weight * 0.8L));
     }
 
+    // Zero flags return the average of energy, splinter and missile factors.
     float THull::GetFragilityFactor(aGalaxyStruct::TDamageFlagSet DamageFlags) {
         float Result{};
         aConst::TWeaponDamageClass DamageClass{};
@@ -2578,34 +2607,36 @@ namespace aItem {
         return Result;
     }
 
+    // Reverses module and series size percentages with rounding; extra-special multiplicities are not used.
     std::int32_t THull::EstimateCapacityWithoutBonuses() {
+        std::int32_t Result{};
         std::int32_t I{};
-        std::int32_t Result = Weight;
+        // Updates the parent's capacity accumulator; caller removes ParentFrame. Nonpositive Percent leaves it unchanged.
+        auto UndoSizePercent = [&](std::int32_t Percent) -> void {
+            float Factor{};
+            if (Percent <= 0) {
+                Factor = 1.0f;
+            } else {
+                Factor = pas::real_divide(1.0E+2L, Percent);
+            }
+            Result = System::Round(static_cast<long double>(Result) * Factor);
+        };
+        Result = Weight;
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                aItem::UndoSizePercent(aConst::MicroModuleTemplates[pas::list_at<TExtraSpecial>(ExtraSpecials, I)->ModuleIndexPlusOne - 1].SizePercent, Result);
+                UndoSizePercent(aConst::MicroModuleTemplates[pas::list_at<TExtraSpecial>(ExtraSpecials, I)->ModuleIndexPlusOne - 1].SizePercent);
             }
         }
         if (MicroModuleIndex != 0) {
-            aItem::UndoSizePercent(aConst::MicroModuleTemplates[MicroModuleIndex - 1].SizePercent, Result);
+            UndoSizePercent(aConst::MicroModuleTemplates[MicroModuleIndex - 1].SizePercent);
         }
         if (SpecialModuleIndex != 0) {
-            aItem::UndoSizePercent(aConst::MicroModuleTemplates[SpecialModuleIndex - 1].SizePercent, Result);
+            UndoSizePercent(aConst::MicroModuleTemplates[SpecialModuleIndex - 1].SizePercent);
         }
         if (HullSeries != -1) {
-            aItem::UndoSizePercent(aConst::HullSeriesDefinitions[HullSeries].SizePercent, Result);
+            UndoSizePercent(aConst::HullSeriesDefinitions[HullSeries].SizePercent);
         }
         return Result;
-    }
-
-    void UndoSizePercent(std::int32_t Percent, std::int32_t& Result) {
-        float Factor{};
-        if (Percent <= 0) {
-            Factor = 1.0f;
-        } else {
-            Factor = pas::real_divide(1.0E+2L, Percent);
-        }
-        Result = System::Round(static_cast<long double>(Result) * Factor);
     }
 
     void TFuelTanks::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
@@ -4223,6 +4254,7 @@ namespace aItem {
         return System::Round(static_cast<long double>(GetWeaponInfo()->AverageRange) * aConst::WeaponRangeLevelFactors[TechLevel]);
     }
 
+    // Generated maximum plus ordinary and special module damage bonuses; used by HasStandardStats.
     std::int32_t TWeapon::CalculateStandardMaxDamage() {
         std::int32_t Result = CalculateGeneratedMaxDamage();
         std::uint8_t BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags)].BonusKind;
@@ -4235,6 +4267,7 @@ namespace aItem {
         return Result;
     }
 
+    // Generated range plus ordinary and special module range bonuses; used by HasStandardStats.
     std::int32_t TWeapon::CalculateStandardRange() {
         std::int32_t Result = CalculateGeneratedRange();
         if (MicroModuleIndex != 0) {
@@ -4438,6 +4471,7 @@ namespace aItem {
 
     void TWeapon::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
+        // Native initializes/finalizes this extra string slot without reading it.
         pas::WideString UnusedNativeText{};
         std::int32_t EffectiveBonus{};
         std::int32_t I{};
@@ -4447,6 +4481,7 @@ namespace aItem {
         PExtraSpecial Entry{};
         std::int32_t ShipBonus{};
         std::int32_t MissileRange{};
+        // Native flag displays the maximum as the minimum too.
         if ((std::bit_cast<std::uint32_t>(GetDamageFlags()) & 0x00100000) != 0) {
             aMyFunction::ReplaceTextToken(Text, u"<MinDamage>"_w, pas::wide_int_to_str(std::max<std::int32_t>(MaxDamage, MinDamage)), ColorTag);
         } else {
@@ -4529,6 +4564,7 @@ namespace aItem {
             if (ShipBonus > 0) {
                 BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(EffectiveBonus), ")"})), u"<color=255,167,84>"_w)});
             } else if (ShipBonus < 0) {
+                // Native negative branch omits the opening parenthesis.
                 if (EffectiveBonus < 0) {
                     BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(EffectiveBonus), ")"})), u"<color=255,167,84>"_w)});
                 } else {
@@ -4667,6 +4703,7 @@ namespace aItem {
         return aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ShotVisual;
     }
 
+    // Combines the weapon template and installed ordinary, special and extra-special module flags.
     aGalaxyStruct::TDamageFlagSet TWeapon::GetDamageFlags() {
         aGalaxyStruct::TDamageFlagSet Result{};
         std::int32_t I{};
@@ -4691,7 +4728,7 @@ namespace aItem {
         std::int32_t I{};
         PExtraSpecial Entry{};
         std::int32_t Result = GetWeaponInfo()->ShotCount;
-        if (!pas::in_set<1, 1, 6, 7>(GetWeaponInfo()->ShotType)) {
+        if (!pas::is_one_of<aGalaxyStruct::wstChain, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(GetWeaponInfo()->ShotType)) {
             return Result;
         }
         if (SpecialModuleIndex != 0) {
@@ -4845,6 +4882,7 @@ namespace aItem {
         }
     }
 
+    // Defaults to 1 when UnitSize is not configured.
     std::int32_t TCountableItem::GetUnitSize() {
         EC_BlockPar::TBlockParEC* Block{};
         std::int32_t Result = 1;
@@ -4857,6 +4895,7 @@ namespace aItem {
         return Result;
     }
 
+    // Allocates a new stack and removes up to Count units from Self; preserves the nodes subtype and may create a script wrapper. Self must be nonempty and Count positive.
     TCountableItem* TCountableItem::Split(std::int32_t Count) {
         TCountableItem* Result{};
         std::int32_t I{};
@@ -4938,6 +4977,7 @@ namespace aItem {
         return Result;
     }
 
+    // Leaves Other unchanged.
     std::uint8_t TCountableItem::Merge(pas::Object* Other) {
         TCountableItem* OtherStack{};
         std::uint8_t Result = false;
@@ -5162,6 +5202,7 @@ namespace aItem {
         return Result;
     }
 
+    // Owner is Dominator and ConfigBlockName starts with Remains_.
     std::uint8_t TUselessItem::IsDominatorRemains() {
         return OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::pos(u"Remains_", ConfigBlockName) == 1;
     }
@@ -5277,6 +5318,7 @@ namespace aItem {
         return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Cistern_"});
     }
 
+    // Clears deployment state.
     void TSatellite::InitGenerated(std::uint8_t TypeId, std::uint8_t Owner, std::uint32_t Seed) {
         pas::WideString SpeedText{};
         ItemType = aConst::t_Satellite;
@@ -5535,6 +5577,7 @@ namespace aItem {
         return pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(TargetPlanet))->Name;
     }
 
+    // PageIndex is 1 or 2; Planet must be assigned.
     pas::WideString TTreasureMap::BuildPreviewTable(std::int32_t PageIndex, void* Planet) {
         pas::WideString Result{};
         std::int32_t I{};
@@ -5545,6 +5588,22 @@ namespace aItem {
         pas::WideString Caption{};
         pas::WideString Rule{};
         aPlanet::TPlanet* World{};
+        // Nested helper of BuildPreviewTable; caller removes the unused static link.
+        auto ItemColorTag = [&](TItem* Item) -> pas::WideString {
+            if (pas::class_cast_if<TGoods*>(Item) != nullptr) {
+                return u"<color=127,127,127>"_w;
+            } else if (pas::class_cast_if<TArtefact*>(Item) != nullptr) {
+                return u"<color=255,0,0>"_w;
+            } else if (pas::class_cast_if<TCistern*>(Item) != nullptr) {
+                return u"<color=127,127,127>"_w;
+            } else if (pas::class_cast_if<TMicroModule*>(Item) != nullptr) {
+                return u"<color=255,0,255>"_w;
+            } else if (pas::class_cast_if<TEquipment*>(Item) != nullptr) {
+                return u"<color=254,217,7>"_w;
+            } else {
+                return pas::WideString();
+            }
+        };
         Rule = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(SystemImports::StringOfChar('-', TreasureMapRuleLengths[PageIndex])), u"<color=127,127,127>"_w);
         Caption = ([&] {
             auto name = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet))->Name);
@@ -5578,7 +5637,7 @@ namespace aItem {
                                 Rows = pas::concat_wide({Rows, u"\r\n"});
                                 Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Number), pas::WideString()), u"</align>"});
                                 Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]), u">", u"", ([&] {
-                                    pas::WideString itemColorTag = aItem::ItemColorTag(Entry->Item);
+                                    pas::WideString itemColorTag = ItemColorTag(Entry->Item);
                                     pas::WideString displayName = Entry->Item->GetDisplayName();
                                     return aMyFunction::WrapTextInColor(std::move(displayName), std::move(itemColorTag));
                                 }()), u""});
@@ -5595,22 +5654,7 @@ namespace aItem {
         return Result;
     }
 
-    pas::WideString ItemColorTag(TItem* Item) {
-        if (pas::class_cast_if<TGoods*>(Item) != nullptr) {
-            return u"<color=127,127,127>"_w;
-        } else if (pas::class_cast_if<TArtefact*>(Item) != nullptr) {
-            return u"<color=255,0,0>"_w;
-        } else if (pas::class_cast_if<TCistern*>(Item) != nullptr) {
-            return u"<color=127,127,127>"_w;
-        } else if (pas::class_cast_if<TMicroModule*>(Item) != nullptr) {
-            return u"<color=255,0,255>"_w;
-        } else if (pas::class_cast_if<TEquipment*>(Item) != nullptr) {
-            return u"<color=254,217,7>"_w;
-        } else {
-            return pas::WideString();
-        }
-    }
-
+    // ModuleIndex is zero-based and must identify an existing template.
     void TMicroModule::Init(std::int32_t ModuleIndex) {
         ItemType = aConst::t_MicroModule;
         OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
@@ -5692,6 +5736,7 @@ namespace aItem {
         return aItem::GetMicroModuleBitmapResourceName(MicroModuleIndex - 1);
     }
 
+    // Node refund at the current ranger center, using priority and docked station ID. Priorities 31..69 are capped by half LowPriorityOfferCost; 70..100 by half MediumPriorityOfferCost. Minimum 5 nodes.
     std::int32_t TMicroModule::CalculateNodeExchangeValue(std::int32_t LowPriorityOfferCost, std::int32_t MediumPriorityOfferCost) {
         std::int32_t Result = 0;
         if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority >= 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority <= 30) {
@@ -5724,10 +5769,12 @@ namespace aItem {
         return std::max<std::int64_t>(static_cast<std::int64_t>(5), System::Round(Result * 0.3L));
     }
 
+    // Template name wrapped in the standard yellow highlight color.
     pas::WideString TMicroModule::GetHighlightedName() {
         return aMyFunction::WrapTextInColor(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name, u"<color=255,240,100>"_w);
     }
 
+    // Uses this micromodule item's template and checks slot blockers and equipment compatibility.
     std::uint8_t TMicroModule::CanInstallOn(aItem::TEquipment* Item) {
         std::uint8_t Result = false;
         if (Item->MicroModuleIndex != 0) {
@@ -5766,7 +5813,7 @@ namespace aItem {
 
     void TArtefact::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        if (!pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(ItemType)) {
+        if (!pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
             Repair();
         }
     }
@@ -6192,6 +6239,7 @@ namespace aItem {
         return aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Description"}));
     }
 
+    // Returns empty when the OnUseCode block is absent.
     pas::WideString TArtefact::GetOnUseCodeText() {
         pas::WideString Result{};
         EC_BlockPar::TBlockParEC* Block{};
@@ -6206,6 +6254,7 @@ namespace aItem {
         return Result;
     }
 
+    // Borrowed cached result, possibly nil. Marks initialization before resolving the configuration.
     void* TArtefact::GetActionCode() {
         EC_BlockPar::TBlockParEC* Config{};
         if (ActCodeInitialized) {
@@ -6229,8 +6278,9 @@ namespace aItem {
         return Result;
     }
 
+    // Custom artefacts with SharedEffect use CountsAsItemType; otherwise returns ItemType.
     aConst::TItemType TArtefact::GetEffectiveType() {
-        if (pas::in_set<8, 9>(ItemType) && reinterpret_cast<TArtefactCustom*>(this)->SharedEffect) {
+        if (pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(ItemType) && reinterpret_cast<TArtefactCustom*>(this)->SharedEffect) {
             return reinterpret_cast<TArtefactCustom*>(this)->CountsAsItemType;
         }
         return ItemType;
@@ -6286,6 +6336,7 @@ namespace aItem {
         aItem::TArtefact_Destroy(Self);
     }
 
+    // Takes ownership of ExistingShip, or creates a ship when nil.
     void TArtefactTranclucator::InitTranclucator(std::uint8_t Owner, void* OwnerShip, void* ExistingShip) {
         aTranclucator::TTranclucator* Companion{};
         std::int32_t I{};
@@ -6330,6 +6381,7 @@ namespace aItem {
         pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(Ship))->LoadFromBuffer(Buffer, Galaxy);
     }
 
+    // Always returns nil.
     aItem::TItem* TArtefactTranclucator::Clone() {
         return nullptr;
     }
@@ -6370,6 +6422,7 @@ namespace aItem {
         }
     }
 
+    // Uses ConfigBlockName. Reloads NoWear, CountsAs, SharedUse and SharedEffect; preserves Data and TextData.
     void TArtefactCustom::LoadConfig(std::uint8_t ApplyConfiguredWeight) {
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString Name{};
@@ -6393,7 +6446,7 @@ namespace aItem {
         if (Block->CountParams(u"CountsAs"_wref.get()) > 0) {
             Name = Block->GetParam(u"CountsAs"_wref.get());
             for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Food, aConst::t_UselessCountableItem); cpp_range.next(Kind); ) {
-                if (pas::in_set<8, 22, 26, 34, 36, 41>(Kind) && static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2)) ^ 1) && aConst::ItemTypeNames[Kind] == Name) {
+                if (pas::in_set<aConst::t_Artefact, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtDefToArms1, aConst::t_ArtFastRacks>(Kind) && static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2)) ^ 1) && aConst::ItemTypeNames[Kind] == Name) {
                     CountsAsItemType = Kind;
                     break;
                 }
@@ -6502,6 +6555,7 @@ namespace aItem {
         return aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".Description"}));
     }
 
+    // Uses the active equipment screen's ship; empty for broken artefacts or without a supported screen context.
     pas::WideString TArtefact::GetBoostStatusText() {
         pas::WideString Result{};
         std::int32_t I{};

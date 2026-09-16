@@ -15,6 +15,7 @@ namespace EC_File {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Closes even when OpenDepth is nonzero.
     void TFileEC::Reset() {
         if (Handle != -1) {
             pas::critical_enter(EC_HsFile::PackageFileLock);
@@ -26,11 +27,14 @@ namespace EC_File {
         FileName = pas::WideString();
     }
 
+    // Closes the current entry regardless of OpenDepth.
     void TFileEC::SetFileName(pas::WideString NewFileName) {
         Reset();
         FileName = std::move(NewFileName);
     }
 
+    // Nested acquisitions reuse the existing handle and access mode.
+    // Opening converts FileName to ANSI for the package collection.
     void TFileEC::AcquireReadWriteHandle() {
         if (OpenDepth == 0) {
             pas::critical_enter(EC_HsFile::PackageFileLock);
@@ -55,6 +59,7 @@ namespace EC_File {
         ++OpenDepth;
     }
 
+    // False when the package lookup cannot open the file. A successful call acquires one handle reference, including when already open.
     std::uint8_t TFileEC::TryAcquireReadHandle(std::uint8_t FirstPackageOnly) {
         if (OpenDepth == 0) {
             pas::critical_enter(EC_HsFile::PackageFileLock);
@@ -68,6 +73,7 @@ namespace EC_File {
         return true;
     }
 
+    // Truncates an existing file; ignores prior OpenDepth and leaves it at one.
     void TFileEC::CreateNew() {
         OpenDepth = 1;
         ReleaseHandle();
@@ -81,6 +87,7 @@ namespace EC_File {
         OpenDepth = 1;
     }
 
+    // FileName is retained after closing.
     void TFileEC::ReleaseHandle() {
         --OpenDepth;
         if (OpenDepth <= 0) {
@@ -94,6 +101,7 @@ namespace EC_File {
         }
     }
 
+    // If closed, opens for read/write and releases that acquisition on success.
     std::uint32_t TFileEC::GetSize() {
         AcquireReadWriteHandle();
         pas::critical_enter(EC_HsFile::PackageFileLock);
@@ -110,6 +118,7 @@ namespace EC_File {
         return FileName;
     }
 
+    // Requires an open entry. Origin 0 is absolute, 1 adds Offset to the current position, 2 subtracts Offset from the size; returns the new position.
     std::uint32_t TFileEC::SetPointer(std::uint32_t Offset, std::int32_t Origin) {
         pas::critical_enter(EC_HsFile::PackageFileLock);
         std::uint8_t Success = EC_HsFile::PackageCollection->SeekEntryHandle(Handle, Offset, Origin);
@@ -123,6 +132,7 @@ namespace EC_File {
         return Result;
     }
 
+    // Returns 0xFFFFFFFF when no entry is open.
     std::uint32_t TFileEC::GetPointer() {
         pas::critical_enter(EC_HsFile::PackageFileLock);
         std::uint32_t Result = EC_HsFile::PackageCollection->GetEntryHandlePosition(Handle);
@@ -130,6 +140,7 @@ namespace EC_File {
         return Result;
     }
 
+    // Requires an open entry; raises on backend read failure, including short uncompressed reads.
     void TFileEC::ReadBuffer(void* Dest, std::uint32_t ByteCount) {
         pas::critical_enter(EC_HsFile::PackageFileLock);
         std::uint8_t Success = EC_HsFile::PackageCollection->ReadEntryHandle(Handle, Dest, ByteCount);
@@ -139,6 +150,7 @@ namespace EC_File {
         }
     }
 
+    // Requires an open writable uncompressed entry; raises on backend failure or a short write. Zero count does nothing.
     void TFileEC::WriteBuffer(void* Source, std::uint32_t ByteCount) {
         std::uint8_t Success{};
         if (ByteCount > 0) {
@@ -151,6 +163,7 @@ namespace EC_File {
         }
     }
 
+    // Consumes UTF-16 code units through the terminating NUL; requires an open entry.
     pas::WideString TFileEC::ReadWideString() {
         pas::WideString Result{};
         char16_t Ch{};

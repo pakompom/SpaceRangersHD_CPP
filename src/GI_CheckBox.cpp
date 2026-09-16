@@ -30,6 +30,7 @@ namespace GI_CheckBox {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Does not refresh child activation or call inherited Clear.
     void TCheckBoxGI::Clear() {
         Checked = false;
     }

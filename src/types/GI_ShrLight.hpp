@@ -38,6 +38,7 @@ namespace GI_ShrLight {
         TShrLightKindGI Kind;
         std::uint8_t cpp_padding[3];
         std::int32_t LightShift;
+        // Owned grayscale mask when Kind=slkBuffer.
         GR_GraphBuf::TGraphBufGR* LightBuffer;
         std::uint8_t cpp_padding_2[12];
     };

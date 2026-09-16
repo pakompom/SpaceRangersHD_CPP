@@ -23,6 +23,7 @@ namespace GI_TransImage {
     struct TTransImageGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TTransImageGI, GI_MessageLoop::TObjectGI, "TTransImageGI", 296)
         void p_destroy() override;
+        // Preserves HalfAlpha and the cache key.
         void Clear() override;
         void SetImagePath(const pas::WideString& ImagePath);
         Types::TPoint GetContentSize();

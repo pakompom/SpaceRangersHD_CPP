@@ -8,10 +8,12 @@ namespace GR_Sound {
 } // namespace GR_Sound
 
 namespace Robot {
+    // Borrowed DLL dispatch table; nil until successful initialization.
     extern Robot::PRobotInterfacePrefix RobotInterface;
 
     extern Robot::TRobotCallbacks RobotCallbacks;
 
+    // Returned planetary-battle statistics; entry 0 is negative elapsed milliseconds.
     extern pas::Array<std::int32_t, 0, 5> RobotBattleStatistics;
 
     extern pas::DynArray<std::int32_t> SupportedMultiSamples;
@@ -42,6 +44,7 @@ namespace Robot {
 
     void FinalizeRobotRuntime();
 
+    // Native diagnostic name: GIRobot.FRun.
     std::int32_t FRun(const pas::WideString& MapName, const pas::WideString& StartText, const pas::WideString& WinText, const pas::WideString& LossText, const pas::WideString& TerronName);
 
     void PAS_STDCALL RobotPlaySound(char16_t* Name);

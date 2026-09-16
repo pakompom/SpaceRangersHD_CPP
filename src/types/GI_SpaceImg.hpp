@@ -24,6 +24,7 @@ namespace GI_SpaceImg {
         PAS_CLASS_META(TSpaceImgGI, GI_MessageLoop::TObjectGI, "TSpaceImgGI", 312)
         void p_destroy() override;
         void ClearImages();
+        // Inserts in descending depth order; reallocates and invalidates earlier pointers.
         PSpaceImageGI AllocateImage(float Depth);
         PSpaceImageGI AddImage(std::int32_t TemplateIndex, float X, float Y, float Depth);
         float NearestImageDistance(float X, float Y);
@@ -37,7 +38,9 @@ namespace GI_SpaceImg {
         void OnDeactivate() override;
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Empty in native code.
         static void LoadSpaceImageProperties(EC_BlockPar::TBlockParEC* Block);
+        // Empty in native code.
         void UpdateAutoGeometry() override;
         void Draw(WindowsSdk::TRect ClipRect) override;
         std::int32_t ImageCount;
@@ -62,11 +65,15 @@ namespace GI_SpaceImg {
         float InverseDepth;
         std::uint8_t cpp_padding[4];
         EC_Struct::TVector3D OrbitCenter;
+        // Zeroed on creation; use unresolved.
         EC_Struct::TVector3D Unknown38;
         WindowsSdk::TPoint ImageSize;
+        // Native positive half-size.
         WindowsSdk::TPoint ImageOffset;
         WindowsSdk::TPoint PixelPosition;
+        // Per 10 ms callback.
         double OrbitStepDegrees;
+        // Zeroed on creation; use unresolved.
         std::int32_t Unknown70;
         std::uint8_t cpp_padding_2[4];
         double OrbitAngleRadians;

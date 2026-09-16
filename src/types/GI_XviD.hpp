@@ -95,6 +95,7 @@ namespace GI_XviD {
     struct TXvidDecoderStats {
         std::int32_t Version;
         std::int32_t FrameType;
+        // Native code clears the whole structure but does not inspect the union.
         pas::Array<std::uint8_t, 0, 23> Data;
     };
     #pragma pack(pop)

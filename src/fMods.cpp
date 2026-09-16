@@ -30,13 +30,7 @@
 namespace fMods {
     std::int32_t AlignModRowHeight(std::int32_t Height, std::int32_t Step);
 
-    void AddModSectionTitle(pas::WideString Text, std::int32_t Tab, TfModsManager* Self);
-
     void AddModRow(aModsInfo::TModInfo* Info, std::int32_t Tab, TfModsManager* Self, std::int32_t& ButtonWidth);
-
-    void AddModRows(pas::List* List, std::int32_t Tab, TfModsManager* Self, std::int32_t& ButtonWidth);
-
-    void ConfigureModTab(pas::WideString Text, std::int32_t Tab, TfModsManager* Self);
 
     std::uint8_t CollectModDependencies(aModsInfo::TModInfo* Info, TfModsManager* Self, EC_BlockPar::TBlockParEC*& EnableIndices, EC_BlockPar::TBlockParEC*& KnownNames, std::int32_t& VariantIndex, std::uint8_t& AskBeforeDependency, pas::List*& Choices);
 
@@ -119,6 +113,51 @@ namespace fMods {
         pas::List* Group{};
         EC_BlockPar::TBlockParEC* GroupIndices{};
         EC_BlockPar::TBlockParEC* Block{};
+        auto AddModSectionTitle = [&](pas::WideString Text, std::int32_t Tab) -> void {
+            GI_Image::TImageGI* Image{};
+            if (this->TabHeights[Tab] != 0) {
+                Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, this->TabPanels[Tab]);
+                Image->SetImagePath(u"GI,Bm.FormOptions2.2Line"_w);
+                Image->SetPosition(ClassesImports::Point(0, this->TabHeights[Tab]));
+                Image->SetSize(([&] {
+                    std::int32_t cpp_arg = Image->GetContentSize().Y + 2;
+                    std::int32_t x = this->TabPanels[Tab]->ClientSize.X;
+                    return ClassesImports::Point(x, cpp_arg);
+                }()));
+                Image->SetImageKindX(GI_Main::ikxLeftFill);
+                this->TabHeights[Tab] += Image->ClientSize.Y;
+            } else {
+                this->TabHeights[Tab] += 10;
+            }
+            GI_Label::TLabelGI* LabelControl = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, this->TabPanels[Tab]);
+            LabelControl->SetFontName(GlobalsV::BigFontName);
+            LabelControl->SetPositionModeW(false);
+            LabelControl->SetWordWrapEnabled(false);
+            LabelControl->SetPosition(ClassesImports::Point(0, this->TabHeights[Tab]));
+            LabelControl->SetSize(ClassesImports::Point(this->TabPanels[Tab]->ClientSize.X, 1));
+            LabelControl->SetTextAlignX(GI_Main::taxLeft);
+            LabelControl->SetTextAlignY(GI_Main::tayAuto);
+            LabelControl->SetTextColor(ModTabColor);
+            LabelControl->SetText(Text);
+            LabelControl->SetTextAlignY(GI_Main::tayTop);
+            LabelControl->SetSize(ClassesImports::Point(LabelControl->ClientSize.X, LabelControl->ClientSize.Y + 1));
+            this->TabHeights[Tab] = this->TabHeights[Tab] + fMods::AlignModRowHeight(LabelControl->ClientSize.Y, 10) + 2;
+        };
+        auto AddModRows = [&](pas::List* List, std::int32_t Tab) -> void {
+            std::int32_t I{};
+            aModsInfo::TModInfo* Info{};
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(List) - 1); cpp_range.next(I); ) {
+                Info = pas::list_at<aModsInfo::TModInfo>(List, I);
+                fMods::AddModRow(Info, Tab, this, ButtonWidth);
+            }
+        };
+        auto ConfigureModTab = [&](pas::WideString Text, std::int32_t Tab) -> void {
+            GI_GraphButton::TGraphButtonGI* cpp_with = this->TabButtons[Tab];
+            cpp_with->HelpText = Text;
+            cpp_with->UpCallback = pas::bind_method<&TfModsManager::TabClick>(this);
+            cpp_with->DownCallback = pas::bind_method<&TfModsManager::TabClick>(this);
+            cpp_with->SetActive(true);
+        };
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         ModTabColor = GR_Main::GetStyleColorGI(u"Mods.ColorNormal"_w, 88, 229, 255);
         ModTabDownColor = GR_Main::GetStyleColorGI(u"Mods.ColorSelected"_w, 0, 0, 0);
@@ -315,11 +354,11 @@ namespace fMods {
                 I = GroupCount;
             }
             --AvailableTabs;
-            fMods::AddModRows(Missing, I, this, ButtonWidth);
+            AddModRows(Missing, I);
             {
                 pas::WideString localizedText = aConst::LocalizedText(u"FormMods.GroupNameForMissing"_wref.get());
                 std::int32_t i = I;
-                fMods::ConfigureModTab(std::move(localizedText), i, this);
+                ConfigureModTab(std::move(localizedText), i);
             }
         }
         std::int32_t SeparateGroups = AvailableTabs - (AvailableTabs < GroupCount);
@@ -344,9 +383,9 @@ namespace fMods {
             if (GroupName == u"{}") {
                 GroupName = aConst::LocalizedText(u"FormMods.GroupNameForMisc"_wref.get());
             }
-            fMods::AddModSectionTitle(GroupName, J, this);
-            fMods::AddModRows(Group, J, this, ButtonWidth);
-            fMods::ConfigureModTab(GroupName, J, this);
+            AddModSectionTitle(GroupName, J);
+            AddModRows(Group, J);
+            ConfigureModTab(GroupName, J);
         }
         if (SeparateGroups < GroupCount) {
             for (auto cpp_range_17 = pas::for_to<std::int32_t>(SeparateGroups, GroupCount - 1); cpp_range_17.next(J); ) {
@@ -367,10 +406,10 @@ namespace fMods {
                 if (GroupName == u"{}") {
                     GroupName = aConst::LocalizedText(u"FormMods.GroupNameForMisc"_wref.get());
                 }
-                fMods::AddModSectionTitle(GroupName, AvailableTabs - 1, this);
-                fMods::AddModRows(Group, AvailableTabs - 1, this, ButtonWidth);
+                AddModSectionTitle(GroupName, AvailableTabs - 1);
+                AddModRows(Group, AvailableTabs - 1);
             }
-            fMods::ConfigureModTab(aConst::LocalizedText(u"FormMods.GroupNameForOther"_wref.get()), AvailableTabs - 1, this);
+            ConfigureModTab(aConst::LocalizedText(u"FormMods.GroupNameForOther"_wref.get()), AvailableTabs - 1);
         }
         for (auto cpp_range_19 = pas::for_to<std::int32_t>(0, TabCount - 1); cpp_range_19.next(I); ) {
             GI_Panel::TPanelGI* cpp_with_4 = TabPanels[I];
@@ -390,37 +429,6 @@ namespace fMods {
 
     std::int32_t AlignModRowHeight(std::int32_t Height, std::int32_t Step) {
         return System::Round(pas::real_divide(Height, Step) + 0.501L) * Step;
-    }
-
-    void AddModSectionTitle(pas::WideString Text, std::int32_t Tab, TfModsManager* Self) {
-        GI_Image::TImageGI* Image{};
-        if (Self->TabHeights[Tab] != 0) {
-            Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Self->TabPanels[Tab]);
-            Image->SetImagePath(u"GI,Bm.FormOptions2.2Line"_w);
-            Image->SetPosition(ClassesImports::Point(0, Self->TabHeights[Tab]));
-            Image->SetSize(([&] {
-                std::int32_t cpp_arg = Image->GetContentSize().Y + 2;
-                std::int32_t x = Self->TabPanels[Tab]->ClientSize.X;
-                return ClassesImports::Point(x, cpp_arg);
-            }()));
-            Image->SetImageKindX(GI_Main::ikxLeftFill);
-            Self->TabHeights[Tab] += Image->ClientSize.Y;
-        } else {
-            Self->TabHeights[Tab] += 10;
-        }
-        GI_Label::TLabelGI* LabelControl = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Self->TabPanels[Tab]);
-        LabelControl->SetFontName(GlobalsV::BigFontName);
-        LabelControl->SetPositionModeW(false);
-        LabelControl->SetWordWrapEnabled(false);
-        LabelControl->SetPosition(ClassesImports::Point(0, Self->TabHeights[Tab]));
-        LabelControl->SetSize(ClassesImports::Point(Self->TabPanels[Tab]->ClientSize.X, 1));
-        LabelControl->SetTextAlignX(GI_Main::taxLeft);
-        LabelControl->SetTextAlignY(GI_Main::tayAuto);
-        LabelControl->SetTextColor(ModTabColor);
-        LabelControl->SetText(Text);
-        LabelControl->SetTextAlignY(GI_Main::tayTop);
-        LabelControl->SetSize(ClassesImports::Point(LabelControl->ClientSize.X, LabelControl->ClientSize.Y + 1));
-        Self->TabHeights[Tab] = Self->TabHeights[Tab] + fMods::AlignModRowHeight(LabelControl->ClientSize.Y, 10) + 2;
     }
 
     void AddModRow(aModsInfo::TModInfo* Info, std::int32_t Tab, TfModsManager* Self, std::int32_t& ButtonWidth) {
@@ -509,23 +517,6 @@ namespace fMods {
             Self->TabHeights[Tab] = Self->TabHeights[Tab] + fMods::AlignModRowHeight(cpp_with_3->ClientSize.Y, 20) + 5;
         }
         TfModsManager::UpdateModSwitch(Switch);
-    }
-
-    void AddModRows(pas::List* List, std::int32_t Tab, TfModsManager* Self, std::int32_t& ButtonWidth) {
-        std::int32_t I{};
-        aModsInfo::TModInfo* Info{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(List) - 1); cpp_range.next(I); ) {
-            Info = pas::list_at<aModsInfo::TModInfo>(List, I);
-            fMods::AddModRow(Info, Tab, Self, ButtonWidth);
-        }
-    }
-
-    void ConfigureModTab(pas::WideString Text, std::int32_t Tab, TfModsManager* Self) {
-        GI_GraphButton::TGraphButtonGI* cpp_with = Self->TabButtons[Tab];
-        cpp_with->HelpText = Text;
-        cpp_with->UpCallback = pas::bind_method<&TfModsManager::TabClick>(Self);
-        cpp_with->DownCallback = pas::bind_method<&TfModsManager::TabClick>(Self);
-        cpp_with->SetActive(true);
     }
 
     void TfModsManager::OnOpen() {

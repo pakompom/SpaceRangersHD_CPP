@@ -5,6 +5,7 @@
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
 
+// Required Delphi 2007 RTL algorithms, expressed as ordinary Pascal input.
 namespace SysUtilsImports {
     std::uint8_t DateSeparator = pas::initial_date_separator();
 
@@ -80,6 +81,7 @@ namespace SysUtilsImports {
 
     pas::WideString WideLowerCase(const pas::WideString& S) {
         pas::WideString Result{};
+        // Selected Delphi 2007 Windows NT path; Win9x is outside the game target.
         std::int32_t Len = S.length();
         Result = S;
         if (Len > 0) {
@@ -342,6 +344,8 @@ namespace SysUtilsImports {
         return static_cast<long double>(Result) - Time;
     }
 
+    // Game numeric formats and the default locale date/time expansion. Named
+    // dates and non-Gregorian eras remain explicit unsupported format diagnostics.
     pas::AnsiString FormatDateTime(const pas::AnsiString& Format, System::TDateTime DateTime) {
         pas::AnsiString Result{};
         std::uint16_t Year{};
@@ -425,17 +429,17 @@ namespace SysUtilsImports {
                             BetweenQuotes = false;
                             P = I;
                             while (P <= Format.length() && Format.read(P) != '\000') {
-                                if (pas::in_set<65, 65, 97, 97>(Format.read(P)) && static_cast<std::uint8_t>(BetweenQuotes ^ 1)) {
+                                if (pas::in_set<'A', 'A', 'a', 'a'>(Format.read(P)) && static_cast<std::uint8_t>(BetweenQuotes ^ 1)) {
                                     Text = SysUtilsImports::UpperCase(pas::copy(Format, P, 5));
                                     if (Text == "AM/PM" || pas::copy(Text, 1, 3) == "A/P" || pas::copy(Text, 1, 4) == "AMPM") {
                                         Use12HourClock = true;
                                     }
                                     break;
                                 }
-                                if (pas::in_set<72, 72, 104, 104>(Format.read(P))) {
+                                if (pas::in_set<'H', 'H', 'h', 'h'>(Format.read(P))) {
                                     break;
                                 }
-                                if (pas::in_set<34, 34, 39, 39>(Format.read(P))) {
+                                if (pas::in_set<'\"', '\"', '\'', '\''>(Format.read(P))) {
                                     BetweenQuotes = static_cast<std::uint8_t>(BetweenQuotes ^ 1);
                                 }
                                 ++P;
@@ -555,6 +559,7 @@ namespace SysUtilsImports {
                 default: Result = pas::concat_ansi({Result, Starter}); break;
             }
         }
+        // Selected DateTimeToString writes into a 256-byte buffer.
         if (Result.length() > 256) {
             Result.set_length(256);
         }
@@ -573,7 +578,7 @@ namespace SysUtilsImports {
         pas::AnsiString Result{};
         pas::Array<std::uint8_t, 0, 255> Buffer{};
         std::int32_t Len = WindowsSdk::FormatMessageA(WindowsSdk::FORMAT_MESSAGE_FROM_SYSTEM | WindowsSdk::FORMAT_MESSAGE_IGNORE_INSERTS | WindowsSdk::FORMAT_MESSAGE_ARGUMENT_ARRAY, nullptr, ErrorCode, 0u, Buffer.elements, static_cast<std::int32_t>(sizeof(pas::Array<std::uint8_t, 0, 255>)), nullptr);
-        while (Len > 0 && pas::in_set<0, 32, 46, 46>(Buffer[Len - 1])) {
+        while (Len > 0 && pas::in_set<'\000', ' ', '.', '.'>(Buffer[Len - 1])) {
             --Len;
         }
         Result.set_length(Len);
@@ -607,6 +612,8 @@ namespace SysUtilsImports {
         return 0;
     }
 
+    // Semantic port of the selected RTL's millisecond timestamp conversion.
+    // The day is truncated toward zero; the time is the positive remainder.
     void DateDayAndTime(System::TDateTime DateTime, std::int32_t& Date, std::int32_t& Time) {
         pas::Extended Value{};
         Value = DateTime;

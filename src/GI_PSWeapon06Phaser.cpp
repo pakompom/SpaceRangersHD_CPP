@@ -18,9 +18,11 @@
 #include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native phaser class and routines:. Palette finalizer:.
 namespace GI_PSWeapon06Phaser {
     pas::DynArray<GI_PSWeapon06Phaser::TPhaserPalette> PhaserPalettes{};
 
+    // Loads SE.Weapon.5.Palettes; native visual numbering differs from the class name.
     void LoadPhaserPalettes() {
         EC_BlockPar::TBlockParEC* Block{};
         EC_BlockPar::TBlockParEC* PaletteBlock{};
@@ -63,6 +65,7 @@ namespace GI_PSWeapon06Phaser {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Native empty override.
     void TPSWeapon06Phaser::Invalidate() {
     }
 

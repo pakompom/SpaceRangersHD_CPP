@@ -48,10 +48,6 @@
 #include "units/fScaner.hpp"
 
 namespace fScaner {
-    void UpdateOne(std::int32_t Index, std::int32_t BaseLevel, std::int32_t EffectiveLevel, TfScaner* Self);
-
-    void AddRow(std::int32_t IconId, pas::WideString Caption, pas::WideString Help, std::int32_t Data, TfScaner* Self, GI_PanelScrollBar::TPanelScrollBarGI*& Panel, std::int32_t& OffsetY);
-
     pas::WideString GetPirateRankSmallImagePath(std::uint8_t Rank) {
         pas::WideString Result{};
         {
@@ -135,6 +131,7 @@ namespace fScaner {
         std::int32_t J{};
         std::int32_t MaximumSlots{};
         aRanger::TRanger* Ranger{};
+        // Native frame initializes and finalizes this unreferenced managed slot.
         pas::WideString ReservedText{};
         std::int32_t Stage = 0;
         try {
@@ -1535,59 +1532,58 @@ namespace fScaner {
 
     void TfScaner::UpdateSkills() {
         std::int32_t I{};
+        auto UpdateOne = [&](std::int32_t Index, std::int32_t BaseLevel, std::int32_t EffectiveLevel) -> void {
+            std::int32_t Gap = 2;
+            std::int32_t Step = 5 + Gap;
+            std::int32_t Bottom = 43;
+            {
+                GI_Image::TImageGI* cpp_with = this->SkillImages[Index];
+                cpp_with->SetActive(std::min<std::int32_t>(BaseLevel, EffectiveLevel) > 0);
+                cpp_with->SetSize(ClassesImports::Point(cpp_with->ClientSize.X, Step * std::min<std::int32_t>(BaseLevel, EffectiveLevel)));
+                cpp_with->SetPosition(ClassesImports::Point(cpp_with->LocalPosition.X, this->SkillImageRestTop[Index] + Bottom - cpp_with->ClientSize.Y));
+                cpp_with->SetImageKindY(GI_Main::ikyBottom);
+            }
+            if (BaseLevel < EffectiveLevel) {
+                {
+                    GI_Panel::TPanelGI* cpp_with_2 = this->SkillPanels[Index];
+                    cpp_with_2->SetSize(ClassesImports::Point(cpp_with_2->ClientSize.X, (EffectiveLevel - BaseLevel) * Step));
+                    cpp_with_2->SetPosition(ClassesImports::Point(cpp_with_2->LocalPosition.X, this->SkillImageRestTop[Index] + Bottom - Step * EffectiveLevel));
+                }
+                {
+                    GI_Image::TImageGI* cpp_with_3 = this->SkillPositiveImages[Index];
+                    cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X, -Step * (6 - EffectiveLevel) - 1));
+                    cpp_with_3->SetActive(true);
+                }
+            } else {
+                this->SkillPositiveImages[Index]->SetActive(false);
+            }
+            if (BaseLevel > EffectiveLevel) {
+                {
+                    GI_Panel::TPanelGI* cpp_with_4 = this->SkillPanels[Index];
+                    cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, (BaseLevel - EffectiveLevel) * Step));
+                    cpp_with_4->SetPosition(ClassesImports::Point(cpp_with_4->LocalPosition.X, this->SkillImageRestTop[Index] + Bottom - Step * BaseLevel));
+                }
+                {
+                    GI_Image::TImageGI* cpp_with_5 = this->SkillNegativeImages[Index];
+                    cpp_with_5->SetPosition(ClassesImports::Point(cpp_with_5->LocalPosition.X, -Step * (6 - BaseLevel) - 1));
+                    cpp_with_5->SetActive(true);
+                }
+            } else {
+                this->SkillNegativeImages[Index]->SetActive(false);
+            }
+        };
         {
             GI_Label::TLabelGI* cpp_with = FreeSkillPointsLabel;
             cpp_with->SetText(pas::wide_int_to_str(ShipToInspect->FreeExperience));
         }
-        fScaner::UpdateOne(0, ShipToInspect->GetBaseSkillLevel(aShip::psAccuracy), ShipToInspect->GetEffectiveSkillLevel(aShip::psAccuracy, false) & 0x0000007f, this);
-        fScaner::UpdateOne(1, ShipToInspect->GetBaseSkillLevel(aShip::psManeuverability), ShipToInspect->GetEffectiveSkillLevel(aShip::psManeuverability, false) & 0x0000007f, this);
-        fScaner::UpdateOne(2, ShipToInspect->GetBaseSkillLevel(aShip::psTechnical), ShipToInspect->GetEffectiveSkillLevel(aShip::psTechnical, false) & 0x0000007f, this);
-        fScaner::UpdateOne(3, ShipToInspect->GetBaseSkillLevel(aShip::psTrading), ShipToInspect->GetEffectiveSkillLevel(aShip::psTrading, false) & 0x0000007f, this);
-        fScaner::UpdateOne(4, ShipToInspect->GetBaseSkillLevel(aShip::psCharisma), ShipToInspect->GetEffectiveSkillLevel(aShip::psCharisma, false) & 0x0000007f, this);
-        fScaner::UpdateOne(5, ShipToInspect->GetBaseSkillLevel(aShip::psLeadership), ShipToInspect->GetEffectiveSkillLevel(aShip::psLeadership, false) & 0x0000007f, this);
+        UpdateOne(0, ShipToInspect->GetBaseSkillLevel(aShip::psAccuracy), ShipToInspect->GetEffectiveSkillLevel(aShip::psAccuracy, false) & 0x0000007f);
+        UpdateOne(1, ShipToInspect->GetBaseSkillLevel(aShip::psManeuverability), ShipToInspect->GetEffectiveSkillLevel(aShip::psManeuverability, false) & 0x0000007f);
+        UpdateOne(2, ShipToInspect->GetBaseSkillLevel(aShip::psTechnical), ShipToInspect->GetEffectiveSkillLevel(aShip::psTechnical, false) & 0x0000007f);
+        UpdateOne(3, ShipToInspect->GetBaseSkillLevel(aShip::psTrading), ShipToInspect->GetEffectiveSkillLevel(aShip::psTrading, false) & 0x0000007f);
+        UpdateOne(4, ShipToInspect->GetBaseSkillLevel(aShip::psCharisma), ShipToInspect->GetEffectiveSkillLevel(aShip::psCharisma, false) & 0x0000007f);
+        UpdateOne(5, ShipToInspect->GetBaseSkillLevel(aShip::psLeadership), ShipToInspect->GetEffectiveSkillLevel(aShip::psLeadership, false) & 0x0000007f);
         for (I = 0; I <= 5; ++I) {
             SkillButtons[I]->SetActive(false);
-        }
-    }
-
-    void UpdateOne(std::int32_t Index, std::int32_t BaseLevel, std::int32_t EffectiveLevel, TfScaner* Self) {
-        std::int32_t Gap = 2;
-        std::int32_t Step = 5 + Gap;
-        std::int32_t Bottom = 43;
-        {
-            GI_Image::TImageGI* cpp_with = Self->SkillImages[Index];
-            cpp_with->SetActive(std::min<std::int32_t>(BaseLevel, EffectiveLevel) > 0);
-            cpp_with->SetSize(ClassesImports::Point(cpp_with->ClientSize.X, Step * std::min<std::int32_t>(BaseLevel, EffectiveLevel)));
-            cpp_with->SetPosition(ClassesImports::Point(cpp_with->LocalPosition.X, Self->SkillImageRestTop[Index] + Bottom - cpp_with->ClientSize.Y));
-            cpp_with->SetImageKindY(GI_Main::ikyBottom);
-        }
-        if (BaseLevel < EffectiveLevel) {
-            {
-                GI_Panel::TPanelGI* cpp_with_2 = Self->SkillPanels[Index];
-                cpp_with_2->SetSize(ClassesImports::Point(cpp_with_2->ClientSize.X, (EffectiveLevel - BaseLevel) * Step));
-                cpp_with_2->SetPosition(ClassesImports::Point(cpp_with_2->LocalPosition.X, Self->SkillImageRestTop[Index] + Bottom - Step * EffectiveLevel));
-            }
-            {
-                GI_Image::TImageGI* cpp_with_3 = Self->SkillPositiveImages[Index];
-                cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X, -Step * (6 - EffectiveLevel) - 1));
-                cpp_with_3->SetActive(true);
-            }
-        } else {
-            Self->SkillPositiveImages[Index]->SetActive(false);
-        }
-        if (BaseLevel > EffectiveLevel) {
-            {
-                GI_Panel::TPanelGI* cpp_with_4 = Self->SkillPanels[Index];
-                cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, (BaseLevel - EffectiveLevel) * Step));
-                cpp_with_4->SetPosition(ClassesImports::Point(cpp_with_4->LocalPosition.X, Self->SkillImageRestTop[Index] + Bottom - Step * BaseLevel));
-            }
-            {
-                GI_Image::TImageGI* cpp_with_5 = Self->SkillNegativeImages[Index];
-                cpp_with_5->SetPosition(ClassesImports::Point(cpp_with_5->LocalPosition.X, -Step * (6 - BaseLevel) - 1));
-                cpp_with_5->SetActive(true);
-            }
-        } else {
-            Self->SkillNegativeImages[Index]->SetActive(false);
         }
     }
 
@@ -1602,17 +1598,49 @@ namespace fScaner {
     }
 
     void TfScaner::BuildAdditionalInfo() {
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel{};
+        std::int32_t OffsetY{};
         std::int32_t I{};
         std::int32_t IconKind{};
         aShip::PCustomShipInfo Info{};
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString Description{};
         pas::WideString Caption{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelAddInfo"_wref.get()));
+        auto AddRow = [&](std::int32_t IconId, pas::WideString Caption, pas::WideString Help, std::int32_t Data) -> void {
+            GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
+            cpp_with->SetFontName(GlobalsV::SmallFontName);
+            cpp_with->SetPosition(ClassesImports::Point(0, OffsetY));
+            cpp_with->SetSize(ClassesImports::Point(Panel->ClientSize.X, 1));
+            cpp_with->SetTextAlignX(GI_Main::taxLeft);
+            cpp_with->SetTextAlignY(GI_Main::tayAuto);
+            cpp_with->SetWordWrapEnabled(true);
+            if (GR_Main::GiResourceVariant() == 1) {
+                cpp_with->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Caption, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(IconId), ",", SysUtils::IntToStr(21), ",", SysUtils::IntToStr(17), ",0>"}))}));
+            } else {
+                cpp_with->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Caption, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(IconId), ",", SysUtils::IntToStr(25), ",", SysUtils::IntToStr(20), ",0>"}))}));
+            }
+            cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
+            cpp_with->SetTextAlignY(GI_Main::tayCenterEx);
+            cpp_with->SetPositionModeW(true);
+            cpp_with->CreateEmbeddedControl = pas::bind_static_method<&TfScaner::CreateAdditionalInfoIcon>(this);
+            cpp_with->MouseEnterCallback = pas::bind_method<&TfScaner::ShowPropertyInfo>(this);
+            cpp_with->MouseLeaveCallback = pas::bind_method<&TfScaner::HidePropertyInfo>(this);
+            cpp_with->UserValue = -1;
+            cpp_with->UserIndex = IconId;
+            cpp_with->UserData = Data;
+            cpp_with->HelpText = Help;
+            OffsetY += cpp_with->ClientSize.Y;
+            {
+                std::int32_t lineHeight = cpp_with->GetLineHeight();
+                GI_ScrollBar::TScrollBarGI* verticalScrollBar = Panel->VerticalScrollBar;
+                verticalScrollBar->SetSmallChange(lineHeight);
+            }
+        };
+        Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelAddInfo"_wref.get()));
         Panel->FreeOwnedChildren();
         Panel->SetScrollOffset(ClassesImports::Point(0, 0));
         Panel->SetDragScrollingEnabled(true);
-        std::int32_t OffsetY = 0;
+        OffsetY = 0;
         for (I = 1; I <= 24; ++I) {
             if (ShipToInspect->IsHealthEffectActive(I)) {
                 if (I < 13) {
@@ -1620,7 +1648,7 @@ namespace fScaner {
                 } else {
                     IconKind = 2;
                 }
-                fScaner::AddRow(IconKind, aConst::CaptainHealthDefinitions[I].Name, pas::concat_wide({aConst::CaptainHealthDefinitions[I].Name, u"~", aConst::CaptainHealthDefinitions[I].Text}), 0, this, Panel, OffsetY);
+                AddRow(IconKind, aConst::CaptainHealthDefinitions[I].Name, pas::concat_wide({aConst::CaptainHealthDefinitions[I].Name, u"~", aConst::CaptainHealthDefinitions[I].Text}), 0);
             }
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ShipToInspect->CustomShipInfos) - 1); cpp_range.next(I); ) {
@@ -1648,7 +1676,7 @@ namespace fScaner {
                     {
                         std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Icon"_wref.get())));
                         pas::WideString cpp_arg = pas::concat_wide({Caption, u"~", Description});
-                        fScaner::AddRow(strToInt, Caption, std::move(cpp_arg), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Info)), this, Panel, OffsetY);
+                        AddRow(strToInt, Caption, std::move(cpp_arg), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Info)));
                     }
                 }
             }
@@ -1661,39 +1689,8 @@ namespace fScaner {
         }
     }
 
-    void AddRow(std::int32_t IconId, pas::WideString Caption, pas::WideString Help, std::int32_t Data, TfScaner* Self, GI_PanelScrollBar::TPanelScrollBarGI*& Panel, std::int32_t& OffsetY) {
-        GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
-        cpp_with->SetFontName(GlobalsV::SmallFontName);
-        cpp_with->SetPosition(ClassesImports::Point(0, OffsetY));
-        cpp_with->SetSize(ClassesImports::Point(Panel->ClientSize.X, 1));
-        cpp_with->SetTextAlignX(GI_Main::taxLeft);
-        cpp_with->SetTextAlignY(GI_Main::tayAuto);
-        cpp_with->SetWordWrapEnabled(true);
-        if (GR_Main::GiResourceVariant() == 1) {
-            cpp_with->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Caption, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(IconId), ",", SysUtils::IntToStr(21), ",", SysUtils::IntToStr(17), ",0>"}))}));
-        } else {
-            cpp_with->SetText(pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(Caption, u"<br>"_wref.get(), u"\r\n"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=", SysUtils::IntToStr(IconId), ",", SysUtils::IntToStr(25), ",", SysUtils::IntToStr(20), ",0>"}))}));
-        }
-        cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
-        cpp_with->SetTextAlignY(GI_Main::tayCenterEx);
-        cpp_with->SetPositionModeW(true);
-        cpp_with->CreateEmbeddedControl = pas::bind_static_method<&TfScaner::CreateAdditionalInfoIcon>(Self);
-        cpp_with->MouseEnterCallback = pas::bind_method<&TfScaner::ShowPropertyInfo>(Self);
-        cpp_with->MouseLeaveCallback = pas::bind_method<&TfScaner::HidePropertyInfo>(Self);
-        cpp_with->UserValue = -1;
-        cpp_with->UserIndex = IconId;
-        cpp_with->UserData = Data;
-        cpp_with->HelpText = Help;
-        OffsetY += cpp_with->ClientSize.Y;
-        {
-            std::int32_t lineHeight = cpp_with->GetLineHeight();
-            GI_ScrollBar::TScrollBarGI* verticalScrollBar = Panel->VerticalScrollBar;
-            verticalScrollBar->SetSmallChange(lineHeight);
-        }
-    }
-
     void TfScaner::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10004);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20004);

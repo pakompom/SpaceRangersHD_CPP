@@ -1,8 +1,10 @@
 #include "units/CrcUnit.hpp"
 
+// This contiguous family shares the CRC table. The incremental
+// entry points are used by galaxy integrity checks; the correction helpers are
+// called by TBufEC.UpdateEmbeddedCrc32. The original exported names are unknown.
 namespace CrcUnit {
-    std::uint32_t ReverseCrc32Byte(std::uint32_t& State);
-
+    // Reflected CRC-32 polynomial $EDB88320; native table.
     const CrcUnit::TCrc32Table Crc32Table = CrcUnit::TCrc32Table{{
         0x00000000u, 0x77073096u, 0xee0e612cu, 0x990951bau, 0x076dc419u, 0x706af48fu, 0xe963a535u, 0x9e6495a3u,
         0x0edb8832u, 0x79dcb8a4u, 0xe0d5e91eu, 0x97d2d988u, 0x09b64c2bu, 0x7eb17cbdu, 0xe7b82d07u, 0x90bf1d91u,
@@ -52,13 +54,30 @@ namespace CrcUnit {
         return CrcUnit::InvertCrc32(Crc);
     }
 
+    // Writes four bytes whose appended CRC transforms CurrentCrc into TargetCrc.
     void WriteCrc32Correction(std::uint32_t CurrentCrc, std::uint32_t TargetCrc, void* Dest) {
+        // Nested in WriteCrc32Correction; unused static link is caller-popped.
+        auto ReverseCrc32Byte = [&](std::uint32_t& State) -> std::uint32_t {
+            std::int32_t i{};
+            std::uint32_t Difference{};
+            std::uint32_t Result = 0u;
+            std::uint32_t Original = State;
+            for (i = 0; i <= 255; ++i) {
+                Difference = Crc32Table[i] ^ Original;
+                if (Difference >> 24 == 0) {
+                    Result = i;
+                    State = Difference << 8;
+                    break;
+                }
+            }
+            return Result;
+        };
         CurrentCrc = CrcUnit::InvertCrc32(CurrentCrc);
         TargetCrc = CrcUnit::InvertCrc32(TargetCrc);
-        std::uint32_t B0 = CrcUnit::ReverseCrc32Byte(TargetCrc);
-        std::uint32_t B1 = CrcUnit::ReverseCrc32Byte(TargetCrc);
-        std::uint32_t B2 = CrcUnit::ReverseCrc32Byte(TargetCrc);
-        std::uint32_t B3 = CrcUnit::ReverseCrc32Byte(TargetCrc);
+        std::uint32_t B0 = ReverseCrc32Byte(TargetCrc);
+        std::uint32_t B1 = ReverseCrc32Byte(TargetCrc);
+        std::uint32_t B2 = ReverseCrc32Byte(TargetCrc);
+        std::uint32_t B3 = ReverseCrc32Byte(TargetCrc);
         std::uint32_t State = CurrentCrc;
         std::uint8_t* Cursor = static_cast<std::uint8_t*>(Dest);
         *Cursor = static_cast<std::uint8_t>(B3 ^ State);
@@ -71,22 +90,6 @@ namespace CrcUnit {
         State = State >> 8 ^ Crc32Table[B1];
         ++Cursor;
         *Cursor = static_cast<std::uint8_t>(B0 ^ State);
-    }
-
-    std::uint32_t ReverseCrc32Byte(std::uint32_t& State) {
-        std::int32_t i{};
-        std::uint32_t Difference{};
-        std::uint32_t Result = 0u;
-        std::uint32_t Original = State;
-        for (i = 0; i <= 255; ++i) {
-            Difference = Crc32Table[i] ^ Original;
-            if (Difference >> 24 == 0) {
-                Result = i;
-                State = Difference << 8;
-                break;
-            }
-        }
-        return Result;
     }
 
 } // namespace CrcUnit

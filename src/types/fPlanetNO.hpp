@@ -56,6 +56,7 @@ namespace fPlanetNO {
     #pragma pack(push, 1)
     struct TProbeTrajectoryPoint {
         EC_Struct::TPointF Position;
+        // Unit vector to the next point; undefined for the last point.
         EC_Struct::TPointF Direction;
         std::uint8_t cpp_padding[4];
     };
@@ -82,11 +83,17 @@ namespace fPlanetNO {
         void QuestClicked(GI_MessageLoop::TObjectGI* Sender);
         void ToggleResearchPanel(GI_MessageLoop::TObjectGI* Sender);
         void OpenResearchPanel();
+        // Returns a held probe to its origin list before destroying research controls.
         void CloseResearchPanel();
+        // Requires index 0..5 and an empty point count. Builds at most 256 points from connected image markers.
         void BuildTrajectory(std::int32_t TrajectoryIndex);
+        // Requires a nonempty trajectory.
         WindowsSdk::TPoint GetRandomTrajectoryPoint(std::int32_t TrajectoryIndex);
+        // Requires a trajectory spanning a positive X range. Result is untouched if no segment matches.
         WindowsSdk::TPoint ProjectPointOntoTrajectory(std::int32_t TrajectoryIndex, WindowsSdk::TPoint Point);
+        // Advances four pixels along the projected segment; Result is untouched if no segment matches.
         WindowsSdk::TPoint AdvanceTrajectoryPoint(std::int32_t TrajectoryIndex, WindowsSdk::TPoint Point);
+        // Returns -1 on a miss; searches only the current planet's available probe orbits.
         std::int32_t FindTrajectoryAtCursor();
         std::uint8_t IsCursorOverTrajectory(std::int32_t TrajectoryIndex);
         void ResearchMapMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
@@ -97,14 +104,18 @@ namespace fPlanetNO {
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
         void MainPanelMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void SatelliteInventoryMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        // Collects accessible surface loot or exchanges the held probe with the selected orbit.
         void ResearchMapMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void MainPanelRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void UpdateActionCursor(std::uint8_t ForceHand) override;
         void ReturnHeldSatellite();
+        // Borrowed probe on the current planet, or nil; -1 always returns nil.
         static aItem::TSatellite* FindDeployedSatellite(std::int32_t TrajectoryIndex);
         static std::int32_t CountDeployedSatellites();
         void AdvanceSatelliteMarkers(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void UpdateProbeSignalSound(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
+        // The explicit script receiver value preserves native argument evaluation order.
+        // Borrows Item; nil schedules a delayed hide.
         void UpdateItemInfoPopup(aItem::TItem* Item);
         void ShowGoodsInfoPopup(aItem::TGoods* Item);
         void HideItemInfoPopup(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
@@ -114,6 +125,7 @@ namespace fPlanetNO {
         fPanelLoad::TfPanelLoad* LoadPanel;
         pas::Array<std::int32_t, 0, 5> TrajectoryPointCounts;
         pas::Array<TProbeTrajectory, 0, 5> Trajectories;
+        // -1 when no trajectory is highlighted.
         std::int32_t SelectedTrajectoryIndex;
         std::int32_t SatelliteInventoryPageStart;
         pas::Array<GI_Image::TImageGI*, 0, 5> SatelliteInventorySlots;
@@ -127,14 +139,18 @@ namespace fPlanetNO {
         GI_Label::TLabelGI* ItemInfoCostLabel;
         GI_Image::TImageGI* ItemInfoRaceIcon;
         GI_MessageLoop::PCallbackTimerGI ItemInfoHideTimer;
+        // Borrowed.
         aItem::TItem* HoveredItem;
         std::uint8_t SatellitePanelNeedsLayout;
         std::uint8_t cpp_padding_2[3];
         GI_MessageLoop::PCallbackTimerGI SatelliteMovementTimer;
         GI_MessageLoop::PCallbackTimerGI ProbeSignalTimer;
+        // Owned looping sound controller; fades when the deployed-probe count changes.
         GR_Sound::TSoundBufferControl* ProbeSignalSound;
         std::int32_t ProbeSignalCount;
+        // Temporarily removed from the inventory/deployed list.
         aItem::TSatellite* HeldSatellite;
+        // 0: inventory; 1: deployed list. Preserved while dragging.
         std::int32_t HeldSatelliteOrigin;
         std::uint8_t HoveringSurfaceLoot;
         std::uint8_t NewSurfaceLootDiscovered;

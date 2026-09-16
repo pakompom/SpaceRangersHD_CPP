@@ -45,6 +45,7 @@ namespace GI_RotateImageGAI {
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
+        // Diagnostic retains TgaiGI.AfterLoad, but this is TRotateImageGaiGI's geometry-update override.
         void UpdateAutoGeometry() override;
         void Draw(Types::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;

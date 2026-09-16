@@ -54,26 +54,36 @@ namespace GI_Image {
         PAS_CLASS_META(TImageGI, GI_MessageLoop::TObjectGI, "TImageGI", 324)
         void p_destroy() override;
         void Clear() override;
+        // Empty paths remove the child; unknown modes raise.
         void SetImagePath(pas::WideString Path);
         pas::WideString GetImagePath();
         Types::TPoint GetContentSize();
+        // Only GI children supply an origin; other kinds return (0,0).
         Types::TPoint GetContentOrigin();
         void SetImageKindX(GI_Main::TImageKindXGI Value);
         void SetImageKindY(GI_Main::TImageKindYGI Value);
+        // Only affects Simple, Trans and Anim children.
         void SetHalfAlpha(std::uint8_t Value);
+        // Returns GI/GAI alpha, or 255 for other kinds.
         std::uint8_t GetAlpha();
+        // Only affects GI/GAI children.
         void SetAlpha(std::uint8_t Value);
         void SetSize(Types::TPoint Size) override;
         void SetOrigin(Types::TPoint Origin) override;
+        // Returns false for kinds other than Alpha, Anim, GI and GAI.
         std::uint8_t HitTestPixel(Types::TPoint Point);
+        // Only GI and GraphBuf write the result; other kinds leave it untouched.
         Types::TPoint GetVisualCenter();
         void RestartPlayback();
         void StopPlayback();
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
+        // Auto-geometry bit 0 uses content origin; bit 1 uses content size.
         void UpdateAutoGeometry() override;
+        // GI and GraphBuf children are skipped.
         void QueueImageLoad(pas::List* PendingLoads) override;
+        // Delegates to the GAI or GI child.
         void SetHardwareMirrorHorizontal(std::uint8_t Value);
         GI_SimpleImage::TSimpleImageGI* SimpleImageControl;
         GI_TransImage::TTransImageGI* TransImageControl;

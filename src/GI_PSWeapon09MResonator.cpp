@@ -20,6 +20,7 @@
 #include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native MResonator and branch controls, particle layout and palette/resource loader.
 namespace GI_PSWeapon09MResonator {
     pas::DynArray<GI_PSWeapon09MResonator::TMResonatorPalette> MResonatorPalettes{};
 
@@ -74,6 +75,7 @@ namespace GI_PSWeapon09MResonator {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Native empty override.
     void TPSWeapon09BranchGI::Invalidate() {
     }
 
@@ -308,6 +310,7 @@ namespace GI_PSWeapon09MResonator {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Native empty override.
     void TPSWeapon09MResonator::Invalidate() {
     }
 
@@ -379,6 +382,7 @@ namespace GI_PSWeapon09MResonator {
         std::int32_t Count = ParticleCount;
         std::int32_t I = 0;
         while (Count > 0) {
+            // Native dormant particle branch still evaluates Kind before advancing.
             static_cast<void>(Particle->Kind == 1);
             ++I;
             Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particles, I * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));

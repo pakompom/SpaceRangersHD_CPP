@@ -54,12 +54,15 @@
 #include "units/GR_Main.hpp"
 #include "units/SysUtils.hpp"
 
+// Configuration helper placement in GI_Main is inferred; no explicit unit RTTI was recovered here.
 namespace GI_Main {
+    // Sets the shared exception-log-copy suppression flag and raises EBreakMessageGI. Placement in GI_Main is inferred.
     void BreakUiMessage() {
         GR_Main::SuppressExceptionLogCopy = true;
         pas::raise(pas::make_exception<BreakMessageGIException::EBreakMessageGI>("No error"_a));
     }
 
+    // Exact type-name lookup; returns nil for unknown names. Placement in GI_Main is inferred from its configuration-helper region.
     GI_MessageLoop::TObjectGI* CreateControlByName(pas::WideString Name, GI_MessageLoop::TObjectGI* Owner) {
         if (Name == u"Panel") {
             return pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, Owner);
@@ -156,6 +159,7 @@ namespace GI_Main {
         }
     }
 
+    // Exact spelling required; unknown names raise.
     TImageKindXGI ParseImageKindXName(pas::WideString Name) {
         if (Name == u"LeftFill") {
             return ikxLeftFill;
@@ -174,6 +178,7 @@ namespace GI_Main {
         }
     }
 
+    // Exact spelling required; unknown names raise.
     TImageKindYGI ParseImageKindYName(pas::WideString Name) {
         if (Name == u"TopFill") {
             return ikyTopFill;
@@ -222,10 +227,12 @@ namespace GI_Main {
         }
     }
 
+    // True only for Yes, yes, True, true, TRUE or 1.
     std::uint8_t ParseEnabledNameGI(pas::WideString Name) {
         return Name == u"Yes" || Name == u"yes" || Name == u"True" || Name == u"true" || Name == u"TRUE" || Name == u"1";
     }
 
+    // At least three comma-separated components are required; only their low bytes are used.
     std::uint32_t GetColorGI(pas::WideString ColorText) {
         if (EC_Str::CountDelimitedPartsW(ColorText, u","_wref.get()) < 3) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetColorGI. color=", ColorText}))));
@@ -249,6 +256,7 @@ namespace GI_Main {
         return Result;
     }
 
+    // Comma-separated pos and size names, trimmed and case-insensitive; unknown names are ignored. Placement in GI_Main is inferred.
     std::int32_t ParseAutoGeometryFlagsGI(pas::WideString Values) {
         std::int32_t Index{};
         pas::WideString Part{};

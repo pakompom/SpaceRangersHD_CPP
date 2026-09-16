@@ -109,7 +109,7 @@ namespace fPanelLoad {
         SetProgress(1.0f);
         ShutterOpenFraction = 0.0f;
         SetShutterOpenFraction(ShutterOpenFraction);
-        if (GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId != GlobalsV::screenMainMenu && GlobalsV::CurrentScreenId != GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoadQuest || GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu && Globals::SkipVideo || GlobalsV::PreviousScreenId == GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoad || pas::in_set<4, 6, 8, 8, 15, 15, 20, 20, 28, 28>(GlobalsV::CurrentScreenId) && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap && aPlayer::GetPlayer()->RuinsMode == 0 || pas::in_set<16, 16, 20, 20>(GlobalsV::CurrentScreenId) && pas::in_set<19, 19, 21, 21>(GlobalsV::PreviousScreenId) || GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap) {
+        if (GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId != GlobalsV::screenMainMenu && GlobalsV::CurrentScreenId != GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoadQuest || GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu && Globals::SkipVideo || GlobalsV::PreviousScreenId == GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoad || pas::is_one_of<GlobalsV::screenHangar, GlobalsV::screenPlanet, GlobalsV::screenPlanetNO, GlobalsV::screenEquipmentShop, GlobalsV::screenGovernment, GlobalsV::screenRuinsTalk, GlobalsV::screenInfo>(GlobalsV::CurrentScreenId) && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap && aPlayer::GetPlayer()->RuinsMode == 0 || pas::is_one_of<GlobalsV::screenStarMap, GlobalsV::screenRuinsTalk>(GlobalsV::CurrentScreenId) && pas::is_one_of<GlobalsV::screenJump, GlobalsV::screenArcadeBattle>(GlobalsV::PreviousScreenId) || GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap) {
             GlobalsV::PreviousScreenId = GlobalsV::screenNone;
             StartOpeningShutters();
         }
@@ -138,6 +138,7 @@ namespace fPanelLoad {
         Screen->GetByName(u"PanelLoad"_wref.get())->SetActive(false);
     }
 
+    // Accepts groups 0..3; selects a style for shutter or legacy artwork. Other values preserve the current style.
     void TfPanelLoad::SelectBackgroundStyle(std::int32_t StyleGroup) {
         if (!HasShutters) {
             if (StyleGroup == 0) {
@@ -195,6 +196,7 @@ namespace fPanelLoad {
         }
     }
 
+    // Requires a fraction in 0..1; does not clamp the progress-segment index.
     void TfPanelLoad::SetProgress(float Fraction) {
         std::int32_t I{};
         std::int32_t LastActive = System::Round(static_cast<long double>(TfPanelLoad::GetProgressSegmentCount()) * Fraction) - 1;
@@ -235,6 +237,7 @@ namespace fPanelLoad {
         Hide();
     }
 
+    // Closes Screen after the animation, or immediately when shutters are disabled.
     void TfPanelLoad::StartClosingShutters() {
         if (GlobalsV::AnimChangeForm && HasShutters) {
             Show();
@@ -290,6 +293,7 @@ namespace fPanelLoad {
         return ShutterTimer != nullptr;
     }
 
+    // Returns zero without an active timer.
     std::int32_t TfPanelLoad::GetShutterDirection() {
         if (ShutterTimer == nullptr) {
             return 0;

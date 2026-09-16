@@ -29,6 +29,7 @@ namespace aEObjInfo {
 
     struct TEOTMissile;
 
+    // Native record RTTI.
     struct TEOTPlanet {
         std::uint32_t Id;
         pas::WideString Name;
@@ -47,6 +48,7 @@ namespace aEObjInfo {
         pas::WideString Faction;
     };
 
+    // Native record RTTI.
     struct TEOTShip {
         std::uint32_t Id;
         pas::WideString Name;
@@ -59,6 +61,7 @@ namespace aEObjInfo {
         std::int32_t HullCapacity;
         std::int32_t HullPoints;
         double HullFragility;
+        // Live snapshot only; absent from the serialized format.
         std::uint8_t OutsideNormalSpace;
         std::uint8_t ScannerResolved;
         std::uint8_t cpp_padding_2[2];
@@ -74,6 +77,7 @@ namespace aEObjInfo {
         pas::WideString Faction;
     };
 
+    // Native record RTTI.
     struct TEOTItem {
         std::uint32_t Id;
         pas::WideString Name;
@@ -92,18 +96,21 @@ namespace aEObjInfo {
         pas::WideString Faction;
     };
 
+    // Native record RTTI.
     struct TEOTAsteroid {
         std::uint32_t Id;
         pas::WideString Name;
         pas::WideString InfoText;
     };
 
+    // Native record RTTI.
     struct TEOTMissile {
         std::uint32_t Id;
         pas::WideString Name;
         pas::WideString InfoText;
     };
 
+    // Native record RTTI.
     struct TEOTCustomStarInfo {
         pas::WideString Name;
         pas::WideString ImagePath;
@@ -129,12 +136,19 @@ namespace aEObjInfo {
         void p_destroy() override;
         void Clear();
         void LoadFromStar(aGalaxy::TStar* Star);
+        // Borrowed pointer into the snapshot array.
         PEPlanetInfo FindPlanet(std::uint32_t ObjectId);
+        // Borrowed pointer into the snapshot array.
         PEShipInfo FindShip(std::uint32_t ObjectId);
+        // Borrowed pointer into the snapshot array.
         PEItemInfo FindItem(std::uint32_t ObjectId);
+        // Borrowed pointer into the snapshot array.
         PEAsteroidInfo FindAsteroid(std::uint32_t ObjectId);
+        // Borrowed pointer into the snapshot array.
         PEMissileInfo FindMissile(std::uint32_t ObjectId);
+        // Appends the current snapshot; doubles are serialized as singles.
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
+        // Legacy versions omit scanner, repair, faction or custom-system fields.
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, std::int32_t Version);
         pas::WideString StarName;
         std::int32_t StarRadius;

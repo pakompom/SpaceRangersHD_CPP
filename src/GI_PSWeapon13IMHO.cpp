@@ -17,6 +17,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native TPSWeapon13IMHO and methods; includes its configuration palette loader.
 namespace GI_PSWeapon13IMHO {
     pas::DynArray<GI_PSWeapon13IMHO::TIMHOPalette> IMHOPalettes{};
 
@@ -71,6 +72,7 @@ namespace GI_PSWeapon13IMHO {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Native empty override.
     void TPSWeapon13IMHO::Invalidate() {
     }
 

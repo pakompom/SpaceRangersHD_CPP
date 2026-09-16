@@ -24,6 +24,7 @@
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
 
+// Native class and methods:.
 namespace SE_Ship2 {
     void TShip2AnimSE_Destroy(TShip2AnimSE* Self) {
         Self->Clear();
@@ -149,6 +150,7 @@ namespace SE_Ship2 {
         Ship->TargetSizeScale = TargetSizeScale;
     }
 
+    // Despite the diagnostic name, copies Self into Destination, which must be TShip2SE.
     void TShip2SE::CopyDataFromMirrorImage(SE_Space::TObjectSE* Destination) {
         std::int32_t Index{};
         TShip2SE* Ship = pas::checked_cast<TShip2SE*>(Destination);
@@ -200,6 +202,7 @@ namespace SE_Ship2 {
         Ship->TargetSizeScale = TargetSizeScale;
     }
 
+    // Native diagnostic name: TShip2SE.Connect.
     void TShip2SE::AttachToSpace(SE_Space::TSpaceSE* ASpace) {
         std::int32_t Index{};
         std::int32_t Stage = 0;

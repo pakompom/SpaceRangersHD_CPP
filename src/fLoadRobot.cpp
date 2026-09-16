@@ -917,6 +917,7 @@ namespace fLoadRobot {
         return Result;
     }
 
+    // X completed, Y eligible; groups greater than -1 are eligible.
     WindowsSdk::TPoint TfLoadRobot::GetCompletionCounts() {
         WindowsSdk::TPoint Result{};
         std::int32_t I{};
@@ -945,6 +946,7 @@ namespace fLoadRobot {
         return Result;
     }
 
+    // Menu summary; displayed total includes groups 0..2.
     pas::WideString TfLoadRobot::GetCompletionSummary() {
         WindowsSdk::TPoint Counts{};
         std::int32_t I{};

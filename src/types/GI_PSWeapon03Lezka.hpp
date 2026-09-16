@@ -29,6 +29,7 @@ namespace GI_PSWeapon03Lezka {
         PLezkaParticle AddParticle();
         void ClearParticles();
         void InvalidateRect(Types::TRect Rect) override;
+        // Native empty override.
         void Invalidate() override;
         void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) override;
         void Draw(Types::TRect ClipRect) override;

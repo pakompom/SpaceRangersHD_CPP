@@ -2,10 +2,13 @@
 #include "units/EC_Expression.hpp"
 
 namespace EC_Expression {
+    // Case-sensitive ordinal comparison; accepts nil and returns -1, 0 or 1.
+    // Preserve the native assembly comparison, including its unsigned character order.
     inline std::int32_t CompareScriptNames(char16_t* Left, char16_t* Right) {
         return pas::compare_wide_chars(Left, Right);
     }
 
+    // Does not validate either index.
     inline void TVarArrayEC_SetNameOrderIndex(TVarArrayEC* Self, std::int32_t Index, std::int32_t DataIndex) {
         pas::store_unaligned<std::int32_t>(Self->NameOrder + Index, DataIndex);
     }
@@ -26,6 +29,7 @@ namespace EC_Expression {
         return pas::load_unaligned<TVarEC*>(Self->Data + Index);
     }
 
+    // Does not validate Index, free the old cell, or update NameOrder.
     inline void TVarArrayEC_SetItem(TVarArrayEC* Self, std::int32_t Index, TVarEC* Value) {
         pas::store_unaligned<TVarEC*>(Self->Data + Index, Value);
     }

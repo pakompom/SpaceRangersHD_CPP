@@ -12,8 +12,11 @@
 #include "units/fCustom.hpp"
 
 namespace fCustom {
+    // Borrowed while ShowCustomDialog is active; nested custom dialogs restore the previous value.
     GI_MessageLoop::TMessageLoopGI* CurrentCustomDialog = nullptr;
 
+    // Native TfCustomLoop VMT and the surrounding modal launcher establish ownership.
+    // Loads the named layout and executes its opening/closing script text. Restores the previous active custom dialog on return.
     std::int32_t ShowCustomDialog(GI_MessageLoop::TMessageLoopGI* Parent, const pas::WideString& ScreenName) {
         std::int32_t Result{};
         GI_MessageLoop::TObjectGI* Background{};
@@ -85,7 +88,7 @@ namespace fCustom {
     }
 
     void TfCustomLoop::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             if (aGalaxy::Galaxy != nullptr) {
                 aGalaxy::Galaxy->CheckIntegrityChecksum(30011);
             }

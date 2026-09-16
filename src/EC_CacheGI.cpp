@@ -14,18 +14,6 @@
 #include "units/Windows.hpp"
 
 namespace EC_CacheGI {
-    std::int32_t GiTileDivideRoundUp(std::int32_t Value, std::int32_t Divisor);
-
-    void RenderGiBufferToGraphBuf(EC_Buf::TBufEC* SourceBuffer, GR_GraphBuf::TGraphBufGR* DestGraphBuf, GR_gi::TgiGR*& WorkingImage);
-
-    void StoreGraphBufAsRawGiBuffer(EC_Buf::TBufEC* DestBuffer, GR_GraphBuf::TGraphBufGR* SourceGraphBuf, std::int32_t StorageMode, GR_gi::TgiGR*& WorkingImage);
-
-    void StoreGraphBufAsGiBuffer(EC_Buf::TBufEC* DestBuffer, GR_GraphBuf::TGraphBufGR* SourceGraphBuf, WindowsSdk::TPoint TopLeft, GR_gi::TgiGR*& WorkingImage);
-
-    void LogWideScreenGiRescaleStart(const pas::WideString& ResourceKey, std::uint8_t& Quiet);
-
-    void LogWideScreenGiRescaleDone(std::uint8_t& Quiet);
-
     TCGiEC* AcquireCachedGi(EC_Cache::TCacheControlEC* Control) {
         return pas::checked_cast<TCGiEC*>(Control->AcquireDataFromConfig(pas::class_ref<TCGiEC>()));
     }
@@ -57,6 +45,7 @@ namespace EC_CacheGI {
         return EC_CacheGI::AcquireCachedGi(this);
     }
 
+    // TileCount is zero for a single surface.
     void TCGiEC_Create(TCGiEC* Self) {
         EC_Cache::TCacheDataEC_Create(Self);
         Self->Image = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
@@ -83,6 +72,7 @@ namespace EC_CacheGI {
         return Result;
     }
 
+    // Caches the last requested surface at index zero; non-square tile grids use an incorrect stride.
     void TCGiEC::GetOrCreateSurface(std::int32_t SurfaceIndex, Direct3D9::IDirect3DTexture9& Result) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         Direct3D9::IDirect3DTexture9 cpp_result_2{};
@@ -101,6 +91,9 @@ namespace EC_CacheGI {
         std::int32_t Column{};
         std::int32_t Row{};
         WindowsSdk::TPoint Origin{};
+        auto GiTileDivideRoundUp = [&](std::int32_t Value, std::int32_t Divisor) -> std::int32_t {
+            return pas::idiv(Divisor - 1 + Value, Divisor);
+        };
         if (SurfaceCache == nullptr) {
             SurfaceCache = GR_DX::CreateTextureCache();
         }
@@ -113,8 +106,8 @@ namespace EC_CacheGI {
             }
             if (GR_DX::MaxTextureSize.X < ImageSize.X || GR_DX::MaxTextureSize.Y < ImageSize.Y) {
                 UsesTiledSurfaces = true;
-                Columns = EC_CacheGI::GiTileDivideRoundUp(ImageSize.X, GR_DX::MaxTextureSize.X);
-                Rows = EC_CacheGI::GiTileDivideRoundUp(ImageSize.Y, GR_DX::MaxTextureSize.Y);
+                Columns = GiTileDivideRoundUp(ImageSize.X, GR_DX::MaxTextureSize.X);
+                Rows = GiTileDivideRoundUp(ImageSize.Y, GR_DX::MaxTextureSize.Y);
                 TileCount = Columns * Rows;
                 TileOrigins.set_length(TileCount);
                 Row = 0;
@@ -176,18 +169,17 @@ namespace EC_CacheGI {
         return;
     }
 
-    std::int32_t GiTileDivideRoundUp(std::int32_t Value, std::int32_t Divisor) {
-        return pas::idiv(Divisor - 1 + Value, Divisor);
-    }
-
+    // May modify SourceBuffer for resource-specific layout fixups. Ignores LoadOption.
     void TCGiEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         TCGiEC::ApplyWideScreenLayoutFixups(SourceBuffer, CacheKey);
         Image->LoadRawGiFromBuffer(SourceBuffer);
         ResidentBytes = Image->DataSize;
     }
 
+    // Modifies SourceBuffer in place.
     void TCGiEC::ApplyWideScreenLayoutFixups(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& ResourceKey) {
         GR_gi::TgiGR* WorkingImage{};
+        std::uint8_t Quiet{};
         GR_GraphBuf::TGraphBufGR* SourceGraph{};
         GR_GraphBuf::TGraphBufGR* DestGraph{};
         std::int32_t VerticalAlign{};
@@ -198,28 +190,62 @@ namespace EC_CacheGI {
         std::int32_t Delta{};
         std::int32_t Remainder{};
         std::uint8_t PreserveAlpha{};
+        auto RenderGiBufferToGraphBuf = [&](EC_Buf::TBufEC* SourceBuffer, GR_GraphBuf::TGraphBufGR* DestGraphBuf) -> void {
+            WorkingImage = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
+            WorkingImage->LoadRawGiFromBuffer(SourceBuffer);
+            DestGraphBuf->AllocateRgbaTight(WorkingImage->GetContentSize().X, WorkingImage->GetContentSize().Y);
+            WorkingImage->DecodeToGraphBuf(DestGraphBuf, false);
+            WorkingImage->ClearData();
+            pas::free(WorkingImage);
+        };
+        auto StoreGraphBufAsRawGiBuffer = [&](EC_Buf::TBufEC* DestBuffer, GR_GraphBuf::TGraphBufGR* SourceGraphBuf, std::int32_t StorageMode) -> void {
+            WorkingImage = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
+            WorkingImage->CreateFromGraphBuf(SourceGraphBuf, StorageMode);
+            DestBuffer->Clear();
+            DestBuffer->AddBytes(WorkingImage->Data, WorkingImage->DataSize);
+            WorkingImage->ClearData();
+            pas::free(WorkingImage);
+        };
+        auto StoreGraphBufAsGiBuffer = [&](EC_Buf::TBufEC* DestBuffer, GR_GraphBuf::TGraphBufGR* SourceGraphBuf, WindowsSdk::TPoint TopLeft) -> void {
+            WorkingImage = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
+            WorkingImage->CreateFormat2FromGraphBuf(SourceGraphBuf, TopLeft);
+            DestBuffer->Clear();
+            DestBuffer->AddBytes(WorkingImage->Data, WorkingImage->DataSize);
+            WorkingImage->ClearData();
+            pas::free(WorkingImage);
+        };
+        auto LogWideScreenGiRescaleStart = [&]() -> void {
+            if (!Quiet) {
+                GR_Main::AppendLogTextThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Rescaling ", ResourceKey, u"... "})));
+            }
+        };
+        auto LogWideScreenGiRescaleDone = [&]() -> void {
+            if (!Quiet) {
+                GR_Main::AppendLogLineThreadSafe("ok"_a);
+            }
+        };
         std::int32_t ExtraHeight = GR_Main::ExtraScreenHeight;
         if (ExtraHeight < 0) {
             ExtraHeight = 0;
         }
-        std::uint8_t Quiet = false;
+        Quiet = false;
         if (GR_Main::ExtraScreenWidth > 0 && ResourceKey == pas::concat_wide({u"Bm.PanelMain2.", GR_Main::GiResourceSuffix(), u"BG"})) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(GR_Main::GameScreenWidth, SourceGraph->Height);
             DestGraph->DrawNinePatch(0, 0, 0, 0, SourceGraph, ClassesImports::Rect(0, 0, SourceGraph->Width, SourceGraph->Height), ClassesImports::Rect(430, 0, 593, 0));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, GR_Main::GameScreenHeight - DestGraph->Height - 1), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, GR_Main::GameScreenHeight - DestGraph->Height - 1));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if ((GR_Main::ExtraScreenWidth > 0 || ExtraHeight > 0) && ResourceKey == u"Bm.FormMain2.2AnimMain") {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(GR_Main::GameScreenWidth, std::max<std::int64_t>(static_cast<std::int64_t>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight)), static_cast<std::int64_t>(768)));
             Delta = GR_Main::ExtraScreenWidth / 2 / 3 * 3;
@@ -234,14 +260,14 @@ namespace EC_CacheGI {
             DestGraph->DrawNinePatch(Delta, 0, 0, 0, SourceGraph, ClassesImports::Rect(3, Remainder, SourceGraph->Width - 4, SourceGraph->Height), ClassesImports::Rect(1005, 0, 0, 765 - Remainder));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (ExtraHeight > 0 && ResourceKey == pas::concat_wide({u"Bm.FormGov2.", GR_Main::GiResourceSuffix(), u"TWin"})) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             Delta = 3;
             Delta = pas::idiv(std::min<std::int32_t>(GR_Main::ExtraScreenHeight, 250), Delta) * Delta;
@@ -252,28 +278,28 @@ namespace EC_CacheGI {
             DestGraph->DrawNinePatch(0, Delta + 530, DestGraph->Width, Remainder + 90, SourceGraph, ClassesImports::Rect(0, 530, SourceGraph->Width, SourceGraph->Height), ClassesImports::Rect(0, 0, 0, 87));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (ExtraHeight > 0 && ResourceKey == pas::concat_wide({u"Bm.FormGov2.", GR_Main::GiResourceSuffix(), u"TWinB"})) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             Delta = std::min<std::int32_t>(GR_Main::ExtraScreenHeight, 250) / 3 / 4 * 3;
             DestGraph->AllocateRgbaTight(SourceGraph->Width, SourceGraph->Height + Delta);
             DestGraph->DrawNinePatch(0, 0, DestGraph->Width, DestGraph->Height, SourceGraph, ClassesImports::Rect(0, 0, SourceGraph->Width, SourceGraph->Height), ClassesImports::Rect(0, 97, 0, 53));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (ExtraHeight > 0 && ResourceKey == pas::concat_wide({u"Bm.FormInfo3.", GR_Main::GiResourceSuffix(), u"BG"})) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             Delta = 3;
             Delta = pas::idiv(std::min<std::int32_t>(GR_Main::ExtraScreenHeight, 432), Delta) * Delta;
@@ -281,19 +307,19 @@ namespace EC_CacheGI {
             DestGraph->DrawNinePatch(0, 0, DestGraph->Width, DestGraph->Height, SourceGraph, ClassesImports::Rect(0, 0, SourceGraph->Width, SourceGraph->Height), ClassesImports::Rect(0, 449, 0, 148));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (GR_Main::ExtraScreenWidth > 0 && ResourceKey == u"Bm.FormShop2.2bg") {
             Delta = GR_Main::ExtraScreenWidth / 198 * 198;
             if (Delta > 198) {
                 Delta = 198;
             }
             if (Delta != 0) {
-                EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+                LogWideScreenGiRescaleStart();
                 SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-                EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+                RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
                 DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
                 DestGraph->AllocateRgbaTight(SourceGraph->Width + Delta, SourceGraph->Height);
                 DestGraph->DrawNinePatch(0, 0, Delta / 2 + 226, 34, SourceGraph, ClassesImports::Rect(0, 0, 226, 34), ClassesImports::Rect(225, 0, 0, 0));
@@ -303,10 +329,10 @@ namespace EC_CacheGI {
                 DestGraph->DrawNinePatch(Delta / 2 + 226, 388, 0, 0, SourceGraph, ClassesImports::Rect(226, 388, 0, 0), ClassesImports::Rect(326, 0, 213, 0));
                 SourceGraph->Clear();
                 pas::free(SourceGraph);
-                EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+                StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
                 DestGraph->Clear();
                 pas::free(DestGraph);
-                EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+                LogWideScreenGiRescaleDone();
             }
         } else if (GR_Main::ExtraScreenWidth > 0 && (ResourceKey == u"Bm.FormShop2.2Fei" || ResourceKey == u"Bm.FormShop2.2Gaal" || ResourceKey == u"Bm.FormShop2.2Peleng" || ResourceKey == u"Bm.FormShop2.2People")) {
             Delta = GR_Main::ExtraScreenWidth / 198 * 198;
@@ -314,23 +340,23 @@ namespace EC_CacheGI {
                 Delta = 198;
             }
             if (Delta != 0) {
-                EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+                LogWideScreenGiRescaleStart();
                 SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-                EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+                RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
                 DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
                 DestGraph->AllocateRgbaTight(SourceGraph->Width + Delta, SourceGraph->Height);
                 DestGraph->DrawNinePatch(0, 0, 0, 0, SourceGraph, ClassesImports::Rect(0, 0, 0, 0), ClassesImports::Rect(121, 0, 483, 0));
                 SourceGraph->Clear();
                 pas::free(SourceGraph);
-                EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+                StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
                 DestGraph->Clear();
                 pas::free(DestGraph);
-                EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+                LogWideScreenGiRescaleDone();
             }
         } else if (ExtraHeight > 0 && (ResourceKey == pas::concat_wide({u"Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"Left"}) || ResourceKey == pas::concat_wide({u"Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"Right"}))) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(SourceGraph->Width, GR_Main::ExtraScreenHeight + SourceGraph->Height);
             DestGraph->DrawNinePatch(0, 0, 37, DestGraph->Height, SourceGraph, ClassesImports::Rect(0, 0, 37, SourceGraph->Height), ClassesImports::Rect(0, 324, 0, 338));
@@ -338,14 +364,14 @@ namespace EC_CacheGI {
             DestGraph->DrawNinePatch(230, 0, 513, DestGraph->Height, SourceGraph, ClassesImports::Rect(230, 0, 743, SourceGraph->Height), ClassesImports::Rect(0, 325, 0, 337));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (GR_Main::ExtraScreenWidth > 0 && ResourceKey == pas::concat_wide({u"Bm.FormGameSet2.", GR_Main::GiResourceSuffix(), u"Footer"})) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(GR_Main::GameScreenWidth, SourceGraph->Height);
             DestGraph->DrawNinePatch(0, 0, GR_Main::ExtraScreenWidth / 2 + 342, 0, SourceGraph, ClassesImports::Rect(0, 0, 342, 0), ClassesImports::Rect(341, 0, 0, 0));
@@ -353,54 +379,54 @@ namespace EC_CacheGI {
             DestGraph->DrawNinePatch(GR_Main::ExtraScreenWidth / 2 + 682, 0, GR_Main::ExtraScreenWidth / 2 + 342, 0, SourceGraph, ClassesImports::Rect(682, 0, 0, 0), ClassesImports::Rect(0, 0, 341, 0));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (ResourceKey == u"Bm.FormIntro2.PanelTop" || ResourceKey == u"Bm.FormEnd2.PanelTop") {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(GR_Main::GameScreenWidth, SourceGraph->Height);
             DestGraph->DrawNinePatch(0, 0, 0, 0, SourceGraph, ClassesImports::Rect(0, 0, 0, 0), ClassesImports::Rect(0, 0, 0, 0));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsRawGiBuffer(SourceBuffer, DestGraph, 1, WorkingImage);
+            StoreGraphBufAsRawGiBuffer(SourceBuffer, DestGraph, 1);
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (GR_Main::ExtraScreenWidth > 0 && ResourceKey == u"Bm.FormIntro2.PanelBottom") {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(GR_Main::GameScreenWidth, SourceGraph->Height);
             DestGraph->DrawNinePatch(0, 0, GR_Main::ExtraScreenWidth / 2 + 302, 0, SourceGraph, ClassesImports::Rect(0, 0, 302, 0), ClassesImports::Rect(301, 0, 0, 0));
             DestGraph->DrawNinePatch(GR_Main::ExtraScreenWidth / 2 + 302, 0, 0, 0, SourceGraph, ClassesImports::Rect(302, 0, 0, 0), ClassesImports::Rect(420, 0, 301, 0));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsRawGiBuffer(SourceBuffer, DestGraph, 1, WorkingImage);
+            StoreGraphBufAsRawGiBuffer(SourceBuffer, DestGraph, 1);
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (ResourceKey == u"Bm.FormEnd2.PanelBottom") {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(GR_Main::GameScreenWidth, SourceGraph->Height);
             DestGraph->DrawNinePatch(0, 0, 0, 0, SourceGraph, ClassesImports::Rect(0, 0, 0, 0), ClassesImports::Rect(0, 0, 154, 0));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsRawGiBuffer(SourceBuffer, DestGraph, 1, WorkingImage);
+            StoreGraphBufAsRawGiBuffer(SourceBuffer, DestGraph, 1);
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if ((GR_Main::ExtraScreenWidth > 0 || ExtraHeight > 0) && ResourceKey == u"Bm.FormPQuest2.2Panel") {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             DestGraph->AllocateRgbaTight(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
             Delta = 39 - GR_Main::ExtraScreenWidth;
@@ -411,14 +437,14 @@ namespace EC_CacheGI {
             DestGraph->DrawNinePatch(0, 0, 0, GR_Main::ExtraScreenHeight / 2 + 492, SourceGraph, ClassesImports::Rect(Delta, 0, 0, 492), ClassesImports::Rect(345 - Delta, 410, 717, 81));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if ((GR_Main::ExtraScreenWidth > 0 || ExtraHeight > 0) && (EC_Str::FindTextOffsetW(ResourceKey, u"Bm.FormPQuest2.2S"_wref.get(), 0) == 0 && EC_Str::IsIntegerTextW(EC_Str::CopyWideStringUnchecked(ResourceKey, 18, ResourceKey.length() - 17)) || EC_Str::FindTextOffsetW(ResourceKey, u"Bm.FormPQuest2."_wref.get(), 0) == 0 && EC_Str::FindTextOffsetW(ResourceKey, u"rescale"_wref.get(), 0) > 0)) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             DestGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             Delta = GR_Main::ExtraScreenWidth - 39;
             if (Delta < 0) {
@@ -429,19 +455,19 @@ namespace EC_CacheGI {
             DestGraph->DrawNinePatch(0, ExtraHeight / 2 + 500, 0, 0, SourceGraph, ClassesImports::Rect(0, 500, 0, 0), ClassesImports::Rect(289, 0, 289, 206));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, DestGraph, ClassesImports::Point(0, 0));
             DestGraph->Clear();
             pas::free(DestGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else if (ResourceKey == pas::concat_wide({u"Bm.FormRuins.", GR_Main::GiResourceSuffix(), u"WBbg"}) || ResourceKey == pas::concat_wide({u"Bm.FormRuins.", GR_Main::GiResourceSuffix(), u"CBbg"}) || ResourceKey == pas::concat_wide({u"Bm.FormRuins.", GR_Main::GiResourceSuffix(), u"DestroyerBridgebg"})) {
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             SourceGraph->RescaleRGBA_HW(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, true, 1, 1);
-            EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, SourceGraph, ClassesImports::Point(0, 0), WorkingImage);
+            StoreGraphBufAsGiBuffer(SourceBuffer, SourceGraph, ClassesImports::Point(0, 0));
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
+            LogWideScreenGiRescaleDone();
         } else {
             VerticalAlign = 1;
             PreserveAlpha = EC_Str::FindTextOffsetW(ResourceKey, u"Alpha"_wref.get(), 0) > 0;
@@ -477,61 +503,22 @@ namespace EC_CacheGI {
                 PreserveAlpha = true;
                 Quiet = true;
             } while (!true);
-            EC_CacheGI::LogWideScreenGiRescaleStart(ResourceKey, Quiet);
+            LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            EC_CacheGI::RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph, WorkingImage);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
             Delta = SourceGraph->Width;
             Remainder = SourceGraph->Height;
             SourceGraph->RescaleRGBA_HW(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, true, 1, VerticalAlign);
             if (Delta != SourceGraph->Width || Remainder != SourceGraph->Height) {
                 if (PreserveAlpha) {
-                    EC_CacheGI::StoreGraphBufAsGiBuffer(SourceBuffer, SourceGraph, ClassesImports::Point(0, 0), WorkingImage);
+                    StoreGraphBufAsGiBuffer(SourceBuffer, SourceGraph, ClassesImports::Point(0, 0));
                 } else {
-                    EC_CacheGI::StoreGraphBufAsRawGiBuffer(SourceBuffer, SourceGraph, 1, WorkingImage);
+                    StoreGraphBufAsRawGiBuffer(SourceBuffer, SourceGraph, 1);
                 }
             }
             SourceGraph->Clear();
             pas::free(SourceGraph);
-            EC_CacheGI::LogWideScreenGiRescaleDone(Quiet);
-        }
-    }
-
-    void RenderGiBufferToGraphBuf(EC_Buf::TBufEC* SourceBuffer, GR_GraphBuf::TGraphBufGR* DestGraphBuf, GR_gi::TgiGR*& WorkingImage) {
-        WorkingImage = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
-        WorkingImage->LoadRawGiFromBuffer(SourceBuffer);
-        DestGraphBuf->AllocateRgbaTight(WorkingImage->GetContentSize().X, WorkingImage->GetContentSize().Y);
-        WorkingImage->DecodeToGraphBuf(DestGraphBuf, false);
-        WorkingImage->ClearData();
-        pas::free(WorkingImage);
-    }
-
-    void StoreGraphBufAsRawGiBuffer(EC_Buf::TBufEC* DestBuffer, GR_GraphBuf::TGraphBufGR* SourceGraphBuf, std::int32_t StorageMode, GR_gi::TgiGR*& WorkingImage) {
-        WorkingImage = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
-        WorkingImage->CreateFromGraphBuf(SourceGraphBuf, StorageMode);
-        DestBuffer->Clear();
-        DestBuffer->AddBytes(WorkingImage->Data, WorkingImage->DataSize);
-        WorkingImage->ClearData();
-        pas::free(WorkingImage);
-    }
-
-    void StoreGraphBufAsGiBuffer(EC_Buf::TBufEC* DestBuffer, GR_GraphBuf::TGraphBufGR* SourceGraphBuf, WindowsSdk::TPoint TopLeft, GR_gi::TgiGR*& WorkingImage) {
-        WorkingImage = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
-        WorkingImage->CreateFormat2FromGraphBuf(SourceGraphBuf, TopLeft);
-        DestBuffer->Clear();
-        DestBuffer->AddBytes(WorkingImage->Data, WorkingImage->DataSize);
-        WorkingImage->ClearData();
-        pas::free(WorkingImage);
-    }
-
-    void LogWideScreenGiRescaleStart(const pas::WideString& ResourceKey, std::uint8_t& Quiet) {
-        if (!Quiet) {
-            GR_Main::AppendLogTextThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Rescaling ", ResourceKey, u"... "})));
-        }
-    }
-
-    void LogWideScreenGiRescaleDone(std::uint8_t& Quiet) {
-        if (!Quiet) {
-            GR_Main::AppendLogLineThreadSafe("ok"_a);
+            LogWideScreenGiRescaleDone();
         }
     }
 

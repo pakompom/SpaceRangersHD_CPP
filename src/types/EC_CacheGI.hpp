@@ -45,8 +45,11 @@ namespace EC_CacheGI {
         PAS_CLASS_META(TCGiEC, EC_Cache::TCacheDataEC, "TCGiEC", 52)
         void p_destroy() override;
         WindowsSdk::TPoint GetTileOrigin(std::int32_t TileIndex);
+        // Caches the last requested surface at index zero; non-square tile grids use an incorrect stride.
         void GetOrCreateSurface(std::int32_t SurfaceIndex, Direct3D9::IDirect3DTexture9& Result);
+        // May modify SourceBuffer for resource-specific layout fixups. Ignores LoadOption.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
+        // Modifies SourceBuffer in place.
         static void ApplyWideScreenLayoutFixups(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& ResourceKey);
         GR_gi::TgiGR* Image;
         GR_DX::TTextureGR* SurfaceCache;

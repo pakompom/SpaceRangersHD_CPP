@@ -20,6 +20,7 @@
 #include "units/WindowsSdk.hpp"
 
 namespace EC_Cache {
+    // The threshold is 0x30000000 bytes of used virtual address space.
     void EvictMainMenuShipCachesWhenAddressSpaceHigh() {
         std::int32_t i{};
         TCacheControlEC* Control{};
@@ -62,6 +63,7 @@ namespace EC_Cache {
         EC_Cache::EvictBlockChildrenFromCache(u"Bm.BGO"_w, pas::class_ref<EC_CacheGAI::TCGaiEC>());
     }
 
+    // Requires an exact cache-data class match.
     void EvictBlockChildrenFromCache(pas::WideString BlockPath, TCacheDataClass CacheDataClass) {
         std::int32_t i{};
         EC_Data::TDataEC* Data{};
@@ -87,6 +89,7 @@ namespace EC_Cache {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Drops all retains and the data binding.
     void TCacheControlEC::Reset() {
         RetainCount = 0;
         if (BoundData != nullptr) {
@@ -98,6 +101,7 @@ namespace EC_Cache {
         CacheKey = pas::WideString();
     }
 
+    // Drops existing retains and the data binding; may apply configured key substitutions.
     void TCacheControlEC::SetCacheKey(const pas::WideString& NewKey) {
         Reset();
         CacheKey = NewKey;
@@ -121,10 +125,13 @@ namespace EC_Cache {
     void TCacheControlEC::QueueLoadIfMissing(pas::List* PendingLoads) {
     }
 
+    // Base implementation returns nil.
     TCacheDataEC* TCacheControlEC::CreateData() {
         return nullptr;
     }
 
+    // Acquisitions may block on pending loads and evict other cache entries.
+    // Nested acquisitions reuse BoundData; the class argument selects existing entries.
     TCacheDataEC* TCacheControlEC::AcquireDataFromConfig(TCacheDataClass CacheDataClass) {
         TCacheDataEC* Data{};
         EC_Buf::TBufEC* Buffer{};
@@ -260,10 +267,12 @@ namespace EC_Cache {
         return Result;
     }
 
+    // Base implementation returns nil.
     TCacheDataEC* TCacheControlEC::AcquireData() {
         return nullptr;
     }
 
+    // Saturates at zero; the data remains bound.
     void TCacheControlEC::Release() {
         if (RetainCount > 0) {
             --RetainCount;
@@ -272,6 +281,7 @@ namespace EC_Cache {
         }
     }
 
+    // Only checks this control's RetainCount; frees the shared entry and detaches all its controls.
     void TCacheControlEC::EvictData(TCacheDataClass CacheDataClass) {
         if (RetainCount > 0) {
             return;
@@ -292,6 +302,7 @@ namespace EC_Cache {
         EC_Struct::TObjectEx_Create(Self);
     }
 
+    // Detaches all controls without freeing them.
     void TCacheDataEC_Destroy(TCacheDataEC* Self) {
         while (Self->FirstBoundControl != nullptr) {
             Self->UnlinkControl(Self->LastBoundControl);
@@ -299,6 +310,7 @@ namespace EC_Cache {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Caller must set Control.BoundData.
     void TCacheDataEC::AppendControl(TCacheControlEC* Control) {
         if (LastBoundControl != nullptr) {
             LastBoundControl->NextBoundControl = Control;
@@ -311,6 +323,7 @@ namespace EC_Cache {
         }
     }
 
+    // Clears BoundData but preserves RetainCount.
     void TCacheDataEC::UnlinkControl(TCacheControlEC* Control) {
         if (Control->PrevBoundControl != nullptr) {
             Control->PrevBoundControl->NextBoundControl = Control->NextBoundControl;
@@ -329,6 +342,7 @@ namespace EC_Cache {
         Control->BoundData = nullptr;
     }
 
+    // Base load hooks are empty in the native implementation.
     void TCacheDataEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
     }
 
@@ -346,6 +360,7 @@ namespace EC_Cache {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Invalidates all entries, including retained ones.
     void TCacheEC::Clear() {
         while (MostRecentData != nullptr) {
             RemoveAndFreeData(LeastRecentData);
@@ -353,6 +368,7 @@ namespace EC_Cache {
         ResidentBytes = 0;
     }
 
+    // Root is borrowed; invalidates existing cached entries.
     void TCacheEC::SetDataRoot(EC_Data::TDataEC* Root) {
         Clear();
         DataRoot = Root;
@@ -362,6 +378,7 @@ namespace EC_Cache {
         Control->Reset();
     }
 
+    // List and lookup helpers below do not acquire CacheLock.
     void TCacheEC::AddDataToLruHead(TCacheDataEC* Data) {
         if (MostRecentData != nullptr) {
             MostRecentData->PrevData = Data;
@@ -374,6 +391,7 @@ namespace EC_Cache {
         }
     }
 
+    // Does not adjust ResidentBytes. Accepts nil.
     void TCacheEC::RemoveAndFreeData(TCacheDataEC* Data) {
         if (Data != nullptr) {
             if (Data->PrevData != nullptr) {
@@ -392,6 +410,7 @@ namespace EC_Cache {
         }
     }
 
+    // Case-sensitive key and exact class match; returns nil when absent.
     TCacheDataEC* TCacheEC::FindDataByKeyAndClass(const pas::WideString& Key, TCacheDataClass CacheDataClass) {
         TCacheDataEC* Data = MostRecentData;
         while (Data != nullptr) {
@@ -423,12 +442,14 @@ namespace EC_Cache {
         }
     }
 
+    // Caller owns the returned buffer.
     EC_Buf::TBufEC* TCacheEC::OpenDataBuffer(const pas::WideString& Path) {
         EC_Buf::TBufEC* Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         DataRoot->ReadBufferByPath(Path, Buffer);
         return Buffer;
     }
 
+    // Retained entries can prevent reaching the budget.
     void TCacheEC::TrimToBudget(std::int32_t BudgetBytes) {
         TCacheDataEC* Removed{};
         TCacheControlEC* Control{};
@@ -454,12 +475,14 @@ namespace EC_Cache {
                 continue;
             }
             RemainingBytes -= Removed->ResidentBytes;
+            // DCC32 O- folds +0 after register selection, evaluating the size first.
             ResidentBytes -= Removed->ResidentBytes + 0;
             RemoveAndFreeData(Removed);
         }
         pas::critical_leave(CacheLock);
     }
 
+    // PendingLoads owns added controls; duplicate pending entries are possible.
     void TCacheEC::QueueNamedLoadIfMissing(pas::List* PendingLoads, const pas::WideString& CacheKind, const pas::WideString& Key) {
         EC_CacheAlphaBitmap::TCAlphaBitmapControlEC* AlphaBitmap{};
         EC_CacheBitmap::TCBitmapControlEC* Bitmap{};

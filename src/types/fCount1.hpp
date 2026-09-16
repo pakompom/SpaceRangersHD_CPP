@@ -32,12 +32,16 @@ namespace fCount1 {
         void ProcessCallbackTimers() override;
         void MainKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         pas::WideString ImagePath;
+        // Empty selects the alternate count layout.
         pas::WideString KindImagePath;
         pas::WideString Caption;
         std::int32_t Minimum;
+        // Slider and arrow range.
         std::int32_t Maximum;
+        // Highest acceptable value; larger values remain selectable but are red and cannot be accepted.
         std::int32_t Limit;
         std::int32_t Value;
+        // Optional borrowed PWideString labels indexed by Value - Minimum.
         pas::List* Items;
         std::uint8_t Dragging;
         std::uint8_t cpp_padding[3];

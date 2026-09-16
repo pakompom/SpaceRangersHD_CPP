@@ -34,15 +34,19 @@ namespace GI_MultiImage {
         TMultiImageUnitGI* AddUnit();
         void RemoveUnit(TMultiImageUnitGI* Item);
         void ClearUnits();
+        // Prunes empty columns and rows.
         void UnlinkUnitFromColumn(TMultiImageUnitGI* Item);
+        // Preserves units and clears their spatial links.
         void ClearSpatialIndex();
         TMultiImageRowGI* GetOrCreateRow(std::int32_t Index);
         static TMultiImageColGI* GetOrCreateColumn(TMultiImageRowGI* Row, std::int32_t Index);
+        // Native early-out compares the control's Position, not the item's old position. CellSize must be nonzero.
         void SetUnitPosition(TMultiImageUnitGI* Item, Types::TPoint Position);
         void ClearImages();
         std::int32_t AddImage(pas::WideString Path);
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Empty in native code.
         static void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         void Invalidate() override;
         void Draw(Types::TRect ClipRect) override;
@@ -70,6 +74,7 @@ namespace GI_MultiImage {
         TMultiImageColGI* Column;
         std::int32_t ImageIndex;
         Types::TPoint Position;
+        // Borrowed application data; TfAB stores a path-node pointer.
         void* UserData;
     };
     #if INTPTR_MAX == INT32_MAX

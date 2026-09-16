@@ -26,6 +26,8 @@ namespace aGalaxyStruct {
 
     using TGalaxyDifficultyLevels = pas::Array<std::uint8_t, 0, 7>;
 
+    // Raw saved settings. Accessors apply defaults when Enabled is false.
+    // Most modifier bytes encode 0.5 + value / 16, rather than percentages.
     #pragma pack(push, 1)
     struct TGalaxyCustomRules {
         std::uint8_t Enabled;
@@ -41,6 +43,7 @@ namespace aGalaxyStruct {
         std::uint8_t NodeDropModifier;
         std::uint8_t ArcadeDropValueModifier;
         std::uint8_t DropValueModifier;
+        // If all three economy weights are zero, their getters return one each.
         std::uint8_t AgriculturalPlanetWeight;
         std::uint8_t MixedPlanetWeight;
         std::uint8_t IndustrialPlanetWeight;
@@ -106,15 +109,21 @@ namespace aGalaxyStruct {
     using TFactionStrengthValues = pas::Array<float, 0, 2>;
 
     struct TStarStatus {
+        // 0..100.
         std::uint8_t ThreatLevel;
+        // 0..100.
         std::uint8_t TrafficLevel;
+        // Script.StarOwner.
         TStarFaction ControlFaction;
         std::uint8_t cpp_padding[1];
         pas::WideString CustomFaction;
+        // Script.StarBattle.
         std::uint8_t Battle;
+        // Script.StarSeries.
         TDominatorSeries DominatorSeries;
         TStarFaction PreviousControlFaction;
         std::uint8_t cpp_padding_2[1];
+        // Coalition, Dominators/custom, pirates; indexed by Ord(TStarFaction).
         TFactionStrengthValues CachedFactionStrength;
         std::int32_t FactionStrengthCacheTurn;
     };
@@ -137,11 +146,13 @@ namespace aGalaxyStruct {
         pgDemocracy = 4,
     };
 
+    // Prices are from the visiting ship's perspective.
     #pragma pack(push, 1)
     struct TGoodsTradePriceEntry {
         std::int32_t Count;
         float PriceState;
         std::int32_t PurchasePrice;
+        // Before the ship's Trading skill bonus.
         std::int32_t BaseSalePrice;
     };
     #pragma pack(pop)
@@ -169,6 +180,7 @@ namespace aGalaxyStruct {
 
     using TItemTypeMask = pas::Set<0, 79>;
 
+    // Native record RTTI.
     #pragma pack(push, 1)
     struct TPlanetNews {
         std::uint32_t Id;
@@ -179,6 +191,7 @@ namespace aGalaxyStruct {
     };
     #pragma pack(pop)
 
+    // Shared scalar configuration identifiers. Managed configuration records live in aConst.
     enum TWeaponShotType : std::uint8_t {
         wstNormal = 0,
         wstChain = 1,
@@ -208,6 +221,7 @@ namespace aGalaxyStruct {
 
     using PGoodsTradePriceEntry = TGoodsTradePriceEntry*;
 
+    // Shared ship career category; non-ranger implementations can return a fixed career.
     enum TRangerCareer : std::uint8_t {
         rcTrader = 0,
         rcPirate = 1,
@@ -223,6 +237,8 @@ namespace aGalaxyStruct {
         sumGoodsOnly = 3,
     };
 
+    // OwnerToSys () and RaceToSys () establish these IDs.
+    // RaceId and PilotRace use the same Coalition values 0..4.
     enum TOwnerId : std::uint8_t {
         oiMaloc = 0,
         oiPeleng = 1,
@@ -234,6 +250,7 @@ namespace aGalaxyStruct {
         oiPirate = 7,
     };
 
+    // Native record RTTI.
     #pragma pack(push, 1)
     struct TEngineLevelStats {
         std::uint16_t Speed;
@@ -244,6 +261,9 @@ namespace aGalaxyStruct {
 
     using TEngineLevelStatsTable = pas::Array<TEngineLevelStats, 1, 8>;
 
+    // The script singleton constructor proves an enum spanning three bytes.
+    // Four-byte masks use bits 0..20; the exact enum upper bound within 19..23 is unresolved.
+    // Other enumerator names remain unknown. Bit 19 blocks the repair droid in TShip.ApplyDamage.
     enum TDamageKind : std::uint8_t {
         dkEnergy = 0,
         dkSplinter = 1,
@@ -264,24 +284,36 @@ namespace aGalaxyStruct {
 
     using TGreetingCountMask = pas::Set<0, 15>;
 
+    // Native record RTTI.
     #pragma pack(push, 1)
     struct TGalaxyDifficultyTuning {
+        // Also scales fuel prices.
         float GoodsEventDurationFactor;
         float QuestTimeAndExperienceFactor;
+        // Player equipment degradation, indexed by DifficultyLevels[3].
         float EquipmentWearFactor;
         float InventionProgressScale;
+        // Indexed by DifficultyLevels[7].
         float ArcadeRewardScale;
         float QuestMoneyFactor;
+        // Extrapolated geometrically; gameplay meaning unresolved.
         std::int32_t DifficultyValue18;
+        // Extrapolated linearly and rounded; gameplay meaning unresolved.
         std::uint8_t DifficultyValue1C;
         std::uint8_t cpp_padding[3];
         float MarketPriceBandSqueeze;
+        // Roll 0..maximum; zero creates a hole when other conditions allow.
         std::int32_t RandomHoleSpawnRollMaximum;
+        // Before the per-series multiplier.
         float MaximumDominatorResearchRate;
+        // Inclusive random upper bound per consumption event.
         std::uint8_t MaximumResearchMaterialConsumption;
+        // Upper end before owned-program scaling.
         std::uint8_t MaximumQuestProgramRewardCount;
         std::uint8_t cpp_padding_2[2];
+        // Indexed by DifficultyLevels[6].
         float ArcadeDamageTakenScale;
+        // Extrapolated geometrically; gameplay meaning unresolved.
         float DifficultyFactor34;
     };
     #pragma pack(pop)
@@ -310,8 +342,11 @@ namespace aGalaxyStruct {
 
     #pragma pack(push, 1)
     struct TPlanetOwnerMasks {
+        // OwnerId bits 0..4 (0x1F).
         std::uint8_t Coalition;
+        // OwnerId bit 5 (0x20).
         std::uint8_t Dominators;
+        // OwnerId bit 7 (0x80).
         std::uint8_t PirateClan;
     };
     #pragma pack(pop)
@@ -322,15 +357,21 @@ namespace aGalaxyStruct {
 
     #pragma pack(push, 1)
     struct TPlanetRaceMarketInfo {
+        // Used by TPlanet.CalculateInventionProgressRate.
         float InventionProgressScale;
         std::int32_t InitialInventionBoostCount;
         pas::Array<TPlanetGoodsFactors, 0, 7> GoodsFactors;
+        // Cumulative thresholds indexed by TPlanetGovernment.
         pas::Array<std::uint8_t, 0, 4> GovernmentRollThresholds;
         std::uint8_t cpp_padding[3];
         float RevolutionChance;
+        // Scales transport-to-transport relations () and partner-gift gains ().
         float FriendlyRelationScale;
+        // Multiplies owner-table relations for pirates at Coalition planets.
         float PirateRelationFactor;
+        // Native race factor; gameplay meaning unresolved.
         float UnknownFactor9C;
+        // Upper bound before the fixed minimum relation of 30.
         std::uint8_t PirateRelationCeiling;
         std::uint8_t cpp_padding_2[7];
     };
@@ -340,12 +381,18 @@ namespace aGalaxyStruct {
 
     using TFactionStandingMasks = pas::Array<std::uint16_t, 0, 2>;
 
+    // Native record RTTI.
+    // Native record RTTI.
+    // Nine quotas per Coalition race: types 42..49, then the shared weapon bucket 50.
     using TPlanetEquipmentOfferQuotaRow = pas::Array<std::int32_t, 0, 8>;
 
     using TPlanetEquipmentOfferQuotaTable = pas::Array<TPlanetEquipmentOfferQuotaRow, 0, 4>;
 
     using TGoodsTextOrder = pas::Array<std::uint8_t, 0, 7>;
 
+    // TShip.TypeId names from ShipTypeNames (initialized by the table
+    // at) and the subclass initializers.
+    // These are distinct from the hull-generation codes returned by ShipToHullType.
     inline constexpr std::int32_t stKling = 0;
 
     inline constexpr std::int32_t stRanger = 1;
@@ -358,6 +405,10 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t stTranclucator = 5;
 
+    // CurrentStanding categories: native GetControlPresence (),
+    // ResetControlFaction (), and subclass RefreshCurrentStanding methods.
+    // The companion ShipStanding reference uses CoalMilitary/Active/Passive and
+    // PirateMilitary/Active/Passive for the same IDs. Keep the stored Byte ABI.
     inline constexpr std::int32_t ssDominator = 0;
 
     inline constexpr std::int32_t ssUnaligned = 1;
@@ -378,12 +429,16 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t ssCustom = 9;
 
+    // GetScriptStandingOverrideMode (); its SubFaction test is preserved.
     inline constexpr std::int32_t ssmNormal = 0;
 
     inline constexpr std::int32_t ssmCustomFaction = 1;
 
     inline constexpr std::int32_t ssmFixed = 2;
 
+    // Greeting category bits from InitializeShipGreetingDefinitions () and
+    // TShip virtual slot $30. Transport subtypes and pirate allegiance have
+    // separate greeting categories; these values are distinct from TypeId.
     inline constexpr std::int32_t gscTransport = 0;
 
     inline constexpr std::int32_t gscLiner = 1;
@@ -400,6 +455,8 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t gscPirateClan = 7;
 
+    // Hull categories from ShipToHullType (), GetDefaultHullType (),
+    // and ApplySpecialMicroModule (). They are not TShip.TypeId values.
     inline constexpr std::int32_t htRanger = 0;
 
     inline constexpr std::int32_t htWarrior = 1;
@@ -422,6 +479,7 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t htFlagship = 10;
 
+    // Used by ranger inventory, Dominator effects, and script prog* identifiers.
     inline constexpr std::int32_t prgKellerCall = 0;
 
     inline constexpr std::int32_t prgLogicalNegation = 1;
@@ -446,6 +504,8 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t prgDisconnection = 11;
 
+    // CoalitionProjectNames (), investment dispatch (),
+    // and the military-base war operation () share these cooldown indices.
     inline constexpr std::int32_t cpCreateRangerCenter = 0;
 
     inline constexpr std::int32_t cpCreatePirateBase = 1;
@@ -470,6 +530,8 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t cpWarOperation = 11;
 
+    // Conversation IDs shared by ShowPlayerDialogue (),
+    // TfTalk.BuildBuiltinChoices (), and script Talk* constants.
     inline constexpr std::int32_t tkMoneyDemand = 0;
 
     inline constexpr std::int32_t tkGoodsDemand = 1;
@@ -484,6 +546,7 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t tkPartnerRiot = 6;
 
+    // Award categories from SysToReward (); SelectAward returns $FF on failure.
     inline constexpr std::int32_t atLiberation = 0;
 
     inline constexpr std::int32_t atAccomplishment = 1;
@@ -498,6 +561,9 @@ namespace aGalaxyStruct {
 
     inline constexpr std::int32_t AwardNotFound = 0x000000ff;
 
+    // Semantic aliases follow WeaponDamageFlagNames and the native
+    // TShip.ApplyDamage handlers. They do not claim original enum RTTI names.
+    // Keep the enum bounds and four-byte set ABI above unchanged.
     inline constexpr aGalaxyStruct::TDamageKind dkDecelerate = static_cast<aGalaxyStruct::TDamageKind>(3);
 
     inline constexpr aGalaxyStruct::TDamageKind dkDestruct = static_cast<aGalaxyStruct::TDamageKind>(4);
@@ -530,6 +596,7 @@ namespace aGalaxyStruct {
 
     inline constexpr aGalaxyStruct::TDamageKind dkBlockWeapon = static_cast<aGalaxyStruct::TDamageKind>(18);
 
+    // Bit 20 fixes minimum damage at the maximum (TShip.GetWeaponMinDamage).
     inline constexpr std::int32_t DamageNoDeltaMask = 1 << 20;
 
 } // namespace aGalaxyStruct

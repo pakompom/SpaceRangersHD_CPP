@@ -8,6 +8,7 @@
 #include "units/ab_W10.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW10 projectile family:.
 namespace ab_W10 {
     void TabW10_Create(TabW10* Self) {
         ab_Object::TabObject_Create(Self);
@@ -131,6 +132,7 @@ namespace ab_W10 {
                 }
                 Entry = nullptr;
             }
+            // Native midpoint samples deliberately use the W01 trail asset.
             Position = GetWorldPosition();
             {
                 double cpp_arg = pas::real_divide(static_cast<long double>(Position.X) + LastTrailPosition.X, 2.0L);

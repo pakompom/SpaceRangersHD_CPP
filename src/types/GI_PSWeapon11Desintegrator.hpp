@@ -28,6 +28,7 @@ namespace GI_PSWeapon11Desintegrator {
         PDesintegratorParticle AddParticle();
         void RemoveParticle(PDesintegratorParticle Particle);
         void ClearParticles();
+        // Native empty override.
         void Invalidate() override;
         void InvalidateRect(Types::TRect Rect) override;
         void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) override;

@@ -42,6 +42,11 @@ namespace fGov {
         PAS_CLASS_META(TfGov, fPanelMain::TMessageLoopGIWithMainPanel, "TfGov", 316)
         void p_destroy() override;
         void InitializeLayout() override;
+        // Reviewed compiler-layout difference: native reserves one extra, unreferenced
+        // dword at EBP-$F4, before its managed-string temporaries, and emits an extra
+        // push ECX in the prologue. Rebuilt temporaries from $F8 onward are four bytes
+        // nearer EBP. Calls, branches, constants and field accesses agree throughout.
+        // Native diagnostic name: TfGov.BeforeRun.
         void OnOpen() override;
         void OnClose() override;
         void EndTurnClicked(GI_MessageLoop::TObjectGI* Sender);
@@ -64,6 +69,7 @@ namespace fGov {
         void AddMessageClicked(GI_MessageLoop::TObjectGI* Sender);
         void SelectMusic() override;
         void RefreshGovernmentDialog();
+        // DL flag: true suppresses selecting/appending response text from the script-choice list; script execution and choice construction still run. Callers pass 0 or 1.
         void BuildGovernmentChoices(std::uint8_t SkipScriptResponseText);
         void AddBuiltinGovernmentChoices();
         void ContinueScriptDialog();
@@ -126,12 +132,15 @@ namespace fGov {
         std::uint8_t AnimationRestartRequested;
         std::uint8_t cpp_padding[3];
         aRanger::TQuest QuestOffer;
+        // -1..1.
         std::int32_t QuestNegotiationLevel;
         std::int32_t QuestRewardStep;
         std::int32_t QuestDurationStep;
+        // Script names with borrowed TScript data.
         EC_Str::TStringsEC* ScriptDialogNames;
         std::int32_t ScriptDialogCursor;
         std::int32_t PlanetBattleMapId;
+        // 1=launch/exit to menu, 2=loss, 3=win, 4=cancel; launch is consumed on reopening.
         std::int32_t PendingTransition;
         std::uint8_t UseHdPortrait;
         std::uint8_t UseClassicPortrait;

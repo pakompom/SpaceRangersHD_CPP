@@ -63,6 +63,7 @@ namespace EC_CacheHSAI {
         return Header->FrameCount;
     }
 
+    // Returns nil when FrameIndex is outside the header count.
     void* TCHSAIEC::GetFrameIndexPlane(std::uint32_t FrameIndex) {
         if (FrameIndex >= Header->FrameCount) {
             return nullptr;
@@ -70,6 +71,7 @@ namespace EC_CacheHSAI {
         return EC_Mem::AddPointerOffset(BlobData, static_cast<std::int32_t>(sizeof(THSAIHeaderEC)) + FrameIndex * Header->FrameStride);
     }
 
+    // Returns nil for an invalid frame or absent palette.
     GR_GraphBuf::PColorRGBA TCHSAIEC::GetFramePalette(std::uint32_t FrameIndex) {
         if (FrameIndex >= Header->FrameCount) {
             return nullptr;
@@ -80,6 +82,7 @@ namespace EC_CacheHSAI {
         }
     }
 
+    // Requires a valid frame and palette; uses Width rather than PitchBytes as the source pitch.
     void TCHSAIEC::GetOrCreateFrameSurface(std::uint32_t FrameIndex, Direct3D9::IDirect3DTexture9& Result) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         Direct3D9::IDirect3DTexture9 cpp_result_2{};
@@ -108,6 +111,7 @@ namespace EC_CacheHSAI {
         return Header->PitchBytes;
     }
 
+    // Only the minimum 0x34-byte header size is validated. Ignores LoadOption.
     void TCHSAIEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         if (SourceBuffer->DataSize < static_cast<std::int32_t>(sizeof(THSAIHeaderEC))) {
             pas::raise(pas::make_exception<pas::Exception>("Error Load HSAI"_a));

@@ -16,7 +16,9 @@ namespace GI_MessageBox {
         void DialogKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t VirtualKey);
         void ProcessCallbackTimers() override;
         pas::WideString MessageText;
+        // // mbg* option bits.
         std::uint32_t Options;
+        // // Stored by ShowMessageBoxGI; no recovered reader.
         std::int32_t UnusedOption;
         std::int32_t OffsetX;
         std::int32_t OffsetY;
@@ -25,10 +27,12 @@ namespace GI_MessageBox {
     #pragma pack(pop)
     #endif
 
+    // Native OnOpen () reads the button, icon and text-alignment bits.
     inline constexpr std::int32_t mbgOK = 0x00000001;
 
     inline constexpr std::int32_t mbgCancel = 0x00000002;
 
+    // Present in callers; no recovered reader.
     inline constexpr std::int32_t mbgUnused04 = 0x00000004;
 
     inline constexpr std::int32_t mbgWarning = 0x00000008;
@@ -39,6 +43,7 @@ namespace GI_MessageBox {
 
     inline constexpr std::int32_t mbgLeftAlign = 0x00000040;
 
+    // Native AcceptClick / CancelClick return these when no exit is pending.
     inline constexpr std::int32_t mbgResultOK = 1;
 
     inline constexpr std::int32_t mbgResultCancel = 2;

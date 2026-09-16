@@ -75,6 +75,7 @@ namespace aGroup {
         }
     }
 
+    // Ships initially contains serialized IDs, pending reference resolution. Does not clear existing entries.
     void TGroup::Load(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         CreatedTurn = EC_Buf::TBufEC_GetWord(Buffer);
@@ -109,6 +110,7 @@ namespace aGroup {
         }
     }
 
+    // Rebinds ship and route target IDs after Load.
     void TGroup::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -141,12 +143,14 @@ namespace aGroup {
         }
     }
 
+    // Appends Ship, assigns LiberationGroup and resets its order index.
     void TGroup::AddShip(aShip::TShip* Ship) {
         pas::list_add(Ships, reinterpret_cast<void*>(Ship));
         Ship->LiberationGroup = this;
         Ship->LiberationGroupRouteIndex = 0;
     }
 
+    // May remove and free Self when empty or older than 150 days.
     void TGroup::NextDay() {
         if (pas::list_count(Ships) == 0) {
             pas::list_delete(aGalaxy::Galaxy->LiberationGroups, pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(this)));
@@ -156,6 +160,7 @@ namespace aGroup {
         }
     }
 
+    // Detaches member ships, removes Self from Galaxy.LiberationGroups, and frees Self.
     void TGroup::Disband() {
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -172,6 +177,7 @@ namespace aGroup {
         pas::free(this);
     }
 
+    // Chooses TargetStar and a Coalition AssemblyStar within 28 parsecs. Failure disbands and frees Self.
     std::uint8_t TGroup::SelectLiberationTarget() {
         std::uint8_t Result{};
         TargetStar = aGalaxy::Galaxy->SelectStarForLiberationAttack(FindCentralMemberStar(), aGalaxyStruct::sfCoalition);
@@ -197,6 +203,7 @@ namespace aGroup {
         return true;
     }
 
+    // Builds staging, landing and attack orders and publishes news. May disband and free Self when no suitable staging planet exists.
     std::uint8_t TGroup::BuildLiberationOrders() {
         pas::WideString Text{};
         std::uint8_t Result = true;
@@ -258,19 +265,21 @@ namespace aGroup {
         return Result;
     }
 
+    // Requires a nonempty member list; same route index, no land/jump order, and within 300 units.
     std::uint8_t TGroup::AreShipsAssembled() {
         std::int32_t I{};
         aShip::TShip* Ship = pas::list_at<aShip::TShip>(Ships, 0);
         std::int32_t RouteIndex = Ship->LiberationGroupRouteIndex;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(Ships, I);
-            if (Ship->LiberationGroupRouteIndex != RouteIndex || static_cast<std::uint8_t>(pas::in_set<0, 1>(Ship->Order) ^ 1) || aMyFunction::PointDistanceSquared(Ship->Position, Route[RouteIndex].Destination) > 9.0E+4L) {
+            if (Ship->LiberationGroupRouteIndex != RouteIndex || static_cast<std::uint8_t>(pas::is_one_of<aShip::soNone, aShip::soMove>(Ship->Order) ^ 1) || aMyFunction::PointDistanceSquared(Ship->Position, Route[RouteIndex].Destination) > 9.0E+4L) {
                 return false;
             }
         }
         return true;
     }
 
+    // Advances members in reverse order, detaching completed members.
     void TGroup::AdvanceRouteForShips() {
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -309,6 +318,7 @@ namespace aGroup {
         return Result;
     }
 
+    // Chooses a member's current star minimizing summed rounded distances to all galaxy planets.
     aGalaxy::TStar* TGroup::FindCentralMemberStar() {
         std::int32_t I{};
         std::int32_t J{};

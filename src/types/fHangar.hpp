@@ -71,6 +71,7 @@ namespace fHangar {
         void OnClose() override;
         void CaptureDispatcherMirror(GI_MessageLoop::TObjectGI* Sender);
         void DispatcherAnimationComplete(GI_MessageLoop::TObjectGI* Sender);
+        // Orders player takeoff and runs campaign turn/transitions when accepted. Self is unused.
         static std::uint8_t TryTakeOff();
         void EndTurnClicked(GI_MessageLoop::TObjectGI* Sender);
         void ShipClicked(GI_MessageLoop::TObjectGI* Sender);
@@ -79,10 +80,13 @@ namespace fHangar {
         void SelectMusic() override;
         std::uint8_t IsServiceButtonDown();
         void RefreshServiceButtons();
+        // Insufficient funds buy a proportional partial repair.
         void RepairHullClicked(GI_MessageLoop::TObjectGI* Sender);
+        // Requires enough money to fill the tank completely.
         void RefuelClicked(GI_MessageLoop::TObjectGI* Sender);
         void TakeOffClicked(GI_MessageLoop::TObjectGI* Sender);
         static void StopAnimation(GI_MessageLoop::TObjectGI* Sender);
+        // Refreshes hull, fuel and engine warnings and reports whether takeoff is allowed.
         std::uint8_t RefreshTakeOffStatus();
         void AmbientAnimationComplete(GI_MessageLoop::TObjectGI* Sender);
         void StartAmbientAnimation(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
@@ -100,6 +104,7 @@ namespace fHangar {
         fPanelRuins::TfPanelRuins* StationPanel;
         fPanelLoad::TfPanelLoad* LoadPanel;
         GI_Window::TWindowGI* ShipInfoWindow;
+        // Borrowed ship currently described by ShipInfoWindow.
         aShip::TShip* HoveredShip;
         GI_MessageLoop::PCallbackTimerGI ShipInfoHideTimer;
         std::uint8_t TakeOffPending;
@@ -107,6 +112,7 @@ namespace fHangar {
         GI_MessageLoop::PCallbackTimerGI AmbientAnimationTimer;
         GI_MessageLoop::PCallbackTimerGI DockedShipsTimer;
         pas::Array<THangarShipSlot, 0, 8> ShipSlots;
+        // Borrowed inspected ship; forwarded to ShipScreen.ShipToInspect and used by CheatSkill.
         aShip::TShip* SelectedShip;
     };
     #if INTPTR_MAX == INT32_MAX

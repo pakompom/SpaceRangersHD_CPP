@@ -17,6 +17,7 @@ namespace GI_RadioGroup {
     struct TRadioGroupGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TRadioGroupGI, GI_MessageLoop::TObjectGI, "TRadioGroupGI", 296)
         void p_destroy() override;
+        // Empty implementation.
         void Clear() override;
         void SetConfigPath(const pas::WideString& Path) override;
         void SetSize(Types::TPoint Size) override;

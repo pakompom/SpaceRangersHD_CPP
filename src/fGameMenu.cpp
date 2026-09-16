@@ -127,6 +127,7 @@ namespace fGameMenu {
     void TfGameMenu::HelpClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::AnsiString cpp_text{};
         WindowsSdk::ShowWindow(GR_Main::MainWindowHandle, WindowsSdk::SW_MINIMIZE);
+        // Native and are the empty and 'open' PAnsiChar literals.
         ShellAPI::ShellExecuteA(0u, pas::literal_pointer("open"), (cpp_text = static_cast<pas::AnsiString>(aConst::LocalizedText(u"FormGameMenu.HelpFile"_wref.get())), cpp_text.pchar()), pas::literal_pointer(""), pas::literal_pointer(""), WindowsSdk::SW_SHOWNORMAL);
     }
 

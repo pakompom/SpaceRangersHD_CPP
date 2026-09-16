@@ -65,6 +65,7 @@ namespace fGameSettings2 {
         void CancelClicked(GI_MessageLoop::TObjectGI* Sender);
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void PlayerNameChanged(GI_MessageLoop::TObjectGI* Sender);
+        // Also removes <>{} from the edit control and adjusts its caret; rejects empty names and unsupported glyphs.
         std::uint8_t ValidatePlayerName(pas::WideString Name);
         void ShowControlHelp(GI_MessageLoop::TObjectGI* Sender, std::uint8_t Show);
         void HelpMouseEnter(GI_MessageLoop::TObjectGI* Sender);
@@ -78,8 +79,11 @@ namespace fGameSettings2 {
         GI_Label::TLabelGI* AddExtendedOptionLabel(pas::WideString OptionName, pas::WideString Caption, std::uint8_t UnusedFlag);
         void AddExtendedOptionChoice(std::int32_t Value, pas::WideString Caption, std::uint8_t Selected, std::uint8_t Disabled);
         void ExtendedChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        // Invokes Callback immediately with the new slider.
         void AddExtendedOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TNewGameSliderEvent Callback);
+        // Searches only the active extended group; raises when no value is found.
         std::int32_t GetExtendedOptionValue(pas::WideString OptionName);
+        // Searches only the active extended group; missing options are ignored.
         void SetExtendedOptionValue(pas::WideString OptionName, std::int32_t Value);
         static void FormatExtendedInteger(GI_MessageLoop::TObjectGI* Sender);
         static void FormatExtendedAutoPercent(GI_MessageLoop::TObjectGI* Sender);
@@ -101,6 +105,7 @@ namespace fGameSettings2 {
         pas::Array<std::uint8_t, 0, 1> StartingSkills;
         std::uint8_t cpp_padding_2[2];
         std::int32_t SelectedSkillSlot;
+        // // Choice values are 1..12; ItemTypeByChoice is zero-based.
         pas::Array<std::int32_t, 0, 1> StartingItemChoices;
         std::int32_t SelectedItemSlot;
         pas::Array<std::uint8_t, 0, 11> ItemTypeByChoice;

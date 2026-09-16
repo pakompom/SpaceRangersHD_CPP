@@ -22,10 +22,12 @@ namespace GI_InfiniteImage {
     struct TInfiniteImageGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TInfiniteImageGI, GI_MessageLoop::TObjectGI, "TInfiniteImageGI", 292)
         void p_destroy() override;
+        // Resets size to two billion pixels on each axis and centers the origin.
         void SetImagePath(pas::WideString Path);
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
+        // The hardware drawing path is unimplemented.
         void Draw(Types::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;
         EC_CacheBitmap::TCBitmapControlEC* ImageCache;

@@ -29,11 +29,13 @@ namespace GI_RotateImage {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves both cache keys.
     void TRotateImageGI::Clear() {
         Angle = 0;
         GI_MessageLoop::TObjectGI::Clear();
     }
 
+    // A full turn has 256 steps.
     void TRotateImageGI::SetAngle(std::uint8_t Value) {
         if (Value == Angle) {
             return;
@@ -49,6 +51,7 @@ namespace GI_RotateImage {
         }
     }
 
+    // Leaves bounds unchanged when the rotation cache key is empty.
     void TRotateImageGI::UpdateHitTestBounds() {
         if (RotationCache->HasEmptyCacheKey()) {
             return;
@@ -64,6 +67,7 @@ namespace GI_RotateImage {
         }
     }
 
+    // Leaves Result unwritten when the rotation cache key is empty.
     Types::TRect TRotateImageGI::GetLocalBounds() {
         Types::TRect Result{};
         if (RotationCache->HasEmptyCacheKey()) {
@@ -81,6 +85,7 @@ namespace GI_RotateImage {
         return Result;
     }
 
+    // Uses the current Origin as the rotation pivot.
     void TRotateImageGI::SetImage(pas::WideString Path, Types::TPoint ImageSize) {
         EC_CacheBitmap::TCBitmapEC* Bitmap{};
         ImageCache->SetCacheKey(Path);

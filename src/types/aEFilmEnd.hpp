@@ -27,10 +27,14 @@ namespace aEFilmEnd {
         void p_destroy() override;
         void Clear();
         PEFilmEndEntry AppendEntry();
+        // Detaches and releases all three retained scene references, then frees Entry.
         void RemoveEntry(PEFilmEndEntry Entry);
+        // Transfers selected scene references from Film. Requires its 0x18 command marker.
         void TakeTrailingEffects(aEFilm::TEFilm* Film);
         void AdvanceEffects();
+        // Clears matching references without unlinking entries.
         void ReleaseObjectReferences(SE_Space::TObjectSE* Obj);
+        // Removes weapon entries whose Projectile is nonzero.
         void RemoveLinkedWeaponEffects();
         PEFilmEndEntry FirstEntry;
         PEFilmEndEntry LastEntry;

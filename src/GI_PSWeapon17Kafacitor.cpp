@@ -18,6 +18,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native Kafacitor beam: linked control points and interpolated lateral movement.
 namespace GI_PSWeapon17Kafacitor {
     pas::DynArray<GI_PSWeapon17Kafacitor::TKafacitorPalette> KafacitorPalettes{};
 
@@ -70,6 +71,7 @@ namespace GI_PSWeapon17Kafacitor {
     }
 
     void TPSWeapon17Kafacitor_Destroy(TPSWeapon17Kafacitor* Self) {
+        // Native destructor does not release the allocated particle list.
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
@@ -108,6 +110,7 @@ namespace GI_PSWeapon17Kafacitor {
         A = static_cast<long double>(-HalfWidth - 12) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = static_cast<long double>(HalfWidth + 12) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth + 12) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));

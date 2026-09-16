@@ -19,6 +19,7 @@ namespace DirectSound {
 
     using IDirectSoundNotify = pas::ComPtr<IDirectSoundNotify_Tag>;
 
+    // The engine copies 20 bytes, including the aligned wave-format tail.
     #pragma pack(push, 1)
     struct TSoundWaveFormat {
         std::uint16_t FormatTag;

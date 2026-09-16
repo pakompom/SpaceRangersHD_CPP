@@ -29,10 +29,13 @@
 #include "units/ab_Ship.hpp"
 
 namespace ab_Hit {
+    // Native objects are TabShip instances.
     pas::Array<ab_Hit::TabHit*, 0, 3> KellerFragments{};
 
+    // Advance and KellerBreakupComplete iterate the four fragment slots, indices 0..3.
     pas::Array<double, 0, 3> KellerFragmentDistances{};
 
+    // Initialized by breakup; later use under review.
     pas::Array<double, 0, 3> KellerFragmentValuesAC{};
 
     std::int32_t KellerBreakupTicks{};

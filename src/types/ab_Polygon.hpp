@@ -28,10 +28,12 @@ namespace ab_Polygon {
         PabPolygon Next;
         pas::Array<TabPolygonVertex, 0, 2> Vertices;
         std::uint8_t cpp_padding[16];
+        // Serialized value; meaning not yet established.
         std::int32_t MapValue30;
     };
     #pragma pack(pop)
 
+    // Native record RTTI.
     struct TabOptGroup {
         pas::DynArray<PabPolygon> Polygons;
         std::uint8_t cpp_padding[4];
@@ -40,6 +42,7 @@ namespace ab_Polygon {
 
     using PabPolygonGroup = TabOptGroup*;
 
+    // Native record RTTI.
     struct TabOptUnit {
         pas::DynArray<ab_StopLine::PabStopPoint> Points;
         pas::DynArray<PabPolygonGroup> Groups;

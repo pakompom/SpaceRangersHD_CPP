@@ -3,6 +3,7 @@
 #include "units/GI_PSWeapon14Vertix.hpp"
 #include "units/GR_Main.hpp"
 
+// Native animation palette resources; this effect uses the shared GAI control.
 namespace GI_PSWeapon14Vertix {
     pas::DynArray<GI_PSWeapon14Vertix::TGAISet> Weapon14AnimationPaths{};
 

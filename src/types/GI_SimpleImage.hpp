@@ -23,14 +23,19 @@ namespace GI_SimpleImage {
     struct TSimpleImageGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TSimpleImageGI, GI_MessageLoop::TObjectGI, "TSimpleImageGI", 296)
         void p_destroy() override;
+        // Preserves the cache control and its key.
         void Clear() override;
+        // The RGBA key suffix enables SourceRGBA; keys shorter than four characters preserve the previous flag.
         void SetImagePath(const pas::WideString& ImagePath);
         Types::TPoint GetContentSize();
         void SetImageKindX(GI_Main::TImageKindXGI Value);
         void SetImageKindY(GI_Main::TImageKindYGI Value);
         void SetHalfAlpha(std::uint8_t Value);
+        // Image is optional.
         void LoadFromConfigPath(const pas::WideString& Path) override;
+        // Requires Image; does not update SourceRGBA from the key suffix.
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // CenterFill is unimplemented on both axes.
         void Draw(Types::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;
         EC_CacheBitmap::TCBitmapControlEC* ImageCache;

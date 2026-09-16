@@ -32,6 +32,7 @@ namespace GI_SimpleImage {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves the cache control and its key.
     void TSimpleImageGI::Clear() {
         ImageKindX = GI_Main::ikxCenter;
         ImageKindY = GI_Main::ikyCenter;
@@ -40,6 +41,7 @@ namespace GI_SimpleImage {
         GI_MessageLoop::TObjectGI::Clear();
     }
 
+    // The RGBA key suffix enables SourceRGBA; keys shorter than four characters preserve the previous flag.
     void TSimpleImageGI::SetImagePath(const pas::WideString& ImagePath) {
         Invalidate();
         ImageCache->SetCacheKey(ImagePath);
@@ -79,6 +81,7 @@ namespace GI_SimpleImage {
         }
     }
 
+    // Image is optional.
     void TSimpleImageGI::LoadFromConfigPath(const pas::WideString& Path) {
         EC_BlockPar::TBlockParEC* Block{};
         EC_CacheBitmap::TCBitmapEC* Bitmap{};
@@ -114,6 +117,7 @@ namespace GI_SimpleImage {
         }
     }
 
+    // Requires Image; does not update SourceRGBA from the key suffix.
     void TSimpleImageGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
@@ -144,6 +148,7 @@ namespace GI_SimpleImage {
         }
     }
 
+    // CenterFill is unimplemented on both axes.
     void TSimpleImageGI::Draw(Types::TRect ClipRect) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         std::int32_t Width{};

@@ -244,6 +244,7 @@ namespace fLoadQuest {
         }
     }
 
+    // Returns a zero-based index; inserts after entries with equal access.
     std::int32_t TfLoadQuest::InsertEntryByAccess(std::int32_t RequiredAccess) {
         std::int32_t I{};
         std::int32_t Index = 0;
@@ -323,6 +324,7 @@ namespace fLoadQuest {
         AccessLevel = CalculateAccessLevel();
         std::uint8_t Alternate = true;
         Index = -100;
+        // Native code reuses the final parsed quest ID as the first row's top.
         {
             const std::int32_t cpp_last = Entries.length() - 1;
             if (0 <= cpp_last) {
@@ -456,6 +458,7 @@ namespace fLoadQuest {
         }
     }
 
+    // Index is zero-based; locked entries clear the selection.
     void TfLoadQuest::SelectQuest(std::int32_t Index) {
         std::int32_t Previous = SelectedIndex;
         SelectedIndex = Index;
@@ -564,6 +567,7 @@ namespace fLoadQuest {
         GI_Main::BreakUiMessage();
     }
 
+    // Loads the quest with HeaderOnly enabled.
     void TfLoadQuest::ShowSelectedQuestDetails() {
         TextQuest::TTextQuest* Quest{};
         pas::WideString Text{};
@@ -684,6 +688,7 @@ namespace fLoadQuest {
         }
     }
 
+    // QuestComplate.dat: CRC32, Int32 count, then Int32 entries.
     void TfLoadQuest::LoadCompletionData() {
         pas::WideString cpp_text{};
         EC_Buf::TBufEC* Buffer{};
@@ -734,6 +739,7 @@ namespace fLoadQuest {
         pas::free(Buffer);
     }
 
+    // QuestId must be 0..9999. Higher status wins; equal status minimizes an existing nonzero Value.
     void TfLoadQuest::RecordCompletion(std::int32_t QuestId, std::int32_t Value, std::int32_t Status) {
         std::int32_t I{};
         if (QuestId < 0 || QuestId >= 10000) {
@@ -763,6 +769,7 @@ namespace fLoadQuest {
         CompletionData[QuestId * 2 + 1] = Status;
     }
 
+    // Advances past a group when all but one quest is completed.
     std::int32_t TfLoadQuest::CalculateAccessLevel() {
         std::int32_t QuestId{};
         std::int32_t Access{};
@@ -784,6 +791,7 @@ namespace fLoadQuest {
                     CompletionIndex = QuestId;
                     if (CompletionIndex >= 0) {
                         if ((CompletionData.length() - 1 + 1) / 2 > CompletionIndex) {
+                            // The native inlined completion check repeats this upper bound.
                             if ((CompletionData.length() - 1 + 1) / 2 > CompletionIndex) {
                                 if (CompletionData[CompletionIndex * 2 + 1] != 0) {
                                     ++CompletedCount;
@@ -806,6 +814,7 @@ namespace fLoadQuest {
         return Result;
     }
 
+    // X is completed, Y is total; includes only numeric quests with positive Access.
     WindowsSdk::TPoint TfLoadQuest::GetCompletionCounts() {
         WindowsSdk::TPoint Result{};
         std::int32_t I{};
@@ -840,6 +849,7 @@ namespace fLoadQuest {
         return Result;
     }
 
+    // The displayed total includes groups below 3.
     pas::WideString TfLoadQuest::GetCompletionSummary() {
         WindowsSdk::TPoint Counts{};
         EC_BlockPar::TBlockParEC* Entry{};
@@ -859,6 +869,7 @@ namespace fLoadQuest {
         return static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Counts.X), "/", SysUtils::IntToStr(Total)}));
     }
 
+    // Empty implementation.
     void TfLoadQuest::SelectMusic() {
     }
 

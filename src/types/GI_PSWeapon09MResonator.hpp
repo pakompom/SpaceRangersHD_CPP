@@ -29,6 +29,7 @@ namespace GI_PSWeapon09MResonator {
     struct TPSWeapon09BranchGI : GI_PSWeapon::TPSWeaponGI {
         PAS_CLASS_META(TPSWeapon09BranchGI, GI_PSWeapon::TPSWeaponGI, "TPSWeapon09BranchGI", 328)
         void p_destroy() override;
+        // Native empty override.
         void Invalidate() override;
         void SetPosition(Types::TPoint Position) override;
         void SetTargetPoint(Types::TPoint Point) override;
@@ -38,6 +39,7 @@ namespace GI_PSWeapon09MResonator {
         PMResonatorParticle AddParticle();
         void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) override;
         void Draw(Types::TRect ClipRect) override;
+        // Explicitly zeroed by the constructor.
         std::int32_t Unknown130;
         PMResonatorParticle Particles;
         std::int32_t ParticleCount;
@@ -72,6 +74,7 @@ namespace GI_PSWeapon09MResonator {
     struct TPSWeapon09MResonator : GI_PSWeapon::TPSWeaponGI {
         PAS_CLASS_META(TPSWeapon09MResonator, GI_PSWeapon::TPSWeaponGI, "TPSWeapon09MResonator", 352)
         void p_destroy() override;
+        // Native empty override.
         void Invalidate() override;
         void SetPosition(Types::TPoint Position) override;
         void SetTargetPoint(Types::TPoint Point) override;
@@ -79,6 +82,7 @@ namespace GI_PSWeapon09MResonator {
         void ClearParticles();
         void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) override;
         void Draw(Types::TRect ClipRect) override;
+        // Explicitly zeroed by the constructor.
         std::int32_t Unknown130;
         PMResonatorParticle Particles;
         std::int32_t ParticleCount;

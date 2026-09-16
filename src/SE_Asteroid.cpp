@@ -95,6 +95,7 @@ namespace SE_Asteroid {
         }
     }
 
+    // Requires an attached space.
     void TAsteroidSE::DrawMap() {
         SE_Process::TProcessSE* cpp_with = pas::checked_cast<SE_Process::TProcessSE*>(Space->Process);
         if (static_cast<long double>(aMyFunction::PointDistanceSquared(Position, cpp_with->RadarCenter)) < pas::sqr(cpp_with->RadarRange)) {

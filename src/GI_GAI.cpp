@@ -84,10 +84,12 @@ namespace GI_GAI {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves animation state.
     void TgaiGI::Clear() {
         GI_MessageLoop::TObjectGI::Clear();
     }
 
+    // Resets sequence position even when the key is unchanged.
     void TgaiGI::SetImagePath(const pas::WideString& ImagePath) {
         SequenceFrame = 0;
         if (CachedPlaybackGraphBuf != nullptr) {
@@ -127,6 +129,7 @@ namespace GI_GAI {
         return FirstFrameImageCache->CacheKey;
     }
 
+    // Does not validate the index.
     void TgaiGI::SetSequenceFrame(std::int32_t FrameInSequence) {
         SequenceFrame = FrameInSequence;
         if (CachedPlaybackGraphBuf != nullptr) {
@@ -136,6 +139,7 @@ namespace GI_GAI {
         Invalidate();
     }
 
+    // Accepted out-of-range positions become zero.
     void TgaiGI::SetFramePosition(std::int32_t FrameInSequence, std::uint8_t ForwardOnly) {
         if (SequenceFrame == FrameInSequence) {
             return;
@@ -150,6 +154,7 @@ namespace GI_GAI {
         Invalidate();
     }
 
+    // Returns zero in FirstFrameOnly mode.
     std::int32_t TgaiGI::GetMainImageFrameCount() {
         std::int32_t Result{};
         if (FirstFrameOnly) {
@@ -171,6 +176,7 @@ namespace GI_GAI {
         }
     }
 
+    // Does not reset frame position; single-frame sequences remain timer-free.
     void TgaiGI::RestartPlayback() {
         std::int32_t Delay{};
         StopPlaybackRequested = false;
@@ -280,6 +286,7 @@ namespace GI_GAI {
         SequenceFrameCount = 0;
     }
 
+    // Accepts ascending and descending ranges; changes the playback timer unless stopped.
     void TgaiGI::LoadFrameSequenceFromText(const pas::WideString& FrameSpec) {
         pas::WideString Part{};
         std::int32_t Index{};
@@ -333,18 +340,22 @@ namespace GI_GAI {
         return Result;
     }
 
+    // Does not validate the index.
     std::int32_t TgaiGI::GetSequenceFrameSourceIndex(std::int32_t FrameInSequence) {
         return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrameIndexTable, FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
+    // Does not validate the index.
     void TgaiGI::SetFrameDelay(std::int32_t FrameInSequence, std::int32_t DelayMs) {
         EC_Mem::WriteInt32EC(EC_Mem::AddPointerOffset(SequenceFrameDelayTable, FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))), DelayMs);
     }
 
+    // Does not validate the index.
     std::int32_t TgaiGI::GetFrameDelay(std::int32_t FrameInSequence) {
         return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrameDelayTable, FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
+    // Black pixels do not count as hits; composed playback may require an existing composition buffer.
     std::uint8_t TgaiGI::HitTestPixel(WindowsSdk::TPoint Point) {
         EC_CacheGAI::TCGaiEC* Image{};
         std::int32_t Width{};
@@ -605,6 +616,7 @@ namespace GI_GAI {
         }
     }
 
+    // Also rebuilds frame tables when SequenceIndex is nonnegative.
     void TgaiGI::UpdateAutoGeometry() {
         EC_CacheGAI::TCGaiEC* Image{};
         GI_MessageLoop::TObjectGI::UpdateAutoGeometry();
@@ -640,6 +652,7 @@ namespace GI_GAI {
         }
     }
 
+    // Enables StopAfterOneCycle; frame delays are rounded to milliseconds with a minimum of one.
     void TgaiGI::SetOneCycleDuration(std::int32_t DurationMs) {
         std::int32_t Index{};
         std::int32_t Delay{};
@@ -1172,6 +1185,7 @@ namespace GI_GAI {
         }
     }
 
+    // Skips the main GAI in FirstFrameOnly mode.
     void TgaiGI::PrimeImageCaches() {
         if (MainImageCache != nullptr && static_cast<std::uint8_t>(FirstFrameOnly ^ 1) && MainImageCache->CacheKey != u"") {
             EC_CacheGAI::AcquireCachedGai(MainImageCache);

@@ -42,14 +42,17 @@ namespace aWarrior {
     struct TWarrior : aNormalShip::TNormalShip {
         PAS_CLASS_META(TWarrior, aNormalShip::TNormalShip, "TWarrior", 1300)
         void p_destroy() override;
+        // Sets location, money and WarriorType; registers the ship with its star and home garrison.
         void InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::uint8_t Kind);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void NextDay() override;
         void NextDayLogic() override;
+        // Flagship branch; its diagnostic retains TWarrior.NextDayLogic.
         void NextDayFlagshipLogic();
         std::uint8_t NavigateToHomePlanet();
         void BuildReachablePlanetQueue() override;
+        // AI ownership check only; does not test travel range.
         std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         void MoveToRandomPatrolPoint();
         void RepairBrokenEquipmentAtLocation() override;
@@ -58,9 +61,11 @@ namespace aWarrior {
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         pas::WideString GetTypeNameKey() override;
         std::uint8_t GetGreetingShipCategory() override;
+        // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         std::uint8_t GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
+        // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
         void ProcessUnseenProgression();
         std::uint8_t RelationToNonRanger(aShip::TShip* Ship) override;
@@ -71,12 +76,15 @@ namespace aWarrior {
         std::uint8_t AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t TrustsAttackRequester(aShip::TShip* Ship) override;
         std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        // Native diagnostic name: TWarrior.ArmsToTarget.
         void AssignWeaponTargetsInStar() override;
+        // Flagship branch; shares the TWarrior.ArmsToTarget diagnostic.
         void AssignFlagshipWeaponTargets();
         aShip::TShip* FindNearestFriendlyFlagship();
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
         void ManeuverFlagship();
+        // Scores Coalition systems and same-race garrisons; moves the flagship between home rosters without changing its current position.
         void ReassignFlagshipHomePlanet();
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
@@ -87,6 +95,7 @@ namespace aWarrior {
         std::uint8_t AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         std::uint8_t BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         void MoveToRandomPlanetOrbit();
+        // Requires the home system and (Id + CurrentTurn) mod 100 < 25.
         std::uint8_t IsHomePatrolTurn();
         void ConsumeNodes(std::int32_t Amount);
         std::uint8_t UnknownVirtualC0(void* Argument) override;
@@ -96,6 +105,7 @@ namespace aWarrior {
         std::uint8_t AcceptPickupItem(aItem::TItem* Item) override;
         std::uint8_t AcceptPickupDistance(aItem::TItem* Item, double Distance) override;
         void RefreshCurrentStanding() override;
+        // wtRegular / wtFlagship; exposed as Script.ShipSubType.
         std::uint8_t WarriorType;
         std::uint8_t cpp_padding[3];
     };
@@ -103,6 +113,7 @@ namespace aWarrior {
     #pragma pack(pop)
     #endif
 
+    // BuyWarrior / BuyFlagship and GetDefaultHullType distinguish these subtypes.
     inline constexpr std::int32_t wtRegular = 0;
 
     inline constexpr std::int32_t wtFlagship = 1;

@@ -33,12 +33,15 @@ namespace GI_SpaceCircle {
         void RebuildSegments();
         void ProjectAndClipSegments();
         void RotateSegments(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
+        // Deactivation is deferred until CommitFrameDraw.
         void SetActive(std::uint8_t Enabled) override;
         void OnActivate() override;
         void OnDeactivate() override;
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Empty in native code.
         static void LoadSpaceCircleProperties(EC_BlockPar::TBlockParEC* Block);
+        // Empty in native code.
         void Invalidate() override;
         void ErasePreviousFrame() override;
         void PrepareFrameDraw() override;

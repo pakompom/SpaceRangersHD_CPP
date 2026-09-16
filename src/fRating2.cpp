@@ -41,20 +41,12 @@
 #include "units/fRewards.hpp"
 
 namespace fRating2 {
-    pas::WideString FormatRangerWingmenHint(aRanger::TRanger* Ranger);
-
-    pas::WideString FormatCareerHintColumn(std::int32_t Column);
-
-    pas::WideString GetRatingRankImagePath(std::uint8_t Rank);
-
-    void CreateRatingRowAwardStrip(TfRating2* Self, std::int32_t& Index, aRanger::TRanger*& Ranger, GI_Panel::TPanelGI*& Panel);
-
-    pas::WideString FormatDominatorKillsHintColumn(std::int32_t Column);
-
+    // Native calls pass only columns 1, 2 or 3.
     const pas::Array<std::int32_t, 1, 3> CareerHintColumns = pas::Array<std::int32_t, 1, 3>{{10, 75, 105}};
 
     const pas::Array<std::int32_t, 1, 3> DominatorHintColumns = pas::Array<std::int32_t, 1, 3>{{10, 75, 95}};
 
+    // Runs the registered rating screen modally; true for normal close.
     std::uint8_t ShowRangerRating(GI_MessageLoop::TMessageLoopGI* Parent) {
         std::uint8_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
@@ -275,6 +267,48 @@ namespace fRating2 {
         pas::WideString Names{};
         aRanger::TRanger* Ally{};
         aPirate::TPirate* Pirate{};
+        // Nested in TfRating2.ShowPartnershipHint; caller supplies its parent frame.
+        auto FormatRangerWingmenHint = [&](aRanger::TRanger* Ranger) -> pas::WideString {
+            pas::WideString Result{};
+            std::int32_t I{};
+            pas::WideString Names{};
+            aRanger::TRanger* Ally{};
+            if (Ranger->CountWingmen() == 1) {
+                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
+                    Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
+                    if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
+                        Result = ([&] {
+                            pas::WideString name = Ally->GetName();
+                            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                            pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PartnerBossOneText"_wref.get());
+                            return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name), u"<Date>"_w, std::move(formatTurnDate));
+                        }());
+                    }
+                }
+                return Result;
+            }
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_2.next(I); ) {
+                Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
+                if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
+                    if (Names != u"") {
+                        Names = pas::concat_wide({Names, u", ", ([&] {
+                            pas::WideString name_2 = Ally->GetName();
+                            pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                            pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
+                            return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate_2));
+                        }())});
+                    } else {
+                        Names = ([&] {
+                            pas::WideString name_3 = Ally->GetName();
+                            pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                            pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
+                            return aMyFunction::FormatText2(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_3));
+                        }());
+                    }
+                }
+            }
+            return aMyFunction::FormatText1(aConst::LocalizedColorText(u"FormRating.PartnerBossManyText"_wref.get()), pas::WideString(), u"<Names>"_w, Names);
+        };
         RewardWindow->SetActive(true);
         if (aPlayer::GetPlayer() == Rows[Sender->UserValue].Ranger) {
             {
@@ -381,7 +415,7 @@ namespace fRating2 {
                 Text = pas::concat_wide({Text, u" ", aConst::LocalizedColorText(u"FormRating.PartnerTextDateEnd"_wref.get())});
             }
             if (Rows[Sender->UserValue].Ranger->CountWingmen() > 0) {
-                Text = pas::concat_wide({Text, u"\r\n", fRating2::FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger)});
+                Text = pas::concat_wide({Text, u"\r\n", FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger)});
             }
             {
                 GI_Label::TLabelGI* RewardText_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
@@ -400,7 +434,7 @@ namespace fRating2 {
                     return aMyFunction::FormatText1(std::move(localizedColorText_9), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_9));
                 }()));
             }
-            Text = fRating2::FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger);
+            Text = FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger);
             {
                 GI_Label::TLabelGI* RewardText_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
                 RewardText_4->SetText(Text);
@@ -429,53 +463,15 @@ namespace fRating2 {
         RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100, std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
     }
 
-    pas::WideString FormatRangerWingmenHint(aRanger::TRanger* Ranger) {
-        pas::WideString Result{};
-        std::int32_t I{};
-        pas::WideString Names{};
-        aRanger::TRanger* Ally{};
-        if (Ranger->CountWingmen() == 1) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
-                Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
-                if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
-                    Result = ([&] {
-                        pas::WideString name = Ally->GetName();
-                        pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                        pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PartnerBossOneText"_wref.get());
-                        return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name), u"<Date>"_w, std::move(formatTurnDate));
-                    }());
-                }
-            }
-            return Result;
-        }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_2.next(I); ) {
-            Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
-            if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
-                if (Names != u"") {
-                    Names = pas::concat_wide({Names, u", ", ([&] {
-                        pas::WideString name_2 = Ally->GetName();
-                        pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                        pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                        return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate_2));
-                    }())});
-                } else {
-                    Names = ([&] {
-                        pas::WideString name_3 = Ally->GetName();
-                        pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                        pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                        return aMyFunction::FormatText2(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_3));
-                    }());
-                }
-            }
-        }
-        return aMyFunction::FormatText1(aConst::LocalizedColorText(u"FormRating.PartnerBossManyText"_wref.get()), pas::WideString(), u"<Names>"_w, Names);
-    }
-
     void TfRating2::ShowCareerHint(GI_MessageLoop::TObjectGI* Sender) {
         std::uint8_t I{};
         WindowsSdk::TPoint Cursor{};
         pas::WideString Text{};
         aRanger::TRanger* Ranger{};
+        // Nested in TfRating2.ShowCareerHint; caller supplies its parent frame.
+        auto FormatCareerHintColumn = [&](std::int32_t Column) -> pas::WideString {
+            return pas::wide_int_to_str(CareerHintColumns[Column] + 40);
+        };
         RewardWindow->SetActive(true);
         Ranger = Rows[Sender->UserValue].Ranger;
         if (aPlayer::GetPlayer() == Ranger) {
@@ -505,9 +501,9 @@ namespace fRating2 {
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_2->GraphBuf);
             }
         }
-        Text = pas::concat_wide({u"<td=", fRating2::FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(u"FormRating.Rating.Title"_wref.get()), u"</align>", u"\r\n"});
+        Text = pas::concat_wide({u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(u"FormRating.Rating.Title"_wref.get()), u"</align>", u"\r\n"});
         for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range.next(I); ) {
-            Text = pas::concat_wide({Text, u"<td=", fRating2::FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.", aConst::CareerTuning[I].Name})), u"<td=", fRating2::FormatCareerHintColumn(2), u">:</align><td=", fRating2::FormatCareerHintColumn(3), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[I])), u"<color=255,240,100>"_w), u"</align>", u"\r\n"});
+            Text = pas::concat_wide({Text, u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.", aConst::CareerTuning[I].Name})), u"<td=", FormatCareerHintColumn(2), u">:</align><td=", FormatCareerHintColumn(3), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[I])), u"<color=255,240,100>"_w), u"</align>", u"\r\n"});
         }
         {
             GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
@@ -534,10 +530,6 @@ namespace fRating2 {
         }
         Cursor = GetCursorPoint();
         RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100, std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
-    }
-
-    pas::WideString FormatCareerHintColumn(std::int32_t Column) {
-        return pas::wide_int_to_str(CareerHintColumns[Column] + 40);
     }
 
     void TfRating2::ShowAwardHint(aRanger::TRanger* Ranger, std::int32_t AwardId) {
@@ -592,6 +584,7 @@ namespace fRating2 {
         RewardWindow->SetActive(false);
     }
 
+    // Returns -1 if the ranger is absent.
     std::int32_t TfRating2::FindRowByRangerId(std::int32_t RangerId) {
         std::int32_t I{};
         {
@@ -639,6 +632,7 @@ namespace fRating2 {
         }
     }
 
+    // Accepts -1; other indices must be valid. Rebuilds the old and new rows because selection changes row height.
     void TfRating2::SelectRow(std::int32_t Index) {
         std::int32_t Previous{};
         if (SelectedIndex != Index) {
@@ -668,6 +662,7 @@ namespace fRating2 {
         TablePanel->VerticalScrollBar->SetSmallChange(TablePanel->VerticalScrollBar->LargeChange);
     }
 
+    // Excludes ExcludedFromRating rangers; preserves selection by ID when SelectedIndex is -1.
     void TfRating2::RebuildTable() {
         pas::AnsiString cpp_text{};
         pas::AnsiString cpp_text_2{};
@@ -851,14 +846,93 @@ namespace fRating2 {
 
     void TfRating2::CreateRow(std::int32_t Index) {
         aRanger::TRanger* Ranger{};
+        GI_Panel::TPanelGI* Panel{};
         GI_Panel::TPanelGI* BarPanel{};
         GI_Image::TImageGI* Image{};
         GI_Label::TLabelGI* Caption{};
         float Ratio{};
         std::int32_t ExtraKills{};
         GI_GAI::TgaiGI* Animation{};
+        // Nested in TfRating2.CreateRow; caller supplies its parent frame.
+        auto GetRatingRankImagePath = [&](std::uint8_t Rank) -> pas::WideString {
+            pas::WideString Result{};
+            if (Rank == 0) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank1"});
+            } else if (Rank == 1) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank2"});
+            } else if (Rank == 2) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank3"});
+            } else if (Rank == 3) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank4"});
+            } else if (Rank == 4) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank5"});
+            } else if (Rank == 5) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank6"});
+            } else if (Rank == 6) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank7"});
+            } else if (Rank == 7) {
+                return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank8"});
+            } else {
+                GR_Main::RaiseWideMessage(u"error"_wref.get());
+                return Result;
+            }
+        };
+        // Nested in TfRating2.CreateRow; requires its parent frame.
+        auto CreateRatingRowAwardStrip = [&]() -> void {
+            std::int32_t I{};
+            std::int32_t J{};
+            GI_GraphBuf::TGraphBufGI* Buffer{};
+            GR_GraphBuf::TGraphBufGR* Icon{};
+            std::uint8_t Award{};
+            pas::WideString Path{};
+            std::int32_t Count = 8;
+            std::int32_t Size = GR_Main::GiScalePixels(20);
+            std::int32_t Step = Size / 2;
+            if (Ranger->AwardIds != nullptr && pas::list_count(Ranger->AwardIds) >= 1) {
+                Buffer = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Panel, false);
+                Buffer->SetDepth(11.0);
+                Buffer->SetImageKindX(GI_Main::ikxLeft);
+                Buffer->SetImageKindY(GI_Main::ikyBottom);
+                Buffer->SetPosition(ClassesImports::Point(GR_Main::GiScalePixels(93), GR_Main::GiScalePixels(130)));
+                Buffer->SetSize(ClassesImports::Point(92, Size));
+                Buffer->SetPositionModeW(true);
+                Buffer->MouseMoveCallback = pas::bind_method<&TfRating2::AwardsMouseMove>(this);
+                Buffer->MouseLeaveCallback = pas::bind_method<&TfRating2::HintMouseLeave>(this);
+                Buffer->LeftButtonDownCallback = pas::bind_method<&TfRating2::AwardsMouseDown>(this);
+                Buffer->UserValue = Ranger->Id;
+                reinterpret_cast<GR_GraphBuf::TGraphBufGR*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Buffer->GraphBuf)) + 0)))->AllocateRgbaTight(std::max<std::int32_t>(Buffer->ClientSize.X + 0, Step * Count + Size - Step), Size);
+                for (auto cpp_range = pas::for_to<std::int32_t>(0, Size - 1); cpp_range.next(I); ) {
+                    GR_GraphBuf::TGraphBufGR_FillRect32(Buffer->GraphBuf, ClassesImports::Rect(0, I, Buffer->GraphBuf->Width, I + 1), pas::shl(static_cast<std::int32_t>(System::Round(pas::real_divide(I, Size) * 2.4E+2L) + 10), 24) | pas::shl(250, 16) | pas::shl(250, 8) | 50);
+                }
+                Buffer->SourceHasPerPixelAlpha = true;
+                Buffer->UserState = Index;
+                Icon = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+                I = std::max<std::int32_t>(0, pas::list_count(Ranger->AwardIds) - Count);
+                J = 0;
+                while (I < pas::list_count(Ranger->AwardIds)) {
+                    Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ranger->AwardIds, I)));
+                    if (Award < 10) {
+                        Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
+                    } else {
+                        Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
+                    }
+                    GI_GI::LoadGiByPathIntoGraphBuf(Path, Icon);
+                    if (static_cast<std::uint32_t>(Icon->Width) >= static_cast<std::uint32_t>(Icon->Height)) {
+                        Icon->RescaleRgba(Size, System::Round(pas::real_divide(Size, static_cast<std::uint32_t>(Icon->Width)) * static_cast<std::uint32_t>(Icon->Height)), 5);
+                    } else {
+                        Icon->RescaleRgba(System::Round(pas::real_divide(Size, static_cast<std::uint32_t>(Icon->Height)) * static_cast<std::uint32_t>(Icon->Width)), Size, 5);
+                    }
+                    if (Icon->Height <= Size && Icon->Width + J * Step <= Buffer->GraphBuf->Width) {
+                        GR_GraphBuf::TGraphBufGR_BlendRect32(reinterpret_cast<GR_GraphBuf::TGraphBufGR*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Buffer->GraphBuf)) + 0))), ClassesImports::Point(J * Step, 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
+                    }
+                    ++I;
+                    ++J;
+                }
+                pas::free(Icon);
+            }
+        };
         Ranger = Rows[Index].Ranger;
-        GI_Panel::TPanelGI* Panel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, TablePanel);
+        Panel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, TablePanel);
         Panel->UserState = Index;
         Panel->SetPosition(ClassesImports::Point(0, Rows[Index].Top));
         Panel->SetPositionModeW(true);
@@ -1119,7 +1193,7 @@ namespace fRating2 {
                 Animation->RestartPlayback();
             }
             if (Ranger->AwardIds != nullptr && pas::list_count(Ranger->AwardIds) > 0) {
-                fRating2::CreateRatingRowAwardStrip(this, Index, Ranger, Panel);
+                CreateRatingRowAwardStrip();
             }
         } else {
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
@@ -1150,7 +1224,7 @@ namespace fRating2 {
             Image->MouseLeaveCallback = pas::bind_method<&TfRating2::HintMouseLeave>(this);
         }
         Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
-        Image->SetImagePath(fRating2::GetRatingRankImagePath(Ranger->Rank));
+        Image->SetImagePath(GetRatingRankImagePath(Ranger->Rank));
         Image->SetSize(ClassesImports::Point(GR_Main::GiScalePixels(100), GR_Main::GiScalePixels(30)));
         Image->SetPosition(ClassesImports::Point(GR_Main::GiScalePixels(442), GR_Main::GiScalePixels(9)));
         Image->SetImageKindX(GI_Main::ikxCenter);
@@ -1223,84 +1297,6 @@ namespace fRating2 {
         TablePanel->VerticalScrollBar->SetSmallChange(std::min<std::int32_t>(Rows[Index].Height, TablePanel->VerticalScrollBar->SmallChange));
         if (SelectedIndex == Index) {
             SelectedRowRect = ClassesImports::Rect(0, Rows[Index].Top, 1, Rows[Index].Top + Rows[Index].Height);
-        }
-    }
-
-    pas::WideString GetRatingRankImagePath(std::uint8_t Rank) {
-        pas::WideString Result{};
-        if (Rank == 0) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank1"});
-        } else if (Rank == 1) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank2"});
-        } else if (Rank == 2) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank3"});
-        } else if (Rank == 3) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank4"});
-        } else if (Rank == 4) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank5"});
-        } else if (Rank == 5) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank6"});
-        } else if (Rank == 6) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank7"});
-        } else if (Rank == 7) {
-            return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank8"});
-        } else {
-            GR_Main::RaiseWideMessage(u"error"_wref.get());
-            return Result;
-        }
-    }
-
-    void CreateRatingRowAwardStrip(TfRating2* Self, std::int32_t& Index, aRanger::TRanger*& Ranger, GI_Panel::TPanelGI*& Panel) {
-        std::int32_t I{};
-        std::int32_t J{};
-        GI_GraphBuf::TGraphBufGI* Buffer{};
-        GR_GraphBuf::TGraphBufGR* Icon{};
-        std::uint8_t Award{};
-        pas::WideString Path{};
-        std::int32_t Count = 8;
-        std::int32_t Size = GR_Main::GiScalePixels(20);
-        std::int32_t Step = Size / 2;
-        if (Ranger->AwardIds != nullptr && pas::list_count(Ranger->AwardIds) >= 1) {
-            Buffer = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Panel, false);
-            Buffer->SetDepth(11.0);
-            Buffer->SetImageKindX(GI_Main::ikxLeft);
-            Buffer->SetImageKindY(GI_Main::ikyBottom);
-            Buffer->SetPosition(ClassesImports::Point(GR_Main::GiScalePixels(93), GR_Main::GiScalePixels(130)));
-            Buffer->SetSize(ClassesImports::Point(92, Size));
-            Buffer->SetPositionModeW(true);
-            Buffer->MouseMoveCallback = pas::bind_method<&TfRating2::AwardsMouseMove>(Self);
-            Buffer->MouseLeaveCallback = pas::bind_method<&TfRating2::HintMouseLeave>(Self);
-            Buffer->LeftButtonDownCallback = pas::bind_method<&TfRating2::AwardsMouseDown>(Self);
-            Buffer->UserValue = Ranger->Id;
-            reinterpret_cast<GR_GraphBuf::TGraphBufGR*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Buffer->GraphBuf)) + 0)))->AllocateRgbaTight(std::max<std::int32_t>(Buffer->ClientSize.X + 0, Step * Count + Size - Step), Size);
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, Size - 1); cpp_range.next(I); ) {
-                GR_GraphBuf::TGraphBufGR_FillRect32(Buffer->GraphBuf, ClassesImports::Rect(0, I, Buffer->GraphBuf->Width, I + 1), pas::shl(static_cast<std::int32_t>(System::Round(pas::real_divide(I, Size) * 2.4E+2L) + 10), 24) | pas::shl(250, 16) | pas::shl(250, 8) | 50);
-            }
-            Buffer->SourceHasPerPixelAlpha = true;
-            Buffer->UserState = Index;
-            Icon = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            I = std::max<std::int32_t>(0, pas::list_count(Ranger->AwardIds) - Count);
-            J = 0;
-            while (I < pas::list_count(Ranger->AwardIds)) {
-                Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ranger->AwardIds, I)));
-                if (Award < 10) {
-                    Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
-                } else {
-                    Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
-                }
-                GI_GI::LoadGiByPathIntoGraphBuf(Path, Icon);
-                if (static_cast<std::uint32_t>(Icon->Width) >= static_cast<std::uint32_t>(Icon->Height)) {
-                    Icon->RescaleRgba(Size, System::Round(pas::real_divide(Size, static_cast<std::uint32_t>(Icon->Width)) * static_cast<std::uint32_t>(Icon->Height)), 5);
-                } else {
-                    Icon->RescaleRgba(System::Round(pas::real_divide(Size, static_cast<std::uint32_t>(Icon->Height)) * static_cast<std::uint32_t>(Icon->Width)), Size, 5);
-                }
-                if (Icon->Height <= Size && Icon->Width + J * Step <= Buffer->GraphBuf->Width) {
-                    GR_GraphBuf::TGraphBufGR_BlendRect32(reinterpret_cast<GR_GraphBuf::TGraphBufGR*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Buffer->GraphBuf)) + 0))), ClassesImports::Point(J * Step, 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
-                }
-                ++I;
-                ++J;
-            }
-            pas::free(Icon);
         }
     }
 
@@ -1497,11 +1493,16 @@ namespace fRating2 {
         }
     }
 
+    // Only displays a hint for the player.
     void TfRating2::ShowDominatorKillsHint(GI_MessageLoop::TObjectGI* Sender) {
         std::uint8_t I{};
         WindowsSdk::TPoint Cursor{};
         pas::WideString Text{};
         aRanger::TRanger* Ranger{};
+        // Nested in TfRating2.ShowDominatorKillsHint; caller supplies its parent frame.
+        auto FormatDominatorKillsHintColumn = [&](std::int32_t Column) -> pas::WideString {
+            return pas::wide_int_to_str(DominatorHintColumns[Column] + 40);
+        };
         Ranger = Rows[Sender->UserValue].Ranger;
         if (aPlayer::GetPlayer() == Ranger) {
             RewardWindow->SetActive(true);
@@ -1533,10 +1534,10 @@ namespace fRating2 {
                 }
             }
             if (aPlayer::GetPlayer() == Ranger) {
-                Text = pas::concat_wide({u"<td=", fRating2::FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedText(u"FormRating.Dominator"_wref.get()), u"</align>", u"\r\n"});
+                Text = pas::concat_wide({u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedText(u"FormRating.Dominator"_wref.get()), u"</align>", u"\r\n"});
                 for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range.next(I); ) {
                     if (aConst::DominatorDisplayOrder[I] != 0) {
-                        Text = pas::concat_wide({Text, u"<td=", fRating2::FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"ShipType.Dominator.Blazer.", SysUtils::IntToStr(aConst::DominatorDisplayOrder[I])}))), u"<td=", fRating2::FormatDominatorKillsHintColumn(2), u">:</align><td=", fRating2::FormatDominatorKillsHintColumn(3), u"><align=left>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->DominatorKillsByType[aConst::DominatorDisplayOrder[I]]), u"<color=255,240,100>"_w), u"</align>", u"\r\n"});
+                        Text = pas::concat_wide({Text, u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"ShipType.Dominator.Blazer.", SysUtils::IntToStr(aConst::DominatorDisplayOrder[I])}))), u"<td=", FormatDominatorKillsHintColumn(2), u">:</align><td=", FormatDominatorKillsHintColumn(3), u"><align=left>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->DominatorKillsByType[aConst::DominatorDisplayOrder[I]]), u"<color=255,240,100>"_w), u"</align>", u"\r\n"});
                     }
                 }
                 {
@@ -1566,10 +1567,6 @@ namespace fRating2 {
             Cursor = GetCursorPoint();
             RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100, std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
         }
-    }
-
-    pas::WideString FormatDominatorKillsHintColumn(std::int32_t Column) {
-        return pas::wide_int_to_str(DominatorHintColumns[Column] + 40);
     }
 
     void TfRating2::p_destroy() {

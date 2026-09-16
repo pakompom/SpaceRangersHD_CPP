@@ -87,6 +87,8 @@ namespace SysUtilsImports {
 
     System::TDateTime SystemTimeToDateTime(const Windows::TSystemTime& SystemTime);
 
+    // Game numeric formats and the default locale date/time expansion. Named
+    // dates and non-Gregorian eras remain explicit unsupported format diagnostics.
     pas::AnsiString FormatDateTime(const pas::AnsiString& Format, System::TDateTime DateTime);
 
     pas::AnsiString DateTimeToStr(System::TDateTime DateTime);
@@ -99,6 +101,8 @@ namespace SysUtilsImports {
 
     std::int32_t FindMatchingFile(SysUtils::TSearchRec& F);
 
+    // Semantic port of the selected RTL's millisecond timestamp conversion.
+    // The day is truncated toward zero; the time is the positive remainder.
     void DateDayAndTime(System::TDateTime DateTime, std::int32_t& Date, std::int32_t& Time);
 
 } // namespace SysUtilsImports

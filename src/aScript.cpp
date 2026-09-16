@@ -46,32 +46,30 @@
 #include "units/aShip.hpp"
 
 namespace aScript {
-    void CompileStateActionCode(TScriptState* State, TScript* Self);
-
-    TLibraryHandler* LoadHandler(pas::WideString& Name);
-
-    TScriptGICacheUnit* CreateUiCacheEntry(EC_BlockPar::TBlockParEC*& Block);
-
-    TScriptCacheUnit* CreateEntry(pas::WideString& Name, EC_BlockPar::TBlockParEC*& Config, EC_BlockPar::TBlockParEC*& SourceBlock);
-
     aScript::TScript* CurrentScript{};
 
+    // Owns PScriptABRequest records.
     pas::List* QueuedArcadeBattles{};
 
+    // Owns PScriptPBRequest records.
     pas::List* QueuedPlanetaryBattles{};
 
+    // // Owns PQueuedTextQuest records.
     pas::List* QueuedTextQuests{};
 
+    // Owns PScriptVDRequest records.
     pas::List* QueuedVideos{};
 
     aScript::TScript* ResumingScript = nullptr;
 
     aScript::TScript* StagedArcadeShipScript = nullptr;
 
+    // Direct stores in TryShowQueuedArcadeBattle establish ownership.
     std::uint8_t ScriptArcadeReturnScreenId = 0;
 
     std::uint8_t ScriptTakeoffRequested = false;
 
+    // Owns ships waiting for an arcade request.
     aMyFunction::TObjectList* StagedArcadeShips{};
 
     std::uint8_t ScriptEndTurnRequested = false;
@@ -80,12 +78,15 @@ namespace aScript {
 
     EC_Expression::TCodeProcessEC* ScriptProcess{};
 
+    // Record entries are freed explicitly before clearing.
     aMyFunction::TObjectList* ScriptDialogOverrides{};
 
     aScript::TLibraryCache* ScriptLibraryCache = nullptr;
 
+    // Named artifact action code via TArtefact.GetActionCode.
     aScript::TScriptCache* ArtefactScriptCache = nullptr;
 
+    // Item-type artifact action code; item types 8 and 9 use the named artifact cache instead.
     aScript::TScriptCache* ArtefactKindScriptCache = nullptr;
 
     aScript::TScriptCache* UselessItemScriptCache = nullptr;
@@ -340,6 +341,7 @@ namespace aScript {
         return Result;
     }
 
+    // Moves the first request belonging to ResumingScript to its queue's front.
     std::uint8_t TryDispatchResumingScriptRequest() {
         std::int32_t I{};
         PQueuedTextQuest Quest{};
@@ -350,6 +352,9 @@ namespace aScript {
         if (ResumingScript == nullptr) {
             return Result;
         }
+        // Native code uses the text-quest record view for all four queues. The
+        // $0C comparison is therefore not the Script field of the other records;
+        // for video requests it even reads beyond their declared $0C allocation.
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(QueuedVideos) - 1); cpp_range.next(I); ) {
             Video = pas::list_at<TScriptTQRequest>(QueuedVideos, I);
             if (Video->Script == ResumingScript) {
@@ -432,6 +437,7 @@ namespace aScript {
         }
     }
 
+    // Requires a nonempty queue. Clears ResumingScript when no requests remain; preserves GABStatus changed by the script.
     void CompleteQueuedArcadeBattle(std::int32_t Status) {
         PScriptABRequest Request = pas::list_at<TScriptABRequest>(QueuedArcadeBattles, 0);
         pas::list_delete(QueuedArcadeBattles, 0);
@@ -451,6 +457,7 @@ namespace aScript {
         }
     }
 
+    // Requires a nonempty queue. Clears ResumingScript when no requests remain; preserves GQuestStatus changed by the script.
     void CompleteQueuedTextQuest(TScriptQuestStatus Status) {
         PQueuedTextQuest Request = pas::list_at<TScriptTQRequest>(QueuedTextQuests, 0);
         pas::list_delete(QueuedTextQuests, 0);
@@ -468,6 +475,7 @@ namespace aScript {
         }
     }
 
+    // Requires a nonempty queue. Clears ResumingScript when no requests remain; preserves GRobotStatus changed by the script.
     void CompleteQueuedPlanetaryBattle(std::int32_t Status) {
         PScriptPBRequest Request = pas::list_at<TScriptPBRequest>(QueuedPlanetaryBattles, 0);
         pas::list_delete(QueuedPlanetaryBattles, 0);
@@ -485,6 +493,7 @@ namespace aScript {
         }
     }
 
+    // Requires a nonempty queue when a player exists. Clears ResumingScript when no requests remain; preserves GVideoStatus changed by the script.
     void CompleteQueuedVideo(std::int32_t Status) {
         if (aPlayer::GetPlayer() == nullptr) {
             return;
@@ -589,6 +598,7 @@ namespace aScript {
         return false;
     }
 
+    // Replaces and frees Script on success; retains it on failure. Requires an existing Galaxy.Scripts entry.
     std::uint8_t TryRestartScript(TScript* Script, aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet) {
         std::int32_t I{};
         Globals::TMessagePlayer* Message{};
@@ -732,6 +742,7 @@ namespace aScript {
         return Result;
     }
 
+    // Bit 9 also selects the player's current owner ID.
     aGalaxyStruct::TOwnerMask DecodeScriptOwnerMask(std::uint32_t Value) {
         aGalaxyStruct::TOwnerMask Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
@@ -959,6 +970,7 @@ namespace aScript {
         return Result;
     }
 
+    // Values outside 0..7 become owner 6.
     std::uint8_t DecodeScriptItemOwner(std::int32_t Value) {
         if (Value == 0) {
             return 0;
@@ -981,6 +993,7 @@ namespace aScript {
         }
     }
 
+    // Values outside 0..4 become hostile.
     aGalaxyStruct::TRelationLevel DecodeScriptRelationLevel(std::int32_t Value) {
         if (Value == 0) {
             return aGalaxyStruct::rlHostile;
@@ -997,6 +1010,7 @@ namespace aScript {
         }
     }
 
+    // DominatorMasks requires eight entries indexed by TKlingType. StationNames is a comma-separated filter when ship-type bit 8 is set.
     std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask, pas::WideString StationNames, pas::OpenArray<aGalaxy::TDominatorSeriesMask> DominatorMasks) {
         auto cpp_array_copy = pas::copy_open_array(DominatorMasks);
         DominatorMasks = pas::open_array(cpp_array_copy);
@@ -1042,6 +1056,7 @@ namespace aScript {
         return true;
     }
 
+    // Caller owns the list; ship references are borrowed.
     pas::List* CollectScriptCandidateShips(aGalaxy::TStar* Star) {
         aShip::TShip* Ship{};
         aShip::TShip* OtherShip{};
@@ -1122,6 +1137,7 @@ namespace aScript {
         return Candidates;
     }
 
+    // Returns the first match or nil; leaves Candidates unchanged.
     aShip::TShip* FindScriptGroupCandidate(pas::List* Candidates, TScriptGroup* Group) {
         std::int32_t I{};
         aShip::TShip* Ship{};
@@ -1210,6 +1226,7 @@ namespace aScript {
         return nullptr;
     }
 
+    // The player may have multiple bindings; ordinary ships have one.
     TScriptShip* GetScriptShipBindingForContext(aShip::TShip* Ship, TScript* Script) {
         std::int32_t I{};
         TScriptShip* Result = nullptr;
@@ -1229,6 +1246,7 @@ namespace aScript {
     void ClearScriptDialogRules() {
         std::int32_t I{};
         std::int32_t Count{};
+        // Native untyped Dispose: these records have no managed-field finalization.
         if (ScriptDialogOverrides != nullptr) {
             Count = pas::list_count(ScriptDialogOverrides);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
@@ -1258,6 +1276,7 @@ namespace aScript {
         }
     }
 
+    // Nil Scope temporarily clears CurrentScript. Compiled code is freed after execution.
     void ExecuteScriptText(pas::WideString SourceText, EC_Expression::TVarArrayEC* Scope) {
         EC_Expression::TVarArrayEC* ScriptScope{};
         EC_Expression::TCodeEC* Code = aScript::CompileScriptText(SourceText);
@@ -1300,6 +1319,7 @@ namespace aScript {
         pas::free(Code);
     }
 
+    // Caller owns the returned code.
     EC_Expression::TCodeEC* CompileScriptText(pas::WideString SourceText) {
         pas::WideString ErrorText{};
         pas::WideString DelimiterError{};
@@ -1363,6 +1383,7 @@ namespace aScript {
         return Cache->GetOrCompile(Name, Config);
     }
 
+    // Runs with CurrentScript nil. VirtualKey=0 leaves KEY and KEYMOD unchanged.
     void ExecuteGameplayUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t VirtualKey) {
         pas::WideString Text{};
         EC_Expression::TVarEC* Cell{};
@@ -1425,6 +1446,7 @@ namespace aScript {
         CurrentScript = SavedScript;
     }
 
+    // When CurrentScript is nil, only Snapshot.Script is written.
     void ScriptSnap(TScriptContextSnapshot& Snapshot) {
         Snapshot.Script = CurrentScript;
         if (CurrentScript != nullptr) {
@@ -1442,6 +1464,7 @@ namespace aScript {
         }
     }
 
+    // Returns ScriptItemActParam, initially zero.
     std::int32_t RunItemUseCode(aItem::TItem* Item, aShip::TShip* Ship) {
         TScript* Script{};
         pas::WideString Text{};
@@ -1490,6 +1513,7 @@ namespace aScript {
         return Result;
     }
 
+    // Uses artifact or useless-item configuration code. Object slots can carry event-specific integers.
     std::int32_t RunItemConfigActionCode(aItem::TItem* Item, std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         TScriptItem* Binding{};
         EC_Expression::TCodeEC* ParentCode{};
@@ -1550,6 +1574,7 @@ namespace aScript {
         return Result;
     }
 
+    // Returns the event parameter after script changes. Object slots can carry event-specific integers.
     std::int32_t RunCustomShipInfoActionCode(aShip::PCustomShipInfo Info, std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         EC_BlockPar::TBlockParEC* Config{};
         TScriptContextSnapshot Snapshot{};
@@ -1788,7 +1813,7 @@ namespace aScript {
             Result.X = System::Sin(Angle) * Distance + Center.X;
             Result.Y = Center.Y - System::Cos(Angle) * Distance;
         }
-        if (pas::in_set<4, 5>(PlaceKind)) {
+        if (pas::is_one_of<spkScriptItem, spkGroupCentroid>(PlaceKind)) {
             if (static_cast<long double>(Result.X) * Result.X + static_cast<long double>(Result.Y) * Result.Y < 1.0E-4L) {
                 Angle = aMyFunction::HeadingDegreesToRadians(0.0);
                 Result.X = System::Sin(Angle) * (OriginStar->SafeRadius * 1.5L);
@@ -1811,7 +1836,7 @@ namespace aScript {
             Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::SeededRandomIntRange(0, 360, Seed));
             Result.X = Result.X + System::Sin(Angle) * (Radius * 0.9L);
             Result.Y = Result.Y + -System::Cos(Angle) * (Radius * 0.9L);
-            if (pas::in_set<4, 5>(PlaceKind) && static_cast<long double>(Result.X) * Result.X + static_cast<long double>(Result.Y) * Result.Y < 2.0L * OriginStar->SafeRadius * OriginStar->SafeRadius) {
+            if (pas::is_one_of<spkScriptItem, spkGroupCentroid>(PlaceKind) && static_cast<long double>(Result.X) * Result.X + static_cast<long double>(Result.Y) * Result.Y < 2.0L * OriginStar->SafeRadius * OriginStar->SafeRadius) {
                 Result.X = Result.X - System::Sin(Angle) * (Radius * 1.8L);
                 Result.Y = Result.Y - -System::Cos(Angle) * (Radius * 1.8L);
             }
@@ -1819,6 +1844,7 @@ namespace aScript {
         return Result;
     }
 
+    // Kind 2 requires docking at the bound planet; other kinds require normal space.
     std::uint8_t TScriptPlace::ShipInPlace(aShip::TShip* Ship) {
         if (PlaceKind == spkDockedPlanet) {
             return Ship->CurrentPlanet == reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)));
@@ -1860,6 +1886,7 @@ namespace aScript {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // EntryCode runs before CurShip/EndState refresh; StateCode sees the new context.
     void TScriptState_Create(TScriptState* Self) {
         EC_Struct::TObjectEx_Create(Self);
         Self->StateCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
@@ -2021,6 +2048,7 @@ namespace aScript {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Frees owned entries but retains list and code containers.
     void TScript::Clear() {
         std::int32_t I{};
         std::int32_t StateCount{};
@@ -2109,6 +2137,7 @@ namespace aScript {
         GroupRelations = nullptr;
     }
 
+    // Changes the global CurrentScript context.
     void TScript::PublishShipContext(TScriptShip* Binding) {
         CurrentShip = Binding->Ship;
         CurrentScript = this;
@@ -2134,6 +2163,7 @@ namespace aScript {
         }
     }
 
+    // Raises when absent.
     TScriptStar* TScript::GetStar(pas::WideString Name) {
         std::int32_t I{};
         TScriptStar* Star{};
@@ -2147,6 +2177,7 @@ namespace aScript {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script. Not found star =", Name}))));
     }
 
+    // Raises when absent.
     PScriptPlanetBinding TScript::GetPlanetBinding(pas::WideString Name) {
         std::int32_t I{};
         std::int32_t J{};
@@ -2165,6 +2196,7 @@ namespace aScript {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script. Not found planet =", Name}))));
     }
 
+    // Raises when absent.
     TScriptItem* TScript::GetItem(pas::WideString Name) {
         TScriptItem* Item{};
         std::int32_t I{};
@@ -2310,6 +2342,7 @@ namespace aScript {
         }
     }
 
+    // Index -1 is ignored.
     void TScript::ExecuteDialogAnswer(std::int32_t Index) {
         if (Index == -1) {
             return;
@@ -2332,6 +2365,7 @@ namespace aScript {
         }
     }
 
+    // The player may have multiple script bindings; ordinary ships have one.
     void TScript::BindShip(std::int32_t GroupIndex, aShip::TShip* Ship) {
         TScriptShip* Binding = pas::construct_call<TScriptShip>(TScriptShip_Create);
         pas::list_add(Ships, reinterpret_cast<void*>(Binding));
@@ -2426,6 +2460,7 @@ namespace aScript {
         }
     }
 
+    // Changes source ships' relations to ranger members of the target group.
     void TScript::SetGroupRelation(std::int32_t SourceGroup, std::int32_t TargetGroup, aGalaxyStruct::TRelationLevel Level) {
         TScriptShip* Source{};
         TScriptShip* Target{};
@@ -2458,6 +2493,7 @@ namespace aScript {
         }
     }
 
+    // Recursively assigns remaining stars and their planets; earlier star bindings must already exist.
     std::uint8_t TScript::TryBindStars(std::int32_t StarIndex) {
         TScriptStar* Binding{};
         std::int32_t J{};
@@ -2574,6 +2610,7 @@ namespace aScript {
                         if (OrbitSquared < MinOrbitSquared) {
                             continue;
                         }
+                        // Native search stops at the first eligible orbit beyond the upper bound.
                         if (OrbitSquared > MaxOrbitSquared) {
                             break;
                         }
@@ -2589,6 +2626,7 @@ namespace aScript {
         if (Binding->ShipRequirements != nullptr) {
             Candidates = aScript::CollectScriptCandidateShips(Star);
             Count = Binding->ShipRequirements.length() - 1 + 1;
+            // The original early rejection leaves Candidates allocated here.
             if (pas::list_count(Candidates) < Count) {
                 return Result;
             }
@@ -2774,6 +2812,7 @@ namespace aScript {
         return false;
     }
 
+    // Accepts script-definition versions 5 through 8.
     std::uint8_t TScript::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* FirstPlanet, std::uint8_t CreateObjects) {
         pas::List* Candidates{};
         std::int32_t I{};
@@ -2783,6 +2822,7 @@ namespace aScript {
         std::int32_t K{};
         float Balance{};
         float Radius{};
+        // The native frame retains and finalizes an otherwise unused WideString at EBP-$38.
         pas::WideString Text{};
         pas::WideString UnusedText{};
         pas::WideString ErrorText{};
@@ -2803,6 +2843,61 @@ namespace aScript {
         aPlanet::TPlanet* Planet{};
         std::uint32_t Mask{};
         std::uint8_t KlingType{};
+        // Nested helper; captures Self at ParentFrame-4. Caller removes ParentFrame.
+        auto CompileStateActionCode = [&](TScriptState* State) -> void {
+            pas::WideString SourceText{};
+            pas::WideString ActionTypes{};
+            pas::WideString StepTypes{};
+            std::int32_t I{};
+            std::int32_t Count{};
+            std::uint32_t Step{};
+            std::uint8_t Action{};
+            if (State->OnActionText.read(1) == u'[') {
+                I = EC_Str::FindTextPosW(u"]"_wref.get(), State->OnActionText);
+                SourceText = EC_Str::CopyWideStringUnchecked(State->OnActionText, I + 1, State->OnActionText.length() - I);
+                ActionTypes = EC_Str::CopyWideStringUnchecked(State->OnActionText, 2, I - 2);
+                StepTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 1, u"|"_wref.get());
+                ActionTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 0, u"|"_wref.get());
+                State->ActionCode = aScript::CompileScriptText(SourceText);
+                if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
+                    State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep, aConst::satOnDeath}});
+                } else if (ActionTypes == u"") {
+                    State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep}});
+                } else {
+                    if (StepTypes != u"") {
+                        State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep}});
+                    } else {
+                        State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({});
+                    }
+                    ActionTypes = pas::concat_wide({u",", ActionTypes, u","});
+                    for (Action = static_cast<std::uint8_t>(0); Action <= static_cast<std::uint8_t>(61); ++Action) {
+                        if (pas::pos(pas::concat_wide({u",", aConst::ScriptActionTypeNames[Action], u","}), ActionTypes) > 0) {
+                            pas::include_at(&State->ActionTypeMask, Action);
+                        }
+                    }
+                }
+                if (StepTypes == u"" || StepTypes == u"Any") {
+                    State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
+                } else {
+                    State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
+                    Count = EC_Str::CountDelimitedPartsW(StepTypes, u","_wref.get());
+                    for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
+                        Step = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(StepTypes, I, u","_wref.get()));
+                        if (pas::in_range(Step, 0, 11)) {
+                            pas::include_at(&State->StepTypeMask, Step);
+                        }
+                    }
+                }
+            } else {
+                State->ActionCode = aScript::CompileScriptText(State->OnActionText);
+                State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep, aConst::satOnDeath}});
+                State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
+            }
+            State->ActionCode->LinkAll(ScriptFunctionScope, false);
+            State->ActionCode->LinkAll(Globals::SharedScriptVariables, false);
+            State->ActionCode->LinkAll(this->InitCode->LocalVar, false);
+            State->ActionCode->ScriptFunLinked = true;
+        };
         Clear();
         AnchorPlanet = FirstPlanet;
         std::uint8_t Result = false;
@@ -3307,7 +3402,7 @@ namespace aScript {
                 State->OnActionText = pas::WideString();
             }
             if (State->OnActionText != u"") {
-                aScript::CompileStateActionCode(State, this);
+                CompileStateActionCode(State);
             }
             Text = Buffer->ReadWideString();
             if (Text != u"") {
@@ -3541,6 +3636,7 @@ namespace aScript {
                             Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
                             if (Ship->CargoFreeSpace < reinterpret_cast<aItem::TGoods*>(Item)->Quantity) {
                                 Ship->CargoGoods[Item->ItemType].Count += Ship->CargoFreeSpace;
+                                // Native code adds free space to the remaining quantity here.
                                 reinterpret_cast<aItem::TGoods*>(Item)->Quantity += Ship->CargoFreeSpace;
                                 Ship->RefreshDerivedStats(true);
                             } else {
@@ -3617,61 +3713,6 @@ namespace aScript {
         return true;
     }
 
-    void CompileStateActionCode(TScriptState* State, TScript* Self) {
-        pas::WideString SourceText{};
-        pas::WideString ActionTypes{};
-        pas::WideString StepTypes{};
-        std::int32_t I{};
-        std::int32_t Count{};
-        std::uint32_t Step{};
-        std::uint8_t Action{};
-        if (State->OnActionText.read(1) == u'[') {
-            I = EC_Str::FindTextPosW(u"]"_wref.get(), State->OnActionText);
-            SourceText = EC_Str::CopyWideStringUnchecked(State->OnActionText, I + 1, State->OnActionText.length() - I);
-            ActionTypes = EC_Str::CopyWideStringUnchecked(State->OnActionText, 2, I - 2);
-            StepTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 1, u"|"_wref.get());
-            ActionTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 0, u"|"_wref.get());
-            State->ActionCode = aScript::CompileScriptText(SourceText);
-            if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
-                State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0, 61}});
-            } else if (ActionTypes == u"") {
-                State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0}});
-            } else {
-                if (StepTypes != u"") {
-                    State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0}});
-                } else {
-                    State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({});
-                }
-                ActionTypes = pas::concat_wide({u",", ActionTypes, u","});
-                for (Action = static_cast<std::uint8_t>(0); Action <= static_cast<std::uint8_t>(61); ++Action) {
-                    if (pas::pos(pas::concat_wide({u",", aConst::ScriptActionTypeNames[Action], u","}), ActionTypes) > 0) {
-                        pas::include_at(&State->ActionTypeMask, Action);
-                    }
-                }
-            }
-            if (StepTypes == u"" || StepTypes == u"Any") {
-                State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
-            } else {
-                State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
-                Count = EC_Str::CountDelimitedPartsW(StepTypes, u","_wref.get());
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                    Step = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(StepTypes, I, u","_wref.get()));
-                    if (pas::in_range(Step, 0, 11)) {
-                        pas::include_at(&State->StepTypeMask, Step);
-                    }
-                }
-            }
-        } else {
-            State->ActionCode = aScript::CompileScriptText(State->OnActionText);
-            State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0, 61}});
-            State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
-        }
-        State->ActionCode->LinkAll(ScriptFunctionScope, false);
-        State->ActionCode->LinkAll(Globals::SharedScriptVariables, false);
-        State->ActionCode->LinkAll(Self->InitCode->LocalVar, false);
-        State->ActionCode->ScriptFunLinked = true;
-    }
-
     std::uint8_t TScript::LoadFromFile(pas::WideString FileName, aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* FirstPlanet, std::uint8_t CreateObjects) {
         std::uint8_t Result{};
         EC_CacheBuf::TCBufEC* CachedBuffer{};
@@ -3705,6 +3746,7 @@ namespace aScript {
         return Result;
     }
 
+    // Compiled instructions are excluded.
     void TScript::SaveState(EC_Buf::TBufEC* Buffer) {
         std::int32_t I{};
         std::int32_t J{};
@@ -3856,6 +3898,7 @@ namespace aScript {
         }
     }
 
+    // Requires the original script-definition file. Resolves star, planet and item IDs through Galaxy; ship IDs are deferred.
     void TScript::LoadState(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         std::int32_t J{};
@@ -3888,6 +3931,7 @@ namespace aScript {
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning.Script.GameLoad variable not found: ", Name, u" (", ScriptFileName, u")"})));
             }
             Kind = static_cast<EC_Expression::TVarKind>(EC_Buf::TBufEC_GetByte(Buffer));
+            // Definition-owned dialog/group handles must not be overwritten by saved pointers.
             if (Kind == EC_Expression::vkDword && static_cast<std::uint8_t>(TemporaryCell ^ 1)) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Dialogs) - 1); cpp_range_2.next(J); ) {
                     if (pas::list_at<TScriptDialog>(Dialogs, J)->Name == Name) {
@@ -4076,6 +4120,7 @@ namespace aScript {
             pas::list_add(Ships, reinterpret_cast<void*>(Binding));
             Binding->Script = this;
             Binding->GroupIndex = EC_Buf::TBufEC_GetInt32(Buffer);
+            // Kept as an ID until ResolveLoadedReferences runs after ship loading.
             Binding->Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
             Binding->Data[0] = EC_Buf::TBufEC_GetUInt32(Buffer);
             Binding->Data[1] = EC_Buf::TBufEC_GetUInt32(Buffer);
@@ -4140,6 +4185,7 @@ namespace aScript {
         }
     }
 
+    // Resolves saved ship IDs and restores ship, place, and state bindings after LoadState.
     void TScript::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         std::int32_t J{};
@@ -4299,8 +4345,22 @@ namespace aScript {
         TLibraryHandler* Result{};
         std::int32_t Middle{};
         TLibraryHandler* Entry{};
+        // Nested helper; captures the library name at ParentFrame-4. Returns nil when its ScriptLibs block is absent.
+        auto LoadHandler = [&]() -> TLibraryHandler* {
+            pas::WideString cpp_text{};
+            TLibraryHandler* Result = nullptr;
+            EC_BlockPar::TBlockParEC* Definition = GR_Main::GameDataConfig->FindBlockByPath(pas::concat_wide({u"ScriptLibs.", Name}));
+            if (Definition == nullptr) {
+                return Result;
+            }
+            std::uint32_t Module = WindowsSdk::LoadLibraryW((cpp_text = Definition->GetParam(u"Path"_wref.get()), cpp_text.pchar()));
+            if (Module == 0) {
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load library ", Name}))));
+            }
+            return pas::construct_call<TLibraryHandler>(TLibraryHandler_Create, Name, Module, Definition);
+        };
         if (pas::list_count(Libraries) < 1) {
-            Result = aScript::LoadHandler(Name);
+            Result = LoadHandler();
             pas::list_add(Libraries, reinterpret_cast<void*>(Result));
             return Result;
         }
@@ -4311,7 +4371,7 @@ namespace aScript {
             return Entry;
         }
         if (Comparison < 0) {
-            Result = aScript::LoadHandler(Name);
+            Result = LoadHandler();
             pas::list_insert(Libraries, 0, reinterpret_cast<void*>(Result));
             return Result;
         }
@@ -4322,13 +4382,13 @@ namespace aScript {
             return Entry;
         }
         if (Comparison > 0) {
-            Result = aScript::LoadHandler(Name);
+            Result = LoadHandler();
             pas::list_add(Libraries, reinterpret_cast<void*>(Result));
             return Result;
         }
         while (true) {
             if (HighIndex - LowIndex < 2) {
-                Result = aScript::LoadHandler(Name);
+                Result = LoadHandler();
                 pas::list_insert(Libraries, HighIndex, reinterpret_cast<void*>(Result));
                 return Result;
             }
@@ -4345,20 +4405,6 @@ namespace aScript {
             }
         }
         return Result;
-    }
-
-    TLibraryHandler* LoadHandler(pas::WideString& Name) {
-        pas::WideString cpp_text{};
-        TLibraryHandler* Result = nullptr;
-        EC_BlockPar::TBlockParEC* Definition = GR_Main::GameDataConfig->FindBlockByPath(pas::concat_wide({u"ScriptLibs.", Name}));
-        if (Definition == nullptr) {
-            return Result;
-        }
-        std::uint32_t Module = WindowsSdk::LoadLibraryW((cpp_text = Definition->GetParam(u"Path"_wref.get()), cpp_text.pchar()));
-        if (Module == 0) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load library ", Name}))));
-        }
-        return pas::construct_call<TLibraryHandler>(TLibraryHandler_Create, Name, Module, Definition);
     }
 
     void TLibraryCache::InitFunction(EC_Expression::TVarEC* Cell) {
@@ -4389,12 +4435,28 @@ namespace aScript {
         pas::object_destroy(Self);
     }
 
+    // Returns nil for empty source.
     TScriptGICacheUnit* TScriptGICache::GetOrCompile(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t Middle{};
         TScriptGICacheUnit* Entry{};
+        // Nested helper; captures Block at ParentFrame-4.
+        auto CreateUiCacheEntry = [&]() -> TScriptGICacheUnit* {
+            pas::WideString Text{};
+            TScriptGICacheUnit* Result = nullptr;
+            if (Block == nullptr) {
+                return Result;
+            }
+            Text = Block->ConcatenateValues();
+            if (Text == u"") {
+                return Result;
+            }
+            Result = pas::construct_call<TScriptGICacheUnit>(TScriptGICacheUnit_Create);
+            Result->Initialize(Block, Text);
+            return Result;
+        };
         TScriptGICacheUnit* Result = nullptr;
         if (pas::list_count(Entries) < 1) {
-            Entry = aScript::CreateUiCacheEntry(Block);
+            Entry = CreateUiCacheEntry();
             if (Entry != nullptr) {
                 pas::list_add(Entries, reinterpret_cast<void*>(Entry));
                 return Entry;
@@ -4408,7 +4470,7 @@ namespace aScript {
             return Entry;
         }
         if (Key < static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->Block))) {
-            Entry = aScript::CreateUiCacheEntry(Block);
+            Entry = CreateUiCacheEntry();
             if (Entry != nullptr) {
                 pas::list_insert(Entries, 0, reinterpret_cast<void*>(Entry));
                 return Entry;
@@ -4421,7 +4483,7 @@ namespace aScript {
             return Entry;
         }
         if (Key > static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->Block))) {
-            Entry = aScript::CreateUiCacheEntry(Block);
+            Entry = CreateUiCacheEntry();
             if (Entry != nullptr) {
                 pas::list_add(Entries, reinterpret_cast<void*>(Entry));
                 return Entry;
@@ -4430,7 +4492,7 @@ namespace aScript {
         }
         while (true) {
             if (HighIndex - LowIndex < 2) {
-                Entry = aScript::CreateUiCacheEntry(Block);
+                Entry = CreateUiCacheEntry();
                 if (Entry != nullptr) {
                     pas::list_insert(Entries, HighIndex, reinterpret_cast<void*>(Entry));
                     return Entry;
@@ -4451,31 +4513,42 @@ namespace aScript {
         return Result;
     }
 
-    TScriptGICacheUnit* CreateUiCacheEntry(EC_BlockPar::TBlockParEC*& Block) {
-        pas::WideString Text{};
-        TScriptGICacheUnit* Result = nullptr;
-        if (Block == nullptr) {
-            return Result;
-        }
-        Text = Block->ConcatenateValues();
-        if (Text == u"") {
-            return Result;
-        }
-        Result = pas::construct_call<TScriptGICacheUnit>(TScriptGICacheUnit_Create);
-        Result->Initialize(Block, Text);
-        return Result;
-    }
-
+    // Returns nil for absent or empty OnActCode.
     TScriptCacheUnit* TScriptCache::GetOrCompile(pas::WideString Name, EC_BlockPar::TBlockParEC* Config) {
         std::int32_t Middle{};
         TScriptCacheUnit* Entry{};
+        EC_BlockPar::TBlockParEC* SourceBlock{};
+        // Nested helper; captures source block, config, and name at ParentFrame-4, -8, and -12. Caller owns a non-nil result.
+        auto CreateEntry = [&]() -> TScriptCacheUnit* {
+            pas::WideString Text{};
+            pas::WideString ActionTypes{};
+            pas::WideString StepTypes{};
+            TScriptCacheUnit* Result = nullptr;
+            Text = SourceBlock->ConcatenateValues();
+            if (Text == u"") {
+                return Result;
+            }
+            Result = pas::construct_call<TScriptCacheUnit>(TScriptCacheUnit_Create);
+            if (Config->CountParams(u"OnActCodeTypes"_wref.get()) > 0) {
+                ActionTypes = Config->GetParam(u"OnActCodeTypes"_wref.get());
+            } else {
+                ActionTypes = pas::WideString();
+            }
+            if (Config->CountParams(u"OnActStepTypes"_wref.get()) > 0) {
+                StepTypes = Config->GetParam(u"OnActStepTypes"_wref.get());
+            } else {
+                StepTypes = pas::WideString();
+            }
+            Result->Initialize(Name, Text, ActionTypes, StepTypes);
+            return Result;
+        };
         TScriptCacheUnit* Result = nullptr;
-        EC_BlockPar::TBlockParEC* SourceBlock = Config->FindBlock(u"OnActCode"_wref.get());
+        SourceBlock = Config->FindBlock(u"OnActCode"_wref.get());
         if (SourceBlock == nullptr) {
             return Result;
         }
         if (pas::list_count(Entries) < 1) {
-            Entry = aScript::CreateEntry(Name, Config, SourceBlock);
+            Entry = CreateEntry();
             if (Entry != nullptr) {
                 pas::list_add(Entries, reinterpret_cast<void*>(Entry));
                 return Entry;
@@ -4489,7 +4562,7 @@ namespace aScript {
             return Entry;
         }
         if (Comparison < 0) {
-            Entry = aScript::CreateEntry(Name, Config, SourceBlock);
+            Entry = CreateEntry();
             if (Entry != nullptr) {
                 pas::list_insert(Entries, 0, reinterpret_cast<void*>(Entry));
                 return Entry;
@@ -4503,7 +4576,7 @@ namespace aScript {
             return Entry;
         }
         if (Comparison > 0) {
-            Entry = aScript::CreateEntry(Name, Config, SourceBlock);
+            Entry = CreateEntry();
             if (Entry != nullptr) {
                 pas::list_add(Entries, reinterpret_cast<void*>(Entry));
                 return Entry;
@@ -4512,7 +4585,7 @@ namespace aScript {
         }
         while (true) {
             if (HighIndex - LowIndex < 2) {
-                Entry = aScript::CreateEntry(Name, Config, SourceBlock);
+                Entry = CreateEntry();
                 if (Entry != nullptr) {
                     pas::list_insert(Entries, HighIndex, reinterpret_cast<void*>(Entry));
                     return Entry;
@@ -4531,30 +4604,6 @@ namespace aScript {
                 LowIndex = Middle;
             }
         }
-        return Result;
-    }
-
-    TScriptCacheUnit* CreateEntry(pas::WideString& Name, EC_BlockPar::TBlockParEC*& Config, EC_BlockPar::TBlockParEC*& SourceBlock) {
-        pas::WideString Text{};
-        pas::WideString ActionTypes{};
-        pas::WideString StepTypes{};
-        TScriptCacheUnit* Result = nullptr;
-        Text = SourceBlock->ConcatenateValues();
-        if (Text == u"") {
-            return Result;
-        }
-        Result = pas::construct_call<TScriptCacheUnit>(TScriptCacheUnit_Create);
-        if (Config->CountParams(u"OnActCodeTypes"_wref.get()) > 0) {
-            ActionTypes = Config->GetParam(u"OnActCodeTypes"_wref.get());
-        } else {
-            ActionTypes = pas::WideString();
-        }
-        if (Config->CountParams(u"OnActStepTypes"_wref.get()) > 0) {
-            StepTypes = Config->GetParam(u"OnActStepTypes"_wref.get());
-        } else {
-            StepTypes = pas::WideString();
-        }
-        Result->Initialize(Name, Text, ActionTypes, StepTypes);
         return Result;
     }
 
@@ -4580,12 +4629,12 @@ namespace aScript {
         this->SourceText = SourceText;
         Code = aScript::CompileScriptText(SourceText);
         if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
-            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0, 61}});
+            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep, aConst::satOnDeath}});
         } else if (ActionTypes == u"") {
-            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0}});
+            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep}});
         } else {
             if (StepTypes != u"") {
-                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0}});
+                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep}});
             } else {
                 ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({});
             }
@@ -4629,6 +4678,7 @@ namespace aScript {
         Code = aScript::CompileScriptText(SourceText);
     }
 
+    // Requires nonempty OnActionText and an empty ActionCode slot.
     void TScriptItem::CompileActionCode() {
         std::int32_t I{};
         std::uint32_t Step{};
@@ -4652,12 +4702,12 @@ namespace aScript {
             }
             ActionCode->ScriptFunLinked = true;
             if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
-                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0, 61}});
+                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep, aConst::satOnDeath}});
             } else if (ActionTypes == u"") {
-                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0}});
+                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep}});
             } else {
                 if (StepTypes != u"") {
-                    ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0}});
+                    ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep}});
                 } else {
                     ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({});
                 }
@@ -4682,11 +4732,12 @@ namespace aScript {
             }
         } else {
             ActionCode = aScript::CompileScriptText(OnActionText);
-            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{0, 61}});
+            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep, aConst::satOnDeath}});
             StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
         }
     }
 
+    // Returns the event parameter after script changes. Object slots can carry event-specific integers.
     std::int32_t TScriptItem::RunActionCode(std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         TScriptContextSnapshot Snapshot{};
         std::int32_t Result = Param;
@@ -4742,6 +4793,7 @@ namespace aScript {
         return Result;
     }
 
+    // Returns the event parameter after script changes. Object slots can carry event-specific integers.
     std::int32_t TScriptShip::RunActionCode(std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         TScriptContextSnapshot Snapshot{};
         std::int32_t Result = Param;
@@ -4768,6 +4820,7 @@ namespace aScript {
                         pas::list_delete(Globals::ScriptActionShipStack, pas::list_count(Globals::ScriptActionShipStack) - 1);
                         pas::list_delete(Globals::ScriptItemInfoContextStack, pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
                         pas::list_delete(Globals::ScriptItemContextStack, pas::list_count(Globals::ScriptItemContextStack) - 1);
+                        // Native Exit leaves the compiler's dormant normal SEH unlink.
                         return Result;
                     } catch (...) {
                         auto cpp_exception = pas::caught_object();

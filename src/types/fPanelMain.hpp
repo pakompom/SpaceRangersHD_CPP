@@ -99,7 +99,9 @@ namespace fPanelMain {
         GI_MessageLoop::PCallbackTimerGI MessagePulseTimer;
         GI_MessageLoop::PCallbackTimerGI MessageSlideTimer;
         GI_Label::TLabelGI* HelpLabel;
+        // Last ship selected through a persistent message.
         std::uint32_t DisplayedShipId;
+        // Last planet selected through a persistent message.
         std::uint32_t DisplayedPlanetId;
         GI_Panel::TPanelGI* MessagePanel;
         GI_Image::TImageGI* BackgroundImage;
@@ -121,6 +123,7 @@ namespace fPanelMain {
         std::int32_t TargetTurn;
         GI_MessageLoop::PCallbackTimerGI DateTimer;
         std::int32_t DateTimerIntervalMs;
+        // Owned list of borrowed persistent messages awaiting deletion animation.
         pas::List* AuxiliaryItems;
         std::uint8_t MoneyWarningActive;
         std::uint8_t cpp_padding_2[3];

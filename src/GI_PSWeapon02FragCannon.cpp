@@ -20,6 +20,7 @@
 #include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native fragment-cannon projectiles, impact particles and cyclic random pool.
 namespace GI_PSWeapon02FragCannon {
     pas::DynArray<GI_PSWeapon02FragCannon::TFragCannonPalette> FragCannonPalettes{};
 
@@ -114,6 +115,7 @@ namespace GI_PSWeapon02FragCannon {
         A = static_cast<long double>(-HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = static_cast<long double>(HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = static_cast<long double>(-HalfWidth * 2) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth * 2) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
@@ -175,6 +177,7 @@ namespace GI_PSWeapon02FragCannon {
         }
     }
 
+    // Native empty override.
     void TPSWeapon02FragCannon::Invalidate() {
     }
 

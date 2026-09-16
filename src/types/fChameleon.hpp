@@ -31,7 +31,9 @@ namespace fChameleon {
         std::uint8_t VisualType;
         std::uint8_t cpp_padding[2];
         pas::Array<std::int32_t, 0, 2> Charges;
+        // One-based: disable, Blazer, Keller, Terron.
         std::int32_t Choice;
+        // Disabled choices have nil entries.
         pas::Array<GI_Image::TImageGI*, 1, 4> ChoiceImages;
     };
     #if INTPTR_MAX == INT32_MAX

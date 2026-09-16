@@ -11,8 +11,6 @@
 #include "units/Windows.hpp"
 
 namespace EC_Buf {
-    std::int32_t StepDatXorSeedState(std::int32_t& State);
-
     void TBufEC_Create(TBufEC* Self) {
         EC_Struct::TObjectEx_Create(Self);
     }
@@ -32,6 +30,7 @@ namespace EC_Buf {
         Position = 0;
     }
 
+    // Nonpositive sizes clear the buffer; shrinking clamps Position.
     void TBufEC::SetSize(std::int32_t NewSize) {
         if (NewSize < 1) {
             Clear();
@@ -56,6 +55,7 @@ namespace EC_Buf {
         Position = NewPosition;
     }
 
+    // AddedBytes must be positive. Extends DataSize without advancing Position.
     void TBufEC::EnsureWriteCapacity(std::int32_t AddedBytes) {
         if (AddedBytes < 1) {
             pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestAddLenBuf. addlen=", SysUtils::IntToStr(AddedBytes)})));
@@ -69,6 +69,7 @@ namespace EC_Buf {
         }
     }
 
+    // AddedBytes must be positive; Offset must be in 0..DataSize. Position is unchanged.
     void TBufEC::EnsureWriteCapacityAtOffset(std::int32_t Offset, std::int32_t AddedBytes) {
         if (AddedBytes < 1 || Offset < 0 || Offset > DataSize) {
             pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestAddLenBuf. sme=", SysUtils::IntToStr(Offset), " addlen=", SysUtils::IntToStr(AddedBytes)})));
@@ -88,6 +89,7 @@ namespace EC_Buf {
         }
     }
 
+    // Rejects nonpositive counts and ranges ending past DataSize; does not reject negative Offset.
     void TBufEC::EnsureReadableAtOffset(std::int32_t Offset, std::int32_t Bytes) {
         if (Bytes < 1 || Offset + Bytes > DataSize) {
             pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestGet. sme=", SysUtils::IntToStr(Offset), " len=", SysUtils::IntToStr(Bytes)})));
@@ -104,6 +106,7 @@ namespace EC_Buf {
         EC_Mem::WriteIntegerEC(static_cast<std::uint8_t*>(Data) + Offset, Value);
     }
 
+    // Sequential operations use Position, including writes into existing data.
     void TBufEC::AddBytes(void* Source, std::int32_t ByteCount) {
         EnsureWriteCapacity(ByteCount);
         Windows::CopyMemory(EC_Mem::AddPointerOffset(Data, Position), Source, ByteCount);
@@ -208,6 +211,7 @@ namespace EC_Buf {
         Position += static_cast<std::int32_t>(sizeof(std::uint8_t));
     }
 
+    // Writes a four-byte size followed by the entire source payload, ignoring its Position.
     void TBufEC::AddBuffer(TBufEC* Value) {
         AddDWord(Value->DataSize);
         if (Value->DataSize > 0) {
@@ -230,6 +234,7 @@ namespace EC_Buf {
         return EC_Mem::ReadIntegerEC(static_cast<std::uint8_t*>(Data) + Offset);
     }
 
+    // Returns Dest; requires a positive ByteCount.
     void* TBufEC::ReadBytes(void* Dest, std::int32_t ByteCount) {
         EnsureReadable(ByteCount);
         Windows::CopyMemory(Dest, EC_Mem::AddPointerOffset(Data, Position), ByteCount);
@@ -237,6 +242,7 @@ namespace EC_Buf {
         return Dest;
     }
 
+    // Consumes the terminating zero; an empty scan advances Position by two even at the buffer end.
     char16_t* TBufEC::ReadWideStringToBuffer(char16_t* Dest) {
         std::int32_t Count = GetWideStringLengthAt(Position);
         if (Count > 0) {
@@ -257,6 +263,7 @@ namespace EC_Buf {
         return Result;
     }
 
+    // Replaces NaN with zero.
     double TBufEC::GetDouble() {
         EnsureReadable(static_cast<std::int32_t>(sizeof(double)));
         double Result = EC_Mem::ReadDoubleEC(static_cast<std::uint8_t*>(Data) + Position);
@@ -268,6 +275,7 @@ namespace EC_Buf {
         return Result;
     }
 
+    // Dest.Position is preserved unless it exceeds the new size.
     void TBufEC::ReadLengthPrefixedBuffer(TBufEC* Dest) {
         std::int32_t ByteCount = EC_Buf::TBufEC_GetUInt32(this);
         Dest->SetSize(ByteCount);
@@ -276,6 +284,7 @@ namespace EC_Buf {
         }
     }
 
+    // Lengths count characters, stop at the buffer end, and leave Position unchanged.
     std::int32_t TBufEC::GetWideStringLength() {
         return GetWideStringLengthAt(Position);
     }
@@ -331,6 +340,8 @@ namespace EC_Buf {
         return Count;
     }
 
+    // Dest must have room for the text and a terminating zero; returns Dest.
+    // Line readers stop at NUL, CR or LF and consume up to two such characters.
     std::uint8_t* TBufEC::ReadAnsiTextLineToBuffer(std::uint8_t* Dest) {
         std::uint8_t Ch{};
         std::int32_t Count = GetAnsiTextLineLength();
@@ -423,6 +434,9 @@ namespace EC_Buf {
         return pas::WideString();
     }
 
+    // Successful transforms replace the entire payload and reset Position to zero.
+    // False leaves the buffer intact, including when DataSize is less than eight.
+    // FastMode is ignored in this binary.
     std::uint8_t TBufEC::CompressZlibPayloadInPlace(std::uint8_t FastMode) {
         std::int32_t Mode = 0;
         if (FastMode == true) {
@@ -467,32 +481,36 @@ namespace EC_Buf {
         return true;
     }
 
+    // Leaves Position unchanged.
     void TBufEC::ApplyDatXorCipher(std::int32_t Seed) {
+        std::int32_t State{};
         std::int32_t i{};
-        std::int32_t State = Seed;
+        // Nested helper of TBufEC.ApplyDatXorCipher; requires its parent stack frame.
+        auto StepDatXorSeedState = [&]() -> std::int32_t {
+            State = 16807 * (State % 127773) - 2836 * (State / 127773);
+            if (State <= 0) {
+                State += 0x7fffffff;
+            }
+            return State - 1;
+        };
+        State = Seed;
         std::uint8_t* Cursor = static_cast<std::uint8_t*>(Data);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, DataSize - 1); cpp_range.next(i); ) {
-            *Cursor = *Cursor ^ static_cast<std::uint8_t>(EC_Buf::StepDatXorSeedState(State));
+            *Cursor = *Cursor ^ static_cast<std::uint8_t>(StepDatXorSeedState());
             Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
         }
-    }
-
-    std::int32_t StepDatXorSeedState(std::int32_t& State) {
-        State = 16807 * (State % 127773) - 2836 * (State / 127773);
-        if (State <= 0) {
-            State += 0x7fffffff;
-        }
-        return State - 1;
     }
 
     std::uint32_t TBufEC::ComputeCrc32() {
         return CrcUnit::ComputeCrc32(Data, DataSize);
     }
 
+    // EndOffset is exclusive; offsets are not validated.
     std::uint32_t TBufEC::ComputeCrc32Range(std::int32_t StartOffset, std::int32_t EndOffset) {
         return CrcUnit::ComputeCrc32(static_cast<std::uint8_t*>(Data) + StartOffset, EndOffset - StartOffset);
     }
 
+    // CrcOffset reserves eight bytes inside the half-open range. Stores the range CRC followed by a correction word preserving the previous prefix CRC through that slot.
     void TBufEC::UpdateEmbeddedCrc32(std::int32_t StartOffset, std::int32_t EndOffset, std::int32_t CrcOffset) {
         if (CrcOffset < StartOffset) {
             pas::raise(pas::make_exception<pas::Exception>("CRC update error"_a));
@@ -507,6 +525,8 @@ namespace EC_Buf {
         CrcUnit::WriteCrc32Correction(NewPrefixCrc, PreviousPrefixCrc, CrcOffset + 4 + static_cast<std::uint8_t*>(Data));
     }
 
+    // Loaders replace the payload and leave Position at zero.
+    // Consumes from the current file position; balances its own handle acquisition.
     void TBufEC::LoadFromFileChunk(EC_File::TFileEC* SourceFile, std::int32_t ByteCount) {
         std::int32_t ChunkSize{};
         void* Cursor{};
@@ -539,6 +559,7 @@ namespace EC_Buf {
         return;
     }
 
+    // Reads only the remaining file bytes; balances its own handle acquisition.
     void TBufEC::LoadFromFile(EC_File::TFileEC* SourceFile) {
         std::int32_t ByteCount{};
         Clear();
@@ -571,6 +592,7 @@ namespace EC_Buf {
         }
     }
 
+    // Writes the entire payload at the open file's current position, ignoring the buffer's Position.
     void TBufEC::SaveToFile(EC_File::TFileEC* DestFile) {
         DestFile->WriteBuffer(Data, DataSize);
     }

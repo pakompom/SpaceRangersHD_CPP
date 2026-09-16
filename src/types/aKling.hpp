@@ -33,6 +33,7 @@ namespace aKling {
         void InitKeller(aGalaxy::TStar* Star);
         void InitTerron(aGalaxy::TStar* Star);
         void InitializeDominator(aGalaxyStruct::TKlingType Kind, aPlanet::TPlanet* Planet, aGalaxyStruct::TDominatorSeries Series);
+        // Initializes type/series and location through, then builds the generated loadout. Series occupies one four-byte stack slot.
         void InitGenerated(aGalaxyStruct::TKlingType Kind, aPlanet::TPlanet* Planet, aGalaxyStruct::TDominatorSeries Series);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
@@ -44,9 +45,11 @@ namespace aKling {
         void KellerNextDayLogic();
         void TerronNextDayLogic();
         aShip::TShip* SelectBertorLeader();
+        // Requires a live enemy in the same star and KlingType=ktKlig. Existing kamikaze mode bypasses the proximity/strength test.
         std::uint8_t ShouldKamikaze();
         std::uint8_t LandOnRandomFriendlyPlanet(std::uint8_t OverrideScriptOrder);
         void BuildReachablePlanetQueue() override;
+        // AI ownership check only; does not test travel range.
         std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         std::uint8_t RetreatToReinforcedStar();
         std::uint8_t RetreatIfHullCritical();
@@ -54,6 +57,7 @@ namespace aKling {
         static aGalaxy::TStar* FindKellerReinforcementTarget();
         void SelectKellerMission();
         void SelectKellerReinforcementMission();
+        // Advances mission state 2 to 3, creates the type-4 hole and sends Keller through it with generated reinforcements.
         void OpenKellerMissionHole();
         std::uint8_t RelocateBertorWithinConstellation();
         std::int32_t SpawnEscortShips(aGalaxyStruct::TKlingType Kind, std::int32_t DesiredCount);
@@ -65,10 +69,13 @@ namespace aKling {
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         std::uint8_t GetGreetingShipCategory() override;
+        // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         std::uint8_t GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
+        // Checks the stored active flag and ID; expiration is handled by the daily ship update.
         std::uint8_t IsProgramActive(std::uint8_t ProgramId);
+        // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
         void SetInventoryDominatorOwner();
         void ImproveStandardEquipment();
@@ -81,7 +88,9 @@ namespace aKling {
         std::uint8_t TrustsAttackRequester(aShip::TShip* Ship) override;
         std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
         void AssignWeaponTargetsInStar() override;
+        // Marks this series as aware of the player's camouflage and reports a matching active disguise.
         void DetectAttackingPlayer(aShip::TShip* Attacker);
+        // Can mark the player's camouflage as detected by this Dominator series. Returns false for non-player ships.
         std::uint8_t IsPlayerCamouflageEffective(aShip::TShip* Ship);
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
@@ -95,12 +104,15 @@ namespace aKling {
         std::uint8_t AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         std::uint8_t BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         void RefreshCombatSkills();
+        // Bosses have a minimum calculated speed of 350.
         std::int32_t CalculateSpeed() override;
         std::uint8_t HasNearbyBertorAura();
         void RefreshCurrentStanding() override;
+        // Script.ShipSubType.
         aGalaxyStruct::TKlingType KlingType;
         aGalaxyStruct::TDominatorSeries DominatorSeries;
         std::uint8_t cpp_padding[2];
+        // Zero means inactive.
         std::int32_t ActiveProgramAppliedTurn;
         std::uint8_t ActiveProgramId;
         std::uint8_t AuraEffectShownThisTurn;

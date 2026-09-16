@@ -24,14 +24,18 @@ namespace GI_Zone {
         PAS_CLASS_META(TZoneGI, GI_MessageLoop::TObjectGI, "TZoneGI", 328)
         void p_destroy() override;
         void SetKind(TZoneKindGI Value);
+        // Native no-op: hit zones do not draw.
         void Invalidate() override;
+        // Circle mode ignores Active and HitTestDisabled.
         std::uint8_t HitTest(Types::TPoint Point);
+        // May invoke cursor enter/leave callbacks.
         void OnActivate() override;
         void OnDeactivate() override;
         void OnMouseEnter() override;
         void OnMouseLeave() override;
         void ProcessMouseMove(std::uint32_t KeyState, Types::TPoint Point) override;
         void ProcessLeftButtonDown(std::uint32_t KeyState, Types::TPoint Point) override;
+        // Native calls inherited ProcessLeftButtonDown before the zone's up callback.
         void ProcessLeftButtonUp(std::uint32_t KeyState, Types::TPoint Point) override;
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -42,6 +46,7 @@ namespace GI_Zone {
         std::uint8_t cpp_padding[6];
         GI_MessageLoop::TObjectNotifyEventGI EnterCallback;
         GI_MessageLoop::TObjectNotifyEventGI LeaveCallback;
+        // Verified: Context/EAX, Sender/EDX, KeyState/ECX and Point on stack.
         GI_MessageLoop::TObjectMouseEventGI ZoneMouseDownCallback;
         GI_MessageLoop::TObjectMouseEventGI ZoneMouseUpCallback;
     };

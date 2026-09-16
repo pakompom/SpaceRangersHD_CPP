@@ -10,6 +10,7 @@
 #include "units/GI_SimpleButton.hpp"
 #include "units/GR_Main.hpp"
 
+// Native class ownership follows reference/unit_ownership.json.
 namespace GI_SimpleButton {
     void TSimpleButtonGI_Create(TSimpleButtonGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);

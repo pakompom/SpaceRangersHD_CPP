@@ -8,8 +8,10 @@ namespace aMyFunction {
 } // namespace aMyFunction
 
 namespace ab_MainForm {
+    // Borrowed ActiveArcadeRequest.Ships.
     extern aMyFunction::TObjectList* ActiveArcadeRequestShips;
 
+    // Borrowed head of QueuedArcadeBattles.
     extern aScript::PScriptABRequest ActiveArcadeRequest;
 
     void TfAB_Create(TfAB* Self);

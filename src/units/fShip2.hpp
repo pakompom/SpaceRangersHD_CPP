@@ -23,6 +23,8 @@ namespace fShip2 {
 
     extern std::uint32_t OtherSkillPointColor;
 
+    // Native initialized-WideString descriptor; compiler-generated
+    // finalizer clears these 13 entries (unit counter).
     extern pas::Array<pas::WideString, 0, 12> ShipEquipmentZoneNames;
 
     std::uint8_t RunShipEquipment(GI_MessageLoop::TMessageLoopGI* ParentLoop);
@@ -41,6 +43,7 @@ namespace fShip2 {
 
     void FinalizePlayerHoldView();
 
+    // Uses PlayerHoldShip, or the player when nil; preserves display order.
     void RefreshPlayerHoldView(std::uint8_t IncludeFilteredItems);
 
     void RemoveEmptyPlayerHoldSlot(std::int32_t Index);
@@ -49,14 +52,17 @@ namespace fShip2 {
 
     void RemoveEmptyPlayerHoldSlots();
 
+    // Returns true for out-of-range indices as well as empty slots.
     std::uint8_t IsPlayerHoldSlotEmpty(std::int32_t Index);
 
+    // Ascending order; goods prices are total purchase costs, not unit prices.
     std::int32_t ComparePlayerHoldEntries(TPlayerHoldUnit* Left, TPlayerHoldUnit* Right, TPlayerHoldSort Sort);
 
     void SortPlayerHoldEntries(TPlayerHoldSort Sort);
 
     void RestorePlayerHoldDisplayOrder();
 
+    // Returns -1 when absent.
     std::int32_t FindPlayerHoldIndexByOrder(std::int32_t DisplayOrder);
 
     std::int32_t FindFreePlayerHoldOrder();

@@ -13,6 +13,7 @@ namespace SequenceClass {
         Self->UnknownFlag = 0;
     }
 
+    // Clears member Sequence links without freeing the members.
     void TSequence_Destroy(TSequence* Self) {
         std::int32_t i{};
         LocationClass::TLocation* Location{};
@@ -34,6 +35,7 @@ namespace SequenceClass {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Also updates every member's visit or traversal limit.
     void TSequence::SetTraversalLimit(std::int32_t Value) {
         std::int32_t i{};
         LocationClass::TLocation* Location{};
@@ -49,6 +51,7 @@ namespace SequenceClass {
         }
     }
 
+    // Propagates the minimum positive member limit, or zero if none.
     void TSequence::RecomputeTraversalLimit() {
         std::int32_t i{};
         LocationClass::TLocation* Location{};

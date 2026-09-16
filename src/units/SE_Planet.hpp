@@ -6,6 +6,7 @@
 namespace SE_Planet {
     extern SE_Planet::PPlanetCollisionCircle FirstPlanetCollisionCircle;
 
+    // Links a new entry at the head; only links are initialized.
     PPlanetCollisionCircle AllocatePlanetCollisionCircle();
 
     void FreePlanetCollisionCircle(PPlanetCollisionCircle Entry);

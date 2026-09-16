@@ -19,6 +19,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native Treton particle control and configured two-color palettes.
 namespace GI_PSWeapon05Treton {
     pas::DynArray<GI_PSWeapon05Treton::TTretonPalette> TretonPalettes{};
 
@@ -107,6 +108,7 @@ namespace GI_PSWeapon05Treton {
         A = static_cast<long double>(-HalfWidth - 12) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = static_cast<long double>(HalfWidth + 12) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth + 12) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
@@ -154,6 +156,7 @@ namespace GI_PSWeapon05Treton {
         LastParticle = nullptr;
     }
 
+    // Native empty override.
     void TPSWeapon05Treton::Invalidate() {
     }
 

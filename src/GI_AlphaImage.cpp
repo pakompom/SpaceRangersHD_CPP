@@ -69,6 +69,7 @@ namespace GI_AlphaImage {
         }
     }
 
+    // Black pixels do not count as hits.
     std::uint8_t TAlphaImageGI::HitTestPixel(Types::TPoint Point) {
         std::int32_t Width{};
         std::int32_t Height{};

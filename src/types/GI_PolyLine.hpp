@@ -34,6 +34,7 @@ namespace GI_PolyLine {
         void AllocatePixelBuffers(PPolyLineSegmentGI Segment);
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        // Empty in native code.
         static void LoadPolyLineProperties(EC_BlockPar::TBlockParEC* Block);
         void RebuildBounds();
         PPolyLineSegmentGI AddParentLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t UserData);
@@ -51,6 +52,7 @@ namespace GI_PolyLine {
         void Draw(WindowsSdk::TRect ClipRect) override;
         virtual void DrawSegment(PPolyLineSegmentGI Segment, WindowsSdk::TRect ClipRect);
         virtual void DrawFrameSegment(PPolyLineSegmentGI Segment, WindowsSdk::TRect ClipRect);
+        // Empty in native code.
         void CommitFrameDraw() override;
         PPolyLineSegmentGI FirstSegment;
         PPolyLineSegmentGI LastSegment;
@@ -58,6 +60,7 @@ namespace GI_PolyLine {
         GI_MessageLoop::PCallbackTimerGI AnimationTimer;
         std::uint8_t FrameDrawing;
         std::uint8_t cpp_padding[3];
+        // Borrowed light-mask control.
         GI_Circle::TCircleGI* ShadowCircle;
         std::uint8_t AutoRebuildBounds;
         std::uint8_t NormalizeBounds;
@@ -93,6 +96,7 @@ namespace GI_PolyLine {
         std::uint32_t ClippedEndColor;
         std::uint32_t Color;
         std::uint32_t EndColor;
+        // 0 animated RGB565, 1 alpha, 2 gradient.
         std::int32_t Kind;
     };
     #pragma pack(pop)

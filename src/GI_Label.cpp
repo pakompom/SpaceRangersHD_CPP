@@ -18,8 +18,7 @@
 #include "units/WindowsSdk.hpp"
 
 namespace GI_Label {
-    void SwitchLabelDrawFont(pas::WideString FontName, TLabelGI* Self);
-
+    // Includes the native right/bottom padding.
     WindowsSdk::TRect MeasureLabelTextBounds(const pas::WideString& Text, const pas::WideString& FontName) {
         WindowsSdk::TRect Result{};
         EC_CacheFont::TCFontControlEC* Control = nullptr;
@@ -381,6 +380,7 @@ namespace GI_Label {
         }
     }
 
+    // An empty path frees the embedded child.
     void TLabelGI::SetEmbeddedImagePath(const pas::WideString& ImagePath) {
         Invalidate();
         if (ImagePath == u"") {
@@ -441,6 +441,7 @@ namespace GI_Label {
         }
     }
 
+    // TopAdjustment is optional; includes text outline/shadow padding.
     WindowsSdk::TPoint TLabelGI::MeasureContentSize(WindowsSdk::PInteger TopAdjustment) {
         WindowsSdk::TPoint Result{};
         EC_CacheFont::TCFontEC* Font{};
@@ -521,6 +522,7 @@ namespace GI_Label {
         return Result;
     }
 
+    // Includes word wrapping when enabled.
     std::int32_t TLabelGI::GetRenderedLineCount() {
         EC_Str::TStringsEC* Lines{};
         std::int32_t Result = 0;
@@ -554,6 +556,7 @@ namespace GI_Label {
         return Result;
     }
 
+    // May resize the control to fit its text.
     void TLabelGI::UpdateHitTestBounds() {
         WindowsSdk::TPoint Size{};
         std::int32_t TopAdjustment{};
@@ -590,6 +593,7 @@ namespace GI_Label {
         }
     }
 
+    // Missing embedded controls are requested through the creation callback.
     void TLabelGI::UpdateEmbeddedControls(EC_CacheFont::TCFontEC* Font) {
         std::int32_t Index{};
         GI_MessageLoop::TObjectGI* Child{};
@@ -785,26 +789,33 @@ namespace GI_Label {
         std::uint32_t Color{};
         Direct3D9::IDirect3DTexture9 Texture{};
         WindowsSdk::TRect Bounds{};
+        // Nested Draw helper; caller removes the parent-frame argument.
+        auto SwitchLabelDrawFont = [&](pas::WideString FontName) -> void {
+            this->FontCache->SetCacheKey(FontName);
+            if (this->TextTexture != nullptr) {
+                this->TextTexture->ReleaseSurfaces();
+            }
+        };
         EC_CacheFont::TCFontEC* Font = nullptr;
         if (FontCache != nullptr) {
             if (GlobalsV::FontSmoothingEnabled) {
                 if (FontCache->CacheKey == GlobalsV::SmallFontName) {
-                    GI_Label::SwitchLabelDrawFont(GlobalsV::SmoothSmallFontName, this);
+                    SwitchLabelDrawFont(GlobalsV::SmoothSmallFontName);
                 } else if (FontCache->CacheKey == GlobalsV::SmallBoldFontName) {
-                    GI_Label::SwitchLabelDrawFont(GlobalsV::SmoothSmallBoldFontName, this);
+                    SwitchLabelDrawFont(GlobalsV::SmoothSmallBoldFontName);
                 } else if (FontCache->CacheKey == GlobalsV::NormalFontName) {
-                    GI_Label::SwitchLabelDrawFont(GlobalsV::SmoothNormalFontName, this);
+                    SwitchLabelDrawFont(GlobalsV::SmoothNormalFontName);
                 } else if (FontCache->CacheKey == GlobalsV::NormalBoldFontName) {
-                    GI_Label::SwitchLabelDrawFont(GlobalsV::SmoothNormalBoldFontName, this);
+                    SwitchLabelDrawFont(GlobalsV::SmoothNormalBoldFontName);
                 }
             } else if (FontCache->CacheKey == GlobalsV::SmoothSmallFontName) {
-                GI_Label::SwitchLabelDrawFont(GlobalsV::SmallFontName, this);
+                SwitchLabelDrawFont(GlobalsV::SmallFontName);
             } else if (FontCache->CacheKey == GlobalsV::SmoothSmallBoldFontName) {
-                GI_Label::SwitchLabelDrawFont(GlobalsV::SmallBoldFontName, this);
+                SwitchLabelDrawFont(GlobalsV::SmallBoldFontName);
             } else if (FontCache->CacheKey == GlobalsV::SmoothNormalFontName) {
-                GI_Label::SwitchLabelDrawFont(GlobalsV::NormalFontName, this);
+                SwitchLabelDrawFont(GlobalsV::NormalFontName);
             } else if (FontCache->CacheKey == GlobalsV::SmoothNormalBoldFontName) {
-                GI_Label::SwitchLabelDrawFont(GlobalsV::NormalBoldFontName, this);
+                SwitchLabelDrawFont(GlobalsV::NormalBoldFontName);
             }
             {
                 std::exception_ptr cpp_error{};
@@ -1284,13 +1295,6 @@ namespace GI_Label {
             }
         }
         GI_MessageLoop::TObjectGI::Draw(ClipRect);
-    }
-
-    void SwitchLabelDrawFont(pas::WideString FontName, TLabelGI* Self) {
-        Self->FontCache->SetCacheKey(FontName);
-        if (Self->TextTexture != nullptr) {
-            Self->TextTexture->ReleaseSurfaces();
-        }
     }
 
     void TLabelGI::QueueImageLoad(pas::List* PendingLoads) {

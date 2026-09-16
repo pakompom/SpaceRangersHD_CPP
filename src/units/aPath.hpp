@@ -26,6 +26,7 @@ namespace aPath {
 
     std::uint8_t ReservePathGrowthBlock();
 
+    // Native growth increments the free count before allocation and never records the allocated block in PathGrowthBlocks.
     std::uint8_t GrowPathNodePool();
 
     void FinalizePathNodePool();

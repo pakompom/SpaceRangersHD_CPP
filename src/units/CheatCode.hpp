@@ -12,8 +12,11 @@ namespace CheatCode {
 
     std::uint8_t IsCheatMessageBoxOpen();
 
+    // Ctrl+Shift key callback installed by Rangers. Ignores input during message boxes, disabled cheats and active calculation phases.
     void HandleDebugKey(std::uint16_t Key);
 
+    // Nested in HandleDebugKey; the native parent frame is passed but not read.
+    // Actions registered by the native unit initializer.
     void AddCheatPoints(std::int32_t Points);
 
     void ReportCheat(std::int32_t Points, const pas::WideString& Name);
@@ -148,8 +151,10 @@ namespace CheatCode {
 
     void TCheatList_Destroy(TCheatList* Self);
 
+    // Compiler unit entry registers the native command order.
     void UnitInitialize();
 
+    // Compiler unit entry calls the virtual destructor directly.
     void UnitFinalize();
 
 } // namespace CheatCode

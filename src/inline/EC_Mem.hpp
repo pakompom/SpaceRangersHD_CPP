@@ -2,6 +2,7 @@
 #include "units/EC_Mem.hpp"
 
 namespace EC_Mem {
+    // These stack-ABI accessors are handwritten assembly in the native unit.
     inline void* AddPointerOffset(void* Data, std::int32_t ByteOffset) {
         return pas::byte_offset(Data, ByteOffset);
     }

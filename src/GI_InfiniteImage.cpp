@@ -25,6 +25,7 @@ namespace GI_InfiniteImage {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Resets size to two billion pixels on each axis and centers the origin.
     void TInfiniteImageGI::SetImagePath(pas::WideString Path) {
         SetSize(ClassesImports::Point(2000000000, 2000000000));
         SetOrigin(ClassesImports::Point(ClientSize.X / 2, ClientSize.Y / 2));
@@ -49,6 +50,7 @@ namespace GI_InfiniteImage {
         }
     }
 
+    // The hardware drawing path is unimplemented.
     void TInfiniteImageGI::Draw(Types::TRect ClipRect) {
         std::int32_t StartY{};
         std::int32_t StartX{};
@@ -70,6 +72,7 @@ namespace GI_InfiniteImage {
                 while (Y < ClipRect.Bottom) {
                     X = StartX;
                     while (X < ClipRect.Right) {
+                        // This native path only logs; it does not draw a hardware tile.
                         GR_Main::AppendLogLineThreadSafe("InfiniteImageDraw"_a);
                         X += Width;
                     }

@@ -18,8 +18,10 @@
 #include "units/aPlayer.hpp"
 
 namespace ThreadCalc {
+    // Smoothed film-progress threshold derived from measured galaxy-turn duration.
     float AdaptiveBeginCalcNextTurn = 0.5f;
 
+    // Measured milliseconds; native smoothing uses signed arithmetic.
     std::int32_t LastGalaxyTurnDuration{};
 
     void StartGalaxyTurnCalculation() {
@@ -44,6 +46,7 @@ namespace ThreadCalc {
         return Globals::TurnCalculationThread->IsRunning();
     }
 
+    // Requires an initialized calculation thread.
     void WaitForTurnCalculation() {
         if (Globals::TurnCalculationThread->IsRunning()) {
             Globals::TurnCalculationThread->WaitForIdle(WindowsSdk::INFINITE);
@@ -86,6 +89,7 @@ namespace ThreadCalc {
         std::uint32_t StartTick{};
         std::uint32_t EndTick{};
         std::int32_t FrameMs{};
+        // Native handwritten x87 setup: each calculation thread establishes its own control word.
         std::uint16_t ControlWord = 0x0000103f;
         System::Set8087CW(ControlWord);
         if (Self->Job == tcjGalaxy) {

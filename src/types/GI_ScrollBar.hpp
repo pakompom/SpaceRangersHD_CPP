@@ -28,6 +28,7 @@ namespace GI_ScrollBar {
     struct TScrollBarGI : GI_Panel::TPanelGI {
         PAS_CLASS_META(TScrollBarGI, GI_Panel::TPanelGI, "TScrollBarGI", 472)
         void p_destroy() override;
+        // Resets the range to 0..99 and clears callbacks; does not call inherited Clear.
         void Clear() override;
         void SetUpPosition(Types::TPoint Point);
         void SetBeforeThumbBarPosition(Types::TPoint Point);
@@ -39,19 +40,26 @@ namespace GI_ScrollBar {
         void SetBeforeThumbBarSize(Types::TPoint Size);
         void SetThumbCenterSize(Types::TPoint Size);
         void SetAfterThumbBarSize(Types::TPoint Size);
+        // Returns 0 outside, 1/2 arrows, 3/4 page regions, or 5 thumb; only tests the scrolling axis.
         std::int32_t GetHitRegion(Types::TPoint Point);
         void SetRange(std::int32_t MinValue, std::int32_t MaxValue);
+        // Does not invoke PositionChangedCallback.
         void SetPositionInternal(std::int32_t NewPosition);
+        // Notifies only while Active and only when the clamped position changes.
         void SetPosition_2(std::int32_t NewPosition);
         void SetSmallChange(std::int32_t Value);
+        // A value equal to SmallChange is ignored even if LargeChange differs.
         void SetLargeChange(std::int32_t Value);
+        // Caps at Maximum-Minimum+1; no lower bound check.
         void SetPageSize(std::int32_t Value);
+        // Value 1 is horizontal; other values use vertical layout.
         void SetOrientation(std::int32_t Value);
         void SetKindCalcMode(std::int32_t Value);
         void SetConfigPath(const pas::WideString& Path) override;
         void SetSize(Types::TPoint Size) override;
         void SetActive(std::uint8_t Enabled) override;
         void UpdateLayout();
+        // Uses the up-arrow image for scrollbar thickness.
         void UpdateSizeForOrientation();
         void ProcessMouseMove(std::uint32_t KeyState, Types::TPoint Point) override;
         void OnMouseEnter() override;
@@ -74,6 +82,7 @@ namespace GI_ScrollBar {
         std::int32_t PageSize;
         std::int32_t Orientation;
         std::int32_t CalculationMode;
+        // Each image triple is normal, active, down. Up/Down also mean left/right horizontally.
         pas::Array<GI_Image::TImageGI*, 0, 2> UpImages;
         pas::Array<GI_Image::TImageGI*, 0, 2> BeforeThumbBarImages;
         pas::Array<GI_Image::TImageGI*, 0, 2> ThumbTopImages;

@@ -17,6 +17,7 @@ namespace ab_W02 {
         void UpdateVisuals() override;
         std::int32_t Damage;
         ab_WorldImage::PabWorldImage Image;
+        // 0 launch, 1 armed, 2 explosion.
         std::int32_t Phase;
         std::int32_t ExpireTick;
         std::int32_t ArmTick;

@@ -50,6 +50,7 @@ namespace EC_CacheRotateBuf {
         EC_Cache::TCacheDataEC_Destroy(Self);
     }
 
+    // Key contains width,height,source width,source height,center X,center Y as comma-delimited integers.
     void TCRotateBufEC::LoadFromKey(const pas::WideString& Key) {
         if (EC_Str::CountDelimitedPartsW(Key, u","_wref.get()) != 6) {
             pas::raise(pas::make_exception<pas::Exception>("TCRotateBufEC.Load. Error create rotate buf."_a));

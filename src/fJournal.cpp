@@ -46,6 +46,8 @@ namespace fJournal {
         u"s"_w, u"t"_w, u"u"_w, u"v"_w,
     }};
 
+    // The native sum loop tests index < 20; the selection loop stops before index 19.
+    // Selection uses each weight plus one.
     pas::Array<std::int32_t, 0, 19> TelevisionClipWeights = pas::Array<std::int32_t, 0, 19>{{
         9, 5, 9, 9, 7, 5, 7, 1,
         3, 1, 0, 3, 3, 2, 3, 2,
@@ -574,6 +576,7 @@ namespace fJournal {
     void TfJournal::RebuildNewsEntries() {
         std::int32_t I{};
         aGalaxy::PPlanetNewsEntry Entry{};
+        // Native appends this zero-initialized, otherwise unassigned local.
         pas::WideString HeadingSuffix{};
         ClearEntries();
         AddEntrySpacing(10);
@@ -680,7 +683,7 @@ namespace fJournal {
     }
 
     void TfJournal::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10001);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20001);

@@ -16,11 +16,11 @@
 #include "units/ab_StopLine.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Grouped by TabWall's native VMT; original unit boundary unresolved.
 namespace abWall {
-    TabWall* FindStopPoint(ab_StopLine::PabStopPoint Point);
-
     std::uint32_t BarrierColor = 0x30ffac00u;
 
+    // Native index local starts at zero and increments to the bound 2.
     pas::Array<std::uint32_t, 0, 1> BarrierHaloColors = pas::Array<std::uint32_t, 0, 1>{{0x40ffdb00u, 0x20ffac00u}};
 
     TabWall* ab_Wall_FindZone(ab_Zone::PabZone Zone) {
@@ -39,9 +39,19 @@ namespace abWall {
         ab_StopLine::PabStopPoint First{};
         ab_StopLine::PabStopPoint Last{};
         std::int32_t Index{};
+        auto FindStopPoint = [&](ab_StopLine::PabStopPoint Point) -> TabWall* {
+            ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
+            while (Obj != nullptr) {
+                if (pas::class_cast_if<TabWall*>(Obj) != nullptr && reinterpret_cast<TabWall*>(Obj)->StopPoint == Point) {
+                    return pas::checked_cast<TabWall*>(Obj);
+                }
+                Obj = Obj->Next;
+            }
+            return nullptr;
+        };
         ab_StopLine::PabStopLine Line = ab_StopLine::FirstStopLine;
         while (Line != nullptr) {
-            if (Line->Collidable && abWall::FindStopPoint(Line->First) != nullptr && abWall::FindStopPoint(Line->Last) != nullptr) {
+            if (Line->Collidable && FindStopPoint(Line->First) != nullptr && FindStopPoint(Line->Last) != nullptr) {
                 ImageLine = ab_StopLine::ab_StopLine_Add();
                 ImageLine->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Line));
                 ImageLine->First = Line->First;
@@ -111,6 +121,7 @@ namespace abWall {
         ZoneRadius = Value->Radius;
     }
 
+    // Empty in this native version; called after arena wall setup.
     void TabWall::AttachVisual() {
     }
 
@@ -128,6 +139,7 @@ namespace abWall {
                 Changed = false;
                 Line = ab_StopLine::FirstStopLine;
                 while (Line != nullptr) {
+                    // The first endpoint bypasses the Collidable test in the native code.
                     if (StopPoint == Line->First || StopPoint == Line->Last && Line->Collidable) {
                         Line->Collidable = false;
                         Changed = true;
@@ -187,17 +199,6 @@ namespace abWall {
             Frame += System::Round((pas::real_divide(WorldImage->Image->GaiImageControl->SequenceFrameCount, DirectionFrameCount) - 1.0L) * Value) * DirectionFrameCount;
             WorldImage->Image->GaiImageControl->SetSequenceFrame(Frame);
         }
-    }
-
-    TabWall* FindStopPoint(ab_StopLine::PabStopPoint Point) {
-        ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
-        while (Obj != nullptr) {
-            if (pas::class_cast_if<TabWall*>(Obj) != nullptr && reinterpret_cast<TabWall*>(Obj)->StopPoint == Point) {
-                return pas::checked_cast<TabWall*>(Obj);
-            }
-            Obj = Obj->Next;
-        }
-        return nullptr;
     }
 
     void TabWall::p_destroy() {

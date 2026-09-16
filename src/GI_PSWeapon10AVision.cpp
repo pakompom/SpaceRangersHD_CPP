@@ -17,6 +17,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native TPSWeapon10AVision and methods; includes its configuration palette loader.
 namespace GI_PSWeapon10AVision {
     pas::DynArray<GI_PSWeapon10AVision::TAVisionPalette> AVisionPalettes{};
 
@@ -74,6 +75,7 @@ namespace GI_PSWeapon10AVision {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Native empty override.
     void TPSWeapon10AVision::Invalidate() {
     }
 

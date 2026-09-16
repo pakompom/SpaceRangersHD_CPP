@@ -49,26 +49,22 @@ namespace GR_Main {
 
     using TIsWow64Process = pas::StdcallProc<std::int32_t(WindowsImports::THandle, std::int32_t&)>;
 
-    void LoadBlockDatConfig(EC_BlockPar::TBlockParEC* Root, pas::WideString FileName);
-
-    void LoadCacheDatConfig(EC_Data::TDataEC* Root, pas::WideString FileName);
-
-    void VerifyStartupModuleChecksum(pas::WideString& ModuleName);
-
-    void LogPresentationField(pas::WideString Name, std::uint32_t& CurrentValue, std::uint32_t& PreviousValue, pas::WideString& Text);
-
+    // Message pump returns without sleeping when active; cleared during device loss.
     std::uint8_t RuntimeActive{};
 
     std::uint8_t VSyncEnabled{};
 
+    // User setting PathGrow; permits extending the shared path-node pool.
     std::uint8_t PathGrowEnabled{};
 
+    // User setting ShowSystemMouse; uses Windows cursor handles instead of drawing the image child.
     std::uint8_t ShowSystemMouse{};
 
     GR_GraphBuf::TGraphBufGR* ScreenRenderBuffer{};
 
     GR_GraphBuf::TGraphBufGR* RenderScratchBuffer{};
 
+    // Second shared scratch buffer, also used for captured screen backgrounds.
     GR_GraphBuf::TGraphBufGR* AuxRenderBuffer{};
 
     pas::WideString SelectedLanguage{};
@@ -91,6 +87,7 @@ namespace GR_Main {
 
     WindowsSdk::TPoint ViewportOffset{};
 
+    // Enables scaled or panned software presentation and mouse-coordinate conversion.
     std::uint8_t AlternateViewportEnabled{};
 
     WindowsSdk::TRect GameScreenRect{};
@@ -121,6 +118,7 @@ namespace GR_Main {
 
     pas::WideString LoadedSaveModSet{};
 
+    // Startup failure guard; other writers remain to be recovered.
     std::uint8_t SuppressModRetryPrompt = false;
 
     std::uint8_t SkipModsOnReload = false;
@@ -143,6 +141,7 @@ namespace GR_Main {
 
     std::uint32_t OffscreenLastPresentationTick = 0u;
 
+    // 256 RGB565 colors blended between (8,32,255) and (200,128,128).
     void* InterfaceBlendPalette = nullptr;
 
     std::int32_t RequestedRefreshRate = 0;
@@ -155,8 +154,10 @@ namespace GR_Main {
 
     std::uint8_t DisableTripleBuffer = false;
 
+    // Owns TBlockParEC entries loaded from selected mods' Install.txt files.
     pas::List* ModInstallConfigs = nullptr;
 
+    // Owns the selected mods' language-specific install blocks.
     pas::List* ModLanguageInstallConfigs = nullptr;
 
     std::uint8_t ApplyEditableSaveOnLoad = false;
@@ -167,6 +168,7 @@ namespace GR_Main {
 
     EC_BlockPar::TBlockParEC* ModRuinNameConfig = nullptr;
 
+    // User-supplied galaxy seed, edited by CheatSeed.
     pas::WideString NewGameSeedText = pas::WideString();
 
     std::uint8_t CacheLoadLoggingEnabled = false;
@@ -189,26 +191,36 @@ namespace GR_Main {
 
     pas::CriticalSection* SessionLogLock = nullptr;
 
+    // Receives Ctrl+Shift keys when Alt is not held.
     GR_Main::TDebugKeyCallbackGR DebugKeyCallback = nullptr;
 
+    // Gates message-loop cursor selection and restoration.
     std::uint8_t CustomCursorEnabled = true;
 
     std::uint32_t DirectXVersion = 0u;
 
     std::int32_t RecordingFrameCount = 0;
 
+    // 1000 div FilmFPS; native does not check for zero.
     std::int32_t RecordingFrameInterval = 50;
 
     std::uint32_t LastRecordingFrameTick = 0u;
 
+    // Keep these zero-filled globals consecutive and in this order. Native
+    // VerifyStartupModuleChecksum subtracts 8 from StartupChecksumAnchor's address;
+    // other routines access each variable directly. DCC32 preserves this storage order.
+    // Signed integrity marker: positive after a failed startup module checksum, negative after a clean check; reset by TMessageLoopGI.Present.
     std::int32_t UnknownPresentState = 0;
 
     std::uint32_t LastMouseMessageTick = 0u;
 
+    // Checksum helper accesses UnknownPresentState at byte offset -8; original anchor meaning unresolved.
     std::int32_t StartupChecksumAnchor = 0;
 
+    // Set across MatrixGame Run, including its exception handler.
     std::uint8_t RobotBattleActive = false;
 
+    // Counts CentralProcessor registry subkeys, with a minimum of one.
     std::int32_t ProcessorCoreCount = 1;
 
     Direct3D9::IDirect3D9 Direct3D = nullptr;
@@ -217,6 +229,7 @@ namespace GR_Main {
 
     Direct3D9::IDirect3DTexture9 OffscreenTexture = nullptr;
 
+    // Fill/crop instead of fitting the entire video frame.
     std::uint8_t OffscreenFillViewport = false;
 
     std::uint8_t UseDesktopDisplayMode = false;
@@ -245,10 +258,13 @@ namespace GR_Main {
 
     EC_BlockPar::TBlockParEC* EditableSaveBlock{};
 
+    // Borrowed MainDataConfig.Data block; contains StyleColor.
     EC_BlockPar::TBlockParEC* GameDataConfig{};
 
+    // Optional user-directory newgame.txt.
     EC_BlockPar::TBlockParEC* NewGameSettingsConfig{};
 
+    // Borrowed MainDataConfig.ZPos depth-name table.
     EC_BlockPar::TBlockParEC* UiDepthConfig{};
 
     EC_Data::TDataEC* CacheDataRoot{};
@@ -265,22 +281,28 @@ namespace GR_Main {
 
     std::uint32_t DebugCommandMessage{};
 
+    // Consumed by to skip the separate exception-log copy.
     std::uint8_t SuppressExceptionLogCopy{};
 
     GR_Main::TBlendPixel16 BlendPixel16{};
 
+    // OKGF_Triangle_16 callback; cdecl pixel, pitch, vertex/color arguments.
     GR_Main::TTriangleRasterizer16 TriangleRasterizer16{};
 
+    // OKGF_LineIp_16 callback; cdecl pixel, pitch, vertex/color arguments.
     GR_Main::TLineRasterizer16 LineRasterizer16{};
 
+    // Assigned by Rangers.start; no native reads indexed.
     pas::Proc<void()> RuntimeExitCheckCallback1{};
 
+    // Assigned by Rangers.start; no native reads indexed.
     pas::Proc<void()> RuntimeExitCheckCallback2{};
 
     GR_Main::TRuntimeCallbackGR OnMessageIdle{};
 
     GR_Main::TRuntimeCallbackGR OnMessageResume{};
 
+    // Owned here: direct startup/helper accesses; other units use reference cell.
     GR_Main::TCCInterface* CCInterface{};
 
     std::uint32_t RuntimeStartupTick{};
@@ -303,6 +325,7 @@ namespace GR_Main {
 
     pas::WideString CachedGameUserDirectory = pas::WideString();
 
+    // Cleared by settings initialization; no retained reader found, original meaning unresolved.
     std::uint32_t StartupState{};
 
     std::uint32_t ScreenCenterX{};
@@ -343,6 +366,7 @@ namespace GR_Main {
         pas::free(Cursor);
     }
 
+    // Case-sensitive lookup; raises when absent.
     TCursorUnit* FindCursorByName(const pas::WideString& Name) {
         TCursorUnit* Cursor = FirstRegisteredCursor;
         while (Cursor != nullptr) {
@@ -354,6 +378,7 @@ namespace GR_Main {
         pas::raise(pas::make_exception<pas::Exception>("GR_CursorFind"_a));
     }
 
+    // Uses a zero key/button state.
     void PostMouseMoveMessage() {
         WindowsSdk::TPoint Point{};
         WindowsSdk::GetCursorPos(Point);
@@ -361,9 +386,11 @@ namespace GR_Main {
         WindowsSdk::PostMessage(MainWindowHandle, MessagesSdk::WM_MOUSEMOVE, 0, static_cast<std::uint16_t>(Point.X) | pas::shl(static_cast<std::int32_t>(static_cast<std::uint16_t>(Point.Y)), 16));
     }
 
+    // Native uses an explicit indirect jump into a generated fault sequence if the watchdog stops.
     void CheckRuntimeWatchdog() {
         if (RuntimeWatchdog != nullptr) {
             if (!RuntimeWatchdog->IsRunning()) {
+                // Manual port: the original generated x86 deliberately writes to address zero.
                 pas::raise(pas::make_exception<SysUtilsImports::EAccessViolation>("Runtime watchdog stopped"_a));
             }
         }
@@ -420,9 +447,9 @@ namespace GR_Main {
                 if (!(Message == MessagesSdk::WM_LBUTTONUP)) {
                     if (!(Message == MessagesSdk::WM_RBUTTONDOWN)) {
                         if (!(Message == MessagesSdk::WM_RBUTTONUP)) {
-                            if (Message == MessagesSdk::WM_SYSKEYDOWN && pas::in_set<18, 18, 37, 40>(WParam)) {
+                            if (Message == MessagesSdk::WM_SYSKEYDOWN && pas::in_set<WindowsSdk::VK_MENU, WindowsSdk::VK_MENU, WindowsSdk::VK_LEFT, WindowsSdk::VK_DOWN>(WParam)) {
                                 return 1;
-                            } else if (Message == MessagesSdk::WM_SYSKEYUP && pas::in_set<18, 18, 37, 40>(WParam)) {
+                            } else if (Message == MessagesSdk::WM_SYSKEYUP && pas::in_set<WindowsSdk::VK_MENU, WindowsSdk::VK_MENU, WindowsSdk::VK_LEFT, WindowsSdk::VK_DOWN>(WParam)) {
                                 return 1;
                             } else if (Message == MessagesSdk::WM_KEYDOWN) {
                                 static_cast<void>(WParam == 'R' && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) && GlobalsV::CurrentScreenId != GlobalsV::screenNone);
@@ -444,6 +471,7 @@ namespace GR_Main {
         return WindowsSdk::DefWindowProcW(Window, Message, WParam, LParam);
     }
 
+    // Creates a 300x225 RGB preview and equally sized scratch buffer.
     void CaptureSavePreview() {
         GR_Main::FreeSavePreviewBuffers();
         SavePreviewGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
@@ -470,6 +498,7 @@ namespace GR_Main {
         }
     }
 
+    // Returns a trailing directory separator.
     pas::WideString GetGameUserDirectory() {
         std::uint8_t* PathBuffer{};
         ShlObj::PItemIDList ItemIdList{};
@@ -501,6 +530,7 @@ namespace GR_Main {
         pas::text_close(SessionLog, false);
     }
 
+    // Samples the low 32 bits of RDTSC over 200ms; returns 1500 on an exception.
     double MeasureCpuClockMHz() {
         double Result{};
         std::uint32_t TickLow{};
@@ -510,6 +540,7 @@ namespace GR_Main {
         WindowsSdk::SetThreadPriority(WindowsSdk::GetCurrentThread(), WindowsSdk::THREAD_PRIORITY_TIME_CRITICAL);
         try {
             SysUtilsImports::Sleep(10u);
+            // The native timestamp reads and 64-bit subtraction are handwritten asm.
             TickLow = ClockPorts::ReadCycleCounter();
             SysUtilsImports::Sleep(200u);
             TickLow = ClockPorts::ReadCycleCounter() - TickLow;
@@ -522,6 +553,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // ANSI registry API, fixed 2048-byte buffer, REG_SZ only.
     pas::WideString ReadRegistryText(std::uint32_t Root, pas::WideString KeyPath, pas::WideString ValueName, pas::WideString DefaultValue) {
         pas::AnsiString cpp_text{};
         pas::AnsiString cpp_text_2{};
@@ -565,11 +597,13 @@ namespace GR_Main {
         WindowsSdk::SetProcessAffinityMask(WindowsSdk::GetCurrentProcess(), Mask);
     }
 
+    // Native entry exits before the retained module/process checks; the entire dormant body is preserved.
     void CheckPlatformModules() {
         pas::AnsiString GameDirectory{};
         pas::AnsiString ModulePath{};
         pas::WideString DllSuffix{};
         pas::AnsiString SteamClientPath{};
+        // This build disables the checks, but Delphi O- retained their native bytes.
         return;
     }
 
@@ -625,6 +659,7 @@ namespace GR_Main {
         MessageText::QuestMessages = pas::construct_call<MessageText::TQuestMessages>(MessageText::TQuestMessages_Create);
     }
 
+    // Falls back to Russian when the selected language is unavailable; raises on package-open failure.
     void LoadLanguageAndPackages() {
         pas::WideString cpp_text{};
         if (RequestedLanguage != u"") {
@@ -644,6 +679,7 @@ namespace GR_Main {
         if (SelectedLanguage == u"") {
             SelectedLanguage = u"russian"_w;
         }
+        // Keep the else: DCC32 emits the native jump after the raise.
         if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", SelectedLanguage, u".txt"})))) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not installed language: ", SelectedLanguage}))));
         } else {
@@ -750,6 +786,7 @@ namespace GR_Main {
         ActiveXSdk::CoUninitialize();
     }
 
+    // Requires a WOW64 process and the filesystem-redirection and extended registry APIs.
     std::uint8_t HasWow64Support() {
         TGetNativeSystemInfo NativeSystemInfo{};
         TIsWow64Process IsWow64Process{};
@@ -826,6 +863,7 @@ namespace GR_Main {
             WindowsSdk::ShowWindow(MainWindowHandle, WindowsSdk::SW_SHOWNORMAL);
         }
         WindowsSdk::UpdateWindow(MainWindowHandle);
+        // Request foreground activation as well as thread-local keyboard focus.
         WindowsSdk::SetForegroundWindow(MainWindowHandle);
         WindowsSdk::SetFocus(MainWindowHandle);
         WindowsSdk::RedrawWindow(0u, nullptr, 0u, 0x00000787u);
@@ -837,6 +875,19 @@ namespace GR_Main {
         EC_BlockPar::TBlockParEC* Block{};
         EC_Data::TDataEC* Data{};
         std::int32_t Index{};
+        // An empty tree produces a log warning, not an exception from this wrapper.
+        auto LoadBlockDatConfig = [&](EC_BlockPar::TBlockParEC* Root, pas::WideString FileName) -> void {
+            Root->LoadFromEncryptedDatFile(FileName);
+            if (Root->GetBlockCount() <= 0 && Root->GetParamCount() <= 0) {
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName, u"> is empty!"})));
+            }
+        };
+        auto LoadCacheDatConfig = [&](EC_Data::TDataEC* Root, pas::WideString FileName) -> void {
+            Root->LoadFromEncryptedDatFile(FileName);
+            if (Root->IsEmpty()) {
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName, u"> is empty!"})));
+            }
+        };
         MainDataConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         ModNames = pas::WideString();
         if (static_cast<std::uint8_t>(SkipModsOnReload ^ 1) && SysUtilsImports::FileExists("Mods\\ModCFG.txt"_a)) {
@@ -848,7 +899,7 @@ namespace GR_Main {
             pas::free(Block);
         }
         std::uint8_t HasOverrides = false;
-        GR_Main::LoadBlockDatConfig(MainDataConfig, u"CFG\\Main.dat"_w);
+        LoadBlockDatConfig(MainDataConfig, u"CFG\\Main.dat"_w);
         Index = 0;
         if (!SkipModsOnReload) {
             do {
@@ -859,7 +910,7 @@ namespace GR_Main {
                 if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\Main.dat"})))) {
                     HasOverrides = true;
                     Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-                    GR_Main::LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\Main.dat"}));
+                    LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\Main.dat"}));
                     MainDataConfig->MergeFrom(Block);
                     Block->Clear();
                     pas::free(Block);
@@ -871,7 +922,7 @@ namespace GR_Main {
             MainDataConfig->SaveTextFile(pas::literal_pointer(u"Main.txt"), false, true);
         }
         LanguageDataConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-        GR_Main::LoadBlockDatConfig(LanguageDataConfig, pas::concat_wide({u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"}));
+        LoadBlockDatConfig(LanguageDataConfig, pas::concat_wide({u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"}));
         Index = 0;
         if (!SkipModsOnReload) {
             do {
@@ -882,7 +933,7 @@ namespace GR_Main {
                 if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"})))) {
                     HasOverrides = true;
                     Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-                    GR_Main::LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"}));
+                    LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"}));
                     LanguageDataConfig->MergeFrom(Block);
                     Block->Clear();
                     pas::free(Block);
@@ -894,7 +945,7 @@ namespace GR_Main {
             LanguageDataConfig->SaveTextFile(pas::literal_pointer(u"Lang.txt"), false, true);
         }
         CacheDataRoot = pas::construct_call<EC_Data::TDataEC>(EC_Data::TDataEC_Create);
-        GR_Main::LoadCacheDatConfig(CacheDataRoot, u"CFG\\CacheData.dat"_w);
+        LoadCacheDatConfig(CacheDataRoot, u"CFG\\CacheData.dat"_w);
         Index = 0;
         if (!SkipModsOnReload) {
             do {
@@ -905,7 +956,7 @@ namespace GR_Main {
                 if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\CacheData.dat"})))) {
                     HasOverrides = true;
                     Data = pas::construct_call<EC_Data::TDataEC>(EC_Data::TDataEC_Create);
-                    GR_Main::LoadCacheDatConfig(Data, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\CacheData.dat"}));
+                    LoadCacheDatConfig(Data, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\CacheData.dat"}));
                     CacheDataRoot->MergeFrom(Data);
                     pas::free(Data);
                 }
@@ -974,6 +1025,18 @@ namespace GR_Main {
         TCursorUnit* Cursor{};
         Registry::TRegistry* Reg{};
         TMemoryStatusEx MemoryStatus{};
+        // Nested startup helper; checks the module path at parent-frame -4 and writes the signed integrity marker.
+        auto VerifyStartupModuleChecksum = [&]() -> void {
+            CCInterface->SetResourceChecksumFailed(false);
+            EC_Data::VerifyResourceFileChecksum(ModuleName);
+            std::int32_t MarkerOffset = 8;
+            if (CCInterface->GetResourceChecksumFailed()) {
+                pas::store_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset), aMyFunction::RandomIntRange(1000000000, 2000000000));
+            } else if (pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset)) <= 0) {
+                pas::store_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset), aMyFunction::RandomIntRange(-2000000000, -1000000000));
+            }
+            CCInterface->SetResourceChecksumFailed(false);
+        };
         StartupState = 0u;
         GR_Main::FinalizeRuntimeAndSettings();
         Text = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE, u"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"_w, u"ProductName"_w, pas::WideString()));
@@ -1334,28 +1397,28 @@ namespace GR_Main {
         Text = pas::concat_wide({u".d", Text});
         ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"sotoenalm^_^aucah"_w), Text});
         if (WindowsSdk::GetModuleHandleW(ModuleName.pchar()) != 0) {
-            GR_Main::VerifyStartupModuleChecksum(ModuleName);
+            VerifyStartupModuleChecksum();
         }
         ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"sotoenalm^_^aupki"_w), Text});
         if (WindowsSdk::GetModuleHandleW(ModuleName.pchar()) != 0) {
-            GR_Main::VerifyStartupModuleChecksum(ModuleName);
+            VerifyStartupModuleChecksum();
         }
         ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"zoloimba"_w), Text});
-        GR_Main::VerifyStartupModuleChecksum(ModuleName);
+        VerifyStartupModuleChecksum();
         ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"MhastorhinxaGrakmae"_w), Text});
-        GR_Main::VerifyStartupModuleChecksum(ModuleName);
+        VerifyStartupModuleChecksum();
         ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"ookogifa"_w), Text});
-        GR_Main::VerifyStartupModuleChecksum(ModuleName);
+        VerifyStartupModuleChecksum();
         ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"xavriadeccomrie"_w), Text});
-        GR_Main::VerifyStartupModuleChecksum(ModuleName);
+        VerifyStartupModuleChecksum();
         ExtraText = u"ib"_w;
         ExtraText = pas::concat_wide({u"l", ExtraText});
         ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"osgaga-10a"_w), Text});
-        GR_Main::VerifyStartupModuleChecksum(ModuleName);
+        VerifyStartupModuleChecksum();
         ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"vrokrablius-->0"_w), Text});
-        GR_Main::VerifyStartupModuleChecksum(ModuleName);
+        VerifyStartupModuleChecksum();
         ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"veohrablissufainlae"_w), Text});
-        GR_Main::VerifyStartupModuleChecksum(ModuleName);
+        VerifyStartupModuleChecksum();
         CCInterface->SetResourceChecksumFailed(SavedChecksumFailed);
     }
 
@@ -1398,6 +1461,7 @@ namespace GR_Main {
         WideCaseTable = nullptr;
     }
 
+    // Keeps the highest refresh rate for each size. A zero-width entry means automatic resolution; a custom size may be appended.
     void EnumerateAndSelectDisplayModes() {
         std::int32_t Index{};
         pas::WideString Resolution{};
@@ -1430,6 +1494,7 @@ namespace GR_Main {
             GameScreenHeight = 0;
             RequestedRefreshRate = 0;
         }
+        // Native keeps the VideoMode text when RobotResolution is absent.
         if (UserSettingsConfig->CountParams(u"RobotResolution"_wref.get()) > 0) {
             Resolution = EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RobotResolution"_wref.get()));
         }
@@ -1621,51 +1686,61 @@ namespace GR_Main {
     }
 
     void LogPresentationParameters() {
+        std::uint32_t CurrentValue{};
+        std::uint32_t PreviousValue{};
         pas::WideString Text{};
+        auto LogPresentationField = [&](pas::WideString Name) -> void {
+            if (CurrentValue == PreviousValue) {
+                Text = pas::concat_wide({Name, u" = ", pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue))});
+            } else {
+                Text = pas::concat_wide({Name, u" = ", pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue)), u", previous value = ", pas::wide_int64_to_str(static_cast<std::int64_t>(PreviousValue))});
+            }
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Text));
+        };
         GR_Main::AppendLogLineThreadSafe(pas::AnsiString());
         GR_Main::AppendLogLineThreadSafe("D3DPresent structure:"_a);
-        std::uint32_t CurrentValue = Direct3DPresentParameters.BackBufferWidth;
-        std::uint32_t PreviousValue = PreviousPresentParameters.BackBufferWidth;
-        GR_Main::LogPresentationField(u"BackBufferWidth"_w, CurrentValue, PreviousValue, Text);
+        CurrentValue = Direct3DPresentParameters.BackBufferWidth;
+        PreviousValue = PreviousPresentParameters.BackBufferWidth;
+        LogPresentationField(u"BackBufferWidth"_w);
         CurrentValue = Direct3DPresentParameters.BackBufferHeight;
         PreviousValue = PreviousPresentParameters.BackBufferHeight;
-        GR_Main::LogPresentationField(u"BackBufferHeight"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"BackBufferHeight"_w);
         CurrentValue = Direct3DPresentParameters.BackBufferCount;
         PreviousValue = PreviousPresentParameters.BackBufferCount;
-        GR_Main::LogPresentationField(u"BackBufferCount"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"BackBufferCount"_w);
         CurrentValue = Direct3DPresentParameters.BackBufferFormat;
         PreviousValue = PreviousPresentParameters.BackBufferFormat;
-        GR_Main::LogPresentationField(u"BackBufferFormat"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"BackBufferFormat"_w);
         CurrentValue = Direct3DPresentParameters.MultiSampleQuality;
         PreviousValue = PreviousPresentParameters.MultiSampleQuality;
-        GR_Main::LogPresentationField(u"MultiSampleQuality"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"MultiSampleQuality"_w);
         CurrentValue = Direct3DPresentParameters.MultiSampleType;
         PreviousValue = PreviousPresentParameters.MultiSampleType;
-        GR_Main::LogPresentationField(u"MultiSampleType"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"MultiSampleType"_w);
         CurrentValue = Direct3DPresentParameters.SwapEffect;
         PreviousValue = PreviousPresentParameters.SwapEffect;
-        GR_Main::LogPresentationField(u"SwapEffect"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"SwapEffect"_w);
         CurrentValue = Direct3DPresentParameters.DeviceWindow;
         PreviousValue = PreviousPresentParameters.DeviceWindow;
-        GR_Main::LogPresentationField(u"hDeviceWindow"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"hDeviceWindow"_w);
         CurrentValue = Direct3DPresentParameters.Windowed != 0;
         PreviousValue = PreviousPresentParameters.Windowed != 0;
-        GR_Main::LogPresentationField(u"Windowed"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"Windowed"_w);
         CurrentValue = Direct3DPresentParameters.EnableAutoDepthStencil != 0;
         PreviousValue = PreviousPresentParameters.EnableAutoDepthStencil != 0;
-        GR_Main::LogPresentationField(u"EnableAutoDepthStencil"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"EnableAutoDepthStencil"_w);
         CurrentValue = Direct3DPresentParameters.AutoDepthStencilFormat;
         PreviousValue = PreviousPresentParameters.AutoDepthStencilFormat;
-        GR_Main::LogPresentationField(u"AutoDepthStencilFormat"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"AutoDepthStencilFormat"_w);
         CurrentValue = Direct3DPresentParameters.Flags;
         PreviousValue = PreviousPresentParameters.Flags;
-        GR_Main::LogPresentationField(u"Flags"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"Flags"_w);
         CurrentValue = Direct3DPresentParameters.FullScreenRefreshRateInHz;
         PreviousValue = PreviousPresentParameters.FullScreenRefreshRateInHz;
-        GR_Main::LogPresentationField(u"FullScreen_RefreshRateInHz"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"FullScreen_RefreshRateInHz"_w);
         CurrentValue = Direct3DPresentParameters.PresentationInterval;
         PreviousValue = PreviousPresentParameters.PresentationInterval;
-        GR_Main::LogPresentationField(u"PresentationInterval"_w, CurrentValue, PreviousValue, Text);
+        LogPresentationField(u"PresentationInterval"_w);
         GR_Main::AppendLogLineThreadSafe(pas::AnsiString());
     }
 
@@ -1751,11 +1826,14 @@ namespace GR_Main {
         RenderScratchBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
         AuxRenderBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
         std::uint16_t ControlWord = 0x0000133f;
+        // The native code directly clears x87 exceptions and loads the local control
+        // word; this small handwritten sequence has no Pascal intrinsic equivalent.
         ControlWord = ControlWord & 0x0000fcff;
         System::Set8087CW(ControlWord);
         try {
             if (Direct3D == nullptr) {
                 Direct3D = (Direct3D9::CreateDirect3D9(0x80000020u, cpp_result), cpp_result);
+                // Native constructs this exception without raising it.
                 if (Direct3D == nullptr) {
                     pas::construct_call<DirectXRenderException::EDirectXRender>(DirectXRenderException::EDirectXRender_Create, "GR_DXInit()::Direct3DCreate9(...)"_a);
                 }
@@ -1917,6 +1995,7 @@ namespace GR_Main {
         }
         RenderScratchBuffer->AllocateNative(MiniMapSize, MiniMapSize);
         GR_Main::ApplyGammaRamp(DisplayBrightness, DisplayContrast);
+        // Native uses two different approximations of pi for these tables.
         for (Index = 0; Index <= 360; ++Index) {
             Angle = Index * 0.017453292222222222223L;
             GR_DX::CircleCos[Index] = System::Cos(Angle);
@@ -1929,6 +2008,7 @@ namespace GR_Main {
         GR_DX::PendingPoints.set_length(GR_DX::PendingPointCapacity);
     }
 
+    // Linear RGB ramp with brightness/contrast endpoints; returns when no device is present.
     void ApplyGammaRamp(float Brightness, float Contrast) {
         std::int32_t Index{};
         float LowInput{};
@@ -2033,11 +2113,13 @@ namespace GR_Main {
         GR_Main::ShowAndFocusMainWindow();
     }
 
+    // Increments the nesting count and always returns true.
     std::uint8_t BeginFramePresentation() {
         ++PresentationDepth;
         return true;
     }
 
+    // Presents at the outermost level, subject to the frame-rate limit.
     void EndFramePresentation() {
         std::uint32_t Tick{};
         if (PresentationDepth > 0) {
@@ -2056,6 +2138,7 @@ namespace GR_Main {
         }
     }
 
+    // Hardware mode ends/presents/restarts the scene; software mode draws the buffer texture unless OffscreenTexture is assigned.
     void PresentScreenBuffer() {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         Direct3D9::IDirect3DTexture9 cpp_result_2{};
@@ -2084,6 +2167,7 @@ namespace GR_Main {
         }
     }
 
+    // Method callback receives Context/EAX, Message/EDX, WParam/ECX and LParam on stack. Returns zero when exiting.
     std::int32_t GR_WinMessage(TWindowMessageCallbackGR Callback) {
         std::int32_t Result{};
         std::int32_t ContinueLoop{};
@@ -2171,6 +2255,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Presents OffscreenTexture, fitting or cropping it to the viewport.
     void DrawOffscreenTexture() {
         std::int32_t X{};
         std::int32_t Y{};
@@ -2244,6 +2329,7 @@ namespace GR_Main {
         }
     }
 
+    // Copies a due software frame into the recording ring and flushes it when full.
     void CaptureRecordingFrame() {
         std::uint32_t cpp_left_2 = MMSystem::timeGetTime();
         std::uint32_t cpp_left = cpp_left_2 - LastRecordingFrameTick;
@@ -2265,6 +2351,7 @@ namespace GR_Main {
         }
     }
 
+    // Writes pending RGB565 frames as sequential Film\NNNNNN.bmp files.
     void FlushRecordingFrames() {
         WindowsImports::THandle SearchHandle{};
         std::int32_t FirstFrameNumber{};
@@ -2278,6 +2365,7 @@ namespace GR_Main {
             SysUtilsImports::SetCurrentDir("Film"_a);
             FirstFrameNumber = -1;
             SearchHandle = WindowsSdk::FindFirstFile(pas::literal_pointer("*.*"), FindData);
+            // Native code scans without testing for INVALID_HANDLE_VALUE.
             do {
                 if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) != WindowsImports::FILE_ATTRIBUTE_DIRECTORY) {
                     FirstFrameNumber = std::max<std::int32_t>(FirstFrameNumber, EC_Str::ExtractDigitsToIntW(static_cast<pas::WideString>(pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260))));
@@ -2313,14 +2401,17 @@ namespace GR_Main {
         }
     }
 
+    // Tests bit 15 of GetAsyncKeyState.
     std::uint8_t IsVirtualKeyDown(std::int32_t Key) {
         return (WindowsSdk::GetAsyncKeyState(Key) & 0x00008000) == 0x00008000;
     }
 
+    // Returns one raw value, or a marker containing Path on lookup failure.
     pas::WideString LookupLocalizedTextByKey(const pas::WideString& Path) {
         return LanguageDataConfig->GetParamByPathOrMarker(Path);
     }
 
+    // Returns one raw value; missing paths return empty and may create intermediate blocks.
     pas::WideString LookupLocalizedTextOrEmpty(const pas::WideString& Path) {
         if (LanguageDataConfig->CountParamsByPath(Path) > 0) {
             return LanguageDataConfig->GetParamByPathOrMarker(Path);
@@ -2333,14 +2424,17 @@ namespace GR_Main {
         return static_cast<pas::WideString>(SysUtilsImports::DateTimeToStr(DateValue));
     }
 
+    // Always returns 2 in this binary.
     pas::WideString GiResourceSuffix() {
         return u"2"_w;
     }
 
+    // Always returns 2; variant 1 retains the legacy quest-picture downscaling branch.
     std::int32_t GiResourceVariant() {
         return 2;
     }
 
+    // Appends a line to the session log and closes the file. The lock is not released if a write raises.
     void AppendLogLineThreadSafe(const pas::AnsiString& Text) {
         if (SessionLogLock == nullptr) {
             SessionLogLock = pas::make_critical_section<pas::CriticalSection>();
@@ -2352,6 +2446,7 @@ namespace GR_Main {
         pas::critical_leave(SessionLogLock);
     }
 
+    // Creates #####add.log when absent; native unchecked TextFile I/O.
     void AppendDebugLogLine(const pas::AnsiString& Text) {
         pas::TextFile Log{};
         if (SessionLogLock == nullptr) {
@@ -2369,6 +2464,7 @@ namespace GR_Main {
         pas::critical_leave(SessionLogLock);
     }
 
+    // Appends only when #####add.log already exists; shares SessionLogLock and native unchecked TextFile I/O.
     void AppendOptionalDebugLogLine(const pas::AnsiString& Text) {
         pas::TextFile Log{};
         if (SysUtilsImports::FileExists("#####add.log"_a)) {
@@ -2384,6 +2480,7 @@ namespace GR_Main {
         }
     }
 
+    // Appends without a newline, flushes and closes the file.
     void AppendLogTextThreadSafe(const pas::AnsiString& Text) {
         if (SessionLogLock == nullptr) {
             SessionLogLock = pas::make_critical_section<pas::CriticalSection>();
@@ -2414,6 +2511,8 @@ namespace GR_Main {
         GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Textures Cache Size=", SysUtils::Int64ToStr(GR_DX::ResidentTextureBytes >> 10), " KB"}));
     }
 
+    // Delphi wrappers translate DLL exceptions into Exception objects.
+    // Borrows Source until ReadImagePixels consumes the context. Returns nil for unsupported input. Detection requires at least 34 bytes and accepts BMP, JFIF JPEG, PNG and supported PSD modes.
     EC_OKGF::POkgfReadContext BeginImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height) {
         EC_OKGF::POkgfReadContext Result{};
         try {
@@ -2424,6 +2523,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Consumes Context on success; returns nonzero on success.
     std::int32_t ReadImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t BytesPerPixel) {
         std::int32_t Result{};
         try {
@@ -2434,6 +2534,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Borrows Source; accepts indexed PNG and indexed or grayscale PSD. Returns nil on failure. BytesPerPixel is one or two.
     EC_OKGF::POkgfReadContext BeginIndexedImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height, std::int32_t& PaletteCount, std::int32_t& BytesPerPixel) {
         EC_OKGF::POkgfReadContext Result{};
         try {
@@ -2444,6 +2545,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Consumes Context on success. Palette requires the count returned by BeginIndexedImageRead.
     std::int32_t ReadIndexedImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, GR_GraphBuf::PColorRGBA Palette) {
         std::int32_t Result{};
         try {
@@ -2474,6 +2576,8 @@ namespace GR_Main {
         return Result;
     }
 
+    // Delphi exception wrappers around the named OKGF/OKGR DLL exports.
+    // Ex_ distinguishes wrappers from DLL import symbols; full parameter types remain unresolved.
     void* Ex_OKGF_MulTable256x256() {
         void* Result{};
         try {
@@ -3016,6 +3120,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Native implementation ignores Pixels/Pitch and draws into ScreenRenderBuffer.
     void DrawGradientLine16Clipped(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, WindowsSdk::TRect Clip) {
         TLineRasterizer16 Rasterizer{};
         if (GR_Main::Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t>(&X1), pas::Var<std::int32_t>(&Y1), pas::Var<std::uint32_t>(&Color1), pas::Var<std::int32_t>(&X2), pas::Var<std::int32_t>(&Y2), pas::Var<std::uint32_t>(&Color2), Clip) != 0) {
@@ -3070,6 +3175,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Restores one saved 16-bit pixel per rasterized line point; returns the pixel count.
     std::int32_t Ex_OKGR_Line_CopyFromBuf_WORD(void* Source, void* Dest, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
         std::int32_t Result{};
         try {
@@ -3152,14 +3258,20 @@ namespace GR_Main {
         }
     }
 
+    // Decoded: 'libogg-0', 'libvorbis-0', 'libvorbisfile', 'matrixgame',
+    // 'okgf', 'steam_ach', 'steam_api', 'xvidcore', 'zlib'.
+    // Differences from the 1024x768 UI baseline; may be negative.
+    // Identity function in this binary.
     std::int32_t GiScalePixels(std::int32_t Value) {
         return Value;
     }
 
+    // Returns Value; AlternateValue is unused in this binary.
     std::int32_t GiScalePixelsEx(std::int32_t Value, std::int32_t AlternateValue) {
         return Value;
     }
 
+    // Converts the borrowed UTF-16 message to AnsiString and raises Exception.
     void RaiseWideMessage(const pas::WideString& Message) {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(Message)));
     }
@@ -3269,6 +3381,7 @@ namespace GR_Main {
         }
     }
 
+    // Uses Data.StyleColor from Main.dat and the current pixel format. Missing entries use the defaults; malformed configured RGB text may raise.
     std::uint32_t GetStyleColorGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen, std::int32_t DefaultBlue) {
         EC_BlockPar::TBlockParEC* Style{};
         pas::WideString ColorText{};
@@ -3285,6 +3398,7 @@ namespace GR_Main {
         return CurrentPixelFormat->PackRgb(DefaultRed, DefaultGreen, DefaultBlue);
     }
 
+    // Returns a complete opening <color=...> tag. Configured Data.StyleColor text is inserted verbatim; missing entries use the default RGB values.
     pas::WideString GetStyleColorTagGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen, std::int32_t DefaultBlue) {
         pas::WideString Result{};
         EC_BlockPar::TBlockParEC* Style{};
@@ -3453,6 +3567,7 @@ namespace GR_Main {
         void* MulTable = GR_Main::Ex_OKGF_MulTable256x256();
         void* Palette = Source->Palette;
         std::int32_t ColumnCount = Width;
+        // Native handwritten loops blend palette alpha into RGB565 or RGB555.
         if (CurrentPixelFormat->TotalChannelBits == 16) {
             BitmapPorts::BlendPalette16(SourcePixels, Dest, Width, Height, SourceSkip, DestSkip, Palette, MulTable, true);
         } else {
@@ -3462,6 +3577,7 @@ namespace GR_Main {
 
     pas::WideString GetClipboardWideText() {
         pas::WideString Result{};
+        // The game's paste actions run after Application.Handle is the main window.
         if (!WindowsSdk::OpenClipboard(Forms::Application->Handle)) {
             pas::raise(pas::make_exception<pas::Exception>("Cannot open clipboard"_a));
         }
@@ -3516,6 +3632,7 @@ namespace GR_Main {
         pas::critical_leave(SessionLogLock);
     }
 
+    // CRC32 of the C: volume serial and ANSI processor name. Native code ignores volume-query failure.
     std::uint32_t ComputeMachineFingerprintCRC() {
         pas::AnsiString ProcessorName{};
         std::uint32_t Serial{};
@@ -3815,6 +3932,7 @@ namespace GR_Main {
         return cpp_import(Source, Pitch, Height, TextureWidth, TextureHeight, &ByteCount);
     }
 
+    // The native Delphi binding preserves EAX, but the DLL defines no result contract.
     std::int32_t OKGR_Planet2_TemplDel(void* TemplateData) {
         using CppImport = std::int32_t (PAS_CDECL *)(void*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet2_TemplDel");
@@ -4067,12 +4185,14 @@ namespace GR_Main {
         return cpp_import(Dest, Pitch, Source);
     }
 
+    // Cdecl triangle ABI verified at native caller.
     void OKGF_Triangle_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, std::int32_t X3, std::int32_t Y3, std::uint32_t Color3, WindowsSdk::PRect Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t, WindowsSdk::PRect);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Triangle_16");
         return cpp_import(Pixels, Pitch, X1, Y1, Color1, X2, Y2, Color2, X3, Y3, Color3, Clip);
     }
 
+    // Cdecl gradient-line ABI verified at native caller.
     void OKGF_LineIp_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_LineIp_16");
@@ -4242,6 +4362,7 @@ namespace GR_Main {
         pas::critical_leave(Lock);
     }
 
+    // Reads the protected tamper flag under Lock. SetMoney checks its encoded mirror and rereads after Sleep(1); NextDay similarly checks ammunition.
     std::uint8_t TCCInterface::GetTamperDetected() {
         pas::critical_enter(Lock);
         std::uint8_t Result = GetSnapshot()->TamperDetected;
@@ -4249,6 +4370,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Copies the current snapshot, replaces byte 9 and commits it under Lock.
     void TCCInterface::SetTamperDetected(std::uint8_t Value) {
         pas::critical_enter(Lock);
         PCCSnapshot Snapshot = TCCInterface::CopySnapshot(GetSnapshot());
@@ -4257,6 +4379,7 @@ namespace GR_Main {
         pas::critical_leave(Lock);
     }
 
+    // Protected flag consumed by the dormant galaxy checksum; purpose unresolved.
     std::uint8_t TCCInterface::GetFlag0A() {
         pas::critical_enter(Lock);
         std::uint8_t Result = GetSnapshot()->Flag0A;
@@ -4272,6 +4395,7 @@ namespace GR_Main {
         pas::critical_leave(Lock);
     }
 
+    // Read under Lock; used for the score-mod cheat warning.
     std::uint8_t TCCInterface::GetEditableStateApplied() {
         pas::critical_enter(Lock);
         std::uint8_t Result = GetSnapshot()->EditableStateApplied;
@@ -4279,6 +4403,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Replaces the protected score-mod warning flag.
     void TCCInterface::SetEditableStateApplied(std::uint8_t Value) {
         pas::critical_enter(Lock);
         PCCSnapshot Snapshot = TCCInterface::CopySnapshot(GetSnapshot());
@@ -4287,6 +4412,7 @@ namespace GR_Main {
         pas::critical_leave(Lock);
     }
 
+    // Protected-state XOR seed; zero denotes restored state. Rangers reads it after the screen loop.
     std::int32_t TCCInterface::GetProtectedStateXorSeed() {
         pas::critical_enter(Lock);
         std::int32_t Result = GetSnapshot()->ProtectedStateXorSeed;
@@ -4294,6 +4420,7 @@ namespace GR_Main {
         return Result;
     }
 
+    // Protected-state XOR seed; zero denotes restored state.
     void TCCInterface::SetProtectedStateXorSeed(std::int32_t Value) {
         pas::critical_enter(Lock);
         PCCSnapshot Snapshot = TCCInterface::CopySnapshot(GetSnapshot());
@@ -4302,6 +4429,7 @@ namespace GR_Main {
         pas::critical_leave(Lock);
     }
 
+    // Protected payload with unresolved purpose.
     std::int32_t TCCInterface::GetValue10() {
         pas::critical_enter(Lock);
         std::int32_t Result = GetSnapshot()->Value10;
@@ -4405,41 +4533,6 @@ namespace GR_Main {
         Snapshot->EncodedCheatPoints = Value;
         CommitSnapshot(Snapshot);
         pas::critical_leave(Lock);
-    }
-
-    void LoadBlockDatConfig(EC_BlockPar::TBlockParEC* Root, pas::WideString FileName) {
-        Root->LoadFromEncryptedDatFile(FileName);
-        if (Root->GetBlockCount() <= 0 && Root->GetParamCount() <= 0) {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName, u"> is empty!"})));
-        }
-    }
-
-    void LoadCacheDatConfig(EC_Data::TDataEC* Root, pas::WideString FileName) {
-        Root->LoadFromEncryptedDatFile(FileName);
-        if (Root->IsEmpty()) {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName, u"> is empty!"})));
-        }
-    }
-
-    void VerifyStartupModuleChecksum(pas::WideString& ModuleName) {
-        CCInterface->SetResourceChecksumFailed(false);
-        EC_Data::VerifyResourceFileChecksum(ModuleName);
-        std::int32_t MarkerOffset = 8;
-        if (CCInterface->GetResourceChecksumFailed()) {
-            pas::store_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset), aMyFunction::RandomIntRange(1000000000, 2000000000));
-        } else if (pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset)) <= 0) {
-            pas::store_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset), aMyFunction::RandomIntRange(-2000000000, -1000000000));
-        }
-        CCInterface->SetResourceChecksumFailed(false);
-    }
-
-    void LogPresentationField(pas::WideString Name, std::uint32_t& CurrentValue, std::uint32_t& PreviousValue, pas::WideString& Text) {
-        if (CurrentValue == PreviousValue) {
-            Text = pas::concat_wide({Name, u" = ", pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue))});
-        } else {
-            Text = pas::concat_wide({Name, u" = ", pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue)), u", previous value = ", pas::wide_int64_to_str(static_cast<std::int64_t>(PreviousValue))});
-        }
-        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Text));
     }
 
     void TCCInterface::p_destroy() {

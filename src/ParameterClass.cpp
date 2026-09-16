@@ -66,6 +66,7 @@ namespace ParameterClass {
         CriticalEvent->Text->Text = pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultCriticalMessage"_w), u" ", EC_Str::IntToWideString(Index)});
     }
 
+    // ParameterIndex labels new entries; ViewStringCount is unchanged.
     void TParameter::EnsureViewStringCapacity(std::int32_t RequiredCapacity, std::int32_t ParameterIndex) {
         while (RequiredCapacity > ViewStringCapacity) {
             ++ViewStringCapacity;
@@ -103,6 +104,7 @@ namespace ParameterClass {
         return Result;
     }
 
+    // Clamps ordinary parameters to their bounds; money is only clamped at zero.
     void TParameter::SetValue(std::int32_t NewValue) {
         if (IsMoney) {
             if (NewValue < 0) {
@@ -119,6 +121,7 @@ namespace ParameterClass {
         }
     }
 
+    // Parameter format used by quest versions 1111111125 and later.
     void TParameter::LoadFromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         MinValue = EC_Buf::TBufEC_GetInt32(Reader);
@@ -148,6 +151,7 @@ namespace ParameterClass {
         InitialRange->LoadFromReader(Reader);
     }
 
+    // Quest versions 1111111121..1111111124.
     void TParameter::LoadLegacyV4FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         MinValue = EC_Buf::TBufEC_GetInt32(Reader);
@@ -176,6 +180,7 @@ namespace ParameterClass {
         InitialRange->LoadFromReader(Reader);
     }
 
+    // Quest versions 1111111119..1111111120.
     void TParameter::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         ValueListClass::TValuesList* Values{};
@@ -209,6 +214,7 @@ namespace ParameterClass {
         pas::free(Values);
     }
 
+    // Quest version 1111111118.
     void TParameter::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         MinValue = EC_Buf::TBufEC_GetInt32(Reader);
@@ -238,6 +244,7 @@ namespace ParameterClass {
         InitialRange->AddRange(Value, Value);
     }
 
+    // Quest versions 1111111113..1111111117.
     void TParameter::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         MinValue = EC_Buf::TBufEC_GetInt32(Reader);
@@ -267,6 +274,7 @@ namespace ParameterClass {
         InitialRange->AddRange(Value, Value);
     }
 
+    // Quest versions 1111111111..1111111112.
     void TParameter::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
         MinValue = EC_Buf::TBufEC_GetInt32(Reader);
         MaxValue = EC_Buf::TBufEC_GetInt32(Reader);

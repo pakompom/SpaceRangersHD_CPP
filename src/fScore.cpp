@@ -50,6 +50,7 @@ namespace fScore {
     };
     #pragma pack(pop)
 
+    // These views preserve the native aggregate assignment across seven named fields.
     using PScoreCounterView = TScoreCounterView*;
 
     #pragma pack(push, 1)
@@ -61,8 +62,6 @@ namespace fScore {
 
     using PShipCounterView = TShipCounterView*;
 
-    std::uint8_t ShouldSwapScoreEntries(TfScoreUnit*& Candidate, TfScoreUnit*& Current);
-
     static_assert(sizeof(void*) != 4 || sizeof(fScore::TScoreCounterView) == 68);
     static_assert(sizeof(void*) != 4 || offsetof(fScore::TScoreCounterView, Prefix) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(fScore::TScoreCounterView, Counters) == 40);
@@ -70,6 +69,8 @@ namespace fScore {
     static_assert(sizeof(void*) != 4 || offsetof(fScore::TShipCounterView, Prefix) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(fScore::TShipCounterView, Counters) == 1236);
 
+    // Preserve evaluation of the localized template before the turn clamp, and
+    // the separate managed temporary retained by the native compiler.
     void SetElapsedScoreTurns(TfScore* Screen, TfScoreUnit* Entry) {
         std::int32_t Turns{};
         pas::WideString Template{};
@@ -96,6 +97,7 @@ namespace fScore {
         pas::object_destroy(Self);
     }
 
+    // Also checks end-game achievements and submits eligible victories through the Steam score callback.
     void TfScoreUnit::CapturePlayer(std::uint8_t Victory) {
         aShip::TPilotSkill Skill{};
         std::int32_t I{};
@@ -112,6 +114,7 @@ namespace fScore {
         FinishedTurn = aGalaxy::Galaxy->CurrentTurn;
         Rank = aPlayer::GetPlayer()->Rank;
         PirateRank = aPlayer::GetPlayer()->PirateRank;
+        // Native copies the seven adjacent kill/liberation counters as one block.
         pas::store_unaligned<TScoreKillCounters>(&reinterpret_cast<PScoreCounterView>(this)->Counters, pas::load_unaligned<TScoreKillCounters>(&reinterpret_cast<PShipCounterView>(aPlayer::GetPlayer())->Counters));
         OtherShipKillCount = OtherShipKillCount - PirateKillCount - DominatorKillCount;
         ArcadeKillCount = aPlayer::GetPlayer()->HyperspaceKillCount + aPlayer::GetPlayer()->BlackHoleKillCount;
@@ -215,6 +218,7 @@ namespace fScore {
         DifficultyPercent = DifficultyPercent / 8;
     }
 
+    // Defeats score zero. Victories use experience, difficulty, elapsed years and ending-resolution penalties; Disqualified does not suppress the local score.
     void TfScoreUnit::RecalculateTotalScore() {
         pas::Extended Experience{};
         pas::Extended Difficulty{};
@@ -244,6 +248,7 @@ namespace fScore {
         }
     }
 
+    // Writes entry marker 205. PortraitFaceId and quest numbers are truncated to bytes; separate civilian/military/ranger kill counts are not saved.
     void TfScoreUnit::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
         std::uint8_t Skill{};
         std::int32_t I{};
@@ -317,6 +322,7 @@ namespace fScore {
         }
     }
 
+    // Recalculates TotalScore. An unexpected entry marker resets the registered score screen to defaults.
     void TfScoreUnit::LoadFromBuffer(EC_Buf::TBufEC* Buffer, std::int32_t FileVersion) {
         std::uint8_t Skill{};
         std::int32_t I{};
@@ -379,6 +385,7 @@ namespace fScore {
             TerronEndingState = EC_Buf::TBufEC_GetByte(Buffer);
             PirateEndingState = EC_Buf::TBufEC_GetByte(Buffer);
             PlanetBattleHistory = nullptr;
+            // Native tests the entry marker here, not FileVersion.
             if (Marker >= 2) {
                 Count = EC_Buf::TBufEC_GetWord(Buffer);
                 PlanetBattleHistory.set_length(Count);
@@ -404,6 +411,7 @@ namespace fScore {
         }
     }
 
+    // Writes readable statistics and a protected payload; overwrites the destination.
     void TfScoreUnit::ExportToFile(pas::WideString FileName) {
         pas::WideString Text{};
         pas::AnsiString AnsiText{};
@@ -466,18 +474,42 @@ namespace fScore {
         pas::free(Encoded);
     }
 
+    // Keeps 11 entries. Equal-score comparison only favors an earlier finish when candidate difficulty is at least the incumbent's; this is not a lexicographic comparison.
     void TfScore::SortAndTrimEntries() {
         TfScoreUnit* Candidate{};
         TfScoreUnit* Current{};
         pas::Object* Last{};
         std::int32_t I{};
         std::int32_t J{};
+        // Nested in TfScore.SortAndTrimEntries; requires its parent frame.
+        auto ShouldSwapScoreEntries = [&]() -> std::uint8_t {
+            if (Candidate->TotalScore < Current->TotalScore) {
+                return false;
+            }
+            if (Candidate->TotalScore > Current->TotalScore) {
+                return true;
+            }
+            if (Candidate->DifficultyPercent < Current->DifficultyPercent) {
+                return false;
+            }
+            // Repeated '<' is present in the native comparator, including the dormant branch.
+            if (Candidate->DifficultyPercent < Current->DifficultyPercent) {
+                return true;
+            }
+            if (Candidate->FinishedTurn > Current->FinishedTurn) {
+                return false;
+            }
+            if (Candidate->FinishedTurn < Current->FinishedTurn) {
+                return true;
+            }
+            return false;
+        };
         std::int32_t Count = pas::list_count(Entries);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 2); cpp_range.next(I); ) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(I + 1, Count - 1); cpp_range_2.next(J); ) {
                 Current = pas::list_at<TfScoreUnit>(Entries, I);
                 Candidate = pas::list_at<TfScoreUnit>(Entries, J);
-                if (fScore::ShouldSwapScoreEntries(Candidate, Current)) {
+                if (ShouldSwapScoreEntries()) {
                     pas::list_put(Entries, I, reinterpret_cast<void*>(Candidate));
                     pas::list_put(Entries, J, reinterpret_cast<void*>(Current));
                 }
@@ -490,28 +522,7 @@ namespace fScore {
         }
     }
 
-    std::uint8_t ShouldSwapScoreEntries(TfScoreUnit*& Candidate, TfScoreUnit*& Current) {
-        if (Candidate->TotalScore < Current->TotalScore) {
-            return false;
-        }
-        if (Candidate->TotalScore > Current->TotalScore) {
-            return true;
-        }
-        if (Candidate->DifficultyPercent < Current->DifficultyPercent) {
-            return false;
-        }
-        if (Candidate->DifficultyPercent < Current->DifficultyPercent) {
-            return true;
-        }
-        if (Candidate->FinishedTurn > Current->FinishedTurn) {
-            return false;
-        }
-        if (Candidate->FinishedTurn < Current->FinishedTurn) {
-            return true;
-        }
-        return false;
-    }
-
+    // Index must be 0..10; Entry must already be allocated.
     void TfScore::InitializeDefaultEntry(std::int32_t Index, TfScoreUnit*& Entry) {
         std::int32_t I{};
         aGalaxyStruct::TQuestType Kind{};
@@ -943,6 +954,7 @@ namespace fScore {
         SortAndTrimEntries();
     }
 
+    // Reloads the table. Matches an existing run by score and generation seed; otherwise replaces the last entry, sorts by score alone, and tracks its selection. Saves immediately.
     void TfScore::RecordPlayerResult(std::uint8_t Victory) {
         std::int32_t I{};
         std::int32_t J{};
@@ -989,6 +1001,7 @@ namespace fScore {
         SaveTableToDisk();
     }
 
+    // Also removes every entry with an empty ScoreTags buffer; surviving entries are mixed with defaults and trimmed to 11. Does not save.
     void TfScore::RemoveSelectedEntryAndRefill() {
         std::int32_t I{};
         TfScoreUnit* Entry{};
@@ -1025,6 +1038,7 @@ namespace fScore {
         pas::list_clear(Entries);
     }
 
+    // Appends to Entries; the caller must clear it first. Reads file version 2 and verifies its checksum.
     void TfScore::LoadTableFromDisk() {
         pas::WideString cpp_text{};
         std::uint8_t* Data{};
@@ -1086,6 +1100,7 @@ namespace fScore {
         }
     }
 
+    // Clears Entries, loads score.dat when present, otherwise creates defaults.
     void TfScore::ReloadTable() {
         ClearEntries();
         if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"score.dat"})))) {
@@ -1096,6 +1111,7 @@ namespace fScore {
         }
     }
 
+    // Replaces the table with defaults if its count is not 11.
     void TfScore::SaveTableToDisk() {
         std::int32_t I{};
         TfScoreUnit* Entry{};
@@ -1177,6 +1193,7 @@ namespace fScore {
         SelectedIndex = 0;
     }
 
+    // Releases the active galaxy and memory save snapshot.
     void TfScore::OnOpen() {
         std::int32_t I{};
         GI_Panel::TPanelGI* Row{};
@@ -1866,6 +1883,7 @@ namespace fScore {
         }
     }
 
+    // Exports ToServerNN.txt and also submits an eligible score through the Steam callback when available.
     void TfScore::ExportEntryClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString FileName{};
         pas::WideString Text{};

@@ -71,10 +71,13 @@ namespace fGalaxy2 {
         void CloseClicked(GI_MessageLoop::TObjectGI* Sender);
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void MainPanelMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        // Requires an active Prolonger effect as well as radar coverage.
         std::uint8_t CanShowExtendedRadarInfo(aGalaxy::TStar* Star);
+        // Measured in radar-summary units of 150 range units.
         static std::int32_t GetRadarSummaryRadius();
         EC_Struct::TPointF MapPointToGalaxyPoint(WindowsSdk::TPoint Point);
         WindowsSdk::TPoint GalaxyPointToMapPoint(EC_Struct::TPointF Point);
+        // Uses the horizontal projection scale.
         std::int32_t GalaxyDistanceToMapDistance(double Distance);
         void RebuildJumpPath();
         void ClearJumpPath();
@@ -91,7 +94,9 @@ namespace fGalaxy2 {
         void JumpClicked(GI_MessageLoop::TObjectGI* Sender);
         void JumpMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         void JumpMouseLeave(GI_MessageLoop::TObjectGI* Sender);
+        // Nil hides the panel; cancels StarInfoHideTimer.
         void ShowStarInfo(aGalaxy::TStar* Star);
+        // Requires boss-specific scanner technology; does not test general visibility.
         static std::uint8_t CanRevealBossPresence(aShip::TShip* Ship);
         pas::WideString BuildStarShipSummary(aGalaxy::TStar* Star, std::int32_t& LineCount);
         void UpdateJumpAnimations(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
@@ -102,14 +107,18 @@ namespace fGalaxy2 {
         void ClearMarkersClicked(GI_MessageLoop::TObjectGI* Sender);
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
         GI_Panel::TPanelGI* MapPanel;
+        // 1 for modal HUD navigation, 2 for the star-map transition.
         std::uint8_t ViewMode;
         std::uint8_t cpp_padding[3];
         GI_GraphBuf::TGraphBufGI* HideBuffer;
+        // Right and Bottom are treated as inclusive by projection.
         WindowsSdk::TRect MapPixelBounds;
         EC_Struct::TPointF GalaxyOrigin;
         EC_Struct::TPointF GalaxyExtent;
         aGalaxy::TStar* SelectedJumpStar;
+        // Borrowed TStar objects forming intermediate route markers.
         pas::List* RouteStars;
+        // Constellation links owned by MapPanel.
         GI_PolyLine::TPolyLineGI* StarLinks;
         GI_MessageLoop::PCallbackTimerGI StarInfoHideTimer;
         GI_MessageLoop::PCallbackTimerGI JumpAnimationTimer;
@@ -119,6 +128,7 @@ namespace fGalaxy2 {
         GI_Label::TLabelGI* JumpDestinationLabel;
         GI_GAI::TgaiGI* JumpAnimation;
         pas::Array<GI_Image::TImageGI*, 0, 2> JumpLightImages;
+        // Set by CaptureGalaxyPreview; consumed by OnOpen.
         std::uint8_t CapturePreviewOnOpen;
         std::uint8_t cpp_padding_2[3];
         GI_GraphButton::TGraphButtonGI* CreateMarkerButton;

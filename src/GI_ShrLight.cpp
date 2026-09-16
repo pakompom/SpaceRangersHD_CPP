@@ -11,6 +11,7 @@
 #include "units/GlobalsV.hpp"
 #include "units/SysUtils.hpp"
 
+// Native class ownership follows reference/unit_ownership.json.
 namespace GI_ShrLight {
     void TShrLightGI_Create(TShrLightGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);

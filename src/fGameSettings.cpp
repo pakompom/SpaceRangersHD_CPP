@@ -24,7 +24,11 @@
 #include "units/fGameSettings.hpp"
 #include "units/fIntroduction.hpp"
 
+// The native thread contribution ends before TfGameSettings2 metadata.
+// Ownership by the linked fGameSettings unit is inferred from that boundary and
+// PACKAGEINFO's adjacent fGameSettings2/fGameSettings dependency entries.
 namespace fGameSettings {
+    // Source control for the native Extended temporaries and axis evaluation order.
     void CalculateSquaredEdgeDistance(aGalaxy::TStar* Star, float& Distance) {
         pas::Extended XDelta{};
         pas::Extended XNear{};
@@ -79,6 +83,7 @@ namespace fGameSettings {
         pas::Array<pas::List*, 0, 7> NameLists{};
         Stage = 0;
         try {
+            // Each generation thread establishes the native x87 precision and exception mask.
             ControlWord = 0x0000103f;
             System::Set8087CW(ControlWord);
             fIntroduction::NewGameGenerationStage = 0;
@@ -811,6 +816,7 @@ namespace fGameSettings {
                 Entry->SlotIndex = 0;
             }
             Stage = 19;
+            // Native code passes the last planet visited by the population loop above.
             aPlayer::GetPlayer()->ApplyCharacterPreset(Planet, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].DifficultyValue18, Self->CharacterPreset);
             aPlayer::GetPlayer()->RefreshStorageBubbles();
             aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 0);

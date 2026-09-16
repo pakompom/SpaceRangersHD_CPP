@@ -72,6 +72,7 @@ namespace GR_Sound {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Releases the active buffer and resets Volume/Pan only when Buffer is non-nil. Keeps path, group and looping mode.
     void TSoundBufferControl::Clear() {
         if (Buffer != nullptr) {
             Buffer->Controller = nullptr;
@@ -82,6 +83,7 @@ namespace GR_Sound {
         }
     }
 
+    // Identical paths leave every setting unchanged, including group and looping mode.
     void TSoundBufferControl::Configure(const pas::WideString& Path, std::int32_t Group, std::uint8_t ALooping) {
         if (SoundPath != Path) {
             Clear();
@@ -91,6 +93,7 @@ namespace GR_Sound {
         }
     }
 
+    // Unchanged values do nothing. Looping sounds start lazily at nonzero volume; changing to zero clears an active loop. The controller retains the unclamped value.
     void TSoundBufferControl::SetVolume(float Value) {
         if (Volume == Value) {
             return;
@@ -119,6 +122,7 @@ namespace GR_Sound {
         }
     }
 
+    // A changed pan can start an inactive looping sound, even at zero volume.
     void TSoundBufferControl::SetPan(float Value) {
         if (Pan == Value) {
             return;
@@ -138,6 +142,7 @@ namespace GR_Sound {
         }
     }
 
+    // Restarts non-looping sounds; does nothing in looping mode.
     void TSoundBufferControl::Play() {
         if (Looping) {
             return;
@@ -229,6 +234,7 @@ namespace GR_Sound {
         }
     }
 
+    // Copies 20 bytes from Format into internal wave-format storage.
     void TSoundBuffer::Init(std::int32_t ByteCount, void* Format) {
         std::int32_t Status{};
         DirectSound::TDSBufferDesc Desc{};
@@ -264,6 +270,7 @@ namespace GR_Sound {
         }
     }
 
+    // Copies 20 bytes from Format; allocates three chunks of streaming audio.
     void TSoundBuffer::InitStream(std::int32_t ChunkBytes, void* Format) {
         std::int32_t Status{};
         DirectSound::PDSPositionNotify Positions{};
@@ -340,6 +347,7 @@ namespace GR_Sound {
         }
     }
 
+    // Fills the audio buffer with silence; does not release it.
     void TSoundBuffer::ClearBuf() {
         void* Data{};
         std::uint32_t Bytes{};
@@ -372,6 +380,7 @@ namespace GR_Sound {
         }
     }
 
+    // Format points to 20 bytes; data and format are copied, not retained.
     void TSoundBuffer::Write(void* Data, std::uint32_t ByteCount, void* Format) {
         void* Dest{};
         std::uint32_t Bytes{};
@@ -403,6 +412,7 @@ namespace GR_Sound {
         }
     }
 
+    // Chunk=-1 primes the buffer; other values refill from the current playback cursor. False indicates exhaustion or an unavailable buffer.
     std::uint8_t TSoundBuffer::WriteStream(std::int32_t Chunk, VorbisFile::TOggWorker*& Decoder) {
         std::int32_t Offset{};
         void* Dest{};
@@ -495,6 +505,7 @@ namespace GR_Sound {
         return ReadBytes >= WantedBytes;
     }
 
+    // Streaming buffers always loop.
     void TSoundBuffer::Play(std::uint8_t Looping) {
         std::int32_t Status{};
         std::int32_t i{};
@@ -593,6 +604,7 @@ namespace GR_Sound {
         WindowsSdk::SetEvent(StopEvent);
     }
 
+    // Stores the unclamped value and combines it with the buffer's secondary volume multiplier.
     void TSoundBuffer::SetVolume(float Value) {
         std::int32_t Status{};
         float Minimum{};
@@ -644,6 +656,7 @@ namespace GR_Sound {
         VolumeTimer = MMSystem::timeSetEvent(Interval, 0u, pas::callback_from_address<MMSystem::TFNTimeCallBack>(reinterpret_cast<void*>(static_cast<std::uintptr_t>(VolumeEvent))), 0u, MMSystem::TIME_PERIODIC | MMSystem::TIME_CALLBACK_EVENT_SET);
     }
 
+    // Clamps the DirectSound pan to -10000..10000.
     void TSoundBuffer::SetPan(float Value) {
         std::int32_t Status{};
         std::int32_t Pan{};

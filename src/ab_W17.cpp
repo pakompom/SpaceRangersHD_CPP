@@ -6,6 +6,7 @@
 #include "units/ab_W17.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW17 projectile family:.
 namespace ab_W17 {
     void TabW17_Create(TabW17* Self) {
         ab_Object::TabObject_Create(Self);

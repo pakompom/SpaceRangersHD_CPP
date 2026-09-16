@@ -24,6 +24,7 @@ namespace PathClass {
         Self->FromLocationId = 0;
     }
 
+    // Frees the sequence and containers without calling Reset.
     void TPath_Destroy(TPath* Self) {
         if (Self->Sequence != nullptr) {
             pas::free(Self->Sequence);
@@ -34,6 +35,7 @@ namespace PathClass {
         Self->Event = nullptr;
         pas::free(Self->ConditionExpression);
         Self->ConditionExpression = nullptr;
+        // Native destruction frees the list without resetting its owned entries.
         pas::free(Self->ParameterChanges);
         Self->ParameterChanges = nullptr;
         EC_Struct::TObjectEx_Destroy(Self);
@@ -68,6 +70,7 @@ namespace PathClass {
         return pas::list_count(ParameterChanges);
     }
 
+    // Index is one-based.
     ParameterDeltaClass::TParameterDelta* TPath::GetParameterChange(std::int32_t Index) {
         return pas::list_at<ParameterDeltaClass::TParameterDelta>(ParameterChanges, Index - 1);
     }
@@ -76,6 +79,7 @@ namespace PathClass {
         pas::list_add(ParameterChanges, reinterpret_cast<void*>(Change));
     }
 
+    // Evaluates every expression before applying any change.
     void TPath::ApplyParameterChanges(pas::List*& Parameters) {
         std::int32_t i{};
         for (auto cpp_range = pas::for_to<std::int32_t>(1, GetParameterChangeCount()); cpp_range.next(i); ) {
@@ -86,6 +90,7 @@ namespace PathClass {
         }
     }
 
+    // Removed entries are not freed.
     void TPath::PruneParameterChanges(pas::List* Parameters) {
         std::int32_t i{};
         {
@@ -104,6 +109,7 @@ namespace PathClass {
         }
     }
 
+    // Updates Available. Invalid condition expressions are ignored; parameter constraints still apply.
     std::uint8_t TPath::CheckAvailable(pas::List* Parameters) {
         CalcParseClass::TCalcParse* Calc{};
         std::int32_t i{};
@@ -113,6 +119,7 @@ namespace PathClass {
             Calc = pas::construct_call<CalcParseClass::TCalcParse>(CalcParseClass::TCalcParse_Create);
             Calc->Reset();
             Calc->Prepare(EC_Str::TrimWideString(ConditionExpression->Text), 0);
+            // Native cleanup occurs only after a successfully prepared expression.
             if (static_cast<std::uint8_t>(Calc->HasError ^ 1) && static_cast<std::uint8_t>(Calc->UsesDefaultParameter ^ 1)) {
                 Calc->Evaluate(Parameters);
                 if (static_cast<std::uint8_t>(Calc->HasError ^ 1) && Calc->ResultValue == 0) {
@@ -141,6 +148,7 @@ namespace PathClass {
         return nullptr;
     }
 
+    // Path format used by quest versions 1111111125 and later.
     void TPath::LoadFromReader(EC_Buf::TBufEC* Reader, pas::List* Parameters) {
         std::int32_t i{};
         std::int32_t ParameterIndex{};
@@ -192,6 +200,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest version 1111111124.
     void TPath::LoadLegacyV9FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -220,6 +229,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest version 1111111123.
     void TPath::LoadLegacyV8FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -248,6 +258,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest version 1111111122.
     void TPath::LoadLegacyV7FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -276,6 +287,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest versions 1111111119..1111111121.
     void TPath::LoadLegacyV6FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -303,6 +315,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest versions 1111111117..1111111118.
     void TPath::LoadLegacyV5FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -329,6 +342,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest version 1111111116.
     void TPath::LoadLegacyV4FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -355,6 +369,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest version 1111111115.
     void TPath::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -379,6 +394,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest version 1111111114.
     void TPath::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -403,6 +419,7 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Quest versions 1111111112..1111111113.
     void TPath::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
@@ -426,6 +443,8 @@ namespace PathClass {
         IsAutomatic = EC_Str::TrimWideString(Caption->Text) == u"";
     }
 
+    // Legacy readers derive IsAutomatic from the trimmed caption.
+    // Quest version 1111111111.
     void TPath::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();

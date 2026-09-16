@@ -36,14 +36,6 @@ namespace aRuins {
 
     using TQuotasByItemType = pas::Array<std::int32_t, 42, 50>;
 
-    void SelectStationName(EC_BlockPar::TBlockParEC* Config, TRuins* Self);
-
-    std::int32_t RandomStationEquipmentSize(std::int32_t BaseSize, TRuins* Self);
-
-    aGalaxy::TStar* FindDominionHomeStar(TRuins* Self);
-
-    std::uint8_t IsStationArrivalPointClear(EC_Struct::TPointF Point, TRuins* Self, aGalaxy::TStar*& Star);
-
     const pas::Array<pas::Array<std::uint8_t, 0, 1>, 6, 12> StationPilotRaces = pas::Array<pas::Array<std::uint8_t, 0, 1>, 6, 12>{{pas::Array<std::uint8_t, 0, 1>{{static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(4)}}, pas::Array<std::uint8_t, 0, 1>{{static_cast<std::uint8_t>(2), static_cast<std::uint8_t>(1)}}, pas::Array<std::uint8_t, 0, 1>{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(1)}}, pas::Array<std::uint8_t, 0, 1>{{static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(4)}}, pas::Array<std::uint8_t, 0, 1>{{static_cast<std::uint8_t>(2), static_cast<std::uint8_t>(2)}}, pas::Array<std::uint8_t, 0, 1>{{static_cast<std::uint8_t>(4), static_cast<std::uint8_t>(4)}}, pas::Array<std::uint8_t, 0, 1>{{static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(3)}}}};
 
     const pas::Array<aRuins::TStationHullGeneration, 6, 12> StationHullGeneration = pas::Array<aRuins::TStationHullGeneration, 6, 12>{{{.MinSize = 900, .MaxSize = 1600, .TechSizeBonus = 1500, .MinLevel = 2, .MaxLevel = 6}, {.MinSize = 900, .MaxSize = 1000, .TechSizeBonus = 1500, .MinLevel = 2, .MaxLevel = 5}, {.MinSize = 1200, .MaxSize = 1500, .TechSizeBonus = 1700, .MinLevel = 2, .MaxLevel = 7}, {.MinSize = 800, .MaxSize = 1200, .TechSizeBonus = 1100, .MinLevel = 2, .MaxLevel = 7}, {.MinSize = 800, .MaxSize = 1000, .TechSizeBonus = 1100, .MinLevel = 2, .MaxLevel = 5}, {.MinSize = 800, .MaxSize = 1000, .TechSizeBonus = 1200, .MinLevel = 2, .MaxLevel = 5}, {.MinSize = 900, .MaxSize = 1000, .TechSizeBonus = 1500, .MinLevel = 2, .MaxLevel = 5}}};
@@ -60,9 +52,9 @@ namespace aRuins {
 
     const pas::Array<std::int32_t, 6, 12> StationOfferHullLevelBonus = pas::Array<std::int32_t, 6, 12>{{0, 0, 1, 0, 0, 0, 0}};
 
-    const pas::Array<aRuins::TStationHullTypes, 6, 12> StationOfferHullTypes = pas::Array<aRuins::TStationHullTypes, 6, 12>{{pas::constant_set<aRuins::TStationHullTypes>({{0}}), pas::constant_set<aRuins::TStationHullTypes>({{2}, {3}}), pas::constant_set<aRuins::TStationHullTypes>({{0}, {1}}), pas::constant_set<aRuins::TStationHullTypes>({{0, 5}}), pas::constant_set<aRuins::TStationHullTypes>({{3}, {4}}), pas::constant_set<aRuins::TStationHullTypes>({{3, 5}}), pas::constant_set<aRuins::TStationHullTypes>({{2}})}};
+    const pas::Array<aRuins::TStationHullTypes, 6, 12> StationOfferHullTypes = pas::Array<aRuins::TStationHullTypes, 6, 12>{{pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htRanger}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htPirate}, {aGalaxyStruct::htTransport}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htRanger}, {aGalaxyStruct::htWarrior}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htTransport}, {aGalaxyStruct::htLiner}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htTransport, aGalaxyStruct::htDiplomat}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htPirate}})}};
 
-    const pas::Array<aRuins::TStationHullTypes, 6, 12> StationOfferRareHullTypes = pas::Array<aRuins::TStationHullTypes, 6, 12>{{pas::constant_set<aRuins::TStationHullTypes>({{0}}), pas::constant_set<aRuins::TStationHullTypes>({{2}}), pas::constant_set<aRuins::TStationHullTypes>({{1}}), pas::constant_set<aRuins::TStationHullTypes>({{0}, {3, 5}}), pas::constant_set<aRuins::TStationHullTypes>({{3}, {4}}), pas::constant_set<aRuins::TStationHullTypes>({{3, 5}}), pas::constant_set<aRuins::TStationHullTypes>({{2}})}};
+    const pas::Array<aRuins::TStationHullTypes, 6, 12> StationOfferRareHullTypes = pas::Array<aRuins::TStationHullTypes, 6, 12>{{pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htRanger}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htPirate}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htWarrior}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htRanger}, {aGalaxyStruct::htTransport, aGalaxyStruct::htDiplomat}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htTransport}, {aGalaxyStruct::htLiner}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htTransport, aGalaxyStruct::htDiplomat}}), pas::constant_set<aRuins::TStationHullTypes>({{aGalaxyStruct::htPirate}})}};
 
     const pas::Array<std::int32_t, 6, 13> StationOfferWeaponLevelBonus = pas::Array<std::int32_t, 6, 13>{{1, 1, 2, 1, 1, 1, 2, 1}};
 
@@ -115,6 +107,7 @@ namespace aRuins {
         aShip::TShip_Destroy(Self);
     }
 
+    // Also registers the station in Star. Type 13 inherits ranger-center defaults.
     void TRuins::Init(aGalaxyStruct::TStationType StationType, aGalaxy::TStar* Star, pas::WideString TypeNameOverride) {
         std::int32_t I{};
         aRanger::TRanger* Ranger{};
@@ -123,6 +116,52 @@ namespace aRuins {
         aItem::TWeapon* Weapon{};
         aItem::TCargoHook* Hook{};
         std::uint8_t EquipmentOwner{};
+        auto SelectStationName = [&](EC_BlockPar::TBlockParEC* Config) -> void {
+            std::int32_t Index{};
+            std::int32_t I{};
+            std::int32_t J{};
+            std::int32_t K{};
+            std::uint8_t Used{};
+            aShip::TShip* Ship{};
+            aGalaxy::TStar* OtherStar{};
+            if (Config == nullptr) {
+                return;
+            }
+            if (Config->CountBlocks(aConst::ShipTypeNames[this->TypeId].Name) == 0) {
+                return;
+            }
+            std::int32_t LastName = Config->GetBlock(aConst::ShipTypeNames[this->TypeId].Name)->GetParamCount() - 1;
+            Index = aMyFunction::NextRandomIntRange(0, LastName, this->RandomState);
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, LastName); cpp_range.next(I); ) {
+                this->Name = Config->GetBlock(aConst::ShipTypeNames[this->TypeId].Name)->GetParamValue(Index);
+                Used = false;
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_2.next(J); ) {
+                    OtherStar = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, J);
+                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(OtherStar->Ships) - 1); cpp_range_3.next(K); ) {
+                        Ship = pas::list_at<aShip::TShip>(OtherStar->Ships, K);
+                        if (Ship->TypeId == this->TypeId && Ship->Name == this->Name && Ship != this) {
+                            Used = true;
+                            break;
+                        }
+                    }
+                    if (Used) {
+                        break;
+                    }
+                }
+                if (!Used) {
+                    break;
+                }
+                aMyFunction::IncrementWrapped(Index, 0, LastName);
+                if (I == LastName) {
+                    this->Name = pas::concat_wide({this->Name, u" ", u"-", pas::wide_int_to_str(aMyFunction::NextRandomIntRange(10, 99, this->RandomState)), u"-"});
+                }
+            }
+        };
+        auto RandomStationEquipmentSize = [&](std::int32_t BaseSize) -> std::int32_t {
+            std::int32_t round = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[1] * 2.0L);
+            std::int32_t round_2 = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[2] * 2.0L);
+            return aMyFunction::NextRandomIntRange(round_2, round, this->RandomState);
+        };
         if (StationType == aGalaxyStruct::rstCustomStation) {
             TypeId = static_cast<std::uint8_t>(aGalaxyStruct::rstRangerCenter);
         } else {
@@ -143,9 +182,9 @@ namespace aRuins {
         OwnerId = aConst::RaceToOwner(PilotRace);
         RandomizePosition();
         Name = pas::WideString();
-        aRuins::SelectStationName(GR_Main::ModRuinNameConfig, this);
+        SelectStationName(GR_Main::ModRuinNameConfig);
         if (GetName().length() == 0) {
-            aRuins::SelectStationName(GR_Main::LanguageDataConfig->GetBlock(u"RuinName"_wref.get()), this);
+            SelectStationName(GR_Main::LanguageDataConfig->GetBlock(u"RuinName"_wref.get()));
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
             Ranger = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
@@ -192,12 +231,12 @@ namespace aRuins {
             self->CreateAndEquipHull(roundAndTruncateToTens, scaleIntByTechLevel, ownerId, -1, cpp_arg);
         }
         {
-            std::int32_t randomStationEquipmentSize = aRuins::RandomStationEquipmentSize(aConst::FuelTanksBaseSize, this);
+            std::int32_t randomStationEquipmentSize = RandomStationEquipmentSize(aConst::FuelTanksBaseSize);
             aShip::TShip* self_2 = this;
             self_2->CreateAndEquipFuelTanks(randomStationEquipmentSize, 1, EquipmentOwner);
         }
         {
-            std::int32_t randomStationEquipmentSize_2 = aRuins::RandomStationEquipmentSize(aConst::EngineBaseSize, this);
+            std::int32_t randomStationEquipmentSize_2 = RandomStationEquipmentSize(aConst::EngineBaseSize);
             aShip::TShip* self_3 = this;
             self_3->CreateAndEquipEngine(randomStationEquipmentSize_2, 1, EquipmentOwner);
         }
@@ -205,7 +244,7 @@ namespace aRuins {
             std::int32_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(StationDefenseLevels[TypeId].Minimum, StationDefenseLevels[TypeId].Maximum, RandomState);
             aGalaxy::TGalaxy* galaxy_2 = aGalaxy::Galaxy;
             std::uint8_t scaleIntByTechLevel_2 = galaxy_2->ScaleIntByTechLevel(1, nextRandomIntRange_2);
-            std::int32_t randomStationEquipmentSize_3 = aRuins::RandomStationEquipmentSize(aConst::DefGeneratorBaseSize, this);
+            std::int32_t randomStationEquipmentSize_3 = RandomStationEquipmentSize(aConst::DefGeneratorBaseSize);
             aShip::TShip* self_4 = this;
             self_4->CreateAndEquipDefGenerator(randomStationEquipmentSize_3, scaleIntByTechLevel_2, EquipmentOwner);
         }
@@ -213,7 +252,7 @@ namespace aRuins {
             std::int32_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(StationRepairLevels[TypeId].Minimum, StationRepairLevels[TypeId].Maximum, RandomState);
             aGalaxy::TGalaxy* galaxy_3 = aGalaxy::Galaxy;
             std::uint8_t scaleIntByTechLevel_3 = galaxy_3->ScaleIntByTechLevel(1, nextRandomIntRange_3);
-            std::int32_t randomStationEquipmentSize_4 = aRuins::RandomStationEquipmentSize(aConst::RepairRobotBaseSize, this);
+            std::int32_t randomStationEquipmentSize_4 = RandomStationEquipmentSize(aConst::RepairRobotBaseSize);
             aShip::TShip* self_5 = this;
             self_5->CreateAndEquipRepairRobot(randomStationEquipmentSize_4, scaleIntByTechLevel_3, EquipmentOwner);
         }
@@ -223,7 +262,7 @@ namespace aRuins {
                 std::int32_t advancedLevel = StationWeaponGeneration[TypeId].AdvancedLevel;
                 aGalaxy::TGalaxy* galaxy_4 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_4 = galaxy_4->ScaleIntByTechLevel(advancedLevel, nextRandomIntRange_4);
-                std::int32_t randomStationEquipmentSize_5 = aRuins::RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][2]].AverageSize, this);
+                std::int32_t randomStationEquipmentSize_5 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][2]].AverageSize);
                 std::uint8_t cpp_arg_2 = StationWeaponTypes[TypeId][2];
                 aShip::TShip* self_6 = this;
                 return self_6->CreateAndEquipWeapon(cpp_arg_2, randomStationEquipmentSize_5, scaleIntByTechLevel_4, EquipmentOwner);
@@ -234,7 +273,7 @@ namespace aRuins {
                 std::int32_t intermediateLevel = StationWeaponGeneration[TypeId].IntermediateLevel;
                 aGalaxy::TGalaxy* galaxy_5 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_5 = galaxy_5->ScaleIntByTechLevel(intermediateLevel, nextRandomIntRange_5);
-                std::int32_t randomStationEquipmentSize_6 = aRuins::RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][1]].AverageSize, this);
+                std::int32_t randomStationEquipmentSize_6 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][1]].AverageSize);
                 std::uint8_t cpp_arg_3 = StationWeaponTypes[TypeId][1];
                 aShip::TShip* self_7 = this;
                 return self_7->CreateAndEquipWeapon(cpp_arg_3, randomStationEquipmentSize_6, scaleIntByTechLevel_5, EquipmentOwner);
@@ -245,7 +284,7 @@ namespace aRuins {
                 std::int32_t basicLevel = StationWeaponGeneration[TypeId].BasicLevel;
                 aGalaxy::TGalaxy* galaxy_6 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_6 = galaxy_6->ScaleIntByTechLevel(basicLevel, nextRandomIntRange_6);
-                std::int32_t randomStationEquipmentSize_7 = aRuins::RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][0]].AverageSize, this);
+                std::int32_t randomStationEquipmentSize_7 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][0]].AverageSize);
                 std::uint8_t cpp_arg_4 = StationWeaponTypes[TypeId][0];
                 aShip::TShip* self_8 = this;
                 return self_8->CreateAndEquipWeapon(cpp_arg_4, randomStationEquipmentSize_7, scaleIntByTechLevel_6, EquipmentOwner);
@@ -258,7 +297,7 @@ namespace aRuins {
                 std::int32_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(5, 8, RandomState);
                 aGalaxy::TGalaxy* galaxy_7 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_7 = galaxy_7->ScaleIntByTechLevel(2, nextRandomIntRange_7);
-                std::int32_t randomStationEquipmentSize_8 = aRuins::RandomStationEquipmentSize(aConst::CargoHookBaseSize, this);
+                std::int32_t randomStationEquipmentSize_8 = RandomStationEquipmentSize(aConst::CargoHookBaseSize);
                 aShip::TShip* self_9 = this;
                 Hook = self_9->CreateAndEquipCargoHook(randomStationEquipmentSize_8, scaleIntByTechLevel_7, EquipmentOwner);
             }
@@ -270,54 +309,6 @@ namespace aRuins {
         RefreshDerivedStats(true);
         NodeReserve = 0;
         pas::store_unaligned<aGalaxyStruct::TStationType>(&TypeId, StationType);
-    }
-
-    void SelectStationName(EC_BlockPar::TBlockParEC* Config, TRuins* Self) {
-        std::int32_t Index{};
-        std::int32_t I{};
-        std::int32_t J{};
-        std::int32_t K{};
-        std::uint8_t Used{};
-        aShip::TShip* Ship{};
-        aGalaxy::TStar* OtherStar{};
-        if (Config == nullptr) {
-            return;
-        }
-        if (Config->CountBlocks(aConst::ShipTypeNames[Self->TypeId].Name) == 0) {
-            return;
-        }
-        std::int32_t LastName = Config->GetBlock(aConst::ShipTypeNames[Self->TypeId].Name)->GetParamCount() - 1;
-        Index = aMyFunction::NextRandomIntRange(0, LastName, Self->RandomState);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, LastName); cpp_range.next(I); ) {
-            Self->Name = Config->GetBlock(aConst::ShipTypeNames[Self->TypeId].Name)->GetParamValue(Index);
-            Used = false;
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_2.next(J); ) {
-                OtherStar = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, J);
-                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(OtherStar->Ships) - 1); cpp_range_3.next(K); ) {
-                    Ship = pas::list_at<aShip::TShip>(OtherStar->Ships, K);
-                    if (Ship->TypeId == Self->TypeId && Ship->Name == Self->Name && Ship != Self) {
-                        Used = true;
-                        break;
-                    }
-                }
-                if (Used) {
-                    break;
-                }
-            }
-            if (!Used) {
-                break;
-            }
-            aMyFunction::IncrementWrapped(Index, 0, LastName);
-            if (I == LastName) {
-                Self->Name = pas::concat_wide({Self->Name, u" ", u"-", pas::wide_int_to_str(aMyFunction::NextRandomIntRange(10, 99, Self->RandomState)), u"-"});
-            }
-        }
-    }
-
-    std::int32_t RandomStationEquipmentSize(std::int32_t BaseSize, TRuins* Self) {
-        std::int32_t round = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[1] * 2.0L);
-        std::int32_t round_2 = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[2] * 2.0L);
-        return aMyFunction::NextRandomIntRange(round_2, round, Self->RandomState);
     }
 
     void TRuins::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
@@ -352,6 +343,7 @@ namespace aRuins {
         Buffer->AddAnsiChar(static_cast<std::uint8_t>(ShopUpdateMode));
     }
 
+    // Requires a fresh instance. FlyToStar temporarily contains a saved star ID.
     void TRuins::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -397,6 +389,7 @@ namespace aRuins {
         }
     }
 
+    // Includes the player's storage at this station and temporarily displayed shop stock.
     void TRuins::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t I{};
         pas::WideString Text{};
@@ -436,6 +429,7 @@ namespace aRuins {
             }
         }
         ShopBlock->AddParam(EC_Str::DecodeTextW(u"AodEdrIstaelma"_w), u""_wref.get());
+        // Decoded: 'Storage'
         {
             EC_BlockPar::TBlockParEC* cpp_with = Block->AddBlockByPath(EC_Str::DecodeTextW(u"Sataokrgalgae"_w));
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range_3.next(I); ) {
@@ -449,6 +443,7 @@ namespace aRuins {
         }
     }
 
+    // Applies edits to existing state; can append new shop and player-storage items.
     void TRuins::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t I{};
         pas::WideString Text{};
@@ -508,6 +503,7 @@ namespace aRuins {
                 }
             }
         }
+        // Decoded: 'Storage'
         {
             EC_BlockPar::TBlockParEC* cpp_with = Block->GetBlockByPath(EC_Str::DecodeTextW(u"Sataokrgalgae"_w));
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range_4.next(I); ) {
@@ -569,6 +565,21 @@ namespace aRuins {
     void TRuins::NextDayLogic() {
         float Imbalance{};
         float LocalBalance{};
+        auto FindDominionHomeStar = [&]() -> aGalaxy::TStar* {
+            std::int32_t I{};
+            aGalaxy::TStar* Star{};
+            aGalaxy::TStar* Result = nullptr;
+            if (this->TransitOriginStar != nullptr && this->TransitOriginStar->Dominion == this) {
+                return this->TransitOriginStar;
+            }
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
+                Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
+                if (Star->Dominion == this) {
+                    return Star;
+                }
+            }
+            return Result;
+        };
         std::int32_t Stage = 0;
         try {
             if (IsDocked()) {
@@ -597,7 +608,7 @@ namespace aRuins {
             Stage = 5;
             if (TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
                 Stage = 6;
-                if (aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{0}, {1}, {2}})) && aGalaxy::Galaxy->CurrentTurn % 60 == 0 && DaysSincePlayerSeen > 30 && NodeReserve < std::max<std::int32_t>(500, aPlayer::GetPlayer()->TotalExperience / 10) && NodeReserve < pas::real_divide(2.0E+2L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor)) {
+                if (aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}})) && aGalaxy::Galaxy->CurrentTurn % 60 == 0 && DaysSincePlayerSeen > 30 && NodeReserve < std::max<std::int32_t>(500, aPlayer::GetPlayer()->TotalExperience / 10) && NodeReserve < pas::real_divide(2.0E+2L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor)) {
                     std::int32_t cpp_step = aMyFunction::NextRandomIntRange(0, System::Round(pas::real_divide(2.5E+2L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor)), RandomState);
                     std::int32_t& cpp_target = NodeReserve;
                     cpp_target += cpp_step;
@@ -633,7 +644,7 @@ namespace aRuins {
                     }
                     LocalBalance = EvaluateLocalForceBalance(Position);
                     if ((LocalBalance < -1.5E+2L || Imbalance > 3.0E+1L) && FlyDate < aGalaxy::Galaxy->CurrentTurn + 25 && FlyDate > aGalaxy::Galaxy->CurrentTurn) {
-                        FlyToStar = aRuins::FindDominionHomeStar(this);
+                        FlyToStar = FindDominionHomeStar();
                         if (FlyToStar != nullptr) {
                             FlyDate = aGalaxy::Galaxy->CurrentTurn + 1;
                         } else {
@@ -649,7 +660,7 @@ namespace aRuins {
                         FlyDate = std::min<std::int32_t>(FlyDate, std::max<std::int32_t>(FlyDate - 1, aGalaxy::Galaxy->CurrentTurn + 4));
                     }
                     if (FlyDate < aGalaxy::Galaxy->CurrentTurn + 3) {
-                        FlyToStar = aRuins::FindDominionHomeStar(this);
+                        FlyToStar = FindDominionHomeStar();
                     }
                 }
             }
@@ -688,22 +699,6 @@ namespace aRuins {
         }
     }
 
-    aGalaxy::TStar* FindDominionHomeStar(TRuins* Self) {
-        std::int32_t I{};
-        aGalaxy::TStar* Star{};
-        aGalaxy::TStar* Result = nullptr;
-        if (Self->TransitOriginStar != nullptr && Self->TransitOriginStar->Dominion == Self) {
-            return Self->TransitOriginStar;
-        }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
-            Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
-            if (Star->Dominion == Self) {
-                return Star;
-            }
-        }
-        return Result;
-    }
-
     pas::WideString TRuins::GetName() {
         return Name;
     }
@@ -720,6 +715,7 @@ namespace aRuins {
         return Name;
     }
 
+    // Uses the station type's alternate localized caption and colors the individual name.
     pas::WideString TRuins::GetColoredFullName(const pas::WideString& ColorTag) {
         if (TypeNameOverrideKey == u"") {
             return pas::concat_wide({aConst::LocalizedText(pas::concat_wide({u"ShipType.TypeName.", GetTypeNameKey(), u"Small"})), u" ", aMyFunction::WrapTextInColor(Name, ColorTag)});
@@ -731,6 +727,7 @@ namespace aRuins {
         return aGalaxyStruct::gscTransport;
     }
 
+    // Always rcTrader.
     aGalaxyStruct::TRangerCareer TRuins::GetDominantCareer() {
         return aGalaxyStruct::rcTrader;
     }
@@ -743,10 +740,12 @@ namespace aRuins {
         return 0;
     }
 
+    // Always zero.
     std::int32_t TRuins::GetDesiredCargoFreeSpace() {
         return 0;
     }
 
+    // Invalidates TargetPlanet on the existing offer.
     void TRuins::RegenerateSatelliteOffer() {
         if (SatelliteOffer == nullptr) {
             SatelliteOffer = pas::construct_call<aItem::TSatellite>(aItem::TEquipment_Create);
@@ -767,6 +766,7 @@ namespace aRuins {
         }
     }
 
+    // Sponsored stations restore equipment condition without a repair transaction.
     void TRuins::RepairBrokenEquipmentAtLocation() {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -795,6 +795,7 @@ namespace aRuins {
         }
     }
 
+    // Sponsored stations gain only one round per weapon; other stations refill to capacity.
     void TRuins::ReloadWeapons() {
         std::int32_t I{};
         aItem::TWeapon* Weapon{};
@@ -815,12 +816,13 @@ namespace aRuins {
         }
     }
 
+    // Disabled in modes 1 and 3; otherwise follows the station's weekly schedule after initial setup.
     void TRuins::RefreshShopInventory() {
         std::int32_t I{};
         std::int32_t Attempts{};
         aItem::TEquipment* Item{};
         std::uint8_t Kind{};
-        if (pas::in_set<1, 1, 3, 3>(ShopUpdateMode)) {
+        if (pas::is_one_of<aGalaxyStruct::sumDisabled, aGalaxyStruct::sumGoodsOnly>(ShopUpdateMode)) {
             return;
         }
         if (aGalaxy::Galaxy->CurrentTurn > CreationTurn + 1 && static_cast<std::int32_t>(Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn)) % 7 != 0) {
@@ -873,6 +875,7 @@ namespace aRuins {
         }
     }
 
+    // Returns 10..18; advances the station RNG state.
     std::int32_t TRuins::CalculateEquipmentShopTargetCount() {
         std::uint8_t Kind{};
         std::int32_t Count = 0;
@@ -883,12 +886,14 @@ namespace aRuins {
         return std::max<std::int32_t>(10, std::min<std::int32_t>(Result, 18));
     }
 
+    // Bucket 50 includes all weapon item types 50..68.
     std::int32_t TRuins::CountEquipmentShopItems(std::uint8_t ItemType) {
         std::int32_t I{};
         aItem::TItem* Item{};
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(EquipmentShop) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TItem>(EquipmentShop, I);
+            // The t_Weapon1 shop bucket counts every weapon subtype.
             if (static_cast<std::uint8_t>(Item->ItemType) == ItemType || pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && ItemType == static_cast<std::uint8_t>(aConst::t_Weapon1)) {
                 ++Count;
             }
@@ -896,6 +901,7 @@ namespace aRuins {
         return Count;
     }
 
+    // Excludes hulls; inclusive cost bounds. Borrowed result, nil when absent.
     aItem::TItem* TRuins::FindMostExpensiveShopItem(std::int32_t MinCost, std::int32_t MaxCost) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -913,6 +919,7 @@ namespace aRuins {
         return Best;
     }
 
+    // Frees at most one existing offer matching type and level; never inserts Item. May also compare size when below the target shop count.
     std::uint8_t TRuins::RemoveSimilarShopItem(aItem::TEquipment* Item) {
         std::int32_t I{};
         aItem::TEquipment* Existing{};
@@ -1005,6 +1012,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Returns a zero-based module index or -1; advances the station RNG.
     std::int32_t TRuins::SelectEquipmentOfferSpecialMicroModule(aItem::TEquipment* Item, aPlanet::TPlanet* Planet) {
         std::int32_t I{};
         std::int32_t Candidate{};
@@ -1063,6 +1071,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Returns a zero-based module index or -1; advances the station RNG.
     std::int32_t TRuins::SelectHullOfferSpecialMicroModule(aItem::THull* Hull, aPlanet::TPlanet* Planet) {
         std::int32_t I{};
         std::int32_t Candidate{};
@@ -1121,6 +1130,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Returns a zero-based module index or -1; advances the station RNG.
     std::int32_t TRuins::SelectWeaponOfferSpecialMicroModule(aItem::TWeapon* Weapon, aPlanet::TPlanet* Planet) {
         std::int32_t I{};
         std::int32_t Candidate{};
@@ -1179,20 +1189,25 @@ namespace aRuins {
         return Result;
     }
 
+    // Empty.
     void TRuins::BuildReachablePlanetQueue() {
     }
 
+    // Always false.
     std::uint8_t TRuins::CanQueueReachablePlanet(aPlanet::TPlanet* Planet) {
         return false;
     }
 
+    // Clears EnemyShip.
     void TRuins::SelectEnemyShipInStar() {
         EnemyShip = nullptr;
     }
 
+    // Empty.
     void TRuins::EngageEnemyShip() {
     }
 
+    // Targets hostile ships, incoming missiles and nearby asteroids.
     void TRuins::AssignWeaponTargetsInStar() {
         std::int32_t I{};
         std::int32_t J{};
@@ -1313,7 +1328,7 @@ namespace aRuins {
             if (Ship->AbductedByPirateClan) {
                 return Result;
             }
-            if (Ship->InNormalSpace() && pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->ScriptShip == nullptr && Ship->AbsoluteScriptOrder <= 0 && pas::in_set<0, 1>(Ship->Order)) {
+            if (Ship->InNormalSpace() && pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->ScriptShip == nullptr && Ship->AbsoluteScriptOrder <= 0 && pas::is_one_of<aShip::soNone, aShip::soMove>(Ship->Order)) {
                 ++Count;
             }
         }
@@ -1343,6 +1358,7 @@ namespace aRuins {
         return Result;
     }
 
+    // May redirect a departing ship to this station during its abduction cycle.
     void TRuins::TryAbductDepartingShip(aShip::TShip* Ship) {
         if (CurrentStar->Dominion != this) {
             return;
@@ -1422,6 +1438,7 @@ namespace aRuins {
         }
     }
 
+    // Posts the native Pirate Clan success/failure message after the station reappears.
     void TRuins::ReportAbductionOutcome() {
         pas::WideString Text{};
         std::int32_t I{};
@@ -1433,7 +1450,7 @@ namespace aRuins {
             if (Ship->AbductedByPirateClan) {
                 ++Abducted;
             }
-            if (Ship->InNormalSpace() && pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->ScriptShip == nullptr && pas::in_set<0, 1>(Ship->Order)) {
+            if (Ship->InNormalSpace() && pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->ScriptShip == nullptr && pas::is_one_of<aShip::soNone, aShip::soMove>(Ship->Order)) {
                 ++Pirates;
             }
         }
@@ -1506,6 +1523,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Successful repositioning initiates a teleport.
     std::uint8_t TRuins::TryRepositionInStar() {
         static const pas::Set<0, 255> StationTypes = pas::constant_set<pas::Set<0, 255>>({{6, 13}});
         EC_Struct::TPointF SavedPoint{};
@@ -1558,6 +1576,7 @@ namespace aRuins {
         return true;
     }
 
+    // Travel starts next turn; transfers the star's Dominion ownership reference.
     std::uint8_t TRuins::TryRelocateToPirateStar() {
         std::int32_t I{};
         aGalaxy::TStar* Star{};
@@ -1599,15 +1618,16 @@ namespace aRuins {
     std::uint8_t TRuins::AcceptPickupItem(aItem::TItem* Item) {
         std::uint8_t Result = false;
         if (TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion)) {
-            if (!pas::in_set<0, 22, 26, 34, 36, 68, 71, 71>(Item->ItemType)) {
+            if (!pas::in_set<aConst::t_Food, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtDefToArms1, aConst::t_CustomWeapon, aConst::t_MicroModule, aConst::t_MicroModule>(Item->ItemType)) {
                 return Result;
             }
-        } else if (!(pas::in_set<0, 7, 42, 68>(Item->ItemType) && Item->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator))) {
+        } else if (!(pas::in_set<aConst::t_Food, aConst::t_Narcotics, aConst::t_Hull, aConst::t_CustomWeapon>(Item->ItemType) && Item->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator))) {
             return Result;
         }
         return true;
     }
 
+    // Consumes compatible modules from Inventory, skipping index 0; modifies EquipmentShop items.
     void TRuins::ApplyInventoryMicroModulesToShopItems() {
         std::int32_t I{};
         std::int32_t J{};
@@ -1639,12 +1659,13 @@ namespace aRuins {
     }
 
     std::uint8_t TRuins::RelationToNonRanger(aShip::TShip* Ship) {
-        if (pas::in_set<0, 0, 5, 5>(Ship->TypeId)) {
+        if (pas::is_one_of<aGalaxyStruct::stKling, aGalaxyStruct::stTranclucator>(Ship->TypeId)) {
             return 50;
         }
         return 100;
     }
 
+    // Floors the stored relation at 50, except for the player when NoLanding is set.
     std::uint8_t TRuins::RelationToRanger(void* Ranger) {
         std::uint8_t Result = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ranger)))))));
         if (static_cast<std::uint8_t>(NoLanding ^ 1) || aPlayer::GetPlayer() != Ranger) {
@@ -1653,6 +1674,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Positive changes receive the ranger's Charisma bonus; stored relation is clamped to 0..100.
     void TRuins::ChangeRelationToRanger(void* Ranger, std::int32_t Amount) {
         std::int32_t Index = pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ranger))));
         std::uint8_t Relation = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, Index)));
@@ -1742,6 +1764,7 @@ namespace aRuins {
         }
     }
 
+    // Returns false without changing InFear.
     std::uint8_t TRuins::RecomputeFearState() {
         return false;
     }
@@ -1800,6 +1823,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Script.GoodsRuinsForBuy. Restocks selected goods and sets prices near the global minimum.
     void TRuins::ForceGoodsForSale(aGalaxyStruct::TItemTypeMask GoodsMask) {
         std::uint8_t Good{};
         for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
@@ -1822,6 +1846,7 @@ namespace aRuins {
         }
     }
 
+    // Sets base Accuracy and Maneuverability to 0..5 using galaxy technology and war state.
     void TRuins::GenerateCombatSkills() {
         std::int32_t Level = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 0.0, 4.0));
         if (aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfDominators) < 40) {
@@ -1844,16 +1869,34 @@ namespace aRuins {
         BaseSkills[1] = Maneuverability;
     }
 
+    // Immediately replaces Position with a sampled arrival point in CurrentStar.
     void TRuins::RandomizePosition() {
         EC_Struct::TPointF Point{};
         Point = SelectTeleportArrivalPoint(CurrentStar);
         Position = Point;
     }
 
+    // Search is limited to 1001 attempts.
     EC_Struct::TPointF TRuins::SelectTeleportArrivalPoint(aGalaxy::TStar* Star) {
         EC_Struct::TPointF Result{};
         aPlanet::TPlanet* Planet{};
         aMyFunction::TPolarPoint Polar{};
+        auto IsStationArrivalPointClear = [&](EC_Struct::TPointF Point) -> std::uint8_t {
+            std::int32_t I{};
+            aShip::TShip* Ship{};
+            float DistanceSquared{};
+            std::uint8_t Result = false;
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(I); ) {
+                Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
+                if (pas::class_cast_if<TRuins*>(Ship) != nullptr && Ship != this) {
+                    DistanceSquared = aMyFunction::PointDistanceSquared(Point, Ship->Position);
+                    if (DistanceSquared <= 4.9E+5L) {
+                        return Result;
+                    }
+                }
+            }
+            return true;
+        };
         std::int32_t Attempts = 0;
         std::int32_t LastPlanet = pas::list_count(Star->Planets) - 1;
         if (aGalaxy::Galaxy->AreStationsNearStarsEnabled()) {
@@ -1872,25 +1915,8 @@ namespace aRuins {
             Polar.AngleDegrees = aMyFunction::NextRandomIntRange(0, 359, RandomState);
             Result = aMyFunction::PolarToPoint(Polar);
             ++Attempts;
-        } while (!(aRuins::IsStationArrivalPointClear(Result, this, Star) || Attempts > 1000));
+        } while (!(IsStationArrivalPointClear(Result) || Attempts > 1000));
         return Result;
-    }
-
-    std::uint8_t IsStationArrivalPointClear(EC_Struct::TPointF Point, TRuins* Self, aGalaxy::TStar*& Star) {
-        std::int32_t I{};
-        aShip::TShip* Ship{};
-        float DistanceSquared{};
-        std::uint8_t Result = false;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
-            if (pas::class_cast_if<TRuins*>(Ship) != nullptr && Ship != Self) {
-                DistanceSquared = aMyFunction::PointDistanceSquared(Point, Ship->Position);
-                if (DistanceSquared <= 4.9E+5L) {
-                    return Result;
-                }
-            }
-        }
-        return true;
     }
 
     float TRuins::AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) {
@@ -1898,7 +1924,7 @@ namespace aRuins {
     }
 
     float TRuins::EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
-        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
+        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
         float Result = 0.0f;
         if (Value == 0) {
@@ -1952,9 +1978,9 @@ namespace aRuins {
     }
 
     float TRuins::EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) {
-        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
-        static const pas::Set<0, 255> ShockFlags = pas::constant_set<pas::Set<0, 255>>({{6}});
-        static const pas::Set<0, 255> AcidFlags = pas::constant_set<pas::Set<0, 255>>({{7}});
+        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
+        static const pas::Set<0, 255> ShockFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkShock}});
+        static const pas::Set<0, 255> AcidFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkAcid}});
         float ScannerFactor{};
         aGalaxyStruct::TDamageFlagSet Flags{};
         std::int32_t I{};
@@ -2043,6 +2069,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Script state can force standing 9 or preserve the current value; type 13 has no default assignment.
     void TRuins::RefreshCurrentStanding() {
         std::int32_t StandingMode = GetScriptStandingOverrideMode();
         if (StandingMode == aGalaxyStruct::ssmCustomFaction) {
@@ -2054,6 +2081,7 @@ namespace aRuins {
         }
     }
 
+    // Type-13 fallback through the planet's hull generator; may apply a special module.
     aItem::THull* TRuins::GeneratePlanetHullOffer(pas::Object* Ship, aPlanet::TPlanet* Planet) {
         aShip::TShip* Buyer{};
         std::int32_t ModuleIndex{};
@@ -2079,6 +2107,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Returns a newly allocated offer or nil; Planet supplies local technology.
     aItem::THull* TRuins::GenerateHullOffer(pas::Object* Ship, aPlanet::TPlanet* Planet) {
         aShip::TShip* Buyer{};
         std::int32_t Count{};
@@ -2131,7 +2160,7 @@ namespace aRuins {
                             Size = Size / 2;
                         }
                         MinSize = Size / 2;
-                        if (pas::in_set<3, 4>(HullType)) {
+                        if (pas::is_one_of<aGalaxyStruct::htTransport, aGalaxyStruct::htLiner>(HullType)) {
                             MaxSize = Size + (40 + 10 * (TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstBusinessCenter))) * aGalaxy::Galaxy->TechLevel;
                         } else {
                             switch (HullType) {
@@ -2158,7 +2187,7 @@ namespace aRuins {
                             Size = Size / 2;
                         }
                         MinSize = Size / 2;
-                        if (pas::in_set<3, 4>(HullType)) {
+                        if (pas::is_one_of<aGalaxyStruct::htTransport, aGalaxyStruct::htLiner>(HullType)) {
                             MaxSize = Size + 300 + 100 * (TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstBusinessCenter));
                         } else {
                             switch (HullType) {
@@ -2214,6 +2243,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Chooses the weapon type; returns a newly allocated offer or nil.
     aItem::TWeapon* TRuins::GenerateWeaponOffer(pas::Object* Ship, aPlanet::TPlanet* Planet) {
         aShip::TShip* Buyer{};
         std::int32_t Attempts{};
@@ -2233,18 +2263,19 @@ namespace aRuins {
             if (Buyer->TypeId == aGalaxyStruct::stKling && pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Dominators), OwnerId)) {
                 Availability = Availability + pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{4}});
             }
-            if (pas::in_set<1, 1, 3, 3>(Buyer->TypeId) && pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[aGalaxyStruct::sfPirates]), CurrentStanding) && (CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates || static_cast<std::uint8_t>(pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[aGalaxyStruct::sfCoalition]), CurrentStanding) ^ 1))) {
+            if (pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(Buyer->TypeId) && pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[aGalaxyStruct::sfPirates]), CurrentStanding) && (CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates || static_cast<std::uint8_t>(pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[aGalaxyStruct::sfCoalition]), CurrentStanding) ^ 1))) {
                 Availability = Availability + pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{2}});
             }
             if (pas::in_range(Buyer->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior) && pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[aGalaxyStruct::sfCoalition]), CurrentStanding) && (CurrentStar->Status.ControlFaction == aGalaxyStruct::sfCoalition || static_cast<std::uint8_t>(pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[aGalaxyStruct::sfPirates]), CurrentStanding) ^ 1))) {
                 Availability = Availability + pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{1}, {5, 9}});
             }
+            // The native counter guard has no back edge: only one offer is generated.
             Attempts = 0;
             if (Attempts <= 100) {
                 ++Attempts;
                 Info = aGalaxy::Galaxy->SelectWeaponInfo(RandomState, Availability, Planet->InventionLevels[7], 1);
                 aMyFunction::AdvanceRandomSeed(RandomState);
-                if (static_cast<std::uint8_t>(pas::in_set<1, 1, 3, 3>(Buyer->TypeId) ^ 1) && pas::in_range(Info->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                if (static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(Buyer->TypeId) ^ 1) && pas::in_range(Info->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
                     static_cast<void>(Buyer->CountDirectFireWeapons() > Buyer->CountMissileWeapons());
                 }
                 MinSize = System::Round(static_cast<long double>(Info->AverageSize) * aConst::EquipmentSizeFactors[5]);
@@ -2286,6 +2317,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Accepts types 42..68; weapon types all select the weapon generator. Does not insert the result into EquipmentShop.
     aItem::TEquipment* TRuins::GenerateEquipmentOffer(pas::Object* Ship, aPlanet::TPlanet* Planet, std::uint8_t ItemType) {
         std::int32_t Priority{};
         std::int32_t ModuleIndex{};
@@ -2410,6 +2442,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Returns a new owning list of offers. Ignores the Boolean argument.
     aMyFunction::TObjectList* TRuins::GenerateEquipmentOfferBatch(aShip::TShip* Ship, std::uint8_t UnusedForceGeneratedOffers) {
         aItem::TEquipment* Item{};
         std::int32_t I{};
@@ -2444,13 +2477,14 @@ namespace aRuins {
         return Result;
     }
 
+    // Does nothing in modes 1 and 2.
     void TRuins::UpdateGoodsMarketState() {
         std::uint8_t Good{};
         float TargetPrice{};
         float PriceStep{};
         std::int32_t TargetCount{};
         std::int32_t CountStep{};
-        if (pas::in_set<1, 2>(ShopUpdateMode)) {
+        if (pas::is_one_of<aGalaxyStruct::sumDisabled, aGalaxyStruct::sumEquipmentOnly>(ShopUpdateMode)) {
             return;
         }
         std::uint8_t Race = PilotRace;
@@ -2505,12 +2539,14 @@ namespace aRuins {
         }
     }
 
+    // Returns the total including eligible artefacts; EquipmentCost excludes the separate artefact pass. Military discount uses the player's rank.
     std::int32_t TRuins::CalculateRepairCost(aShip::TShip* Ship, std::int32_t& EquipmentCost) {
         std::int32_t I{};
         aItem::TEquipment* Item{};
         float ArtefactFactor{};
         std::int32_t Result = 0;
         float EquipmentFactor = 1.0f;
+        // Keep the native byte load followed by signed extension under DCC32 O-.
         if (TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
             EquipmentFactor = aMyFunction::RemapClamped(static_cast<std::int8_t>(aPlayer::GetPlayer()->Rank * 1), 0.0, 7.0, 0.9, 0.2);
         }
@@ -2547,6 +2583,7 @@ namespace aRuins {
         return CalculateRepairCost(Ship, EquipmentCost);
     }
 
+    // Charges the full quote and repairs eligible items only if affordable. Caller refreshes ship statistics.
     void TRuins::RepairShipEquipment(aShip::TShip* Ship) {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -2576,10 +2613,12 @@ namespace aRuins {
         }
     }
 
+    // Returns min(NodeReserve, 250), without a lower clamp.
     std::int32_t TRuins::GetNodeSaleBatchSize() {
         return std::min<std::int32_t>(NodeReserve, 250);
     }
 
+    // Searches from CurrentStar for a standard pirate base with positive NodeReserve in a peaceful non-Dominator system. Borrowed result or nil.
     TRuins* TRuins::FindPirateBaseWithNodes() {
         std::int32_t I{};
         std::int32_t J{};
@@ -2602,6 +2641,7 @@ namespace aRuins {
         return nullptr;
     }
 
+    // Zero-based module index. Deterministic chain keyed by station, current turn and player RNG state; Kind 1 selects priorities 31..69, Kind 2 selects 0..20 or 10..30, others 70..100.
     std::int32_t TRuins::SelectServiceMicroModule(std::int32_t Kind, std::int32_t Index, std::uint8_t InvertRarity) {
         std::int32_t ChainIndex = Index + 2;
         std::uint8_t Rare = ((static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) + aPlayer::GetPlayer()->RandomState) % 33 == 0) != InvertRarity;
@@ -2629,6 +2669,7 @@ namespace aRuins {
         return Result;
     }
 
+    // Clears Response on success; otherwise supplies a refusal message.
     std::uint8_t TRuins::CheckDockingPermission(aShip::TShip* Ship, pas::WideString& Response) {
         std::uint8_t Result = false;
         if (NoLanding || static_cast<std::uint8_t>(InNormalSpace() ^ 1)) {

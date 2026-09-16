@@ -48,32 +48,41 @@ namespace aTransport {
     struct TTransport : aNormalShip::TNormalShip {
         PAS_CLASS_META(TTransport, aNormalShip::TNormalShip, "TTransport", 1300)
         void p_destroy() override;
+        // Registers Self with the planet's star; requires a fresh instance.
         void InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, TTransportType SubType, std::uint8_t RandomizeSubType);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
         void NextDay() override;
         void NextDayLogic() override;
+        // May issue a movement order when repairs are needed; result is borrowed and may be nil.
         aPlanet::TPlanet* SelectRepairOrTradePlanet();
+        // Requires a non-nil PlanetQueue; an empty queue returns nil. Result is borrowed.
         aPlanet::TPlanet* SelectTradePlanet();
         void BuildReachablePlanetQueue() override;
+        // AI ownership check only; does not test travel range.
         std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
+        // Requires CurrentPlanet. Can sell below cost; purchases can exhaust money and cargo space.
         void ProcessTrading();
+        // Restores equipment condition without charging Money.
         void RepairBrokenEquipmentAtLocation() override;
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         pas::WideString GetTypeNameKey() override;
         std::uint8_t GetGreetingShipCategory() override;
+        // Always rcTrader.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         std::uint8_t GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
+        // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
         void ProcessUnseenProgression();
         std::uint8_t RelationToNonRanger(aShip::TShip* Ship) override;
         std::uint8_t RelationToRanger(void* Ranger) override;
         void ChangeRelationToRanger(void* Ranger, std::int32_t Amount) override;
         void ReactToAttack(aShip::TShip* Attacker) override;
+        // Updates InFear and may replace EnemyShip.
         std::uint8_t RecomputeFearState() override;
         void TryOfferRansomToPursuer();
         std::uint8_t AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
@@ -94,6 +103,7 @@ namespace aTransport {
         float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
         float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
         void RefreshCurrentStanding() override;
+        // Script.ShipSubType.
         TTransportType TransportType;
         std::uint8_t cpp_padding[3];
     };

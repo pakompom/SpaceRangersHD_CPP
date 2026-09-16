@@ -31,6 +31,7 @@ namespace GI_Panel {
         PAS_CLASS_META(TPanelGI, GI_MessageLoop::TObjectGI, "TPanelGI", 316)
         void p_destroy() override;
         void Clear() override;
+        // Only ModeW children are affected by scrolling.
         Types::TPoint GetChildAbsolutePosition(Types::TPoint LocalPosition, std::uint8_t ModeW) override;
         Types::TPoint ToLocalPoint(Types::TPoint Point) override;
         Types::TPoint ToAbsolutePoint(Types::TPoint Point) override;

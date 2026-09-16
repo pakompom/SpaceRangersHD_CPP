@@ -11,6 +11,8 @@
 #include "units/SE_Space.hpp"
 #include "units/aEFilmEnd.hpp"
 
+// is the Pascal class-name string "TEFilmEnd", referenced by its VMT.
+// The former 12-byte IDA function there was metadata, not a tenth routine.
 namespace aEFilmEnd {
     void TEFilmEnd_Create(TEFilmEnd* Self) {
         EC_Struct::TObjectEx_Create(Self);
@@ -44,6 +46,7 @@ namespace aEFilmEnd {
         return Entry;
     }
 
+    // Detaches and releases all three retained scene references, then frees Entry.
     void TEFilmEnd::RemoveEntry(PEFilmEndEntry Entry) {
         if (Entry->Prev != nullptr) {
             Entry->Prev->Next = Entry->Next;
@@ -72,6 +75,7 @@ namespace aEFilmEnd {
         EC_Mem::FreeEC(Entry);
     }
 
+    // Transfers selected scene references from Film. Requires its 0x18 command marker.
     void TEFilmEnd::TakeTrailingEffects(aEFilm::TEFilm* Film) {
         aEFilm::PEFilmCommand Command{};
         aEFilm::TEFilmObj* Obj{};
@@ -166,6 +170,7 @@ namespace aEFilmEnd {
         }
     }
 
+    // Clears matching references without unlinking entries.
     void TEFilmEnd::ReleaseObjectReferences(SE_Space::TObjectSE* Obj) {
         PEFilmEndEntry Entry{};
         Entry = FirstEntry;
@@ -189,6 +194,7 @@ namespace aEFilmEnd {
         }
     }
 
+    // Removes weapon entries whose Projectile is nonzero.
     void TEFilmEnd::RemoveLinkedWeaponEffects() {
         PEFilmEndEntry Entry{};
         PEFilmEndEntry NextEntry = FirstEntry;

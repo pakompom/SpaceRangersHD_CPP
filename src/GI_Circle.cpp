@@ -181,6 +181,7 @@ namespace GI_Circle {
         }
     }
 
+    // MulLight is unimplemented.
     void TCircleGI::Draw(Types::TRect ClipRect) {
         std::int32_t R{};
         std::int32_t X{};
@@ -282,6 +283,7 @@ namespace GI_Circle {
                 }
             }
         } else if (Kind == ckMulLight) {
+            // The native branch retains only this renderer test.
             static_cast<void>(GlobalsV::HardwareRenderingEnabled);
         }
     }

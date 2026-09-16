@@ -13,6 +13,7 @@
 #include "units/GR_Main.hpp"
 #include "units/SysUtils.hpp"
 
+// Native class ownership follows reference/unit_ownership.json.
 namespace GI_TextButton {
     void TTextButtonGI_Create(TTextButtonGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);

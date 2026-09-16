@@ -26,7 +26,9 @@ namespace fLoad {
     struct TCacheLoader : EC_Thread::TThreadEC {
         PAS_CLASS_META(TCacheLoader, EC_Thread::TThreadEC, "TCacheLoader", 56)
         void virtual_TThreadEC_Execute() override;
+        // Takes ownership; waits for the previous run before replacing the list.
         void SetPendingLoads(pas::List* Loads, std::uint8_t StartImmediately);
+        // Owns the list and its load-request entries.
         pas::List* PendingLoads;
         std::int32_t TotalLoadCount;
         std::int32_t CompletedLoadCount;
@@ -54,6 +56,7 @@ namespace fLoad {
         float DisplayedProgress;
         std::uint8_t LoadingFinished;
         std::uint8_t cpp_padding[3];
+        // 1 skips this item; 2 skips the remaining intro.
         std::int32_t IntroSkipRequest;
         GI_MessageLoop::PCallbackTimerGI IntroTimer;
         std::uint32_t IntroStartedAt;
@@ -61,6 +64,7 @@ namespace fLoad {
         std::int32_t IntroItemIndex;
         std::int32_t IntroVideoFrameCount;
         std::int32_t IntroDurationMs;
+        // 0 video, 1 GAI.
         std::int32_t IntroImageKind;
         fPanelLoad::TfPanelLoad* LoadPanel;
         std::int32_t BackgroundStyle;

@@ -18,6 +18,7 @@
 #include "units/Windows.hpp"
 #include "units/aMyFunction.hpp"
 
+// Native class ownership follows reference/unit_ownership.json.
 namespace GI_StarFieldImg {
     void TStarFieldImgGI_Create(TStarFieldImgGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
@@ -47,6 +48,7 @@ namespace GI_StarFieldImg {
         Capacity = 0;
     }
 
+    // Adds 64 zeroed entries.
     void TStarFieldImgGI::GrowStars() {
         void* Tail{};
         Capacity += 64;
@@ -63,6 +65,7 @@ namespace GI_StarFieldImg {
         return static_cast<PStarFieldImageGI>(EC_Mem::AddPointerOffset(Stars, static_cast<std::int32_t>(sizeof(TStarFieldImageGI)) * (StarCount - 1)));
     }
 
+    // Copies particles only, not camera or timer state.
     void TStarFieldImgGI::CopyStarsFrom(TStarFieldImgGI* Source) {
         ClearStars();
         if (Source->StarCount > 0) {
@@ -143,6 +146,7 @@ namespace GI_StarFieldImg {
         }
     }
 
+    // Clears/reseeds the animated image stars and advances 201 warm-up steps.
     void TStarFieldImgGI::SeedStars() {
         std::int32_t I{};
         PStarFieldImageGI Star{};
@@ -307,6 +311,7 @@ namespace GI_StarFieldImg {
         TStarFieldImgGI::ApplyStarConfig(Block);
     }
 
+    // Native empty extension hook.
     void TStarFieldImgGI::ApplyStarConfig(EC_BlockPar::TBlockParEC* Block) {
     }
 

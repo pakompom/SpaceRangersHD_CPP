@@ -26,6 +26,7 @@ namespace EC_CacheRotateBuf {
     struct TCRotateBufEC : EC_Cache::TCacheDataEC {
         PAS_CLASS_META(TCRotateBufEC, EC_Cache::TCacheDataEC, "TCRotateBufEC", 36)
         void p_destroy() override;
+        // Key contains width,height,source width,source height,center X,center Y as comma-delimited integers.
         void LoadFromKey(const pas::WideString& Key) override;
         void* Buffer;
     };

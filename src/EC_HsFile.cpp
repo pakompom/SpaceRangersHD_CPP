@@ -16,6 +16,7 @@ namespace EC_HsFile {
 
     const pas::WideString PackSlotRangeError = u"\u041d\u043e\u043c\u0435\u0440 \u0444\u0430\u0439\u043b\u0430 \u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0431\u043e\u043b\u0435\u0435 "_w;
 
+    // Ignores SuffixLength; compares up to 32 trailing key bytes without checking stored length. Key is not modified.
     std::uint8_t MatchLookupKeySuffix(pas::AnsiString& Key, void* SuffixBytes, std::int32_t SuffixLength) {
         std::int32_t i{};
         std::int32_t First{};
@@ -37,6 +38,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Ignores SuffixLength; copies up to 32 trailing key bytes without terminator or padding. Key is not modified.
     void CopyLookupKeySuffix(void* DestSuffixBytes, std::int32_t SuffixLength, pas::AnsiString& Key) {
         std::int32_t i{};
         std::int32_t First{};
@@ -53,6 +55,7 @@ namespace EC_HsFile {
         }
     }
 
+    // Returns Text when no delimiter occurs.
     pas::AnsiString AnsiBeforeFirstDelimiter(pas::AnsiString Text, pas::AnsiString Delimiters) {
         std::int32_t j{};
         std::int32_t i = 1;
@@ -67,6 +70,7 @@ namespace EC_HsFile {
         return Text;
     }
 
+    // Returns an empty string when no delimiter occurs.
     pas::AnsiString AnsiAfterFirstDelimiter(pas::AnsiString Text, pas::AnsiString Delimiters) {
         std::int32_t j{};
         std::int32_t i = 1;
@@ -105,6 +109,7 @@ namespace EC_HsFile {
         Self->CloseForDestroy();
     }
 
+    // Does not close an open package.
     void TPackFileEC::SetPackagePath(pas::AnsiString NewPackagePath) {
         PackagePath = NewPackagePath;
     }
@@ -119,6 +124,7 @@ namespace EC_HsFile {
         }
     }
 
+    // Opens the package read/write; loose-file mode creates an empty root folder.
     std::uint8_t TPackFileEC::Open() {
         std::uint32_t BytesRead{};
         if (PackageHandle != WindowsImports::INVALID_HANDLE_VALUE || RootFolder != nullptr) {
@@ -148,6 +154,7 @@ namespace EC_HsFile {
         return true;
     }
 
+    // Invalidates all open slots; returns false when already closed.
     std::uint8_t TPackFileEC::Close() {
         std::uint8_t Success{};
         std::uint8_t Result = false;
@@ -194,6 +201,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Returns -1 when all sixteen slots are occupied.
     std::int32_t TPackFileEC::FindFreeOpenSlotIndex() {
         std::int32_t i{};
         for (i = 0; i <= 15; ++i) {
@@ -204,6 +212,7 @@ namespace EC_HsFile {
         return -1;
     }
 
+    // Returns a slot or -1; DesiredAccess applies only to loose files.
     std::int32_t TPackFileEC::OpenEntryByPath(pas::AnsiString EntryPath, std::uint32_t DesiredAccess) {
         pas::AnsiString cpp_text{};
         PPackEntryEC Entry{};
@@ -270,6 +279,7 @@ namespace EC_HsFile {
         return Slot;
     }
 
+    // Creates or truncates a loose file for read/write access; returns a slot or -1.
     std::int32_t TPackFileEC::CreateLooseFile(pas::WideString FilePath) {
         std::int32_t Result = -1;
         std::int32_t Slot = FindFreeOpenSlotIndex();
@@ -326,6 +336,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Leaves PackageHandle at the selected payload; I/O errors are unchecked.
     std::uint32_t TPackFileEC::GetChainedBlockStoredSizeAtIndex(std::uint32_t FirstBlockOffset, std::uint32_t BlockIndex) {
         std::uint32_t BytesRead{};
         std::uint32_t StoredSize{};
@@ -342,6 +353,7 @@ namespace EC_HsFile {
         return StoredSize;
     }
 
+    // Compressed reads do not enforce logical EOF or report decompressor and short-block failures.
     std::uint8_t TPackFileEC::ReadEntrySlot(std::uint32_t SlotIndex, void* Buffer, std::uint32_t ByteCount) {
         std::uint32_t BytesRead{};
         std::uint32_t BlockIndex{};
@@ -395,6 +407,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Rejects compressed entries.
     std::uint8_t TPackFileEC::WriteEntrySlot(std::uint32_t SlotIndex, void* Buffer, std::uint32_t ByteCount) {
         std::uint32_t BytesWritten{};
         std::uint8_t Result = false;
@@ -421,6 +434,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Origin 1 adds to the current position, 2 subtracts from size, otherwise Offset is absolute. Only compressed entries reject positions beyond DataSize.
     std::uint8_t TPackFileEC::SeekEntrySlot(std::uint32_t SlotIndex, std::uint32_t Offset, std::int32_t Origin) {
         std::uint32_t Position{};
         std::uint32_t BlockIndex{};
@@ -458,6 +472,7 @@ namespace EC_HsFile {
         return true;
     }
 
+    // Returns 0xFFFFFFFF for an unavailable slot or SlotIndex=0xFFFFFFFF.
     std::uint32_t TPackFileEC::GetEntrySlotPosition(std::uint32_t SlotIndex) {
         std::uint32_t Result = 0xffffffffu;
         if (SlotIndex == 0xffffffffu) {
@@ -472,6 +487,7 @@ namespace EC_HsFile {
         return OpenSlots[SlotIndex].CurrentDataOffset - OpenSlots[SlotIndex].DataStartOffset;
     }
 
+    // Returns 0xFFFFFFFF for an unavailable slot or SlotIndex=0xFFFFFFFF.
     std::uint32_t TPackFileEC::GetEntrySlotSize(std::uint32_t SlotIndex) {
         std::uint32_t Result = 0xffffffffu;
         if (SlotIndex == 0xffffffffu) {
@@ -514,6 +530,7 @@ namespace EC_HsFile {
         Self->Unload();
     }
 
+    // Returns nil for an out-of-range index.
     PPackEntryEC THsFolderEC::GetEntry(std::uint32_t Index) {
         if (Index < EntryCount) {
             return static_cast<PPackEntryEC>(EC_HsFile::OffsetPackPointer(EntryBuffer, EntryRecordSize * Index));
@@ -521,6 +538,7 @@ namespace EC_HsFile {
         return nullptr;
     }
 
+    // Uppercases EntryName and skips entries with nonzero Flags.
     PPackEntryEC THsFolderEC::FindEntry(pas::AnsiString EntryName) {
         std::int32_t i{};
         PPackEntryEC Entry{};
@@ -538,6 +556,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Requires an unloaded folder.
     void THsFolderEC::InitializeEmpty() {
         EntryCount = 0u;
         EntryRecordSize = static_cast<std::int32_t>(sizeof(TPackEntryEC));
@@ -547,6 +566,7 @@ namespace EC_HsFile {
         UpdateParentEntry();
     }
 
+    // Returns false when already loaded; flagged child folders are skipped.
     std::uint8_t THsFolderEC::Load(std::uint32_t FileHandle, std::uint32_t SubtreeOffset) {
         std::uint32_t BytesRead{};
         std::int32_t i{};
@@ -597,6 +617,7 @@ namespace EC_HsFile {
         return true;
     }
 
+    // Marks this folder and its parent changed.
     void THsFolderEC::Unload() {
         std::int32_t i{};
         PPackEntryEC Entry{};
@@ -621,6 +642,7 @@ namespace EC_HsFile {
         }
     }
 
+    // Accepts slash and backslash separators; returns nil when absent.
     PPackEntryEC THsFolderEC::ResolveEntryByPath(pas::AnsiString EntryPath) {
         pas::AnsiString Head{};
         pas::AnsiString Tail{};
@@ -645,6 +667,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Invalidates the parent's stored target offset.
     void THsFolderEC::UpdateParentEntry() {
         PPackEntryEC Entry{};
         if (Parent != nullptr) {
@@ -672,10 +695,12 @@ namespace EC_HsFile {
         }
     }
 
+    // Unlinks packs without freeing them.
     void TPackCollectionEC_Destroy(TPackCollectionEC* Self) {
         Self->Clear(false);
     }
 
+    // Frees the name hash even when FreePacks is false.
     void TPackCollectionEC::Clear(std::uint8_t FreePacks) {
         std::int32_t i{};
         for (i = 0; i <= 127; ++i) {
@@ -690,6 +715,8 @@ namespace EC_HsFile {
         }
     }
 
+    // List mutations rebuild PackByIndex and CollectionIndex without clearing the name hash.
+    // The fixed array's 128-package capacity is not checked.
     void TPackCollectionEC::AddPackToFront(TPackFileEC* Pack) {
         TPackFileEC* Item{};
         std::int32_t Count{};
@@ -762,6 +789,7 @@ namespace EC_HsFile {
         }
     }
 
+    // When retained, Pack keeps its old links and CollectionIndex.
     void TPackCollectionEC::RemovePack(TPackFileEC* Pack, std::uint8_t FreePack) {
         std::int32_t i{};
         for (i = 0; i <= 127; ++i) {
@@ -792,6 +820,7 @@ namespace EC_HsFile {
         }
     }
 
+    // A false result rolls back previously opened packages.
     std::uint8_t TPackCollectionEC::OpenAllPackages() {
         std::uint8_t Result = false;
         if (UseFastNameIndex) {
@@ -819,6 +848,7 @@ namespace EC_HsFile {
         return true;
     }
 
+    // Returns true regardless of individual close results.
     std::uint8_t TPackCollectionEC::CloseAllPackages() {
         TPackFileEC* Pack = FirstPack;
         while (Pack != nullptr) {
@@ -832,6 +862,7 @@ namespace EC_HsFile {
         return true;
     }
 
+    // Returns nil when out of range.
     TPackFileEC* TPackCollectionEC::GetPackByIndex(std::int32_t PackIndex) {
         TPackFileEC* Pack = FirstPack;
         while (Pack != nullptr) {
@@ -844,6 +875,7 @@ namespace EC_HsFile {
         return Pack;
     }
 
+    // Returns package index * 16 + slot, or -1.
     std::int32_t TPackCollectionEC::OpenEntryByPathAcrossPackages(pas::AnsiString EntryPath, std::uint32_t DesiredAccess, std::uint8_t FirstPackageOnly) {
         TPackFileEC* Pack{};
         std::int32_t HashSlot{};
@@ -899,6 +931,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Uses the first package; truncates existing files. Returns a handle or -1.
     std::int32_t TPackCollectionEC::CreateLooseFile(pas::WideString FilePath) {
         std::int32_t Slot{};
         std::int32_t Result = -1;
@@ -951,6 +984,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Returns 0xFFFFFFFF for an invalid handle.
     std::uint32_t TPackCollectionEC::GetEntryHandlePosition(std::int32_t Handle) {
         std::uint32_t Result = 0xffffffffu;
         std::int32_t Index = pas::shr(Handle, PackOpenSlotShift);
@@ -961,6 +995,7 @@ namespace EC_HsFile {
         return Result;
     }
 
+    // Returns 0xFFFFFFFF for an invalid handle.
     std::uint32_t TPackCollectionEC::GetEntryHandleSize(std::int32_t Handle) {
         std::uint32_t Result = 0xffffffffu;
         std::int32_t Index = pas::shr(Handle, PackOpenSlotShift);
@@ -979,6 +1014,7 @@ namespace EC_HsFile {
         THashEC::ReleaseTable();
     }
 
+    // Key is not modified; only its trailing 32 bytes contribute to the hash.
     std::int32_t THashEC::ComputeLookupBucketAndFullHash(pas::AnsiString& Key, std::uint32_t& FullHash) {
         std::int32_t i{};
         std::int32_t First{};
@@ -996,6 +1032,7 @@ namespace EC_HsFile {
         return Hash & 1023;
     }
 
+    // Returns -1 on failure. Native probing can reach slot 1024; promoted hits return the pre-swap index.
     std::int32_t THashEC::FindOrInsertKeySlot(pas::AnsiString Key) {
         std::uint32_t Hash{};
         std::uint32_t i{};
@@ -1047,6 +1084,7 @@ namespace EC_HsFile {
         Slots[SlotIndex].MappedValue = Value;
     }
 
+    // Ignores BucketCount; the table has 1024 buckets. Always returns true.
     std::uint8_t THashEC::InitializeEmptyTable(std::int32_t BucketCount) {
         std::int32_t i{};
         OperationCount = 0u;
@@ -1060,6 +1098,7 @@ namespace EC_HsFile {
         return true;
     }
 
+    // Returns true without changing the table.
     std::uint8_t THashEC::ReleaseTable() {
         return true;
     }

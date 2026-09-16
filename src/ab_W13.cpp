@@ -6,6 +6,7 @@
 #include "units/ab_W13.hpp"
 #include "units/ab_WorldImage.hpp"
 
+// Native TabW13 projectile family:.
 namespace ab_W13 {
     void TabW13_Create(TabW13* Self) {
         ab_Object::TabObject_Create(Self);
@@ -44,6 +45,7 @@ namespace ab_W13 {
         } else {
             ExpireTick = ab_Global::ArcadeTickCount + 10;
         }
+        // Native W13 shares W08 projectile and explosion resources.
         if (Generation == 0) {
             Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w08_f"_wref.get(), u"GAI,Bm.AB.w08_s"_wref.get(), false);
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);

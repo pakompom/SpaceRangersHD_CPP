@@ -16,13 +16,8 @@
 #include "units/ab_WorldImage.hpp"
 #include "units/ab_WorldLine.hpp"
 
+// Native stop-point/line region:, including compiler-managed finalization.
 namespace ab_StopLine {
-    std::uint8_t IntersectCollisionParameters(EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, double& FirstT, double& SecondT);
-
-    double CollisionLineDistance(EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D Point, float& InverseLengthSquared, float& LineLength);
-
-    std::uint8_t IntersectCollisionLines(EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, EC_Struct::TVector3D& Hit);
-
     std::uint32_t StopPointHeap = 0u;
 
     ab_StopLine::PabStopPoint FirstStopPoint = nullptr;
@@ -54,6 +49,7 @@ namespace ab_StopLine {
         }
     }
 
+    // Allocates and links a node owned by the world list.
     PabStopPoint ab_StopPoint_Add() {
         if (StopPointHeap == 0) {
             StopPointHeap = WindowsSdk::HeapCreate(1u, 0x00008000u, 0u);
@@ -110,6 +106,7 @@ namespace ab_StopLine {
         }
     }
 
+    // Nil updates every point.
     void ab_StopPoint_UpdatePosition(PabStopPoint Point) {
         if (Point == nullptr) {
             Point = FirstStopPoint;
@@ -180,6 +177,7 @@ namespace ab_StopLine {
         }
     }
 
+    // Allocates and links a node owned by the world list.
     PabStopLine ab_StopLine_Add() {
         if (StopLineHeap == 0) {
             StopLineHeap = WindowsSdk::HeapCreate(1u, 0x00008000u, 0u);
@@ -295,6 +293,7 @@ namespace ab_StopLine {
         }
     }
 
+    // Empty in this native version.
     void ab_StopLine_PrepareCollision(PabStopLine Line) {
     }
 
@@ -334,6 +333,20 @@ namespace ab_StopLine {
         EC_Struct::TVector3D B{};
         EC_Struct::TVector3D Direction{};
         EC_Struct::TVector3D Movement{};
+        auto IntersectCollisionParameters = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, double& FirstT, double& SecondT) -> std::uint8_t {
+            FirstT = (static_cast<long double>(B.X) - A.X) * (static_cast<long double>(D.Y) - C.Y) - (static_cast<long double>(B.Y) - A.Y) * (static_cast<long double>(D.X) - C.X);
+            if (FirstT == 0.0L) {
+                return false;
+            }
+            FirstT = pas::real_divide(1.0L, FirstT);
+            SecondT = ((static_cast<long double>(A.Y) - C.Y) * (static_cast<long double>(B.X) - A.X) - (static_cast<long double>(A.X) - C.X) * (static_cast<long double>(B.Y) - A.Y)) * FirstT;
+            FirstT = ((static_cast<long double>(A.Y) - C.Y) * (static_cast<long double>(D.X) - C.X) - (static_cast<long double>(A.X) - C.X) * (static_cast<long double>(D.Y) - C.Y)) * FirstT;
+            return true;
+        };
+        auto CollisionLineDistance = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D Point) -> double {
+            double Cross = (static_cast<long double>(A.Y) - Point.Y) * (static_cast<long double>(B.X) - A.X) - (static_cast<long double>(A.X) - Point.X) * (static_cast<long double>(B.Y) - A.Y);
+            return static_cast<long double>(Cross) * InverseLengthSquared * LineLength;
+        };
         std::uint8_t Result = false;
         if (FirstStopLine != nullptr) {
             UnusedResult = 0.0;
@@ -360,7 +373,7 @@ namespace ab_StopLine {
                 LengthSquared = pas::sqr(static_cast<pas::Extended>(Direction.X)) + pas::sqr(static_cast<pas::Extended>(Direction.Y));
                 LineLength = System::Sqrt(LengthSquared);
                 InverseLengthSquared = pas::real_divide(1.0L, LengthSquared);
-                Distance = std::fabs(static_cast<pas::Extended>(ab_StopLine::CollisionLineDistance(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), InverseLengthSquared, LineLength)));
+                Distance = std::fabs(static_cast<pas::Extended>(CollisionLineDistance(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0))));
                 if (!(Distance <= 11.0L)) {
                     Line = Line->NextCollision;
                     continue;
@@ -368,7 +381,7 @@ namespace ab_StopLine {
                 Factor = pas::real_divide(1.0L, LineLength);
                 Direction.X = static_cast<long double>(Direction.X) * Factor;
                 Direction.Y = static_cast<long double>(Direction.Y) * Factor;
-                if (!ab_StopLine::IntersectCollisionParameters(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), Movement, FirstT, SecondT)) {
+                if (!IntersectCollisionParameters(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), Movement, FirstT, SecondT)) {
                     Line = Line->NextCollision;
                     continue;
                 }
@@ -405,6 +418,23 @@ namespace ab_StopLine {
         EC_Struct::TVector3D A{};
         EC_Struct::TVector3D B{};
         EC_Struct::TVector3D Hit{};
+        auto IntersectCollisionLines = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, EC_Struct::TVector3D& Hit) -> std::uint8_t {
+            double DX1 = static_cast<long double>(B.X) - A.X;
+            double DY1 = static_cast<long double>(B.Y) - A.Y;
+            double DX2 = static_cast<long double>(D.X) - C.X;
+            double DY2 = static_cast<long double>(D.Y) - C.Y;
+            double Denominator = static_cast<long double>(DY1) * DX2 - static_cast<long double>(DY2) * DX1;
+            if (Denominator == 0.0L) {
+                return false;
+            }
+            Hit.X = pas::real_divide((static_cast<long double>(C.Y) - A.Y) * DX1 * DX2 + static_cast<long double>(DY1) * DX2 * A.X - static_cast<long double>(DY2) * DX1 * C.X, Denominator);
+            if (DX1 != 0.0L) {
+                Hit.Y = pas::real_divide((static_cast<long double>(Hit.X) - A.X) * DY1, DX1) + A.Y;
+            } else {
+                Hit.Y = pas::real_divide((static_cast<long double>(Hit.X) - C.X) * DY2, DX2) + C.Y;
+            }
+            return true;
+        };
         ForwardDistance = 1.0E+20;
         BackwardDistance = 1.0E+20;
         if (FirstStopLine != nullptr) {
@@ -429,7 +459,7 @@ namespace ab_StopLine {
                     Line = Line->NextCollision;
                     continue;
                 }
-                if (!ab_StopLine::IntersectCollisionLines(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), EC_Struct::MakeVector3D(0.0, 1.0, 0.0), Hit)) {
+                if (!IntersectCollisionLines(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), EC_Struct::MakeVector3D(0.0, 1.0, 0.0), Hit)) {
                     Line = Line->NextCollision;
                     continue;
                 }
@@ -499,40 +529,6 @@ namespace ab_StopLine {
                 }
             }
         }
-    }
-
-    std::uint8_t IntersectCollisionParameters(EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, double& FirstT, double& SecondT) {
-        FirstT = (static_cast<long double>(B.X) - A.X) * (static_cast<long double>(D.Y) - C.Y) - (static_cast<long double>(B.Y) - A.Y) * (static_cast<long double>(D.X) - C.X);
-        if (FirstT == 0.0L) {
-            return false;
-        }
-        FirstT = pas::real_divide(1.0L, FirstT);
-        SecondT = ((static_cast<long double>(A.Y) - C.Y) * (static_cast<long double>(B.X) - A.X) - (static_cast<long double>(A.X) - C.X) * (static_cast<long double>(B.Y) - A.Y)) * FirstT;
-        FirstT = ((static_cast<long double>(A.Y) - C.Y) * (static_cast<long double>(D.X) - C.X) - (static_cast<long double>(A.X) - C.X) * (static_cast<long double>(D.Y) - C.Y)) * FirstT;
-        return true;
-    }
-
-    double CollisionLineDistance(EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D Point, float& InverseLengthSquared, float& LineLength) {
-        double Cross = (static_cast<long double>(A.Y) - Point.Y) * (static_cast<long double>(B.X) - A.X) - (static_cast<long double>(A.X) - Point.X) * (static_cast<long double>(B.Y) - A.Y);
-        return static_cast<long double>(Cross) * InverseLengthSquared * LineLength;
-    }
-
-    std::uint8_t IntersectCollisionLines(EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, EC_Struct::TVector3D& Hit) {
-        double DX1 = static_cast<long double>(B.X) - A.X;
-        double DY1 = static_cast<long double>(B.Y) - A.Y;
-        double DX2 = static_cast<long double>(D.X) - C.X;
-        double DY2 = static_cast<long double>(D.Y) - C.Y;
-        double Denominator = static_cast<long double>(DY1) * DX2 - static_cast<long double>(DY2) * DX1;
-        if (Denominator == 0.0L) {
-            return false;
-        }
-        Hit.X = pas::real_divide((static_cast<long double>(C.Y) - A.Y) * DX1 * DX2 + static_cast<long double>(DY1) * DX2 * A.X - static_cast<long double>(DY2) * DX1 * C.X, Denominator);
-        if (DX1 != 0.0L) {
-            Hit.Y = pas::real_divide((static_cast<long double>(Hit.X) - A.X) * DY1, DX1) + A.Y;
-        } else {
-            Hit.Y = pas::real_divide((static_cast<long double>(Hit.X) - C.X) * DY2, DX2) + C.Y;
-        }
-        return true;
     }
 
 } // namespace ab_StopLine

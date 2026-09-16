@@ -29,9 +29,9 @@
 #include "units/ab_W17.hpp"
 #include "units/ab_W18.hpp"
 
+// Shared arcade weapon records and dispatch:.
+// Inferred ownership; original unit boundary remains unresolved.
 namespace ab_W {
-    void ConfigureObjectSound(ab_Object::TabObject* Obj, std::int32_t Kind);
-
     void ab_Weapon_InitializeFromInfo(PabWeapon Weapon, aConst::PWeaponInfo Info) {
         ab_W::ab_Weapon_Initialize(Weapon, Info->ArcadeWeaponType);
     }
@@ -242,6 +242,13 @@ namespace ab_W {
         ab_W18::TabW18* W18{};
         float Angle{};
         std::int32_t Index{};
+        auto ConfigureObjectSound = [&](ab_Object::TabObject* Obj, std::int32_t Kind) -> void {
+            if (Globals::ArcadeWeaponLoopTicks[Kind] >= 0) {
+                Obj->SoundDelay = Globals::ArcadeWeaponLoopTicks[Kind];
+                Obj->SoundPath = Globals::ArcadeWeaponLoopSounds[Kind];
+                Obj->SoundGroup = Kind + 9000;
+            }
+        };
         if (Globals::ArcadeWeaponFirstSounds[Weapon->Kind] != u"") {
             if (ab_Global::IsDepthBeforeSphereHorizon(Owner->GetProjectedPosition().Z)) {
                 GR_Main::SoundManager->PlaySound(Globals::ArcadeWeaponFirstSounds[Weapon->Kind]);
@@ -251,103 +258,103 @@ namespace ab_W {
             W01 = pas::construct_call<ab_W01::TabW01>(ab_W01::TabW01_Create);
             ab_Object::ab_Object_Add(W01);
             W01->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W01, 0);
+            ConfigureObjectSound(W01, 0);
         } else if (Weapon->Kind == 1) {
             W02 = pas::construct_call<ab_W02::TabW02>(ab_W02::TabW02_Create);
             ab_Object::ab_Object_Add(W02);
             W02->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W02, 1);
+            ConfigureObjectSound(W02, 1);
         } else if (Weapon->Kind == 2) {
             W03 = pas::construct_call<ab_W03::TabW03>(ab_W03::TabW03_Create);
             ab_Object::ab_Object_Add(W03);
             W03->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W03, 2);
+            ConfigureObjectSound(W03, 2);
         } else if (Weapon->Kind == 3) {
             W04 = pas::construct_call<ab_W04::TabW04>(ab_W04::TabW04_Create);
             ab_Object::ab_Object_Add(W04);
             W04->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W04, 3);
+            ConfigureObjectSound(W04, 3);
         } else if (Weapon->Kind == 4) {
             W05 = pas::construct_call<ab_W05::TabW05>(ab_W05::TabW05_Create);
             ab_Object::ab_Object_Add(W05);
             W05->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 7.0L)), -15.0f);
-            ab_W::ConfigureObjectSound(W05, 4);
+            ConfigureObjectSound(W05, 4);
             W05 = pas::construct_call<ab_W05::TabW05>(ab_W05::TabW05_Create);
             ab_Object::ab_Object_Add(W05);
             W05->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 7.0L)), -1.0E+1f);
-            ab_W::ConfigureObjectSound(W05, 4);
+            ConfigureObjectSound(W05, 4);
             W05 = pas::construct_call<ab_W05::TabW05>(ab_W05::TabW05_Create);
             ab_Object::ab_Object_Add(W05);
             W05->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 7.0L)), -5.0f);
-            ab_W::ConfigureObjectSound(W05, 4);
+            ConfigureObjectSound(W05, 4);
             W05 = pas::construct_call<ab_W05::TabW05>(ab_W05::TabW05_Create);
             ab_Object::ab_Object_Add(W05);
             W05->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 7.0L)), 0.0f);
-            ab_W::ConfigureObjectSound(W05, 4);
+            ConfigureObjectSound(W05, 4);
             W05 = pas::construct_call<ab_W05::TabW05>(ab_W05::TabW05_Create);
             ab_Object::ab_Object_Add(W05);
             W05->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 7.0L)), 5.0f);
-            ab_W::ConfigureObjectSound(W05, 4);
+            ConfigureObjectSound(W05, 4);
             W05 = pas::construct_call<ab_W05::TabW05>(ab_W05::TabW05_Create);
             ab_Object::ab_Object_Add(W05);
             W05->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 7.0L)), 1.0E+1f);
-            ab_W::ConfigureObjectSound(W05, 4);
+            ConfigureObjectSound(W05, 4);
             W05 = pas::construct_call<ab_W05::TabW05>(ab_W05::TabW05_Create);
             ab_Object::ab_Object_Add(W05);
             W05->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 7.0L)), 15.0f);
-            ab_W::ConfigureObjectSound(W05, 4);
+            ConfigureObjectSound(W05, 4);
         } else if (Weapon->Kind == 5) {
             W06 = pas::construct_call<ab_W06::TabW06>(ab_W06::TabW06_Create);
             ab_Object::ab_Object_Add(W06);
             W06->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W06, 5);
+            ConfigureObjectSound(W06, 5);
         } else if (Weapon->Kind == 6) {
             W07 = pas::construct_call<ab_W07::TabW07>(ab_W07::TabW07_Create);
             ab_Object::ab_Object_Add(W07);
             W07->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W07, 6);
+            ConfigureObjectSound(W07, 6);
         } else if (Weapon->Kind == 7) {
             W08 = pas::construct_call<ab_W08::TabW08>(ab_W08::TabW08_Create);
             ab_Object::ab_Object_Add(W08);
             W08->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f, 0, nullptr);
-            ab_W::ConfigureObjectSound(W08, 7);
+            ConfigureObjectSound(W08, 7);
         } else if (Weapon->Kind == 8) {
             W09 = pas::construct_call<ab_W09::TabW09>(ab_W09::TabW09_Create);
             ab_Object::ab_Object_Add(W09);
             W09->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale));
-            ab_W::ConfigureObjectSound(W09, 8);
+            ConfigureObjectSound(W09, 8);
         } else if (Weapon->Kind == 9) {
             W10 = pas::construct_call<ab_W10::TabW10>(ab_W10::TabW10_Create);
             ab_Object::ab_Object_Add(W10);
             W10->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W10, 9);
+            ConfigureObjectSound(W10, 9);
         } else if (Weapon->Kind == 10) {
             W11 = pas::construct_call<ab_W11::TabW11>(ab_W11::TabW11_Create);
             ab_Object::ab_Object_Add(W11);
             W11->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W11, 10);
+            ConfigureObjectSound(W11, 10);
         } else if (Weapon->Kind == 11) {
             W12 = pas::construct_call<ab_W12::TabW12>(ab_W12::TabW12_Create);
             ab_Object::ab_Object_Add(W12);
             W12->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 2.0L)), 0.0f);
-            ab_W::ConfigureObjectSound(W12, 11);
+            ConfigureObjectSound(W12, 11);
             W12 = pas::construct_call<ab_W12::TabW12>(ab_W12::TabW12_Create);
             ab_Object::ab_Object_Add(W12);
             W12->Launch(Owner, System::Round(pas::real_divide(static_cast<long double>(Weapon->Damage) * DamageScale, 2.0L)), 1.8E+2f);
-            ab_W::ConfigureObjectSound(W12, 11);
+            ConfigureObjectSound(W12, 11);
         } else if (Weapon->Kind == 12) {
             W13 = pas::construct_call<ab_W13::TabW13>(ab_W13::TabW13_Create);
             ab_Object::ab_Object_Add(W13);
             W13->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f, 0, nullptr);
-            ab_W::ConfigureObjectSound(W13, 12);
+            ConfigureObjectSound(W13, 12);
             W13 = pas::construct_call<ab_W13::TabW13>(ab_W13::TabW13_Create);
             ab_Object::ab_Object_Add(W13);
             W13->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 4.0E+1f, 0, nullptr);
-            ab_W::ConfigureObjectSound(W13, 12);
+            ConfigureObjectSound(W13, 12);
             W13 = pas::construct_call<ab_W13::TabW13>(ab_W13::TabW13_Create);
             ab_Object::ab_Object_Add(W13);
             W13->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 3.2E+2f, 0, nullptr);
-            ab_W::ConfigureObjectSound(W13, 12);
+            ConfigureObjectSound(W13, 12);
         } else if (Weapon->Kind == 13) {
             Angle = 0.0f;
             Index = 0;
@@ -356,7 +363,7 @@ namespace ab_W {
                 ab_Object::ab_Object_Add(W14);
                 W14->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), Angle);
                 if ((Index & 1) == 0) {
-                    ab_W::ConfigureObjectSound(W14, 13);
+                    ConfigureObjectSound(W14, 13);
                 }
                 Angle = Angle + 15.0L;
                 ++Index;
@@ -367,24 +374,24 @@ namespace ab_W {
                 W15 = pas::construct_call<ab_W15::TabW15>(ab_W15::TabW15_Create);
                 ab_Object::ab_Object_Add(W15);
                 W15->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), Angle);
-                ab_W::ConfigureObjectSound(W15, 14);
+                ConfigureObjectSound(W15, 14);
                 Angle = Angle + 45.0L;
             }
         } else if (Weapon->Kind == 15) {
             W16 = pas::construct_call<ab_W16::TabW16>(ab_W16::TabW16_Create);
             ab_Object::ab_Object_Add(W16);
             W16->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale));
-            ab_W::ConfigureObjectSound(W16, 8);
+            ConfigureObjectSound(W16, 8);
         } else if (Weapon->Kind == 16) {
             W17 = pas::construct_call<ab_W17::TabW17>(ab_W17::TabW17_Create);
             ab_Object::ab_Object_Add(W17);
             W17->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale));
-            ab_W::ConfigureObjectSound(W17, 2);
+            ConfigureObjectSound(W17, 2);
         } else if (Weapon->Kind == 17) {
             W18 = pas::construct_call<ab_W18::TabW18>(ab_W18::TabW18_Create);
             ab_Object::ab_Object_Add(W18);
             W18->Launch(Owner, System::Round(static_cast<long double>(Weapon->Damage) * DamageScale), 0.0f);
-            ab_W::ConfigureObjectSound(W18, 3);
+            ConfigureObjectSound(W18, 3);
         }
     }
 
@@ -548,14 +555,6 @@ namespace ab_W {
                 GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w18a_s"_wref.get());
                 break;
             }
-        }
-    }
-
-    void ConfigureObjectSound(ab_Object::TabObject* Obj, std::int32_t Kind) {
-        if (Globals::ArcadeWeaponLoopTicks[Kind] >= 0) {
-            Obj->SoundDelay = Globals::ArcadeWeaponLoopTicks[Kind];
-            Obj->SoundPath = Globals::ArcadeWeaponLoopSounds[Kind];
-            Obj->SoundGroup = Kind + 9000;
         }
     }
 

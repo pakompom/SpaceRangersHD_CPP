@@ -11,6 +11,9 @@ namespace VFW {
 
     using IAVIFile = pas::ComPtr<IAVIFile_Tag>;
 
+    // Native RTTI retains 11/7 methods, but no GUIDs. Calls in this game use the
+    // exported AVIFile API; the COM Info/SetInfo pointers below are Unicode forms.
+    // ABI: https://github.com/wine-mirror/wine/blob/master/include/vfw.h
     using IAVIStream = pas::ComPtr<IAVIStream_Tag>;
 
     #pragma pack(push, 1)

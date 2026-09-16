@@ -30,10 +30,12 @@ namespace ab_StopLine {
 
     void ab_StopPoint_Clear();
 
+    // Allocates and links a node owned by the world list.
     PabStopPoint ab_StopPoint_Add();
 
     void ab_StopPoint_Delete(PabStopPoint Point);
 
+    // Nil updates every point.
     void ab_StopPoint_UpdatePosition(PabStopPoint Point);
 
     void ab_StopPoint_ClearImages();
@@ -48,6 +50,7 @@ namespace ab_StopLine {
 
     void ab_StopLine_Clear();
 
+    // Allocates and links a node owned by the world list.
     PabStopLine ab_StopLine_Add();
 
     void ab_StopLine_Delete(PabStopLine Line);
@@ -60,6 +63,7 @@ namespace ab_StopLine {
 
     void ab_StopLine_ClearSegments(PabStopLine Line);
 
+    // Empty in this native version.
     void ab_StopLine_PrepareCollision(PabStopLine Line);
 
     void ab_StopLine_BuildCollisionList();

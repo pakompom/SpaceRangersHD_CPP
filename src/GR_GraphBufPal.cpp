@@ -35,6 +35,7 @@ namespace GR_GraphBufPal {
         PaletteCount = 0;
     }
 
+    // Discards existing pixels and palette; uses one byte per pixel with no row padding.
     void TGraphBufPalGR::AllocateTight(std::int32_t AWidth, std::int32_t AHeight, std::int32_t APaletteCount) {
         Clear();
         Width = AWidth;
@@ -45,6 +46,7 @@ namespace GR_GraphBufPal {
         Palette = static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AllocEC(APaletteCount * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
     }
 
+    // Discards existing pixels and palette; rounds pitch up to a multiple of four.
     void TGraphBufPalGR::AllocateBuffer(std::int32_t AWidth, std::int32_t AHeight, std::int32_t APaletteCount, std::int32_t APitchBytes) {
         Clear();
         Width = AWidth;
@@ -61,6 +63,7 @@ namespace GR_GraphBufPal {
         }
     }
 
+    // Index is unchecked.
     std::uint32_t TGraphBufPalGR::GetPaletteColor(std::int32_t Index) {
         return pas::load_unaligned<std::uint32_t>(static_cast<System::PCardinal>(EC_Mem::AddPointerOffset(Palette, Index * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA)))));
     }
@@ -73,11 +76,13 @@ namespace GR_GraphBufPal {
         Windows::CopyMemory(Palette, Source, Count * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA)));
     }
 
+    // Coordinates are unchecked.
     std::uint8_t TGraphBufPalGR::GetPixelIndex(std::int32_t X, std::int32_t Y) {
         SysUtilsImports::PByteArray Data = static_cast<SysUtilsImports::PByteArray>(Pixels);
         return *static_cast<std::uint8_t*>(pas::byte_offset(Data, (Y * PitchBytes + X) * sizeof(std::uint8_t)));
     }
 
+    // Decodes the entire payload, ignoring Position; retains the codec's one- or two-byte indexed pixel width. Failures raise.
     void TGraphBufPalGR::LoadImage(EC_Buf::TBufEC* Buffer) {
         Clear();
         EC_OKGF::POkgfReadContext Context = GR_Main::BeginIndexedImageRead(Buffer->Data, Buffer->DataSize, Width, Height, PaletteCount, BytesPerPixel);
@@ -95,6 +100,7 @@ namespace GR_GraphBufPal {
         pas::fill_memory(Pixels, PitchBytes * Height, static_cast<std::uint8_t>(0));
     }
 
+    // Includes row padding.
     void TGraphBufPalGR::FillPixels(std::uint8_t Value) {
         Windows::FillMemory(Pixels, PitchBytes * Height, Value);
     }

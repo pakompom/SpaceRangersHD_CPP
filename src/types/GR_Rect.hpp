@@ -17,6 +17,7 @@ namespace GR_Rect {
         void Clear();
         TRectGR* AllocateRectNode();
         void RemoveRectNode(TRectGR* RectNode);
+        // Maintains nonoverlapping coverage.
         void AddRect(Types::TRect Rect);
         void InsertRectFragment(std::int32_t Left, std::int32_t Top, std::int32_t Right, std::int32_t Bottom);
         void AddScreenClippedRect(Types::TRect Rect, Types::TPoint UnusedPoint1, Types::TPoint UnusedPoint2);

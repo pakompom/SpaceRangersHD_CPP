@@ -34,17 +34,23 @@ namespace GI_RotateImage5 {
     struct TRotateImage5GI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TRotateImage5GI, GI_MessageLoop::TObjectGI, "TRotateImage5GI", 8660)
         void p_destroy() override;
+        // Preserves cache keys, image storage and FrameTexture.
         void Clear() override;
+        // A full turn has 256 steps.
         void SetAngle(std::uint8_t Value);
+        // Does not validate against the frame count.
         void SetFrameIndex(std::uint32_t Value);
         void SetAlpha(std::uint8_t Value);
+        // Replaces size and origin with a centered square enclosing all rotations.
         void SetImage(pas::WideString Path, Types::TPoint ImageSize, Types::TPoint Pivot);
+        // Uses the last rendered image. Alpha must exceed 8 in software, or 0 in hardware.
         std::uint8_t HitTestPixel(Types::TPoint Point);
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         void Draw(Types::TRect ClipRect) override;
         std::uint32_t GetFrameCount();
+        // Queues an arbitrary HSAI path; does not change this object's image.
         static void QueueImagePath(pas::List* PendingLoads, pas::WideString Path);
         EC_CacheHSAI::TCHSAIControlEC* ImageCache;
         EC_CacheRotateBuf::TCRotateBufControlEC* RotationCache;
@@ -57,9 +63,11 @@ namespace GI_RotateImage5 {
         std::uint8_t Alpha;
         std::uint8_t ImageDirty;
         std::uint8_t cpp_padding_2[1];
+        // Optional owned object; purpose unresolved.
         pas::Object* Unknown13C;
         pas::Array<GR_DX::TScreenVertexGR, 0, 3> Vertices;
         Direct3D9::IDirect3DTexture9 FrameTexture;
+        // Corner coordinates are indexed by Angle; each table has an unused trailing dword.
         pas::Array<float, 0, 255> TopLeftX;
         std::uint8_t cpp_padding_3[4];
         pas::Array<float, 0, 255> TopLeftY;

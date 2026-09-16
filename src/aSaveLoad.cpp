@@ -64,8 +64,13 @@ namespace aSaveLoad {
 
     std::int32_t MemorySnapshotXorSeed{};
 
+    // Detached galaxy address plus 0x17557455, modulo 2^32.
     std::uint32_t MemorySnapshotGalaxyToken{};
 
+    // Disk header: eight NUL-terminated UTF-16 strings: RSG, v<version>,
+    // description, turn, money, pilot name, race/emblem name, EZ.
+    // Each preview has a four-byte byte count. The trailing film block runs to EOF.
+    // Queues the write; true does not mean the background writer has finished.
     std::uint8_t SaveGameToFile(pas::WideString FileName, pas::WideString Description) {
         EC_Buf::TBufEC* Header{};
         EC_Buf::TBufEC* Preview{};
@@ -200,6 +205,7 @@ namespace aSaveLoad {
         return Result;
     }
 
+    // Replaces the current galaxy.
     std::uint8_t LoadGameFromFile(pas::WideString FileName) {
         EC_File::TFileEC* F{};
         EC_Buf::TBufEC* Films{};
@@ -362,6 +368,7 @@ namespace aSaveLoad {
         return Result;
     }
 
+    // Requires an existing galaxy object and a decoded buffer positioned at the player-hold section.
     void LoadGameFromSaveBuffer(EC_Buf::TBufEC* Buffer) {
         std::int32_t I{};
         fShip2::TPlayerHoldUnit* Entry{};
@@ -385,6 +392,7 @@ namespace aSaveLoad {
         aGalaxy::TGalaxy::RunConfigOnLoadHandlers();
     }
 
+    // Requires a live galaxy/player and no outstanding snapshot. Obfuscates and detaches the live galaxy until restoration; does not increment the persistent save count.
     void SaveGameToMemorySnapshot() {
         std::int32_t I{};
         fShip2::TPlayerHoldUnit* Entry{};
@@ -456,6 +464,7 @@ namespace aSaveLoad {
         GlobalsV::MemorySnapshotActive = true;
     }
 
+    // Consumes the snapshot, destroys the detached galaxy and rebuilds it. Preserves the persistent load count and restores UI references by object ID.
     void RestoreGameFromMemorySnapshot() {
         std::int32_t I{};
         fShip2::TPlayerHoldUnit* Entry{};
@@ -624,6 +633,7 @@ namespace aSaveLoad {
         SaveWriter = pas::construct_call<TSaver>(EC_Thread::TThreadEC_Create);
     }
 
+    // Waits for a pending write before freeing the worker.
     void FinalizeSaveWriter() {
         if (SaveWriter != nullptr) {
             if (SaveWriter->IsRunning()) {
@@ -634,6 +644,7 @@ namespace aSaveLoad {
         }
     }
 
+    // Owns and frees all five buffers. Writes Save.tmp before replacing the destination; shares SaveLoadLock with the loader.
     void TSaver_Execute(TSaver* Self) {
         pas::AnsiString cpp_text{};
         pas::AnsiString cpp_text_2{};
@@ -770,6 +781,7 @@ namespace aSaveLoad {
         pas::critical_leave(SaveLoadLock);
     }
 
+    // Waits for the preceding job, then takes ownership of all five buffers.
     void TSaver::QueueSave(pas::WideString AFileName, EC_Buf::TBufEC* Header, EC_Buf::TBufEC* Preview, EC_Buf::TBufEC* SecondaryPreview, EC_Buf::TBufEC* GameState, EC_Buf::TBufEC* Films) {
         if (IsRunning()) {
             WaitForIdle(WindowsSdk::INFINITE);

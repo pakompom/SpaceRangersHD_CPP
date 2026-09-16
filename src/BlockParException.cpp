@@ -7,6 +7,7 @@ namespace BlockParException {
         Self->Reportable = AReportable;
     }
 
+    // False suppresses the reporting flag in ExceptionInfo.
     std::uint8_t EBlockPar::IsReportable() {
         return Reportable;
     }

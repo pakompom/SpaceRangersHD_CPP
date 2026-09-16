@@ -24,6 +24,7 @@ namespace GI_Frame {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves fill and color fields.
     void TFrameGI::Clear() {
         Kind = fkHide;
         GI_MessageLoop::TObjectGI::Clear();
@@ -86,6 +87,7 @@ namespace GI_Frame {
         }
     }
 
+    // Fill is independent of Kind. FillAlpha values other than 255 all produce alpha 64.
     void TFrameGI::Draw(Types::TRect ClipRect) {
         if (Fill) {
             if (GlobalsV::HardwareRenderingEnabled) {

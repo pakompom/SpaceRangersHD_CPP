@@ -13,6 +13,7 @@ namespace EC_Str {
         u'8', u'9', u'a', u'b', u'c', u'd', u'e', u'f',
     }};
 
+    // Delimiters is a set of separator characters, not a substring. Counts empty parts; empty Text returns zero.
     std::int32_t CountDelimitedPartsW(const pas::WideString& Text, const pas::WideString& Delimiters) {
         std::int32_t i{};
         std::int32_t j{};
@@ -33,6 +34,7 @@ namespace EC_Str {
         return Count;
     }
 
+    // Zero-based part index, one-based character result. Nonpositive PartIndex returns 1; missing positive indexes raise.
     std::int32_t GetDelimitedPartStartIndexW(const pas::WideString& Text, std::int32_t PartIndex, const pas::WideString& Delimiters) {
         std::int32_t TextLength{};
         std::int32_t DelimiterCount{};
@@ -57,6 +59,7 @@ namespace EC_Str {
         return 1;
     }
 
+    // One-based character result. Nonpositive PartIndex returns 1; 1 returns the position after the first delimiter or -1. Native early exit makes every PartIndex above 1 return -1.
     std::int32_t GetCharDelimitedPartStartIndexW(const pas::WideString& Text, std::int32_t PartIndex, char16_t Delimiter) {
         std::int32_t TextLength{};
         std::int32_t i{};
@@ -76,6 +79,7 @@ namespace EC_Str {
         return 1;
     }
 
+    // StartIndex is a one-based character position, not a part index.
     std::int32_t GetDelimitedPartLengthW(const pas::WideString& Text, std::int32_t StartIndex, const pas::WideString& Delimiters) {
         std::int32_t i{};
         std::int32_t j{};
@@ -96,6 +100,7 @@ namespace EC_Str {
         return pas::copy(Text, StartIndex, EC_Str::GetDelimitedPartLengthW(Text, StartIndex, Delimiters));
     }
 
+    // Includes both zero-based part indexes and the separators between them.
     pas::WideString ExtractDelimitedRangeW(const pas::WideString& Text, std::int32_t FirstPart, std::int32_t LastPart, const pas::WideString& Delimiters) {
         std::int32_t StartIndex = EC_Str::GetDelimitedPartStartIndexW(Text, FirstPart, Delimiters);
         std::int32_t EndIndex = EC_Str::GetDelimitedPartStartIndexW(Text, LastPart, Delimiters);
@@ -103,6 +108,7 @@ namespace EC_Str {
         return pas::copy(Text, StartIndex, EndIndex - StartIndex);
     }
 
+    // Removes the returned prefix and first delimiter from Text; without a delimiter returns all of Text and clears it.
     pas::WideString ExtractNextDelimitedPartW(pas::WideString& Text, char16_t Delimiter) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -125,6 +131,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Returns the first // and following text, including immediately preceding spaces, tabs, CR and LF. Empty when absent; does not recognize quoting.
     pas::WideString ExtractLineCommentW(const pas::WideString& Text) {
         std::int32_t Position = pas::pos(u"//", Text);
         if (Position < 1) {
@@ -140,6 +147,7 @@ namespace EC_Str {
         return pas::copy(Text, i + 1, Text.length() - i);
     }
 
+    // Removes the first // and following text, then trims trailing characters <= #32. Without // returns Text unchanged; does not recognize quoting.
     pas::WideString RemoveLineCommentW(const pas::WideString& Text) {
         std::int32_t Position = pas::pos(u"//", Text);
         if (Position < 1) {
@@ -151,6 +159,7 @@ namespace EC_Str {
         return pas::trim_right(pas::copy(Text, 1, Position - 1));
     }
 
+    // Case-sensitive, non-overlapping replacement; empty Search returns Text unchanged.
     pas::WideString ReplaceAllWideString(const pas::WideString& Text, const pas::WideString& Search, const pas::WideString& Replacement) {
         pas::WideString Result{};
         std::int32_t j{};
@@ -182,6 +191,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Zero-based start and result; starts at a nonnegative character offset and returns -1 when absent.
     std::int32_t FindTextOffsetW(const pas::WideString& Text, const pas::WideString& Search, std::int32_t StartIndex) {
         std::int32_t TextLength = Text.length();
         std::int32_t SearchLength = Search.length();
@@ -211,10 +221,12 @@ namespace EC_Str {
         return -1;
     }
 
+    // One-based result, with Search before Text as in Pos; returns zero when absent.
     std::int32_t FindTextPosW(const pas::WideString& Search, const pas::WideString& Text) {
         return EC_Str::FindTextOffsetW(Text, Search, 0) + 1;
     }
 
+    // Ignores signs and other nondigits; unchecked 32-bit arithmetic.
     std::int32_t ExtractDigitsToIntW(const pas::WideString& Text) {
         std::int32_t i{};
         std::int32_t Result = 0;
@@ -227,6 +239,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // True for any nonempty string containing only digits and minus signs, including '-' and '1--2'; does not validate numeric syntax or range.
     std::uint8_t IsIntegerTextW(const pas::WideString& Text) {
         std::int32_t i{};
         std::int32_t TextLength = Text.length();
@@ -241,6 +254,7 @@ namespace EC_Str {
         return true;
     }
 
+    // Ignores nondigits; a minus sign encountered while the accumulated value is zero makes the result negative. Unchecked 32-bit arithmetic.
     std::int32_t ExtractSignedDigitsToIntW(const pas::WideString& Text) {
         std::int32_t i{};
         std::int32_t Result = 0;
@@ -259,6 +273,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Accepts '.' or ','; ignores other nondigits and treats any '-' as negative. No exponent syntax.
     float ExtractDecimalToSingleW(const pas::WideString& Text) {
         std::int32_t i{};
         std::int32_t Code{};
@@ -294,6 +309,7 @@ namespace EC_Str {
         return Value;
     }
 
+    // Same permissive conversion as ExtractDecimalToSingleW; all accumulation and the result use Single precision.
     float ParseDecimalToSingleW(const pas::WideString& Text) {
         std::int32_t i{};
         std::int32_t Code{};
@@ -329,6 +345,7 @@ namespace EC_Str {
         return Value;
     }
 
+    // Uses a decimal point by temporarily changing the RTL's global separator; not thread-safe, and an exception can leave the separator changed.
     pas::WideString FloatToWideString(double Value) {
         pas::WideString Result{};
         std::uint8_t SavedSeparator = SysUtils::DecimalSeparator;
@@ -338,6 +355,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Lowercase hexadecimal without a prefix or padding; zero becomes '0'.
     pas::WideString CardinalToHexWideString(std::uint32_t Value) {
         pas::WideString Result{};
         while (Value != 0) {
@@ -350,6 +368,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Left-pads with zeros or keeps only the leftmost Width digits. Nonpositive Value produces zeros; nonpositive Width produces an empty string.
     pas::WideString IntToFixedWidthWideString(std::int32_t Value, std::int32_t Width) {
         pas::WideString Result{};
         std::int32_t Digit{};
@@ -370,6 +389,7 @@ namespace EC_Str {
         return pas::copy(Result, 0, Width);
     }
 
+    // Low(Integer) incorrectly produces '-0'.
     pas::WideString IntToWideString(std::int32_t Value) {
         pas::WideString Result{};
         std::int32_t Magnitude = pas::abs(Value);
@@ -386,6 +406,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Returns 'True' or 'False'.
     pas::WideString BoolToWideString(std::uint8_t Value) {
         if (!Value) {
             return u"False"_w;
@@ -393,6 +414,7 @@ namespace EC_Str {
         return u"True"_w;
     }
 
+    // Trims only spaces, tabs, CR, LF and NUL characters at both ends.
     pas::WideString TrimWideString(const pas::WideString& Text) {
         pas::WideString Result{};
         std::int32_t Code{};
@@ -424,6 +446,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Uses the language CaseConv table; characters absent from it remain unchanged.
     pas::WideString UpperCaseWideString(const pas::WideString& Text) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -442,6 +465,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Uses the language CaseConv table in reverse; characters absent from it remain unchanged.
     pas::WideString LowerCaseWideString(const pas::WideString& Text) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -460,6 +484,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Chars is a set of individual characters, not a substring.
     pas::WideString RemoveWideStringChars(const pas::WideString& Text, pas::WideString Chars) {
         pas::WideString Result{};
         std::int32_t i{};
@@ -498,6 +523,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Returns the leading <...> token length, 1 for leading <<, or zero when no complete tag is present.
     std::int32_t GetTextTagLengthW(char16_t* Text, std::int32_t CharCount) {
         std::int32_t Result = 0;
         if (CharCount < 2) {
@@ -522,6 +548,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Requires leading < and equal-length patterns. Each character may match either pattern; no closing > or name boundary is required.
     std::uint8_t MatchTextTagPrefixW(char16_t* Text, std::int32_t CharCount, const pas::WideString& Pattern, const pas::WideString& AlternatePattern) {
         std::int32_t i{};
         std::uint8_t Result = false;
@@ -543,6 +570,7 @@ namespace EC_Str {
         return true;
     }
 
+    // Removes complete <...> tokens; leading << consumes one character and scanning resumes at the second <. Incomplete tags remain.
     pas::WideString RemoveTextTagsW(const pas::WideString& Text) {
         pas::WideString Result{};
         std::int32_t TagLength{};
@@ -559,6 +587,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Uses MatchTextTagPrefixW; opening and closing tags require separate patterns.
     pas::WideString RemoveMatchingTextTagsW(pas::WideString Text, const pas::WideString& Pattern, const pas::WideString& AlternatePattern) {
         pas::WideString Result{};
         std::int32_t TagLength{};
@@ -580,6 +609,8 @@ namespace EC_Str {
         return Result;
     }
 
+    // Original unit ownership of these standalone helpers is unresolved.
+    // Accepts slash and backslash; strips only the final dot and suffix from the last path component.
     pas::WideString ExtractFileNameNoExtW(const pas::WideString& Path) {
         pas::WideString Result{};
         std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"\\/"_wref.get());
@@ -591,6 +622,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Accepts slash and backslash; returns text after the last dot in the final component, or empty when absent.
     pas::WideString ExtractFileExtNoDotW(const pas::WideString& Path) {
         pas::WideString Result{};
         std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"\\/"_wref.get());
@@ -602,6 +634,7 @@ namespace EC_Str {
         return pas::WideString();
     }
 
+    // Accepts slash and backslash; excludes the final separator and component.
     pas::WideString ExtractFileDirW(const pas::WideString& Path) {
         std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"\\/"_wref.get());
         if (Count <= 1) {
@@ -610,6 +643,9 @@ namespace EC_Str {
         return EC_Str::ExtractDelimitedRangeW(Path, 0, Count - 2, u"\\/"_wref.get());
     }
 
+    // Game text obfuscation: EncodeTextW inserts a random character after each input
+    // character; DecodeTextW discards those interleaved characters.
+    // Keeps characters 1, 3, 5, ... using Delphi's one-based string indexing.
     pas::WideString DecodeTextW(pas::WideString Text) {
         pas::WideString Result{};
         std::int32_t TextLength = Text.length();
@@ -621,6 +657,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // One-based Index; unlike the RTL Copy helper, does not clamp Index or Count to the source. Requires a valid source span and nonnegative Count.
     pas::WideString CopyWideStringUnchecked(pas::WideString Text, std::int32_t Index, std::int32_t Count) {
         pas::WideString Result{};
         Result.set_length(Count);
@@ -628,6 +665,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Creates with KEY_WRITE. Passes an ANSI-converted buffer and ANSI byte count to RegSetValueExW; preserves this native encoding mismatch.
     void WriteRegistryStringLegacy(std::uint32_t RootKey, pas::WideString KeyPath, pas::WideString ValueName, pas::WideString Value) {
         WindowsSdk::HKEY Key{};
         std::uint32_t Disposition{};
@@ -643,6 +681,7 @@ namespace EC_Str {
         WindowsSdk::RegCloseKey(Key);
     }
 
+    // Inserts a random language-table character after each input character; requires a nonempty WideCaseTable.
     pas::WideString EncodeTextW(pas::WideString Text) {
         pas::WideString Result{};
         std::int32_t TextLength = Text.length();
@@ -660,6 +699,7 @@ namespace EC_Str {
         return Result;
     }
 
+    // Applies the native ordered replacement table, including its unusual letter mappings.
     pas::WideString TransliterateCyrillicToLatin(pas::WideString Text) {
         pas::WideString Result{};
         Result = std::move(Text);
@@ -765,6 +805,7 @@ namespace EC_Str {
         }
     }
 
+    // Does not adjust CurrentElement.
     void TStringsEC::RemoveAndFreeElement(TStringsElEC* Item) {
         if (Item->Prev != nullptr) {
             Item->Prev->Next = Item->Next;
@@ -781,6 +822,7 @@ namespace EC_Str {
         pas::free(Item);
     }
 
+    // Raises when the index is outside the list.
     TStringsElEC* TStringsEC::GetElement(std::int32_t Index) {
         TStringsElEC* Item = FirstElement;
         while (Item != nullptr) {
@@ -793,6 +835,7 @@ namespace EC_Str {
         pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TStringsEC.El_Get. i=", SysUtils::IntToStr(Index)})));
     }
 
+    // Creates missing entries; negative indexes raise.
     TStringsElEC* TStringsEC::EnsureElement(std::int32_t Index) {
         if (Index < 0) {
             pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TStringsEC.El_GetEx. i=", SysUtils::IntToStr(Index)})));
@@ -822,18 +865,22 @@ namespace EC_Str {
         return Result;
     }
 
+    // Reading beyond the end extends the list.
     pas::WideString TStringsEC::GetTextAt(std::int32_t Index) {
         return EnsureElement(Index)->Text;
     }
 
+    // Reading beyond the end extends the list.
     void* TStringsEC::GetDataAt(std::int32_t Index) {
         return EnsureElement(Index)->Data;
     }
 
+    // Creates missing entries; Data is borrowed.
     void TStringsEC::SetDataAt(std::int32_t Index, void* Data) {
         EnsureElement(Index)->Data = Data;
     }
 
+    // Case-sensitive comparison; returns -1 when absent.
     std::int32_t TStringsEC::IndexOf(const pas::WideString& Text) {
         TStringsElEC* Item = FirstElement;
         std::int32_t i = 0;
@@ -851,6 +898,7 @@ namespace EC_Str {
         AddEmptyElement()->Text = Text;
     }
 
+    // Nonpositive CharCount still appends an empty element.
     void TStringsEC::AddSlice(char16_t* Text, std::int32_t CharCount) {
         TStringsElEC* Item{};
         Item = AddEmptyElement();
@@ -860,6 +908,7 @@ namespace EC_Str {
         }
     }
 
+    // If deleting CurrentElement, moves it to the next element or otherwise the previous one.
     void TStringsEC::Delete(std::int32_t Index) {
         TStringsElEC* Item = GetElement(Index);
         if (Item == CurrentElement) {
@@ -871,6 +920,7 @@ namespace EC_Str {
         RemoveAndFreeElement(Item);
     }
 
+    // Raises when CurrentElement is nil.
     pas::WideString TStringsEC::GetCurrentText() {
         if (CurrentElement == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TStringsEC.Get."_a));
@@ -878,6 +928,7 @@ namespace EC_Str {
         return CurrentElement->Text;
     }
 
+    // Raises when CurrentElement is nil.
     void* TStringsEC::GetCurrentData() {
         if (CurrentElement == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TStringsEC.GetData."_a));
@@ -889,6 +940,7 @@ namespace EC_Str {
         return !(CurrentElement != nullptr);
     }
 
+    // Requires nonnil CurrentElement.
     std::uint8_t TStringsEC::IsAtLast() {
         return !(CurrentElement->Next != nullptr);
     }
@@ -897,6 +949,7 @@ namespace EC_Str {
         CurrentElement = FirstElement;
     }
 
+    // Requires nonnil CurrentElement.
     void TStringsEC::Next() {
         CurrentElement = CurrentElement->Next;
     }
@@ -905,6 +958,7 @@ namespace EC_Str {
         return FirstElement == nullptr;
     }
 
+    // Splits CR, LF and CRLF lines; does not append an empty line after a trailing separator.
     void TStringsEC::SetText(const pas::WideString& Text) {
         char16_t* Start{};
         Clear();
@@ -926,6 +980,7 @@ namespace EC_Str {
         }
     }
 
+    // Joins elements with CRLF, without a trailing separator.
     pas::WideString TStringsEC::GetText() {
         pas::WideString Result{};
         TStringsElEC* Item = FirstElement;

@@ -18,9 +18,8 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native Esodafer projectile, reusable particles and branching impact sparks.
 namespace GI_PSWeapon16Esodafer {
-    PEsodaferParticle AcquireEsodaferParticle(TPSWeapon16Esodafer* Self);
-
     pas::DynArray<GI_PSWeapon16Esodafer::TEsodaferPalette> EsodaferPalettes{};
 
     void LoadEsodaferPalettes() {
@@ -106,6 +105,7 @@ namespace GI_PSWeapon16Esodafer {
         A = static_cast<long double>(-HalfWidth - 12) * Sine + (-Distance - 1.0E+2L) * Cosine;
         B = static_cast<long double>(HalfWidth + 12) * Sine + (-Distance - 1.0E+2L) * Cosine;
         C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth + 12) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
@@ -175,6 +175,16 @@ namespace GI_PSWeapon16Esodafer {
         PEsodaferParticle Particle{};
         PEsodaferParticle Current{};
         PEsodaferParticle Spark{};
+        auto AcquireEsodaferParticle = [&]() -> PEsodaferParticle {
+            PEsodaferParticle Candidate = this->FirstParticle;
+            while (Candidate != nullptr && Candidate->State != 255) {
+                Candidate = Candidate->Next;
+            }
+            if (Candidate == nullptr) {
+                Candidate = AddParticle();
+            }
+            return Candidate;
+        };
         Invalidate();
         if (FirstParticle == nullptr && RemainingTicks >= 24) {
             Distance = System::Round(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)));
@@ -232,7 +242,7 @@ namespace GI_PSWeapon16Esodafer {
                 Current = Particle;
                 Particle = Particle->Next;
                 if (Current->State == 1) {
-                    Spark = GI_PSWeapon16Esodafer::AcquireEsodaferParticle(this);
+                    Spark = AcquireEsodaferParticle();
                     pas::store_unaligned<EC_Struct::TPointF>(&Spark->Position, Current->Position);
                     Spark->Color = Colors[pas::random(3, &System::RandSeed)];
                     Spark->Alpha = Current->Alpha;
@@ -250,7 +260,7 @@ namespace GI_PSWeapon16Esodafer {
                         Current->Velocity.X = 0.9L * Current->Velocity.X;
                         Current->Velocity.Y = 0.9L * Current->Velocity.Y;
                         for (auto cpp_range = pas::for_to<std::int32_t>(1, Current->State * 4 + 1); cpp_range.next(I); ) {
-                            Spark = GI_PSWeapon16Esodafer::AcquireEsodaferParticle(this);
+                            Spark = AcquireEsodaferParticle();
                             pas::store_unaligned<EC_Struct::TPointF>(&Spark->Position, Current->Position);
                             Spark->Color = Colors[pas::random(3, &System::RandSeed)];
                             Spark->Alpha = Current->Alpha;
@@ -305,17 +315,6 @@ namespace GI_PSWeapon16Esodafer {
             }
         }
         --RemainingTicks;
-    }
-
-    PEsodaferParticle AcquireEsodaferParticle(TPSWeapon16Esodafer* Self) {
-        PEsodaferParticle Candidate = Self->FirstParticle;
-        while (Candidate != nullptr && Candidate->State != 255) {
-            Candidate = Candidate->Next;
-        }
-        if (Candidate == nullptr) {
-            Candidate = Self->AddParticle();
-        }
-        return Candidate;
     }
 
     void TPSWeapon16Esodafer::Draw(Types::TRect ClipRect) {

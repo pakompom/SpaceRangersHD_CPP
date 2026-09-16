@@ -96,18 +96,19 @@ namespace aScriptFun {
 
     using TKillCounts = pas::Array<std::uint16_t, 0, 3>;
 
+    // Nested in SF_CT. Appends to Dest's existing array; empty child blocks contain one vkEmpty placeholder.
     void AddConfigBlock(EC_BlockPar::TBlockParEC* Block, EC_Expression::TVarEC* Dest);
 
+    // Nested in SF_GetMainData. Appends to Dest's existing array; empty child blocks contain one vkEmpty placeholder.
     void AddMainDataBlock(EC_BlockPar::TBlockParEC* Block, EC_Expression::TVarEC* Dest);
 
+    // Nested in SF_SFT; Value must resolve to an array.
     void LogArray(pas::WideString Prefix, EC_Expression::TVarEC* Value);
 
+    // Requires SF_BuildListOfNewShips' live frame. The custom-type filter is applied only when the faction filter is enabled.
     void CheckShip(aShip::TShip* Ship, pas::OpenArray<EC_Expression::TVarEC*>& av, std::uint32_t& MinimumId, aGalaxyStruct::TShipTypeMask& Mask, std::uint8_t& IncludeScripted, std::int32_t& FactionCount, pas::DynArray<pas::WideString>& Factions, std::int32_t& TypeCount, pas::DynArray<pas::WideString>& CustomTypes, pas::WideString& Text, EC_Expression::TVarEC*& Value);
 
-    void CheckItem(aItem::TItem* Item, pas::OpenArray<EC_Expression::TVarEC*>& av, std::uint32_t& MinimumId, aGalaxyStruct::TShipTypeMask& Mask, std::uint8_t& IncludeScripted, std::int32_t& FactionCount, pas::DynArray<pas::WideString>& Factions, std::int32_t& TypeCount, pas::DynArray<pas::WideString>& CustomTypes, pas::WideString& Text, EC_Expression::TVarEC*& Value);
-
-    void CalcValue(std::int32_t& Score, aPlanet::TPlanet*& Planet);
-
+    // av[0] holds the script result.
     void SF_GRun(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         Globals::ScriptTemplateStartRequested = true;
     }
@@ -311,6 +312,7 @@ namespace aScriptFun {
                 throw;
             }
         }
+        // Native exceptions bypass context restoration; only EBreakMessageGI frees CallCode.
         aScript::CurrentScript = SavedScript;
         pas::free(CallCode);
     }
@@ -378,6 +380,8 @@ namespace aScriptFun {
             Turn = av[2]->GetInt();
             Entry = pas::construct_call<aPlayer::TJournalRecord>(aPlayer::TJournalRecord_Create);
             Entry->Text = av[1]->GetString();
+            // The value-expression receiver preserves native receiver-before-value loads;
+            // no addition is emitted. See the DCC32 ABI observations.
             reinterpret_cast<aPlayer::TJournalRecord*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Entry)) + 0)))->DateTurn = Turn;
             if (pas::list_count(aPlayer::GetPlayer()->JournalRecords) <= 0 || pas::list_at<aPlayer::TJournalRecord>(aPlayer::GetPlayer()->JournalRecords, pas::list_count(aPlayer::GetPlayer()->JournalRecords) - 1)->DateTurn <= Turn) {
                 pas::list_add(aPlayer::GetPlayer()->JournalRecords, reinterpret_cast<void*>(Entry));
@@ -427,7 +431,7 @@ namespace aScriptFun {
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         std::uint8_t Owner = av[2]->GetInt();
         std::uint8_t Kind = av[3]->GetInt();
-        std::int32_t Award = pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->SelectAward(Owner, pas::make_set<aNormalShip::TAwardTypeMask>({{static_cast<std::int32_t>(Kind)}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 13}}));
+        std::int32_t Award = pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->SelectAward(Owner, pas::make_set<aNormalShip::TAwardTypeMask>({{static_cast<std::int32_t>(Kind)}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
         if (Award == aGalaxyStruct::AwardNotFound) {
             GR_Main::RaiseWideMessage(u"Error RewardNumber=255"_wref.get());
         }
@@ -1426,6 +1430,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CountIn"_a));
         }
         std::int32_t GroupIndex = av[1]->GetInt();
+        // Native code reads argument 2 both as this flag and as the location below.
         std::uint8_t ExcludeHyperspace = av.length() - 1 > 1 && av[2]->GetInt() != 0;
         std::int32_t FoundCount = 0;
         if (av.length() - 1 == 1) {
@@ -2009,7 +2014,7 @@ namespace aScriptFun {
         if (fTalk::TalkDialogActive) {
             return;
         }
-        std::uint8_t Immediate = pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase);
+        std::uint8_t Immediate = pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase);
         aScript::ScriptSnap(Snapshot);
         if (av.length() - 1 == 1) {
             if (Immediate) {
@@ -2436,6 +2441,7 @@ namespace aScriptFun {
         if (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Obj)) < 0x00010000) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aScript::CurrentScript->Ships) - 1); cpp_range.next(I); ) {
                 Binding = pas::list_at<aScript::TScriptShip>(aScript::CurrentScript->Ships, I);
+                // Native group lookup excludes inventory slot zero.
                 if (Binding->GroupIndex == static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Obj)) && (pas::list_indexof(Binding->Ship->Inventory, reinterpret_cast<void*>(Item)) > 0 || pas::list_indexof(Binding->Ship->Artefacts, reinterpret_cast<void*>(Item)) > 0)) {
                     av[0]->SetInt(1);
                     return;
@@ -2865,7 +2871,7 @@ namespace aScriptFun {
         ScriptItem->Item = Item;
         Item->ScriptItem = ScriptItem;
         aScript::TScriptPlace* Place = reinterpret_cast<aScript::TScriptPlace*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[3]->GetDword())));
-        if (!pas::in_set<0, 1, 3, 3, 5, 6>(Place->PlaceKind)) {
+        if (!pas::is_one_of<aScript::spkPolar, aScript::spkPlanetPosition, aScript::spkStarDirection, aScript::spkGroupCentroid, aScript::spkCoordinates>(Place->PlaceKind)) {
             GR_Main::RaiseWideMessage(u"Error.Script UselessItemCreate place"_wref.get());
         }
         pas::list_add(Place->OriginStar->Items, reinterpret_cast<void*>(Item));
@@ -3301,7 +3307,7 @@ namespace aScriptFun {
         if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x0000ffff) {
             Item = reinterpret_cast<aItem::TArtefact*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         }
-        if (Item != nullptr && pas::in_set<8, 9>(Item->GetEffectiveType())) {
+        if (Item != nullptr && pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(Item->GetEffectiveType())) {
             Name = Item->ConfigBlockName;
         } else if (av[2]->RealVType() == EC_Expression::vkString) {
             Name = av[2]->GetString();
@@ -3310,7 +3316,7 @@ namespace aScriptFun {
             Count = 0;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->Artefacts) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TArtefact>(Ship->Artefacts, I);
-                if (pas::in_set<8, 9>(Item->ItemType) && Item->ConfigBlockName == Name && Item->BrokenFlag == 0 && Item->EquippedFlag != 0) {
+                if (pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(Item->ItemType) && Item->ConfigBlockName == Name && Item->BrokenFlag == 0 && Item->EquippedFlag != 0) {
                     ++Count;
                 }
             }
@@ -3476,7 +3482,7 @@ namespace aScriptFun {
                 for (I = 1; I <= cpp_last; ++I) {
                     Weapon = Ship->Weapons[I];
                     if (Ship->IsEquipmentUsable(Weapon)) {
-                        if (pas::in_set<6, 7>(Weapon->GetWeaponInfo()->ShotType)) {
+                        if (pas::is_one_of<aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapon->GetWeaponInfo()->ShotType)) {
                             {
                                 std::int32_t cpp_left_2 = Ship->GetWeaponMinDamage(Weapon);
                                 std::int32_t cpp_left = cpp_left_2 * Weapon->GetAttackCount();
@@ -4068,6 +4074,7 @@ namespace aScriptFun {
         }
     }
 
+    // Queues destruction without removing the ship immediately; returns the previous flag. An omitted second argument queues destruction, a negative one only queries.
     void SF_ShipDestroy(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -4677,7 +4684,7 @@ namespace aScriptFun {
         Hole->CreatedTurn = aGalaxy::Galaxy->CurrentTurn;
         Hole->HoleType = 1;
         aScript::TScriptPlace* Place = reinterpret_cast<aScript::TScriptPlace*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (!pas::in_set<0, 1, 3, 3, 5, 6>(Place->PlaceKind)) {
+        if (!pas::is_one_of<aScript::spkPolar, aScript::spkPlanetPosition, aScript::spkStarDirection, aScript::spkGroupCentroid, aScript::spkCoordinates>(Place->PlaceKind)) {
             GR_Main::RaiseWideMessage(u"Error.Script HoleCreate place 1"_wref.get());
         }
         Hole->Star1 = Place->OriginStar;
@@ -4686,7 +4693,7 @@ namespace aScriptFun {
         Hole->Position1.X = Hole->Position1.X + System::Sin(Angle) * Place->Radius;
         Hole->Position1.Y = Hole->Position1.Y - System::Cos(Angle) * Place->Radius;
         Place = reinterpret_cast<aScript::TScriptPlace*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (!pas::in_set<0, 1, 3, 3, 5, 6>(Place->PlaceKind)) {
+        if (!pas::is_one_of<aScript::spkPolar, aScript::spkPlanetPosition, aScript::spkStarDirection, aScript::spkGroupCentroid, aScript::spkCoordinates>(Place->PlaceKind)) {
             GR_Main::RaiseWideMessage(u"Error.Script HoleCreate place 2"_wref.get());
         }
         Hole->Star2 = Place->OriginStar;
@@ -5784,6 +5791,8 @@ namespace aScriptFun {
                         reinterpret_cast<aItem::TCountableItem*>(Item)->StackCount = std::max<std::int32_t>(1, pas::idiv(Value, reinterpret_cast<aItem::TCountableItem*>(Item)->GetUnitSize()));
                     }
                 } else if (IsGoods) {
+                    // Native Count-mode goods handling reads the countable-item offset, then
+                    // rescales Cost again below. Preserve both operations for byte matching.
                     if (av.length() - 1 > 2 && av[3]->RealVType() == EC_Expression::vkString && av[3]->GetString() == u"Count") {
                         Item->Cost = System::Round(pas::real_divide(Item->Cost * Value, std::max<std::int32_t>(1, reinterpret_cast<aItem::TCountableItem*>(Item)->StackCount)));
                     } else {
@@ -6913,6 +6922,7 @@ namespace aScriptFun {
         if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range.next(Index); ) {
                 Entry = pas::list_at<aPlayer::TStorageEntry>(aPlayer::GetPlayer()->StorageEntries, Index);
+                // Early guards retain DCC32's native operand weighting for the additions.
                 if (Entry->LocationOwner != Location) {
                     continue;
                 }
@@ -7820,6 +7830,7 @@ namespace aScriptFun {
         av[0]->SetInt(1);
     }
 
+    // No arguments returns queue length; otherwise queues name and optional success/failure captions, setting GQuestStatus to 1.
     void SF_StartTextQuest(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -7914,6 +7925,7 @@ namespace aScriptFun {
                 }
             }
         }
+        // Native falls through after matches; the error is unconditional.
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script MarkRobotsMapAsUsed map not found ", Name}))));
     }
 
@@ -8105,6 +8117,7 @@ namespace aScriptFun {
         }
     }
 
+    // Moving a star updates its drawn StarLinks, but not distance caches, sector boundaries or adjacency.
     void SF_CoordX(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -8190,6 +8203,7 @@ namespace aScriptFun {
         }
     }
 
+    // Moving a star updates its drawn StarLinks, but not distance caches, sector boundaries or adjacency.
     void SF_CoordY(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -9042,6 +9056,7 @@ namespace aScriptFun {
         }
     }
 
+    // Updates planet ownership flags, not the containing star's faction or its other planets.
     void SF_PlanetOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -9899,6 +9914,7 @@ namespace aScriptFun {
                 }
             } else if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
                 if (av.length() - 1 > 1 && av[2]->RealVType() == EC_Expression::vkString && av[2]->GetString() == u"Date") {
+                    // Native Date query reads the target pointer at +558, while its setter writes FlyDate at +55C.
                     av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(reinterpret_cast<aRuins::TRuins*>(Obj)->FlyToStar)));
                     if (av.length() - 1 > 2) {
                         reinterpret_cast<aRuins::TRuins*>(Obj)->FlyDate = av[3]->GetInt();
@@ -10250,6 +10266,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayClear - not array"_a));
         }
         Args[1]->GetArray()->Clear();
+        // Native arrays retain one empty placeholder after this operation.
         {
             EC_Expression::TVarEC* cpp_arg = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkEmpty);
             EC_Expression::TVarArrayEC* array = Args[1]->GetArray();
@@ -10344,6 +10361,8 @@ namespace aScriptFun {
                 }
             }
         }
+        // Native operation: one backward adjacent-swap pass. MinIndex is unchecked;
+        // each comparison also reads ElementIndex - 1.
         for (auto cpp_range_2 = pas::for_downto<std::int32_t>(ElementCount - 1, MinIndex); cpp_range_2.next(ElementIndex); ) {
             std::int32_t cpp_left = EC_Expression::TVarArrayEC_GetItem(Args[2]->GetArray(), ElementIndex)->GetInt();
             if (cpp_left < EC_Expression::TVarArrayEC_GetItem(Args[2]->GetArray(), ElementIndex - 1)->GetInt()) {
@@ -10485,6 +10504,7 @@ namespace aScriptFun {
         std::int32_t ElementCount = Args[1]->GetArray()->Count;
         std::int32_t TargetValue = Args[2]->GetInt();
         std::int32_t LowIndex = 0;
+        // The native search reads both endpoints without an empty-array check.
         std::int32_t LowValue = EC_Expression::TVarArrayEC_GetItem(Args[1]->GetArray(), 0)->GetInt();
         std::int32_t HighIndex = ElementCount - 1;
         std::int32_t HighValue = EC_Expression::TVarArrayEC_GetItem(Args[1]->GetArray(), ElementCount - 1)->GetInt();
@@ -10597,9 +10617,9 @@ namespace aScriptFun {
             av[0]->SetInt(1);
             return;
         }
-        Standings = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0}, {9}});
+        Standings = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::ssDominator}, {aGalaxyStruct::ssCustom}});
         if (IncludePirates) {
-            Standings = Standings + pas::constant_set<aGalaxyStruct::TShipTypeMask>({{7}, {8}});
+            Standings = Standings + pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::ssPirateActive}, {aGalaxyStruct::ssPirateMilitary}});
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(J); ) {
             Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
@@ -10610,6 +10630,7 @@ namespace aScriptFun {
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_2.next(I); ) {
             Other = Star->StarDistances[I].Star;
+            // Native code tests the original star's custom/pirate fields here.
             if (Other->Status.ControlFaction == aGalaxyStruct::sfDominators || Star->Status.CustomFaction != u"" || IncludePirates && Star->Status.ControlFaction == aGalaxyStruct::sfPirates) {
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Other->Ships) - 1); cpp_range_3.next(J); ) {
                     Ship = pas::list_at<aShip::TShip>(Other->Ships, J);
@@ -11378,7 +11399,9 @@ namespace aScriptFun {
     void SF_BuildListOfNewShips(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
+        std::uint32_t MinimumId{};
         aGalaxyStruct::TShipTypeMask Mask{};
+        std::uint8_t IncludeScripted{};
         std::int32_t FactionCount{};
         pas::DynArray<pas::WideString> Factions{};
         std::int32_t TypeCount{};
@@ -11393,6 +11416,14 @@ namespace aScriptFun {
         aPlanet::TPlanet* Planet{};
         aShip::TShip* Ship{};
         aGalaxyStruct::TOwnerMask OwnerMask{};
+        // Requires SF_BuildListOfNewShips' live frame. Ignores nil and non-Tranclucator artefacts.
+        auto CheckItem = [&](aItem::TItem* Item) -> void {
+            if (Item != nullptr) {
+                if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
+                    aScriptFun::CheckShip(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(reinterpret_cast<aItem::TArtefactTranclucator*>(Item)->Ship)), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
+                }
+            }
+        };
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfNewShips"_a));
         }
@@ -11407,18 +11438,19 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfNewShips - not array"_a));
         }
         av[1]->GetArray()->Clear();
-        std::uint32_t MinimumId = av[2]->GetDword();
+        MinimumId = av[2]->GetDword();
         if (av.length() - 1 > 2 && av[3]->GetDword() != 0) {
             pas::store_unaligned<std::uint16_t>(&Mask, static_cast<std::uint16_t>(av[3]->GetDword()));
         } else {
-            Mask = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{0, 4}, {6, 13}});
+            Mask = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, aGalaxyStruct::stWarrior}, {6, 13}});
         }
+        // Parsed by the native routine but never consulted.
         if (av.length() - 1 > 3 && av[4]->GetDword() != 0) {
             pas::store_unaligned<std::uint8_t>(&OwnerMask, static_cast<std::uint8_t>(av[4]->GetDword()));
         } else {
             OwnerMask = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 7}});
         }
-        std::uint8_t IncludeScripted = false;
+        IncludeScripted = false;
         if (av.length() - 1 > 4 && av[5]->GetInt() != 0) {
             IncludeScripted = true;
         }
@@ -11481,7 +11513,7 @@ namespace aScriptFun {
                     Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
                     if (Ship->TypeId != aGalaxyStruct::stWarrior) {
                         for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, pas::list_count(Ship->Artefacts) - 1); cpp_range_9.next(K); ) {
-                            aScriptFun::CheckItem(pas::list_at<aItem::TItem>(Ship->Artefacts, K), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
+                            CheckItem(pas::list_at<aItem::TItem>(Ship->Artefacts, K));
                         }
                     }
                 }
@@ -11490,19 +11522,19 @@ namespace aScriptFun {
                     for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, pas::list_count(Planet->Warriors) - 1); cpp_range_11.next(K); ) {
                         Ship = pas::list_at<aShip::TShip>(Planet->Warriors, K);
                         for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, pas::list_count(Ship->Artefacts) - 1); cpp_range_12.next(L); ) {
-                            aScriptFun::CheckItem(pas::list_at<aItem::TItem>(Ship->Artefacts, L), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
+                            CheckItem(pas::list_at<aItem::TItem>(Ship->Artefacts, L));
                         }
                     }
                 }
                 for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Items) - 1); cpp_range_13.next(J); ) {
-                    aScriptFun::CheckItem(pas::list_at<aItem::TItem>(Star->Items, J), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
+                    CheckItem(pas::list_at<aItem::TItem>(Star->Items, J));
                 }
                 for (auto cpp_range_14 = pas::for_to<std::int32_t>(0, pas::list_count(Star->MovingDropItems) - 1); cpp_range_14.next(J); ) {
-                    aScriptFun::CheckItem(pas::checked_cast<aItem::TItem*>(pas::list_at<aGalaxy::TMovingDropItemEntry>(Star->MovingDropItems, J)->Payload), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
+                    CheckItem(pas::checked_cast<aItem::TItem*>(pas::list_at<aGalaxy::TMovingDropItemEntry>(Star->MovingDropItems, J)->Payload));
                 }
             }
             for (auto cpp_range_15 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range_15.next(I); ) {
-                aScriptFun::CheckItem(pas::list_at<aPlayer::TStorageEntry>(aPlayer::GetPlayer()->StorageEntries, I)->Item, av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
+                CheckItem(pas::list_at<aPlayer::TStorageEntry>(aPlayer::GetPlayer()->StorageEntries, I)->Item);
             }
         }
         std::int32_t Count = av[1]->GetArray()->Count;
@@ -11859,6 +11891,7 @@ namespace aScriptFun {
                     }
                 }
             }
+            // The native routine leaves the allocated score cells unreleased.
             pas::free(Scores);
         }
         av[0]->SetInt(Count);
@@ -11920,6 +11953,7 @@ namespace aScriptFun {
         reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
     }
 
+    // Returns the previous ending; accepts only 1..5 when setting. Does not remove clan objects. Calling at turn zero leaves the ending timestamp zero.
     void SF_PirateWin(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
@@ -12402,7 +12436,7 @@ namespace aScriptFun {
         av = pas::open_array(cpp_array_copy);
         std::uint8_t Kind{};
         if (av.length() - 1 < 1) {
-            if (!aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{0}, {1}, {2}}))) {
+            if (!aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}}))) {
                 av[0]->SetInt(1);
             } else {
                 av[0]->SetInt(0);
@@ -12533,6 +12567,18 @@ namespace aScriptFun {
         std::int32_t I{};
         std::int32_t J{};
         aGalaxy::TStar* Star{};
+        // Nested in SF_FindPlanetByAdvancement; reads its selected planet and writes its local score.
+        auto CalcValue = [&]() -> void {
+            std::uint8_t I{};
+            Score = 0;
+            for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(19); ++I) {
+                Score += Planet->InventionLevels[I];
+            }
+            for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(7); ++I) {
+                Score += 2 * Planet->InventionLevels[I];
+            }
+            Score = Score + 8 * Planet->InventionLevels[7] + 4 * Planet->InventionLevels[0] + 2 * Planet->InventionLevels[5];
+        };
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FindPlanetByAdvancement"_a));
         }
@@ -12549,7 +12595,7 @@ namespace aScriptFun {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_2.next(J); ) {
                     Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
                     if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
-                        aScriptFun::CalcValue(Score, Planet);
+                        CalcValue();
                         MaxScore = std::max<std::int32_t>(Score, MaxScore);
                         MinScore = std::min<std::int32_t>(Score, MinScore);
                     }
@@ -12565,7 +12611,7 @@ namespace aScriptFun {
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_4.next(J); ) {
                     Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
                     if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
-                        aScriptFun::CalcValue(Score, Planet);
+                        CalcValue();
                         if (BestPlanet == nullptr || pas::abs(Score - TargetScore) < BestDistance) {
                             BestPlanet = Planet;
                             BestDistance = pas::abs(Score - TargetScore);
@@ -12679,6 +12725,7 @@ namespace aScriptFun {
                     }
                 }
             }
+            // The native routine leaves the allocated score cells unreleased.
             pas::free(Scores);
         }
         av[0]->SetInt(Count);
@@ -12934,6 +12981,7 @@ namespace aScriptFun {
         std::int32_t NewCount{};
         aPlayer::PStorageEntry Entry{};
         aItem::TProtoplasm* Nodes{};
+        // The + 0 expressions retain native DCC32 load/store ordering; no arithmetic is emitted.
         pas::Object* Location = nullptr;
         if (av.length() - 1 >= 1) {
             Location = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
@@ -12952,6 +13000,7 @@ namespace aScriptFun {
             Entry = pas::list_at<aPlayer::TStorageEntry>(aPlayer::GetPlayer()->StorageEntries, Index);
             if ((Entry->LocationOwner == Location || Location == nullptr) && static_cast<std::uint8_t>(Entry->Item->ItemType) == static_cast<std::uint8_t>(aConst::t_Protoplasm)) {
                 Nodes = reinterpret_cast<aItem::TProtoplasm*>(Entry->Item);
+                // Native does not advance Index when the series differs.
                 if (Series < 0 || Nodes->DominatorSeries == Series) {
                     av[0]->SetInt(av[0]->GetInt() + Nodes->Weight);
                     if (Remaining <= 0) {
@@ -13567,7 +13616,7 @@ namespace aScriptFun {
             if (av.length() - 1 > 3) {
                 pas::store_unaligned<std::uint32_t>(&Flags, av[4]->GetDword());
             } else {
-                Flags = pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{0}});
+                Flags = pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkEnergy}});
             }
             if (av.length() - 1 > 4) {
                 Range = av[5]->GetInt();
@@ -14291,6 +14340,7 @@ namespace aScriptFun {
         std::int32_t Index{};
         aShip::PCustomShipInfo Info{};
         EC_BlockPar::TBlockParEC* Block{};
+        // Native validation accepts one argument even though lookup below reads av[2].
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipCustomShipInfoDescription"_a));
         }
@@ -14860,6 +14910,7 @@ namespace aScriptFun {
         }
         if (Item != nullptr) {
             if (pas::in_range(static_cast<std::uint8_t>(reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                // Native checks the base equipment class here, then accesses weapon fields.
                 {
                     std::int32_t cpp_left = reinterpret_cast<aItem::TWeapon*>(pas::checked_cast<aItem::TEquipment*>(Item))->AmmoCapacity;
                     Needed = cpp_left - reinterpret_cast<aItem::TWeapon*>(pas::checked_cast<aItem::TEquipment*>(Item))->Ammo;
@@ -15595,6 +15646,7 @@ namespace aScriptFun {
             }
         } else if (ShowFeedback) {
             GR_Main::SoundManager->PlaySound(u"Sound.NoMoney"_wref.get());
+            // The native failure message reads ScriptUseItem even when an explicit artefact was supplied.
             {
                 const pas::WideString& formatText1_2 = ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aConst::MinTransmitterPower - pas::checked_cast<aItem::TArtefactTransmitter*>(Globals::ScriptUseItem)->Power);
@@ -15806,6 +15858,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CountBox"_a));
         }
+        // The native routine reads these strings here, then reads them again for the dialog call.
         Caption = av[1]->GetString();
         Description = av[2]->GetString();
         std::int32_t Minimum = av[3]->GetInt();
@@ -15906,6 +15959,7 @@ namespace aScriptFun {
         }
         if (Choices != nullptr) {
             while (pas::list_count(Choices) > 0) {
+                // Native frees the pointer cell without finalizing its WideString.
                 pas::dispose(pas::list_get(Choices, 0));
                 pas::list_delete(Choices, 0);
             }
@@ -15975,6 +16029,7 @@ namespace aScriptFun {
                 pas::list_add(Choices, static_cast<void*>(Entry));
             }
         }
+        // The original scalar form also treats these argument positions as choices.
         if (av.length() - 1 < 3) {
             OffsetX = 0;
         } else {
@@ -15991,6 +16046,7 @@ namespace aScriptFun {
             av[0]->SetInt(-1);
         }
         while (pas::list_count(Choices) > 0) {
+            // Native frees the pointer cell without finalizing its WideString.
             pas::dispose(pas::list_get(Choices, 0));
             pas::list_delete(Choices, 0);
         }
@@ -16626,7 +16682,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FormShipCurItem"_a));
         }
         if (av.length() - 1 < 1) {
-            if (!pas::in_set<2, 3>(Globals::ShipScreen->SelectedHoldKind)) {
+            if (!pas::is_one_of<fShip2::phkEquipment, fShip2::phkArtefact>(Globals::ShipScreen->SelectedHoldKind)) {
                 av[0]->SetDword(0u);
             } else {
                 av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Globals::ShipScreen->SelectedHoldItem)));
@@ -16690,7 +16746,7 @@ namespace aScriptFun {
                 if (av.length() - 1 < 2 || av[2]->GetDword() == 0) {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script FormShipCurItem no replacing item"_a));
                 }
-                if (Globals::ShipScreen->SelectedHoldItem == nullptr || static_cast<std::uint8_t>(pas::in_set<2, 3>(Globals::ShipScreen->SelectedHoldKind) ^ 1)) {
+                if (Globals::ShipScreen->SelectedHoldItem == nullptr || static_cast<std::uint8_t>(pas::is_one_of<fShip2::phkEquipment, fShip2::phkArtefact>(Globals::ShipScreen->SelectedHoldKind) ^ 1)) {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script FormShipCurItem no item to replace"_a));
                 }
                 Item = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
@@ -16707,6 +16763,7 @@ namespace aScriptFun {
                 break;
             }
             default: {
+                // Native creates this exception without raising or freeing it.
                 pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script FormShipCurItem - query not recognized: ", EC_Str::IntToWideString(Query)})));
                 break;
             }
@@ -16803,6 +16860,7 @@ namespace aScriptFun {
                 Parent->CaptureCursorState(&State);
                 Parent->SetCursorActive(false);
                 Parent->DrawQueuedUpdateRects();
+                // The identity expression preserves native RHS-first register allocation.
                 Child->ParentLoop = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Parent)) * 1)));
                 Parent->ChildLoop = Child;
                 if (Child == Globals::GalaxyScreen && av.length() - 1 >= 2) {
@@ -17438,7 +17496,7 @@ namespace aScriptFun {
             }
         } else {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, std::min<std::int32_t>(8, av.length() - 1 - 4)); cpp_range_2.next(I); ) {
-                if (static_cast<std::uint8_t>(pas::in_set<1, 2>(av[4 + I]->RealVType()) ^ 1) || av[4 + I]->GetInt() != 0) {
+                if (static_cast<std::uint8_t>(pas::is_one_of<EC_Expression::vkInt, EC_Expression::vkDword>(av[4 + I]->RealVType()) ^ 1) || av[4 + I]->GetInt() != 0) {
                     pas::store_unaligned<float>(pas::byte_offset(&Info->DamageScaleByLevel, (I - 1) * sizeof(float)), static_cast<float>(av[4 + I]->GetFloat()));
                 }
             }
@@ -17474,7 +17532,7 @@ namespace aScriptFun {
                 Info->ShotType = aGalaxyStruct::wstChain;
             }
         }
-        if (pas::in_set<1, 1, 6, 7>(Info->ShotType)) {
+        if (pas::is_one_of<aGalaxyStruct::wstChain, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Info->ShotType)) {
             Info->ShotCount = EC_Str::ExtractDigitsToIntW(Text);
         }
         if (av.length() - 1 > 2) {
@@ -18567,6 +18625,7 @@ namespace aScriptFun {
             if (!Found) {
                 return;
             }
+            // The native custom-type filter is nested inside the enabled faction filter.
             if (TypeCount >= 0) {
                 Text = Ship->TypeNameOverrideKey;
                 if (TypeCount == 0 && Text != u"") {
@@ -18587,26 +18646,6 @@ namespace aScriptFun {
         Value = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkInt);
         Value->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Ship)));
         av[1]->GetArray()->AddItem(Value);
-    }
-
-    void CheckItem(aItem::TItem* Item, pas::OpenArray<EC_Expression::TVarEC*>& av, std::uint32_t& MinimumId, aGalaxyStruct::TShipTypeMask& Mask, std::uint8_t& IncludeScripted, std::int32_t& FactionCount, pas::DynArray<pas::WideString>& Factions, std::int32_t& TypeCount, pas::DynArray<pas::WideString>& CustomTypes, pas::WideString& Text, EC_Expression::TVarEC*& Value) {
-        if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                aScriptFun::CheckShip(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(reinterpret_cast<aItem::TArtefactTranclucator*>(Item)->Ship)), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
-            }
-        }
-    }
-
-    void CalcValue(std::int32_t& Score, aPlanet::TPlanet*& Planet) {
-        std::uint8_t I{};
-        Score = 0;
-        for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(19); ++I) {
-            Score += Planet->InventionLevels[I];
-        }
-        for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(7); ++I) {
-            Score += 2 * Planet->InventionLevels[I];
-        }
-        Score = Score + 8 * Planet->InventionLevels[7] + 4 * Planet->InventionLevels[0] + 2 * Planet->InventionLevels[5];
     }
 
 } // namespace aScriptFun

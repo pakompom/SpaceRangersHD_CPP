@@ -87,6 +87,7 @@ namespace GI_CountBar {
         }
     }
 
+    // Clamps without invoking PositionChangedCallback.
     void TCountBarGI::SetPositionInternal(std::int32_t Value) {
         if (Position != Value) {
             Position = Value;
@@ -103,6 +104,7 @@ namespace GI_CountBar {
         }
     }
 
+    // Notifies only while Active and when the requested value differs from the previous position.
     void TCountBarGI::SetPosition_2(std::int32_t Value) {
         if (Position != Value) {
             Position = Value;

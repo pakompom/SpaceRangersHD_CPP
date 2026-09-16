@@ -21,6 +21,7 @@ namespace TextQuest {
 
     using Reset_TFlagBits = pas::Set<0, 7>;
 
+    // Returns zero counts for start, success, failure, or already grouped locations. Callee pops 8 bytes; caller pops ParentFrame.
     void CountLegacySequenceConnections(LocationClass::TLocation* Location, std::int32_t& IncomingCount, std::int32_t& OutgoingCount, PathClass::TPath*& IncomingPath, PathClass::TPath*& OutgoingPath, TTextQuest* Self);
 
     void PrependLegacySequencePaths(PathClass::TPath* Path, TTextQuest* Self, SequenceClass::TSequence*& Sequence);
@@ -111,6 +112,7 @@ namespace TextQuest {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Retains PlayerInterface and the owned text/event containers.
     void TTextQuest::Reset() {
         std::int32_t i{};
         FormatVersion = 1111111127;
@@ -178,10 +180,12 @@ namespace TextQuest {
         return pas::list_count(Paths);
     }
 
+    // Index is one-based.
     LocationClass::TLocation* TTextQuest::GetLocation(std::int32_t Index) {
         return pas::list_at<LocationClass::TLocation>(Locations, Index - 1);
     }
 
+    // Index is one-based.
     PathClass::TPath* TTextQuest::GetPath(std::int32_t Index) {
         return pas::list_at<PathClass::TPath>(Paths, Index - 1);
     }
@@ -190,10 +194,12 @@ namespace TextQuest {
         return pas::list_count(Parameters);
     }
 
+    // Index is one-based; the list includes an extra trailing parameter.
     ParameterClass::TParameter* TTextQuest::GetParameter(std::int32_t Index) {
         return pas::list_at<ParameterClass::TParameter>(Parameters, Index - 1);
     }
 
+    // HeaderOnly still loads parameters and quest text.
     void TTextQuest::LoadFromReader(EC_Buf::TBufEC* Reader, std::uint8_t HeaderOnly) {
         std::int32_t ParameterCount{};
         TextFieldClass::TTextField* TemporaryText{};
@@ -576,6 +582,7 @@ namespace TextQuest {
         }
     }
 
+    // Returns the last matching one-based index; displays a message and returns zero when absent.
     std::int32_t TTextQuest::FindLocationIndex(std::int32_t LocationId) {
         std::int32_t i{};
         std::int32_t Result = 0;
@@ -590,6 +597,7 @@ namespace TextQuest {
         return Result;
     }
 
+    // Returns the last matching one-based index; displays a message and returns zero when absent.
     std::int32_t TTextQuest::FindPathIndex(std::int32_t PathId) {
         std::int32_t i{};
         std::int32_t Result = 0;
@@ -604,6 +612,7 @@ namespace TextQuest {
         return Result;
     }
 
+    // Used before quest version 1111111126.
     void TTextQuest::BuildLegacySequences() {
         SequenceClass::TSequence* Sequence{};
         std::int32_t i{};
@@ -707,6 +716,7 @@ namespace TextQuest {
         }
     }
 
+    // Skips success and death locations; ordinary failure locations still participate.
     void TTextQuest::InferLegacyVisitLimits() {
         std::int32_t i{};
         std::int32_t j{};
@@ -748,6 +758,7 @@ namespace TextQuest {
         }
     }
 
+    // Supports {formula}, [pN], [dN], and [dN:formula], including parameter-name aliases. Recursive display expansion has no cycle guard.
     pas::WideString TTextQuest::ExpandText(pas::WideString Text, std::uint8_t Colorize) {
         std::int32_t i{};
         std::int32_t Position{};
@@ -880,6 +891,7 @@ namespace TextQuest {
         return Text;
     }
 
+    // Outcome precedence: death, failure, success.
     std::uint8_t TTextQuest::CheckCriticalParameters() {
         std::int32_t i{};
         std::int32_t Selected{};
@@ -928,6 +940,7 @@ namespace TextQuest {
         return Result;
     }
 
+    // External names begin with ext_; negative Money uses the initial range. Requires PlayerInterface.
     void TTextQuest::Start(std::int32_t Money, std::uint8_t PreserveExternalParameters) {
         std::int32_t i{};
         std::int32_t StartId{};
@@ -998,6 +1011,7 @@ namespace TextQuest {
             }
             if (TextShown && static_cast<std::uint8_t>(Location->IsEmpty ^ 1)) {
                 TextShown = false;
+                // The folded +0 makes DCC32 evaluate the receiver before simple arguments.
                 static_cast<TextQuestInterface::TTextQuestInterface*>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(PlayerInterface) + 0))->AddLocationContinueAction(LocationId);
             } else {
                 Location->ApplyParameterChanges(Parameters);

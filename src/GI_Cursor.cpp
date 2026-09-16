@@ -16,6 +16,7 @@
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
 
+// Native dynamic-array RTTI names GI_Cursor, and.
 namespace GI_Cursor {
     void TCursorGI_Create(TCursorGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
@@ -47,6 +48,7 @@ namespace GI_Cursor {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Clears cursor resources and the image child, retaining the child object.
     void TCursorGI::Clear() {
         std::int32_t Index{};
         if (AnimationTimer != nullptr) {
@@ -131,6 +133,7 @@ namespace GI_Cursor {
         GI_MessageLoop::TObjectGI::Draw(ClipRect);
     }
 
+    // Builds Windows cursor handles from GI/GAI resources and schedules animation when active.
     void TCursorGI::RebuildSystemCursor() {
         EC_CacheGAI::TCGaiControlEC* GaiControl{};
         EC_CacheGI::TCGiControlEC* GiControl{};
@@ -252,12 +255,14 @@ namespace GI_Cursor {
         }
     }
 
+    // This local import has its own native thunk and IAT entry, separate from Windows.
     WindowsSdk::HBITMAP PAS_STDCALL CreateDIBSection(WindowsSdk::HDC DC, pas::ConstRef<WindowsSdk::TBitmapInfo> BitmapInfo, std::uint32_t Usage, void*& Bits, WindowsImports::THandle Section, std::uint32_t Offset) {
         using CppImport = WindowsSdk::HBITMAP (PAS_STDCALL *)(WindowsSdk::HDC, const WindowsSdk::TBitmapInfo*, std::uint32_t, void**, WindowsImports::THandle, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("gdi32.dll", "CreateDIBSection");
         return cpp_import(DC, static_cast<const WindowsSdk::TBitmapInfo*>(BitmapInfo.address), Usage, &Bits, Section, Offset);
     }
 
+    // Copies a 32-bit image to a top-down Windows DIB; caller owns the bitmap.
     std::uint32_t TCursorGI::CreateCursorBitmap(GR_GraphBuf::TGraphBufGR* Buffer) {
         void* Bits{};
         std::uint32_t X{};
@@ -297,6 +302,7 @@ namespace GI_Cursor {
         return Bitmap;
     }
 
+    // Timer and UserData are unused; replaces AnimationTimer after advancing the sequence.
     void TCursorGI::AdvanceAnimation(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         ++FrameIndex;
         if (FrameIndices.length() - 1 < FrameIndex) {

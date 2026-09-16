@@ -17,6 +17,7 @@
 #include "units/ab_StopLine.hpp"
 #include "units/ab_Zone.hpp"
 
+// Native TabObject VMT and methods:.
 namespace ab_Object {
     ab_Object::TabObject* FirstArcadeObject = nullptr;
 

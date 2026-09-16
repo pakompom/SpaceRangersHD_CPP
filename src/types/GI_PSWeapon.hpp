@@ -12,7 +12,9 @@ namespace GI_PSWeapon {
     struct TPSWeaponGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TPSWeaponGI, GI_MessageLoop::TObjectGI, "TPSWeaponGI", 304)
         std::uint8_t IsFinished();
+        // Returns LifetimeTicks minus RemainingTicks without clamping.
         virtual std::int32_t GetElapsedTicks();
+        // Cyclic interpolation of normalized RGB triples in the current pixel format. Requires at least one triple and nonnegative Phase; trailing incomplete triples are ignored.
         static std::uint32_t SampleGradientColor(pas::OpenArray<float> ColorValues, float Phase);
         virtual void SetTargetPoint(Types::TPoint Point) = 0;
         virtual void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) = 0;

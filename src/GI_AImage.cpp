@@ -21,6 +21,7 @@ namespace GI_AImage {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Does not call inherited Clear.
     void TAImageGI::Clear() {
         HalfAlpha = false;
         if (FrameTimer != nullptr) {
@@ -30,6 +31,7 @@ namespace GI_AImage {
         CurrentFrame = nullptr;
     }
 
+    // Returns the componentwise maximum size over child frames.
     Types::TPoint TAImageGI::GetContentSize() {
         Types::TPoint Result{};
         Types::TPoint Size{};
@@ -104,6 +106,7 @@ namespace GI_AImage {
         CurrentFrame = Next;
     }
 
+    // Uses rectangular child bounds, regardless of transparent pixels.
     std::uint8_t TAImageGI::HitTest(Types::TPoint Point) {
         if (CurrentFrame == nullptr) {
             return false;
@@ -126,6 +129,7 @@ namespace GI_AImage {
         LoadAnimationProperties(Block);
     }
 
+    // Numeric parameter names supply frame delays; values select child images.
     void TAImageGI::LoadAnimationProperties(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t Index{};
         GI_Image::TImageGI* Frame{};

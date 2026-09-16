@@ -32,8 +32,10 @@ namespace EC_CacheTBitmap {
     struct TCTBitmapEC : EC_Cache::TCacheDataEC {
         PAS_CLASS_META(TCTBitmapEC, EC_Cache::TCacheDataEC, "TCTBitmapEC", 44)
         void p_destroy() override;
+        // Applies LoadOption image operations before building the transparent buffer.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
         void* TransBuffer;
+        // Native controls copy these dimensions as one point.
         Types::TPoint PixelSize;
     };
     #if INTPTR_MAX == INT32_MAX

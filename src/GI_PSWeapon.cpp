@@ -16,10 +16,12 @@ namespace GI_PSWeapon {
         return RemainingTicks <= 0;
     }
 
+    // Returns LifetimeTicks minus RemainingTicks without clamping.
     std::int32_t TPSWeaponGI::GetElapsedTicks() {
         return LifetimeTicks - RemainingTicks;
     }
 
+    // Cyclic interpolation of normalized RGB triples in the current pixel format. Requires at least one triple and nonnegative Phase; trailing incomplete triples are ignored.
     std::uint32_t TPSWeaponGI::SampleGradientColor(pas::OpenArray<float> ColorValues, float Phase) {
         std::int32_t Count = ColorValues.length() / 3;
         std::int32_t Index = System::Trunc(Phase);

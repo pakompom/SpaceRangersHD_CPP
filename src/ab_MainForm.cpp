@@ -83,12 +83,10 @@
 #include "units/fTalk.hpp"
 
 namespace ab_MainForm {
-    void SaveWeaponInventory(TfAB* Self, pas::Array<aItem::TWeapon*, 0, 4>& SavedWeapons, pas::Array<std::int32_t, 0, 4>& SavedAmmo);
-
-    std::int32_t FindSavedWeaponAmmo(aItem::TWeapon* Weapon, pas::Array<aItem::TWeapon*, 0, 4>& SavedWeapons, pas::Array<std::int32_t, 0, 4>& SavedAmmo);
-
+    // Borrowed ActiveArcadeRequest.Ships.
     aMyFunction::TObjectList* ActiveArcadeRequestShips = nullptr;
 
+    // Borrowed head of QueuedArcadeBattles.
     aScript::PScriptABRequest ActiveArcadeRequest = nullptr;
 
     void TfAB_Create(TfAB* Self) {
@@ -2375,6 +2373,9 @@ namespace ab_MainForm {
         std::int32_t FrameCount{};
         PArcadeMapColorHeader ColorData{};
         PArcadeMapColorSequence Frames{};
+        // Variable-sized native color blocks: current color, variant count, selected
+        // variant, byte size; then (sequence offset, appearance tag) pairs. Each
+        // sequence stores its current frame, frame count and packed color frames.
         std::int32_t Remaining = ab_Global::ArcadeMapColorBuffer->DataSize;
         ColorData = static_cast<PArcadeMapColorHeader>(ab_Global::ArcadeMapColorBuffer->Data);
         while (Remaining > 0) {
@@ -2991,7 +2992,7 @@ namespace ab_MainForm {
             RequestClose(1);
         } else if (GlobalsV::RequestedScreenId != GlobalsV::screenStarMap) {
             CampaignTransitionStarted = true;
-        } else if (static_cast<std::uint8_t>(aCalc::IsTurnCalculationRunningUI() ^ 1) && static_cast<std::uint8_t>(pas::in_set<1, 1, 3, 3>(aCalc::TurnCalculationPhase) ^ 1)) {
+        } else if (static_cast<std::uint8_t>(aCalc::IsTurnCalculationRunningUI() ^ 1) && static_cast<std::uint8_t>(pas::is_one_of<ThreadCalc::tcpGalaxyRunning, ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase) ^ 1)) {
             if (aCalc::TurnCalculationPhase == ThreadCalc::tcpGalaxyFinished) {
                 aCalc::QueuePlayerStarTurnCalculation();
             } else if (aPlayer::GetPlayer()->Order != aShip::soJump && aPlayer::GetPlayer()->Order != aShip::soJumpHole || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == -65536) {
@@ -3741,7 +3742,7 @@ namespace ab_MainForm {
             aGalaxy::Galaxy->CheckIntegrityChecksum2(615);
             if (aPlayer::GetPlayer() != nullptr) {
                 aPlayer::GetPlayer()->GetHull()->HullPoints = ab_Ship::PlayerArcadeShip->Health;
-                if (!pas::in_set<3, 4>(aPlayer::GetPlayer()->Order)) {
+                if (!pas::is_one_of<aShip::soJump, aShip::soJumpHole>(aPlayer::GetPlayer()->Order)) {
                     aPlayer::GetPlayer()->InHyperspace = false;
                 }
             }
@@ -3997,6 +3998,7 @@ namespace ab_MainForm {
             return;
         }
         CargoPickupItem = Item;
+        // The native routine retains this branch after the earlier bonus rejection.
         if (Item->BonusKind >= 0) {
             if (!IsCursorImageSelected(u"Take"_wref.get())) {
                 SetCursorByName(u"Take"_wref.get());
@@ -4205,8 +4207,30 @@ namespace ab_MainForm {
         std::int32_t SlotIndex{};
         std::int32_t SlotCount{};
         aItem::TWeapon* Item{};
+        auto SaveWeaponInventory = [&]() -> void {
+            std::int32_t Index{};
+            for (Index = 0; Index <= 4; ++Index) {
+                SavedWeapons[Index] = this->CampaignWeapons[Index];
+                if (SavedWeapons[Index] != nullptr) {
+                    SavedAmmo[Index] = ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo;
+                } else {
+                    SavedAmmo[Index] = 0;
+                }
+            }
+        };
+        auto FindSavedWeaponAmmo = [&](aItem::TWeapon* Weapon) -> std::int32_t {
+            std::int32_t Index{};
+            std::int32_t Result = 0;
+            for (Index = 0; Index <= 4; ++Index) {
+                if (SavedWeapons[Index] == Weapon) {
+                    Result = SavedAmmo[Index];
+                    break;
+                }
+            }
+            return Result;
+        };
         if (ab_Ship::PlayerArcadeShip != nullptr) {
-            ab_MainForm::SaveWeaponInventory(this, SavedWeapons, SavedAmmo);
+            SaveWeaponInventory();
             ab_Ship::PlayerArcadeShip->WeaponCount = 0;
             SlotCount = aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, SlotCount - 1); cpp_range.next(SlotIndex); ) {
@@ -4217,7 +4241,7 @@ namespace ab_MainForm {
                         CampaignWeapons[ab_Ship::PlayerArcadeShip->WeaponCount] = Item;
                         {
                             ab_W::TabWeapon& cpp_with = ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount];
-                            cpp_with.Ammo = ab_MainForm::FindSavedWeaponAmmo(Item, SavedWeapons, SavedAmmo);
+                            cpp_with.Ammo = FindSavedWeaponAmmo(Item);
                             if (cpp_with.Ammo > cpp_with.MaxAmmo) {
                                 cpp_with.Ammo = 0;
                             }
@@ -4237,30 +4261,6 @@ namespace ab_MainForm {
             }
             TfAB::NormalizeWeaponSelection();
         }
-    }
-
-    void SaveWeaponInventory(TfAB* Self, pas::Array<aItem::TWeapon*, 0, 4>& SavedWeapons, pas::Array<std::int32_t, 0, 4>& SavedAmmo) {
-        std::int32_t Index{};
-        for (Index = 0; Index <= 4; ++Index) {
-            SavedWeapons[Index] = Self->CampaignWeapons[Index];
-            if (SavedWeapons[Index] != nullptr) {
-                SavedAmmo[Index] = ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo;
-            } else {
-                SavedAmmo[Index] = 0;
-            }
-        }
-    }
-
-    std::int32_t FindSavedWeaponAmmo(aItem::TWeapon* Weapon, pas::Array<aItem::TWeapon*, 0, 4>& SavedWeapons, pas::Array<std::int32_t, 0, 4>& SavedAmmo) {
-        std::int32_t Index{};
-        std::int32_t Result = 0;
-        for (Index = 0; Index <= 4; ++Index) {
-            if (SavedWeapons[Index] == Weapon) {
-                Result = SavedAmmo[Index];
-                break;
-            }
-        }
-        return Result;
     }
 
     void TfAB::PickUpItem(ab_Item::TabItem* Item) {
@@ -4421,6 +4421,7 @@ namespace ab_MainForm {
     }
 
     void TfAB::SelectMusic() {
+        // Native arcade playback follows the hyper-space music setting.
         if (GlobalsV::MusicInHyperEnabled) {
             GR_Main::MusicManager->PlayCategory(u"ArcadeBattle"_wref.get());
         } else {

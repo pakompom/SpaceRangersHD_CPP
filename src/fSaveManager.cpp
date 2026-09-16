@@ -45,8 +45,6 @@
 #include "units/fSaveManager.hpp"
 
 namespace fSaveManager {
-    void InsertScannedSaveSlotByTime(TfSaveManager* Self, PSMSlot& Slot);
-
     pas::WideString AutoSaveFileName = u"AutoSave.sav"_w;
 
     pas::Array<pas::WideString, 1, 3> QuickSaveFileNames = pas::Array<pas::WideString, 1, 3>{{u"QuickSave.sav"_w, u"QuickSave2.sav"_w, u"QuickSave3.sav"_w}};
@@ -92,6 +90,7 @@ namespace fSaveManager {
         GR_Main::AppendLogLineThreadSafe("ok"_a);
     }
 
+    // Waits for the save writer before scanning slots.
     void TfSaveManager::OnOpen() {
         pas::AnsiString Directory{};
         GI_MessageLoop::TMessageLoopGI::OnOpen();
@@ -795,6 +794,7 @@ namespace fSaveManager {
         return pas::concat_wide({GR_Main::GetGameUserDirectory(), u"save\\", AutoSaveFileName});
     }
 
+    // Checks only the last list entry; returns -1 when absent.
     std::int32_t TfSaveManager::FindAutoSaveSlot() {
         std::int32_t Result = -1;
         if (pas::list_count(Slots) > 0) {
@@ -809,6 +809,7 @@ namespace fSaveManager {
         return Result;
     }
 
+    // Requires the current player and star; station-control mode uses the player's saved docking location.
     pas::WideString TfSaveManager::BuildCurrentSaveDescription() {
         pas::WideString Result{};
         if (aPlayer::GetPlayer()->RuinsMode == 0) {
@@ -857,6 +858,7 @@ namespace fSaveManager {
         return EC_Str::ReplaceAllWideString(Result, u"<Player>"_wref.get(), aPlayer::GetPlayer()->Name);
     }
 
+    // Uses the current Slots list, without rescanning disk. SuffixIndex is zero when no numbered suffix is needed.
     pas::WideString TfSaveManager::BuildUniqueSavePath(const pas::WideString& FileName, std::int32_t& SuffixIndex) {
         std::int32_t I{};
         std::int32_t ExistingSuffix{};
@@ -931,6 +933,7 @@ namespace fSaveManager {
         return SysUtilsImports::FileExists(static_cast<pas::AnsiString>(TfSaveManager::GetQuickSavePath(SlotIndex)));
     }
 
+    // One-based quick-save index (1..3); unchecked.
     pas::WideString TfSaveManager::GetQuickSavePath(std::int32_t SlotIndex) {
         return pas::concat_wide({GR_Main::GetGameUserDirectory(), u"save\\", QuickSaveFileNames[SlotIndex]});
     }
@@ -956,6 +959,7 @@ namespace fSaveManager {
         GR_Main::SoundManager->PlaySound(u"Sound.ButtonLeave"_wref.get());
     }
 
+    // Owns TSMSlot records, newest first; optional new-save entry comes first and autosave last. Rejects malformed headers and versions outside 13..CurrentSaveVersion.
     void TfSaveManager::ScanSaveFiles() {
         PSMSlot Slot{};
         pas::AnsiString PreviousDirectory{};
@@ -965,6 +969,48 @@ namespace fSaveManager {
         pas::WideString AutoPath{};
         WindowsSdk::TWin32FindData FindData{};
         Windows::TFileTime LocalTime{};
+        // Nested helper of TfSaveManager.ScanSaveFiles; requires its parent stack frame.
+        auto InsertScannedSaveSlotByTime = [&]() -> void {
+            std::int32_t Middle{};
+            PSMSlot OtherSlot{};
+            Windows::TFileTime Time{};
+            if (pas::list_count(this->Slots) < 1) {
+                pas::list_add(this->Slots, static_cast<void*>(Slot));
+                return;
+            }
+            Time = Slot->LocalWriteTime;
+            std::int32_t Low = 0;
+            OtherSlot = pas::list_at<TSMSlot>(this->Slots, 0);
+            std::int32_t Comparison = WindowsSdk::CompareFileTime(pas::ConstRef<Windows::TFileTime>(&OtherSlot->LocalWriteTime), Time);
+            if (Comparison <= 0) {
+                pas::list_insert(this->Slots, 0, static_cast<void*>(Slot));
+                return;
+            }
+            std::int32_t High = pas::list_count(this->Slots) - 1;
+            OtherSlot = pas::list_at<TSMSlot>(this->Slots, High);
+            Comparison = WindowsSdk::CompareFileTime(pas::ConstRef<Windows::TFileTime>(&OtherSlot->LocalWriteTime), Time);
+            if (Comparison >= 0) {
+                pas::list_add(this->Slots, static_cast<void*>(Slot));
+                return;
+            }
+            while (true) {
+                if (High - Low < 2) {
+                    pas::list_insert(this->Slots, High, static_cast<void*>(Slot));
+                    return;
+                }
+                Middle = (Low + High) / 2;
+                OtherSlot = pas::list_at<TSMSlot>(this->Slots, Middle);
+                Comparison = WindowsSdk::CompareFileTime(pas::ConstRef<Windows::TFileTime>(&OtherSlot->LocalWriteTime), Time);
+                if (Comparison == 0) {
+                    pas::list_insert(this->Slots, Middle, static_cast<void*>(Slot));
+                    return;
+                } else if (Comparison < 0) {
+                    High = Middle;
+                } else {
+                    Low = Middle;
+                }
+            }
+        };
         FileObject = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
         AutoPath = TfSaveManager::GetAutoSavePath();
         PreviousDirectory = SysUtilsImports::GetCurrentDir();
@@ -1037,7 +1083,7 @@ namespace fSaveManager {
                                 if (Slot->FileName == AutoPath) {
                                     AutoSlot = Slot;
                                 } else {
-                                    fSaveManager::InsertScannedSaveSlotByTime(this, Slot);
+                                    InsertScannedSaveSlotByTime();
                                 }
                             } catch (...) {
                                 pas::dispose(Slot);
@@ -1062,48 +1108,7 @@ namespace fSaveManager {
         }
     }
 
-    void InsertScannedSaveSlotByTime(TfSaveManager* Self, PSMSlot& Slot) {
-        std::int32_t Middle{};
-        PSMSlot OtherSlot{};
-        Windows::TFileTime Time{};
-        if (pas::list_count(Self->Slots) < 1) {
-            pas::list_add(Self->Slots, static_cast<void*>(Slot));
-            return;
-        }
-        Time = Slot->LocalWriteTime;
-        std::int32_t Low = 0;
-        OtherSlot = pas::list_at<TSMSlot>(Self->Slots, 0);
-        std::int32_t Comparison = WindowsSdk::CompareFileTime(pas::ConstRef<Windows::TFileTime>(&OtherSlot->LocalWriteTime), Time);
-        if (Comparison <= 0) {
-            pas::list_insert(Self->Slots, 0, static_cast<void*>(Slot));
-            return;
-        }
-        std::int32_t High = pas::list_count(Self->Slots) - 1;
-        OtherSlot = pas::list_at<TSMSlot>(Self->Slots, High);
-        Comparison = WindowsSdk::CompareFileTime(pas::ConstRef<Windows::TFileTime>(&OtherSlot->LocalWriteTime), Time);
-        if (Comparison >= 0) {
-            pas::list_add(Self->Slots, static_cast<void*>(Slot));
-            return;
-        }
-        while (true) {
-            if (High - Low < 2) {
-                pas::list_insert(Self->Slots, High, static_cast<void*>(Slot));
-                return;
-            }
-            Middle = (Low + High) / 2;
-            OtherSlot = pas::list_at<TSMSlot>(Self->Slots, Middle);
-            Comparison = WindowsSdk::CompareFileTime(pas::ConstRef<Windows::TFileTime>(&OtherSlot->LocalWriteTime), Time);
-            if (Comparison == 0) {
-                pas::list_insert(Self->Slots, Middle, static_cast<void*>(Slot));
-                return;
-            } else if (Comparison < 0) {
-                High = Middle;
-            } else {
-                Low = Middle;
-            }
-        }
-    }
-
+    // True for an out-of-range index or empty FileName.
     std::uint8_t TfSaveManager::IsSlotEmpty(std::int32_t SlotIndex) {
         if (SlotIndex < 0 || pas::list_count(Slots) <= SlotIndex) {
             return true;
@@ -1111,6 +1116,7 @@ namespace fSaveManager {
         return pas::list_at<TSMSlot>(Slots, SlotIndex)->FileName == u"";
     }
 
+    // Returns -1 when no timestamp is greater than zero; ties retain the first match.
     std::int32_t TfSaveManager::FindNewestSlot() {
         std::int32_t I{};
         Windows::TFileTime Latest{};
@@ -1126,6 +1132,7 @@ namespace fSaveManager {
         return Result;
     }
 
+    // Reads the first two strings without checking the RSG magic.
     std::int32_t TfSaveManager::ReadSaveVersion(pas::WideString FileName) {
         EC_File::TFileEC* FileObject{};
         FileObject = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
@@ -1180,6 +1187,7 @@ namespace fSaveManager {
             if (ByteCount > 0) {
                 Buffer->SetPosition(0);
                 SecondImage->GraphBuf->LoadFromBuffer(Buffer);
+                // Native deliberately uses the first control's dimensions for both previews.
                 SecondImage->GraphBuf->RescaleRgb(FirstImage->ClientSize.X, FirstImage->ClientSize.Y);
                 SecondImage->GraphBuf->ConvertRgbTo565();
             }

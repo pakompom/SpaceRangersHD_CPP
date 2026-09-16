@@ -463,6 +463,7 @@ namespace fHangar {
         }
     }
 
+    // Orders player takeoff and runs campaign turn/transitions when accepted. Self is unused.
     std::uint8_t TfHangar::TryTakeOff() {
         std::uint8_t Result{};
         std::int32_t I{};
@@ -679,6 +680,7 @@ namespace fHangar {
         }
     }
 
+    // Insufficient funds buy a proportional partial repair.
     void TfHangar::RepairHullClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (LoadPanel->IsAnimatingShutters() || MainPanel->NavigationLocked || aScript::HasPendingScriptRequests()) {
             return;
@@ -720,6 +722,7 @@ namespace fHangar {
         GR_Main::PostMouseMoveMessage();
     }
 
+    // Requires enough money to fill the tank completely.
     void TfHangar::RefuelClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (LoadPanel->IsAnimatingShutters() || MainPanel->NavigationLocked || aScript::HasPendingScriptRequests()) {
             return;
@@ -780,6 +783,7 @@ namespace fHangar {
         cpp_with->StopAutoPlayback();
     }
 
+    // Refreshes hull, fuel and engine warnings and reports whether takeoff is allowed.
     std::uint8_t TfHangar::RefreshTakeOffStatus() {
         pas::WideString TotalText{};
         pas::WideString Text{};
@@ -1153,6 +1157,7 @@ namespace fHangar {
                 ShipSlots[SlotOrder[I]].AnimationState = 1;
                 ShipSlots[SlotOrder[I]].Opacity = 0;
                 LoadDockedShipImage(SlotOrder[I], Path, LargeHull, TfHangar::GetShipPortraitScale(Ship));
+                // Native indexes the opacity by I here, before mapping through SlotOrder.
                 SetDockedShipOpacity(SlotOrder[I], ShipSlots[I].Opacity);
             }
         }
@@ -1491,7 +1496,7 @@ namespace fHangar {
     }
 
     void TfHangar::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(LoadPanel->IsAnimatingShutters() ^ 1) && static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(LoadPanel->IsAnimatingShutters() ^ 1) && static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10000);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20000);

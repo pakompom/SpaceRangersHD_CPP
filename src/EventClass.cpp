@@ -36,6 +36,7 @@ namespace EventClass {
         Sound->Text = pas::WideString();
     }
 
+    // Trims the copied text.
     void TEvent::Assign(TEvent* Source) {
         Text->Text = EC_Str::TrimWideString(Source->Text->Text);
         Picture->Text = EC_Str::TrimWideString(Source->Picture->Text);

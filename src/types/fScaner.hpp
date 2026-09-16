@@ -108,6 +108,7 @@ namespace fScaner {
         void SelectMusic() override;
         GI_GraphBuf::TGraphBufGI* BackgroundBuffer;
         GI_GraphButton::TGraphButtonGI* ExitButton;
+        // Borrowed scan target, assigned from ScannerTarget by OnOpen.
         aShip::TShip* ShipToInspect;
         GI_Window::TWindowGI* ItemInfoWindow;
         GI_Image::TImageGI* ItemImage;
@@ -142,6 +143,7 @@ namespace fScaner {
         pas::Array<pas::Array<GI_GAI::TgaiGI*, 0, 4>, 0, 7> EquipmentAnimations;
         aItem::TItem* HoveredItem;
         std::int32_t HoveredRewardId;
+        // Suppresses the dedicated hull panel; OnOpen sets this for station types 6..13.
         std::uint8_t CompactHullInfo;
         std::uint8_t cpp_padding[3];
     };

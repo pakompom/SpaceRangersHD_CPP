@@ -94,6 +94,7 @@ namespace GI_ScrollBar {
         GI_Panel::TPanelGI_Destroy(Self);
     }
 
+    // Resets the range to 0..99 and clears callbacks; does not call inherited Clear.
     void TScrollBarGI::Clear() {
         Minimum = 0;
         Maximum = 99;
@@ -169,6 +170,7 @@ namespace GI_ScrollBar {
         AfterThumbBarImages[2]->SetSize(Size);
     }
 
+    // Returns 0 outside, 1/2 arrows, 3/4 page regions, or 5 thumb; only tests the scrolling axis.
     std::int32_t TScrollBarGI::GetHitRegion(Types::TPoint Point) {
         std::int32_t UpEnd{};
         std::int32_t ThumbStart{};
@@ -245,6 +247,7 @@ namespace GI_ScrollBar {
         }
     }
 
+    // Does not invoke PositionChangedCallback.
     void TScrollBarGI::SetPositionInternal(std::int32_t NewPosition) {
         std::int32_t OldPosition = Position;
         if (PositionLabel != nullptr) {
@@ -279,6 +282,7 @@ namespace GI_ScrollBar {
         }
     }
 
+    // Notifies only while Active and only when the clamped position changes.
     void TScrollBarGI::SetPosition_2(std::int32_t NewPosition) {
         std::int32_t OldPosition = Position;
         if (PositionLabel != nullptr) {
@@ -326,6 +330,7 @@ namespace GI_ScrollBar {
         }
     }
 
+    // A value equal to SmallChange is ignored even if LargeChange differs.
     void TScrollBarGI::SetLargeChange(std::int32_t Value) {
         if (SmallChange != Value) {
             LargeChange = Value;
@@ -336,6 +341,7 @@ namespace GI_ScrollBar {
         }
     }
 
+    // Caps at Maximum-Minimum+1; no lower bound check.
     void TScrollBarGI::SetPageSize(std::int32_t Value) {
         if (PageSize != Value) {
             PageSize = Value;
@@ -349,6 +355,7 @@ namespace GI_ScrollBar {
         }
     }
 
+    // Value 1 is horizontal; other values use vertical layout.
     void TScrollBarGI::SetOrientation(std::int32_t Value) {
         if (Orientation != Value) {
             Orientation = Value;
@@ -576,6 +583,7 @@ namespace GI_ScrollBar {
         }
     }
 
+    // Uses the up-arrow image for scrollbar thickness.
     void TScrollBarGI::UpdateSizeForOrientation() {
         if (Orientation == 1) {
             SetSize(ClassesImports::Point(ClientSize.X, UpImages[0]->ClientSize.Y));

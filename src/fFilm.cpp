@@ -42,6 +42,7 @@
 #include "units/fFilm.hpp"
 
 namespace fFilm {
+    // Loads FilmScreen.PreloadHistoryIndex into PreloadedFilm and supplies its separately stored Turn.
     void TfFilmLoader_Execute(TfFilmLoader* Self) {
         {
             fFilmFile::PFilmHistoryEntry entry = Globals::FilmHistory->GetEntry(Globals::FilmScreen->PreloadHistoryIndex);
@@ -191,6 +192,7 @@ namespace fFilm {
         return Result;
     }
 
+    // Disables automatic camera following.
     void TfFilm::SetViewOffset(WindowsSdk::TPoint Offset) {
         if (SpacePanel == nullptr) {
             SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
@@ -202,6 +204,7 @@ namespace fFilm {
         Globals::FilmCameraFollow = false;
     }
 
+    // Ignored while automatic camera following is disabled.
     void TfFilm::FollowViewOffset(WindowsSdk::TPoint Offset) {
         if (Globals::FilmCameraFollow) {
             if (SpacePanel == nullptr) {
@@ -374,6 +377,7 @@ namespace fFilm {
         SetViewOffset(EC_Struct::TruncatePointF(CameraTarget));
     }
 
+    // Waits for the loader, swaps film buffers, resets the command cursor, then preloads the following entry. Requires a valid index and nonempty command stream.
     void TfFilm::SelectHistoryEntry(std::int32_t Index, std::uint8_t InitialLoad) {
         if (Loader->IsRunning()) {
             Loader->WaitForIdle(WindowsSdk::INFINITE);
@@ -563,6 +567,7 @@ namespace fFilm {
         SetFrameInterval(System::Round(pas::real_divide(100 - SpeedSlider->Position, 1.0E+2L) * 95.0L + 5.0L), false);
     }
 
+    // Backward seeking reloads the recording and executes commands forward to the requested step.
     void TfFilm::FrameSliderChanged(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t Position = FrameSlider->Position;
         if (Playing) {
@@ -616,6 +621,7 @@ namespace fFilm {
         }
     }
 
+    // Trailing effects continue on a separate timer.
     void TfFilm::PausePlayback() {
         if (Playing) {
             if (PlaybackTimer != nullptr) {
@@ -634,6 +640,7 @@ namespace fFilm {
         }
     }
 
+    // Automatically advances to the following retained recording when this one ends.
     void TfFilm::AdvancePlayback(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         AdvanceOneStep();
         if (NextCommand == nullptr) {
@@ -649,6 +656,7 @@ namespace fFilm {
         }
     }
 
+    // Requires NextCommand <> nil.
     void TfFilm::AdvanceOneStep() {
         if (Globals::TrailingFilmEffects != nullptr) {
             Globals::TrailingFilmEffects->AdvanceEffects();

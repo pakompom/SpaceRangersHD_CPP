@@ -93,6 +93,7 @@ namespace GI_Planet {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves image caches, atmosphere storage and texture cache.
     void TPlanetGI::Clear() {
         if (SourceLightBuffer != nullptr) {
             GR_Main::Ex_OKGR_LightBuf_Destroy(SourceLightBuffer);
@@ -106,6 +107,7 @@ namespace GI_Planet {
         GI_MessageLoop::TObjectGI::Clear();
     }
 
+    // Image width must be a power of two from 16 through 2048; height must not exceed half the width. The light map must cover that height on both axes.
     void TPlanetGI::SetImage(const pas::WideString& MaskPath, const pas::WideString& ImagePath, const pas::WideString& LightMapPath) {
         EC_CachePalBitmap::TCPalBitmapEC* Image{};
         EC_CachePalBitmap::TCPalBitmapControlEC* LightControl{};
@@ -177,6 +179,7 @@ namespace GI_Planet {
         SetLightAngle(0);
     }
 
+    // Requires the same dimensions as the surface map.
     void TPlanetGI::SetCloud1Image(const pas::WideString& Path) {
         Cloud1ImageCache->SetCacheKey(Path);
         Cloud1PaletteCache->SetCacheKey(Path);
@@ -191,6 +194,7 @@ namespace GI_Planet {
         }
     }
 
+    // Requires the same dimensions as the surface map.
     void TPlanetGI::SetCloud2Image(const pas::WideString& Path) {
         Cloud2ImageCache->SetCacheKey(Path);
         Cloud2PaletteCache->SetCacheKey(Path);
@@ -205,6 +209,7 @@ namespace GI_Planet {
         }
     }
 
+    // Requires the same dimensions as the surface map.
     void TPlanetGI::SetCloud3Image(const pas::WideString& Path) {
         Cloud3ImageCache->SetCacheKey(Path);
         Cloud3PaletteCache->SetCacheKey(Path);
@@ -219,6 +224,7 @@ namespace GI_Planet {
         }
     }
 
+    // Uses a diameter of 2*Radius+1. Applies the surface-map dimension checks but omits the light-map size check.
     void TPlanetGI::SetImageWithRadius(const pas::WideString& MaskPath, const pas::WideString& ImagePath, const pas::WideString& LightMapPath, std::int32_t Radius) {
         EC_CachePalBitmap::TCPalBitmapEC* Image{};
         EC_CachePalBitmap::TCPalBitmapControlEC* LightControl{};
@@ -287,6 +293,7 @@ namespace GI_Planet {
         SetLightAngle(0);
     }
 
+    // Uses a diameter of 2*Radius. Reuses an existing surface image and light buffers; ImagePath is used only when the surface cache key is empty.
     void TPlanetGI::SetImageFromTemplate(const pas::WideString& TemplateKey, const pas::WideString& ImagePath, std::int32_t Radius) {
         EC_CachePalBitmap::TCPalBitmapControlEC* LightControl{};
         EC_CachePalBitmap::TCPalBitmapEC* LightImage{};
@@ -336,6 +343,7 @@ namespace GI_Planet {
         }
     }
 
+    // Appends ?Gray to both paths; Color is 0x00BBGGRR. Zero suppresses atmosphere drawing.
     void TPlanetGI::SetAtmosphere(pas::WideString ImagePath, pas::WideString MaskPath, std::uint32_t Color) {
         EC_CacheBitmap::TCBitmapEC* Mask{};
         AtmosphereColor = Color;
@@ -367,6 +375,7 @@ namespace GI_Planet {
         }
     }
 
+    // Requires space for 256 colors. RGB channels and the alpha ramp are truncated to multiples of eight.
     void TPlanetGI::BuildAtmospherePalette() {
         std::int32_t Index{};
         GR_GraphBuf::PColorRGBA Color = AtmosphereBuffer->Palette;
@@ -434,6 +443,7 @@ namespace GI_Planet {
                 MaskSkip = RotatedMask->PitchBytes - Width;
                 DestSkip = Self->AtmosphereBuffer->PitchBytes - Width;
                 MulTable = GR_Main::Ex_OKGF_MulTable256x256();
+                // This register-based pixel loop is handwritten assembly in the native routine.
                 BitmapPorts::MaskPixels8(ImagePixels, MaskPixels, DestPixels, Width, Height, ImageSkip, MaskSkip, DestSkip, MulTable);
             } catch (...) {
                 cpp_error = std::current_exception();
@@ -484,6 +494,7 @@ namespace GI_Planet {
         }
     }
 
+    // A full turn has 256 steps; requires initialized light buffers when the angle changes.
     void TPlanetGI::SetLightAngle(std::uint8_t Value) {
         EC_CacheRotateBuf::TCRotateBufEC* Rotation{};
         if (LightAngle != Value) {
@@ -535,6 +546,7 @@ namespace GI_Planet {
         }
     }
 
+    // The native routine does not release its third cloud layer's cache acquisitions.
     void TPlanetGI::Draw(Types::TRect ClipRect) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         Direct3D9::IDirect3DTexture9 cpp_result_2{};
@@ -802,6 +814,7 @@ namespace GI_Planet {
         }
     }
 
+    // Resizes and clears Buffer; excludes clouds and atmosphere.
     void TPlanetGI::RenderSurfaceToBuffer(GR_GraphBuf::TGraphBufGR* Buffer) {
         EC_CachePalBitmap::TCPalBitmapEC* Image = nullptr;
         EC_CacheLightPal::TCLightPalEC* Palette = nullptr;
@@ -859,6 +872,7 @@ namespace GI_Planet {
         }
     }
 
+    // Queues the template, surface, surface palette and light rotation only.
     void TPlanetGI::QueueImageLoad(pas::List* PendingLoads) {
         TemplateCache->QueueLoadIfMissing(PendingLoads);
         SurfaceImageCache->QueueLoadIfMissing(PendingLoads);

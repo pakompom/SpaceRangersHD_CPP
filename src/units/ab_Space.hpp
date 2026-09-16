@@ -9,6 +9,7 @@ namespace ab_Space {
 
     extern ab_Space::TabSpace* CurrentArcadeSpace;
 
+    // Destination selected before entering a space.
     extern ab_Space::TabSpace* NextArcadeSpace;
 
     extern ab_Space::TabSpace* StartArcadeSpace;

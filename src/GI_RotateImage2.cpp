@@ -41,6 +41,7 @@ namespace GI_RotateImage2 {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Preserves cache keys and the allocated image buffer.
     void TRotateImage2GI::Clear() {
         ImageDirty = true;
         RenderedAngle = 255;
@@ -49,6 +50,7 @@ namespace GI_RotateImage2 {
         GI_MessageLoop::TObjectGI::Clear();
     }
 
+    // A full turn has 256 steps.
     void TRotateImage2GI::SetAngle(std::uint8_t Value) {
         if (Value != Angle) {
             Angle = Value;
@@ -65,6 +67,7 @@ namespace GI_RotateImage2 {
         }
     }
 
+    // Appends ?RGBA to Path; replaces size and origin with a centered square enclosing all rotations.
     void TRotateImage2GI::SetImage(pas::WideString Path, Types::TPoint ImageSize, Types::TPoint Pivot) {
         EC_CacheBitmap::TCBitmapEC* Image{};
         double Radius{};

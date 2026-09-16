@@ -50,6 +50,7 @@ namespace EC_CacheSound {
         EC_Cache::TCacheDataEC_Destroy(Self);
     }
 
+    // Reads 44 bytes from the current position. Forces PCM without validating RIFF, WAVE or fmt identifiers. If data is absent at header offset 36, scans the whole buffer byte by byte for it. Ignores LoadOption.
     void TCSoundEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         std::int32_t Offset{};
         TWaveFileHeader Header{};

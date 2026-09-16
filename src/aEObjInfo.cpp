@@ -40,7 +40,7 @@ namespace aEObjInfo {
     }
 
     void TEObjInfo::LoadFromStar(aGalaxy::TStar* Star) {
-        static const pas::Set<0, 255> NoDamageFlags = pas::constant_set<pas::Set<0, 255>>({{0, 19}}) - pas::constant_set<pas::Set<0, 255>>({{0, 19}});
+        static const pas::Set<0, 255> NoDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkEnergy, aGalaxyStruct::dkDroidBlock}}) - pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkEnergy, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> WearableItemTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         std::int32_t Index{};
         std::int32_t StatusCount{};
@@ -248,6 +248,7 @@ namespace aEObjInfo {
         }
     }
 
+    // Borrowed pointer into the snapshot array.
     PEPlanetInfo TEObjInfo::FindPlanet(std::uint32_t ObjectId) {
         std::int32_t Index{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Planets.length() - 1); cpp_range.next(Index); ) {
@@ -258,6 +259,7 @@ namespace aEObjInfo {
         return nullptr;
     }
 
+    // Borrowed pointer into the snapshot array.
     PEShipInfo TEObjInfo::FindShip(std::uint32_t ObjectId) {
         std::int32_t Index{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Ships.length() - 1); cpp_range.next(Index); ) {
@@ -268,6 +270,7 @@ namespace aEObjInfo {
         return nullptr;
     }
 
+    // Borrowed pointer into the snapshot array.
     PEItemInfo TEObjInfo::FindItem(std::uint32_t ObjectId) {
         std::int32_t Index{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Items.length() - 1); cpp_range.next(Index); ) {
@@ -278,6 +281,7 @@ namespace aEObjInfo {
         return nullptr;
     }
 
+    // Borrowed pointer into the snapshot array.
     PEAsteroidInfo TEObjInfo::FindAsteroid(std::uint32_t ObjectId) {
         std::int32_t Index{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Asteroids.length() - 1); cpp_range.next(Index); ) {
@@ -288,6 +292,7 @@ namespace aEObjInfo {
         return nullptr;
     }
 
+    // Borrowed pointer into the snapshot array.
     PEMissileInfo TEObjInfo::FindMissile(std::uint32_t ObjectId) {
         std::int32_t Index{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Missiles.length() - 1); cpp_range.next(Index); ) {
@@ -298,6 +303,7 @@ namespace aEObjInfo {
         return nullptr;
     }
 
+    // Appends the current snapshot; doubles are serialized as singles.
     void TEObjInfo::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
         std::int32_t Index{};
         Buffer->AddWideStringZ(StarName);
@@ -377,6 +383,7 @@ namespace aEObjInfo {
         }
     }
 
+    // Legacy versions omit scanner, repair, faction or custom-system fields.
     void TEObjInfo::LoadFromBuffer(EC_Buf::TBufEC* Buffer, std::int32_t Version) {
         std::int32_t Index{};
         Clear();

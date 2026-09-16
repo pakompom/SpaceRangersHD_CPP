@@ -42,12 +42,15 @@ namespace GI_StarField {
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadStarFieldProperties(EC_BlockPar::TBlockParEC* Block);
+        // Empty in native code.
         void Invalidate() override;
+        // Updates GlobalsV.SkipSavedPixelRestore from the background rectangle change.
         void UpdateBackgroundBounds();
         void ErasePreviousFrame() override;
         void DrawBackground(WindowsSdk::TRect ClipRect);
         void PrepareFrameDraw() override;
         void DrawUpdateRects(WindowsSdk::TRect ClipRect) override;
+        // Draws all projected pixels, ignoring ClipRect.
         void Draw(WindowsSdk::TRect ClipRect) override;
         void CommitFrameDraw() override;
         std::uint8_t cpp_padding[4];
@@ -79,7 +82,9 @@ namespace GI_StarField {
         PAS_CLASS_META(TStarFieldList, pas::Object, "TStarFieldList", 16)
         void p_destroy() override;
         void Clear();
+        // Grows by 100 when incremented Count reaches Capacity.
         PStarFieldPoint AllocatePoint();
+        // Depth must be nonzero; retains the low 16 bits of Color.
         void AddPoint(float X, float Y, float Depth, std::int32_t Color);
         PStarFieldPoint Points;
         std::int32_t Count;

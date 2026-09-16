@@ -29,6 +29,7 @@ namespace fFilmFile {
         pas::critical_leave(Lock);
     }
 
+    // Caller holds Lock. Appends a zeroed entry owned by this history.
     PFilmHistoryEntry TFilmFile::AppendEntry() {
         PFilmHistoryEntry Entry = static_cast<PFilmHistoryEntry>(EC_Mem::AllocClearEC(static_cast<std::int32_t>(sizeof(TFilmHistoryEntry))));
         if (LastEntry != nullptr) {
@@ -43,6 +44,7 @@ namespace fFilmFile {
         return Entry;
     }
 
+    // Caller holds Lock. Unlinks Entry and frees its buffer and storage.
     void TFilmFile::RemoveEntry(PFilmHistoryEntry Entry) {
         if (Entry->Prev != nullptr) {
             Entry->Prev->Next = Entry->Next;
@@ -76,6 +78,7 @@ namespace fFilmFile {
         return Result;
     }
 
+    // Zero-based insertion order. Returns a borrowed entry after releasing Lock; raises for an invalid index.
     PFilmHistoryEntry TFilmFile::GetEntry(std::int32_t Index) {
         PFilmHistoryEntry Result{};
         pas::critical_enter(Lock);
@@ -93,6 +96,7 @@ namespace fFilmFile {
         pas::raise(pas::make_exception<pas::Exception>("Error in TFilmFile.InfoGet"_a));
     }
 
+    // Copies Film into a new buffer. Evicts entries with the lowest Turn until below FilmHistoryLimit, which must be positive.
     void TFilmFile::AddFilm(aEFilm::TEFilm* Film) {
         PFilmHistoryEntry Entry{};
         PFilmHistoryEntry Oldest{};
@@ -127,12 +131,14 @@ namespace fFilmFile {
         pas::critical_leave(Lock);
     }
 
+    // Locks and removes an entry belonging to this history.
     void TFilmFile::DeleteEntry(PFilmHistoryEntry Entry) {
         pas::critical_enter(Lock);
         RemoveEntry(Entry);
         pas::critical_leave(Lock);
     }
 
+    // Replaces Film's contents but does not set Film.Turn; caller copies Entry.Turn. Rewinds the stored buffer afterward.
     void TFilmFile::LoadFilm(PFilmHistoryEntry Entry, aEFilm::TEFilm* Film) {
         pas::critical_enter(Lock);
         Entry->Buffer->SetPosition(0);
@@ -141,6 +147,7 @@ namespace fFilmFile {
         pas::critical_leave(Lock);
     }
 
+    // Clears Buffer, then writes Turn and the length-prefixed film payload.
     void TFilmFile::SaveEntryToBuffer(PFilmHistoryEntry Entry, EC_Buf::TBufEC* Buffer) {
         Buffer->Clear();
         pas::critical_enter(Lock);
@@ -149,6 +156,7 @@ namespace fFilmFile {
         pas::critical_leave(Lock);
     }
 
+    // Appends without enforcing FilmHistoryLimit. Reads from the current buffer position.
     void TFilmFile::LoadEntryFromBuffer(EC_Buf::TBufEC* Buffer) {
         pas::critical_enter(Lock);
         PFilmHistoryEntry Entry = AppendEntry();

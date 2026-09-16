@@ -85,6 +85,7 @@ namespace aPath {
         return Result;
     }
 
+    // Native growth increments the free count before allocation and never records the allocated block in PathGrowthBlocks.
     std::uint8_t GrowPathNodePool() {
         std::int32_t Index{};
         std::uint8_t Result = false;
@@ -156,6 +157,7 @@ namespace aPath {
         pas::object_destroy(Self);
     }
 
+    // Acquires 24 nodes from the shared pool; raises on allocation failure.
     void TSPath::AllocateNodeUnit() {
         std::int32_t Index{};
         std::int32_t Count = 24;
@@ -186,6 +188,7 @@ namespace aPath {
         }
     }
 
+    // Increments NodeCount without linking into the active list. May allocate; payload is uninitialized.
     PSPathNode TSPath::PopFreeNode() {
         if (FreeHead == FreeTail || FreeHead == nullptr) {
             AllocateNodeUnit();
@@ -197,6 +200,7 @@ namespace aPath {
         return Node;
     }
 
+    // Node must belong to this path; it is recycled.
     void TSPath::RemoveNode(PSPathNode Node) {
         if (Node->Prev != nullptr) {
             Node->Prev->Next = Node->Next;
@@ -222,6 +226,7 @@ namespace aPath {
         --NodeCount;
     }
 
+    // Inclusive range must be ordered and belong to this path; nodes are recycled.
     void TSPath::RemoveNodeRange(PSPathNode FirstNode, PSPathNode LastNode) {
         NodeCount -= TSPath::CountNodeRangeInclusive(FirstNode, LastNode);
         if (FirstNode->Prev != nullptr) {
@@ -247,12 +252,14 @@ namespace aPath {
         }
     }
 
+    // Recycles active nodes into this path's free list.
     void TSPath::Clear() {
         if (ActiveHead != nullptr) {
             RemoveNodeRange(ActiveHead, ActiveTail);
         }
     }
 
+    // New node is ActiveTail; payload is uninitialized.
     void TSPath::AppendNode() {
         PSPathNode Node = PopFreeNode();
         if (ActiveTail != nullptr) {
@@ -281,12 +288,15 @@ namespace aPath {
         Node->Heading = Heading;
     }
 
+    // Nil appends. Payload is uninitialized.
     PSPathNode TSPath::InsertNodeBefore(PSPathNode Node) {
         if (Node == nullptr) {
             AppendNode();
             return ActiveTail;
         }
         PSPathNode NewNode = PopFreeNode();
+        // Value expressions preserve DCC32's native address/value evaluation order;
+        // the + 0 operations themselves emit no instructions.
         reinterpret_cast<PSPathNode>(reinterpret_cast<std::uint8_t*>(NewNode) + 0)->Prev = Node->Prev;
         reinterpret_cast<PSPathNode>(reinterpret_cast<std::uint8_t*>(NewNode) + 0)->Next = Node;
         if (Node->Prev != nullptr) {
@@ -299,6 +309,7 @@ namespace aPath {
         return NewNode;
     }
 
+    // Starts at Node.Next; nonpositive SkipCount selects that immediate successor. Node must be non-nil.
     PSPathNode TSPath::GetFollowingNode(PSPathNode Node, std::int32_t SkipCount) {
         Node = Node->Next;
         while (Node != nullptr) {
@@ -311,6 +322,7 @@ namespace aPath {
         return nullptr;
     }
 
+    // Excludes Node itself, which must be non-nil. Ties keep the earlier node.
     PSPathNode TSPath::FindNearestFollowingNode(PSPathNode Node, EC_Struct::TPointF Position) {
         float Distance{};
         PSPathNode Result = nullptr;
@@ -340,6 +352,7 @@ namespace aPath {
         return Result;
     }
 
+    // Returns zero for nil endpoints or when LastNode is not reachable from FirstNode.
     std::int32_t TSPath::CountNodeRangeInclusive(PSPathNode FirstNode, PSPathNode LastNode) {
         if (FirstNode == nullptr || LastNode == nullptr) {
             return 0;
@@ -356,6 +369,7 @@ namespace aPath {
         return Count;
     }
 
+    // Uses the inclusive nodes as Bezier controls, unwraps headings, inserts samples and recycles the controls.
     void TSPath::ResampleBezierRange(PSPathNode FirstNode, PSPathNode LastNode, std::int32_t SampleCount) {
         pas::DynArray<double> Coefficients{};
         PSPathNode NewNode{};

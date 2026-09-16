@@ -35,6 +35,7 @@ namespace GI_Main {
         tayAuto = 4,
     };
 
+    // ParseAutoGeometryFlagsGI maps the native configuration names pos / size.
     inline constexpr std::int32_t agfPosition = 0x00000001;
 
     inline constexpr std::int32_t agfSize = 0x00000002;

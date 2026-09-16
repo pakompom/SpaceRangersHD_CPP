@@ -18,6 +18,7 @@ namespace fCustom {
         void InitializeLayout() override;
         void ProcessCallbackTimers() override;
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
+        // Native cleanup; purpose unresolved.
         pas::WideString ReservedBeforeText;
         pas::WideString ReservedAfterText;
     };

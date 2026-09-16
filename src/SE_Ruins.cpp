@@ -20,11 +20,8 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native class and methods:.
 namespace SE_Ruins {
-    Types::TPoint ParseRuinsPoint(pas::WideString PointText);
-
-    std::uint8_t ParseRuinsEnabled(pas::WideString Name);
-
     void TRuinsSE_Create(TRuinsSE* Self, pas::WideString GraphKey, Types::TPoint UnusedPosition) {
         if (EC_Str::CountDelimitedPartsW(GraphKey, u","_wref.get()) > 1) {
             SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(GraphKey, 0, u","_wref.get()), UnusedPosition);
@@ -288,6 +285,21 @@ namespace SE_Ruins {
 
     void TRuinsSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t Index{};
+        auto ParseRuinsPoint = [&](pas::WideString PointText) -> Types::TPoint {
+            Types::TPoint Result{};
+            if (EC_Str::CountDelimitedPartsW(PointText, u","_wref.get()) < 2) {
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetPointGI. tstr=", PointText}))));
+            }
+            Result = ([&] {
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 1, u","_wref.get())));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 0, u","_wref.get())));
+                return ClassesImports::Point(strToInt_2, strToInt);
+            }());
+            return Result;
+        };
+        auto ParseRuinsEnabled = [&](pas::WideString Name) -> std::uint8_t {
+            return Name == u"Yes" || Name == u"yes" || Name == u"True" || Name == u"true" || Name == u"TRUE" || Name == u"1";
+        };
         SE_Space::TObjectSE::LoadTemplate(Block);
         ImagePath = Block->GetParam(u"Image"_wref.get());
         StaticImagePath = Block->GetParam(u"ImageI"_wref.get());
@@ -299,7 +311,7 @@ namespace SE_Ruins {
             PanelPartnerImage = pas::WideString();
         }
         if (Block->CountParams(u"HideOnStarInfo"_wref.get()) > 0) {
-            HideOnStarInfo = SE_Ruins::ParseRuinsEnabled(Block->GetParam(u"HideOnStarInfo"_wref.get()));
+            HideOnStarInfo = ParseRuinsEnabled(Block->GetParam(u"HideOnStarInfo"_wref.get()));
         } else {
             HideOnStarInfo = false;
         }
@@ -308,26 +320,9 @@ namespace SE_Ruins {
             if (Block->CountParams(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)})) <= 0) {
                 break;
             }
-            WeaponPorts[Index] = EC_Struct::PointToPointF(SE_Ruins::ParseRuinsPoint(Block->GetParam(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))));
+            WeaponPorts[Index] = EC_Struct::PointToPointF(ParseRuinsPoint(Block->GetParam(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))));
             ++WeaponPortCount;
         }
-    }
-
-    Types::TPoint ParseRuinsPoint(pas::WideString PointText) {
-        Types::TPoint Result{};
-        if (EC_Str::CountDelimitedPartsW(PointText, u","_wref.get()) < 2) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetPointGI. tstr=", PointText}))));
-        }
-        Result = ([&] {
-            std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 1, u","_wref.get())));
-            std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 0, u","_wref.get())));
-            return ClassesImports::Point(strToInt_2, strToInt);
-        }());
-        return Result;
-    }
-
-    std::uint8_t ParseRuinsEnabled(pas::WideString Name) {
-        return Name == u"Yes" || Name == u"yes" || Name == u"True" || Name == u"true" || Name == u"TRUE" || Name == u"1";
     }
 
     void TRuinsSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {

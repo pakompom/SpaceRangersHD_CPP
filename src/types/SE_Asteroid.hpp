@@ -36,6 +36,7 @@ namespace SE_Asteroid {
         void SetPosition(EC_Struct::TPointF APosition) override;
         std::int32_t GetSequenceFrameIndex();
         void SetSequenceFrameIndex(std::int32_t FrameIndex);
+        // Requires an attached space.
         void DrawMap() override;
         std::uint8_t HitTestCursor() override;
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;

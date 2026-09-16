@@ -61,58 +61,22 @@
 #include "units/fShip2.hpp"
 
 namespace aShip {
-    void Cancel(TShip* Self);
-
+    // Caller-popped static link; recursively damages nearby hostiles. Returns the accumulated signed damage results.
     std::int32_t ApplyChainExplosion(TShip* ExplodingShip, TShip* Self, aItem::TWeapon*& Weapon, std::uint8_t& RecordFilm, std::uint32_t& Color, aGalaxyStruct::TDamageFlagSet& Flags, std::int32_t& Count, aGalaxy::TStar*& Star, float& DistanceSquared, aConst::PWeaponInfo& Info, std::int32_t& Damage, std::int32_t& DrainedDamage, SE_Space::TObjectSE*& Effect, aEFilm::TEFilmObj*& Film, std::int32_t& StepIndex, pas::List*& Ships, pas::List*& Damages, pas::List*& Colors, pas::List*& Films, pas::WideString& GraphKey);
 
-    void FinishChainExplosionFilm(std::int32_t& StepIndex, pas::List*& Ships, pas::List*& Damages, pas::List*& Colors, pas::List*& Films);
-
-    void EquipType(aConst::TItemType ArtefactType, TShip* Self, std::int32_t& RemainingSlots);
-
-    void AccumulateEquipmentBonus(float Value, float& Positive, float& Nonpositive);
-
-    std::uint8_t FitsMicroModuleCapacity(TShip* Self, aItem::TEquipment*& Candidate, aItem::TEquipment*& Module);
-
-    aItem::TItem* SelectCheapItem(TShip* Self, std::int32_t& Index);
-
-    aItem::TItem* SelectValuableItem(TShip* Self, std::int32_t& Index);
-
-    std::int32_t GetRetainedCapacity(TShip* Self);
-
-    std::uint8_t FitsGeneratedModuleCapacity(TShip* Self, aItem::TEquipment*& Item, std::int32_t& ModuleIndex);
-
-    std::uint8_t AcceptDuplicate(TShip* Self, std::int32_t& ModuleIndex);
-
-    aItem::TWeapon* SelectReplacedWeapon(TShip* Self);
-
-    void TemporarilyUnequipWeapon(aItem::TWeapon* Weapon, TShip* Self, aItem::TWeapon*& ReplacementWeapon, pas::Array<aItem::TWeapon*, 1, 5>& SavedWeapons, pas::Object*& SavedTarget);
-
-    void RestoreWeapon(TShip* Self, aItem::TWeapon*& ReplacementWeapon, pas::Array<aItem::TWeapon*, 1, 5>& SavedWeapons, pas::Object*& SavedTarget);
-
-    std::uint8_t AcceptPickupTarget(aItem::TItem* Item, TShip* Self, std::uint8_t& IgnoreRange);
-
-    void InitializeFilm(std::uint8_t Alpha, TShip* Self, std::int32_t& StartStepIndex);
-
-    void AdvancePath(TShip* Self, std::int32_t& StepIndex, std::uint8_t& RecordFilm, aPath::PSPathNode& Node, std::uint8_t& Angle);
-
-    std::uint8_t IsArtefactBoostEquipment(aItem::TEquipment* Item);
-
+    // Caller-popped static link; ship -4, selected-item output -8.
     void SelectOrdinal(std::int32_t Ordinal, std::uint8_t Equipped, TShip* Self, aItem::TEquipment*& Item);
 
-    void SelectRepairable(std::int32_t Count, std::uint8_t Equipped, TShip* Self, aItem::TEquipment*& Item);
-
-    pas::WideString GetTalkContextPrefix(TShip* Ship);
-
-    std::uint8_t IsBetterInterceptorTarget(TShip* Current, TShip* Candidate, aItem::TInterceptorTargetingStrategy Strategy, TShip* Self);
-
-    void AppendStatusLine(pas::WideString TextKey, std::int32_t& Count, std::uint8_t& ShowStrength, pas::WideString& Result, std::int32_t& Strength);
-
+    // Suppresses duplicate Pirate Clan abduction effects during turn simulation.
     std::int8_t SimulationContext = 0;
 
+    // Energy, splinter and missile hit callbacks.
     pas::Array<std::uint8_t, 0, 2> DamageScriptActionTypes = pas::Array<std::uint8_t, 0, 2>{{static_cast<std::uint8_t>(7), static_cast<std::uint8_t>(8), static_cast<std::uint8_t>(9)}};
 
+    // Reused script-event payload for the goods leaving the ship.
     aItem::TGoods* TradeGoodsSold = nullptr;
 
+    // Reused payload for the purchased portion of the sale.
     aItem::TGoods* TradeGoodsCostBasis = nullptr;
 
     pas::Array<pas::Array<std::int32_t, 0, 7>, 0, 2> DominatorShipSmallSizes = pas::Array<pas::Array<std::int32_t, 0, 7>, 0, 2>{{pas::Array<std::int32_t, 0, 7>{{127, 110, 70, 60, 45, 40, 130, 40}}, pas::Array<std::int32_t, 0, 7>{{127, 110, 70, 60, 45, 40, 130, 40}}, pas::Array<std::int32_t, 0, 7>{{127, 110, 70, 60, 45, 40, 130, 40}}}};
@@ -157,16 +121,22 @@ namespace aShip {
 
     std::int32_t DefaultShipLargeSize = 80;
 
+    // bonSkill1..bonSkill6.
     pas::Array<std::int32_t, 22, 27> SkillBonusEvaluationWeights = pas::Array<std::int32_t, 22, 27>{{100, 100, 80, 80, 60, 60}};
 
+    // bonSlotRadar..bonSlotForsage.
     pas::Array<std::int32_t, 13, 20> SlotBonusEvaluationWeights = pas::Array<std::int32_t, 13, 20>{{100, 100, 200, 100, 200, 75, 10, 30}};
 
+    // Indexed by KlingType.
     pas::Array<double, 0, 7> KlingCheapDropValueFactors = pas::Array<double, 0, 7>{{0.1, 0.85, 0.9, 1.0, 1.2, 1.5, 0.7, 4.0}};
 
+    // Indexed by KlingType.
     pas::Array<double, 0, 7> KlingValuableDropValueFactors = pas::Array<double, 0, 7>{{0.1, 0.8, 0.9, 1.0, 2.0, 4.0, 0.7, 8.0}};
 
+    // TKlingType order.
     const pas::Array<double, 0, 7> DominatorProgramDropCostFactors = pas::Array<double, 0, 7>{{0.2, 1.6, 1.8, 2.0, 4.0, 8.0, 1.4, 16.0}};
 
+    // Allocates an unregistered instance; caller must initialize or deserialize it.
     TShip* CreateShipByType(std::uint8_t ShipType) {
         TShip* Result = nullptr;
         {
@@ -186,12 +156,14 @@ namespace aShip {
             } else if (cpp_case >= 6 && cpp_case <= 13) {
                 return pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
             } else {
+                // The original constructs the exception without raising it.
                 pas::make_exception<pas::Exception>("function CreateShipByType(shiptype: tShipType): TShip;"_a);
                 return Result;
             }
         }
     }
 
+    // Lists contain TShip. Sum of pairwise ChanceToWin divided by Opponents.Count squared; requires nonempty Opponents when Ships is nonempty.
     float CompareShipGroupsStrength(pas::List* Ships, pas::List* Opponents) {
         std::int32_t I{};
         std::int32_t J{};
@@ -215,6 +187,7 @@ namespace aShip {
         return Result;
     }
 
+    // Owner six skips racial scaling. Uses active galaxy turn and difficulty.
     float CalculateFuelCost(std::int32_t Amount, std::uint8_t OwnerId) {
         float Value = Amount + 0;
         Value = static_cast<long double>(Value) * aMyFunction::RemapClamped(aGalaxy::Galaxy->CurrentTurn, 1.0E+3, 1.5E+4, 1.0, 1.0E+1);
@@ -229,6 +202,7 @@ namespace aShip {
         return System::Round(aShip::CalculateFuelCost(Amount, OwnerId));
     }
 
+    // Source helper: preserve the native radar-before-clamp evaluation and local order.
     void ClampMissileWeaponRange(TShip* Ship, std::int32_t TemplateRange, std::int32_t& Range) {
         std::int32_t MaximumRange{};
         std::int32_t MinimumRange{};
@@ -269,6 +243,7 @@ namespace aShip {
             Self->CargoGoods[Kind].Count = 0;
             Self->CargoGoods[Kind].TotalCost = 0;
         }
+        // The contiguous Hull..DefGenerator fields are indexed by native item type.
         for (Kind = static_cast<std::uint8_t>(42); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
             pas::store_unaligned<aItem::TEquipment*>(pas::byte_offset(&reinterpret_cast<PShipEquipmentCacheView>(Self)->Slots, (Kind - 42) * sizeof(aItem::TEquipment*)), nullptr);
         }
@@ -473,6 +448,7 @@ namespace aShip {
             Self->CombatStatusEffects = nullptr;
         }
         if (Self->CustomShipInfos != nullptr) {
+            // Native releases raw records here without finalizing their string fields.
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CustomShipInfos) - 1); cpp_range_4.next(I); ) {
                 pas::dispose(pas::list_get(Self->CustomShipInfos, I));
             }
@@ -1005,6 +981,7 @@ namespace aShip {
         }
         InHyperspace = EC_Buf::TBufEC_GetBoolean(Buffer);
         CollisionRadius = EC_Buf::TBufEC_GetSingle(Buffer);
+        // Native replaces the constructor-created list without freeing it here.
         RangerRelations = pas::make_object<pas::List>();
         Count = EC_Buf::TBufEC_GetWord(Buffer);
         if (Count < 0 || Count > 10000) {
@@ -1144,6 +1121,7 @@ namespace aShip {
         }
     }
 
+    // Editable subset; not a full save.
     void TShip::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t I{};
         std::int32_t RemainingTurns{};
@@ -1162,15 +1140,18 @@ namespace aShip {
             Block->AddParam(decodeTextW_2, intToStr);
         }
         if (ScriptShip != nullptr) {
+            // Decoded: 'IScript'
             const pas::WideString& cpp_arg = pas::concat_wide({reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->Script->ScriptFileName, u",", reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->GetGroup()->Name, u",", reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->State->Name, u"(", pas::wide_int_to_str(pas::list_indexof(reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->Script->States, reinterpret_cast<void*>(reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->State))), u")"});
             const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"IsSacaraiOpit"_w);
             Block->AddParam(decodeTextW_3, cpp_arg);
         }
+        // Decoded: 'IPlanet'
         if (CurrentPlanet != nullptr) {
             Block->AddParam(EC_Str::DecodeTextW(u"ImPolearnBelt"_w), CurrentPlanet->Name);
         } else {
             Block->AddParam(EC_Str::DecodeTextW(u"ImPolearnBelt"_w), u""_wref.get());
         }
+        // Decoded: 'IRuins'
         if (DockedTo != nullptr) {
             Block->AddParam(EC_Str::DecodeTextW(u"ImRyuWirnas"_w), DockedTo->Name);
         } else {
@@ -1218,6 +1199,7 @@ namespace aShip {
         }
         Text = pas::concat_wide({aConst::RadiationHealthDefinitions[1].Name, u",", pas::wide_int_to_str(RemainingTurns)});
         HealthBlock->AddParam(pas::concat_wide_reverse({pas::wide_int_to_str(25), EC_Str::DecodeTextW(u"FralcatMoar"_w)}), Text);
+        // Decoded: 'EqList'
         {
             EC_BlockPar::TBlockParEC* cpp_with = Block->AddBlockByPath(EC_Str::DecodeTextW(u"ElqiLoinsato"_w));
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Inventory) - 1); cpp_range_4.next(I); ) {
@@ -1227,6 +1209,7 @@ namespace aShip {
             }
             cpp_with->AddParam(EC_Str::DecodeTextW(u"AodEdrIstaelma"_w), u""_wref.get());
         }
+        // Decoded: 'ArtsList'
         {
             EC_BlockPar::TBlockParEC* cpp_with_2 = Block->AddBlockByPath(EC_Str::DecodeTextW(u"AsrotyseLeidsot"_w));
             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Artefacts) - 1); cpp_range_5.next(I); ) {
@@ -1236,6 +1219,7 @@ namespace aShip {
             }
             cpp_with_2->AddParam(EC_Str::DecodeTextW(u"AsdediAmrot"_w), u""_wref.get());
         }
+        // Decoded: 'DropList'
         {
             EC_BlockPar::TBlockParEC* cpp_with_3 = Block->AddBlockByPath(EC_Str::DecodeTextW(u"DarlokpuLainsata"_w));
             for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(GuaranteedDeathDropItems) - 1); cpp_range_6.next(I); ) {
@@ -1295,6 +1279,7 @@ namespace aShip {
         Block->AddParam(EC_Str::DecodeTextW(u"Sokoilna"_w), GraphName);
     }
 
+    // Applies edits to existing state and can append items or issue new orders. Cargo quantities change without updating cost basis.
     void TShip::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t I{};
         std::int32_t OldTurns{};
@@ -1318,6 +1303,7 @@ namespace aShip {
         SetMoney(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Mnognoenyj"_w)))));
         TotalExperience = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Eoxepl"_w))));
         FreeExperience = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"FarweyeAETxopa"_w))));
+        // Decoded: 'Health'
         {
             EC_BlockPar::TBlockParEC* cpp_with = Block->GetBlockByPath(EC_Str::DecodeTextW(u"Hrenasletaha"_w));
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, 24); cpp_range_3.next(I); ) {
@@ -1359,6 +1345,7 @@ namespace aShip {
                 RadiationHealth[1].ExpireTurn = NewTurns + aGalaxy::Galaxy->CurrentTurn;
             }
         }
+        // Decoded: 'EqList'
         {
             EC_BlockPar::TBlockParEC* cpp_with_2 = Block->GetBlockByPath(EC_Str::DecodeTextW(u"ElqiLoinsato"_w));
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Inventory) - 1); cpp_range_4.next(I); ) {
@@ -1382,6 +1369,7 @@ namespace aShip {
                 }
             }
         }
+        // Decoded: 'ArtsList'
         {
             EC_BlockPar::TBlockParEC* cpp_with_3 = Block->GetBlockByPath(EC_Str::DecodeTextW(u"AsrotyseLeidsot"_w));
             for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(Artefacts) - 1); cpp_range_6.next(I); ) {
@@ -1404,6 +1392,7 @@ namespace aShip {
                 }
             }
         }
+        // Decoded: 'DropList'
         {
             EC_BlockPar::TBlockParEC* cpp_with_4 = Block->GetBlockByPath(EC_Str::DecodeTextW(u"DarlokpuLainsata"_w));
             for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(GuaranteedDeathDropItems) - 1); cpp_range_8.next(I); ) {
@@ -1454,6 +1443,7 @@ namespace aShip {
         DestroyQueued = SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Dreisatarlony"_w)))) == "true";
         Text = Block->GetParam(EC_Str::DecodeTextW(u"GhilvienOrradlehr"_w));
         if (EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) > 1) {
+            // Decoded: 'JumpToStar'
             if (([&] {
                 pas::WideString cpp_string = EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get());
                 pas::WideString cpp_string_2 = EC_Str::DecodeTextW(u"JiunmApeThorSitraer"_w);
@@ -1506,6 +1496,7 @@ namespace aShip {
         TShip::DerivedStateCompatibilityHook();
     }
 
+    // Converts saved IDs to object references; requires all referenced objects to have been loaded.
     void TShip::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         std::int32_t Count{};
@@ -1566,6 +1557,7 @@ namespace aShip {
             RefreshCurrentStanding();
         }
         if (pas::in_set<92, 93>(GlobalsV::LoadedSaveVersion) && pas::class_cast_if<aNormalShip::TNormalShip*>(this) != nullptr && !(pas::class_cast_if<aPlayer::TPlayer*>(this) != nullptr)) {
+            // Preserve the native legacy portrait exception, including its repeated type test.
             if (PilotRace == static_cast<std::uint8_t>(aGalaxyStruct::oiHuman) && pas::in_range(PortraitFaceId, 25, 32) && aPlayer::GetPlayer() != this && aPlayer::GetPlayer() != nullptr && pas::class_cast_if<aNormalShip::TNormalShip*>(this) != nullptr) {
                 return;
             }
@@ -1586,6 +1578,7 @@ namespace aShip {
         }
     }
 
+    // Clamps to 0..100000000.
     void TShip::SetMoney(std::int32_t Value) {
         if (Value > 100000000) {
             Value = 100000000;
@@ -1606,6 +1599,7 @@ namespace aShip {
         EncodedMoney = Value ^ 0xa4a576adu;
     }
 
+    // Can cancel the player's jump when remaining fuel is insufficient.
     void TShip::ProcessBrokenFuelTankLeak() {
         std::int32_t Lost{};
         if (GetFuelTanks() == nullptr || GetFuelTanks()->BrokenFlag == 0 || CountActiveArtefacts(aConst::t_ArtefactFuel) > 0) {
@@ -1650,6 +1644,9 @@ namespace aShip {
         }
     }
 
+    // Zero-byte pointer additions below retain native argument evaluation order
+    // without narrowing object addresses to Integer.
+    // Can unlock carried equipment use/repair and notify the player.
     void TShip::RefreshTechKnowledgeAtLocation() {
         pas::List* UseList{};
         pas::List* RepairList{};
@@ -1819,7 +1816,7 @@ namespace aShip {
                         } else {
                             WearFactor = 1.0f;
                         }
-                        if (pas::in_set<1, 3, 5, 6>(Order)) {
+                        if (pas::is_one_of<soMove, soLand, soJump, soTakeoff, soFollowShip>(Order)) {
                             {
                                 pas::Extended cpp_right = aMyFunction::RemapClamped(CalculateMass(), aConst::WearMassMin, aConst::WearMassMax, 1.0, 1.0E+1);
                                 double cpp_arg = aMyFunction::NextRandomUnitFloat(RandomState) * 0.5L * cpp_right * WearFactor;
@@ -1888,7 +1885,7 @@ namespace aShip {
                         TShip* self_7 = this;
                         self_7->ApplyArtefactUseDegradation(nextRandomFloatRange_2);
                     }
-                    if (pas::in_set<1, 3>(TypeId) && CalculateMass() > aConst::WearMassMin && Order != soNone) {
+                    if (pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stTransport, aGalaxyStruct::stPirate>(TypeId) && CalculateMass() > aConst::WearMassMin && Order != soNone) {
                         pas::Extended cpp_right_3 = aMyFunction::RemapClamped(CalculateMass(), aConst::WearMassMin, aConst::WearMassMax, 0.0, 9.0);
                         double cpp_arg_6 = aMyFunction::NextRandomUnitFloat(RandomState) * 0.5L * cpp_right_3 * 0.5L;
                         aItem::TEquipment* engine_2 = GetEngine();
@@ -1934,6 +1931,7 @@ namespace aShip {
     void TShip::NextDayLogic() {
     }
 
+    // The base implementation clears all weapon targets.
     void TShip::AssignWeaponTargetsInStar() {
         std::int32_t I{};
         {
@@ -1946,6 +1944,7 @@ namespace aShip {
         }
     }
 
+    // Native no-op, called after loading/editing and refreshing derived stats.
     void TShip::DerivedStateCompatibilityHook() {
     }
 
@@ -2011,6 +2010,7 @@ namespace aShip {
         return aMyFunction::NextRandomIntRange(Minimum, Maximum, RandomState);
     }
 
+    // Requires a player; includes current order, hull, speed and relation information.
     pas::WideString TShip::GetSpaceInfoText() {
         pas::WideString Result{};
         Result = GetName();
@@ -2111,6 +2111,7 @@ namespace aShip {
         return GetHull()->HullPoints <= 0;
     }
 
+    // Fractional part of signed Seed divided by CurrentTurn + TurnOffset; denominator must be nonzero. Does not advance RandomState.
     float TShip::GetTurnSeedFraction(std::int32_t TurnOffset) {
         return System::Frac(pas::real_divide(static_cast<std::int32_t>(Seed), aGalaxy::Galaxy->CurrentTurn + TurnOffset));
     }
@@ -2127,6 +2128,7 @@ namespace aShip {
         return Result;
     }
 
+    // Counts positive cargo quantities.
     std::uint8_t TShip::CountCargoGoodsTypes() {
         std::uint8_t Good{};
         std::uint8_t Result = 0;
@@ -2151,6 +2153,7 @@ namespace aShip {
         return Result;
     }
 
+    // True for OrderAbsolute, AbsoluteScriptOrder, or a follow-ship order.
     std::uint8_t TShip::HasLockedOrFollowOrder() {
         return OrderAbsolute || AbsoluteScriptOrder > 0 || Order == soFollowShip;
     }
@@ -2179,6 +2182,7 @@ namespace aShip {
         return false;
     }
 
+    // Returns empty unless the player shares CurrentStar. Substitutes OtherShip for <TalkShip>.
     pas::WideString TShip::LookupVisibleTalkText(const pas::WideString& Path, TShip* OtherShip) {
         pas::WideString Result{};
         if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CurrentStar == CurrentStar) {
@@ -2202,10 +2206,12 @@ namespace aShip {
         }
     }
 
+    // Does not guard against zero AverageRangerStrength.
     void TShip::UpdateAverageRangerRelativeStrength() {
         StrengthInAverageRanger = pas::real_divide(Strength, aGalaxy::Galaxy->AverageRangerStrength);
     }
 
+    // Updates Wealth. Includes player storage and accrued deposit but does not subtract debt; capped at MaxInt.
     std::int32_t TShip::CalculateWealth() {
         std::int32_t Result{};
         std::int32_t I{};
@@ -2284,6 +2290,7 @@ namespace aShip {
         return 5.0;
     }
 
+    // Updates Strength; calculating the player's strength also refreshes galaxy ranger strength statistics.
     double TShip::CalculateStrength() {
         pas::Extended cpp_left_2 = CalculateAttackStrength();
         pas::Extended cpp_left = cpp_left_2 * CalculateDefenseStrength();
@@ -2295,6 +2302,7 @@ namespace aShip {
         return Result;
     }
 
+    // Temporarily restores hull points. Leaves cached Strength and player galaxy-strength statistics at the full-hull values; byte result is not clamped.
     std::uint8_t TShip::GetFullHullRelativeStrengthPercent() {
         std::int32_t HullPoints = GetHull()->HullPoints;
         GetHull()->HullPoints = GetHull()->Weight;
@@ -2304,6 +2312,7 @@ namespace aShip {
         return Result;
     }
 
+    // Uses cached Wealth and the configured scale table; no index validation.
     std::int32_t TShip::GetWealthScaledAmount(std::uint8_t ScaleIndex) {
         float Value = System::Round(static_cast<long double>(Wealth) * aConst::WealthDemandScales[ScaleIndex]);
         if (Value < 5.0E+3L) {
@@ -2312,6 +2321,7 @@ namespace aShip {
         return System::Round((Value - 5.0E+3L) * 0.3L + 5.0E+3L);
     }
 
+    // For the player, checks the script-binding list; for NPC ships, checks ScriptShip.
     std::uint8_t TShip::HasScriptBindings() {
         if (pas::class_cast_if<aPlayer::TPlayer*>(this) != nullptr) {
             return pas::list_count(reinterpret_cast<aPlayer::TPlayer*>(this)->ScriptShipBindings) > 0;
@@ -2319,6 +2329,7 @@ namespace aShip {
         return ScriptShip != nullptr;
     }
 
+    // Leaves the result storage unchanged when Graphic is not a supported graphic class.
     pas::WideString TShip::GetShipPortraitImagePath() {
         pas::WideString Result{};
         if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Graphic) != nullptr) {
@@ -2330,6 +2341,7 @@ namespace aShip {
         }
     }
 
+    // May assign PortraitFaceId lazily. Returns a resource base without the GI prefix or animation suffix.
     pas::WideString TShip::GetCaptainPortraitResourceBase() {
         pas::WideString Result{};
         std::int32_t PlanetIndex{};
@@ -2457,6 +2469,7 @@ namespace aShip {
         return pas::concat_wide({u"Bm.Captain.2", aConst::OwnerInfo[Owner].InternalName, pas::wide_int_to_str(PortraitFaceId)});
     }
 
+    // Reads the player rather than Self; requires a player.
     std::uint8_t TShip::HasPlayerChameleonCharges() {
         std::uint8_t I{};
         std::uint8_t Result = false;
@@ -2488,6 +2501,7 @@ namespace aShip {
         return BestKind;
     }
 
+    // Requires a player; action-17 script handlers can override the default result.
     std::uint8_t TShip::IsPlayerChameleonEffectiveAgainstSelf() {
         if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->ChameleonActive ^ 1) || aPlayer::GetPlayer() == this) {
             return false;
@@ -2497,6 +2511,7 @@ namespace aShip {
         return ScriptItemsAct(aConst::satOnChameleonConfusion, nullptr, nullptr, Result) != 0;
     }
 
+    // ScriptChameleon preserves the assigned graphic while updating GraphDominator.
     void TShip::RefreshGraphic() {
         std::uint8_t Dominator = !(pas::class_cast_if<aPlayer::TPlayer*>(this) != nullptr) && aGalaxy::Galaxy->GraphDominatorSurfacesEnabled || ChameleonActive;
         if (ScriptChameleon) {
@@ -2686,6 +2701,7 @@ namespace aShip {
         RefreshGraphicSize();
     }
 
+    // Moves Self and docked ships between star lists; does not clear InHyperspace.
     void TShip::TransferToStar(aGalaxy::TStar* Star) {
         TShip* Ship{};
         if (CurrentStar != Star) {
@@ -2711,6 +2727,7 @@ namespace aShip {
         }
     }
 
+    // Includes artefacts, guaranteed drops, stored Tranclucator inventories and station shop stock; result is borrowed.
     aItem::TItem* TShip::FindCarriedItemById(std::uint32_t Id) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -2762,6 +2779,7 @@ namespace aShip {
         return Result;
     }
 
+    // Can subsidize and queue an unseen NPC for relocation to a peaceful Coalition system; excludes protected quest/script/partner ships.
     void TShip::TryRelocateUnseenShip() {
         aGalaxy::TStar* Candidate{};
         std::int32_t I{};
@@ -2845,6 +2863,7 @@ namespace aShip {
         }
     }
 
+    // Copies the carrier's star and position, moving star-list membership when necessary. Does nothing without DockedTo.
     void TShip::SynchronizeDockedLocation() {
         if (DockedTo == nullptr) {
             return;
@@ -2868,6 +2887,7 @@ namespace aShip {
         return CurrentStar != nullptr && aPlayer::GetPlayer()->RuinsSavedPlanet == nullptr && aPlayer::GetPlayer()->RuinsSavedDockedTo == nullptr;
     }
 
+    // True without a current star, while docked/in hyperspace, or with a saved player ruins docking target.
     std::uint8_t TShip::IsOutsideStarSpace() {
         return CurrentPlanet != nullptr || DockedTo != nullptr || InHyperspace || CurrentStar == nullptr || aPlayer::GetPlayer() == this && (aPlayer::GetPlayer()->RuinsSavedPlanet != nullptr || aPlayer::GetPlayer()->RuinsSavedDockedTo != nullptr);
     }
@@ -2888,26 +2908,27 @@ namespace aShip {
         return Speed > 0;
     }
 
+    // Checks only ships in star space; clears the player auto-follow target when cancelling.
     void TShip::CancelInvalidTravelOrder() {
+        // Caller-popped static link; ship at ParentFrame-4.
+        auto Cancel = [&]() -> void {
+            if (aPlayer::GetPlayer() == this) {
+                aRanger::PendingPlayerFollowTarget = nullptr;
+            }
+            OrderNone(false);
+        };
         if (IsOutsideStarSpace()) {
             return;
         }
         if (pas::class_cast_if<TShip*>(OrderTarget) != nullptr && static_cast<TShip*>(OrderTarget)->CurrentStar != CurrentStar) {
-            aShip::Cancel(this);
+            Cancel();
         }
         if (GetEngine() == nullptr || GetFuelTanks() == nullptr) {
-            aShip::Cancel(this);
+            Cancel();
         }
         if (CalculateSpeed() <= 0 && Order != soTeleport) {
-            aShip::Cancel(this);
+            Cancel();
         }
-    }
-
-    void Cancel(TShip* Self) {
-        if (aPlayer::GetPlayer() == Self) {
-            aRanger::PendingPlayerFollowTarget = nullptr;
-        }
-        Self->OrderNone(false);
     }
 
     void TShip::ClearPlanetQueue() {
@@ -2917,6 +2938,7 @@ namespace aShip {
         }
     }
 
+    // Requires a non-nil queue ordered with current-star planets first; otherwise falls back to the first entry. Empty queue returns nil.
     aPlanet::TPlanet* TShip::SelectNearestQueuedPlanet() {
         aPlanet::TPlanet* Planet{};
         std::int32_t I{};
@@ -2943,6 +2965,7 @@ namespace aShip {
         return Result;
     }
 
+    // Types 6..13 whose CanDock(Self) succeeds. Zero mask permits every standing; does not independently filter hyperspace/docking.
     TShip* TShip::FindNearestDockableStation(TStationStandingMask StandingMask) {
         std::int32_t I{};
         TShip* Ship{};
@@ -2962,6 +2985,7 @@ namespace aShip {
         return Result;
     }
 
+    // Requires a nonempty planet list; returns the last planet if all are uninhabited.
     aPlanet::TPlanet* TShip::FindFirstInhabitedPlanetInStar() {
         std::int32_t I{};
         aPlanet::TPlanet* Result = pas::list_at<aPlanet::TPlanet>(CurrentStar->Planets, 0);
@@ -2976,6 +3000,7 @@ namespace aShip {
         return Result;
     }
 
+    // Can build PlanetQueue and issue a landing or jump order. Result is borrowed and may be nil.
     aPlanet::TPlanet* TShip::NavigateToQueuedPlanet(std::uint8_t Absolute) {
         aPlanet::TPlanet* Planet{};
         if (PlanetQueue == nullptr) {
@@ -2996,6 +3021,7 @@ namespace aShip {
         return nullptr;
     }
 
+    // Uses the existing PlanetQueue; false means it is nil or empty. True does not guarantee that the order was accepted.
     std::uint8_t TShip::NavigateToEscapePlanet(std::uint8_t Absolute) {
         aPlanet::TPlanet* Planet{};
         if (PlanetQueue == nullptr) {
@@ -3017,6 +3043,7 @@ namespace aShip {
         return false;
     }
 
+    // Requires a ranger PartnerShip. True reports handled travel, not necessarily a changed or accepted order.
     std::uint8_t TShip::TryMirrorPartnerTravelOrders() {
         aGalaxy::TStar* Star{};
         if (static_cast<std::uint32_t>(pas::checked_cast<aRanger::TRanger*>(PartnerShip)->PrisonTermRemaining) > 0) {
@@ -3091,10 +3118,12 @@ namespace aShip {
         OrderMove(aMyFunction::PolarToPoint(Polar), false);
     }
 
+    // False only when Target is jumping and its distance is at least twice Self.Speed; does not validate shared star or speed.
     std::uint8_t TShip::IsTargetStillPursuable(TShip* Target) {
         return Target->Order != soJump || static_cast<long double>(aMyFunction::PointDistance(Position, Target->Position)) < Speed * 2;
     }
 
+    // AI estimate using range, hull and travel time. Pursuer weapon range is evaluated using Self's bonuses.
     std::uint8_t TShip::CanEscapePursuer(TShip* Pursuer) {
         std::int32_t I{};
         aItem::TWeapon* Weapon{};
@@ -3153,13 +3182,15 @@ namespace aShip {
         return false;
     }
 
+    // Minimum of raw tank Capacity and engine JumpRange; requires both items and ignores bonuses/condition.
     std::int32_t TShip::GetFullFuelBaseJumpRange() {
         return std::min<std::int32_t>(static_cast<std::int32_t>(GetFuelTanks()->Capacity), static_cast<std::int32_t>(GetEngine()->JumpRange));
     }
 
+    // Returns a borrowed intermediate star or nil. Uses raw full-fuel range and current distance caches; excludes sector 20. A direct reachable destination returns the current star.
     aGalaxy::TStar* TShip::FindNextStarTowardDestination(aGalaxy::TStar* Destination, std::uint8_t RequireFuelMargin) {
         aGalaxy::TStar* Result{};
-        static const pas::Set<0, 255> CoalitionShips = pas::constant_set<pas::Set<0, 255>>({{1, 5}});
+        static const pas::Set<0, 255> CoalitionShips = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::stRanger, aGalaxyStruct::stTranclucator}});
         std::int32_t I{};
         std::int32_t J{};
         std::int32_t K{};
@@ -3213,6 +3244,7 @@ namespace aShip {
         return Result;
     }
 
+    // Excludes Self but includes docked/hyperspace entries; no match returns sqrt(1000000000).
     double TShip::DistanceToNearestShipByTypeMask(aGalaxyStruct::TShipTypeMask ShipTypeMask) {
         std::int32_t I{};
         TShip* Ship{};
@@ -3230,6 +3262,7 @@ namespace aShip {
         return System::Sqrt(BestDistance);
     }
 
+    // Uses rounded distance / (Speed + 1) + 1; unsupported orders return zero.
     std::int32_t TShip::EstimateOrderTravelTurns() {
         switch (Order) {
             case soMove: {
@@ -3254,6 +3287,7 @@ namespace aShip {
         }
     }
 
+    // Accepts planet, ship or star; a star estimates travel to the current system boundary, excluding hyperspace transit. Other classes return zero.
     std::int32_t TShip::EstimateTravelTurnsToObject(pas::Object* Target) {
         double Angle{};
         double Radius{};
@@ -3273,6 +3307,7 @@ namespace aShip {
         }
     }
 
+    // Returns -1 for zero speed, nil planet/star, or a different star.
     std::int32_t TShip::EstimateTravelTurnsToPlanet(aPlanet::TPlanet* Planet) {
         EC_Struct::TPointF Point{};
         if (Speed == 0 || Planet == nullptr || Planet->CurrentStar == nullptr || Planet->CurrentStar != CurrentStar) {
@@ -3282,6 +3317,7 @@ namespace aShip {
         return System::Round(pas::real_divide(aMyFunction::PointDistance(pas::load_unaligned<EC_Struct::TPointF>(reinterpret_cast<EC_Struct::PPointF>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&Point)) + 0)))), Position), Speed + 1)) + 1;
     }
 
+    // Ranger, pirate or Tranclucator death notification; does not itself check player partnership.
     void TShip::NotifyCompanionDeath() {
         pas::WideString Text{};
         if (pas::class_cast_if<aRanger::TRanger*>(this) != nullptr) {
@@ -3303,9 +3339,10 @@ namespace aShip {
         Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
     }
 
+    // Source may be nil, ship or missile. HitRange=-1 selects direct-hit rules; other values select area-hit rules. Returns adjusted damage, zero for rejection, or negative damage for an impulse-shield block; not actual hull loss. May run death handling without freeing Self.
     std::int32_t TShip::ApplyDamage(pas::Object* Source, std::int32_t Damage, float HitRange, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet DamageFlags) {
         std::int32_t Result{};
-        static const pas::Set<0, 255> ScannerDamageFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
+        static const pas::Set<0, 255> ScannerDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> NoDamageFlags = pas::constant_set<pas::Set<0, 255>>({});
         std::int32_t I{};
         std::int32_t J{};
@@ -3318,6 +3355,7 @@ namespace aShip {
         aItem::TProtoplasm* Nodes{};
         aItem::TUselessItem* Debris{};
         aItem::TItem* Item{};
+        // Native initializes/finalizes this otherwise unused managed local.
         pas::WideString UnusedText{};
         aItem::TMicroModule* Module{};
         aItem::TCistern* Cistern{};
@@ -3797,8 +3835,9 @@ namespace aShip {
         return Result;
     }
 
+    // Returns ApplyDamage's signed result. Positive FixedDamage bypasses the initial roll/armor stage unless weapon flag 0x800 is already set; later effects still apply.
     std::int32_t TShip::ApplyWeaponHit(TShip* Source, aItem::TWeapon* Weapon, float HitRange, std::uint32_t& DamageColor, pas::Var<std::uint32_t> DamageFlags, float DamageScale, std::int32_t FixedDamage) {
-        static const pas::Set<0, 255> EnergyDamageFlags = pas::constant_set<pas::Set<0, 255>>({{0}});
+        static const pas::Set<0, 255> EnergyDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkEnergy}});
         std::int32_t I{};
         std::int32_t RolledDamage{};
         std::int32_t MaxDamage{};
@@ -3900,6 +3939,7 @@ namespace aShip {
         return Result;
     }
 
+    // Requires a TMissile; returns ApplyDamage's signed result.
     std::int32_t TShip::ApplyMissileHit(pas::Object* Missile, std::uint32_t& DamageColor, pas::Var<std::uint32_t> DamageFlags) {
         std::int32_t SkillDifference{};
         float AdjustedDamage{};
@@ -3961,6 +4001,7 @@ namespace aShip {
         return Result;
     }
 
+    // Ignores non-missile targets; can free the target and nearby missiles.
     void TShip::FireWeaponAtMissile(aItem::TWeapon* Weapon, pas::Object* Target, std::uint8_t RecordFilm) {
         aGalaxy::TStar* Star{};
         aMissile::TMissile* Shot{};
@@ -4073,6 +4114,7 @@ namespace aShip {
         }
     }
 
+    // Can affect additional ships through chained, area or penetrating fire.
     void TShip::FireWeaponAtShip(aItem::TWeapon* Weapon, TShip* Target, std::uint8_t RecordFilm) {
         std::uint32_t Color{};
         aGalaxyStruct::TDamageFlagSet Flags{};
@@ -4082,6 +4124,7 @@ namespace aShip {
         std::int32_t Damage{};
         SE_Space::TObjectSE* Effect{};
         aEFilm::TEFilmObj* Film{};
+        std::int32_t StepIndex{};
         pas::List* Ships{};
         pas::List* Damages{};
         pas::List* Colors{};
@@ -4099,11 +4142,56 @@ namespace aShip {
         std::uint32_t DisplayColor{};
         std::int32_t J{};
         std::uint8_t Reflect{};
+        // Caller-popped static link; merges repeated targets' damage in the parent's film lists.
+        auto FinishChainExplosionFilm = [&]() -> void {
+            std::int32_t Damage{};
+            std::uint32_t Color{};
+            TShip* Ship{};
+            std::int32_t I{};
+            std::int32_t Index = pas::list_count(Ships) - 1;
+            while (Index >= 0) {
+                Ship = pas::list_at<TShip>(Ships, Index);
+                Damage = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, Index)));
+                Color = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Colors, Index)));
+                {
+                    const std::int32_t cpp_first = Index - 1;
+                    if (cpp_first >= 0) {
+                        for (I = cpp_first; I >= 0; --I) {
+                            if (pas::list_get(Ships, I) == Ship) {
+                                Damage += static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, I)));
+                            }
+                        }
+                    }
+                }
+                Globals::PrimaryFilm->SetWeaponHit(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, Index), Color, Damage, Ship->IsHullDestroyed(), true);
+                Globals::PrimaryFilm->AttachObject(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, Index));
+                pas::list_delete(Ships, Index);
+                pas::list_delete(Damages, Index);
+                pas::list_delete(Colors, Index);
+                pas::list_delete(Films, Index);
+                {
+                    const std::int32_t cpp_first_2 = Index - 1;
+                    if (cpp_first_2 >= 0) {
+                        for (I = cpp_first_2; I >= 0; --I) {
+                            if (pas::list_get(Ships, I) == Ship) {
+                                Globals::PrimaryFilm->SetWeaponHit(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, I), 0, 0, false, true);
+                                Globals::PrimaryFilm->AttachObject(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, I));
+                                pas::list_delete(Ships, I);
+                                pas::list_delete(Damages, I);
+                                pas::list_delete(Colors, I);
+                                pas::list_delete(Films, I);
+                            }
+                        }
+                    }
+                }
+                Index = pas::list_count(Ships) - 1;
+            }
+        };
         if (Target->IsHullDestroyed()) {
             return;
         }
         aGalaxy::TStar* Star = CurrentStar;
-        std::int32_t StepIndex = Star->CurrentStepIndex;
+        StepIndex = Star->CurrentStepIndex;
         if (aPlayer::GetPlayer() == Target || aPlayer::GetPlayer() == this) {
             Star->PlayerCombatOccurred = true;
         }
@@ -4308,7 +4396,7 @@ namespace aShip {
                     DrainedDamage += Damage;
                 }
                 if (RecordFilm) {
-                    aShip::FinishChainExplosionFilm(StepIndex, Ships, Damages, Colors, Films);
+                    FinishChainExplosionFilm();
                 }
                 pas::list_clear(Ships);
                 pas::free(Ships);
@@ -4447,51 +4535,7 @@ namespace aShip {
         return Result;
     }
 
-    void FinishChainExplosionFilm(std::int32_t& StepIndex, pas::List*& Ships, pas::List*& Damages, pas::List*& Colors, pas::List*& Films) {
-        std::int32_t Damage{};
-        std::uint32_t Color{};
-        TShip* Ship{};
-        std::int32_t I{};
-        std::int32_t Index = pas::list_count(Ships) - 1;
-        while (Index >= 0) {
-            Ship = pas::list_at<TShip>(Ships, Index);
-            Damage = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, Index)));
-            Color = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Colors, Index)));
-            {
-                const std::int32_t cpp_first = Index - 1;
-                if (cpp_first >= 0) {
-                    for (I = cpp_first; I >= 0; --I) {
-                        if (pas::list_get(Ships, I) == Ship) {
-                            Damage += static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, I)));
-                        }
-                    }
-                }
-            }
-            Globals::PrimaryFilm->SetWeaponHit(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, Index), Color, Damage, Ship->IsHullDestroyed(), true);
-            Globals::PrimaryFilm->AttachObject(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, Index));
-            pas::list_delete(Ships, Index);
-            pas::list_delete(Damages, Index);
-            pas::list_delete(Colors, Index);
-            pas::list_delete(Films, Index);
-            {
-                const std::int32_t cpp_first_2 = Index - 1;
-                if (cpp_first_2 >= 0) {
-                    for (I = cpp_first_2; I >= 0; --I) {
-                        if (pas::list_get(Ships, I) == Ship) {
-                            Globals::PrimaryFilm->SetWeaponHit(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, I), 0, 0, false, true);
-                            Globals::PrimaryFilm->AttachObject(StepIndex, pas::list_at<aEFilm::TEFilmObj>(Films, I));
-                            pas::list_delete(Ships, I);
-                            pas::list_delete(Damages, I);
-                            pas::list_delete(Colors, I);
-                            pas::list_delete(Films, I);
-                        }
-                    }
-                }
-            }
-            Index = pas::list_count(Ships) - 1;
-        }
-    }
-
+    // Weapon may be nil. Script handlers can change the target; a destroyed item may explode and be freed.
     void TShip::FireWeaponAtItem(aItem::TWeapon* Weapon, aItem::TItem* Target, std::uint8_t RecordFilm) {
         aGalaxy::TStar* Star{};
         SE_Space::TObjectSE* Effect{};
@@ -4607,6 +4651,7 @@ namespace aShip {
         }
     }
 
+    // Ignores non-asteroid targets. Respawning preserves the target object but invalidates its previous motion and mineral reserve.
     void TShip::FireWeaponAtAsteroid(aItem::TWeapon* Weapon, pas::Object* Target, std::uint8_t RecordFilm) {
         aGalaxy::TStar* Star{};
         std::int32_t StepIndex{};
@@ -4645,8 +4690,9 @@ namespace aShip {
         }
     }
 
+    // Uses InterceptorSourceShip; absent source gives base damage 25. Returns ApplyDamage's signed result.
     std::int32_t TShip::ApplyInterceptorDamage(std::uint32_t& DamageColor) {
-        static const pas::Set<0, 255> InterceptorDamageFlags = pas::constant_set<pas::Set<0, 255>>({{0}});
+        static const pas::Set<0, 255> InterceptorDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkEnergy}});
         std::int32_t Damage{};
         aGalaxyEvent::TGalaxyEvent* Event{};
         TShip* SourceShip = InterceptorSourceShip;
@@ -4667,11 +4713,13 @@ namespace aShip {
         return Result;
     }
 
+    // Uses rounded shock strength and nonlethal flag 0x1000; returns ApplyDamage's signed result.
     std::int32_t TShip::ApplyShockStatusDamage(std::uint32_t& DamageColor) {
-        static const pas::Set<0, 255> ShockDamageFlags = pas::constant_set<pas::Set<0, 255>>({{0}, {12}});
+        static const pas::Set<0, 255> ShockDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkEnergy}, {aGalaxyStruct::dkNonLethal}});
         return ApplyDamage(nullptr, System::Round(GetCombatStatusStrength(cseShock)), -1.0f, DamageColor, static_cast<aGalaxyStruct::TDamageFlagSet>(ShockDamageFlags));
     }
 
+    // Returns script-adjusted damage, which may exceed actual hull loss. DamageColor uses the current packed pixel format and is zero for nonpositive damage.
     std::int32_t TShip::ApplyAsteroidImpactDamage(aAsteroid::TAsteroid* Asteroid, std::uint32_t& DamageColor) {
         std::int32_t Damage{};
         float Factor{};
@@ -4730,6 +4778,7 @@ namespace aShip {
         return Result;
     }
 
+    // ExplodingObject may be an item or ship; SourceShip and Missile may be nil. Returns script-adjusted damage, not actual hull loss; can trigger death handling without freeing Self.
     std::int32_t TShip::ApplyExplosionDamage(TShip* SourceShip, pas::Object* ExplodingObject, std::int32_t ExtraDamage, pas::Object* Missile) {
         TShip* Ship{};
         float DistanceSquared{};
@@ -4822,6 +4871,7 @@ namespace aShip {
         return Result;
     }
 
+    // Also refuels up to five units inside the damage radius. Returns script-adjusted damage; Dominator bosses survive with at least one hull point.
     std::int32_t TShip::ApplyStarHeatDamage() {
         float Damage{};
         aGalaxyEvent::TGalaxyEvent* Event{};
@@ -4851,7 +4901,7 @@ namespace aShip {
                 ScriptItemsAct(aConst::satOnDeath, nullptr, CurrentStar, 0);
                 aPlayer::GetPlayer()->ProcessShipDestructionQuests(this);
                 if (GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlHostile) {
-                    if (aPlayer::GetPlayer() == OrderTarget || aPlayer::GetPlayer() == EnemyShip && pas::in_set<0, 0, 2, 3>(Order) || aPlayer::GetPlayer()->IsAttackingShip(this)) {
+                    if (aPlayer::GetPlayer() == OrderTarget || aPlayer::GetPlayer() == EnemyShip && pas::is_one_of<soNone, soLand, soJump>(Order) || aPlayer::GetPlayer()->IsAttackingShip(this)) {
                         ++aPlayer::GetPlayer()->AchievementStats->EnemiesDestroyedByStarHeat;
                         Achievements::TrySetAchievementProgress(u"FRY"_w, aPlayer::GetPlayer()->AchievementStats->EnemiesDestroyedByStarHeat);
                     }
@@ -4898,6 +4948,7 @@ namespace aShip {
         return Count;
     }
 
+    // Counts torpedo/missile/rocket shot types; does not check usability or ammunition.
     std::uint8_t TShip::CountMissileWeapons() {
         std::int32_t I{};
         std::uint8_t Result = 0;
@@ -4914,6 +4965,7 @@ namespace aShip {
         return Result;
     }
 
+    // Complement of CountMissileWeapons over cached equipped weapons.
     std::uint8_t TShip::CountDirectFireWeapons() {
         std::int32_t I{};
         std::uint8_t Result = 0;
@@ -4941,6 +4993,7 @@ namespace aShip {
         }
     }
 
+    // Counts any intersection; does not check usability or ammunition.
     std::uint8_t TShip::CountWeaponsByDamageFlags(aGalaxyStruct::TDamageFlagSet Flags) {
         std::int32_t I{};
         std::uint8_t Result = 0;
@@ -5023,14 +5076,17 @@ namespace aShip {
         return Result;
     }
 
+    // Callers pass the target ship in EDX. This routine ignores it and only checks Self's active scanner artefact count.
     std::uint8_t TShip::HasScannerArtefact(TShip* UnusedTarget) {
         return CountActiveArtefacts(aConst::t_ArtefactScaner) > 0;
     }
 
+    // Same result as GetWeaponRange in this binary.
     std::int32_t TShip::GetWeaponActionRange(aItem::TWeapon* Weapon) {
         return GetWeaponRange(Weapon);
     }
 
+    // Weapon slots are numbered 1..5.
     std::int32_t TShip::GetWeaponSlotRange(std::int32_t SlotIndex) {
         return GetWeaponRange(Weapons[SlotIndex]);
     }
@@ -5085,6 +5141,7 @@ namespace aShip {
         return Result;
     }
 
+    // Nil clears every cached weapon target; otherwise clears only matches.
     void TShip::ClearWeaponTargets(pas::Object* Target) {
         std::int32_t I{};
         if (Target == nullptr) {
@@ -5106,6 +5163,7 @@ namespace aShip {
         }
     }
 
+    // Includes weapon targets, interceptor attribution and shock/acid source IDs; requires non-nil Target.
     std::uint8_t TShip::IsAttackingShip(TShip* Target) {
         std::int32_t I{};
         {
@@ -5130,6 +5188,7 @@ namespace aShip {
         return false;
     }
 
+    // Returns a combat strength ratio, not a probability.
     double TShip::ChanceToWin(TShip* Target) {
         double Result{};
         std::int32_t Index{};
@@ -5208,6 +5267,7 @@ namespace aShip {
         return System::Round(aMyFunction::RemapClamped(Value, 0.0, 1.0, 0.0, 5.0E+1));
     }
 
+    // Assigns both ships' enemies and eligible weapons, then issues pursuit orders where possible.
     void TShip::SetJointAttackTarget(TShip* Ally, TShip* Target) {
         std::int32_t I{};
         aItem::TWeapon* Weapon{};
@@ -5270,6 +5330,7 @@ namespace aShip {
         return EnemyShip->OrderTarget == this;
     }
 
+    // Rejects bomb/explosive cargo near non-hostile normal-space ships, including Self. Does not test shot range.
     std::uint8_t TShip::CanSafelyDetonateItem(aItem::TItem* Item) {
         std::int32_t I{};
         TShip* Ship{};
@@ -5289,6 +5350,7 @@ namespace aShip {
         return Result;
     }
 
+    // Requires a non-nil relation list; nonempty lists require a registered ranger. Stores representative values 5, 20, 45, 70 or 90.
     void TShip::SetStoredRangerRelationLevel(TShip* Ranger, aGalaxyStruct::TRelationLevel Level) {
         if (pas::list_count(RangerRelations) < 1) {
             return;
@@ -5338,6 +5400,7 @@ namespace aShip {
         }
     }
 
+    // Stations can display their stored ranger relation instead of the effective relation.
     pas::WideString TShip::GetRelationLevelTextToShip(TShip* Ship) {
         pas::WideString Result{};
         aGalaxyStruct::TRelationLevel Level = GetRelationLevelToShip(Ship);
@@ -5351,6 +5414,7 @@ namespace aShip {
         return Result;
     }
 
+    // Attempts a cargo or money demand through the target's dialogue handler; requires a player.
     std::uint8_t TShip::TryExtortShip(TShip* Target) {
         std::int32_t Amount{};
         pas::WideString Response{};
@@ -5389,6 +5453,7 @@ namespace aShip {
         return Result;
     }
 
+    // Cancels reciprocal attacks and pursuers, including wingmen/Tranclucators and missiles. Only the player's TruceShip is set reciprocally.
     void TShip::TruceWithShip(TShip* Ship) {
         std::int32_t I{};
         aItem::TWeapon* Weapon{};
@@ -5497,6 +5562,7 @@ namespace aShip {
         }
     }
 
+    // May ask the player or nearby allied NPCs; requires a player.
     void TShip::RequestAlliesAttackShip(TShip* Target) {
         std::int32_t I{};
         std::int32_t Requests{};
@@ -5513,7 +5579,7 @@ namespace aShip {
                 Requests = 0;
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                     Other = pas::list_at<TShip>(CurrentStar->Ships, I);
-                    if (Other != this && Other != Target && Other->InNormalSpace() && static_cast<std::uint8_t>(pas::contains(aConst::NonNegotiatingShipTypes, Other->TypeId) ^ 1) && Other->OrderTarget != Target && (Other->EnemyShip == nullptr || Other->EnemyShip->CurrentStar != CurrentStar) && Other->GetRelationLevelToShip(this) >= aGalaxyStruct::rlGood && (aPlayer::GetPlayer() != Other || GetRelationLevelToShip(Other) >= aGalaxyStruct::rlGood) && (Other->GetRelationLevelToShip(Target) <= aGalaxyStruct::rlNormal || pas::class_cast_if<aPirate::TPirate*>(Other) != nullptr && pas::class_cast_if<aPirate::TPirate*>(this) != nullptr) && static_cast<std::uint8_t>(pas::in_set<1, 2>(Other->TargetingRestriction) ^ 1) && static_cast<std::uint8_t>(pas::in_set<1, 2>(Target->TargetingRestriction) ^ 1) && CanContactShip(Other) && Other->PartnerShip != Target && Target->PartnerShip != Other && aMyFunction::NextRandomUnitFloat(RandomState) <= 0.9L && (!(pas::class_cast_if<aWarrior::TWarrior*>(Other) != nullptr) || pas::checked_cast<aWarrior::TWarrior*>(Other)->WarriorType != aWarrior::wtFlagship) && (aPlayer::GetPlayer() != Other || CurrentStar->Status.ControlFaction != aGalaxyStruct::sfCoalition || CurrentStar->Status.CustomFaction != u"" || TypeId != aGalaxyStruct::stWarrior || aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || !(pas::class_cast_if<aNormalShip::TNormalShip*>(Target) != nullptr) || static_cast<std::uint8_t>(pas::in_set<2, 2, 4, 4>(Target->TypeId) ^ 1) && (Target->TypeId != aGalaxyStruct::stRanger || Target->GetDominantCareer() == aGalaxyStruct::rcPirate)) && (aPlayer::GetPlayer() != Other || CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates || CurrentStar->Status.CustomFaction != u"" || TypeId != aGalaxyStruct::stPirate || OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || !(pas::class_cast_if<aNormalShip::TNormalShip*>(Target) != nullptr) || Target->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate))) {
+                    if (Other != this && Other != Target && Other->InNormalSpace() && static_cast<std::uint8_t>(pas::contains(aConst::NonNegotiatingShipTypes, Other->TypeId) ^ 1) && Other->OrderTarget != Target && (Other->EnemyShip == nullptr || Other->EnemyShip->CurrentStar != CurrentStar) && Other->GetRelationLevelToShip(this) >= aGalaxyStruct::rlGood && (aPlayer::GetPlayer() != Other || GetRelationLevelToShip(Other) >= aGalaxyStruct::rlGood) && (Other->GetRelationLevelToShip(Target) <= aGalaxyStruct::rlNormal || pas::class_cast_if<aPirate::TPirate*>(Other) != nullptr && pas::class_cast_if<aPirate::TPirate*>(this) != nullptr) && static_cast<std::uint8_t>(pas::in_set<1, 2>(Other->TargetingRestriction) ^ 1) && static_cast<std::uint8_t>(pas::in_set<1, 2>(Target->TargetingRestriction) ^ 1) && CanContactShip(Other) && Other->PartnerShip != Target && Target->PartnerShip != Other && aMyFunction::NextRandomUnitFloat(RandomState) <= 0.9L && (!(pas::class_cast_if<aWarrior::TWarrior*>(Other) != nullptr) || pas::checked_cast<aWarrior::TWarrior*>(Other)->WarriorType != aWarrior::wtFlagship) && (aPlayer::GetPlayer() != Other || CurrentStar->Status.ControlFaction != aGalaxyStruct::sfCoalition || CurrentStar->Status.CustomFaction != u"" || TypeId != aGalaxyStruct::stWarrior || aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || !(pas::class_cast_if<aNormalShip::TNormalShip*>(Target) != nullptr) || static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::stTransport, aGalaxyStruct::stWarrior>(Target->TypeId) ^ 1) && (Target->TypeId != aGalaxyStruct::stRanger || Target->GetDominantCareer() == aGalaxyStruct::rcPirate)) && (aPlayer::GetPlayer() != Other || CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates || CurrentStar->Status.CustomFaction != u"" || TypeId != aGalaxyStruct::stPirate || OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || !(pas::class_cast_if<aNormalShip::TNormalShip*>(Target) != nullptr) || Target->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate))) {
                         if (aPlayer::GetPlayer() == Other && static_cast<std::uint8_t>(aRanger::PlayerAutomaticControl ^ 1)) {
                             if (static_cast<std::uint32_t>(aGalaxy::ReservedMessageCounter) < 7) {
                                 continue;
@@ -5559,6 +5625,7 @@ namespace aShip {
         return false;
     }
 
+    // Rangers and pirates only; other classes return zero.
     std::int32_t TShip::GetPrisonTermRemaining() {
         std::int32_t Result = 0;
         switch (TypeId) {
@@ -5575,6 +5642,7 @@ namespace aShip {
         }
     }
 
+    // Zero without a positive term; otherwise at least 100, using cached Wealth.
     std::int32_t TShip::GetPrisonReleaseCost() {
         std::int32_t Divisor{};
         std::int32_t Result = 0;
@@ -5593,6 +5661,7 @@ namespace aShip {
         return Result;
     }
 
+    // Result is borrowed; raises when no market is available.
     aGalaxyStruct::PGoodsTradePriceEntry TShip::GetLocationGoodsEntry(std::uint8_t Good) {
         if (IsOnPlanet()) {
             return &CurrentPlanet->Goods[Good];
@@ -5613,6 +5682,7 @@ namespace aShip {
         }
     }
 
+    // Location is a planet or station; nil selects the current trade context.
     std::int32_t TShip::ShopGoodsPurchasePrice(std::uint8_t Good, pas::Object* Location) {
         aGalaxyStruct::PGoodsTradePriceEntry Entry = nullptr;
         if (Location == nullptr) {
@@ -5634,6 +5704,7 @@ namespace aShip {
         return std::max<std::int32_t>(1, Entry->PurchasePrice);
     }
 
+    // Includes the Trading skill bonus. Location=nil selects the current trade context.
     std::int32_t TShip::ShopGoodsSellPrice(std::uint8_t Good, pas::Object* Location) {
         aGalaxyStruct::PGoodsTradePriceEntry Entry = nullptr;
         if (Location == nullptr) {
@@ -5655,6 +5726,7 @@ namespace aShip {
         return std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(aConst::TradingSkillSalePercent[GetEffectiveSkillLevel(psTrading, false) & 0x0000007f] * (Entry->PurchasePrice - Entry->BaseSalePrice) * 0.01L + Entry->BaseSalePrice));
     }
 
+    // Returns 0 for an empty cargo entry.
     double TShip::GetAverageCargoCost(std::uint8_t Good) {
         if (CargoGoods[Good].Count > 0) {
             return pas::real_divide(CargoGoods[Good].TotalCost, CargoGoods[Good].Count);
@@ -5662,6 +5734,7 @@ namespace aShip {
         return 0.0;
     }
 
+    // Count is not clamped; remaining cost basis uses the previous average price.
     void TShip::ConsumeCargoGoods(std::uint8_t Good, std::int32_t Count) {
         if (CargoGoods[Good].Count == Count) {
             CargoGoods[Good].Count = 0;
@@ -5688,6 +5761,7 @@ namespace aShip {
         return Result;
     }
 
+    // Rejects Count above carried stock; does not reject a negative Count. Player trade losses offset later profit before trade experience is awarded.
     void TShip::SellGoodsToLocation(std::uint8_t Good, std::int32_t Count) {
         std::int32_t PurchasedCount{};
         std::int32_t PurchasedCost{};
@@ -5800,6 +5874,7 @@ namespace aShip {
         }
     }
 
+    // Checks stock and cash, but not free cargo space or negative Count.
     void TShip::BuyGoodsFromLocation(std::uint8_t Good, std::int32_t Count) {
         std::int32_t LocationCount{};
         std::int32_t ShipCount{};
@@ -5855,6 +5930,7 @@ namespace aShip {
         }
     }
 
+    // Requires an in-range route index when a group is assigned; may leave the group or issue travel/combat orders.
     void TShip::ProcessLiberationGroupRoute() {
         EC_Struct::TPointF Destination{};
         std::int32_t I{};
@@ -5961,6 +6037,7 @@ namespace aShip {
         }
     }
 
+    // Requires a current liberation group.
     void TShip::LeaveLiberationGroup() {
         {
             std::int32_t cpp_arg = pas::list_indexof(pas::checked_cast<aGroup::TGroup*>(LiberationGroup)->Ships, reinterpret_cast<void*>(this));
@@ -6003,6 +6080,7 @@ namespace aShip {
         return DefGenerator;
     }
 
+    // Pirate/science bases, licensed station names and the main pirate planet; follows DockedTo recursively.
     std::uint8_t TShip::CanRepairArtefactsAtLocation() {
         if (pas::in_set<7, 7, 9, 9>(TypeId)) {
             return true;
@@ -6056,10 +6134,12 @@ namespace aShip {
         }
     }
 
+    // Does not require EquippedFlag.
     std::uint8_t TShip::IsEquipmentUsable(aItem::TEquipment* Item) {
         return Item != nullptr && (static_cast<std::uint8_t>(pas::in_set<43, 68, 73, 73>(static_cast<std::uint8_t>(Item->ItemType)) ^ 1) || Item->BrokenFlag == 0) && CanUseEquipmentTech(Item);
     }
 
+    // Does not add Item to the inventory.
     void TShip::EquipItem(aItem::TEquipment* Item) {
         if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
             if (pas::load_unaligned<aItem::TEquipment*>(pas::byte_offset(&reinterpret_cast<PShipEquipmentCacheView>(this)->Slots, (static_cast<std::uint8_t>(Item->ItemType) - 42) * sizeof(aItem::TEquipment*))) != nullptr) {
@@ -6078,6 +6158,7 @@ namespace aShip {
         Item->Equip();
     }
 
+    // Direct types 42..49 require a populated slot; weapon types 50..68 require a valid one-based WeaponIndex. Compacts the weapon cache; does not remove/free inventory.
     void TShip::UnequipSlot(std::uint8_t ItemType, std::int32_t WeaponIndex) {
         std::int32_t I{};
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
@@ -6102,6 +6183,7 @@ namespace aShip {
         }
     }
 
+    // Only affects cached installed equipment. Requires non-nil Item.
     void TShip::UnequipItem(aItem::TEquipment* Item) {
         std::int32_t I{};
         if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
@@ -6116,6 +6198,7 @@ namespace aShip {
         }
     }
 
+    // Uses cached CargoFreeSpace; includes cargo, artefact and status modifiers.
     std::int32_t TShip::CalculateMass() {
         std::int32_t I{};
         double Mass = GetHull()->Weight - CargoFreeSpace + GetHull()->CalculateMass();
@@ -6135,6 +6218,7 @@ namespace aShip {
         return System::Round(Mass);
     }
 
+    // Excludes cargo and unequipped items. Uses the current hull, adding ItemForModule's micromodule mass bonus when supplied.
     std::int32_t TShip::CalculateEquippedMass(aItem::TEquipment* ItemForModule) {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -6164,6 +6248,7 @@ namespace aShip {
         return System::Round(Mass);
     }
 
+    // Not clamped to 0..100.
     std::uint8_t TShip::GetHullIntegrityPercent() {
         return System::Round(pas::real_divide(GetHull()->HullPoints, GetHull()->Weight) * 1.0E+2L);
     }
@@ -6174,6 +6259,7 @@ namespace aShip {
         return std::max<std::int32_t>(0, Result);
     }
 
+    // Truncated map distance for a jump order; zero otherwise.
     std::int32_t TShip::GetJumpDestinationDistance() {
         if (Order == soJump) {
             return System::Trunc(aMyFunction::PointDistance(CurrentStar->Position, pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Position));
@@ -6181,6 +6267,7 @@ namespace aShip {
         return 0;
     }
 
+    // Zero without tanks. Uses current planet owner, or owner six off-planet; overfilled tanks can produce a negative cost.
     std::int32_t TShip::GetFullRefuelCost() {
         if (GetFuelTanks() != nullptr) {
             if (CurrentPlanet != nullptr) {
@@ -6191,6 +6278,7 @@ namespace aShip {
         return 0;
     }
 
+    // Uses engine owner and current turn; no engine gives one before artefact modifiers.
     std::int32_t TShip::GetAfterburnerWear() {
         std::int32_t Result{};
         std::int32_t I{};
@@ -6225,6 +6313,7 @@ namespace aShip {
         return std::min<std::int32_t>(cpp_arg, jumpRange);
     }
 
+    // Ignores fuel; broken engines retain 60% range.
     std::int32_t TShip::GetJumpRange() {
         if (GetEngine() == nullptr) {
             return 0;
@@ -6235,6 +6324,7 @@ namespace aShip {
         return CalculateEngineJumpRange(GetEngine());
     }
 
+    // Zero-based template index; true means disallowed. Includes custom faction, Dominator series and pilot-race restrictions.
     std::uint8_t TShip::IsMicroModuleRaciallyRestricted(std::int32_t ModuleIndex) {
         static const pas::Set<0, 255> AllSeries = pas::constant_set<pas::Set<0, 255>>({{0, 2}});
         static const pas::Set<0, 255> PlanetOwners = pas::constant_set<pas::Set<0, 255>>({{0, 4}});
@@ -6342,6 +6432,7 @@ namespace aShip {
         return Result;
     }
 
+    // Ignores radar range and Dominator scanner series; non-ship targets require only a usable scanner.
     std::uint8_t TShip::CanResolveObjectWithScanner(pas::Object* Target) {
         if (!IsEquipmentUsable(GetScanner())) {
             return false;
@@ -6443,6 +6534,7 @@ namespace aShip {
         return pas::sqr(GetCargoHookRange());
     }
 
+    // Raw PickupPower; zero without a hook. Does not check usability.
     std::int32_t TShip::GetBaseCargoHookPower() {
         if (GetCargoHook() != nullptr) {
             return GetCargoHook()->PickupPower;
@@ -6450,6 +6542,7 @@ namespace aShip {
         return 0;
     }
 
+    // 1 means no damage reduction.
     double TShip::GetDefenseDamageFactor() {
         if (!IsEquipmentUsable(GetDefGenerator())) {
             return 1.0;
@@ -6465,6 +6558,7 @@ namespace aShip {
         return std::max<std::int32_t>(0, 1 + GetOwnStatBonus(aConst::bonAttacks));
     }
 
+    // Rejects ID 255 and appends without deduplication; stops when list count equals 255. Extends the visible prefix only when all previous awards were visible.
     void TShip::AddAward(std::uint8_t AwardId) {
         if (AwardId == 255) {
             GR_Main::RaiseWideMessage(u"Error RewardNumber=255"_wref.get());
@@ -6509,6 +6603,7 @@ namespace aShip {
         TShip::DerivedStateCompatibilityHook();
     }
 
+    // Requires Graphic; chooses dimensions from ship class, hull and special equipment.
     void TShip::RefreshGraphicSize() {
         std::int32_t Small{};
         std::int32_t Large{};
@@ -6576,6 +6671,7 @@ namespace aShip {
         Graphic->SetSize(ClassesImports::Point(Size, Size));
     }
 
+    // Can unequip items whose slots are unavailable.
     void TShip::RebuildEquipmentCache() {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -6612,10 +6708,12 @@ namespace aShip {
         RemoveInvalidPickupTargets();
     }
 
+    // Can be negative.
     std::int32_t TShip::GetCargoFreeSpace() {
         return GetHull()->Weight - GetCarriedItemWeight() - GetCargoGoodsWeight();
     }
 
+    // Excludes the hull.
     std::int32_t TShip::GetCarriedItemWeight() {
         aItem::TItem* Item{};
         std::int32_t I{};
@@ -6640,6 +6738,7 @@ namespace aShip {
         return Result;
     }
 
+    // Requires a follow order; uses weapon ranges or the ships' collision radii.
     std::int32_t TShip::CalculateFollowRadius() {
         std::int32_t Result{};
         std::int32_t I{};
@@ -6688,6 +6787,7 @@ namespace aShip {
         return System::Trunc(static_cast<long double>(CollisionRadius) + Target->CollisionRadius) + 15;
     }
 
+    // Raises when the current order is not follow.
     std::uint8_t TShip::GetFollowMode() {
         if (Order != soFollowShip) {
             pas::raise(pas::make_exception<pas::Exception>("TShip.CalcFollowRadius()"_a));
@@ -6695,6 +6795,7 @@ namespace aShip {
         return OrderStateData;
     }
 
+    // Requires a follow order; applies tactical and map-edge adjustments without modifying OrderStateData.
     std::uint8_t TShip::GetEffectiveFollowMode() {
         if (Order != soFollowShip) {
             pas::raise(pas::make_exception<pas::Exception>("TShip.GetRealFollowType()"_a));
@@ -6724,6 +6825,7 @@ namespace aShip {
         return Result;
     }
 
+    // Includes equipped artefacts.
     std::int32_t TShip::CalculateEquippedItemCostWithoutHull() {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -6744,6 +6846,7 @@ namespace aShip {
         return Result;
     }
 
+    // Skips inventory index zero; any weapon request counts all weapon types.
     std::int32_t TShip::CountCarriedEquipmentByType(aConst::TItemType ItemType) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -6819,6 +6922,7 @@ namespace aShip {
         return false;
     }
 
+    // Preserves named script items; drops through the normal item/artefact helpers.
     void TShip::DropUnequippedItemsAndGoods() {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -6850,6 +6954,7 @@ namespace aShip {
         }
     }
 
+    // Always adds to the player's storage, even when Self is an NPC. Caller must detach the item from its previous owner. Negative Slot allocates a free slot.
     void TShip::AddItemToPlayerStorage(aItem::TItem* Item, pas::Object* Location, std::int32_t Slot) {
         aPlayer::PStorageEntry Entry{};
         pas::new_value(Entry);
@@ -6874,6 +6979,7 @@ namespace aShip {
         ScriptItemsAct(aConst::satOnMovingItemToStorage, Item, Location, 0);
     }
 
+    // Transfers ownership; a successful goods/countable merge frees Item.
     void TShip::MergeItemIntoPlayerStorage(aItem::TItem* Item, pas::Object* Location, std::int32_t Slot) {
         std::int32_t Index{};
         std::int32_t Occupant{};
@@ -6918,6 +7024,7 @@ namespace aShip {
         AddItemToPlayerStorage(Item, Location, Slot);
     }
 
+    // Positive quantities only; Cost is the total cost basis, not a unit price.
     void TShip::AddGoodsToPlayerStorage(std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost, pas::Object* Location, std::int32_t Slot) {
         std::int32_t Index{};
         std::int32_t Occupant{};
@@ -6958,6 +7065,7 @@ namespace aShip {
         }
     }
 
+    // Uses the player's storage filters. Returns true for an eligible location even if nothing was moved.
     std::uint8_t TShip::StoreLooseInventoryAt(pas::Object* Location) {
         std::int32_t I{};
         aConst::TItemType Good{};
@@ -7007,6 +7115,7 @@ namespace aShip {
         return Result;
     }
 
+    // Transfers matching player storage entries into Self; returns location eligibility, not whether items were retrieved.
     std::uint8_t TShip::RetrieveStoredItems(pas::Object* Location) {
         std::int32_t I{};
         std::int32_t J{};
@@ -7066,15 +7175,46 @@ namespace aShip {
     }
 
     void TShip::AutoEquipArtefacts() {
-        static const pas::Set<0, 255> EnergyFlags = pas::constant_set<pas::Set<0, 255>>({{0}});
-        static const pas::Set<0, 255> SplinterFlags = pas::constant_set<pas::Set<0, 255>>({{1}});
+        static const pas::Set<0, 255> EnergyFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkEnergy}});
+        static const pas::Set<0, 255> SplinterFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkSplinter}});
+        std::int32_t RemainingSlots{};
         std::int32_t I{};
         aItem::TEquipment* Item{};
+        // Caller-popped static link; remaining slots -4, ship -8.
+        auto EquipType = [&](aConst::TItemType ArtefactType) -> void {
+            std::int32_t I{};
+            float Score{};
+            float BestScore{};
+            aItem::TEquipment* Candidate{};
+            aItem::TEquipment* Best{};
+            if (RemainingSlots == 0) {
+                return;
+            }
+            while (RemainingSlots > 0) {
+                Best = nullptr;
+                BestScore = 0.0f;
+                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(this->Artefacts) - 1); cpp_range.next(I); ) {
+                    Candidate = pas::list_at<aItem::TEquipment>(this->Artefacts, I);
+                    if (Candidate->EquippedFlag == 0 && (Candidate->ItemType == ArtefactType || pas::in_range(static_cast<std::uint8_t>(Candidate->ItemType), static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2)) && reinterpret_cast<aItem::TArtefactCustom*>(Candidate)->CountsAsItemType == ArtefactType) && (static_cast<std::uint8_t>(HasEquippedArtefactOfSameUseGroup(Candidate) ^ 1) || aGalaxy::Galaxy->AreDuplicateArtefactsEnabled())) {
+                        Score = EvaluateItem(Candidate, 3);
+                        if (Best == nullptr || Score > BestScore) {
+                            Best = Candidate;
+                            BestScore = Score;
+                        }
+                    }
+                }
+                if (Best == nullptr) {
+                    break;
+                }
+                Best->Equip();
+                --RemainingSlots;
+            }
+        };
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Artefacts) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(Artefacts, I);
             Item->Unequip();
         }
-        std::int32_t RemainingSlots = GetSlotCountForItemType(aConst::t_Artefact);
+        RemainingSlots = GetSlotCountForItemType(aConst::t_Artefact);
         if (RemainingSlots <= 0) {
             return;
         }
@@ -7106,95 +7246,66 @@ namespace aShip {
         }
         I = 4;
         while (RemainingSlots > 0 && I > 0) {
-            aShip::EquipType(aConst::t_ArtefactAntigrav, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtefactSpeed, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtefactHull, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtMissileDef, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtEnergyDef, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtPDTurret, this, RemainingSlots);
+            EquipType(aConst::t_ArtefactAntigrav);
+            EquipType(aConst::t_ArtefactSpeed);
+            EquipType(aConst::t_ArtefactHull);
+            EquipType(aConst::t_ArtMissileDef);
+            EquipType(aConst::t_ArtEnergyDef);
+            EquipType(aConst::t_ArtPDTurret);
             if (HasEnergy) {
-                aShip::EquipType(aConst::t_ArtEnergyPulse, this, RemainingSlots);
+                EquipType(aConst::t_ArtEnergyPulse);
             }
             if (HasSplinter) {
-                aShip::EquipType(aConst::t_ArtSplinter, this, RemainingSlots);
+                EquipType(aConst::t_ArtSplinter);
             }
             if (HasMissiles) {
-                aShip::EquipType(aConst::t_ArtFastRacks, this, RemainingSlots);
+                EquipType(aConst::t_ArtFastRacks);
             }
             if (GetDefGenerator() != nullptr) {
-                aShip::EquipType(aConst::t_ArtefactDef, this, RemainingSlots);
+                EquipType(aConst::t_ArtefactDef);
             }
             if (GetRepairRobot() != nullptr) {
-                aShip::EquipType(aConst::t_ArtefactDroid, this, RemainingSlots);
+                EquipType(aConst::t_ArtefactDroid);
             }
             if (HasSplinter) {
-                aShip::EquipType(aConst::t_ArtDecelerate, this, RemainingSlots);
+                EquipType(aConst::t_ArtDecelerate);
             }
             if (HasEnergy & (GetDefGenerator() != nullptr)) {
-                aShip::EquipType(aConst::t_ArtDefToEnergy, this, RemainingSlots);
+                EquipType(aConst::t_ArtDefToEnergy);
             }
-            if (GetCargoHook() != nullptr && static_cast<std::uint8_t>(pas::in_set<0, 0, 2, 2, 4, 4>(TypeId) ^ 1)) {
-                aShip::EquipType(aConst::t_ArtefactHook, this, RemainingSlots);
+            if (GetCargoHook() != nullptr && static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::stKling, aGalaxyStruct::stTransport, aGalaxyStruct::stWarrior>(TypeId) ^ 1)) {
+                EquipType(aConst::t_ArtefactHook);
             }
-            if (!pas::in_set<0, 0, 2, 2, 4, 4>(TypeId)) {
-                aShip::EquipType(aConst::t_ArtefactMiniExpl, this, RemainingSlots);
+            if (!pas::is_one_of<aGalaxyStruct::stKling, aGalaxyStruct::stTransport, aGalaxyStruct::stWarrior>(TypeId)) {
+                EquipType(aConst::t_ArtefactMiniExpl);
             }
-            aShip::EquipType(aConst::t_ArtefactNano, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtefactPower, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtefactRadar, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtefactScaner, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtefactFuel, this, RemainingSlots);
-            aShip::EquipType(aConst::t_ArtBio, this, RemainingSlots);
+            EquipType(aConst::t_ArtefactNano);
+            EquipType(aConst::t_ArtefactPower);
+            EquipType(aConst::t_ArtefactRadar);
+            EquipType(aConst::t_ArtefactScaner);
+            EquipType(aConst::t_ArtefactFuel);
+            EquipType(aConst::t_ArtBio);
             if (GetSlotCount(aConst::sskWeapon) < 5) {
-                aShip::EquipType(aConst::t_ArtDefToArms1, this, RemainingSlots);
+                EquipType(aConst::t_ArtDefToArms1);
             }
             if (GetSlotCount(aConst::sskDefGenerator) > 0 && GetSlotCount(aConst::sskWeapon) < 4) {
-                aShip::EquipType(aConst::t_ArtDefToArms2, this, RemainingSlots);
+                EquipType(aConst::t_ArtDefToArms2);
             }
             if (GetSlotCount(aConst::sskWeapon) > WeaponCount) {
-                aShip::EquipType(aConst::t_ArtWeaponToSpeed, this, RemainingSlots);
+                EquipType(aConst::t_ArtWeaponToSpeed);
             }
-            if (GetSlotCount(aConst::sskAfterburner) > 0 && pas::in_set<1, 1, 3, 4>(TypeId)) {
-                aShip::EquipType(aConst::t_ArtForsage, this, RemainingSlots);
+            if (GetSlotCount(aConst::sskAfterburner) > 0 && pas::in_set<aGalaxyStruct::stRanger, aGalaxyStruct::stRanger, aGalaxyStruct::stPirate, aGalaxyStruct::stWarrior>(TypeId)) {
+                EquipType(aConst::t_ArtForsage);
             }
             if (GetEngine() != nullptr && GetEngine()->JumpRange * 1.2L < aConst::HyperJumpArtefactRange) {
-                aShip::EquipType(aConst::t_ArtGiperJump, this, RemainingSlots);
+                EquipType(aConst::t_ArtGiperJump);
             }
             --I;
         }
         RefreshDerivedStats(true);
     }
 
-    void EquipType(aConst::TItemType ArtefactType, TShip* Self, std::int32_t& RemainingSlots) {
-        std::int32_t I{};
-        float Score{};
-        float BestScore{};
-        aItem::TEquipment* Candidate{};
-        aItem::TEquipment* Best{};
-        if (RemainingSlots == 0) {
-            return;
-        }
-        while (RemainingSlots > 0) {
-            Best = nullptr;
-            BestScore = 0.0f;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->Artefacts) - 1); cpp_range.next(I); ) {
-                Candidate = pas::list_at<aItem::TEquipment>(Self->Artefacts, I);
-                if (Candidate->EquippedFlag == 0 && (Candidate->ItemType == ArtefactType || pas::in_range(static_cast<std::uint8_t>(Candidate->ItemType), static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2)) && reinterpret_cast<aItem::TArtefactCustom*>(Candidate)->CountsAsItemType == ArtefactType) && (static_cast<std::uint8_t>(Self->HasEquippedArtefactOfSameUseGroup(Candidate) ^ 1) || aGalaxy::Galaxy->AreDuplicateArtefactsEnabled())) {
-                    Score = Self->EvaluateItem(Candidate, 3);
-                    if (Best == nullptr || Score > BestScore) {
-                        Best = Candidate;
-                        BestScore = Score;
-                    }
-                }
-            }
-            if (Best == nullptr) {
-                break;
-            }
-            Best->Equip();
-            --RemainingSlots;
-        }
-    }
-
+    // Temporarily changes weapon installation and disables ChaoticRandom while evaluating equipment; restores them on the normal path.
     float TShip::CalculateItemEffectiveness(aItem::TItem* Item) {
         aItem::THull* CandidateHull{};
         std::int32_t WeaponIndex{};
@@ -7366,6 +7477,7 @@ namespace aShip {
         return Result;
     }
 
+    // Returns one for a non-weapon; adjusts weapon damage for galaxy technology and accuracy.
     float TShip::EstimateWeaponDamageAgainstTypicalDefense(aItem::TItem* Item) {
         std::int32_t MinimumDamage{};
         std::int32_t MaximumDamage{};
@@ -7440,6 +7552,7 @@ namespace aShip {
         return std::max<std::int32_t>(0, Value);
     }
 
+    // Zero unless Item is fuel tanks.
     std::int32_t TShip::GetItemFuelTankCapacity(aItem::TItem* Item) {
         if (Item->ItemType != aConst::t_FuelTanks) {
             return 0;
@@ -7592,6 +7705,14 @@ namespace aShip {
         std::int32_t I{};
         std::int32_t ModuleIndex{};
         aConst::TItemType ItemType{};
+        // Adds positive and nonpositive values to separate Single accumulators at ParentFrame-4/-8.
+        auto AccumulateEquipmentBonus = [&](float Value) -> void {
+            if (Value > 0.0L) {
+                Positive = static_cast<long double>(Positive) + Value;
+            } else {
+                Nonpositive = static_cast<long double>(Nonpositive) + Value;
+            }
+        };
         float Result = 0.0f;
         if (Item->SpecialModuleIndex != 0) {
             ModuleIndex = Item->SpecialModuleIndex - 1;
@@ -7602,41 +7723,42 @@ namespace aShip {
                 if (Item->ExtraSpecials == nullptr || pas::list_count(Item->ExtraSpecials) == 0) {
                     Module = &aConst::MicroModuleTemplates[ModuleIndex];
                     if (ItemType != aConst::t_Hull) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHull, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonHull * sizeof(std::int32_t)))), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHull, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonHull * sizeof(std::int32_t)))));
                     }
                     if (ItemType != aConst::t_Engine) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSpeed, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSpeed * sizeof(std::int32_t)))), Positive, Nonpositive);
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonJump, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonJump * sizeof(std::int32_t)))), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSpeed, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSpeed * sizeof(std::int32_t)))));
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonJump, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonJump * sizeof(std::int32_t)))));
                     }
                     if (GetRadar() != nullptr && ItemType != aConst::t_Radar) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonRadar, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonRadar * sizeof(std::int32_t)))), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonRadar, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonRadar * sizeof(std::int32_t)))));
                     }
                     if (GetScanner() != nullptr && ItemType != aConst::t_Scaner) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonScan, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonScan * sizeof(std::int32_t)))), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonScan, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonScan * sizeof(std::int32_t)))));
                     }
                     if (GetRepairRobot() != nullptr && ItemType != aConst::t_RepairRobot) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonDroid, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonDroid * sizeof(std::int32_t)))), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonDroid, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonDroid * sizeof(std::int32_t)))));
                     }
                     if (GetCargoHook() != nullptr && ItemType != aConst::t_CargoHook) {
-                        aShip::AccumulateEquipmentBonus(([&] {
+                        // Native expression adds raw hook power to the evaluated bonus before subtracting its evaluation.
+                        AccumulateEquipmentBonus(([&] {
                             pas::Extended cpp_left = ([&] {
                                 pas::Extended cpp_left_2 = EvaluateStatBonus(aConst::bonHook, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonHook * sizeof(std::int32_t))));
                                 return cpp_left_2 + CalculateCargoHookPower(GetCargoHook());
                             }());
                             return cpp_left - EvaluateStatBonus(aConst::bonHook, CalculateCargoHookPower(GetCargoHook()));
-                        }()), Positive, Nonpositive);
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHookRadius, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t)))), Positive, Nonpositive);
+                        }()));
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHookRadius, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t)))));
                     }
                     if (GetDefGenerator() != nullptr && ItemType != aConst::t_DefGenerator) {
-                        aShip::AccumulateEquipmentBonus(([&] {
+                        AccumulateEquipmentBonus(([&] {
                             pas::Extended cpp_left_3 = EvaluateStatBonus(aConst::bonDef, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonDef * sizeof(std::int32_t))) + static_cast<std::int32_t>(System::Round(1.0E+2L - CalculateDefGeneratorFactor(GetDefGenerator()) * 1.0E+2L)));
                             return cpp_left_3 - EvaluateStatBonus(aConst::bonDef, System::Round(1.0E+2L - CalculateDefGeneratorFactor(GetDefGenerator()) * 1.0E+2L));
-                        }()), Positive, Nonpositive);
+                        }()));
                     }
-                    aShip::AccumulateEquipmentBonus(([&] {
+                    AccumulateEquipmentBonus(([&] {
                         pas::Extended cpp_left_4 = EvaluateStatBonus(aConst::bonWRadius, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonWRadius * sizeof(std::int32_t))));
                         return cpp_left_4 * (CountEquippedWeapons() & 0x0000007f);
-                    }()), Positive, Nonpositive);
+                    }()));
                     if (!pas::in_range(static_cast<std::uint8_t>(ItemType), static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                         for (auto cpp_range = pas::for_to<std::int32_t>(1, CountEquippedWeapons() & 0x0000007f); cpp_range.next(I); ) {
                             DamageBonus = 0.0f;
@@ -7652,48 +7774,49 @@ namespace aShip {
                             if (DamageBonus > 0.001L || DamageBonus < -0.001L) {
                                 DamageBonus = EvaluateWeaponDamage(Weapons[I], false, DamageBonus);
                             }
-                            aShip::AccumulateEquipmentBonus(DamageBonus, Positive, Nonpositive);
+                            AccumulateEquipmentBonus(DamageBonus);
                         }
                     }
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill1, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill1 * sizeof(std::int32_t)))), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill2, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill2 * sizeof(std::int32_t)))), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill3, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill3 * sizeof(std::int32_t)))), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill4, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill4 * sizeof(std::int32_t)))), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill5, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill5 * sizeof(std::int32_t)))), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill6, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill6 * sizeof(std::int32_t)))), Positive, Nonpositive);
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill1, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill1 * sizeof(std::int32_t)))));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill2, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill2 * sizeof(std::int32_t)))));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill3, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill3 * sizeof(std::int32_t)))));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill4, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill4 * sizeof(std::int32_t)))));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill5, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill5 * sizeof(std::int32_t)))));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill6, pas::load_unaligned<std::int32_t>(pas::byte_offset(&Module->StatBonuses, aConst::bonSkill6 * sizeof(std::int32_t)))));
                 } else {
                     if (ItemType != aConst::t_Hull) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHull, Item->GetStatBonus(aConst::bonHull)), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHull, Item->GetStatBonus(aConst::bonHull)));
                     }
                     if (ItemType != aConst::t_Engine) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSpeed, Item->GetStatBonus(aConst::bonSpeed)), Positive, Nonpositive);
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonJump, Item->GetStatBonus(aConst::bonJump)), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSpeed, Item->GetStatBonus(aConst::bonSpeed)));
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonJump, Item->GetStatBonus(aConst::bonJump)));
                     }
                     if (GetRadar() != nullptr && ItemType != aConst::t_Radar) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonRadar, Item->GetStatBonus(aConst::bonRadar)), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonRadar, Item->GetStatBonus(aConst::bonRadar)));
                     }
                     if (GetScanner() != nullptr && ItemType != aConst::t_Scaner) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonScan, Item->GetStatBonus(aConst::bonScan)), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonScan, Item->GetStatBonus(aConst::bonScan)));
                     }
                     if (GetRepairRobot() != nullptr && ItemType != aConst::t_RepairRobot) {
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonDroid, Item->GetStatBonus(aConst::bonDroid)), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonDroid, Item->GetStatBonus(aConst::bonDroid)));
                     }
                     if (GetCargoHook() != nullptr && ItemType != aConst::t_CargoHook) {
+                        // Native expression adds raw hook power to the evaluated bonus before subtracting its evaluation.
                         {
                             pas::Extended cpp_left_6 = EvaluateStatBonus(aConst::bonHook, Item->GetStatBonus(aConst::bonHook));
                             pas::Extended cpp_left_5 = cpp_left_6 + CalculateCargoHookPower(GetCargoHook());
-                            aShip::AccumulateEquipmentBonus(cpp_left_5 - EvaluateStatBonus(aConst::bonHook, CalculateCargoHookPower(GetCargoHook())), Positive, Nonpositive);
+                            AccumulateEquipmentBonus(cpp_left_5 - EvaluateStatBonus(aConst::bonHook, CalculateCargoHookPower(GetCargoHook())));
                         }
-                        aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHookRadius, Item->GetStatBonus(aConst::bonHookRadius)), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonHookRadius, Item->GetStatBonus(aConst::bonHookRadius)));
                     }
                     if (GetDefGenerator() != nullptr && ItemType != aConst::t_DefGenerator) {
                         std::int32_t cpp_right = System::Round(1.0E+2L - CalculateDefGeneratorFactor(GetDefGenerator()) * 1.0E+2L);
                         pas::Extended cpp_left_7 = EvaluateStatBonus(aConst::bonDef, Item->GetStatBonus(aConst::bonDef) + cpp_right);
-                        aShip::AccumulateEquipmentBonus(cpp_left_7 - EvaluateStatBonus(aConst::bonDef, System::Round(1.0E+2L - CalculateDefGeneratorFactor(GetDefGenerator()) * 1.0E+2L)), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(cpp_left_7 - EvaluateStatBonus(aConst::bonDef, System::Round(1.0E+2L - CalculateDefGeneratorFactor(GetDefGenerator()) * 1.0E+2L)));
                     }
                     {
                         pas::Extended cpp_left_8 = EvaluateStatBonus(aConst::bonWRadius, Item->GetStatBonus(aConst::bonWRadius));
-                        aShip::AccumulateEquipmentBonus(cpp_left_8 * (CountEquippedWeapons() & 0x0000007f), Positive, Nonpositive);
+                        AccumulateEquipmentBonus(cpp_left_8 * (CountEquippedWeapons() & 0x0000007f));
                     }
                     if (!pas::in_range(static_cast<std::uint8_t>(ItemType), static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, CountEquippedWeapons() & 0x0000007f); cpp_range_2.next(I); ) {
@@ -7710,20 +7833,20 @@ namespace aShip {
                             if (DamageBonus > 0.001L || DamageBonus < -0.001L) {
                                 DamageBonus = EvaluateWeaponDamage(Weapons[I], false, DamageBonus);
                             }
-                            aShip::AccumulateEquipmentBonus(DamageBonus, Positive, Nonpositive);
+                            AccumulateEquipmentBonus(DamageBonus);
                         }
                     }
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill1, Item->GetStatBonus(aConst::bonSkill1)), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill2, Item->GetStatBonus(aConst::bonSkill2)), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill3, Item->GetStatBonus(aConst::bonSkill3)), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill4, Item->GetStatBonus(aConst::bonSkill4)), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill5, Item->GetStatBonus(aConst::bonSkill5)), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill6, Item->GetStatBonus(aConst::bonSkill6)), Positive, Nonpositive);
-                    aShip::AccumulateEquipmentBonus(Item->GetStatBonus(aConst::bonAIValue), Positive, Nonpositive);
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill1, Item->GetStatBonus(aConst::bonSkill1)));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill2, Item->GetStatBonus(aConst::bonSkill2)));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill3, Item->GetStatBonus(aConst::bonSkill3)));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill4, Item->GetStatBonus(aConst::bonSkill4)));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill5, Item->GetStatBonus(aConst::bonSkill5)));
+                    AccumulateEquipmentBonus(EvaluateStatBonus(aConst::bonSkill6, Item->GetStatBonus(aConst::bonSkill6)));
+                    AccumulateEquipmentBonus(Item->GetStatBonus(aConst::bonAIValue));
                 }
                 {
                     pas::Extended cpp_left_9 = EvaluateStatBonus(aConst::bonMass, CalculateEquippedMass(Item));
-                    aShip::AccumulateEquipmentBonus(cpp_left_9 - EvaluateStatBonus(aConst::bonMass, CalculateEquippedMass(nullptr)), Positive, Nonpositive);
+                    AccumulateEquipmentBonus(cpp_left_9 - EvaluateStatBonus(aConst::bonMass, CalculateEquippedMass(nullptr)));
                 }
                 if (Item->MicroModuleIndex != 0) {
                     Positive = static_cast<long double>(Positive) + System::Round(static_cast<long double>(aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff]) * Positive * 1.0E-4L);
@@ -7735,16 +7858,8 @@ namespace aShip {
         return Result;
     }
 
-    void AccumulateEquipmentBonus(float Value, float& Positive, float& Nonpositive) {
-        if (Value > 0.0L) {
-            Positive = static_cast<long double>(Positive) + Value;
-        } else {
-            Nonpositive = static_cast<long double>(Nonpositive) + Value;
-        }
-    }
-
     float TShip::GetWeaponArtefactDamageFactor(aItem::TWeapon* Weapon) {
-        static const pas::Set<0, 255> EnergyDamageFlags = pas::constant_set<pas::Set<0, 255>>({{0}});
+        static const pas::Set<0, 255> EnergyDamageFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkEnergy}});
         std::int32_t I{};
         float Result = 1.0f;
         std::uint32_t Flags = Weapon->GetWeaponInfo()->DamageFlags;
@@ -7828,11 +7943,12 @@ namespace aShip {
         return AdjustItemEvaluation(Item, PriceMode, CalculateItemEffectiveness(Item));
     }
 
+    // Price modes: 1 negated item cost, 3 resale value, 4 item cost; other modes omit the price term. Mode 0 also omits weight/fragility penalties; the supplied effectiveness is recomputed.
     float TShip::AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) {
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
         std::int32_t Price{};
         float FragilityScale = 1.0f;
-        if (pas::in_set<43, 43, 45, 46>(Item->ItemType)) {
+        if (pas::is_one_of<aConst::t_FuelTanks, aConst::t_Radar, aConst::t_Scaner>(Item->ItemType)) {
             FragilityScale = FragilityScale * 0.5L;
         }
         float DesiredMoneyFraction = 0.2f;
@@ -7873,7 +7989,7 @@ namespace aShip {
     }
 
     float TShip::EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
-        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
+        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
         float Result = 0.0f;
         if (Value == 0) {
@@ -8018,9 +8134,9 @@ namespace aShip {
     }
 
     float TShip::EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) {
-        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{13, 19}});
-        static const pas::Set<0, 255> ShockFlags = pas::constant_set<pas::Set<0, 255>>({{6}});
-        static const pas::Set<0, 255> AcidFlags = pas::constant_set<pas::Set<0, 255>>({{7}});
+        static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
+        static const pas::Set<0, 255> ShockFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkShock}});
+        static const pas::Set<0, 255> AcidFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkAcid}});
         float ScannerFactor{};
         aGalaxyStruct::TDamageFlagSet Flags{};
         std::int32_t I{};
@@ -8132,6 +8248,7 @@ namespace aShip {
         return Result * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-20, 20, Seed + Weapon->GetWeaponInfo()->TypeHash));
     }
 
+    // Evaluates a temporary clone; restores NextItemId but leaves LoadedSaveVersion set to CurrentSaveVersion. ModuleIndex is zero-based.
     float TShip::EvaluateMicroModuleGain(aItem::TEquipment* Item, std::int32_t ModuleIndex) {
         EC_Buf::TBufEC* Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         std::uint32_t SavedNextId = aGalaxy::Galaxy->NextItemId;
@@ -8149,6 +8266,7 @@ namespace aShip {
         return Result;
     }
 
+    // Consumes beneficial carried modules, preferring installed equipment; refreshes derived stats after each application.
     void TShip::AutoApplyMicroModules() {
         aItem::TEquipment* Candidate{};
         aItem::TEquipment* Module{};
@@ -8157,6 +8275,13 @@ namespace aShip {
         aItem::TEquipment* Best{};
         float Score{};
         float BestScore{};
+        // Caller-popped static link; equipment -4, module item -8, ship -12.
+        auto FitsMicroModuleCapacity = [&]() -> std::uint8_t {
+            if (Candidate->ItemType != aConst::t_Hull) {
+                return Candidate->Weight * (aConst::MicroModuleTemplates[pas::checked_cast<aItem::TMicroModule*>(Module)->MicroModuleIndex - 1].SizePercent - 100) * 0.01L <= this->CargoFreeSpace + 1;
+            }
+            return -Candidate->Weight * (aConst::MicroModuleTemplates[pas::checked_cast<aItem::TMicroModule*>(Module)->MicroModuleIndex - 1].SizePercent - 100) * 0.01L <= this->CargoFreeSpace + 1;
+        };
         std::uint8_t Changed = true;
         while (Changed) {
             Changed = false;
@@ -8167,7 +8292,7 @@ namespace aShip {
                     BestScore = 0.0f;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Inventory) - 1); cpp_range_2.next(J); ) {
                         Candidate = pas::list_at<aItem::TEquipment>(Inventory, J);
-                        if (pas::checked_cast<aItem::TMicroModule*>(Module)->CanInstallOn(Candidate) && (Candidate->EquippedFlag != 0 || Candidate->ItemType == aConst::t_Hull) && aShip::FitsMicroModuleCapacity(this, Candidate, Module)) {
+                        if (pas::checked_cast<aItem::TMicroModule*>(Module)->CanInstallOn(Candidate) && (Candidate->EquippedFlag != 0 || Candidate->ItemType == aConst::t_Hull) && FitsMicroModuleCapacity()) {
                             Score = EvaluateMicroModuleGain(Candidate, pas::checked_cast<aItem::TMicroModule*>(Module)->MicroModuleIndex - 1);
                             if (Score > BestScore) {
                                 BestScore = Score;
@@ -8185,7 +8310,7 @@ namespace aShip {
                     }
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Inventory) - 1); cpp_range_3.next(J); ) {
                         Candidate = pas::list_at<aItem::TEquipment>(Inventory, J);
-                        if (pas::checked_cast<aItem::TMicroModule*>(Module)->CanInstallOn(Candidate) && Candidate->EquippedFlag == 0 && Candidate->ItemType != aConst::t_Hull && aShip::FitsMicroModuleCapacity(this, Candidate, Module)) {
+                        if (pas::checked_cast<aItem::TMicroModule*>(Module)->CanInstallOn(Candidate) && Candidate->EquippedFlag == 0 && Candidate->ItemType != aConst::t_Hull && FitsMicroModuleCapacity()) {
                             Score = EvaluateMicroModuleGain(Candidate, pas::checked_cast<aItem::TMicroModule*>(Module)->MicroModuleIndex - 1);
                             if (Score > BestScore) {
                                 BestScore = Score;
@@ -8207,13 +8332,6 @@ namespace aShip {
                 }
             }
         }
-    }
-
-    std::uint8_t FitsMicroModuleCapacity(TShip* Self, aItem::TEquipment*& Candidate, aItem::TEquipment*& Module) {
-        if (Candidate->ItemType != aConst::t_Hull) {
-            return Candidate->Weight * (aConst::MicroModuleTemplates[pas::checked_cast<aItem::TMicroModule*>(Module)->MicroModuleIndex - 1].SizePercent - 100) * 0.01L <= Self->CargoFreeSpace + 1;
-        }
-        return -Candidate->Weight * (aConst::MicroModuleTemplates[pas::checked_cast<aItem::TMicroModule*>(Module)->MicroModuleIndex - 1].SizePercent - 100) * 0.01L <= Self->CargoFreeSpace + 1;
     }
 
     void TShip::AutoEquipInventory() {
@@ -8289,7 +8407,7 @@ namespace aShip {
                         }())) {
                             continue;
                         }
-                        if ((Score >= 0.0L || pas::in_range(Kind, 43, 44) || Kind == 48 && pas::in_set<1, 1, 3, 3>(TypeId) && GetSlotCount(aConst::sskCargoHook) > 0 || Item->NoDropFlag > 0 || Item->ScriptItem != nullptr || CargoFreeSpace >= 0 && PriceMode != 0 && EvaluateItem(Item, 0) >= 0.0L) && (Best == nullptr || Score > BestScore || Score == BestScore && Best->Weight > Item->Weight || ItemProtected && static_cast<std::uint8_t>(BestProtected ^ 1))) {
+                        if ((Score >= 0.0L || pas::in_range(Kind, 43, 44) || Kind == 48 && pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(TypeId) && GetSlotCount(aConst::sskCargoHook) > 0 || Item->NoDropFlag > 0 || Item->ScriptItem != nullptr || CargoFreeSpace >= 0 && PriceMode != 0 && EvaluateItem(Item, 0) >= 0.0L) && (Best == nullptr || Score > BestScore || Score == BestScore && Best->Weight > Item->Weight || ItemProtected && static_cast<std::uint8_t>(BestProtected ^ 1))) {
                             BestScore = Score;
                             Best = Item;
                         }
@@ -8303,6 +8421,7 @@ namespace aShip {
         RefreshDerivedStats(true);
     }
 
+    // Sells at a location or jettisons in space. May flag a long-stranded NPC for destruction when overload cannot be resolved.
     void TShip::DropCargoUntilNotOverloaded() {
         std::int32_t Count{};
         aItem::TEquipment* Item{};
@@ -8432,62 +8551,98 @@ namespace aShip {
         std::int32_t Index{};
         std::int32_t I{};
         aItem::TItem* Item{};
+        // Caller-popped static link; cycling inventory index -4, ship -8.
+        auto SelectCheapItem = [&]() -> aItem::TItem* {
+            std::int32_t Attempt{};
+            aItem::TItem* Candidate{};
+            double Value{};
+            aItem::TItem* Result = nullptr;
+            Index = aMyFunction::NextRandomIntRange(1, pas::list_count(this->Inventory) - 1, this->RandomState);
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(this->Inventory) - 1); cpp_range.next(Attempt); ) {
+                aMyFunction::IncrementWrapped(Index, 1, pas::list_count(this->Inventory) - 1);
+                Candidate = pas::list_at<aItem::TItem>(this->Inventory, Index);
+                if (Candidate->DestroyFlag > 0 || Candidate->NoDropFlag > 0) {
+                    continue;
+                }
+                Value = pas::real_divide(Candidate->Cost, std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(static_cast<long double>(aGalaxy::Galaxy->GetDropValueModifier()) * aGalaxy::Galaxy->AverageRangerCapital) / 25));
+                if (pas::class_cast_if<aKling::TKling*>(this) != nullptr) {
+                    Value = static_cast<long double>(KlingCheapDropValueFactors[pas::checked_cast<aKling::TKling*>(this)->KlingType]) * Value;
+                }
+                if (Candidate->Cost > 1000 && ([&] {
+                    std::int32_t cpp_left = aMyFunction::NextRandomIntRange(1, 100, this->RandomState);
+                    return cpp_left > System::Round(1.0E+2L * System::Exp(2.0L - 2.0L * Value));
+                }())) {
+                    continue;
+                }
+                if (Result == nullptr || ([&] {
+                    pas::Extended cpp_left_2 = aMyFunction::NextRandomFloatRange(0.5, 1.0, this->RandomState);
+                    pas::Extended cpp_right = cpp_left_2 * Result->Cost;
+                    return Candidate->Cost < cpp_right;
+                }())) {
+                    Result = Candidate;
+                }
+            }
+            return Result;
+        };
         if (NoDrop) {
             return;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(I); ) {
             if (pas::list_count(Inventory) > 1) {
-                Item = aShip::SelectCheapItem(this, Index);
+                Item = SelectCheapItem();
                 if (Item != nullptr) {
                     DropCarriedItemAsMovingLoot(Item);
                 }
             }
         }
-    }
-
-    aItem::TItem* SelectCheapItem(TShip* Self, std::int32_t& Index) {
-        std::int32_t Attempt{};
-        aItem::TItem* Candidate{};
-        double Value{};
-        aItem::TItem* Result = nullptr;
-        Index = aMyFunction::NextRandomIntRange(1, pas::list_count(Self->Inventory) - 1, Self->RandomState);
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range.next(Attempt); ) {
-            aMyFunction::IncrementWrapped(Index, 1, pas::list_count(Self->Inventory) - 1);
-            Candidate = pas::list_at<aItem::TItem>(Self->Inventory, Index);
-            if (Candidate->DestroyFlag > 0 || Candidate->NoDropFlag > 0) {
-                continue;
-            }
-            Value = pas::real_divide(Candidate->Cost, std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(static_cast<long double>(aGalaxy::Galaxy->GetDropValueModifier()) * aGalaxy::Galaxy->AverageRangerCapital) / 25));
-            if (pas::class_cast_if<aKling::TKling*>(Self) != nullptr) {
-                Value = static_cast<long double>(KlingCheapDropValueFactors[pas::checked_cast<aKling::TKling*>(Self)->KlingType]) * Value;
-            }
-            if (Candidate->Cost > 1000 && ([&] {
-                std::int32_t cpp_left = aMyFunction::NextRandomIntRange(1, 100, Self->RandomState);
-                return cpp_left > System::Round(1.0E+2L * System::Exp(2.0L - 2.0L * Value));
-            }())) {
-                continue;
-            }
-            if (Result == nullptr || ([&] {
-                pas::Extended cpp_left_2 = aMyFunction::NextRandomFloatRange(0.5, 1.0, Self->RandomState);
-                pas::Extended cpp_right = cpp_left_2 * Result->Cost;
-                return Candidate->Cost < cpp_right;
-            }())) {
-                Result = Candidate;
-            }
-        }
-        return Result;
     }
 
     void TShip::DropRandomValuableItemsOnDestruction(std::int32_t Count) {
         std::int32_t Index{};
         std::int32_t I{};
         aItem::TItem* Item{};
+        // Caller-popped static link; cycling inventory index -4, ship -8.
+        auto SelectValuableItem = [&]() -> aItem::TItem* {
+            std::int32_t Attempt{};
+            aItem::TItem* Candidate{};
+            double Value{};
+            aItem::TItem* Result = nullptr;
+            if (aPlayer::GetPlayer() == nullptr) {
+                return Result;
+            }
+            Index = aMyFunction::NextRandomIntRange(1, pas::list_count(this->Inventory) - 1, this->RandomState);
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(this->Inventory) - 1); cpp_range.next(Attempt); ) {
+                aMyFunction::IncrementWrapped(Index, 1, pas::list_count(this->Inventory) - 1);
+                Candidate = pas::list_at<aItem::TItem>(this->Inventory, Index);
+                if (Candidate->DestroyFlag > 0 || Candidate->NoDropFlag > 0) {
+                    continue;
+                }
+                Value = pas::real_divide(Candidate->Cost, std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(static_cast<long double>(aGalaxy::Galaxy->GetDropValueModifier()) * aGalaxy::Galaxy->AverageRangerCapital) / 12));
+                if (pas::class_cast_if<aKling::TKling*>(this) != nullptr) {
+                    Value = static_cast<long double>(KlingValuableDropValueFactors[pas::checked_cast<aKling::TKling*>(this)->KlingType]) * Value;
+                }
+                if (Candidate->Cost > 1000 && ([&] {
+                    std::int32_t cpp_left = aMyFunction::NextRandomIntRange(1, 100, this->RandomState);
+                    return cpp_left > System::Round(1.0E+2L * System::Exp(0.3L - 0.3L * Value));
+                }())) {
+                    continue;
+                }
+                if (Result == nullptr || ([&] {
+                    pas::Extended cpp_left_2 = aMyFunction::NextRandomFloatRange(0.5, 1.0, this->RandomState);
+                    pas::Extended cpp_right = cpp_left_2 * Result->Cost;
+                    return Candidate->Cost > cpp_right;
+                }())) {
+                    Result = Candidate;
+                }
+            }
+            return Result;
+        };
         if (NoDrop) {
             return;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(I); ) {
             if (pas::list_count(Inventory) > 1) {
-                Item = aShip::SelectValuableItem(this, Index);
+                Item = SelectValuableItem();
                 if (Item != nullptr) {
                     DropCarriedItemAsMovingLoot(Item);
                 }
@@ -8495,42 +8650,7 @@ namespace aShip {
         }
     }
 
-    aItem::TItem* SelectValuableItem(TShip* Self, std::int32_t& Index) {
-        std::int32_t Attempt{};
-        aItem::TItem* Candidate{};
-        double Value{};
-        aItem::TItem* Result = nullptr;
-        if (aPlayer::GetPlayer() == nullptr) {
-            return Result;
-        }
-        Index = aMyFunction::NextRandomIntRange(1, pas::list_count(Self->Inventory) - 1, Self->RandomState);
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range.next(Attempt); ) {
-            aMyFunction::IncrementWrapped(Index, 1, pas::list_count(Self->Inventory) - 1);
-            Candidate = pas::list_at<aItem::TItem>(Self->Inventory, Index);
-            if (Candidate->DestroyFlag > 0 || Candidate->NoDropFlag > 0) {
-                continue;
-            }
-            Value = pas::real_divide(Candidate->Cost, std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(static_cast<long double>(aGalaxy::Galaxy->GetDropValueModifier()) * aGalaxy::Galaxy->AverageRangerCapital) / 12));
-            if (pas::class_cast_if<aKling::TKling*>(Self) != nullptr) {
-                Value = static_cast<long double>(KlingValuableDropValueFactors[pas::checked_cast<aKling::TKling*>(Self)->KlingType]) * Value;
-            }
-            if (Candidate->Cost > 1000 && ([&] {
-                std::int32_t cpp_left = aMyFunction::NextRandomIntRange(1, 100, Self->RandomState);
-                return cpp_left > System::Round(1.0E+2L * System::Exp(0.3L - 0.3L * Value));
-            }())) {
-                continue;
-            }
-            if (Result == nullptr || ([&] {
-                pas::Extended cpp_left_2 = aMyFunction::NextRandomFloatRange(0.5, 1.0, Self->RandomState);
-                pas::Extended cpp_right = cpp_left_2 * Result->Cost;
-                return Candidate->Cost > cpp_right;
-            }())) {
-                Result = Candidate;
-            }
-        }
-        return Result;
-    }
-
+    // Requires a Dominator; used by dialogue and Script.DomikProgramm. Attempts at most 100 selections.
     void TShip::DropItemsForDominatorProgram(std::int32_t Count) {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -8591,6 +8711,7 @@ namespace aShip {
         }
     }
 
+    // Requires membership in Inventory; honors ship/item NoDrop and rejects the hull. True means accepted, even if a script consumes the drop.
     std::uint8_t TShip::DropCarriedItemAsMovingLoot(aItem::TItem* Item) {
         std::uint8_t Result = false;
         if (NoDrop || Item->NoDropFlag > 0) {
@@ -8606,6 +8727,7 @@ namespace aShip {
         return true;
     }
 
+    // Requires membership in Artefacts; honors ship/item NoDrop.
     std::uint8_t TShip::DropCarriedArtefactAsMovingLoot(aItem::TArtefact* Item) {
         std::uint8_t Result = false;
         if (NoDrop || Item->NoDropFlag > 0) {
@@ -8636,6 +8758,7 @@ namespace aShip {
         pas::list_clear(GuaranteedDeathDropItems);
     }
 
+    // Deterministic eligibility roll for an ordinary pirate without a script binding or player partnership.
     std::uint8_t TShip::CanDropTreasureMap() {
         std::uint8_t Result = false;
         if (pas::class_cast_if<aPirate::TPirate*>(this) != nullptr && static_cast<aPirate::TPirate*>(this)->PirateType == 0 && aPlayer::GetPlayer() != PartnerShip && ScriptShip == nullptr) {
@@ -8646,6 +8769,7 @@ namespace aShip {
         return Result;
     }
 
+    // Searches reachable uninhabited planets with accessible artefact/module loot; excludes maps already carried or stored by the player.
     aPlanet::TPlanet* TShip::SelectTreasureMapPlanet() {
         std::int32_t I{};
         std::int32_t J{};
@@ -8721,6 +8845,7 @@ namespace aShip {
         return Result;
     }
 
+    // Player drops are placed immediately and may be consumed by scripts or stellar heat. Native artefact branch mistakenly deletes Inventory at the Artefacts index (); preserved here as observed behavior.
     std::uint8_t TShip::DropItemIntoStar(aItem::TItem* Item) {
         SE_Weapon::TWeaponSE* Effect{};
         aEFilmEnd::PEFilmEndEntry FilmEntry{};
@@ -8800,6 +8925,7 @@ namespace aShip {
         }
     }
 
+    // Caller supplies a valid good and quantity; does not itself honor ship NoDrop.
     void TShip::DropGoodsIntoSpace(std::uint8_t Good, std::int32_t Count) {
         aItem::TGoods* Goods = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
         Goods->Init(static_cast<aConst::TItemType>(Good), Count);
@@ -8854,6 +8980,7 @@ namespace aShip {
         }
     }
 
+    // Caller detaches Item first. Script action 33 can suppress transfer or free Item; otherwise the moving-drop descriptor takes ownership.
     void TShip::QueueMovingItemDrop(aItem::TItem* Item, std::uint8_t UseFlag) {
         aItem::TItem* OtherItem{};
         float Angle{};
@@ -8914,6 +9041,7 @@ namespace aShip {
         }
     }
 
+    // Considers protection, essential equipment and value per mass; can return the hull when no alternative qualifies.
     aItem::TItem* TShip::SelectLeastValuableInventoryItem() {
         std::int32_t I{};
         double Value{};
@@ -8955,6 +9083,7 @@ namespace aShip {
         return Result;
     }
 
+    // Native scan starts at index one; an artefact list with one element yields nil.
     aItem::TArtefact* TShip::SelectLeastValuableArtefact() {
         std::int32_t I{};
         double Value{};
@@ -8984,6 +9113,7 @@ namespace aShip {
         return Result;
     }
 
+    // Returns 255 if no cargo qualifies.
     std::uint8_t TShip::SelectCheapestCargoGood() {
         double Value{};
         std::uint8_t Good{};
@@ -9001,6 +9131,7 @@ namespace aShip {
         return Result;
     }
 
+    // Can sell equipment, artefacts and excess cargo; outside a market, excess goods are refunded at their cost basis.
     void TShip::OptimizeInventory() {
         std::int32_t Index{};
         aItem::TEquipment* Item{};
@@ -9010,10 +9141,29 @@ namespace aShip {
         std::int32_t Count{};
         std::uint8_t Good{};
         aItem::TArtefact* Artefact{};
+        // Caller-popped static link; ship -4. Hull capacity minus equipped and protected items.
+        auto GetRetainedCapacity = [&]() -> std::int32_t {
+            aItem::TEquipment* Entry{};
+            std::int32_t I{};
+            std::int32_t Result = GetHull()->Weight;
+            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(this->Inventory) - 1); cpp_range.next(I); ) {
+                Entry = pas::list_at<aItem::TEquipment>(this->Inventory, I);
+                if (Entry->EquippedFlag != 0 || Entry->NoDropFlag > 0 || Entry->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Entry->ScriptItem)->Name != u"") {
+                    Result -= Entry->Weight;
+                }
+            }
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(this->Artefacts) - 1); cpp_range_2.next(I); ) {
+                Entry = pas::list_at<aItem::TEquipment>(this->Artefacts, I);
+                if (Entry->EquippedFlag != 0 || Entry->NoDropFlag > 0 || Entry->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Entry->ScriptItem)->Name != u"") {
+                    Result -= Entry->Weight;
+                }
+            }
+            return Result;
+        };
         AutoEquipInventory();
         while (([&] {
             std::int32_t cpp_left = GetDesiredCargoFreeSpace();
-            return cpp_left > aShip::GetRetainedCapacity(this);
+            return cpp_left > GetRetainedCapacity();
         }())) {
             CostPerWeight = 0.0;
             Best = nullptr;
@@ -9033,7 +9183,7 @@ namespace aShip {
         AutoEquipArtefacts();
         while (pas::list_count(Artefacts) > 0 && ([&] {
             std::int32_t cpp_left_2 = GetDesiredCargoFreeSpace();
-            return cpp_left_2 > aShip::GetRetainedCapacity(this);
+            return cpp_left_2 > GetRetainedCapacity();
         }())) {
             CostPerWeight = 0.0;
             Artefact = nullptr;
@@ -9088,25 +9238,7 @@ namespace aShip {
         }
     }
 
-    std::int32_t GetRetainedCapacity(TShip* Self) {
-        aItem::TEquipment* Entry{};
-        std::int32_t I{};
-        std::int32_t Result = Self->GetHull()->Weight;
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range.next(I); ) {
-            Entry = pas::list_at<aItem::TEquipment>(Self->Inventory, I);
-            if (Entry->EquippedFlag != 0 || Entry->NoDropFlag > 0 || Entry->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Entry->ScriptItem)->Name != u"") {
-                Result -= Entry->Weight;
-            }
-        }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Self->Artefacts) - 1); cpp_range_2.next(I); ) {
-            Entry = pas::list_at<aItem::TEquipment>(Self->Artefacts, I);
-            if (Entry->EquippedFlag != 0 || Entry->NoDropFlag > 0 || Entry->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Entry->ScriptItem)->Name != u"") {
-                Result -= Entry->Weight;
-            }
-        }
-        return Result;
-    }
-
+    // Normally credits resale value and frees Item; eligible NPC node stacks instead feed DepositCarriedNodes and automatic training.
     void TShip::LiquidateInventoryItem(aItem::TItem* Item) {
         if (Item->ItemType == aConst::t_Protoplasm && aPlayer::GetPlayer() != this && (pas::class_cast_if<aRanger::TRanger*>(this) != nullptr && DockedTo != nullptr && DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstRangerCenter) || DaysSincePlayerSeen > 100 || pas::class_cast_if<aWarrior::TWarrior*>(this) != nullptr && static_cast<aWarrior::TWarrior*>(this)->WarriorType == aWarrior::wtFlagship)) {
             DepositCarriedNodes();
@@ -9122,6 +9254,7 @@ namespace aShip {
         }
     }
 
+    // Removes and frees Item after crediting resale value.
     void TShip::LiquidateArtefact(aItem::TArtefact* Item) {
         SetMoney(Money + Item->CalculateResaleValue(GetEffectiveSkillLevel(psTrading, false)));
         pas::list_delete(Artefacts, pas::list_indexof(Artefacts, reinterpret_cast<void*>(Item)));
@@ -9129,6 +9262,7 @@ namespace aShip {
         RefreshDerivedStats(true);
     }
 
+    // Returns whether AI should remain docked; false does not guarantee full repair. Does not charge Money.
     std::uint8_t TShip::RepairHullAtLocation() {
         std::int32_t FriendlyCount{};
         std::int32_t I{};
@@ -9219,7 +9353,7 @@ namespace aShip {
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Artefacts) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(Artefacts, I);
-            if (!pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(Item->ItemType)) {
+            if (!pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(Item->ItemType)) {
                 Item->Repair();
             }
             if (Item->BrokenFlag == 0 && Item->EquippedFlag != 0 && pas::contains(WearableTypes, static_cast<std::uint8_t>(Item->ItemType))) {
@@ -9245,6 +9379,7 @@ namespace aShip {
         }
     }
 
+    // True only when the item becomes newly broken. Nil is accepted; script actions 36..39 can modify the damage.
     std::uint8_t TShip::ApplyItemDegradation(aItem::TEquipment* Item, TItemDegradationKind Kind, double DurabilityDamage) {
         std::int32_t AfterScript{};
         std::int32_t AttackCount{};
@@ -9255,7 +9390,7 @@ namespace aShip {
         if (Item == nullptr) {
             return Result;
         }
-        if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr && static_cast<std::uint8_t>(pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(Item->ItemType) ^ 1)) {
+        if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr && static_cast<std::uint8_t>(pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(Item->ItemType) ^ 1)) {
             return Result;
         }
         if (Item->ConditionPercent < -95.0L) {
@@ -9370,7 +9505,7 @@ namespace aShip {
         if (aPlayer::GetPlayer() == this) {
             return true;
         }
-        if (!pas::in_set<1, 1, 3, 4>(TypeId)) {
+        if (!pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate, aGalaxyStruct::stWarrior>(TypeId)) {
             return Result;
         }
         if (!(DockedTo != nullptr && pas::class_cast_if<aRuins::TRuins*>(DockedTo) != nullptr || CurrentPlanet != nullptr && pas::in_set<0, 4, 7, 7>(CurrentPlanet->OwnerId))) {
@@ -9390,6 +9525,7 @@ namespace aShip {
         return Specials * 100 < static_cast<long double>(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 1.0, 8.0, 0.0, 1.0E+2)) * Equipped;
     }
 
+    // True for the player or when the current hull already has a special module.
     std::uint8_t TShip::CanGenerateSpecialHullModule() {
         return aPlayer::GetPlayer() == this || GetHull()->SpecialModuleIndex != 0;
     }
@@ -9431,10 +9567,31 @@ namespace aShip {
         }
     }
 
+    // Selects up to three qualifying candidates within 51 attempts, applies the best positive gain, then auto-equips. Nil Item is accepted.
     void TShip::GenerateAndApplyMicroModule(aItem::TEquipment* Item, std::uint8_t ResolveOverload) {
         std::int32_t ModuleIndex{};
         std::int32_t Priority{};
         float Gain{};
+        // Caller-popped static link; equipment -4, zero-based module index -8, ship -12. Uses strict remaining-capacity comparison.
+        auto FitsGeneratedModuleCapacity = [&]() -> std::uint8_t {
+            if (Item->ItemType != aConst::t_Hull) {
+                return (aConst::MicroModuleTemplates[ModuleIndex].SizePercent - 100) * Item->Weight * 0.01L < this->CargoFreeSpace;
+            }
+            return (aConst::MicroModuleTemplates[ModuleIndex].SizePercent - 100) * -Item->Weight * 0.01L < this->CargoFreeSpace;
+        };
+        // Caller-popped static link; module index -8, ship -12. Random rejection for matching installed modules.
+        auto AcceptDuplicate = [&]() -> std::uint8_t {
+            std::int32_t Index{};
+            aItem::TEquipment* Entry{};
+            std::uint8_t Result = false;
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(this->Inventory) - 1); cpp_range.next(Index); ) {
+                Entry = pas::list_at<aItem::TEquipment>(this->Inventory, Index);
+                if (Entry->EquippedFlag != 0 && ModuleIndex + 1 == Entry->MicroModuleIndex && aMyFunction::NextRandomIntRange(0, 100, this->RandomState) > 65) {
+                    return Result;
+                }
+            }
+            return true;
+        };
         if (Item == nullptr) {
             return;
         }
@@ -9450,7 +9607,7 @@ namespace aShip {
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
                 ModuleIndex = aGalaxy::TGalaxy::SelectMicroModuleForEquipment(Priority + Accepted * 5, std::min<std::int32_t>(Priority + 40 + Accepted * 20, 100), advanceRandomSeed, self, Item);
             }
-            if (aItem::CanInstallMicroModule(ModuleIndex, Item) && aShip::FitsGeneratedModuleCapacity(this, Item, ModuleIndex) && aShip::AcceptDuplicate(this, ModuleIndex)) {
+            if (aItem::CanInstallMicroModule(ModuleIndex, Item) && FitsGeneratedModuleCapacity() && AcceptDuplicate()) {
                 Gain = EvaluateMicroModuleGain(Item, ModuleIndex);
                 if (Gain > BestGain) {
                     BestGain = Gain;
@@ -9469,26 +9626,7 @@ namespace aShip {
         }
     }
 
-    std::uint8_t FitsGeneratedModuleCapacity(TShip* Self, aItem::TEquipment*& Item, std::int32_t& ModuleIndex) {
-        if (Item->ItemType != aConst::t_Hull) {
-            return (aConst::MicroModuleTemplates[ModuleIndex].SizePercent - 100) * Item->Weight * 0.01L < Self->CargoFreeSpace;
-        }
-        return (aConst::MicroModuleTemplates[ModuleIndex].SizePercent - 100) * -Item->Weight * 0.01L < Self->CargoFreeSpace;
-    }
-
-    std::uint8_t AcceptDuplicate(TShip* Self, std::int32_t& ModuleIndex) {
-        std::int32_t Index{};
-        aItem::TEquipment* Entry{};
-        std::uint8_t Result = false;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->Inventory) - 1); cpp_range.next(Index); ) {
-            Entry = pas::list_at<aItem::TEquipment>(Self->Inventory, Index);
-            if (Entry->EquippedFlag != 0 && ModuleIndex + 1 == Entry->MicroModuleIndex && aMyFunction::NextRandomIntRange(0, 100, Self->RandomState) > 65) {
-                return Result;
-            }
-        }
-        return true;
-    }
-
+    // Adds a generated weapon, may improve/module it, then auto-equips and optimizes inventory.
     void TShip::GenerateExtraWeapon() {
         std::int32_t MaximumLevel{};
         std::int32_t MinimumLevel = 3;
@@ -9525,6 +9663,7 @@ namespace aShip {
         OptimizeInventory();
     }
 
+    // Requires an installable target and no carried module of the same index.
     std::uint8_t TShip::NeedsMicroModule(std::int32_t ModuleIndexPlusOne) {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -9549,6 +9688,7 @@ namespace aShip {
         return Result;
     }
 
+    // Skips inventory index 0.
     std::int32_t TShip::CountUnequippedDominatorEquipment() {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -9567,6 +9707,7 @@ namespace aShip {
         return cpp_left + GetTotalStatBonus(aConst::bonZonds);
     }
 
+    // Includes protected/script-named items and indispensable installed equipment; nil is false.
     std::uint8_t TShip::IsEssentialInventoryItem(aItem::TItem* Item) {
         std::uint8_t Result = false;
         if (Item == nullptr) {
@@ -9585,18 +9726,19 @@ namespace aShip {
         if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && WeaponCount <= 1) {
             return Result;
         }
-        if (Item->ItemType == aConst::t_CargoHook && pas::in_set<1, 1, 3, 3>(TypeId) && GetSlotCount(aConst::sskCargoHook) > 0) {
+        if (Item->ItemType == aConst::t_CargoHook && pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(TypeId) && GetSlotCount(aConst::sskCargoHook) > 0) {
             return Result;
         }
         return false;
     }
 
+    // Radar/scanner, or cargo hook on a ship other than a ranger or pirate. Nil is false.
     std::uint8_t TShip::IsOptionalUtilityEquipment(aItem::TItem* Item) {
         std::uint8_t Result = false;
         if (Item != nullptr) {
             if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Radar), static_cast<std::int32_t>(aConst::t_Scaner))) {
                 return true;
-            } else if (Item->ItemType == aConst::t_CargoHook && static_cast<std::uint8_t>(pas::in_set<1, 1, 3, 3>(TypeId) ^ 1)) {
+            } else if (Item->ItemType == aConst::t_CargoHook && static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(TypeId) ^ 1)) {
                 return true;
             } else {
                 return Result;
@@ -9607,12 +9749,13 @@ namespace aShip {
 
     std::uint8_t TShip::NeedsEssentialEquipment() {
         std::uint8_t Result = true;
-        if (Speed > 0 && WeaponCount > 0 && (static_cast<std::uint8_t>(pas::in_set<1, 1, 3, 3>(TypeId) ^ 1) || GetCargoHook() != nullptr || GetSlotCount(aConst::sskCargoHook) <= 0)) {
+        if (Speed > 0 && WeaponCount > 0 && (static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(TypeId) ^ 1) || GetCargoHook() != nullptr || GetSlotCount(aConst::sskCargoHook) <= 0)) {
             return false;
         }
         return Result;
     }
 
+    // Can subsidize equipment purchases; does not guarantee success.
     void TShip::RestoreEssentialEquipment() {
         std::int32_t Subsidy{};
         std::int32_t OriginalMoney{};
@@ -9647,6 +9790,55 @@ namespace aShip {
         float NewEffectiveness{};
         float OldEffectiveness{};
         std::uint8_t DifferentHullGraph{};
+        // Caller-popped static link; ship -4. Selects the lowest evaluated weapon when all slots are occupied.
+        auto SelectReplacedWeapon = [&]() -> aItem::TWeapon* {
+            std::int32_t J{};
+            aItem::TWeapon* Result = nullptr;
+            if (GetSlotCount(aConst::sskWeapon) > this->WeaponCount) {
+                return Result;
+            }
+            std::int32_t Best = 1;
+            {
+                const std::int32_t cpp_last = static_cast<std::int32_t>(this->WeaponCount);
+                if (2 <= cpp_last) {
+                    for (J = 2; J <= cpp_last; ++J) {
+                        pas::Extended cpp_left = EvaluateItem(this->Weapons[Best], 3);
+                        if (cpp_left > EvaluateItem(this->Weapons[J], 3)) {
+                            Best = J;
+                        }
+                    }
+                }
+            }
+            return this->Weapons[Best];
+        };
+        // Caller-popped static link; ship -4, fallback weapon -8; saves five weapon pointers and target at -32.
+        auto TemporarilyUnequipWeapon = [&](aItem::TWeapon* Weapon) -> void {
+            std::int32_t J{};
+            aItem::TWeapon* Selected = Weapon;
+            if (Selected == nullptr) {
+                Selected = ReplacementWeapon;
+            }
+            std::int32_t WeaponIndex = 0;
+            for (J = 1; J <= 5; ++J) {
+                SavedWeapons[J] = this->Weapons[J];
+                if (SavedWeapons[J] == Selected) {
+                    WeaponIndex = J;
+                }
+            }
+            if (WeaponIndex != 0) {
+                SavedTarget = Selected->Target;
+                UnequipSlot(static_cast<std::uint8_t>(Selected->ItemType), WeaponIndex);
+            }
+        };
+        // Caller-popped static link; ship -4, weapon -8; restores saved target and weapon pointers.
+        auto RestoreWeapon = [&]() -> void {
+            std::int32_t J{};
+            EquipItem(ReplacementWeapon);
+            ReplacementWeapon->Target = SavedTarget;
+            for (J = 1; J <= 5; ++J) {
+                this->Weapons[J] = SavedWeapons[J];
+            }
+        };
         std::uint8_t RestoreStock = false;
         std::uint8_t GeneratedBatch = false;
         std::uint8_t UseMoney = true;
@@ -9704,7 +9896,7 @@ namespace aShip {
                 OldItem = pas::list_at<aItem::TEquipment>(Inventory, I);
                 if (OldItem->ItemType != aConst::t_Hull && OldItem->EquippedFlag != 0 && static_cast<std::uint8_t>(IsEssentialInventoryItem(OldItem) ^ 1) && EvaluateItem(OldItem, 2) <= 0.0L && (OldItem->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(OldItem->ScriptItem)->Name == u"") && OldItem->NoDropFlag <= 0) {
                     if (pas::class_cast_if<aItem::TWeapon*>(OldItem) != nullptr) {
-                        aShip::TemporarilyUnequipWeapon(reinterpret_cast<aItem::TWeapon*>(OldItem), this, ReplacementWeapon, SavedWeapons, SavedTarget);
+                        TemporarilyUnequipWeapon(reinterpret_cast<aItem::TWeapon*>(OldItem));
                     } else {
                         UnequipSlot(static_cast<std::uint8_t>(OldItem->ItemType), 0);
                     }
@@ -9713,7 +9905,7 @@ namespace aShip {
                 }
             }
         }
-        ReplacementWeapon = aShip::SelectReplacedWeapon(this);
+        ReplacementWeapon = SelectReplacedWeapon();
         std::int32_t FreeWeight = CargoFreeSpace - std::max<std::int32_t>(0, GetDesiredCargoFreeSpace() - GetCargoGoodsWeight());
         float BestGain = 0.0f;
         aItem::TEquipment* BestItem = nullptr;
@@ -9756,7 +9948,7 @@ namespace aShip {
                     continue;
                 }
                 if (pas::class_cast_if<aItem::TWeapon*>(OldItem) != nullptr) {
-                    aShip::TemporarilyUnequipWeapon(nullptr, this, ReplacementWeapon, SavedWeapons, SavedTarget);
+                    TemporarilyUnequipWeapon(nullptr);
                 } else if (!(pas::class_cast_if<aItem::THull*>(OldItem) != nullptr)) {
                     UnequipSlot(static_cast<std::uint8_t>(OldItem->ItemType), 0);
                 }
@@ -9775,7 +9967,7 @@ namespace aShip {
                 if (UseMoney && OldItem->CalculateResaleValue(GetEffectiveSkillLevel(psTrading, false)) + Money - OfferItem->Cost < 0) {
                     if (!(pas::class_cast_if<aItem::THull*>(OldItem) != nullptr)) {
                         if (pas::class_cast_if<aItem::TWeapon*>(OldItem) != nullptr) {
-                            aShip::RestoreWeapon(this, ReplacementWeapon, SavedWeapons, SavedTarget);
+                            RestoreWeapon();
                         } else {
                             EquipItem(OldItem);
                         }
@@ -9795,7 +9987,7 @@ namespace aShip {
             NewScore = AdjustItemEvaluation(OfferItem, 4, NewEffectiveness);
             if (OldItem != nullptr && !(pas::class_cast_if<aItem::THull*>(OldItem) != nullptr)) {
                 if (pas::class_cast_if<aItem::TWeapon*>(OldItem) != nullptr) {
-                    aShip::RestoreWeapon(this, ReplacementWeapon, SavedWeapons, SavedTarget);
+                    RestoreWeapon();
                 } else {
                     EquipItem(OldItem);
                 }
@@ -9815,7 +10007,7 @@ namespace aShip {
             Bought = true;
             if (OldItem != nullptr) {
                 if (pas::class_cast_if<aItem::TWeapon*>(OldItem) != nullptr) {
-                    aShip::TemporarilyUnequipWeapon(nullptr, this, ReplacementWeapon, SavedWeapons, SavedTarget);
+                    TemporarilyUnequipWeapon(nullptr);
                 } else {
                     UnequipSlot(static_cast<std::uint8_t>(OldItem->ItemType), 0);
                 }
@@ -9857,55 +10049,6 @@ namespace aShip {
         }
     }
 
-    aItem::TWeapon* SelectReplacedWeapon(TShip* Self) {
-        std::int32_t J{};
-        aItem::TWeapon* Result = nullptr;
-        if (Self->GetSlotCount(aConst::sskWeapon) > Self->WeaponCount) {
-            return Result;
-        }
-        std::int32_t Best = 1;
-        {
-            const std::int32_t cpp_last = static_cast<std::int32_t>(Self->WeaponCount);
-            if (2 <= cpp_last) {
-                for (J = 2; J <= cpp_last; ++J) {
-                    pas::Extended cpp_left = Self->EvaluateItem(Self->Weapons[Best], 3);
-                    if (cpp_left > Self->EvaluateItem(Self->Weapons[J], 3)) {
-                        Best = J;
-                    }
-                }
-            }
-        }
-        return Self->Weapons[Best];
-    }
-
-    void TemporarilyUnequipWeapon(aItem::TWeapon* Weapon, TShip* Self, aItem::TWeapon*& ReplacementWeapon, pas::Array<aItem::TWeapon*, 1, 5>& SavedWeapons, pas::Object*& SavedTarget) {
-        std::int32_t J{};
-        aItem::TWeapon* Selected = Weapon;
-        if (Selected == nullptr) {
-            Selected = ReplacementWeapon;
-        }
-        std::int32_t WeaponIndex = 0;
-        for (J = 1; J <= 5; ++J) {
-            SavedWeapons[J] = Self->Weapons[J];
-            if (SavedWeapons[J] == Selected) {
-                WeaponIndex = J;
-            }
-        }
-        if (WeaponIndex != 0) {
-            SavedTarget = Selected->Target;
-            Self->UnequipSlot(static_cast<std::uint8_t>(Selected->ItemType), WeaponIndex);
-        }
-    }
-
-    void RestoreWeapon(TShip* Self, aItem::TWeapon*& ReplacementWeapon, pas::Array<aItem::TWeapon*, 1, 5>& SavedWeapons, pas::Object*& SavedTarget) {
-        std::int32_t J{};
-        Self->EquipItem(ReplacementWeapon);
-        ReplacementWeapon->Target = SavedTarget;
-        for (J = 1; J <= 5; ++J) {
-            Self->Weapons[J] = SavedWeapons[J];
-        }
-    }
-
     aItem::THull* TShip::CreateAndEquipHull(std::uint16_t Capacity, std::uint8_t Level, std::uint8_t Owner, std::int32_t Series, std::uint8_t PirateBuilt) {
         aItem::THull* Item = pas::construct_call<aItem::THull>(aItem::TEquipment_Create);
         std::uint8_t Kind = GetDefaultHullType();
@@ -9918,6 +10061,7 @@ namespace aShip {
         return Result;
     }
 
+    // Normal ships use PilotRace rather than OwnerId; selects rarity 1..100 through the galaxy RNG.
     std::int32_t TShip::SelectRandomHullSeries() {
         if (pas::class_cast_if<aNormalShip::TNormalShip*>(this) != nullptr) {
             std::uint8_t defaultHullType = GetDefaultHullType();
@@ -10019,6 +10163,7 @@ namespace aShip {
         }
     }
 
+    // May queue nearby pickups and issue/cancel a move order; true means a move order remains.
     std::uint8_t TShip::TryCollectBestFloatingItem(std::int32_t MaximumTravelTurns) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -10088,10 +10233,12 @@ namespace aShip {
         return Result;
     }
 
+    // Also checks hook eligibility.
     std::uint8_t TShip::IsItemInPickupRange(aItem::TItem* Item) {
         return aItem::CanCargoHookHandleItem(Item, this) && static_cast<long double>(aMyFunction::PointDistanceSquared(Position, Item->Position)) <= GetCargoHookRangeSquared();
     }
 
+    // Base implementation returns false.
     std::uint8_t TShip::AcceptPickupItem(aItem::TItem* Item) {
         return false;
     }
@@ -10154,10 +10301,12 @@ namespace aShip {
         return Result;
     }
 
+    // Base implementation returns true.
     std::uint8_t TShip::AcceptPickupDistance(aItem::TItem* Item, double Distance) {
         return true;
     }
 
+    // Existing targets keep their position.
     void TShip::AddPickupTarget(aItem::TItem* Item, std::uint8_t Prioritize) {
         if (PickupTargets == nullptr) {
             PickupTargets = pas::make_object<pas::List>();
@@ -10192,6 +10341,7 @@ namespace aShip {
         }
     }
 
+    // Frees the target list when it becomes empty.
     void TShip::RemoveInvalidPickupTargets() {
         std::int32_t I{};
         if (PickupTargets != nullptr) {
@@ -10210,13 +10360,28 @@ namespace aShip {
         }
     }
 
+    // Adds missing eligible targets; removes eligible targets only if none were added.
     void TShip::TogglePickupTargets(std::uint8_t IgnoreRange) {
         std::int32_t I{};
         aItem::TItem* Item{};
+        // Caller-popped static link; mode -1, ship -8.
+        auto AcceptPickupTarget = [&](aItem::TItem* Item) -> std::uint8_t {
+            std::uint8_t Result = false;
+            if (IgnoreRange) {
+                if (aItem::CanCargoHookHandleItem(Item, this)) {
+                    return true;
+                }
+                return Result;
+            } else if (IsItemInPickupRange(Item)) {
+                return true;
+            } else {
+                return Result;
+            }
+        };
         std::uint8_t Added = false;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Items) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TItem>(CurrentStar->Items, I);
-            if (aShip::AcceptPickupTarget(Item, this, IgnoreRange) && static_cast<std::uint8_t>(HasPickupTarget(Item) ^ 1)) {
+            if (AcceptPickupTarget(Item) && static_cast<std::uint8_t>(HasPickupTarget(Item) ^ 1)) {
                 AddPickupTarget(Item, false);
                 Added = true;
             }
@@ -10224,24 +10389,10 @@ namespace aShip {
         if (!Added) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Items) - 1); cpp_range_2.next(I); ) {
                 Item = pas::list_at<aItem::TItem>(CurrentStar->Items, I);
-                if (aShip::AcceptPickupTarget(Item, this, IgnoreRange)) {
+                if (AcceptPickupTarget(Item)) {
                     RemovePickupTarget(Item);
                 }
             }
-        }
-    }
-
-    std::uint8_t AcceptPickupTarget(aItem::TItem* Item, TShip* Self, std::uint8_t& IgnoreRange) {
-        std::uint8_t Result = false;
-        if (IgnoreRange) {
-            if (aItem::CanCargoHookHandleItem(Item, Self)) {
-                return true;
-            }
-            return Result;
-        } else if (Self->IsItemInPickupRange(Item)) {
-            return true;
-        } else {
-            return Result;
         }
     }
 
@@ -10268,6 +10419,7 @@ namespace aShip {
         return Count;
     }
 
+    // Ties are allowed; requires positive speed.
     std::uint8_t TShip::CanReachItemBeforeOtherShips(aItem::TItem* Item) {
         std::int32_t I{};
         TShip* Ship{};
@@ -10346,6 +10498,7 @@ namespace aShip {
         return Result;
     }
 
+    // Except OrderJumpHole, new orders respect AbsoluteScriptOrder.
     void TShip::OrderNone(std::uint8_t OverrideScriptOrder) {
         if (AbsoluteScriptOrder > 0 && static_cast<std::uint8_t>(OverrideScriptOrder ^ 1)) {
             return;
@@ -10380,6 +10533,7 @@ namespace aShip {
         return Result;
     }
 
+    // Point on the destination map boundary facing the current system.
     EC_Struct::TPointF TShip::GetArrivalPosition(aGalaxy::TStar* DestinationStar) {
         EC_Struct::TPointF Result{};
         double Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::PointBearingDegrees(DestinationStar->Position, CurrentStar->Position));
@@ -10389,6 +10543,7 @@ namespace aShip {
         return Result;
     }
 
+    // Minimum two days; independent of equipment and fuel.
     std::int32_t TShip::CalculateJumpTravelDays(aGalaxy::TStar* Origin, aGalaxy::TStar* Destination) {
         return std::max<std::int64_t>(static_cast<std::int64_t>(2), System::Round(aMyFunction::PointDistance(Origin->Position, Destination->Position) * 0.1L) + 1);
     }
@@ -10408,6 +10563,7 @@ namespace aShip {
         OrderStateData = TShip::CalculateJumpTravelDays(CurrentStar, Star);
     }
 
+    // Does not check AbsoluteScriptOrder.
     void TShip::OrderJumpHole(aGalaxy::THole* Hole, std::uint8_t Absolute) {
         if (!HasPositiveSpeed()) {
             OrderNone(false);
@@ -10436,6 +10592,7 @@ namespace aShip {
         OrderStateData = TransitionData;
     }
 
+    // Location is a planet or dockable ship.
     void TShip::OrderLanding(pas::Object* Location, std::uint8_t Absolute) {
         if (AbsoluteScriptOrder > 0) {
             return;
@@ -10547,6 +10704,7 @@ namespace aShip {
         OrderAbsolute = Absolute;
     }
 
+    // Ceiling of active path-node count times the star's MovementStepScale.
     std::int32_t TShip::GetMovementPathTurnCount() {
         return MathImports::Ceil(MovementPath->NodeCount * CurrentStar->MovementStepScale);
     }
@@ -10570,6 +10728,19 @@ namespace aShip {
         aPath::PSPathNode PickupNode{};
         std::uint8_t CanLand{};
         SE_Space::TObjectSE* Effect{};
+        // Caller-popped static link; step index -4, ship -8.
+        auto InitializeFilm = [&](std::uint8_t Alpha) -> void {
+            Globals::PrimaryFilm->SetObjectPosition(StartStepIndex, this->FilmObject, this->Position);
+            Globals::PrimaryFilm->SetObjectAngle(StartStepIndex, this->FilmObject, aMyFunction::HeadingDegreesToByte(this->MovementDirection));
+            Globals::PrimaryFilm->SetObjectAlpha(StartStepIndex, this->FilmObject, Alpha);
+            Globals::PrimaryFilm->AttachObject(StartStepIndex, this->FilmObject);
+            if (this->AuxiliaryFilmObject != nullptr) {
+                Globals::PrimaryFilm->SetObjectPosition(StartStepIndex, this->AuxiliaryFilmObject, this->Position);
+                Globals::PrimaryFilm->SetObjectAngle(StartStepIndex, this->AuxiliaryFilmObject, aMyFunction::HeadingDegreesToByte(this->MovementDirection));
+                Globals::PrimaryFilm->SetObjectAlpha(StartStepIndex, this->AuxiliaryFilmObject, this->AuxiliaryFilmObject->SceneObject->GetAlpha());
+                Globals::PrimaryFilm->AttachObject(StartStepIndex, this->AuxiliaryFilmObject);
+            }
+        };
         FilmObject = nullptr;
         AuxiliaryFilmObject = nullptr;
         PickupPathUpdatesAllowed = InNormalSpace() && Order != soTeleport;
@@ -10625,7 +10796,7 @@ namespace aShip {
         if (Order == soNone) {
             if (!InHyperspace) {
                 if (RecordFilm && static_cast<std::uint8_t>(IsOnPlanet() ^ 1) && static_cast<std::uint8_t>(IsDockedToShip() ^ 1)) {
-                    aShip::InitializeFilm(255, this, StartStepIndex);
+                    InitializeFilm(255);
                     if (aPlayer::GetPlayer() == this) {
                         Globals::PrimaryFilm->SetCameraAnchor(StartStepIndex, Position, false);
                     }
@@ -10635,7 +10806,7 @@ namespace aShip {
             FilmAlpha = 255.0f;
             FilmAlphaStep = 0.0f;
             if (RecordFilm) {
-                aShip::InitializeFilm(255, this, StartStepIndex);
+                InitializeFilm(255);
                 if (aPlayer::GetPlayer() == this) {
                     Globals::PrimaryFilm->SetCameraAnchor(StartStepIndex, OrderDestination, true);
                 }
@@ -10644,7 +10815,7 @@ namespace aShip {
             FilmAlpha = 5.1E+2f;
             FilmAlphaStep = 0.0f;
             if (RecordFilm) {
-                aShip::InitializeFilm(255, this, StartStepIndex);
+                InitializeFilm(255);
             }
             if (pas::class_cast_if<TShip*>(OrderTarget) != nullptr) {
                 Point = pas::checked_cast<TShip*>(OrderTarget)->Position;
@@ -10711,7 +10882,7 @@ namespace aShip {
                         Globals::PrimaryFilm->AttachObject(StartStepIndex + 1, EffectFilm);
                         Globals::PrimaryFilm->PlayObjectSound(StartStepIndex + 1, FilmObject, u"Sound.TeleportOut"_wref.get());
                     }
-                    aShip::InitializeFilm(255, this, StartStepIndex);
+                    InitializeFilm(255);
                 }
                 AfterburnerActive = false;
                 InHyperspace = OrderStateData > 0 || OrderTarget != CurrentStar;
@@ -10734,7 +10905,7 @@ namespace aShip {
                     if (RecordFilm) {
                         if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(FilmObject->SceneObject) != nullptr && reinterpret_cast<SE_Ruins::TRuinsSE*>(FilmObject->SceneObject)->HasTransitionImages) {
                             Globals::PrimaryFilm->SetRuinsState(StartStepIndex, FilmObject, 3);
-                            aShip::InitializeFilm(255, this, StartStepIndex);
+                            InitializeFilm(255);
                         } else {
                             Effect = pas::construct_call<SE_GAIEffect::TGAIEffectSE>(SE_GAIEffect::TGAIEffectSE_Create, u"Effect.TeleportIn"_wref.get(), ClassesImports::Point(0, 0));
                             EffectFilm = Globals::PrimaryFilm->AddObject(0u, Effect, 0, 0);
@@ -10748,7 +10919,7 @@ namespace aShip {
                             Globals::PrimaryFilm->PlayObjectSound(StartStepIndex + 1, FilmObject, u"Sound.TeleportIn"_wref.get());
                             FilmAlpha = -255.0f;
                             FilmAlphaStep = 3.825f;
-                            aShip::InitializeFilm(0, this, StartStepIndex);
+                            InitializeFilm(0);
                         }
                         if (aPlayer::GetPlayer() == this) {
                             Globals::PrimaryFilm->SetCameraAnchor(StartStepIndex, Position, true);
@@ -10768,7 +10939,7 @@ namespace aShip {
                 FilmAlphaStep = 0.0f;
                 AbductedByPirateClan = false;
                 if (RecordFilm) {
-                    aShip::InitializeFilm(255, this, StartStepIndex);
+                    InitializeFilm(255);
                 }
                 if (static_cast<std::uint8_t>(PickupPathUpdatesAllowed ^ 1) && MovementPath->ActiveHead == nullptr) {
                     OrderDestination = GetJumpDeparturePoint(reinterpret_cast<aGalaxy::TStar*>(OrderTarget));
@@ -10923,7 +11094,7 @@ namespace aShip {
                     }
                     if (RecordFilm) {
                         FilmAlphaStep = pas::real_divide(5.1E+2L, MovementPath->NodeCount);
-                        aShip::InitializeFilm(0, this, StartStepIndex);
+                        InitializeFilm(0);
                         if (aPlayer::GetPlayer() == this) {
                             Globals::PrimaryFilm->SetCameraAnchor(StartStepIndex, Position, true);
                         }
@@ -11006,7 +11177,7 @@ namespace aShip {
                 FilmAlpha = 5.1E+2f;
                 FilmAlphaStep = 0.0f;
                 if (RecordFilm) {
-                    aShip::InitializeFilm(255, this, StartStepIndex);
+                    InitializeFilm(255);
                 }
                 if (MovementPath->ActiveHead != nullptr && static_cast<std::uint8_t>(PickupPathUpdatesAllowed ^ 1)) {
                     if (aMyFunction::PointDistanceSquared(MovementPath->ActiveTail->Position, OrderDestination) <= 0.0L) {
@@ -11059,7 +11230,7 @@ namespace aShip {
                     }
                     if (RecordFilm) {
                         FilmAlphaStep = 1.275f;
-                        aShip::InitializeFilm(0, this, StartStepIndex);
+                        InitializeFilm(0);
                         if (aPlayer::GetPlayer() == this) {
                             Globals::PrimaryFilm->SetViewCenter(StartStepIndex, Position);
                             Globals::PrimaryFilm->SetCameraAnchor(StartStepIndex, Position, false);
@@ -11077,7 +11248,7 @@ namespace aShip {
             if (RecordFilm) {
                 FilmAlpha = 0.0f;
                 FilmAlphaStep = 1.33875f;
-                aShip::InitializeFilm(0, this, StartStepIndex);
+                InitializeFilm(0);
                 if (aPlayer::GetPlayer() == this) {
                     Globals::PrimaryFilm->SetViewCenter(StartStepIndex, Position);
                     Globals::PrimaryFilm->SetCameraAnchor(StartStepIndex, Position, false);
@@ -11154,7 +11325,7 @@ namespace aShip {
             FilmAlpha = 255.0f;
             FilmAlphaStep = 0.0f;
             if (RecordFilm) {
-                aShip::InitializeFilm(255, this, StartStepIndex);
+                InitializeFilm(255);
                 if (aPlayer::GetPlayer() == this) {
                     Globals::PrimaryFilm->SetCameraAnchor(StartStepIndex, pas::checked_cast<TShip*>(OrderTarget)->Position, true);
                 }
@@ -11198,19 +11369,7 @@ namespace aShip {
         }
     }
 
-    void InitializeFilm(std::uint8_t Alpha, TShip* Self, std::int32_t& StartStepIndex) {
-        Globals::PrimaryFilm->SetObjectPosition(StartStepIndex, Self->FilmObject, Self->Position);
-        Globals::PrimaryFilm->SetObjectAngle(StartStepIndex, Self->FilmObject, aMyFunction::HeadingDegreesToByte(Self->MovementDirection));
-        Globals::PrimaryFilm->SetObjectAlpha(StartStepIndex, Self->FilmObject, Alpha);
-        Globals::PrimaryFilm->AttachObject(StartStepIndex, Self->FilmObject);
-        if (Self->AuxiliaryFilmObject != nullptr) {
-            Globals::PrimaryFilm->SetObjectPosition(StartStepIndex, Self->AuxiliaryFilmObject, Self->Position);
-            Globals::PrimaryFilm->SetObjectAngle(StartStepIndex, Self->AuxiliaryFilmObject, aMyFunction::HeadingDegreesToByte(Self->MovementDirection));
-            Globals::PrimaryFilm->SetObjectAlpha(StartStepIndex, Self->AuxiliaryFilmObject, Self->AuxiliaryFilmObject->SceneObject->GetAlpha());
-            Globals::PrimaryFilm->AttachObject(StartStepIndex, Self->AuxiliaryFilmObject);
-        }
-    }
-
+    // The native result remains false.
     std::uint8_t TShip::ProcessMovementStep(std::int32_t StepIndex, std::uint8_t RecordFilm) {
         aPath::PSPathNode Node{};
         std::uint8_t Angle{};
@@ -11222,6 +11381,40 @@ namespace aShip {
         SE_Space::TObjectSE* Effect{};
         aEFilm::TEFilmObj* EffectFilm{};
         std::int32_t Fuel{};
+        // Caller-popped static link; ship -4, node -8, recording flag -9, step index -16. Removes one path node and updates position, heading and film.
+        auto AdvancePath = [&]() -> void {
+            if (this->MovementPath != nullptr && this->MovementPath->ActiveHead != nullptr) {
+                Node = this->MovementPath->ActiveHead;
+                if (RecordFilm) {
+                    Angle = aMyFunction::HeadingDegreesToByte(Node->Heading);
+                    if (aMyFunction::HeadingDegreesToByte(this->MovementDirection) != Angle) {
+                        Globals::PrimaryFilm->SetObjectAngle(StepIndex, this->FilmObject, Angle);
+                    }
+                }
+                this->Position = Node->Position;
+                this->MovementDirection = Node->Heading;
+                this->MovementPath->RemoveNode(this->MovementPath->ActiveHead);
+            }
+            if (RecordFilm) {
+                Globals::PrimaryFilm->SetObjectPosition(StepIndex, this->FilmObject, this->Position);
+                if (this->AuxiliaryFilmObject != nullptr) {
+                    Globals::PrimaryFilm->SetObjectPosition(StepIndex, this->AuxiliaryFilmObject, this->Position);
+                }
+                if (aPlayer::GetPlayer() == this) {
+                    Globals::PrimaryFilm->SetRadarCenter(StepIndex, this->Position);
+                }
+                if (this->FilmAlphaStep != 0.0L) {
+                    this->FilmAlpha = static_cast<long double>(this->FilmAlpha) + this->FilmAlphaStep;
+                    if (this->FilmAlpha <= 0.0L) {
+                        Globals::PrimaryFilm->SetObjectAlpha(StepIndex, this->FilmObject, 0);
+                    } else if (this->FilmAlpha >= 255.0L) {
+                        Globals::PrimaryFilm->SetObjectAlpha(StepIndex, this->FilmObject, 255);
+                    } else {
+                        Globals::PrimaryFilm->SetObjectAlpha(StepIndex, this->FilmObject, System::Round(this->FilmAlpha));
+                    }
+                }
+            }
+        };
         std::uint8_t Result = false;
         if (IsHullDestroyed()) {
             return Result;
@@ -11249,11 +11442,11 @@ namespace aShip {
         }
         if (Order == soNone) {
             if (FilmObject != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
             }
         } else if (Order == soMove) {
             if (MovementPath->ActiveHead != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
                 if (Position.X == OrderDestination.X && Position.Y == OrderDestination.Y) {
                     OrderNone(false);
                 }
@@ -11262,7 +11455,7 @@ namespace aShip {
             }
         } else if (Order == soLand) {
             if (MovementPath->ActiveHead != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
                 if (RecordFilm && aPlayer::GetPlayer() == this && OrderStateData == 0) {
                     if (pas::class_cast_if<TShip*>(OrderTarget) != nullptr) {
                         Globals::PrimaryFilm->SetCameraAnchor(StepIndex, pas::checked_cast<TShip*>(OrderTarget)->Position, true);
@@ -11308,7 +11501,7 @@ namespace aShip {
             }
         } else if (Order == soTeleport) {
             if (FilmObject != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
                 if (FilmAlphaStep < 0.0L && FilmAlpha <= 0.0L && (OrderStateData > 0 || OrderTarget != CurrentStar)) {
                     Globals::PrimaryFilm->DetachObject(StepIndex, FilmObject);
                     if (AuxiliaryFilmObject != nullptr) {
@@ -11343,7 +11536,7 @@ namespace aShip {
                 FilmAlphaStep = -1.785f;
             }
             if (static_cast<std::uint8_t>(InHyperspace ^ 1) && MovementPath->ActiveHead != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
                 if (OrderDestination.X == 0.0L && OrderDestination.Y == 0.0L && MovementPath->ActiveHead == nullptr) {
                     InHyperspace = true;
                     if (RecordFilm) {
@@ -11373,9 +11566,9 @@ namespace aShip {
             }
         } else if (Order == soJumpHole) {
             if (OrderStateData == -65536 && MovementPath->ActiveHead != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
             } else if (static_cast<std::uint8_t>(InHyperspace ^ 1) && MovementPath->ActiveHead != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
                 if (RecordFilm && FilmAlphaStep == 0.0L && aPlayer::GetPlayer() == this) {
                     Globals::PrimaryFilm->SetCameraAnchor(StepIndex, OrderDestination, true);
                 }
@@ -11401,11 +11594,11 @@ namespace aShip {
             }
         } else if (Order == soTakeoff) {
             if (MovementPath->ActiveHead != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
             }
         } else if (Order == soFollowShip) {
             if (MovementPath->ActiveHead != nullptr) {
-                aShip::AdvancePath(this, StepIndex, RecordFilm, Node, Angle);
+                AdvancePath();
                 if (RecordFilm && aPlayer::GetPlayer() == this) {
                     Globals::PrimaryFilm->SetCameraAnchor(StepIndex, pas::checked_cast<TShip*>(OrderTarget)->Position, true);
                 }
@@ -11429,40 +11622,6 @@ namespace aShip {
         return Result;
     }
 
-    void AdvancePath(TShip* Self, std::int32_t& StepIndex, std::uint8_t& RecordFilm, aPath::PSPathNode& Node, std::uint8_t& Angle) {
-        if (Self->MovementPath != nullptr && Self->MovementPath->ActiveHead != nullptr) {
-            Node = Self->MovementPath->ActiveHead;
-            if (RecordFilm) {
-                Angle = aMyFunction::HeadingDegreesToByte(Node->Heading);
-                if (aMyFunction::HeadingDegreesToByte(Self->MovementDirection) != Angle) {
-                    Globals::PrimaryFilm->SetObjectAngle(StepIndex, Self->FilmObject, Angle);
-                }
-            }
-            Self->Position = Node->Position;
-            Self->MovementDirection = Node->Heading;
-            Self->MovementPath->RemoveNode(Self->MovementPath->ActiveHead);
-        }
-        if (RecordFilm) {
-            Globals::PrimaryFilm->SetObjectPosition(StepIndex, Self->FilmObject, Self->Position);
-            if (Self->AuxiliaryFilmObject != nullptr) {
-                Globals::PrimaryFilm->SetObjectPosition(StepIndex, Self->AuxiliaryFilmObject, Self->Position);
-            }
-            if (aPlayer::GetPlayer() == Self) {
-                Globals::PrimaryFilm->SetRadarCenter(StepIndex, Self->Position);
-            }
-            if (Self->FilmAlphaStep != 0.0L) {
-                Self->FilmAlpha = static_cast<long double>(Self->FilmAlpha) + Self->FilmAlphaStep;
-                if (Self->FilmAlpha <= 0.0L) {
-                    Globals::PrimaryFilm->SetObjectAlpha(StepIndex, Self->FilmObject, 0);
-                } else if (Self->FilmAlpha >= 255.0L) {
-                    Globals::PrimaryFilm->SetObjectAlpha(StepIndex, Self->FilmObject, 255);
-                } else {
-                    Globals::PrimaryFilm->SetObjectAlpha(StepIndex, Self->FilmObject, System::Round(Self->FilmAlpha));
-                }
-            }
-        }
-    }
-
     void TShip::ClearCompletedTakeoffOrHoleOrder(std::int32_t UnusedStepIndex, std::uint8_t UnusedRecordFilm) {
         if (IsHullDestroyed()) {
             return;
@@ -11474,6 +11633,7 @@ namespace aShip {
         }
     }
 
+    // Tests landing, jump, hole and teleport completion conditions against the prepared path.
     std::uint8_t TShip::IsTravelCompletionPathReady() {
         std::uint8_t Result = true;
         do {
@@ -11526,6 +11686,7 @@ namespace aShip {
         return false;
     }
 
+    // Adjusts RepulsionPosition on Self and nearby following ships using their collision radii.
     void TShip::RepelFollowingShips() {
         std::int32_t I{};
         std::int32_t Count{};
@@ -11604,6 +11765,7 @@ namespace aShip {
         }
     }
 
+    // Uses the current turn's step limit; rewrites OrderDestination to the resulting endpoint.
     void TShip::RebuildMovePath() {
         ClearMovementPath();
         AppendStarAvoidingPath(OrderDestination, CurrentStar->MovementStepCount);
@@ -11614,6 +11776,7 @@ namespace aShip {
         }
     }
 
+    // Clears the old path and uses aCalc, aGroup, a 999999-node limit.
     void TShip::BuildFullPathTo(EC_Struct::TPointF Destination) {
         ClearMovementPath();
         if (MovementSpeed < 0.001L) {
@@ -11650,6 +11813,7 @@ namespace aShip {
         }
     }
 
+    // Clears the path, normalizes heading and handles the current order; may commit jump departure or adjust the destination.
     void TShip::BuildOrderMovementPath(std::int32_t MaximumNodes) {
         aPlanet::TPlanet* Planet{};
         aGalaxy::THole* Hole{};
@@ -11839,6 +12003,7 @@ namespace aShip {
         }
     }
 
+    // Turning then straight movement; may pad the player's visible turn to 200 nodes.
     void TShip::AppendPathToWithTurnPadding(EC_Struct::TPointF Destination, std::int32_t MaximumNodes) {
         AppendTurningPath(Destination, false, MaximumNodes);
         AppendStraightPath(Destination, MaximumNodes);
@@ -11877,6 +12042,7 @@ namespace aShip {
         }
     }
 
+    // Appends up to 200 nodes around the system origin, with visible-turn padding.
     void TShip::AppendOrbitalPath(std::int32_t MaximumNodes) {
         aPath::PSPathNode Node{};
         std::int32_t I{};
@@ -11955,6 +12121,7 @@ namespace aShip {
             Step = pas::real_divide(Step, 2.0L);
             TurnStep = pas::real_divide(TurnStep, 2.0L);
         }
+        // The native code compares squared distance with the unsquared step here.
         if (aMyFunction::PointDistanceSquared(Point, Destination) < Step) {
             MovementPath->AppendNode();
             Node = MovementPath->ActiveTail;
@@ -12116,6 +12283,7 @@ namespace aShip {
         }
     }
 
+    // Positive/negative Direction selects the outgoing/incoming transition path.
     void TShip::AppendHyperspaceTransitionPath(float Direction) {
         EC_Struct::TPointF Point{};
         float Heading{};
@@ -12145,6 +12313,7 @@ namespace aShip {
         }
         float SinHeading = System::Sin(aMyFunction::HeadingDegreesToRadians(Heading));
         float CosHeading = System::Cos(aMyFunction::HeadingDegreesToRadians(Heading));
+        // The native increment is applied once, before the loop.
         Speed = static_cast<long double>(Speed) + Increment;
         while (I < Count) {
             Point.X = Point.X + static_cast<long double>(SinHeading) * Speed;
@@ -12345,6 +12514,7 @@ namespace aShip {
         return GetSlotCount(aConst::ItemTypeToSlotKind(ItemType));
     }
 
+    // Repairs duplicate/out-of-range equipped slots; unequips overflow and preserves slot flag bit 7.
     void TShip::ReassignActiveItemSlots(aConst::TItemType ItemType) {
         std::int32_t I{};
         std::int32_t J{};
@@ -12423,6 +12593,7 @@ namespace aShip {
         RefreshInactiveItemSlotAssignments();
     }
 
+    // Slot indices are zero-based.
     aItem::TEquipment* TShip::FindEquippedItemInSlot(std::uint8_t ItemType, std::int32_t SlotIndex) {
         std::int32_t I{};
         aItem::TEquipment* Item{};
@@ -12506,6 +12677,7 @@ namespace aShip {
         }
     }
 
+    // One past the largest carried satellite index, or zero.
     std::int32_t TShip::GetSatelliteTrajectoryIndexLimit() {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -12554,6 +12726,7 @@ namespace aShip {
         return nullptr;
     }
 
+    // Shifts indices at or above Index upward.
     void TShip::InsertSatelliteTrajectoryIndex(std::int32_t Index) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -12565,6 +12738,7 @@ namespace aShip {
         }
     }
 
+    // Does nothing if Index is occupied.
     void TShip::RemoveEmptySatelliteTrajectoryIndex(std::int32_t Index) {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -12593,6 +12767,7 @@ namespace aShip {
         }
     }
 
+    // Uses and refreshes global hold-view state.
     void TShip::AssignSatelliteIndicesFromHoldOrder() {
         pas::DynArray<std::int32_t> Indices{};
         std::int32_t I{};
@@ -12642,6 +12817,7 @@ namespace aShip {
         }
     }
 
+    // Reorders the satellite entries in the global hold view.
     void TShip::ArrangeHoldSatellitesByTrajectoryIndex() {
         pas::DynArray<std::int32_t> Indices{};
         pas::DynArray<fShip2::TPlayerHoldUnit*> Entries{};
@@ -12702,6 +12878,7 @@ namespace aShip {
         }
     }
 
+    // Requires minimum charge; records a galaxy event and consumes charge even if no Dominators respond.
     std::uint8_t TShip::UseDominatorTransmitter(aItem::TArtefactTransmitter* Artefact) {
         std::int32_t I{};
         std::int32_t J{};
@@ -12743,7 +12920,7 @@ namespace aShip {
                         Available = 0;
                         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(J); ) {
                             Ship = pas::list_at<TShip>(Star->Ships, J);
-                            if (Ship->InNormalSpace() && pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) && pas::in_set<0, 1>(Ship->Order) && pas::in_range(static_cast<aKling::TKling*>(Ship)->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquentor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip))) {
+                            if (Ship->InNormalSpace() && pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) && pas::is_one_of<soNone, soMove>(Ship->Order) && pas::in_range(static_cast<aKling::TKling*>(Ship)->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquentor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip))) {
                                 ++Available;
                             }
                         }
@@ -12755,7 +12932,7 @@ namespace aShip {
                         if (Available > 0) {
                             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(J); ) {
                                 Ship = pas::list_at<TShip>(Star->Ships, J);
-                                if (Ship->InNormalSpace() && pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) && pas::in_set<0, 1>(Ship->Order) && pas::in_range(static_cast<aKling::TKling*>(Ship)->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquentor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip))) {
+                                if (Ship->InNormalSpace() && pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) && pas::is_one_of<soNone, soMove>(Ship->Order) && pas::in_range(static_cast<aKling::TKling*>(Ship)->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquentor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip))) {
                                     if (Star->Status.DominatorSeries == aGalaxyStruct::dsKeller && 1.0L - Penalty * 0.01L > aMyFunction::NextRandomUnitFloat(RandomState) && aKling::KellerShip != nullptr && aGalaxy::Galaxy->KellerLeaveTurn == 0) {
                                         Ship->OrderJump(CurrentStar, true);
                                     }
@@ -12786,6 +12963,7 @@ namespace aShip {
         return false;
     }
 
+    // Custom items match by configuration name; generic artefacts also compare names.
     std::uint8_t TShip::HasMatchingArtefactOrCustomItem(aItem::TItem* Item) {
         std::int32_t I{};
         aItem::TEquipment* Other{};
@@ -12800,7 +12978,7 @@ namespace aShip {
         } else {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Artefacts) - 1); cpp_range_2.next(I); ) {
                 Other = pas::list_at<aItem::TEquipment>(Artefacts, I);
-                if (Item->ItemType == Other->ItemType && (static_cast<std::uint8_t>(pas::in_set<8, 9>(Other->ItemType) ^ 1) || Other->ConfigBlockName == reinterpret_cast<aItem::TEquipment*>(Item)->ConfigBlockName)) {
+                if (Item->ItemType == Other->ItemType && (static_cast<std::uint8_t>(pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(Other->ItemType) ^ 1) || Other->ConfigBlockName == reinterpret_cast<aItem::TEquipment*>(Item)->ConfigBlockName)) {
                     return true;
                 }
             }
@@ -12808,13 +12986,14 @@ namespace aShip {
         return Result;
     }
 
+    // Uses custom SharedEffect types and excludes broken items. Activation exceptions can count some unequipped artefacts.
     std::int32_t TShip::CountActiveArtefacts(std::uint8_t ArtefactType) {
         std::int32_t I{};
         aItem::TArtefact* Item{};
         std::int32_t Result = 0;
         std::uint8_t AllActive = false;
         if (pas::in_set<14, 15, 20, 20, 39, 39>(ArtefactType) && ArtefactType != static_cast<std::uint8_t>(aConst::t_ArtArtefactor)) {
-            AllActive = CountActiveArtefacts(aConst::t_ArtArtefactor) > 0 && (static_cast<std::uint8_t>(pas::in_set<1, 1, 3, 3>(aCalc::TurnCalculationPhase) ^ 1) || CountActiveArtefacts(aConst::t_ArtArtefactor) > 1);
+            AllActive = CountActiveArtefacts(aConst::t_ArtArtefactor) > 0 && (static_cast<std::uint8_t>(pas::is_one_of<ThreadCalc::tcpGalaxyRunning, ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase) ^ 1) || CountActiveArtefacts(aConst::t_ArtArtefactor) > 1);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Artefacts) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TArtefact>(Artefacts, I);
@@ -12825,6 +13004,7 @@ namespace aShip {
         return Result;
     }
 
+    // Uses custom SharedUse and ConfigBlockName. Includes Item itself if equipped, and does not exclude broken items.
     std::uint8_t TShip::HasEquippedArtefactOfSameUseGroup(aItem::TItem* Item) {
         std::int32_t I{};
         aItem::TArtefact* Artefact{};
@@ -12859,7 +13039,12 @@ namespace aShip {
         return Result;
     }
 
+    // Item=nil checks cached installed equipment. A supplied item need not be equipped; eligible equipment types depend on ArtefactType.
     std::uint8_t TShip::CanBoostArtefact(std::uint8_t ArtefactType, aItem::TEquipment* Item, std::uint8_t IgnoreArtefactAvailability) {
+        // Nested in CanBoostArtefact with unused caller-popped static link. OwnerId=6 and empty CustomFaction; nil returns false.
+        auto IsArtefactBoostEquipment = [&](aItem::TEquipment* Item) -> std::uint8_t {
+            return Item != nullptr && Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && Item->CustomFaction == u"";
+        };
         std::uint8_t Result = false;
         if (static_cast<std::uint8_t>(IgnoreArtefactAvailability ^ 1) && CountActiveArtefacts(ArtefactType) <= 0) {
             return Result;
@@ -12869,56 +13054,56 @@ namespace aShip {
         }
         if (Item == nullptr) {
             switch (ArtefactType) {
-                case aConst::t_ArtefactHull: Result = aShip::IsArtefactBoostEquipment(GetHull()); break;
-                case aConst::t_ArtefactFuel: Result = aShip::IsArtefactBoostEquipment(GetFuelTanks()); break;
-                case aConst::t_ArtefactSpeed: Result = aShip::IsArtefactBoostEquipment(GetEngine()); break;
+                case aConst::t_ArtefactHull: Result = IsArtefactBoostEquipment(GetHull()); break;
+                case aConst::t_ArtefactFuel: Result = IsArtefactBoostEquipment(GetFuelTanks()); break;
+                case aConst::t_ArtefactSpeed: Result = IsArtefactBoostEquipment(GetEngine()); break;
                 case aConst::t_ArtefactPower: {
-                    Result = aShip::IsArtefactBoostEquipment(GetEngine()) || aShip::IsArtefactBoostEquipment(GetHull());
+                    Result = IsArtefactBoostEquipment(GetEngine()) || IsArtefactBoostEquipment(GetHull());
                     break;
                 }
-                case aConst::t_ArtefactRadar: Result = aShip::IsArtefactBoostEquipment(GetRadar()); break;
-                case aConst::t_ArtefactScaner: Result = aShip::IsArtefactBoostEquipment(GetScanner()); break;
-                case aConst::t_ArtefactDroid: Result = aShip::IsArtefactBoostEquipment(GetRepairRobot()); break;
-                case aConst::t_ArtefactHook: Result = aShip::IsArtefactBoostEquipment(GetCargoHook()); break;
-                case aConst::t_ArtefactDef: Result = aShip::IsArtefactBoostEquipment(GetDefGenerator()); break;
-                case aConst::t_ArtefactAntigrav: Result = aShip::IsArtefactBoostEquipment(GetHull()); break;
-                case aConst::t_ArtDefToEnergy: Result = aShip::IsArtefactBoostEquipment(GetDefGenerator()); break;
-                case aConst::t_ArtGiperJump: Result = aShip::IsArtefactBoostEquipment(GetEngine()); break;
-                case aConst::t_ArtDefToArms1: Result = aShip::IsArtefactBoostEquipment(GetDefGenerator()); break;
-                case aConst::t_ArtForsage: Result = aShip::IsArtefactBoostEquipment(GetEngine()); break;
+                case aConst::t_ArtefactRadar: Result = IsArtefactBoostEquipment(GetRadar()); break;
+                case aConst::t_ArtefactScaner: Result = IsArtefactBoostEquipment(GetScanner()); break;
+                case aConst::t_ArtefactDroid: Result = IsArtefactBoostEquipment(GetRepairRobot()); break;
+                case aConst::t_ArtefactHook: Result = IsArtefactBoostEquipment(GetCargoHook()); break;
+                case aConst::t_ArtefactDef: Result = IsArtefactBoostEquipment(GetDefGenerator()); break;
+                case aConst::t_ArtefactAntigrav: Result = IsArtefactBoostEquipment(GetHull()); break;
+                case aConst::t_ArtDefToEnergy: Result = IsArtefactBoostEquipment(GetDefGenerator()); break;
+                case aConst::t_ArtGiperJump: Result = IsArtefactBoostEquipment(GetEngine()); break;
+                case aConst::t_ArtDefToArms1: Result = IsArtefactBoostEquipment(GetDefGenerator()); break;
+                case aConst::t_ArtForsage: Result = IsArtefactBoostEquipment(GetEngine()); break;
                 case aConst::t_ArtWeaponToSpeed: {
-                    Result = aShip::IsArtefactBoostEquipment(GetEngine()) || aShip::IsArtefactBoostEquipment(GetHull());
+                    Result = IsArtefactBoostEquipment(GetEngine()) || IsArtefactBoostEquipment(GetHull());
                     break;
                 }
-                case aConst::t_ArtEnergyDef: Result = aShip::IsArtefactBoostEquipment(GetHull()); break;
-                case aConst::t_ArtMissileDef: Result = aShip::IsArtefactBoostEquipment(GetHull()); break;
-                case aConst::t_ArtefactMiniExpl: Result = aShip::IsArtefactBoostEquipment(GetScanner()); break;
-                case aConst::t_ArtPDTurret: Result = aShip::IsArtefactBoostEquipment(GetRadar()); break;
+                case aConst::t_ArtEnergyDef: Result = IsArtefactBoostEquipment(GetHull()); break;
+                case aConst::t_ArtMissileDef: Result = IsArtefactBoostEquipment(GetHull()); break;
+                case aConst::t_ArtefactMiniExpl: Result = IsArtefactBoostEquipment(GetScanner()); break;
+                case aConst::t_ArtPDTurret: Result = IsArtefactBoostEquipment(GetRadar()); break;
             }
             if (ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtefactNano)) {
-                if (aShip::IsArtefactBoostEquipment(GetEngine()) || aShip::IsArtefactBoostEquipment(GetFuelTanks()) || aShip::IsArtefactBoostEquipment(GetRadar()) || aShip::IsArtefactBoostEquipment(GetScanner()) || aShip::IsArtefactBoostEquipment(GetRepairRobot()) || aShip::IsArtefactBoostEquipment(GetCargoHook()) || aShip::IsArtefactBoostEquipment(GetDefGenerator()) || aShip::IsArtefactBoostEquipment(Weapons[1]) || aShip::IsArtefactBoostEquipment(Weapons[2]) || aShip::IsArtefactBoostEquipment(Weapons[3]) || aShip::IsArtefactBoostEquipment(Weapons[4]) || aShip::IsArtefactBoostEquipment(Weapons[5])) {
+                if (IsArtefactBoostEquipment(GetEngine()) || IsArtefactBoostEquipment(GetFuelTanks()) || IsArtefactBoostEquipment(GetRadar()) || IsArtefactBoostEquipment(GetScanner()) || IsArtefactBoostEquipment(GetRepairRobot()) || IsArtefactBoostEquipment(GetCargoHook()) || IsArtefactBoostEquipment(GetDefGenerator()) || IsArtefactBoostEquipment(Weapons[1]) || IsArtefactBoostEquipment(Weapons[2]) || IsArtefactBoostEquipment(Weapons[3]) || IsArtefactBoostEquipment(Weapons[4]) || IsArtefactBoostEquipment(Weapons[5])) {
                     Result = true;
                 }
             }
             if (ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtDefToEnergy) || ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtEnergyPulse)) {
-                if (aShip::IsArtefactBoostEquipment(Weapons[1]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[1]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || aShip::IsArtefactBoostEquipment(Weapons[2]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[2]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || aShip::IsArtefactBoostEquipment(Weapons[3]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[3]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || aShip::IsArtefactBoostEquipment(Weapons[4]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[4]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || aShip::IsArtefactBoostEquipment(Weapons[5]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[5]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy)) {
+                if (IsArtefactBoostEquipment(Weapons[1]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[1]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || IsArtefactBoostEquipment(Weapons[2]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[2]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || IsArtefactBoostEquipment(Weapons[3]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[3]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || IsArtefactBoostEquipment(Weapons[4]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[4]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy) || IsArtefactBoostEquipment(Weapons[5]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[5]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkEnergy)) {
                     Result = true;
                 }
             }
             if (ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtSplinter) || ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtDecelerate)) {
-                if (aShip::IsArtefactBoostEquipment(Weapons[1]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[1]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || aShip::IsArtefactBoostEquipment(Weapons[2]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[2]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || aShip::IsArtefactBoostEquipment(Weapons[3]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[3]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || aShip::IsArtefactBoostEquipment(Weapons[4]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[4]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || aShip::IsArtefactBoostEquipment(Weapons[5]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[5]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter)) {
+                if (IsArtefactBoostEquipment(Weapons[1]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[1]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || IsArtefactBoostEquipment(Weapons[2]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[2]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || IsArtefactBoostEquipment(Weapons[3]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[3]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || IsArtefactBoostEquipment(Weapons[4]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[4]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter) || IsArtefactBoostEquipment(Weapons[5]) && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Weapons[5]->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter)) {
                     Result = true;
                 }
             }
             if (ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtFastRacks)) {
-                if (aShip::IsArtefactBoostEquipment(Weapons[1]) && pas::in_set<5, 7>(Weapons[1]->GetWeaponInfo()->ShotType) || aShip::IsArtefactBoostEquipment(Weapons[2]) && pas::in_set<5, 7>(Weapons[2]->GetWeaponInfo()->ShotType) || aShip::IsArtefactBoostEquipment(Weapons[3]) && pas::in_set<5, 7>(Weapons[3]->GetWeaponInfo()->ShotType) || aShip::IsArtefactBoostEquipment(Weapons[4]) && pas::in_set<5, 7>(Weapons[4]->GetWeaponInfo()->ShotType) || aShip::IsArtefactBoostEquipment(Weapons[5]) && pas::in_set<5, 7>(Weapons[5]->GetWeaponInfo()->ShotType)) {
+                if (IsArtefactBoostEquipment(Weapons[1]) && pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapons[1]->GetWeaponInfo()->ShotType) || IsArtefactBoostEquipment(Weapons[2]) && pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapons[2]->GetWeaponInfo()->ShotType) || IsArtefactBoostEquipment(Weapons[3]) && pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapons[3]->GetWeaponInfo()->ShotType) || IsArtefactBoostEquipment(Weapons[4]) && pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapons[4]->GetWeaponInfo()->ShotType) || IsArtefactBoostEquipment(Weapons[5]) && pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapons[5]->GetWeaponInfo()->ShotType)) {
                     return true;
                 }
             }
             return Result;
         }
         aItem::TEquipment* Equipment = Item;
-        if (!aShip::IsArtefactBoostEquipment(Equipment)) {
+        if (!IsArtefactBoostEquipment(Equipment)) {
             return Result;
         }
         switch (ArtefactType) {
@@ -13040,7 +13225,7 @@ namespace aShip {
         if ((ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtSplinter) || ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtDecelerate)) && !(pas::class_cast_if<aItem::TWeapon*>(Equipment) != nullptr && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&reinterpret_cast<aItem::TWeapon*>(Equipment)->GetWeaponInfo()->DamageFlags), aGalaxyStruct::dkSplinter))) {
             return Result;
         }
-        if (ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtFastRacks) && !(pas::class_cast_if<aItem::TWeapon*>(Equipment) != nullptr && pas::in_set<5, 7>(reinterpret_cast<aItem::TWeapon*>(Equipment)->GetWeaponInfo()->ShotType))) {
+        if (ArtefactType == static_cast<std::uint8_t>(aConst::t_ArtFastRacks) && !(pas::class_cast_if<aItem::TWeapon*>(Equipment) != nullptr && pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(reinterpret_cast<aItem::TWeapon*>(Equipment)->GetWeaponInfo()->ShotType))) {
             return Result;
         }
         if (!pas::in_range(Equipment->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
@@ -13049,13 +13234,26 @@ namespace aShip {
         return true;
     }
 
-    std::uint8_t IsArtefactBoostEquipment(aItem::TEquipment* Item) {
-        return Item != nullptr && Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && Item->CustomFaction == u"";
-    }
-
+    // Prefers installed inventory equipment; selects at most one repairable item and may clear BrokenFlag.
     void TShip::ApplyNanoArtefactRepair() {
         aItem::TEquipment* Item{};
         std::int32_t I{};
+        // Caller-popped static link; ship -4, selected-item output -8. At most 30 deterministic selections.
+        auto SelectRepairable = [&](std::int32_t Count, std::uint8_t Equipped) -> void {
+            static const pas::Set<0, 255> RepairableTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
+            std::int32_t Attempt = 0;
+            do {
+                ++Attempt;
+                Item = nullptr;
+                if (Attempt > 30) {
+                    return;
+                }
+                aShip::SelectOrdinal(aMyFunction::SeededRandomIntRange(1, Count, aGalaxy::Galaxy->GenerationSeed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) + static_cast<std::uint32_t>(Attempt)), Equipped, this, Item);
+                if (Item == nullptr) {
+                    return;
+                }
+            } while (!(pas::contains(RepairableTypes, static_cast<std::uint8_t>(Item->ItemType)) && Item->ConditionPercent <= 6.0E+1L && !(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair) && CanRepairEquipmentTech(Item)));
+        };
         if (pas::list_count(Inventory) < 1) {
             GR_Main::RaiseWideMessage(pas::concat_wide({u"Not equipments in ship ", GetName()}));
         }
@@ -13071,10 +13269,10 @@ namespace aShip {
         }
         Item = nullptr;
         if (EquippedCount > 0) {
-            aShip::SelectRepairable(EquippedCount, true, this, Item);
+            SelectRepairable(EquippedCount, true);
         }
         if (Item == nullptr && UnequippedCount > 0) {
-            aShip::SelectRepairable(UnequippedCount, false, this, Item);
+            SelectRepairable(UnequippedCount, false);
         }
         if (Item != nullptr) {
             Item->ConditionPercent = Item->ConditionPercent + pas::real_divide(aConst::NanoArtefactRepair, aConst::OwnerInfo[Item->OwnerId].EquipmentDurabilityFactor);
@@ -13116,22 +13314,7 @@ namespace aShip {
         Item = nullptr;
     }
 
-    void SelectRepairable(std::int32_t Count, std::uint8_t Equipped, TShip* Self, aItem::TEquipment*& Item) {
-        static const pas::Set<0, 255> RepairableTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
-        std::int32_t Attempt = 0;
-        do {
-            ++Attempt;
-            Item = nullptr;
-            if (Attempt > 30) {
-                return;
-            }
-            aShip::SelectOrdinal(aMyFunction::SeededRandomIntRange(1, Count, aGalaxy::Galaxy->GenerationSeed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) + static_cast<std::uint32_t>(Attempt)), Equipped, Self, Item);
-            if (Item == nullptr) {
-                return;
-            }
-        } while (!(pas::contains(RepairableTypes, static_cast<std::uint8_t>(Item->ItemType)) && Item->ConditionPercent <= 6.0E+1L && !(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair) && Self->CanRepairEquipmentTech(Item)));
-    }
-
+    // Uses Self's radar with a 500-unit minimum and both NoTalk flags; does not test system membership.
     std::uint8_t TShip::CanContactShip(TShip* OtherShip) {
         return static_cast<long double>(std::max<std::int32_t>(([&] {
             std::int32_t cpp_left = GetRadarRange();
@@ -13139,16 +13322,28 @@ namespace aShip {
         }()), 250000)) >= aMyFunction::PointDistanceSquared(Position, OtherShip->Position) && static_cast<std::uint8_t>(OtherShip->NoTalk ^ 1) && static_cast<std::uint8_t>(NoTalk ^ 1);
     }
 
+    // Selects among at most ten contiguous variants using ship seed and turn; substitutes ship names and HomePlanet. Missing text returns an unavailable marker.
     pas::WideString TShip::LookupTalkText(const pas::WideString& Path) {
         pas::WideString Result{};
         std::int32_t Count{};
         pas::WideString Key{};
         pas::Array<pas::WideString, 0, 9> Variants{};
+        auto GetTalkContextPrefix = [&](TShip* Ship) -> pas::WideString {
+            pas::WideString Result{};
+            Result = u"Talk."_w;
+            if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr) {
+                return pas::concat_wide({Result, u"PirateClan."});
+            } else if (Ship->IsFemaleHumanPilot()) {
+                return pas::concat_wide({Result, u"Female."});
+            } else {
+                return Result;
+            }
+        };
         if (pas::pos(u"Talk.", Path) == 1) {
             if (aPlayer::GetPlayer() != this) {
-                Key = EC_Str::ReplaceAllWideString(Path, u"Talk."_wref.get(), aShip::GetTalkContextPrefix(this));
+                Key = EC_Str::ReplaceAllWideString(Path, u"Talk."_wref.get(), GetTalkContextPrefix(this));
             } else if (Globals::TalkShip != nullptr) {
-                Key = EC_Str::ReplaceAllWideString(Path, u"Talk."_wref.get(), aShip::GetTalkContextPrefix(Globals::TalkShip));
+                Key = EC_Str::ReplaceAllWideString(Path, u"Talk."_wref.get(), GetTalkContextPrefix(Globals::TalkShip));
             } else {
                 Key = Path;
             }
@@ -13200,22 +13395,11 @@ namespace aShip {
         return Result;
     }
 
-    pas::WideString GetTalkContextPrefix(TShip* Ship) {
-        pas::WideString Result{};
-        Result = u"Talk."_w;
-        if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr) {
-            return pas::concat_wide({Result, u"PirateClan."});
-        } else if (Ship->IsFemaleHumanPilot()) {
-            return pas::concat_wide({Result, u"Female."});
-        } else {
-            return Result;
-        }
-    }
-
+    // Turn-worker/UI handshake; waits for conversation completion or shutdown. Requires an active visible-space turn.
     std::uint8_t TShip::OpenPlayerConversation(std::uint8_t RespectChameleon) {
         std::uint8_t Result{};
         pas::Array<WindowsImports::THandle, 0, 1> Handles{};
-        if (GR_Main::ExitScreenLoop || static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1) || aPlayer::GetPlayer()->CurrentStar != CurrentStar || pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase) || GlobalsV::CurrentScreenId != GlobalsV::screenStarMap || aGalaxy::Galaxy->SpecialSimulationMode != 0) {
+        if (GR_Main::ExitScreenLoop || static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1) || aPlayer::GetPlayer()->CurrentStar != CurrentStar || pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase) || GlobalsV::CurrentScreenId != GlobalsV::screenStarMap || aGalaxy::Galaxy->SpecialSimulationMode != 0) {
             return false;
         }
         if ((static_cast<std::uint8_t>(RespectChameleon) & static_cast<std::uint8_t>(aPlayer::GetPlayer()->ChameleonActive)) != 0 && IsPlayerChameleonEffectiveAgainstSelf() && (ScriptShip == nullptr || static_cast<std::uint8_t>(HasScriptControl() ^ 1))) {
@@ -13241,6 +13425,7 @@ namespace aShip {
         return true;
     }
 
+    // Returns the global dialogue response, or zero when conversation cannot open. Amount only replaces the global amount when positive.
     std::uint8_t TShip::ShowPlayerDialogue(std::uint8_t Kind, const pas::WideString& Text, std::int32_t Amount) {
         Globals::TalkType = Kind;
         if (Amount > 0) {
@@ -13686,10 +13871,12 @@ namespace aShip {
         }
     }
 
+    // Native base implementation returns false; argument role and intended operation remain unresolved.
     std::uint8_t TShip::UnknownVirtualC0(void* Argument) {
         return false;
     }
 
+    // Payment/wealth and relation determine contract months; a player stimulant can double the result.
     std::int32_t TShip::CalculatePartnershipMonths(std::int32_t Amount, TShip* OtherShip) {
         if (Amount < pas::real_divide(Wealth, 45.0L)) {
             return 0;
@@ -13802,6 +13989,7 @@ namespace aShip {
         return Result;
     }
 
+    // Requires ScriptShip; clears EndState, applies state orders and refreshes completion/pickup state.
     void TShip::InitializeScriptStateOrders() {
         aScript::TScriptShip* Binding = pas::checked_cast<aScript::TScriptShip*>(ScriptShip);
         Binding->EndState = false;
@@ -13809,6 +13997,7 @@ namespace aShip {
         UpdateScriptStateCompletionAndPickups();
     }
 
+    // Requires ScriptShip; may issue travel orders and assign script-selected weapon targets.
     void TShip::ApplyScriptStateOrders() {
         aScript::TScriptShip* OtherBinding{};
         TShip* FollowTarget{};
@@ -13866,6 +14055,7 @@ namespace aShip {
                 }
             }
         } else if (State->StateKind == aScript::sskJumpToStar) {
+            // Native repeats the planet test; it does not test docking here.
             if (IsOnPlanet() || IsOnPlanet()) {
                 OrderTakeoff();
             } else if (InNormalSpace()) {
@@ -13934,6 +14124,7 @@ namespace aShip {
         }
     }
 
+    // Requires ScriptShip; updates EndState and queues state-requested pickups.
     void TShip::UpdateScriptStateCompletionAndPickups() {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -13972,6 +14163,7 @@ namespace aShip {
         }
     }
 
+    // Requires ScriptShip; script execution can remove the binding.
     void TShip::ScriptNextDay() {
         aScript::TScriptShip* Binding = pas::checked_cast<aScript::TScriptShip*>(ScriptShip);
         std::int32_t Stage = 0;
@@ -14000,6 +14192,7 @@ namespace aShip {
         }
     }
 
+    // Requires ScriptShip; matches the state's group in the current system.
     TShip* TShip::FindScriptFollowTarget() {
         std::int32_t I{};
         aScript::TScriptShip* Other{};
@@ -14015,6 +14208,7 @@ namespace aShip {
         return nullptr;
     }
 
+    // Source kind 0 bypasses diminishing returns.
     void TShip::GainExperience(std::int32_t Amount, std::uint8_t SourceKind) {
         std::int32_t Awarded = Amount;
         if (SourceKind == 0) {
@@ -14055,6 +14249,7 @@ namespace aShip {
         }
     }
 
+    // Subtracts independently from total and free experience, capped at each current balance.
     void TShip::RemoveExperience(std::int32_t Amount) {
         std::int32_t Removed = std::min<std::int32_t>(Amount, TotalExperience);
         TotalExperience -= Removed;
@@ -14062,6 +14257,7 @@ namespace aShip {
         FreeExperience -= Removed;
     }
 
+    // Deposits every carried stack and awards experience.
     void TShip::DepositCarriedNodes() {
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -14120,6 +14316,7 @@ namespace aShip {
         return BaseSkills[Skill];
     }
 
+    // Clamps to 0..6; equipment bonuses still apply when status effects are ignored.
     std::uint8_t TShip::GetEffectiveSkillLevel(TPilotSkill Skill, std::uint8_t IgnoreStatusEffects) {
         std::int32_t Level = BaseSkills[Skill];
         std::uint8_t BonusKind = Skill + aConst::bonSkill1;
@@ -14328,6 +14525,7 @@ namespace aShip {
         return std::max<std::int32_t>(0, std::min<std::int32_t>(Level, 6));
     }
 
+    // Returns a category from 1 to 5 using StrengthInBestRanger.
     std::uint8_t TShip::GetRelativeStrengthCategory() {
         std::uint8_t Percent{};
         std::uint8_t Result = 0;
@@ -14355,6 +14553,7 @@ namespace aShip {
         }
     }
 
+    // Categories 1..5 split rounded hull percentage at 20, 50, 70 and 90.
     std::uint8_t TShip::GetHullConditionCategory() {
         std::uint8_t Result = 0;
         {
@@ -14376,6 +14575,7 @@ namespace aShip {
         }
     }
 
+    // Zero for non-rangers; otherwise 1..5 from the rounded experience-rank percentile. Uses all galaxy rangers, including excluded entries.
     std::uint8_t TShip::GetRangerRatingBand() {
         std::uint8_t Result = 0;
         if (TypeId == aGalaxyStruct::stRanger) {
@@ -14493,6 +14693,7 @@ namespace aShip {
         return false;
     }
 
+    // Captain effect is active only when Progress equals 100.
     std::uint8_t TShip::IsHealthEffectActive(std::int32_t Index) {
         return CaptainHealth[Index].Progress == 1.0E+2L;
     }
@@ -14658,10 +14859,12 @@ namespace aShip {
         return System::Round(NewSpeed);
     }
 
+    // Human portrait IDs 25..32 on normal NPC ships; excludes special simulation mode.
     std::uint8_t TShip::IsFemaleHumanPilot() {
         return PilotRace == static_cast<std::uint8_t>(aGalaxyStruct::oiHuman) && pas::in_range(PortraitFaceId, 25, 32) && aPlayer::GetPlayer() != this && aPlayer::GetPlayer() != nullptr && pas::class_cast_if<aNormalShip::TNormalShip*>(this) != nullptr && aGalaxy::Galaxy->SpecialSimulationMode == 0;
     }
 
+    // Native resource key RangerOldFag; deterministic ID/creation-turn selection, excluding female pilots and the player.
     std::uint8_t TShip::UsesVeteranHumanRangerAppearance() {
         return TypeId == aGalaxyStruct::stRanger && PilotRace == static_cast<std::uint8_t>(aGalaxyStruct::oiHuman) && static_cast<std::uint32_t>(Id) % 6 == 0 && CreationTurn < 666 && aPlayer::GetPlayer() != this && aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(IsFemaleHumanPilot() ^ 1) && aGalaxy::Galaxy->SpecialSimulationMode == 0;
     }
@@ -14670,6 +14873,27 @@ namespace aShip {
         std::int32_t I{};
         TShip* Ship{};
         aItem::TInterceptorTargetingStrategy Strategy{};
+        // Caller-popped static link; source ship at -4 for distance strategies.
+        auto IsBetterInterceptorTarget = [&](TShip* Current, TShip* Candidate, aItem::TInterceptorTargetingStrategy Strategy) -> std::uint8_t {
+            switch (Strategy) {
+                case aItem::itsMostHullPoints: return Candidate->GetHull()->HullPoints > Current->GetHull()->HullPoints;
+                case aItem::itsFewestHullPoints: {
+                    return Candidate->GetHull()->HullPoints < Current->GetHull()->HullPoints;
+                }
+                case aItem::itsStrongestDefense: {
+                    pas::Extended cpp_left = aMyFunction::RemapClamped(Candidate->GetEffectiveSkillLevel(psManeuverability, false) & 0x0000007f, 0.0, 6.0, 1.5, 0.5) * 5.0E+1L * Candidate->DefenseDamageFactor - Candidate->GetHull()->Armor;
+                    return cpp_left < aMyFunction::RemapClamped(Current->GetEffectiveSkillLevel(psManeuverability, false) & 0x0000007f, 0.0, 6.0, 1.5, 0.5) * 5.0E+1L * Current->DefenseDamageFactor - Current->GetHull()->Armor;
+                }
+                case aItem::itsGreatestStrength: return Candidate->Strength > Current->Strength;
+                case aItem::itsNearest: {
+                    return aMyFunction::PointDistanceSquared(Candidate->Position, this->Position) < aMyFunction::PointDistanceSquared(Current->Position, this->Position);
+                }
+                case aItem::itsFarthest: {
+                    return aMyFunction::PointDistanceSquared(Candidate->Position, this->Position) > aMyFunction::PointDistanceSquared(Current->Position, this->Position);
+                }
+                default: return false;
+            }
+        };
         if (static_cast<std::uint8_t>(GetHull()->InterceptorsEnabled ^ 1) || static_cast<std::uint8_t>(InNormalSpace() ^ 1)) {
             return nullptr;
         }
@@ -14684,32 +14908,14 @@ namespace aShip {
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<TShip>(CurrentStar->Ships, I);
-            if (Ship != this && Ship->InNormalSpace() && (aPlayer::GetPlayer() == this || GetRelationLevelToShip(Ship) <= aGalaxyStruct::rlHostile) && (aPlayer::GetPlayer() != this || Ship->GetRelationLevelToShip(this) <= aGalaxyStruct::rlHostile || EnemyShip == Ship || aRanger::PendingPlayerFollowTarget == Ship) && pas::sqr(static_cast<pas::Extended>(Ship->Position.X)) + pas::sqr(static_cast<pas::Extended>(Ship->Position.Y)) >= static_cast<long double>(CurrentStar->DamageRadius) * CurrentStar->DamageRadius && aMyFunction::PointDistanceSquared(Position, Ship->Position) <= 1.0E+6L && Ship->InterceptorPassesRemaining <= 0 && (Current == nullptr || aShip::IsBetterInterceptorTarget(Current, Ship, Strategy, this))) {
+            if (Ship != this && Ship->InNormalSpace() && (aPlayer::GetPlayer() == this || GetRelationLevelToShip(Ship) <= aGalaxyStruct::rlHostile) && (aPlayer::GetPlayer() != this || Ship->GetRelationLevelToShip(this) <= aGalaxyStruct::rlHostile || EnemyShip == Ship || aRanger::PendingPlayerFollowTarget == Ship) && pas::sqr(static_cast<pas::Extended>(Ship->Position.X)) + pas::sqr(static_cast<pas::Extended>(Ship->Position.Y)) >= static_cast<long double>(CurrentStar->DamageRadius) * CurrentStar->DamageRadius && aMyFunction::PointDistanceSquared(Position, Ship->Position) <= 1.0E+6L && Ship->InterceptorPassesRemaining <= 0 && (Current == nullptr || IsBetterInterceptorTarget(Current, Ship, Strategy))) {
                 Current = Ship;
             }
         }
         return Current;
     }
 
-    std::uint8_t IsBetterInterceptorTarget(TShip* Current, TShip* Candidate, aItem::TInterceptorTargetingStrategy Strategy, TShip* Self) {
-        switch (Strategy) {
-            case aItem::itsMostHullPoints: return Candidate->GetHull()->HullPoints > Current->GetHull()->HullPoints;
-            case aItem::itsFewestHullPoints: return Candidate->GetHull()->HullPoints < Current->GetHull()->HullPoints;
-            case aItem::itsStrongestDefense: {
-                pas::Extended cpp_left = aMyFunction::RemapClamped(Candidate->GetEffectiveSkillLevel(psManeuverability, false) & 0x0000007f, 0.0, 6.0, 1.5, 0.5) * 5.0E+1L * Candidate->DefenseDamageFactor - Candidate->GetHull()->Armor;
-                return cpp_left < aMyFunction::RemapClamped(Current->GetEffectiveSkillLevel(psManeuverability, false) & 0x0000007f, 0.0, 6.0, 1.5, 0.5) * 5.0E+1L * Current->DefenseDamageFactor - Current->GetHull()->Armor;
-            }
-            case aItem::itsGreatestStrength: return Candidate->Strength > Current->Strength;
-            case aItem::itsNearest: {
-                return aMyFunction::PointDistanceSquared(Candidate->Position, Self->Position) < aMyFunction::PointDistanceSquared(Current->Position, Self->Position);
-            }
-            case aItem::itsFarthest: {
-                return aMyFunction::PointDistanceSquared(Candidate->Position, Self->Position) > aMyFunction::PointDistanceSquared(Current->Position, Self->Position);
-            }
-            default: return false;
-        }
-    }
-
+    // Clears an explicit target before checking energy; successful launch installs source/pass state and a graphic on the target.
     void TShip::LaunchInterceptors() {
         TShip* Target{};
         if (GetHull()->InterceptorTarget != nullptr) {
@@ -14739,6 +14945,7 @@ namespace aShip {
         }
     }
 
+    // Clears source/pass state and releases the interceptor graphic.
     void TShip::ClearIncomingInterceptors() {
         InterceptorSourceShip = nullptr;
         InterceptorPassesRemaining = 0;
@@ -14748,6 +14955,7 @@ namespace aShip {
         }
     }
 
+    // Counts ships referring to Self as interceptor source across all galaxy systems.
     std::int32_t TShip::CountActiveInterceptorTargets() {
         std::int32_t I{};
         std::int32_t J{};
@@ -14777,6 +14985,7 @@ namespace aShip {
         return 5 * GetInterceptorPassCount() + 5;
     }
 
+    // Hull override or five when zero.
     std::uint8_t TShip::GetInterceptorPassCount() {
         if (GetHull()->InterceptorPassCountOverride == 0) {
             return 5;
@@ -14822,6 +15031,7 @@ namespace aShip {
         return Result;
     }
 
+    // Zero removes and frees the matching bonus entry; nonzero inserts or replaces it.
     void TShip::SetStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
         std::int32_t I{};
         PShipStatBonusEntry Bonus = nullptr;
@@ -14857,6 +15067,7 @@ namespace aShip {
         }
     }
 
+    // Returns the list index, or -1.
     std::int32_t TShip::FindCombatStatusEffect(TCombatStatusEffectType EffectType) {
         std::int32_t I{};
         std::int32_t Result = -1;
@@ -14874,6 +15085,7 @@ namespace aShip {
         return Result;
     }
 
+    // Scales by hull and existing strength. Always replaces the source ID, including clearing it for nil Source; no sign validation.
     void TShip::AddCombatStatusStrength(TCombatStatusEffectType EffectType, float Strength, TShip* Source) {
         PCombatStatusEffect Entry{};
         if (CombatStatusEffects == nullptr) {
@@ -14901,6 +15113,7 @@ namespace aShip {
         }
     }
 
+    // Removes only entries reduced below zero; exactly zero remains. Negative Amount increases strength.
     void TShip::ReduceCombatStatusStrength(TCombatStatusEffectType EffectType, float Amount) {
         if (CombatStatusEffects == nullptr) {
             return;
@@ -14920,6 +15133,7 @@ namespace aShip {
         }
     }
 
+    // Frees entries but keeps the list.
     void TShip::ClearCombatStatusEffects() {
         PCombatStatusEffect Entry{};
         if (CombatStatusEffects == nullptr) {
@@ -14932,6 +15146,7 @@ namespace aShip {
         }
     }
 
+    // Daily decay; exactly zero remains until a subsequent reduction.
     void TShip::DecayCombatStatusEffects() {
         PCombatStatusEffect Entry{};
         float Amount{};
@@ -15011,6 +15226,7 @@ namespace aShip {
         return 0.01L * Strength + 25.0L;
     }
 
+    // Requires non-nil Source; clears matching IDs without changing effect strengths.
     void TShip::ClearCombatStatusSourceReferences(TShip* Source) {
         std::int32_t I{};
         if (CombatStatusEffects == nullptr) {
@@ -15026,6 +15242,7 @@ namespace aShip {
         }
     }
 
+    // Zero when absent.
     float TShip::GetCombatStatusStrength(TCombatStatusEffectType EffectType) {
         float Result = 0.0f;
         std::int32_t I = FindCombatStatusEffect(EffectType);
@@ -15035,6 +15252,7 @@ namespace aShip {
         return Result;
     }
 
+    // Zero when absent or unattributed.
     std::int32_t TShip::GetCombatStatusSourceId(TCombatStatusEffectType EffectType) {
         std::int32_t Result = 0;
         std::int32_t I = FindCombatStatusEffect(EffectType);
@@ -15044,28 +15262,42 @@ namespace aShip {
         return Result;
     }
 
+    // Includes rounded-positive shock, acid, magnetic, BW buff and custom status entries; omits transient blocking effects.
     pas::WideString TShip::GetCombatStatusDescription(std::int32_t& Count, std::uint8_t ShowStrength) {
         pas::WideString Result{};
         std::int32_t Strength{};
         std::int32_t I{};
         PCustomShipInfo Info{};
+        // Caller-popped static link; show-strength flag -1, strength -8, count output -12, string-result output +8.
+        auto AppendStatusLine = [&](pas::WideString TextKey) -> void {
+            if (Result != u"") {
+                Result = pas::concat_wide({Result, u"\r\n", aConst::LocalizedText(TextKey)});
+            } else {
+                Result = aConst::LocalizedText(TextKey);
+            }
+            if (ShowStrength) {
+                Result = pas::concat_wide({Result, u" (", pas::wide_int_to_str(Strength), u")"});
+            }
+            ++Count;
+        };
         Count = 0;
+        Result = pas::WideString();
         if (CombatStatusEffects != nullptr && pas::list_count(CombatStatusEffects) > 0) {
             Strength = System::Round(GetCombatStatusStrength(cseBWBuff));
             if (Strength >= 1) {
-                aShip::AppendStatusLine(u"FormInfo.ISEBWBuff"_w, Count, ShowStrength, Result, Strength);
+                AppendStatusLine(u"FormInfo.ISEBWBuff"_w);
             }
             Strength = System::Round(GetCombatStatusStrength(cseAcid));
             if (Strength >= 1) {
-                aShip::AppendStatusLine(u"FormInfo.ISEAcid"_w, Count, ShowStrength, Result, Strength);
+                AppendStatusLine(u"FormInfo.ISEAcid"_w);
             }
             Strength = System::Round(GetCombatStatusStrength(cseShock));
             if (Strength >= 1) {
-                aShip::AppendStatusLine(u"FormInfo.ISECharged"_w, Count, ShowStrength, Result, Strength);
+                AppendStatusLine(u"FormInfo.ISECharged"_w);
             }
             Strength = System::Round(GetCombatStatusStrength(cseMagnetic));
             if (Strength >= 1) {
-                aShip::AppendStatusLine(u"FormInfo.ISEMagnetic"_w, Count, ShowStrength, Result, Strength);
+                AppendStatusLine(u"FormInfo.ISEMagnetic"_w);
             }
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CustomShipInfos) - 1); cpp_range.next(I); ) {
@@ -15073,25 +15305,14 @@ namespace aShip {
             if (Info->StatusEffect && static_cast<std::uint8_t>(Info->DeleteQueued ^ 1)) {
                 Strength = pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)));
                 if (Strength >= 1) {
-                    aShip::AppendStatusLine(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".StatusEffect"}), Count, ShowStrength, Result, Strength);
+                    AppendStatusLine(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".StatusEffect"}));
                 }
             }
         }
         return Result;
     }
 
-    void AppendStatusLine(pas::WideString TextKey, std::int32_t& Count, std::uint8_t& ShowStrength, pas::WideString& Result, std::int32_t& Strength) {
-        if (Result != u"") {
-            Result = pas::concat_wide({Result, u"\r\n", aConst::LocalizedText(TextKey)});
-        } else {
-            Result = aConst::LocalizedText(TextKey);
-        }
-        if (ShowStrength) {
-            Result = pas::concat_wide({Result, u" (", pas::wide_int_to_str(Strength), u")"});
-        }
-        ++Count;
-    }
-
+    // Native base implementation is a no-op.
     void TShip::UpdateAfterburnerState() {
     }
 
@@ -15108,14 +15329,17 @@ namespace aShip {
         return ScriptShip != nullptr && reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->StateText != u"";
     }
 
+    // Requires a nonempty faction not beginning with SubFaction. The native substring result is used as Boolean, so absence also returns true.
     std::uint8_t TShip::HasIndependentScriptFaction() {
         return ScriptShip != nullptr && reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->StateText != u"" && EC_Str::FindTextOffsetW(reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->StateText, u"SubFaction"_wref.get(), 0) != 0;
     }
 
+    // Requires a nonempty faction other than the exact SubFactionFixedStanding marker.
     std::uint8_t TShip::HasNamedScriptFaction() {
         return ScriptShip != nullptr && reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->StateText != u"" && reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->StateText != u"SubFactionFixedStanding";
     }
 
+    // 0 normal, 1 independent faction, 2 fixed standing. The SubFaction substring test accepts absence as mode one.
     std::int32_t TShip::GetScriptStandingOverrideMode() {
         std::int32_t Result = aGalaxyStruct::ssmNormal;
         if (ScriptShip == nullptr) {
@@ -15131,6 +15355,7 @@ namespace aShip {
         }
     }
 
+    // Returns Param after script handlers modify it; object slots may carry event-specific integer values.
     std::int32_t TShip::ScriptItemsAct(std::uint8_t ActionType, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         std::int32_t Result{};
         std::int32_t I{};
@@ -15312,10 +15537,12 @@ namespace aShip {
         return Result;
     }
 
+    // Base implementation always returns false.
     std::uint8_t TShip::CanDock(TShip* Ship) {
         return false;
     }
 
+    // Base implementation clears Response and returns false.
     std::uint8_t TShip::CheckDockingPermission(TShip* Ship, pas::WideString& Response) {
         Response = pas::WideString();
         return false;

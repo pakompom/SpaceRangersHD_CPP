@@ -66,6 +66,7 @@ namespace GI_Edit {
         }
     }
 
+    // Resets CaretPosition on change; does not clamp to MaxLength or invoke ChangedCallback.
     void TEditGI::SetText(pas::WideString Value) {
         if (Text != Value) {
             Text = Value;
@@ -109,6 +110,7 @@ namespace GI_Edit {
         }
     }
 
+    // Only Left and Center are accepted; other values raise.
     void TEditGI::SetTextAlignX(GI_Main::TTextAlignXGI Value) {
         if (Value != GI_Main::taxLeft && Value != GI_Main::taxCenter) {
             pas::raise(pas::make_exception<pas::Exception>("Error TEditGI. This align not support."_a));
@@ -119,6 +121,7 @@ namespace GI_Edit {
         }
     }
 
+    // Clamps to 0..Length(Text).
     void TEditGI::SetCaretPosition(std::int32_t Value) {
         if (Value > Text.length()) {
             CaretPosition = Text.length();
@@ -235,6 +238,7 @@ namespace GI_Edit {
         }
     }
 
+    // Requires a font glyph, acceptance by the optional callback, and length below MaxLength.
     void TEditGI::ProcessCharacter(char16_t Character) {
         std::int32_t I{};
         std::int32_t N{};

@@ -31,6 +31,7 @@ namespace EC_CacheBuf {
     struct TCBufEC : EC_Cache::TCacheDataEC {
         PAS_CLASS_META(TCBufEC, EC_Cache::TCacheDataEC, "TCBufEC", 36)
         void p_destroy() override;
+        // Ignores LoadOption; ResidentBytes is not updated.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
         EC_Buf::TBufEC* Buffer;
     };

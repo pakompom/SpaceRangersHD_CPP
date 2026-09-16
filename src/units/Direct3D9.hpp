@@ -4,8 +4,10 @@
 #include "types/Types.hpp"
 
 namespace Direct3D9 {
+    // Native DLL export returns an unowned COM interface pointer in EAX.
     extern Direct3D9::TDirect3DCreate9 Direct3DCreate9;
 
+    // Adopts the DLL's reference through an interface assignment followed by Release.
     void PAS_STDCALL CreateDirect3D9(std::uint32_t SDKVersion, IDirect3D9& Result);
 
     inline std::int32_t PAS_STDCALL IDirect3DTexture9_GetLevelDesc(pas::ComView<IDirect3DTexture9_Tag> Self, std::uint32_t Level, TD3DSurfaceDesc& Desc);

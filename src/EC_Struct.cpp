@@ -4,6 +4,7 @@
 #include "units/System.hpp"
 
 namespace EC_Struct {
+    // Freed on both startup shutdown paths; concrete class unresolved.
     pas::Object* StartupCleanupObject{};
 
     TVector3D MakeVector3D(double X, double Y, double Z) {
@@ -21,6 +22,7 @@ namespace EC_Struct {
         return Result;
     }
 
+    // Truncates each coordinate toward zero.
     Types::TPoint TruncatePointF(TPointF Point) {
         Types::TPoint Result{};
         Result.X = System::Trunc(Point.X);
@@ -42,6 +44,7 @@ namespace EC_Struct {
         return Result;
     }
 
+    // Integer division rounds toward zero.
     Types::TPoint HalfPoint(Types::TPoint Point) {
         Types::TPoint Result{};
         Result.X = Point.X / 2;

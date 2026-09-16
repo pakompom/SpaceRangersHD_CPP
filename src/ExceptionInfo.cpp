@@ -6,6 +6,7 @@
 #include "units/System.hpp"
 #include "units/WindowsSdk.hpp"
 
+// Hex helpers in the inferred ExceptionInfo region. Wider unit ownership remains inferred.
 namespace ExceptionInfo {
     const pas::Array<char16_t, 0, 15> ExportHexDigits = pas::Array<char16_t, 0, 15>{{
         u'0', u'1', u'2', u'3', u'4', u'5', u'6', u'7',
@@ -89,6 +90,7 @@ namespace ExceptionInfo {
         return Result;
     }
 
+    // Native initializer saves and replaces the RTL raise hook.
     void UnitInitialize() {
         PreviousRaiseException = pas::callback_from_address<TRaiseExceptionCallback>(System::RaiseExceptionProc);
         System::RaiseExceptionProc = reinterpret_cast<void*>(pas::callback_address(pas::StdcallProc<void(std::uint32_t, std::uint32_t, std::uint32_t, void*)>(RaiseExceptionWithLogging)));

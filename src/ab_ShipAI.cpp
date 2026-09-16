@@ -25,12 +25,15 @@
 #include "units/fShip2.hpp"
 
 namespace ab_ShipAI {
-    void AddArcadeRewardToList(pas::Object* Item);
-
+    // Source helper: preserve the native full-width load before a Byte stack argument.
+    // Passing the local directly lets DCC32 narrow MOV EAX to MOV AL. This identity
+    // inlines without a call, extra assignment or temporary in ApplyDamage.
     std::int32_t RewardTechArgument(std::int32_t Value) {
         return Value;
     }
 
+    // Source helper: keep the seed evaluation before both clamps, with their
+    // temporaries preceding the seed slot in the native frame.
     void SelectArcadeRewardWeapon(TabShipAI* Ship, std::int32_t Tech, aConst::PWeaponInfo& Info) {
         std::int32_t MaximumTech{};
         std::int32_t MinimumTech{};
@@ -191,6 +194,9 @@ namespace ab_ShipAI {
         std::int32_t MinLevel{};
         std::int32_t MaxLevel{};
         std::int32_t WeaponTech{};
+        auto AddArcadeRewardToList = [&](pas::Object* Item) -> void {
+            pas::list_add(Globals::ArcadeBattleScreen->ListedObjects, reinterpret_cast<void*>(Item));
+        };
         if (Health > 0) {
             if (aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->KellerLeaveTurn > 0 && ab_Ship::KellerArcadeShip == this) {
                 return;
@@ -242,7 +248,7 @@ namespace ab_ShipAI {
                             pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Reward));
                         }
                     }
-                    ab_ShipAI::AddArcadeRewardToList(Reward);
+                    AddArcadeRewardToList(Reward);
                 } else if (RewardObject != nullptr) {
                     fShip2::ClearPlayerHoldEntries();
                     aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, RewardObject, nullptr, 0);
@@ -251,7 +257,7 @@ namespace ab_ShipAI {
                     } else {
                         pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(RewardObject));
                     }
-                    ab_ShipAI::AddArcadeRewardToList(RewardObject);
+                    AddArcadeRewardToList(RewardObject);
                     RewardObject = nullptr;
                     aPlayer::GetPlayer()->RefreshDerivedStats(true);
                 } else if ((LivingEnemies == 0 || LivingEnemies == 1 && ([&] {
@@ -305,7 +311,7 @@ namespace ab_ShipAI {
                             aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Item, nullptr, 0);
                             pas::list_insert(aPlayer::GetPlayer()->Inventory, 1, reinterpret_cast<void*>(Item));
                             aPlayer::GetPlayer()->RefreshDerivedStats(true);
-                            ab_ShipAI::AddArcadeRewardToList(Item);
+                            AddArcadeRewardToList(Item);
                             break;
                         }
                         if (aPlayer::GetPlayer()->GetBaseCargoHookPower() > 0 && aPlayer::GetPlayer()->GetBaseCargoHookPower() < Item->Weight && aPlayer::GetPlayer()->BlackHoleKillCount + aPlayer::GetPlayer()->HyperspaceKillCount < 17) {
@@ -321,7 +327,7 @@ namespace ab_ShipAI {
                             aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Item, nullptr, 0);
                             pas::list_insert(aPlayer::GetPlayer()->Inventory, 1, reinterpret_cast<void*>(Item));
                             aPlayer::GetPlayer()->RefreshDerivedStats(true);
-                            ab_ShipAI::AddArcadeRewardToList(Item);
+                            AddArcadeRewardToList(Item);
                             break;
                         }
                         pas::free(Item);
@@ -343,10 +349,6 @@ namespace ab_ShipAI {
                 }
             }
         }
-    }
-
-    void AddArcadeRewardToList(pas::Object* Item) {
-        pas::list_add(Globals::ArcadeBattleScreen->ListedObjects, reinterpret_cast<void*>(Item));
     }
 
     void TabShipAI::UpdateState() {

@@ -38,6 +38,7 @@
 #include "units/aMyFunction.hpp"
 
 namespace SE_Space {
+    // Overwrites Dest without releasing its previous reference.
     void RetainSpaceObject(pas::Var<TObjectSE*> Dest, TObjectSE* Source) {
         pas::store_unaligned<TObjectSE*>(Dest.address, Source);
         if (Source != nullptr) {
@@ -45,6 +46,7 @@ namespace SE_Space {
         }
     }
 
+    // Clears Obj; frees its previous value when the decremented reference count is nonpositive.
     void ReleaseSpaceObject(pas::Var<TObjectSE*> Obj) {
         TObjectSE* Previous = pas::load_unaligned<TObjectSE*>(Obj.address);
         pas::store_unaligned<TObjectSE*>(Obj.address, nullptr);
@@ -60,6 +62,7 @@ namespace SE_Space {
         EC_Struct::TObjectEx_Create(Self);
     }
 
+    // UnusedPosition is copied but does not initialize Position.
     void TObjectSE_Create(TObjectSE* Self, const pas::WideString& AGraphKey, WindowsSdk::TPoint UnusedPosition) {
         EC_Struct::TObjectEx_Create(Self);
         Self->GraphKey = AGraphKey;
@@ -101,6 +104,7 @@ namespace SE_Space {
         EC_Struct::TObjectEx_Destroy(Self);
     }
 
+    // Copies graph key, size, position and depth expression only.
     void TObjectSE::CopyTo(TObjectSE* Destination) {
         Destination->GraphKey = GraphKey;
         Destination->Size = Size;
@@ -146,6 +150,7 @@ namespace SE_Space {
     void TObjectSE::SetOrbitCenter(EC_Struct::TPointF Center) {
     }
 
+    // Subclasses interpret this point differently: Sputnik returns the orbit center, Ship2 returns scaled dimensions.
     EC_Struct::TPointF TObjectSE::GetOrbitCenter() {
         EC_Struct::TPointF Result{};
         Result = EC_Struct::MakePointF(0.0f, 0.0f);
@@ -159,6 +164,7 @@ namespace SE_Space {
     void TObjectSE::SetAlpha(std::uint8_t Value) {
     }
 
+    // Base returns zero; TGateSE returns its stored angle.
     std::uint8_t TObjectSE::GetAngle() {
         return 0;
     }
@@ -166,6 +172,7 @@ namespace SE_Space {
     void TObjectSE::SetAngle(std::uint8_t Value) {
     }
 
+    // Base returns empty; TGateSE overrides it with the label text.
     pas::WideString TObjectSE::GetText() {
         return pas::WideString();
     }
@@ -333,6 +340,7 @@ namespace SE_Space {
         Self->AlphaShift = 0;
     }
 
+    // Requires all timers to have been removed.
     void TSpaceSE_Destroy(TSpaceSE* Self) {
         Self->ClearPath();
         pas::free(Self->MinimapRangeShade);
@@ -355,6 +363,7 @@ namespace SE_Space {
         pas::object_destroy(Self);
     }
 
+    // Only changes list links; does not retain Obj or set Obj.Space.
     void TSpaceSE::LinkObject(TObjectSE* Obj) {
         if (LastObject != nullptr) {
             LastObject->Next = Obj;
@@ -367,6 +376,7 @@ namespace SE_Space {
         }
     }
 
+    // Does not release Obj or clear its links.
     void TSpaceSE::UnlinkObject(TObjectSE* Obj) {
         if (Obj->Prev != nullptr) {
             Obj->Prev->Next = Obj->Next;
@@ -382,6 +392,7 @@ namespace SE_Space {
         }
     }
 
+    // Converts milliseconds to ticks by rounding division by 18. Callback receives Context, Timer, UserData in Delphi registers. Zero delay still waits for AdvanceTimers.
     PSpaceTimerSE TSpaceSE::CreateTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TSpaceTimerEventSE Callback, std::int32_t UserData) {
         PSpaceTimerSE Timer = static_cast<PSpaceTimerSE>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TSpaceTimerSE))));
         if (LastTimer != nullptr) {
@@ -400,6 +411,7 @@ namespace SE_Space {
         return Timer;
     }
 
+    // Raises if Timer is NextTimerToProcess.
     void TSpaceSE::DeleteTimer(PSpaceTimerSE Timer) {
         PSpaceTimerSE Entry = Timer;
         if (NextTimerToProcess == Entry) {
@@ -451,6 +463,7 @@ namespace SE_Space {
         PathPointCount = 0;
     }
 
+    // Copies Count points. A nonpositive count clears the path.
     void TSpaceSE::SetPath(EC_Struct::PPointF Points, std::int32_t Count) {
         ClearPath();
         if (Count < 1) {

@@ -3,6 +3,7 @@
 #include "units/GI_PSMissileHit.hpp"
 #include "units/GR_Main.hpp"
 
+// Native animation palette resources; this effect uses the shared GAI control.
 namespace GI_PSMissileHit {
     pas::DynArray<GI_PSMissileHit::TGAISet> MissileHitAnimationPaths{};
 

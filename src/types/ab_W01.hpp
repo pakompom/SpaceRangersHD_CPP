@@ -16,6 +16,7 @@ namespace ab_W01 {
         void Launch(ab_Object::TabObject* Owner, std::int32_t Amount, float Offset);
         void Advance() override;
         void UpdateVisuals() override;
+        // Constructor sets 500; no consumer in this family.
         float ValueB0;
         std::int32_t Damage;
         ab_WorldImage::PabWorldImage Image;

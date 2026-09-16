@@ -8,6 +8,7 @@ namespace TextFieldClass {
         Text = pas::WideString();
     }
 
+    // Int32 line and character counts, UTF-16 text; trims lines and joins with CRLF.
     void TTextField::LoadTextLinesFromReader(EC_Buf::TBufEC* Reader) {
         pas::WideString Line{};
         std::int32_t i{};

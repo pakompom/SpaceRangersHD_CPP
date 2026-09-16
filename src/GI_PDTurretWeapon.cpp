@@ -13,6 +13,7 @@
 #include "units/Math.hpp"
 #include "units/System.hpp"
 
+// Native TPSPDWeaponGI and methods:.
 namespace GI_PDTurretWeapon {
     void TPSPDWeaponGI_Create(TPSPDWeaponGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
@@ -26,6 +27,7 @@ namespace GI_PDTurretWeapon {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Native empty override.
     void TPSPDWeaponGI::Invalidate() {
     }
 

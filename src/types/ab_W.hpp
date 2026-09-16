@@ -6,9 +6,12 @@ namespace ab_W {
 
     #pragma pack(push, 1)
     struct TabWeapon {
+        // Zero-based arcade weapon type.
         std::uint8_t Kind;
+        // Corresponding campaign item type (50..67).
         std::uint8_t ItemType;
         std::uint8_t cpp_padding[2];
+        // Campaign equipment slot index and secondary-fire flag; copied from TEquipment.AssignedSlotData.
         std::uint32_t SlotData;
         std::int32_t Ammo;
         std::int32_t MaxAmmo;

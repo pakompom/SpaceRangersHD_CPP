@@ -2,6 +2,8 @@
 #include "units/Windows.hpp"
 #include "units/WindowsImports.hpp"
 
+// Narrow SDK declarations omitted from the recovered Windows unit.
+// Parsed by the same frontend; resolved by the typed Win32 DLL bridge.
 namespace WindowsImports {
     std::uint32_t PAS_STDCALL CreateFileA(std::uint8_t* FileName, std::uint32_t DesiredAccess, std::uint32_t ShareMode, void* SecurityAttributes, std::uint32_t CreationDisposition, std::uint32_t FlagsAndAttributes, std::uint32_t TemplateFile) {
         using CppImport = std::uint32_t (PAS_STDCALL *)(std::uint8_t*, std::uint32_t, std::uint32_t, void*, std::uint32_t, std::uint32_t, std::uint32_t);

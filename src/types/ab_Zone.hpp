@@ -27,12 +27,19 @@ namespace ab_Zone {
         pas::DynArray<ab_WorldLine::PabWorldLine> WorldLines;
         ab_WorldImage::PabWorldImage WorldImage;
         pas::WideString Name;
+        // Initial wall health for kinds 5..8; TfAB.EnterCurrentSpace ().
         std::int32_t BarrierHealth;
+        // Signed attraction/repulsion strength.
         std::int32_t GravityStrength;
+        // Negative values heal.
         std::int32_t DamagePerTick;
+        // Low eight bits select bonuses; bit 31 conceals the bonus icon.
         std::uint32_t BonusFlags;
+        // Selects a min/max pair in BonusRespawnSeconds (three intervals).
         std::int32_t BonusRespawnClass;
+        // -1 while a spawned bonus is present.
         std::int32_t NextBonusTick;
+        // Native numeric tags retained; <5 participates in route tables.
         std::int32_t Kind;
         pas::Array<GI_PolyLine::PPolyLineSegmentGI, 0, 3> Segments;
         std::uint8_t cpp_padding_2[4];
@@ -47,6 +54,7 @@ namespace ab_Zone {
         PabZone First;
         PabZone Last;
         double Distance;
+        // Mode 1 creates collidable links between compatible barrier zones ().
         std::int32_t BarrierLinkMode;
         ab_WorldLine::PabWorldLine WorldLine;
         pas::Array<GI_PolyLine::PPolyLineSegmentGI, 0, 1> Segments;

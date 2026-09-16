@@ -64,6 +64,7 @@ namespace GR_Rect {
         pas::free(RectNode);
     }
 
+    // Maintains nonoverlapping coverage.
     void TArrayRectGR::AddRect(Types::TRect Rect) {
         TRectGR* Removed{};
         TRectGR* Node = LastRect;

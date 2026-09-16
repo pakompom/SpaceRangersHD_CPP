@@ -15,7 +15,9 @@ namespace MessageText {
     struct TQuestMessages : pas::Object {
         PAS_CLASS_META(TQuestMessages, pas::Object, "TQuestMessages", 8)
         void p_destroy() override;
+        // Returns Path when an intermediate block is missing; a missing final string parameter raises.
         pas::WideString GetText(pas::WideString Path);
+        // Looks up a direct parameter; returns Key when absent.
         pas::WideString GetTextOrKey(pas::WideString Key);
         EC_BlockPar::TBlockParEC* Entries;
     };

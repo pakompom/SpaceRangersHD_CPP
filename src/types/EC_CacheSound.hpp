@@ -47,6 +47,7 @@ namespace EC_CacheSound {
     struct TCSoundEC : EC_Cache::TCacheDataEC {
         PAS_CLASS_META(TCSoundEC, EC_Cache::TCacheDataEC, "TCSoundEC", 60)
         void p_destroy() override;
+        // Reads 44 bytes from the current position. Forces PCM without validating RIFF, WAVE or fmt identifiers. If data is absent at header offset 36, scans the whole buffer byte by byte for it. Ignores LoadOption.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
         TWaveFormatEx Format;
         std::uint8_t cpp_padding[2];
@@ -60,6 +61,7 @@ namespace EC_CacheSound {
     #pragma pack(push, 1)
     struct TWaveFileHeader {
         std::uint8_t cpp_padding[22];
+        // Uninterpreted RIFF/fmt identifiers and lengths precede these fields.
         std::uint16_t Channels;
         std::uint32_t SamplesPerSecond;
         std::uint8_t cpp_padding_2[4];
@@ -70,6 +72,7 @@ namespace EC_CacheSound {
     };
     #pragma pack(pop)
 
+    // little-endian 'data'
     inline constexpr std::int32_t WaveDataChunkId = 0x61746164;
 
     inline constexpr std::int32_t WaveChunkHeaderSize = 2 * static_cast<std::int32_t>(sizeof(std::uint32_t));

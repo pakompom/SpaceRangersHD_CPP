@@ -18,6 +18,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native Lezka beam and its two configured gradient palettes.
 namespace GI_PSWeapon03Lezka {
     pas::DynArray<GI_PSWeapon03Lezka::TLezkaPalette> LezkaPrimaryPalettes{};
 
@@ -116,6 +117,7 @@ namespace GI_PSWeapon03Lezka {
         A = static_cast<long double>(-HalfWidth - 12) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = static_cast<long double>(HalfWidth + 12) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth + 12) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
@@ -177,6 +179,7 @@ namespace GI_PSWeapon03Lezka {
         }
     }
 
+    // Native empty override.
     void TPSWeapon03Lezka::Invalidate() {
     }
 
@@ -226,6 +229,7 @@ namespace GI_PSWeapon03Lezka {
                 Particle->AlphaStep = pas::random(10, &System::RandSeed) + 10;
                 pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, 3.0f));
                 Particle->State = 1 + pas::random(2, &System::RandSeed);
+                // Retained native accumulator, although it does not feed a particle field.
                 if (UnusedAlpha + 4 < 255) {
                     UnusedAlpha += 4;
                 } else {

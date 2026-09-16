@@ -33,6 +33,7 @@
 namespace SE_Planet {
     SE_Planet::PPlanetCollisionCircle FirstPlanetCollisionCircle = nullptr;
 
+    // Links a new entry at the head; only links are initialized.
     PPlanetCollisionCircle AllocatePlanetCollisionCircle() {
         PPlanetCollisionCircle Entry{};
         pas::new_value(Entry);
@@ -67,6 +68,7 @@ namespace SE_Planet {
         SE_Space::TObjectSE_Create(Self, AGraphKey, UnusedPosition);
     }
 
+    // Destination must be a TPlanetSE. Copies configuration, not attached controls/timers.
     void TPlanetSE::CopyTo(SE_Space::TObjectSE* Destination) {
         SE_Space::TObjectSE::CopyTo(Destination);
         {
@@ -462,6 +464,7 @@ namespace SE_Planet {
         }
     }
 
+    // Requires an allocated image control and a mask with positive total animation weight.
     void TPlanetSE::StartRandomSurfaceAnimation() {
         std::int32_t Index{};
         std::int32_t Attempts{};
@@ -485,6 +488,7 @@ namespace SE_Planet {
                         Choice -= cpp_with.Lists[Index].Key;
                         if (Choice < 0) {
                             SurfaceAnimationIndex = Index;
+                            // Native compares the value just assigned; retain the unreachable assignment.
                             if (SurfaceAnimationIndex != Index) {
                                 Attempts = 0;
                             }
@@ -686,6 +690,7 @@ namespace SE_Planet {
         SurfaceMapStep = Value;
     }
 
+    // Does nothing for ruins; rebuilds rings when attached to space.
     void TPlanetSE::SetRingKind(std::uint8_t Kind) {
         if (IsRuins) {
             return;
@@ -696,6 +701,7 @@ namespace SE_Planet {
         }
     }
 
+    // Does nothing for ruins; rebuilds the animation when attached to space.
     void TPlanetSE::SetSurfaceAnimationMask(std::int32_t Mask) {
         if (IsRuins) {
             return;
@@ -728,6 +734,7 @@ namespace SE_Planet {
         if (Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Lists[SurfaceAnimationIndex].Indices.length() - 1 < SurfaceAnimationFrame) {
             StartRandomSurfaceAnimation();
         } else {
+            // Native retains this empty diagnostic branch.
             if (SurfaceAnimationFrame == 2) {
                 static_cast<void>(SurfaceAnimationFrame == 2);
             }
@@ -749,6 +756,7 @@ namespace SE_Planet {
         }
     }
 
+    // UserData selects cloud 1..3.
     void TPlanetSE::AdvanceCloudTimer(SE_Space::PSpaceTimerSE Timer, std::int32_t UserData) {
         if (IsRuins) {
             return;
@@ -894,6 +902,7 @@ namespace SE_Planet {
                     P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * 7 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     X = -10000;
                     Y = -10000;
+                    // Preserve octant traversal and duplicate suppression at the joins.
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range.next(Index); ) {
                         if (P0->Position.X != X || P0->Position.Y != Y) {
                             Dest->Position.X = P0->Position.X;
@@ -1034,6 +1043,7 @@ namespace SE_Planet {
         }
     }
 
+    // SmallPreview affects detached normal planets only. Attached planets reuse their current surface renderer; ruins use their static image.
     void TPlanetSE::RenderToBuffer(GI_MessageLoop::TMessageLoopGI* Screen, GR_GraphBuf::TGraphBufGR* Buffer, std::uint8_t SmallPreview) {
         Globals::TPlanetTempl* Template{};
         GI_Planet::TPlanetGI* Planet{};

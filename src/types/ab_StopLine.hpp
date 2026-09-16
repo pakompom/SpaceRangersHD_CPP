@@ -26,6 +26,7 @@ namespace ab_StopLine {
         std::int32_t ScreenY;
         std::uint8_t Projected;
         std::uint8_t cpp_padding_2[3];
+        // Set to 1 by the latitude-ring builder; wider meaning unresolved.
         std::int32_t Kind;
         ab_WorldImage::PabWorldImage WorldImage;
         std::uint8_t cpp_padding_3[8];

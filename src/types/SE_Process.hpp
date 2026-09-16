@@ -31,7 +31,9 @@ namespace SE_Process {
     struct TProcessSE : pas::Object {
         PAS_CLASS_META(TProcessSE, pas::Object, "TProcessSE", 80)
         void p_destroy() override;
+        // Retains Obj and links it into the process list; does not attach it to Space.
         void AddObject(SE_Space::TObjectSE* Obj);
+        // Unlinks and releases Obj.
         void RemoveObject(SE_Space::TObjectSE* Obj);
         virtual void OpenSpace(GI_Panel::TPanelGI* MapPanel, GI_MessageLoop::TMessageLoopGI* Screen);
         virtual void BindMinimap(GI_MessageLoop::TObjectGI* Control);
@@ -47,6 +49,7 @@ namespace SE_Process {
         SE_Space::TSpaceSE* Space;
         SE_Space::TObjectSE* FirstObject;
         SE_Space::TObjectSE* LastObject;
+        // Retained TObjectSE references.
         pas::List* RetainedObjects;
         SE_Space::PSpaceTimerSE BackgroundTimer;
         WindowsSdk::TRect PreviousViewRect;

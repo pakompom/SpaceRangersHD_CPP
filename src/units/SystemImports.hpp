@@ -9,6 +9,9 @@ namespace SystemImports {
 
     void Randomize();
 
+    // Delphi 2007 Win32 command-line parsing, including adjacent quotes and DBCS
+    // character boundaries. Keep it as Pascal so ordinary pointer/string lowering
+    // handles it; this is not the host C runtime's different argv parser.
     std::uint8_t* GetParamStr(std::uint8_t* P, pas::AnsiString& Param);
 
     std::int32_t ParamCount();

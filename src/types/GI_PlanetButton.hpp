@@ -27,6 +27,7 @@ namespace GI_PlanetButton {
     struct TPlanetButtonGI : GI_Panel::TPanelGI {
         PAS_CLASS_META(TPlanetButtonGI, GI_Panel::TPanelGI, "TPlanetButtonGI", 332)
         void p_destroy() override;
+        // The native implementation is empty; it does not reset panel or child state.
         void Clear() override;
         void OnMouseEnter() override;
         void OnMouseLeave() override;

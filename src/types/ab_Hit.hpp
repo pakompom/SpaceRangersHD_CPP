@@ -30,6 +30,7 @@ namespace ab_Hit {
         std::int32_t EffectOriginSpread;
         double TurnSpeedScale;
         pas::List* Effects;
+        // Default True; boss transition behavior still under recovery.
         std::uint8_t StateCC;
         std::uint8_t cpp_padding[3];
     };

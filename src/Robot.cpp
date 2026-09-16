@@ -23,12 +23,12 @@
 #include "units/fPanelLoad.hpp"
 
 namespace Robot {
-    Types::TPoint MeasureRobotTextSize(std::int32_t& Width, std::int32_t& Wrap, std::int32_t& TopAdjustment, EC_Str::TStringsEC*& Lines, EC_CacheFont::TCFontEC*& Font, EC_Str::TStringsEC*& WrappedLines);
-
+    // Borrowed DLL dispatch table; nil until successful initialization.
     Robot::PRobotInterfacePrefix RobotInterface = nullptr;
 
     Robot::TRobotCallbacks RobotCallbacks{};
 
+    // Returned planetary-battle statistics; entry 0 is negative elapsed milliseconds.
     pas::Array<std::int32_t, 0, 5> RobotBattleStatistics{};
 
     pas::DynArray<std::int32_t> SupportedMultiSamples{};
@@ -121,6 +121,7 @@ namespace Robot {
         }
     }
 
+    // Native diagnostic name: GIRobot.FRun.
     std::int32_t FRun(const pas::WideString& MapName, const pas::WideString& StartText, const pas::WideString& WinText, const pas::WideString& LossText, const pas::WideString& TerronName) {
         std::int32_t Result{};
         pas::WideString ConfigOverride{};
@@ -336,6 +337,7 @@ namespace Robot {
     void PAS_STDCALL RobotRenderText(char16_t* Text, char16_t* FontName, std::uint32_t Color, std::int32_t Width, std::int32_t Height, std::int32_t AlignX, std::int32_t AlignY, std::int32_t Wrap, std::int32_t OffsetX, std::int32_t OffsetY, Types::PRect Clip, PRobotTextImage Image) {
         std::int32_t TopAdjustment{};
         EC_Str::TStringsEC* Lines{};
+        EC_CacheFont::TCFontEC* Font{};
         EC_Str::TStringsEC* WrappedLines{};
         GR_GraphBuf::TGraphBufGR* Buffer{};
         std::int32_t DrawX{};
@@ -345,8 +347,56 @@ namespace Robot {
         Types::TRect DrawClip{};
         Types::TRect Bounds{};
         Types::TRect SourceClip{};
+        auto MeasureRobotTextSize = [&]() -> Types::TPoint {
+            Types::TPoint Result{};
+            std::uint8_t First{};
+            Types::TRect MergedBounds{};
+            Types::TRect LineBounds{};
+            MergedBounds.Left = 0;
+            MergedBounds.Right = 0;
+            MergedBounds.Top = 0;
+            MergedBounds.Bottom = 0;
+            std::int32_t Y = 0;
+            Lines->First();
+            if (Wrap == 0) {
+                if (!Lines->IsAtEnd()) {
+                    MergedBounds = Font->MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, Y, &TopAdjustment);
+                    Y += Font->GetLineHeight();
+                    Lines->Next();
+                }
+                while (!Lines->IsAtEnd()) {
+                    LineBounds = Font->MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, Y, nullptr);
+                    WindowsSdk::UnionRect(MergedBounds, MergedBounds, LineBounds);
+                    Y += Font->GetLineHeight();
+                    Lines->Next();
+                }
+            } else {
+                First = true;
+                while (!Lines->IsAtEnd()) {
+                    Font->WrapTaggedTextIntoLines(WrappedLines, Lines->GetCurrentText(), Width - 4);
+                    if (!WrappedLines->IsEmpty()) {
+                        WrappedLines->First();
+                        if (First) {
+                            MergedBounds = Font->MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, Y, &TopAdjustment);
+                            First = false;
+                            Y += Font->GetLineHeight();
+                            WrappedLines->Next();
+                        }
+                        while (!WrappedLines->IsAtEnd()) {
+                            LineBounds = Font->MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, Y, nullptr);
+                            WindowsSdk::UnionRect(MergedBounds, MergedBounds, LineBounds);
+                            Y += Font->GetLineHeight();
+                            WrappedLines->Next();
+                        }
+                    }
+                    Lines->Next();
+                }
+            }
+            Result = ClassesImports::Point(MergedBounds.Right - MergedBounds.Left, MergedBounds.Bottom - MergedBounds.Top);
+            return Result;
+        };
         EC_CacheFont::TCFontControlEC* Control = nullptr;
-        EC_CacheFont::TCFontEC* Font = nullptr;
+        Font = nullptr;
         Lines = nullptr;
         WrappedLines = nullptr;
         {
@@ -368,7 +418,7 @@ namespace Robot {
                 if (Width == 0 && Wrap != 0) {
                     GR_Main::RaiseWideMessage(u"robot text"_wref.get());
                 }
-                ImageSize = Robot::MeasureRobotTextSize(Width, Wrap, TopAdjustment, Lines, Font, WrappedLines);
+                ImageSize = MeasureRobotTextSize();
                 SourceClip = pas::load_unaligned<Types::TRect>(Clip);
                 if (Width == 0) {
                     Width = ImageSize.X + 4;
@@ -558,55 +608,6 @@ namespace Robot {
 
     void PAS_STDCALL RobotReleaseTextures() {
         GR_DX::ReleaseAllTextureSurfaces();
-    }
-
-    Types::TPoint MeasureRobotTextSize(std::int32_t& Width, std::int32_t& Wrap, std::int32_t& TopAdjustment, EC_Str::TStringsEC*& Lines, EC_CacheFont::TCFontEC*& Font, EC_Str::TStringsEC*& WrappedLines) {
-        Types::TPoint Result{};
-        std::uint8_t First{};
-        Types::TRect MergedBounds{};
-        Types::TRect LineBounds{};
-        MergedBounds.Left = 0;
-        MergedBounds.Right = 0;
-        MergedBounds.Top = 0;
-        MergedBounds.Bottom = 0;
-        std::int32_t Y = 0;
-        Lines->First();
-        if (Wrap == 0) {
-            if (!Lines->IsAtEnd()) {
-                MergedBounds = Font->MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, Y, &TopAdjustment);
-                Y += Font->GetLineHeight();
-                Lines->Next();
-            }
-            while (!Lines->IsAtEnd()) {
-                LineBounds = Font->MeasureTaggedTextBounds(Lines->GetCurrentText(), 0, Y, nullptr);
-                WindowsSdk::UnionRect(MergedBounds, MergedBounds, LineBounds);
-                Y += Font->GetLineHeight();
-                Lines->Next();
-            }
-        } else {
-            First = true;
-            while (!Lines->IsAtEnd()) {
-                Font->WrapTaggedTextIntoLines(WrappedLines, Lines->GetCurrentText(), Width - 4);
-                if (!WrappedLines->IsEmpty()) {
-                    WrappedLines->First();
-                    if (First) {
-                        MergedBounds = Font->MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, Y, &TopAdjustment);
-                        First = false;
-                        Y += Font->GetLineHeight();
-                        WrappedLines->Next();
-                    }
-                    while (!WrappedLines->IsAtEnd()) {
-                        LineBounds = Font->MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, Y, nullptr);
-                        WindowsSdk::UnionRect(MergedBounds, MergedBounds, LineBounds);
-                        Y += Font->GetLineHeight();
-                        WrappedLines->Next();
-                    }
-                }
-                Lines->Next();
-            }
-        }
-        Result = ClassesImports::Point(MergedBounds.Right - MergedBounds.Left, MergedBounds.Bottom - MergedBounds.Top);
-        return Result;
     }
 
 } // namespace Robot

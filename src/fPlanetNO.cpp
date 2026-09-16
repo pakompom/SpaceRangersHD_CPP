@@ -507,6 +507,7 @@ namespace fPlanetNO {
         }
     }
 
+    // Returns a held probe to its origin list before destroying research controls.
     void TfPlanetNO::CloseResearchPanel() {
         if (ProbeSignalSound != nullptr) {
             pas::free(ProbeSignalSound);
@@ -531,6 +532,7 @@ namespace fPlanetNO {
         ResearchPanelVisible = false;
     }
 
+    // Requires index 0..5 and an empty point count. Builds at most 256 points from connected image markers.
     void TfPlanetNO::BuildTrajectory(std::int32_t TrajectoryIndex) {
         std::int32_t I{};
         std::int32_t J{};
@@ -667,6 +669,7 @@ namespace fPlanetNO {
         pas::free(Buffer);
     }
 
+    // Requires a nonempty trajectory.
     WindowsSdk::TPoint TfPlanetNO::GetRandomTrajectoryPoint(std::int32_t TrajectoryIndex) {
         WindowsSdk::TPoint Result{};
         std::int32_t I = aMyFunction::RandomIntRange(0, TrajectoryPointCounts[TrajectoryIndex] - 1);
@@ -675,6 +678,7 @@ namespace fPlanetNO {
         return Result;
     }
 
+    // Requires a trajectory spanning a positive X range. Result is untouched if no segment matches.
     WindowsSdk::TPoint TfPlanetNO::ProjectPointOntoTrajectory(std::int32_t TrajectoryIndex, WindowsSdk::TPoint Point) {
         WindowsSdk::TPoint Result{};
         std::int32_t I{};
@@ -704,6 +708,7 @@ namespace fPlanetNO {
         return Result;
     }
 
+    // Advances four pixels along the projected segment; Result is untouched if no segment matches.
     WindowsSdk::TPoint TfPlanetNO::AdvanceTrajectoryPoint(std::int32_t TrajectoryIndex, WindowsSdk::TPoint Point) {
         WindowsSdk::TPoint Result{};
         std::int32_t I{};
@@ -735,6 +740,7 @@ namespace fPlanetNO {
         return Result;
     }
 
+    // Returns -1 on a miss; searches only the current planet's available probe orbits.
     std::int32_t TfPlanetNO::FindTrajectoryAtCursor() {
         std::int32_t I{};
         {
@@ -1193,6 +1199,7 @@ namespace fPlanetNO {
         MainPanel->RebuildMessageButtons(false);
     }
 
+    // Collects accessible surface loot or exchanges the held probe with the selected orbit.
     void TfPlanetNO::ResearchMapMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         std::int32_t I{};
         aPlanet::PPlanetSurfaceLootEntry Entry{};
@@ -1326,6 +1333,7 @@ namespace fPlanetNO {
         aGalaxy::Galaxy->PrimeIntegrityChecksum(128);
     }
 
+    // Borrowed probe on the current planet, or nil; -1 always returns nil.
     aItem::TSatellite* TfPlanetNO::FindDeployedSatellite(std::int32_t TrajectoryIndex) {
         aItem::TSatellite* Result{};
         std::int32_t I{};
@@ -1387,6 +1395,8 @@ namespace fPlanetNO {
         }
     }
 
+    // The explicit script receiver value preserves native argument evaluation order.
+    // Borrows Item; nil schedules a delayed hide.
     void TfPlanetNO::UpdateItemInfoPopup(aItem::TItem* Item) {
         static const pas::Set<0, 255> DurableTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         aItem::TEquipment* Equipment{};
@@ -1621,7 +1631,7 @@ namespace fPlanetNO {
     }
 
     void TfPlanetNO::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::in_set<0, 0, 2, 2, 4, 4, 6, 6>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10003);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20003);

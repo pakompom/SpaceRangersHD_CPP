@@ -31,6 +31,7 @@ namespace EC_CacheLightPal {
         }
     }
 
+    // Returns 64 packed 16-bit brightness levels per source color.
     WindowsSdk::PWORD BuildLightPalette(System::PCardinal Palette, std::int32_t ColorCount, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask) {
         static constexpr std::int32_t BrightnessBits = 6;
         static constexpr std::int32_t BrightnessLevels = 1 << BrightnessBits;

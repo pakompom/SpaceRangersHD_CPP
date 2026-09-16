@@ -20,6 +20,7 @@ namespace GI_PSWeapon13IMHO {
     struct TPSWeapon13IMHO : GI_PSWeapon::TPSWeaponGI {
         PAS_CLASS_META(TPSWeapon13IMHO, GI_PSWeapon::TPSWeaponGI, "TPSWeapon13IMHO", 336)
         void p_destroy() override;
+        // Native empty override.
         void Invalidate() override;
         void SetPosition(Types::TPoint Position) override;
         void SetTargetPoint(Types::TPoint Point) override;
@@ -48,6 +49,7 @@ namespace GI_PSWeapon13IMHO {
         std::uint8_t cpp_padding[1];
         EC_Struct::TPointF Velocity;
         std::uint8_t cpp_padding_2[2];
+        // Initialized to zero; unused by this renderer.
         std::uint8_t Unknown1A;
         std::uint8_t cpp_padding_3[1];
     };

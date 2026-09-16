@@ -85,6 +85,7 @@ namespace Achievements {
         return Result;
     }
 
+    // 1=Steam, 2=Steam without achievement support, 3=local.
     std::uint8_t GetAchievementBackend() {
         if (SimpleSteamApi::SteamInitialized) {
             if (SimpleSteamApi::SteamAchievementsCount() > 0) {
@@ -95,6 +96,7 @@ namespace Achievements {
         return 3;
     }
 
+    // Capped at 82.
     std::int32_t GetAvailableAchievementCount() {
         switch (Achievements::GetAchievementBackend()) {
             case 1: return std::min<std::int32_t>(82, SimpleSteamApi::SteamAchievementsCount());
@@ -104,6 +106,7 @@ namespace Achievements {
         }
     }
 
+    // Allocates three 255-character caller-owned string buffers.
     SimpleSteamApi::PAchievementData CreateAchievementData() {
         SimpleSteamApi::PAchievementData Result{};
         pas::new_value(Result);
@@ -119,6 +122,7 @@ namespace Achievements {
         return Result;
     }
 
+    // Nil-safe; releases all three string cells and the record.
     void FreeAchievementData(SimpleSteamApi::PAchievementData Data) {
         if (Data != nullptr) {
             WStringUtils::FreeStartupWideString(pas::Var<WStringUtils::PStartupWideString>(&Data->Name));
@@ -128,6 +132,7 @@ namespace Achievements {
         }
     }
 
+    // Caller owns the result; nil for an unknown key.
     SimpleSteamApi::PAchievementData GetAchievementData(pas::WideString Key) {
         SimpleSteamApi::PAchievementData Result{};
         Result = nullptr;
@@ -148,6 +153,7 @@ namespace Achievements {
         return Result;
     }
 
+    // Checks availability, unlock budget and per-save duplicates; records successful unlocks in the current player's AwardedAchievementKeys.
     std::uint8_t TryUnlockAchievement(pas::WideString Key) {
         std::uint8_t Result = false;
         if (aGalaxy::Galaxy == nullptr) {
@@ -181,6 +187,7 @@ namespace Achievements {
         return Result;
     }
 
+    // Raises progress to the supplied value, capped at the target; never reduces existing progress.
     std::uint8_t TrySetAchievementProgress(pas::WideString Key, std::int32_t Value) {
         std::int32_t Increment{};
         std::uint8_t Result = false;
@@ -227,6 +234,7 @@ namespace Achievements {
         return Result;
     }
 
+    // Caps the increment at the configured achievement target; checks platform availability and per-save completion.
     std::uint8_t TryAddAchievementProgress(pas::WideString Key, std::int32_t Amount) {
         std::int32_t Increment{};
         std::uint8_t Result = false;
@@ -274,6 +282,7 @@ namespace Achievements {
         std::int32_t Index{};
         EC_BlockPar::TBlockParEC* Block{};
         AchievementDefinitions = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+        // Entry zero is the native NONE sentinel and is not registered.
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 82); cpp_range.next(Index); ) {
             Block = AchievementDefinitions->AddChildBlock(static_cast<pas::WideString>(AchievementDefinitionTable[Index].Key));
             Block->AddParam(u"Id"_wref.get(), static_cast<pas::WideString>(AchievementDefinitionTable[Index].Key));
@@ -304,6 +313,7 @@ namespace Achievements {
         pas::object_destroy(Self);
     }
 
+    // Includes the pre-version-99 counter layout.
     void TAchievementStats::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         if (GlobalsV::LoadedSaveVersion >= 99) {
             AsteroidsDestroyed = EC_Buf::TBufEC_GetUInt32(Buffer);
@@ -354,6 +364,7 @@ namespace Achievements {
         Buffer->AddDWord(UninhabitedPlanetsVisited);
     }
 
+    // BOMBER requires at least five kills and a current player/galaxy.
     void TAchievementStats::CheckBomberAchievement(std::int32_t KillsThisTurn) {
         if (aPlayer::GetPlayer() == nullptr) {
             return;
@@ -366,10 +377,12 @@ namespace Achievements {
         }
     }
 
+    // Native award-presence buffer is left uninitialized by reversed FillChar arguments.
     void TAchievementStats::CheckAllAwardsAchievement() {
         std::int32_t I{};
         std::uint8_t AwardId{};
         pas::Array<std::uint8_t, 0, 255> Present{};
+        // Native argument order is reversed: count zero leaves this buffer uninitialized.
         pas::fill_memory(&Present, 0, static_cast<std::uint8_t>(static_cast<std::int32_t>(sizeof(pas::Array<std::uint8_t, 0, 255>))));
         std::int32_t LastAward = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"Reward.Count"_wref.get()))) - 1;
         std::uint8_t AllPresent = true;
@@ -403,6 +416,7 @@ namespace Achievements {
         Achievements::TryUnlockAchievement(u"BUMMER"_w);
     }
 
+    // CHAMPION requires at least 50000 points.
     void TAchievementStats::CheckChampionVictoryAchievement(std::int32_t Score) {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && Score >= 50000) {
             Achievements::TryUnlockAchievement(u"CHAMPION"_w);
@@ -415,18 +429,21 @@ namespace Achievements {
         }
     }
 
+    // Caller establishes a victory without firing; native HOLEPEACE unlock.
     void TAchievementStats::CheckNoShotsArcadeVictoryAchievement() {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
             Achievements::TryUnlockAchievement(u"HOLEPEACE"_w);
         }
     }
 
+    // MONEY: at least 10000000 credits.
     void TAchievementStats::CheckMoneyAchievement() {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->Money >= 10000000) {
             Achievements::TryUnlockAchievement(u"MONEY"_w);
         }
     }
 
+    // MASTER: at least six player wingmen.
     void TAchievementStats::CheckMasterAchievement() {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->CountWingmen() >= 6) {
             Achievements::TryUnlockAchievement(u"MASTER"_w);
@@ -439,6 +456,7 @@ namespace Achievements {
         }
     }
 
+    // DOLGOZHID requires at least 20000 points and turn 36800.
     void TAchievementStats::CheckLongGameVictoryAchievement(std::int32_t Score, std::int32_t FinishedTurn) {
         if (aPlayer::GetPlayer() != nullptr && Score >= 20000 && FinishedTurn >= 36800) {
             Achievements::TryUnlockAchievement(u"DOLGOZHID"_w);
@@ -451,6 +469,7 @@ namespace Achievements {
         }
     }
 
+    // PIRATESYSTEMS: every registered star is pirate-controlled.
     void TAchievementStats::CheckAllPirateSystemsAchievement() {
         std::int32_t Index{};
         aGalaxy::TStar* Star{};
@@ -467,12 +486,16 @@ namespace Achievements {
         }
     }
 
+    // Requires PlaceInRating=1 and CurrentTurn>=300.
     void TAchievementStats::CheckFirstPlaceRatingAchievement() {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->CurrentTurn >= 300 && aPlayer::GetPlayer()->PlaceInRating == 1) {
             Achievements::TryUnlockAchievement(u"RATING"_w);
         }
     }
 
+    // These checks use global player/galaxy state. Victory and score eligibility
+    // are checked by the caller; the instance counters are not used here.
+    // SKILL: all six player base skills are at least level six.
     void TAchievementStats::CheckAllSkillsAchievement() {
         aShip::TPilotSkill Skill{};
         std::uint8_t Complete = true;
@@ -488,12 +511,14 @@ namespace Achievements {
         }
     }
 
+    // Native SPEED threshold: calculated speed 2300.
     void TAchievementStats::CheckSpeedAchievement() {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->CalculateSpeed() >= 2300) {
             Achievements::TryUnlockAchievement(u"SPEED"_w);
         }
     }
 
+    // SPRINTER requires fewer than seven elapsed years after turn 300.
     void TAchievementStats::CheckFastVictoryAchievement() {
         std::int32_t Elapsed{};
         if (aGalaxy::Galaxy != nullptr) {
@@ -510,6 +535,7 @@ namespace Achievements {
         }
     }
 
+    // Requires player pirate rank 7.
     void TAchievementStats::CheckBaronAchievement() {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->PirateRank == 7) {
             Achievements::TryUnlockAchievement(u"BARON"_w);
@@ -522,6 +548,7 @@ namespace Achievements {
         }
     }
 
+    // HATER requires at least one inhabited planet in Coalition-controlled systems and hostile relations with every such planet.
     void TAchievementStats::CheckHaterAchievement() {
         std::int32_t I{};
         std::int32_t J{};
@@ -550,6 +577,7 @@ namespace Achievements {
         }
     }
 
+    // Native BEST check: all direct slots and five weapons have nonstandard stats.
     void TAchievementStats::CheckBestEquipmentAchievement() {
         std::int32_t I{};
         if (aPlayer::GetPlayer() == nullptr || aGalaxy::Galaxy == nullptr) {
@@ -590,6 +618,7 @@ namespace Achievements {
         Achievements::TryUnlockAchievement(u"BEST"_w);
     }
 
+    // ILL: the player has experienced every one of the twelve diseases.
     void TAchievementStats::CheckAllDiseasesAchievement() {
         std::int32_t I{};
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
@@ -614,12 +643,14 @@ namespace Achievements {
         }
     }
 
+    // SCRATCHDAMAGE: twenty one-point hits on the same target.
     void TAchievementStats::CheckScratchDamageAchievement(std::int32_t HitsReceived) {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && HitsReceived >= 20) {
             Achievements::TryUnlockAchievement(u"SCRATCHDAMAGE"_w);
         }
     }
 
+    // SUNFUEL threshold: 40 units in one fuel tank.
     void TAchievementStats::CheckStarFuelAchievement() {
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && StarFuelCollected >= 40) {
             Achievements::TryUnlockAchievement(u"SUNFUEL"_w);
@@ -656,6 +687,7 @@ namespace Achievements {
         }
     }
 
+    // TRANCLUCATORS requires ten live, normal-space Tranclucators owned by the player in the current star.
     void TAchievementStats::CheckTranclucatorFleetAchievement() {
         std::int32_t I{};
         aShip::TShip* Ship{};

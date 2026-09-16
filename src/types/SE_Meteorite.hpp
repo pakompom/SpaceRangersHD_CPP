@@ -34,6 +34,7 @@ namespace SE_Meteorite {
         pas::WideString ImagePath;
         std::int32_t TimerInterval;
         float Speed;
+        // Radians, zero points upward.
         float Angle;
         GI_GAI::TgaiGI* Animation;
         SE_Space::PSpaceTimerSE MoveTimer;

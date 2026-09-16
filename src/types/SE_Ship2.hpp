@@ -37,7 +37,9 @@ namespace SE_Ship2 {
         PAS_CLASS_META(TShip2SE, SE_Space::TObjectSE, "TShip2SE", 440)
         void p_destroy() override;
         void CopyTo(SE_Space::TObjectSE* Destination) override;
+        // Despite the diagnostic name, copies Self into Destination, which must be TShip2SE.
         void CopyDataFromMirrorImage(SE_Space::TObjectSE* Destination);
+        // Native diagnostic name: TShip2SE.Connect.
         void AttachToSpace(SE_Space::TSpaceSE* ASpace) override;
         void DetachFromSpace() override;
         void SetTailMode(std::int32_t Value);

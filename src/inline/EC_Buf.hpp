@@ -3,6 +3,7 @@
 #include "units/GR_Main.hpp"
 
 namespace EC_Buf {
+    // Several scalar readers contain native inline assembly after the bounds check.
     inline std::uint8_t TBufEC_GetByte(TBufEC* Self) {
         Self->EnsureReadable(static_cast<std::int32_t>(sizeof(std::uint8_t)));
         return pas::read_and_advance<std::uint8_t>(Self->Data, &Self->Position);
@@ -23,6 +24,7 @@ namespace EC_Buf {
         return pas::read_and_advance<std::int32_t>(Self->Data, &Self->Position);
     }
 
+    // Replaces NaN with zero.
     inline float TBufEC_GetSingle(TBufEC* Self) {
         Self->EnsureReadable(static_cast<std::int32_t>(sizeof(float)));
         float Result = pas::read_and_advance<float>(Self->Data, &Self->Position);

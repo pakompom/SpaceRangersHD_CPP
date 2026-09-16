@@ -35,8 +35,6 @@
 #include "units/fGameSettings2.hpp"
 
 namespace fGameSettings2 {
-    pas::WideString GetNewGameCustomRule(pas::WideString Path);
-
     void TfGameSettings2::InitializeLayout() {
         std::int32_t I{};
         std::int32_t J{};
@@ -305,6 +303,22 @@ namespace fGameSettings2 {
         pas::WideString ValueText{};
         std::int32_t Position{};
         std::uint8_t Enabled{};
+        // Nested in OnOpen; static link unused. Returns an empty string for an absent CustomRules block or key.
+        auto GetNewGameCustomRule = [&](pas::WideString Path) -> pas::WideString {
+            pas::WideString Result{};
+            if (GR_Main::NewGameSettingsConfig->CountBlocks(u"CustomRules"_wref.get()) != 0) {
+                if (([&] {
+                    EC_BlockPar::TBlockParEC* blockByPath = GR_Main::NewGameSettingsConfig->GetBlockByPath(u"CustomRules"_wref.get());
+                    const pas::WideString& path = Path;
+                    return blockByPath->CountParamsByPath(path);
+                }()) != 0) {
+                    EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::NewGameSettingsConfig->GetBlockByPath(u"CustomRules"_wref.get());
+                    const pas::WideString& path_2 = Path;
+                    return blockByPath_2->GetParamByPath(path_2);
+                }
+            }
+            return Result;
+        };
         PlayerNameEdited = false;
         PlayerNameValid = true;
         IronWillLabel = nullptr;
@@ -432,7 +446,7 @@ namespace fGameSettings2 {
             }
         }
         BuildExtendedGroup = 0;
-        Text = fGameSettings2::GetNewGameCustomRule(u"KlingStrength"_w);
+        Text = GetNewGameCustomRule(u"KlingStrength"_w);
         if (Text == u"") {
             Position = 0;
         } else {
@@ -444,7 +458,7 @@ namespace fGameSettings2 {
             return self_2->AddExtendedOptionLabel(u"KlingStrength"_w, std::move(localizedText), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 73, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedAutoPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"KlingAggro"_w);
+        Text = GetNewGameCustomRule(u"KlingAggro"_w);
         if (Text == u"") {
             Position = 0;
         } else {
@@ -456,7 +470,7 @@ namespace fGameSettings2 {
             return self_3->AddExtendedOptionLabel(u"KlingAggro"_w, std::move(localizedText_2), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 73, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedAutoPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"KlingSpawn"_w);
+        Text = GetNewGameCustomRule(u"KlingSpawn"_w);
         if (Text == u"") {
             Position = 0;
         } else {
@@ -468,7 +482,7 @@ namespace fGameSettings2 {
             return self_4->AddExtendedOptionLabel(u"KlingSpawn"_w, std::move(localizedText_3), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 73, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedAutoPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"PirateAggro"_w);
+        Text = GetNewGameCustomRule(u"PirateAggro"_w);
         if (Text == u"") {
             Position = 0;
         } else {
@@ -480,7 +494,7 @@ namespace fGameSettings2 {
             return self_5->AddExtendedOptionLabel(u"PirateAggro"_w, std::move(localizedText_4), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 73, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedAutoPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"CoalAggro"_w);
+        Text = GetNewGameCustomRule(u"CoalAggro"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -492,7 +506,7 @@ namespace fGameSettings2 {
             return self_6->AddExtendedOptionLabel(u"CoalAggro"_w, std::move(localizedText_5), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"ExtraInventions"_w);
+        Text = GetNewGameCustomRule(u"ExtraInventions"_w);
         if (Text == u"") {
             Position = 0;
         } else {
@@ -504,7 +518,7 @@ namespace fGameSettings2 {
             return self_7->AddExtendedOptionLabel(u"ExtraInventions"_w, std::move(localizedText_6), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 255, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedInteger>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"ExtraRangers"_w);
+        Text = GetNewGameCustomRule(u"ExtraRangers"_w);
         if (Text == u"") {
             Position = 0;
         } else {
@@ -516,7 +530,7 @@ namespace fGameSettings2 {
             return self_8->AddExtendedOptionLabel(u"ExtraRangers"_w, std::move(localizedText_7), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 50, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedInteger>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"ZeroStartExp"_w);
+        Text = GetNewGameCustomRule(u"ZeroStartExp"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -537,7 +551,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_11 = this;
             self_11->AddExtendedOptionChoice(0, std::move(localizedText_10), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"KlingRacialWeapons"_w);
+        Text = GetNewGameCustomRule(u"KlingRacialWeapons"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -558,7 +572,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_14 = this;
             self_14->AddExtendedOptionChoice(0, std::move(localizedText_13), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"MaxRangeMissiles"_w);
+        Text = GetNewGameCustomRule(u"MaxRangeMissiles"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -579,7 +593,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_17 = this;
             self_17->AddExtendedOptionChoice(0, std::move(localizedText_16), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"HullGrowth"_w);
+        Text = GetNewGameCustomRule(u"HullGrowth"_w);
         if (Text == u"") {
             Position = 0;
         } else {
@@ -607,7 +621,7 @@ namespace fGameSettings2 {
             self_21->AddExtendedOptionChoice(2, std::move(localizedText_20), Position == 2, false);
         }
         BuildExtendedGroup = 1;
-        Text = fGameSettings2::GetNewGameCustomRule(u"AsteroidMod"_w);
+        Text = GetNewGameCustomRule(u"AsteroidMod"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -619,7 +633,7 @@ namespace fGameSettings2 {
             return self_22->AddExtendedOptionLabel(u"AsteroidMod"_w, std::move(localizedText_21), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"SunDamageMod"_w);
+        Text = GetNewGameCustomRule(u"SunDamageMod"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -631,7 +645,7 @@ namespace fGameSettings2 {
             return self_23->AddExtendedOptionLabel(u"SunDamageMod"_w, std::move(localizedText_22), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"AgPlanets"_w);
+        Text = GetNewGameCustomRule(u"AgPlanets"_w);
         if (Text == u"") {
             Position = 5;
         } else {
@@ -643,7 +657,7 @@ namespace fGameSettings2 {
             return self_24->AddExtendedOptionLabel(u"AgPlanets"_w, std::move(localizedText_23), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 10, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedInteger>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"MiPlanets"_w);
+        Text = GetNewGameCustomRule(u"MiPlanets"_w);
         if (Text == u"") {
             Position = 5;
         } else {
@@ -655,7 +669,7 @@ namespace fGameSettings2 {
             return self_25->AddExtendedOptionLabel(u"MiPlanets"_w, std::move(localizedText_24), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 10, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedInteger>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"InPlanets"_w);
+        Text = GetNewGameCustomRule(u"InPlanets"_w);
         if (Text == u"") {
             Position = 5;
         } else {
@@ -667,7 +681,7 @@ namespace fGameSettings2 {
             return self_26->AddExtendedOptionLabel(u"InPlanets"_w, std::move(localizedText_25), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 10, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedInteger>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"StartCenter"_w);
+        Text = GetNewGameCustomRule(u"StartCenter"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -689,7 +703,7 @@ namespace fGameSettings2 {
             self_29->AddExtendedOptionChoice(0, std::move(localizedText_28), Enabled, false);
         }
         BuildExtendedGroup = 2;
-        Text = fGameSettings2::GetNewGameCustomRule(u"RndChaotic"_w);
+        Text = GetNewGameCustomRule(u"RndChaotic"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -710,7 +724,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_32 = this;
             self_32->AddExtendedOptionChoice(0, std::move(localizedText_31), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"RuinsNearStars"_w);
+        Text = GetNewGameCustomRule(u"RuinsNearStars"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -731,7 +745,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_35 = this;
             self_35->AddExtendedOptionChoice(0, std::move(localizedText_34), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"RuinsTargettingFull"_w);
+        Text = GetNewGameCustomRule(u"RuinsTargettingFull"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -752,7 +766,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_38 = this;
             self_38->AddExtendedOptionChoice(0, std::move(localizedText_37), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"RuinsUseShop"_w);
+        Text = GetNewGameCustomRule(u"RuinsUseShop"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -773,7 +787,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_41 = this;
             self_41->AddExtendedOptionChoice(0, std::move(localizedText_40), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"SpecialShipsInGame"_w);
+        Text = GetNewGameCustomRule(u"SpecialShipsInGame"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -794,7 +808,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_44 = this;
             self_44->AddExtendedOptionChoice(0, std::move(localizedText_43), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"AkrinMod"_w);
+        Text = GetNewGameCustomRule(u"AkrinMod"_w);
         if (Text == u"") {
             Position = 30;
         } else {
@@ -806,7 +820,7 @@ namespace fGameSettings2 {
             return self_45->AddExtendedOptionLabel(u"AkrinMod"_w, std::move(localizedText_44), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 100, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"NodeDropMod"_w);
+        Text = GetNewGameCustomRule(u"NodeDropMod"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -818,7 +832,7 @@ namespace fGameSettings2 {
             return self_46->AddExtendedOptionLabel(u"NodeDropMod"_w, std::move(localizedText_45), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"EqKnowledgeUnRestricted"_w);
+        Text = GetNewGameCustomRule(u"EqKnowledgeUnRestricted"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -839,7 +853,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_49 = this;
             self_49->AddExtendedOptionChoice(0, std::move(localizedText_48), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"DropValueMod"_w);
+        Text = GetNewGameCustomRule(u"DropValueMod"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -851,7 +865,7 @@ namespace fGameSettings2 {
             return self_50->AddExtendedOptionLabel(u"DropValueMod"_w, std::move(localizedText_49), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"ABDropValueMod"_w);
+        Text = GetNewGameCustomRule(u"ABDropValueMod"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -863,7 +877,7 @@ namespace fGameSettings2 {
             return self_51->AddExtendedOptionLabel(u"ABDropValueMod"_w, std::move(localizedText_50), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"ABHitpointsMod"_w);
+        Text = GetNewGameCustomRule(u"ABHitpointsMod"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -875,7 +889,7 @@ namespace fGameSettings2 {
             return self_52->AddExtendedOptionLabel(u"ABHitpointsMod"_w, std::move(localizedText_51), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"ABDamageMod"_w);
+        Text = GetNewGameCustomRule(u"ABDamageMod"_w);
         if (Text == u"") {
             Position = 8;
         } else {
@@ -887,7 +901,7 @@ namespace fGameSettings2 {
             return self_53->AddExtendedOptionLabel(u"ABDamageMod"_w, std::move(localizedText_52), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 24, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedDifficultyPercent>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"ABattleRoyale"_w);
+        Text = GetNewGameCustomRule(u"ABattleRoyale"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -908,7 +922,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_56 = this;
             self_56->AddExtendedOptionChoice(0, std::move(localizedText_55), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"ABChangeEq"_w);
+        Text = GetNewGameCustomRule(u"ABChangeEq"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -929,7 +943,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_59 = this;
             self_59->AddExtendedOptionChoice(0, std::move(localizedText_58), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"AITolerateJunk"_w);
+        Text = GetNewGameCustomRule(u"AITolerateJunk"_w);
         if (Text == u"") {
             Position = 7;
         } else {
@@ -941,7 +955,7 @@ namespace fGameSettings2 {
             return self_60->AddExtendedOptionLabel(u"AITolerateJunk"_w, std::move(localizedText_59), false);
         }());
         AddExtendedOptionSlider(ValueLabel, 0, 50, Position, 1, pas::bind_static_method<&TfGameSettings2::FormatExtendedInteger>(this));
-        Text = fGameSettings2::GetNewGameCustomRule(u"OldHyper"_w);
+        Text = GetNewGameCustomRule(u"OldHyper"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -962,7 +976,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_63 = this;
             self_63->AddExtendedOptionChoice(0, std::move(localizedText_62), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"PirateNodes"_w);
+        Text = GetNewGameCustomRule(u"PirateNodes"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -983,7 +997,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_66 = this;
             self_66->AddExtendedOptionChoice(0, std::move(localizedText_65), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"AIUseShops"_w);
+        Text = GetNewGameCustomRule(u"AIUseShops"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -1004,7 +1018,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_69 = this;
             self_69->AddExtendedOptionChoice(0, std::move(localizedText_68), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"DuplicateArts"_w);
+        Text = GetNewGameCustomRule(u"DuplicateArts"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -1025,7 +1039,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_72 = this;
             self_72->AddExtendedOptionChoice(0, std::move(localizedText_71), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"OldSpeedCalc"_w);
+        Text = GetNewGameCustomRule(u"OldSpeedCalc"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -1046,7 +1060,7 @@ namespace fGameSettings2 {
             TfGameSettings2* self_75 = this;
             self_75->AddExtendedOptionChoice(0, std::move(localizedText_74), Enabled, false);
         }
-        Text = fGameSettings2::GetNewGameCustomRule(u"OldMissileBonuses"_w);
+        Text = GetNewGameCustomRule(u"OldMissileBonuses"_w);
         if (Text == u"") {
             Enabled = false;
         } else {
@@ -1080,22 +1094,6 @@ namespace fGameSettings2 {
         Owner->VerticalScrollBar->SetPageSize(Owner->ClientSize.Y);
         ActiveExtendedGroup = 0;
         RefreshExtendedGroup();
-    }
-
-    pas::WideString GetNewGameCustomRule(pas::WideString Path) {
-        pas::WideString Result{};
-        if (GR_Main::NewGameSettingsConfig->CountBlocks(u"CustomRules"_wref.get()) != 0) {
-            if (([&] {
-                EC_BlockPar::TBlockParEC* blockByPath = GR_Main::NewGameSettingsConfig->GetBlockByPath(u"CustomRules"_wref.get());
-                const pas::WideString& path = Path;
-                return blockByPath->CountParamsByPath(path);
-            }()) != 0) {
-                EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::NewGameSettingsConfig->GetBlockByPath(u"CustomRules"_wref.get());
-                const pas::WideString& path_2 = Path;
-                return blockByPath_2->GetParamByPath(path_2);
-            }
-        }
-        return Result;
     }
 
     void TfGameSettings2::OnClose() {
@@ -1807,6 +1805,7 @@ namespace fGameSettings2 {
         pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Info"_wref.get()))->SetText(Text);
     }
 
+    // Also removes <>{} from the edit control and adjusts its caret; rejects empty names and unsupported glyphs.
     std::uint8_t TfGameSettings2::ValidatePlayerName(pas::WideString Name) {
         std::int32_t I{};
         std::uint8_t Result = true;
@@ -2093,6 +2092,7 @@ namespace fGameSettings2 {
         }
     }
 
+    // Invokes Callback immediately with the new slider.
     void TfGameSettings2::AddExtendedOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TNewGameSliderEvent Callback) {
         GI_CountBar::TCountBarGI* Slider = pas::construct_call<GI_CountBar::TCountBarGI>(GI_CountBar::TCountBarGI_Create, ExtendedGroupPanels[BuildExtendedGroup]);
         ExtendedGroupNextY[BuildExtendedGroup] = ExtendedGroupNextY[BuildExtendedGroup];
@@ -2137,6 +2137,7 @@ namespace fGameSettings2 {
         Callback(Slider);
     }
 
+    // Searches only the active extended group; raises when no value is found.
     std::int32_t TfGameSettings2::GetExtendedOptionValue(pas::WideString OptionName) {
         std::int32_t Result = 0;
         GI_MessageLoop::TObjectGI* Control = ExtendedGroupPanels[ActiveExtendedGroup]->FirstChild;
@@ -2156,6 +2157,7 @@ namespace fGameSettings2 {
         return Result;
     }
 
+    // Searches only the active extended group; missing options are ignored.
     void TfGameSettings2::SetExtendedOptionValue(pas::WideString OptionName, std::int32_t Value) {
         GI_MessageLoop::TObjectGI* Control = ExtendedGroupPanels[ActiveExtendedGroup]->FirstChild;
         while (Control != nullptr) {

@@ -15,6 +15,7 @@ namespace fAchievements {
 
     struct TfAchievements;
 
+    // Native record RTTI.
     struct TfAchievementsSlot {
         pas::WideString Key;
         SimpleSteamApi::PAchievementData Data;
@@ -33,6 +34,7 @@ namespace fAchievements {
         void CloseClicked(GI_MessageLoop::TObjectGI* Sender);
         void KeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
+        // Ignores the argument and appends. The native insertion-shift loop is retained even though it has no iterations.
         std::int32_t AppendRow(std::int32_t UnusedIndex);
         void RebuildAchievementList();
         void BuildRow(GI_MessageLoop::TObjectGI* Owner);

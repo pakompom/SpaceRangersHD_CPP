@@ -284,6 +284,7 @@ namespace fMainForm {
             pas::free(aGalaxy::Galaxy);
         }
         aGalaxy::Galaxy = nullptr;
+        // Retained native wait follows clearing the global, even on the standalone path.
         while (aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->Destroying) {
             SysUtilsImports::Sleep(1u);
         }

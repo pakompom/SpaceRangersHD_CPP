@@ -3,6 +3,7 @@
 #include "units/EC_Struct.hpp"
 
 namespace EC_Struct {
+    // Returns false without writing Intersection when the rectangles do not overlap.
     inline std::uint8_t IntersectRects(Types::TRect& Intersection, const Types::TRect& First, const Types::TRect& Second) {
         return pas::intersect_rects(Intersection, First, Second);
     }

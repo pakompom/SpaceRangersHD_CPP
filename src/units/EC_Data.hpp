@@ -2,6 +2,8 @@
 #include "types/EC_Data.hpp"
 
 namespace EC_Data {
+    // Open addressing by CRC of the ASCII-folded UTF-16 filename. Each
+    // stored filename character is shifted by three; zero hashes end probes.
     extern const EC_Data::TResourceChecksumTable ResourceChecksums;
 
     extern const std::uint32_t ResourceDatSeedKey;
@@ -10,6 +12,7 @@ namespace EC_Data {
 
     extern const std::uint32_t ResourceDatCrcKey2;
 
+    // Checks only names present in the built-in checksum table; folds ASCII uppercase for lookup.
     void VerifyResourceFileChecksum(const pas::WideString& FileName);
 
     void TDataFileEC_Create(TDataFileEC* Self);

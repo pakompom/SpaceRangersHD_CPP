@@ -10,6 +10,7 @@ namespace Windows {
         pas::copy_memory(Dest, Source, ByteCount);
     }
 
+    // This implementation also supports overlapping ranges.
     inline void CopyMemory(void* Dest, void* Source, std::uint32_t ByteCount) {
         pas::copy_memory(Dest, Source, ByteCount);
     }

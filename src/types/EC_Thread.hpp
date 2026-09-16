@@ -19,8 +19,10 @@ namespace EC_Thread {
         void RequestStop();
         std::uint8_t IsStopRequested();
         void SetStopRequested(std::uint8_t Value);
+        // Schedules Execute on the existing OS thread; does nothing while a run is pending or active.
         void Start();
         std::uint8_t IsRunning();
+        // False only on timeout; a wait failure also returns true.
         std::uint8_t WaitForIdle(std::uint32_t TimeoutMs);
         pas::CriticalSection* Lock;
         std::uint32_t ThreadHandle;
@@ -29,6 +31,7 @@ namespace EC_Thread {
         std::uint8_t StopRequested;
         std::uint8_t cpp_padding[2];
         std::uint32_t StopEvent;
+        // Set/cleared by two helpers; its purpose is unresolved.
         std::uint8_t Flag18;
         std::uint8_t cpp_padding_2[3];
         std::uint32_t ShutdownEvent;
@@ -40,6 +43,7 @@ namespace EC_Thread {
     #pragma pack(pop)
     #endif
 
+    // Indices into ThreadPriorityValues, not Win32 priority values.
     inline constexpr std::int32_t ThreadPriorityLowest = 1;
 
     inline constexpr std::int32_t ThreadPriorityAboveNormal = 4;

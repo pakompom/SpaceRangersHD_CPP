@@ -8,6 +8,8 @@ namespace VorbisFile {
 
     using PCriticalSection = pas::CriticalSection**;
 
+    // libvorbis owns the internal OggVorbis_File fields. The Delphi wrapper
+    // embeds it at +8 and keeps the shared lock and current bitstream after it.
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -29,6 +31,7 @@ namespace VorbisFile {
 
     using TVorbisFOpen = pas::Proc<std::int32_t(std::uint8_t*, void*)>;
 
+    // libvorbisfile C ABI: https://github.com/xiph/vorbis/blob/master/include/vorbis/vorbisfile.h
     using TVorbisReadCallback = pas::Proc<std::uint32_t(void*, std::uint32_t, std::uint32_t, void*)>;
 
     using TVorbisSeekCallback = pas::Proc<std::int32_t(void*, std::int64_t, std::int32_t)>;
@@ -70,6 +73,7 @@ namespace VorbisFile {
 
     inline constexpr std::int32_t VorbisOutputSampleRate = 44100;
 
+    // OpenVorbisStream always advertises this format, independent of file metadata.
     inline constexpr std::int32_t VorbisOutputChannels = 2;
 
     inline constexpr std::int32_t VorbisOutputSampleBytes = static_cast<std::int32_t>(sizeof(std::int16_t));
@@ -78,6 +82,7 @@ namespace VorbisFile {
 
     inline constexpr std::int32_t VorbisOutputBytesPerSecond = VorbisFile::VorbisOutputSampleRate * VorbisFile::VorbisOutputBlockAlign;
 
+    // libvorbis codec.h status codes returned by ov_read.
     inline constexpr std::int32_t OV_HOLE = -3;
 
     inline constexpr std::int32_t OV_EINVAL = -131;

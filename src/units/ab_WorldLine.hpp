@@ -11,6 +11,7 @@ namespace ab_WorldLine {
 
     void ab_WorldLine_Clear();
 
+    // Allocates and links a node owned by the world list.
     PabWorldLine ab_WorldLine_Add();
 
     void ab_WorldLine_Delete(PabWorldLine Line);

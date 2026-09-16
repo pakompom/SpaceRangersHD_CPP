@@ -56,8 +56,10 @@ namespace fRuinsTalk {
         void InitializeLayout() override;
         void LayoutStationPortrait(GI_MessageLoop::TObjectGI* Panel);
         void HideStationTransientControl();
+        // Native diagnostic name: TfRuinsTalk.BeforeRun.
         void OnOpen() override;
         void OnClose() override;
+        // Returns inventory count; unused sorted slots are -1.
         std::int32_t SortResearchItems(std::uint8_t Series);
         static std::uint8_t IsResearchItemQuestLetter(aItem::TItem* Item);
         std::int32_t CountResearchRemains(std::uint8_t Series, std::int32_t Count);
@@ -66,12 +68,15 @@ namespace fRuinsTalk {
         void EndTurnClicked(GI_MessageLoop::TObjectGI* Sender);
         void ShipClicked(GI_MessageLoop::TObjectGI* Sender);
         void RememberChoiceScroll();
+        // Native diagnostic name: TfRuinsTalk.A_Start.
         void ClearChoices();
+        // Text filters may disable or suppress the choice. Invokes the method callback with Value in EDX.
         void AddChoice(pas::WideString Text, std::int32_t Value, GI_MessageLoop::TDialogChoiceEventGI Callback);
         static void ChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void ChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);
         static void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void ChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        // Clears the dialogue panel state and restarts its ten-millisecond presentation timer.
         void RestartTextPresentation();
         void AdvanceTextPresentation(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void ResetPortraitCycle();
@@ -81,14 +86,17 @@ namespace fRuinsTalk {
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void AddMessageClicked(GI_MessageLoop::TObjectGI* Sender);
+        // Advances Film over the native 138-second interval.
         void AdvanceScriptVideo(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         std::uint8_t StopScriptVideo(std::uint8_t Unused);
         void ProcessWindowMessage(std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam) override;
         pas::Method<void(std::uint32_t, std::uint32_t, std::int32_t)> bind_ProcessWindowMessage() override;
         void SelectMusic() override;
+        // Rebuilds the station dialogue root; receiver-only entry verified at native prologue and CheatNextRank.
         void I_Start();
         std::uint8_t ShowDominatorVictoryDialog();
         void ContinueDominatorVictoryDialog(std::int32_t Action);
+        // Rebuilds choices; KeepText preserves the current greeting and skips rank rewards.
         void M_Main(std::uint8_t KeepText);
         static void CloseHullMode(std::int32_t Action);
         void ToggleImpulseShields(std::int32_t Action);
@@ -115,6 +123,7 @@ namespace fRuinsTalk {
         void AddScriptHangarChoice(pas::WideString Caption);
         void AddScriptGoodsChoice(pas::WideString Caption);
         void AddScriptGameEndChoice(pas::WideString Caption);
+        // Choice callback value carries a TScript pointer.
         void SelectScriptDialog(std::int32_t ScriptValue);
         void RunScriptAnswer(std::int32_t Answer);
         void RunScriptAnswerKeepingScroll(std::int32_t Answer);
@@ -125,8 +134,10 @@ namespace fRuinsTalk {
         void RunScriptGoods(std::int32_t Answer);
         void RunScriptGameEnd(std::int32_t Answer);
         void ReturnToMain(std::int32_t Action);
+        // Zero requests a quote; a nonzero quote is charged and enables sponsorship. Sponsored stations open the equipment-refit screen.
         void OpenStationModernization(std::int32_t QuotedCost);
         void DeclineStationModernization(std::int32_t Action);
+        // Deposits every carried node stack.
         void DepositNodesAtRangerCenter(std::int32_t Action);
         void ShowRangerCenterTakeNodeDialog(std::int32_t Action);
         void BuyRangerCenterMicroModule(std::int32_t Action);
@@ -143,6 +154,7 @@ namespace fRuinsTalk {
         void AcceptPirateBaseNationality(std::int32_t Action);
         void DeclinePirateBaseNationality(std::int32_t Action);
         void ShowPirateBaseSideChangeDialog(std::int32_t Action);
+        // Recalculates the fee at acceptance time.
         void AcceptPirateBaseSideChange(std::int32_t Action);
         void DeclinePirateBaseSideChange(std::int32_t Action);
         void ShowPirateBaseNodeDialog(std::int32_t Action);
@@ -163,6 +175,7 @@ namespace fRuinsTalk {
         void BuyPirateBaseChameleon(std::int32_t Action);
         void DeclinePirateBaseChameleon(std::int32_t Action);
         void I_WarWithKlingAndPirates(std::int32_t Action);
+        // Does not promote the player.
         void ShowMilitaryBaseNextRankDialog(std::int32_t Action);
         void ShowMilitaryBaseRepairDialog(std::int32_t Action);
         void ShowMilitaryBaseRepairQuote(std::int32_t Action);
@@ -193,6 +206,7 @@ namespace fRuinsTalk {
         void DeclineScienceBaseRepair(std::int32_t Action);
         void ShowScienceBaseSatelliteOfferDialog(std::int32_t Refresh);
         void ShowSatelliteInstructions(std::int32_t Action);
+        // Transfers the existing SatelliteOffer into inventory.
         void BuyScienceBaseSatellite(std::int32_t Action);
         void DeclineScienceBaseSatellite(std::int32_t Action);
         void ShowScienceBaseResearchDialog(std::int32_t Action);
@@ -206,14 +220,18 @@ namespace fRuinsTalk {
         void DeclineScienceBaseResearchProgram(std::int32_t Action);
         void ShowScienceBaseHistoryDialog(std::int32_t Action);
         void ShowBusinessCenterDebtDialog(std::int32_t Action);
+        // Quotes 1/2/3 use the large/medium/small principal, with 20/15/10 percent interest included in DebtAmount.
         void AcceptBusinessCenterDebtQuote(std::int32_t Quote);
         void DeclineBusinessCenterDebtDialog(std::int32_t Action);
+        // Requires the menu's prior affordability check.
         void RepayBusinessCenterDebt(std::int32_t Action);
         void ShowBusinessCenterDepositDialog(std::int32_t Action);
+        // Quotes 1/2/3 select large/medium/small amounts; a new deposit resets accrued days.
         void AcceptBusinessCenterDepositQuote(std::int32_t Quote);
         void DeclineBusinessCenterDepositDialog(std::int32_t Action);
         void WithdrawBusinessCenterDeposit(std::int32_t Action);
         void ShowBusinessCenterMedicalPolicyDialog(std::int32_t Refresh);
+        // Policy duration is 1825 ticks.
         void BuyBusinessCenterMedicalPolicy(std::int32_t Action);
         void ShowBusinessCenterPolicyDetails(std::int32_t Action);
         void DeclineBusinessCenterPolicy(std::int32_t Action);
@@ -224,11 +242,14 @@ namespace fRuinsTalk {
         void BuyBusinessCenterTradeAdvice(std::int32_t Action);
         void DeclineBusinessCenterTradeAdvice(std::int32_t Action);
         void ShowMedicalCenterIllnessTreatmentDialog(std::int32_t Refresh);
+        // Treats disease indexes 1..12; valid insurance halves the fee outside pirate-owned systems.
         void TreatSelectedDiseaseAtMedicalCenter(std::int32_t DiseaseIndex);
+        // Trusts QuotedCost from the menu.
         void TreatAllDiseasesAtMedicalCenter(std::int32_t QuotedCost);
         void DeclineMedicalCenterTreatment(std::int32_t Action);
         void LeaveMedicalCenterTreatment(std::int32_t Action);
         void ShowMedicalCenterStimulantDialog(std::int32_t Action);
+        // Stimulants use effect indices 13..24; valid insurance halves the fee outside pirate-owned systems.
         void BuySelectedStimulantAtMedicalCenter(std::int32_t StimulantIndex);
         void DeclineMedicalCenterStimulants(std::int32_t Action);
         void ShowStationSpecialShipDialog(std::int32_t Action);
@@ -292,19 +313,27 @@ namespace fRuinsTalk {
         void AcceptDominionAssault(std::int32_t Action);
         void DeclineDominionAssault(std::int32_t Action);
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
+        // Owned.
         fPanelRuins::TfPanelRuins* StationPanel;
+        // Owned.
         fPanelLoad::TfPanelLoad* LoadPanel;
         pas::WideString DialogText;
         std::int32_t PresentedTextLength;
         GI_MessageLoop::PCallbackTimerGI TextPresentationTimer;
+        // Accumulated dialogue-choice row height.
         std::int32_t ChoiceHeight;
         std::uint8_t NextPortraitCycleAlternate;
+        // Set after docked hyperspace travel; OnOpen tests this together with SkipVideo.
         std::uint8_t ShowArrivalVideo;
+        // Copied from the docked ship on entry.
         std::uint8_t StationOwner;
+        // Copied from the docked ship on entry.
         std::uint8_t StationType;
+        // timeGetTime timestamp used by the queued-video callback.
         std::uint32_t ScriptVideoStartedAt;
         GI_MessageLoop::PCallbackTimerGI ScriptVideoTimer;
         pas::DynArray<std::uint8_t> ResearchItemVisited;
+        // Negative entries terminate the sorted sale list.
         pas::DynArray<std::int32_t> ResearchItemIndexes;
         std::uint8_t PortraitFlag100;
         std::uint8_t PortraitFlag101;
@@ -316,6 +345,7 @@ namespace fRuinsTalk {
     #pragma pack(pop)
     #endif
 
+    // Four seeded draws are merged by destination.
     #pragma pack(push, 1)
     struct TDominionTravelQuote {
         aGalaxy::TStar* Star;
@@ -324,6 +354,7 @@ namespace fRuinsTalk {
     };
     #pragma pack(pop)
 
+    // Borrowed item selection and source: 0=hold, 1=storage, 2=shop.
     #pragma pack(push, 1)
     struct TConstructionEquipment {
         aItem::TEquipment* Item;
@@ -332,6 +363,7 @@ namespace fRuinsTalk {
     };
     #pragma pack(pop)
 
+    // Native sort helpers.
     #pragma pack(push, 1)
     struct TResearchItemSortKey {
         std::uint8_t Priority;

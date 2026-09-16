@@ -23,6 +23,7 @@ namespace GI_GI {
     struct TgiGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TgiGI, GI_MessageLoop::TObjectGI, "TgiGI", 296)
         void p_destroy() override;
+        // Preserves alpha and the cache key.
         void Clear() override;
         void SetImagePath(const pas::WideString& ImagePath);
         pas::WideString GetImagePath();
@@ -31,7 +32,9 @@ namespace GI_GI {
         void SetImageKindX(GI_Main::TImageKindXGI Value);
         void SetImageKindY(GI_Main::TImageKindYGI Value);
         void SetAlpha(std::uint8_t Value);
+        // Black pixels do not count as hits.
         std::uint8_t HitTestPixel(Types::TPoint Point);
+        // Returns the mean coordinates of nonzero rendered pixels, or (0,0) when none exist.
         Types::TPoint GetVisualCenter();
         void LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -43,6 +46,7 @@ namespace GI_GI {
         GI_Main::TImageKindXGI ImageKindX;
         GI_Main::TImageKindYGI ImageKindY;
         std::uint8_t Alpha;
+        // Passed to the hardware texture draw only.
         std::uint8_t HardwareMirrorHorizontal;
     };
     #if INTPTR_MAX == INT32_MAX

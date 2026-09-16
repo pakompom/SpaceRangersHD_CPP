@@ -7,14 +7,18 @@ namespace EC_BlockPar {
 } // namespace EC_BlockPar
 
 namespace aModsInfo {
+    // Owns the TModInfo objects.
     extern pas::List* ModInfos;
 
+    // Non-owning references into ModInfos.
     extern pas::List* SelectedModInfos;
 
     extern EC_BlockPar::TBlockParEC* ModIdCounts;
 
+    // Maps declared conflict IDs to matching mod indices.
     extern EC_BlockPar::TBlockParEC* ModConflictIndex;
 
+    // Maps required mod IDs to matching mod indices.
     extern EC_BlockPar::TBlockParEC* ModDependencyIndex;
 
     extern std::uint8_t ModInfosInitialized;
@@ -27,6 +31,7 @@ namespace aModsInfo {
 
     void InitializeModInfos();
 
+    // Frees mod objects and clears the existing containers, retaining their allocation for reload.
     void ClearModInfoState();
 
     void TModInfo_Create(TModInfo* Self);

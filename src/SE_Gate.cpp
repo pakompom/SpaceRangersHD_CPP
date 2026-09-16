@@ -111,6 +111,7 @@ namespace SE_Gate {
         }
     }
 
+    // Changes idle state 0 to opening state 1.
     void TGateSE::Open() {
         if (State == 0) {
             State = 1;
@@ -121,6 +122,7 @@ namespace SE_Gate {
         }
     }
 
+    // Changes open state 2 to closing state 3.
     void TGateSE::Close() {
         if (State == 2) {
             State = 3;
@@ -131,6 +133,7 @@ namespace SE_Gate {
         }
     }
 
+    // Resets StateStep and rebuilds attached graphics.
     void TGateSE::SetState(std::int32_t Value) {
         State = Value;
         StateStep = 0;
@@ -194,6 +197,7 @@ namespace SE_Gate {
         }
     }
 
+    // Both native callers pass nil, 0; timer payload is unused.
     void TGateSE::AdvanceAnimation(void* UnusedTimer, std::int32_t UnusedData) {
         ++StateStep;
         if (State == 0) {
@@ -307,6 +311,7 @@ namespace SE_Gate {
         Image->SetFrame(StateStep);
     }
 
+    // Both native callers pass nil, 0; timer payload is unused.
     void TGateEffectSE::AdvanceAnimation(void* UnusedTimer, std::int32_t UnusedData) {
         if (IsAttachedToSpace()) {
             ++StateStep;

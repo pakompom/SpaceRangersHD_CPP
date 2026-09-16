@@ -49,6 +49,7 @@ namespace SE_Comet {
         std::int32_t TimerInterval;
         SE_Space::PSpaceTimerSE MoveTimer;
         pas::WideString ImagePath;
+        // Native managed-field table includes this slot; no access found in the retained comet routines.
         pas::WideString ReservedImageText;
         pas::WideString ExplosionPath;
         pas::WideString ExplosionFrames;

@@ -4,6 +4,8 @@
 #include "units/System.hpp"
 #include "units/aVector.hpp"
 
+// Inferred aVector ownership: the contiguous 2D geometry/polygon contribution
+// used by galaxy geometry; native PACKAGEINFO visits aVector in the model graph.
 namespace aVector {
     EC_Struct::TPointF PerpendicularVector(EC_Struct::TPointF Point) {
         EC_Struct::TPointF Result{};
@@ -273,6 +275,7 @@ namespace aVector {
         Flag39 = false;
     }
 
+    // Takes ownership of the list and its PPointF entries.
     void TPolygon2D::TakePoints(pas::List* NewPoints) {
         Clear();
         pas::free(Points);
@@ -328,6 +331,7 @@ namespace aVector {
         GetArea();
     }
 
+    // Appends at the tail and sets Polygon.Previous; requires nonnil Polygon.
     void TPolygon2D::Append(TPolygon2D* Polygon) {
         TPolygon2D* Tail{};
         if (Next == nullptr) {
@@ -383,6 +387,7 @@ namespace aVector {
                         LastIndex = Index;
                         LastIntersection = Intersection;
                     } else {
+                        // Native is this ANSI literal, not the former IDA nullsub_13.
                         pas::raise(pas::make_exception<pas::Exception>("\303\353\376\352! \313\350\355\350\377 \357\345\360\345\361\345\352\340\345\362 \357\356\353\350\343\356\355 \342 \362\360\345\365 \362\356\367\352\340\365"_a));
                     }
                 }
@@ -552,6 +557,7 @@ namespace aVector {
         return Boundary;
     }
 
+    // Consumes both lists and frees their edge records.
     pas::List* TPolygon2D::MergeUnsharedEdges(pas::List* First, pas::List* Second) {
         std::int32_t Index{};
         std::int32_t OtherIndex{};
@@ -606,6 +612,7 @@ namespace aVector {
         return Edges;
     }
 
+    // Caller owns the list and its PPolygonEdge entries.
     pas::List* TPolygon2D::ExtractEdges() {
         PPolygonEdge Edge{};
         EC_Struct::PPointF First{};
@@ -636,6 +643,7 @@ namespace aVector {
         }
     }
 
+    // Includes Self; nil returns zero.
     std::int32_t TPolygon2D::CountChain() {
         std::int32_t Result = 0;
         TPolygon2D* Polygon = this;
@@ -658,6 +666,7 @@ namespace aVector {
         return Polygon;
     }
 
+    // The first uncached call fills CachedArea but returns zero; later calls return the cache.
     float TPolygon2D::GetArea() {
         std::int32_t Index{};
         EC_Struct::PPointF TriangleFirst{};
@@ -674,6 +683,7 @@ namespace aVector {
         float Result = 0.0f;
         CachedArea = 0.0f;
         if (pas::list_count(Points) >= 3) {
+            // Preserve DCC32's receiver-before-index argument order; + 0 emits no arithmetic.
             TriangleFirst = pas::list_at<EC_Struct::TPointF>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Points) + 0), 0);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Points) - 2); cpp_range.next(Index); ) {
                 Middle = pas::list_at<EC_Struct::TPointF>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Points) + 0), Index);

@@ -18,6 +18,7 @@ namespace GI_RadioGroup {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
 
+    // Empty implementation.
     void TRadioGroupGI::Clear() {
     }
 

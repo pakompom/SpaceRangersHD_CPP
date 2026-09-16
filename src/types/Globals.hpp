@@ -68,6 +68,7 @@ namespace Globals {
     struct TMessagePlayer : EC_Struct::TObjectEx {
         PAS_CLASS_META(TMessagePlayer, EC_Struct::TObjectEx, "TMessagePlayer", 68)
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
+        // Leaves linkage and Button untouched. ImageNameOverride is present only from save version 109 onward.
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer);
         pas::WideString GetNormalImageName();
         pas::WideString GetActiveImageName();
@@ -78,10 +79,12 @@ namespace Globals {
         std::uint8_t Kind;
         std::uint8_t cpp_padding[3];
         pas::WideString ImageNameOverride;
+        // 0: new message; 1: system liberation; some message kinds override it.
         std::int32_t NotificationSoundKind;
         std::int32_t Turn;
         pas::WideString Text;
         pas::Array<TPlayerMessageTarget, 0, 2> Targets;
+        // Borrowed UI object, rebuilt after loading.
         GI_GraphButton::TGraphButtonGI* Button;
         std::uint8_t WasRead;
         std::uint8_t NotificationSoundPlayed;
@@ -120,9 +123,12 @@ namespace Globals {
 
     #pragma pack(push, 1)
     struct TPlanetSpaceTemplate {
+        // First SE.Planet.Style value.
         std::int32_t Style;
+        // Optional second SE.Planet.Style value.
         std::int32_t StyleVariant;
         std::int32_t Radius;
+        // Retained until UI shutdown.
         SE_Space::TObjectSE* SpaceObject;
     };
     #pragma pack(pop)
@@ -133,11 +139,15 @@ namespace Globals {
     struct TScriptTemplUnit : EC_Struct::TObjectEx {
         PAS_CLASS_META(TScriptTemplUnit, EC_Struct::TObjectEx, "TScriptTemplUnit", 32)
         void p_destroy() override;
+        // First comma-delimited Script template configuration value; original meaning unresolved.
         std::int32_t ConfigValue;
         pas::WideString Name;
         pas::WideString FileName;
+        // Returned by SF_GCntRun.
         std::int32_t UseCount;
+        // Returned by SF_GLastTurnRun.
         std::int32_t LastTurn;
+        // -1 when no active galaxy script is bound.
         std::int32_t ActiveScriptIndex;
         EC_Expression::TCodeEC* ConditionCode;
     };
@@ -147,16 +157,22 @@ namespace Globals {
 
     using TRobotMapPlayerStatuses = pas::Set<0, 2>;
 
+    // Native record RTTI.
     struct TRobotMap {
         std::int32_t Id;
         pas::WideString Name;
+        // -1 when absent.
         std::int32_t Group;
         std::int32_t Access;
+        // Red=1, Green=2, Blue=4.
         std::int32_t Side;
         std::int32_t Length;
         pas::WideString Map;
+        // Empty mask means Any.
         aGalaxyStruct::TOwnerMask PlanetRace;
+        // Empty mask means Any.
         aGalaxyStruct::TOwnerMask PlayerRace;
+        // Empty mask means Any.
         TRobotMapPlayerStatuses PlayerStatus;
         std::uint8_t cpp_padding[1];
         std::int32_t MinWins;
@@ -173,24 +189,31 @@ namespace Globals {
         pas::WideString RobotsWin;
         pas::WideString RobotsLoss;
         pas::WideString FromAuthor;
+        // Scratch rebuilt from player history by TPlayer.SelectPlanetBattleMap; not set by the definition loader.
         std::int32_t PlayerPlayCount;
     };
 
+    // Native record RTTI.
     struct TPlanetAdvtUnit {
         pas::WideString Name;
         pas::WideString Image1;
         pas::WideString Image2;
+        // Clamped to -1..1.
         std::int32_t War;
+        // 0..7, or 42 when absent/unrecognized.
         std::uint8_t Goods;
         aGalaxyStruct::TOwnerMask Owner;
         std::uint8_t cpp_padding[2];
     };
 
+    // Native record RTTI.
     struct TPlanetAdvtList {
+        // Numeric List parameter name; interpretation by callers remains unresolved.
         std::int32_t Key;
         pas::DynArray<std::int32_t> Indices;
     };
 
+    // Native record RTTI.
     struct TPlanetAdvtGroup {
         pas::WideString Image1;
         pas::WideString Image2;
@@ -201,6 +224,8 @@ namespace Globals {
 
     using TGreetingMask = pas::Set<0, 7>;
 
+    // Byte predicates use 0=Yes, 1=No, 2=Any; omitted-field defaults vary by rule.
+    // Native record RTTI.
     struct TGovGreetingsInfo {
         pas::WideString Name;
         std::int32_t Priority;
@@ -253,6 +278,7 @@ namespace Globals {
         std::uint8_t cpp_padding[2];
     };
 
+    // Native record RTTI.
     struct TShipGreetingsInfo {
         pas::WideString Name;
         std::int32_t Priority;
@@ -346,6 +372,7 @@ namespace Globals {
         std::uint8_t ToShipInPlanet;
         std::uint8_t ToShipBad;
         TGreetingMask ToShipRelations;
+        // Second field loaded from RankShipWithPlayer; the normal-ship consumer compares PirateRank.
         TGreetingMask RankShipWithPlayerExtra;
         TGreetingMask PlayerPirateRank;
         std::uint8_t Female;
@@ -356,6 +383,7 @@ namespace Globals {
         std::uint8_t DominatorsAlreadyDefeated;
     };
 
+    // Native record RTTI.
     struct TMessagePlayerTypeGraph {
         pas::WideString NormalImage;
         pas::WideString ActiveImage;

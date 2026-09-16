@@ -6,6 +6,7 @@
 #include "units/aGalaxyEvent.hpp"
 
 namespace aGalaxyEvent {
+    // Nil Galaxy selects the current galaxy; returns nil if none exists. The galaxy owns the result, dated with its CurrentTurn. Trims the oldest events to retain at most 9999 entries.
     TGalaxyEvent* AddGalaxyEvent(pas::WideString EventType, aGalaxy::TGalaxy* Galaxy) {
         aGalaxy::TGalaxy* Target{};
         if (Galaxy != nullptr) {
@@ -45,6 +46,7 @@ namespace aGalaxyEvent {
         pas::list_add(Data, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Value))));
     }
 
+    // Copies Value into a separately allocated string cell.
     void TGalaxyEvent::AddTextData(pas::WideString Value) {
         System::PWideString Cell{};
         if (TextData == nullptr) {
@@ -55,6 +57,7 @@ namespace aGalaxyEvent {
         pas::list_add(TextData, static_cast<void*>(Cell));
     }
 
+    // Zero-based; returns zero for a missing list or an out-of-range index.
     std::int32_t TGalaxyEvent::GetData(std::int32_t Index) {
         std::int32_t Result = 0;
         if (Data == nullptr) {
@@ -69,6 +72,7 @@ namespace aGalaxyEvent {
         return static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Data, Index)));
     }
 
+    // Zero-based; returns a copy, or empty for a missing list or an out-of-range index.
     pas::WideString TGalaxyEvent::GetTextData(std::int32_t Index) {
         pas::WideString Result{};
         if (TextData == nullptr) {
@@ -91,6 +95,7 @@ namespace aGalaxyEvent {
         }
     }
 
+    // Frees the string cells and list without finalizing the cells' WideStrings, leaking their BSTR storage.
     void TGalaxyEvent::ClearTextData() {
         std::int32_t i{};
         std::int32_t Count{};
@@ -105,6 +110,7 @@ namespace aGalaxyEvent {
         }
     }
 
+    // Overwrites existing payload lists without freeing them; nonpositive stored counts produce nil lists.
     void TGalaxyEvent::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         std::int32_t i{};
         System::PWideString Cell{};

@@ -5,6 +5,7 @@
 #include "units/GR_Main.hpp"
 
 namespace EC_CacheBuf {
+    // Rewinds the shared buffer.
     TCBufEC* AcquireOrCreateBuffer(EC_Cache::TCacheControlEC* Control) {
         TCBufEC* Result = pas::checked_cast<TCBufEC*>(Control->AcquireDataFromConfig(pas::class_ref<TCBufEC>()));
         Result->Buffer->SetPosition(0);
@@ -50,6 +51,7 @@ namespace EC_CacheBuf {
         EC_Cache::TCacheDataEC_Destroy(Self);
     }
 
+    // Ignores LoadOption; ResidentBytes is not updated.
     void TCBufEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         Buffer->AddBytes(SourceBuffer->Data, SourceBuffer->DataSize);

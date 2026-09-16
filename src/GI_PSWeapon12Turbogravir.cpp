@@ -19,6 +19,7 @@
 #include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
+// Native Turbogravir dual strands and Blue Whirl, including dormant particle states.
 namespace GI_PSWeapon12Turbogravir {
     pas::DynArray<GI_PSWeapon12Turbogravir::TTurbogravirPalette> TurbogravirPrimaryPalettes{};
 
@@ -124,6 +125,7 @@ namespace GI_PSWeapon12Turbogravir {
         A = static_cast<long double>(-HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
         B = static_cast<long double>(HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
         C = static_cast<long double>(-HalfWidth * 2) * Sine;
+        // Native uses Cosine for this final corner as well.
         D = static_cast<long double>(HalfWidth * 2) * Cosine;
         ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
         ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
@@ -171,6 +173,7 @@ namespace GI_PSWeapon12Turbogravir {
         LastParticle = nullptr;
     }
 
+    // Native empty override.
     void TPSWeapon12Turbogravir::Invalidate() {
     }
 
@@ -411,6 +414,7 @@ namespace GI_PSWeapon12Turbogravir {
         }
     }
 
+    // $2B4..$2B7 is inherited alignment padding, not an additional field.
     void TPSBlueWhirlGI_Create(TPSBlueWhirlGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir_Create(Self, Owner, 0);
         Self->EnabledStrands = 1;

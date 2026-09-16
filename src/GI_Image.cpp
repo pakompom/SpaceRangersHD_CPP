@@ -30,6 +30,7 @@ namespace GI_Image {
         GI_MessageLoop::TObjectGI::Clear();
     }
 
+    // Empty paths remove the child; unknown modes raise.
     void TImageGI::SetImagePath(pas::WideString Path) {
         pas::WideString Mode{};
         if (ImagePath != Path) {
@@ -144,6 +145,7 @@ namespace GI_Image {
         return Result;
     }
 
+    // Only GI children supply an origin; other kinds return (0,0).
     Types::TPoint TImageGI::GetContentOrigin() {
         Types::TPoint Result{};
         if (GiImageControl != nullptr) {
@@ -190,6 +192,7 @@ namespace GI_Image {
         }
     }
 
+    // Only affects Simple, Trans and Anim children.
     void TImageGI::SetHalfAlpha(std::uint8_t Value) {
         if (SimpleImageControl != nullptr) {
             SimpleImageControl->SetHalfAlpha(Value);
@@ -200,6 +203,7 @@ namespace GI_Image {
         }
     }
 
+    // Returns GI/GAI alpha, or 255 for other kinds.
     std::uint8_t TImageGI::GetAlpha() {
         if (GiImageControl != nullptr) {
             return GiImageControl->Alpha;
@@ -210,6 +214,7 @@ namespace GI_Image {
         }
     }
 
+    // Only affects GI/GAI children.
     void TImageGI::SetAlpha(std::uint8_t Value) {
         if (GiImageControl != nullptr) {
             GiImageControl->SetAlpha(Value);
@@ -259,6 +264,7 @@ namespace GI_Image {
         }
     }
 
+    // Returns false for kinds other than Alpha, Anim, GI and GAI.
     std::uint8_t TImageGI::HitTestPixel(Types::TPoint Point) {
         if (AlphaImageControl != nullptr) {
             return AlphaImageControl->HitTestPixel(Point);
@@ -273,6 +279,7 @@ namespace GI_Image {
         }
     }
 
+    // Only GI and GraphBuf write the result; other kinds leave it untouched.
     Types::TPoint TImageGI::GetVisualCenter() {
         Types::TPoint Result{};
         if (GiImageControl != nullptr) {
@@ -323,6 +330,7 @@ namespace GI_Image {
         }
     }
 
+    // Auto-geometry bit 0 uses content origin; bit 1 uses content size.
     void TImageGI::UpdateAutoGeometry() {
         GI_MessageLoop::TObjectGI::UpdateAutoGeometry();
         if ((AutoUpdateFlags & GI_Main::agfPosition) == GI_Main::agfPosition) {
@@ -335,6 +343,7 @@ namespace GI_Image {
         }
     }
 
+    // GI and GraphBuf children are skipped.
     void TImageGI::QueueImageLoad(pas::List* PendingLoads) {
         if (SimpleImageControl != nullptr) {
             SimpleImageControl->QueueImageLoad(PendingLoads);
@@ -349,6 +358,7 @@ namespace GI_Image {
         }
     }
 
+    // Delegates to the GAI or GI child.
     void TImageGI::SetHardwareMirrorHorizontal(std::uint8_t Value) {
         if (GaiImageControl != nullptr) {
             GaiImageControl->SetHardwareMirrorHorizontal(Value);

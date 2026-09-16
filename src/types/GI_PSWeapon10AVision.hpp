@@ -22,6 +22,7 @@ namespace GI_PSWeapon10AVision {
     struct TPSWeapon10AVision : GI_PSWeapon::TPSWeaponGI {
         PAS_CLASS_META(TPSWeapon10AVision, GI_PSWeapon::TPSWeaponGI, "TPSWeapon10AVision", 332)
         void p_destroy() override;
+        // Native empty override.
         void Invalidate() override;
         void SetPosition(Types::TPoint Position) override;
         void SetTargetPoint(Types::TPoint Point) override;
@@ -31,6 +32,7 @@ namespace GI_PSWeapon10AVision {
         PAVisionParticle AddParticle();
         void Advance(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) override;
         void Draw(Types::TRect ClipRect) override;
+        // Explicitly zeroed by the constructor.
         std::int32_t Unknown130;
         PAVisionParticle Particles;
         std::int32_t ParticleCount;
