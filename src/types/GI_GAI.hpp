@@ -70,7 +70,7 @@ namespace GI_GAI {
         std::uint8_t HitTestPixel(WindowsSdk::TPoint Point);
         void SetActive(std::uint8_t Value) override;
         void OnDeactivate() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadAnimationProperties(EC_BlockPar::TBlockParEC* Block);
         // Also rebuilds frame tables when SequenceIndex is nonnegative.

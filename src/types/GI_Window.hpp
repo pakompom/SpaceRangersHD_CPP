@@ -24,7 +24,7 @@ namespace GI_Window {
         void p_destroy() override;
         Types::TPoint AlignSizeToBorderTiles(Types::TPoint Size);
         void UpdateBorderLayout();
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadWindowProperties(EC_BlockPar::TBlockParEC* Block);
         void UpdateAutoGeometry() override;

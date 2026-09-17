@@ -158,9 +158,9 @@ namespace GI_Zone {
         }
     }
 
-    void TZoneGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadZoneProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TZoneGI_LoadFromConfigPath(TZoneGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadZoneProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TZoneGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -186,6 +186,10 @@ namespace GI_Zone {
 
     void TZoneGI::p_destroy() {
         GI_Zone::TZoneGI_Destroy(this);
+    }
+
+    void TZoneGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Zone::TZoneGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Zone

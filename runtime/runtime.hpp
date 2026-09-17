@@ -76,6 +76,9 @@ static_assert(std::endian::native == std::endian::little);
 inline void *byte_offset(void *data, Integer offset) {
   return reinterpret_cast<void *>(reinterpret_cast<std::uintptr_t>(data) + std::intptr_t(offset));
 }
+inline const void *byte_offset(const void *data, Integer offset) {
+  return reinterpret_cast<const void *>(reinterpret_cast<std::uintptr_t>(data) + std::intptr_t(offset));
+}
 template <class T> T load_unaligned(const void *source) {
   static_assert(std::is_trivially_copyable_v<T>);
   T value;
@@ -104,6 +107,10 @@ inline bool equal_wide(const char16_t* a, Integer a_size, const char16_t* b, Int
 // Reads and writes remain at their source positions, including across callbacks.
 template<class T> struct Var { void* address; };
 template<class T> struct ConstRef { const void* address; };
+// Managed objects retain their live storage and constness; they cannot be
+// loaded with memcpy like an unmanaged scalar or record.
+template<class T> T& storage_ref(void* address) { return *static_cast<T*>(address); }
+template<class T> const T& storage_ref(const void* address) { return *static_cast<const T*>(address); }
 template<class T> Integer index_in_slots(const T* data, std::uint32_t count, T value) {
   const auto* bytes = reinterpret_cast<const std::uint8_t*>(data);
   for (std::uint32_t i = 0; i < count; ++i)

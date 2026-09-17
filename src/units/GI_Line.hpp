@@ -11,4 +11,6 @@ namespace GI_Line {
 
     void TLineGI_Destroy(TLineGI* Self);
 
+    void TLineGI_LoadFromConfigPath(TLineGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Line

@@ -2038,9 +2038,9 @@ namespace GR_Main {
         std::int32_t HighIndex = System::Round(HighInput * 255.0L);
         std::int32_t Value = System::Round(pas::real_max<float>(0.0f, LowOutput) * 65535.0L);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LowIndex - 1); cpp_range.next(Index); ) {
-            Ramp.Red[Index] = Value;
-            Ramp.Green[Index] = Value;
-            Ramp.Blue[Index] = Value;
+            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
         }
         Level = LowOutput;
         Step = pas::real_divide(static_cast<long double>(HighOutput) - LowOutput, HighIndex - LowIndex);
@@ -2052,9 +2052,9 @@ namespace GR_Main {
                 } else if (Value > 65535) {
                     Value = 65535;
                 }
-                Ramp.Red[Index] = Value;
-                Ramp.Green[Index] = Value;
-                Ramp.Blue[Index] = Value;
+                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
             }
             Level = static_cast<long double>(Level) + Step;
         }
@@ -2063,9 +2063,9 @@ namespace GR_Main {
             const std::int32_t cpp_first = HighIndex;
             if (cpp_first <= 255) {
                 for (Index = cpp_first; Index <= 255; ++Index) {
-                    Ramp.Red[Index] = Value;
-                    Ramp.Green[Index] = Value;
-                    Ramp.Blue[Index] = Value;
+                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
                 }
             }
         }

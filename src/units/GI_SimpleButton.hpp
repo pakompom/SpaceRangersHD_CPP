@@ -11,4 +11,6 @@ namespace GI_SimpleButton {
 
     void TSimpleButtonGI_Destroy(TSimpleButtonGI* Self);
 
+    void TSimpleButtonGI_LoadFromConfigPath(TSimpleButtonGI* Self, const pas::WideString& Path);
+
 } // namespace GI_SimpleButton

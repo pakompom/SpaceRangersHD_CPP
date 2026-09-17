@@ -48,24 +48,20 @@ namespace aTransport {
     struct TTransport : aNormalShip::TNormalShip {
         PAS_CLASS_META(TTransport, aNormalShip::TNormalShip, "TTransport", 1300)
         void p_destroy() override;
-        // Registers Self with the planet's star; requires a fresh instance.
-        void InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, TTransportType SubType, std::uint8_t RandomizeSubType);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
-        void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
-        void NextDay() override;
-        void NextDayLogic() override;
+        void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
+        void virtual_TShip_NextDay() override;
+        void virtual_TShip_NextDayLogic() override;
         // May issue a movement order when repairs are needed; result is borrowed and may be nil.
         aPlanet::TPlanet* SelectRepairOrTradePlanet();
         // Requires a non-nil PlanetQueue; an empty queue returns nil. Result is borrowed.
         aPlanet::TPlanet* SelectTradePlanet();
         void BuildReachablePlanetQueue() override;
-        // AI ownership check only; does not test travel range.
-        std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
+        std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         // Requires CurrentPlanet. Can sell below cost; purchases can exhaust money and cargo space.
         void ProcessTrading();
-        // Restores equipment condition without charging Money.
-        void RepairBrokenEquipmentAtLocation() override;
+        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
@@ -82,27 +78,25 @@ namespace aTransport {
         std::uint8_t RelationToRanger(void* Ranger) override;
         void ChangeRelationToRanger(void* Ranger, std::int32_t Amount) override;
         void ReactToAttack(aShip::TShip* Attacker) override;
-        // Updates InFear and may replace EnemyShip.
-        std::uint8_t RecomputeFearState() override;
-        void TryOfferRansomToPursuer();
-        std::uint8_t AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
-        std::uint8_t TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
-        void AssignWeaponTargetsInStar() override;
+        std::uint8_t virtual_TShip_RecomputeFearState() override;
+        std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        void virtual_TShip_AssignWeaponTargetsInStar() override;
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
         std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
-        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
-        void RefreshCurrentStanding() override;
+        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        float virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        void virtual_TShip_RefreshCurrentStanding() override;
         // Script.ShipSubType.
         TTransportType TransportType;
         std::uint8_t cpp_padding[3];

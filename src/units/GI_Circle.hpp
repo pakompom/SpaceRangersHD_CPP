@@ -11,4 +11,6 @@ namespace GI_Circle {
 
     void TCircleGI_Destroy(TCircleGI* Self);
 
+    void TCircleGI_LoadFromConfigPath(TCircleGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Circle

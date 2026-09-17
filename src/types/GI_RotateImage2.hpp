@@ -39,7 +39,7 @@ namespace GI_RotateImage2 {
         void SetAlpha(std::uint8_t Value);
         // Appends ?RGBA to Path; replaces size and origin with a centered square enclosing all rotations.
         void SetImage(pas::WideString Path, Types::TPoint ImageSize, Types::TPoint Pivot);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         void Draw(Types::TRect ClipRect) override;

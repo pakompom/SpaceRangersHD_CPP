@@ -58,9 +58,9 @@ namespace GI_Frame {
         }
     }
 
-    void TFrameGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadFrameProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TFrameGI_LoadFromConfigPath(TFrameGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadFrameProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TFrameGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -126,6 +126,10 @@ namespace GI_Frame {
 
     void TFrameGI::p_destroy() {
         GI_Frame::TFrameGI_Destroy(this);
+    }
+
+    void TFrameGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Frame::TFrameGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Frame

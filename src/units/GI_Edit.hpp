@@ -11,4 +11,6 @@ namespace GI_Edit {
 
     void TEditGI_Destroy(TEditGI* Self);
 
+    void TEditGI_LoadFromConfigPath(TEditGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Edit

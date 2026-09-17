@@ -111,8 +111,8 @@ namespace GI_PolyLine {
         }
     }
 
-    void TPolyLineGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TPolyLineGI_LoadFromConfigPath(TPolyLineGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         TPolyLineGI::LoadPolyLineProperties(Block);
     }
@@ -451,6 +451,10 @@ namespace GI_PolyLine {
 
     void TPolyLineGI::p_destroy() {
         GI_PolyLine::TPolyLineGI_Destroy(this);
+    }
+
+    void TPolyLineGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_PolyLine::TPolyLineGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_PolyLine

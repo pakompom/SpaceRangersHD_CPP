@@ -120,7 +120,7 @@ namespace GI_Panel {
             ScrollOffset = Offset;
             UpdateAbsolutePosition();
             UpdateSubtreeHitBounds();
-            MessageLoop->RootUiObject->InvalidateScrollOverlap(HitTestBounds, Delta, this);
+            GI_MessageLoop::TObjectGI_InvalidateScrollOverlap(MessageLoop->RootUiObject, HitTestBounds, Delta, this);
             DestRect = GetLocalBounds();
             SourceRect = DestRect;
             if (Delta.X > 0) {
@@ -252,17 +252,17 @@ namespace GI_Panel {
         }
     }
 
-    void TPanelGI::LoadFromConfigPath(const pas::WideString& Path) {
+    void TPanelGI_LoadFromConfigPath(TPanelGI* Self, const pas::WideString& Path) {
         pas::WideString Text{};
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"CenterWorld"_wref.get()) > 0) {
             Text = Block->GetParam(u"CenterWorld"_wref.get());
-            ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            Self->ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+            Self->ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
         }
         if (Block->CountParams(u"MoveWorld"_wref.get()) > 0) {
-            DragScrollingEnabled = GI_Main::ParseEnabledNameGI(Block->GetParam(u"MoveWorld"_wref.get()));
+            Self->DragScrollingEnabled = GI_Main::ParseEnabledNameGI(Block->GetParam(u"MoveWorld"_wref.get()));
         }
     }
 
@@ -295,6 +295,10 @@ namespace GI_Panel {
 
     void TPanelGI::p_destroy() {
         GI_Panel::TPanelGI_Destroy(this);
+    }
+
+    void TPanelGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Panel::TPanelGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Panel

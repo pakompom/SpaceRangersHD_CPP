@@ -47,7 +47,7 @@ namespace ab_W05 {
         if (Offset != 0.0L) {
             Heading = aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L);
             HeadingDelta = aMyFunction::HeadingDifferenceDegrees(Heading, State.BearingDegrees);
-            ab_Global::AdvanceSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, Heading, ab_Global::SphereRadius, Offset);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees), pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius, Offset);
             State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Heading) + HeadingDelta);
         }
         TrailDistance = 0.0f;
@@ -55,29 +55,29 @@ namespace ab_W05 {
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
-    void TabW05::Advance() {
-        ab_Object::TabObject::Advance();
-        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + TurnDelta);
-        if (!Exploding) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
+    void TabW05_Advance(TabW05* Self) {
+        ab_Object::TabObject_Advance(Self);
+        Self->State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Self->State.BearingDegrees) + Self->TurnDelta);
+        if (!Self->Exploding) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (!Exploding) {
-            Collision = FindCollision();
-            if (Collision == SourceObject) {
+        if (!Self->Exploding) {
+            Collision = Self->FindCollision();
+            if (Collision == Self->SourceObject) {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > Self->ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Self->Exploding ^ 1)) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Damage, SourceObject, true);
+                Collision->ApplyDamage(Self->Damage, Self->SourceObject, true);
             }
-            Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w05b_f"_wref.get(), u"GAI,Bm.AB.w05b_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
-        } else if (Exploding) {
-            DeletionPending = Image->Finished;
+            Self->Exploding = true;
+            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w05b_f"_wref.get(), u"GAI,Bm.AB.w05b_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
+        } else if (Self->Exploding) {
+            Self->DeletionPending = Self->Image->Finished;
         }
     }
 
@@ -137,6 +137,10 @@ namespace ab_W05 {
 
     void TabW05::p_destroy() {
         ab_W05::TabW05_Destroy(this);
+    }
+
+    void TabW05::virtual_TabObject_Advance() {
+        ab_W05::TabW05_Advance(this);
     }
 
 } // namespace ab_W05

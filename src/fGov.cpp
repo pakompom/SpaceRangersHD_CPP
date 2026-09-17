@@ -16,7 +16,6 @@
 #include "types/aGalaxyStruct.hpp"
 #include "types/aNormalShip.hpp"
 #include "types/aPirate.hpp"
-#include "types/aShip.hpp"
 #include "types/fHangar.hpp"
 #include "types/fLoadRobot.hpp"
 #include "types/fPlanetQuest.hpp"
@@ -50,6 +49,7 @@
 #include "units/aRanger.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/fEquipmentShop.hpp"
 #include "units/fGalaxy2.hpp"
 #include "units/fGov.hpp"
@@ -265,7 +265,7 @@ namespace fGov {
             }
             MainPanel->OnOpen();
             fPanelPlanet::TfPanelPlanet::OnOpen();
-            LoadPanel->OnOpen();
+            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
             SavedChoiceScroll = -1;
             Stage = 1;
             pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfGov::EndTurnClicked>(this);
@@ -398,7 +398,7 @@ namespace fGov {
                 if (!GlobalsV::MemorySnapshotActive) {
                     aSaveLoad::SaveGameToMemorySnapshot();
                 }
-                LoadPanel->OnOpen();
+                fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
                 LoadPanel->SelectBackgroundStyle(3);
                 LoadPanel->RefreshBackgroundImages();
                 Stage = 10;
@@ -484,12 +484,12 @@ namespace fGov {
                 {
                     aPlayer::TPlanetBattleHistoryEntry& cpp_with_8 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                     cpp_with_8.MapId = PlanetBattleMapId;
-                    cpp_with_8.Statistics[0] = Robot::RobotBattleStatistics[0];
-                    cpp_with_8.Statistics[1] = Robot::RobotBattleStatistics[1];
-                    cpp_with_8.Statistics[2] = Robot::RobotBattleStatistics[2];
-                    cpp_with_8.Statistics[3] = Robot::RobotBattleStatistics[3];
-                    cpp_with_8.Statistics[4] = Robot::RobotBattleStatistics[4];
-                    cpp_with_8.Statistics[5] = Robot::RobotBattleStatistics[5];
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_8.Statistics, 0 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[0]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_8.Statistics, 1 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[1]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_8.Statistics, 2 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[2]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_8.Statistics, 3 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[3]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_8.Statistics, 4 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[4]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_8.Statistics, 5 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[5]);
                     cpp_with_8.ResultCode = GovernmentBattleDifficulty;
                     cpp_with_8.CompletionMode = PendingTransition;
                     cpp_with_8.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -518,7 +518,7 @@ namespace fGov {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), u"<color=255,240,100>"_w);
-                DialogText = pas::concat_wide_reverse({aPlayer::GetPlayer()->GrantPlanetQuestReward(GovernmentBattleDifficulty, ExperienceAwarded), DialogText});
+                DialogText = pas::concat_wide_reverse({aRanger::TRanger_GrantPlanetQuestReward(aPlayer::GetPlayer(), GovernmentBattleDifficulty, ExperienceAwarded), DialogText});
                 Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerFinishesPlanetaryBattle"_w, nullptr);
                 Event->AddData(PlanetBattleMapId);
                 Event->AddData(Money);
@@ -530,12 +530,12 @@ namespace fGov {
                 {
                     aPlayer::TPlanetBattleHistoryEntry& cpp_with_9 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                     cpp_with_9.MapId = PlanetBattleMapId;
-                    cpp_with_9.Statistics[0] = Robot::RobotBattleStatistics[0];
-                    cpp_with_9.Statistics[1] = Robot::RobotBattleStatistics[1];
-                    cpp_with_9.Statistics[2] = Robot::RobotBattleStatistics[2];
-                    cpp_with_9.Statistics[3] = Robot::RobotBattleStatistics[3];
-                    cpp_with_9.Statistics[4] = Robot::RobotBattleStatistics[4];
-                    cpp_with_9.Statistics[5] = Robot::RobotBattleStatistics[5];
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_9.Statistics, 0 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[0]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_9.Statistics, 1 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[1]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_9.Statistics, 2 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[2]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_9.Statistics, 3 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[3]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_9.Statistics, 4 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[4]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_9.Statistics, 5 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[5]);
                     cpp_with_9.ResultCode = GovernmentBattleDifficulty;
                     cpp_with_9.CompletionMode = PendingTransition;
                     cpp_with_9.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -574,12 +574,12 @@ namespace fGov {
                 {
                     aPlayer::TPlanetBattleHistoryEntry& cpp_with_10 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                     cpp_with_10.MapId = PlanetBattleMapId;
-                    cpp_with_10.Statistics[0] = Robot::RobotBattleStatistics[0];
-                    cpp_with_10.Statistics[1] = Robot::RobotBattleStatistics[1];
-                    cpp_with_10.Statistics[2] = Robot::RobotBattleStatistics[2];
-                    cpp_with_10.Statistics[3] = Robot::RobotBattleStatistics[3];
-                    cpp_with_10.Statistics[4] = Robot::RobotBattleStatistics[4];
-                    cpp_with_10.Statistics[5] = Robot::RobotBattleStatistics[5];
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_10.Statistics, 0 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[0]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_10.Statistics, 1 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[1]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_10.Statistics, 2 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[2]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_10.Statistics, 3 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[3]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_10.Statistics, 4 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[4]);
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_10.Statistics, 5 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[5]);
                     cpp_with_10.ResultCode = GovernmentBattleDifficulty;
                     cpp_with_10.CompletionMode = PendingTransition;
                     cpp_with_10.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -1076,7 +1076,7 @@ namespace fGov {
             {
                 pas::WideString textAt = ScriptDialogNames->GetTextAt(ScriptDialogCursor);
                 aScript::TScript* script = Script;
-                script->CallDialogByVariable(std::move(textAt));
+                aScript::TScript_CallDialogByVariable(script, std::move(textAt));
             }
             if (Globals::ScriptDialogIndex >= 0) {
                 break;
@@ -1089,7 +1089,7 @@ namespace fGov {
         if (Globals::ScriptDialogIndex < 0) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(I); ) {
                 Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I);
-                Script->RunAuxiliaryCode();
+                aScript::TScript_RunAuxiliaryCode(Script);
             }
             if (pas::list_count(aScript::ScriptDialogOverrides) > 0) {
                 Selected = 0;
@@ -1108,7 +1108,7 @@ namespace fGov {
                 }
                 Text = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, Selected)->DialogName;
                 if (Text != u"") {
-                    Script->CallDialogByVariable(Text);
+                    aScript::TScript_CallDialogByVariable(Script, Text);
                     if (Globals::ScriptDialogIndex < 0) {
                         GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Script->ScriptFileName, u" has overriden dialog with ", Text, u" but it failed to start"})));
                     }
@@ -1206,7 +1206,7 @@ namespace fGov {
         aScript::TScript* Script = nullptr;
         while (ScriptDialogCursor < ScriptDialogNames->GetCount()) {
             Script = static_cast<aScript::TScript*>(ScriptDialogNames->GetDataAt(ScriptDialogCursor));
-            Script->CallDialogByVariable(ScriptDialogNames->GetTextAt(ScriptDialogCursor));
+            aScript::TScript_CallDialogByVariable(Script, ScriptDialogNames->GetTextAt(ScriptDialogCursor));
             if (Globals::ScriptDialogIndex >= 0) {
                 break;
             }
@@ -1336,8 +1336,8 @@ namespace fGov {
             }
         } else {
             aPlayer::GetPlayer()->CurrentPlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 80);
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmRaiseTo, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-            aPlayer::GetPlayer()->ChangePlanetRelations(aPlayer::GetPlayer()->CurrentStar->Constellation, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), aPlayer::GetPlayer()->CurrentStar->Constellation, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
@@ -1402,7 +1402,7 @@ namespace fGov {
             }
         } else {
             aPlayer::GetPlayer()->CurrentPlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
-            aPlayer::GetPlayer()->ChangePlanetRelations(aPlayer::GetPlayer()->CurrentStar, aRanger::rcmIncrease, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), aPlayer::GetPlayer()->CurrentStar, aRanger::rcmIncrease, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
         }
         DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.QuestionOk"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 7156317);
         aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
@@ -1467,7 +1467,7 @@ namespace fGov {
                     TfGov* self_5 = this;
                     self_5->AddChoice(std::move(localizedColorText_5), 0, cpp_arg_4);
                 }
-            } else if (!aPlayer::GetPlayer()->GenerateQuestOffer(QuestOffer, ResponseText)) {
+            } else if (!aRanger::TRanger_GenerateQuestOffer(aPlayer::GetPlayer(), QuestOffer, ResponseText)) {
                 DialogText = ResponseText;
                 BuildGovernmentChoices(true);
             } else {
@@ -1591,12 +1591,12 @@ namespace fGov {
         {
             aPlayer::TPlanetBattleHistoryEntry& cpp_with = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
             cpp_with.MapId = PlanetBattleMapId;
-            cpp_with.Statistics[0] = 0;
-            cpp_with.Statistics[1] = 0;
-            cpp_with.Statistics[2] = 0;
-            cpp_with.Statistics[3] = 0;
-            cpp_with.Statistics[4] = 0;
-            cpp_with.Statistics[5] = 0;
+            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 0 * sizeof(std::int32_t)), 0);
+            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 1 * sizeof(std::int32_t)), 0);
+            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 2 * sizeof(std::int32_t)), 0);
+            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 3 * sizeof(std::int32_t)), 0);
+            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 4 * sizeof(std::int32_t)), 0);
+            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 5 * sizeof(std::int32_t)), 0);
             cpp_with.ResultCode = 1;
             cpp_with.CompletionMode = 0;
             cpp_with.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -1739,7 +1739,7 @@ namespace fGov {
         pas::List* Ships = pas::make_object<pas::List>();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-            if (aPlayer::GetPlayer()->CurrentPlanet == Ship->CurrentPlanet && (Ship->ScriptShip == nullptr || pas::checked_cast<aScript::TScriptShip*>(Ship->ScriptShip)->State->StateKind == aScript::sskNormalAI) && Ship->IsInPrison() && Ship->GetPrisonTermRemaining() > 0) {
+            if (aPlayer::GetPlayer()->CurrentPlanet == Ship->CurrentPlanet && (Ship->ScriptShip == nullptr || pas::checked_cast<aScript::TScriptShip*>(Ship->ScriptShip)->State->StateKind == aScript::sskNormalAI) && aShip::TShip_IsInPrison(Ship) && Ship->GetPrisonTermRemaining() > 0) {
                 RowText = ([&] {
                     pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
                     pas::WideString intToStr = pas::wide_int_to_str(Ship->GetPrisonReleaseCost());
@@ -1754,7 +1754,7 @@ namespace fGov {
         ClearDialogChoices();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range_2.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(Ships, I);
-            if (Ship->IsInPrison()) {
+            if (aShip::TShip_IsInPrison(Ship)) {
                 Cost = Ship->GetPrisonReleaseCost();
                 Text = aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlayerOk"_wref.get());
                 Text = ([&] {
@@ -1775,7 +1775,7 @@ namespace fGov {
 
     void TfGov::PayPrisonBail(std::int32_t Action) {
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
-        if (Ship->IsInPrison()) {
+        if (aShip::TShip_IsInPrison(Ship)) {
             fGov::PayBailMoney(Ship);
             Ship->ClearPrisonTerm();
             Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
@@ -1826,7 +1826,7 @@ namespace fGov {
             var->SetDword(answerData);
         }
         Globals::ScriptDialogIndex = -1;
-        aScript::CurrentScript->CallDialogByVariable(Injection->DialogName);
+        aScript::TScript_CallDialogByVariable(aScript::CurrentScript, Injection->DialogName);
         if (Globals::ScriptDialogIndex < 0) {
             BuildGovernmentChoices(true);
         } else {

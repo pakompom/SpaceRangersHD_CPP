@@ -67,9 +67,9 @@ namespace GI_ShrLight {
         }
     }
 
-    void TShrLightGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadLightProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TShrLightGI_LoadFromConfigPath(TShrLightGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadLightProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TShrLightGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -129,6 +129,10 @@ namespace GI_ShrLight {
 
     void TShrLightGI::p_destroy() {
         GI_ShrLight::TShrLightGI_Destroy(this);
+    }
+
+    void TShrLightGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_ShrLight::TShrLightGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_ShrLight

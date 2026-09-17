@@ -44,7 +44,7 @@ namespace GI_MultiImage {
         void SetUnitPosition(TMultiImageUnitGI* Item, Types::TPoint Position);
         void ClearImages();
         std::int32_t AddImage(pas::WideString Path);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Empty in native code.
         static void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);

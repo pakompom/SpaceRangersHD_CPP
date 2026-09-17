@@ -41,7 +41,7 @@ namespace GI_XviD {
         std::uint8_t ImageOpen(const pas::WideString& FileName, std::uint8_t FillViewport);
         void XvidClose();
         void ImageClose();
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         static void ReadVideoConfig(EC_BlockPar::TBlockParEC* Block);
         std::uint8_t DecodeNextFrame();

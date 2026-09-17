@@ -11,4 +11,6 @@ namespace GI_Window {
 
     void TWindowGI_Destroy(TWindowGI* Self);
 
+    void TWindowGI_LoadFromConfigPath(TWindowGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Window

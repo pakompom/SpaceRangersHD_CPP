@@ -211,8 +211,8 @@ namespace GI_SpaceImg {
         GI_MessageLoop::TObjectGI::OnDeactivate();
     }
 
-    void TSpaceImgGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TSpaceImgGI_LoadFromConfigPath(TSpaceImgGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         TSpaceImgGI::LoadSpaceImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
@@ -304,6 +304,10 @@ namespace GI_SpaceImg {
 
     void TSpaceImgGI::p_destroy() {
         GI_SpaceImg::TSpaceImgGI_Destroy(this);
+    }
+
+    void TSpaceImgGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_SpaceImg::TSpaceImgGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_SpaceImg

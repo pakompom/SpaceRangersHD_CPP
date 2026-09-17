@@ -36,30 +36,17 @@ namespace aVector {
         // Appends at the tail and sets Polygon.Previous; requires nonnil Polygon.
         void Append(TPolygon2D* Polygon);
         void InsertAfter(TPolygon2D* Polygon);
-        void SplitChainByLine(float A, float B, float C);
-        void SplitChainByPoints(EC_Struct::TPointF First, EC_Struct::TPointF Last);
         TPolygon2D* ExtractFollowingGroup(std::int32_t Id);
         std::uint8_t ContainsPoint(EC_Struct::TPointF Point);
-        std::uint8_t ChainContainsPoint(EC_Struct::TPointF Point);
-        TPolygon2D* FindContainingPolygon(EC_Struct::TPointF Point);
-        std::uint8_t AssignGroupAtPoint(EC_Struct::TPointF Point, std::int32_t Id);
-        pas::List* ExtractBoundaryEdges();
         // Consumes both lists and frees their edge records.
         static pas::List* MergeUnsharedEdges(pas::List* First, pas::List* Second);
         // Caller owns the list and its PPolygonEdge entries.
         pas::List* ExtractEdges();
-        void ResetChainGroups();
-        // Includes Self; nil returns zero.
-        std::int32_t CountChain();
-        TPolygon2D* GetChainItem(std::int32_t Index);
         // The first uncached call fills CachedArea but returns zero; later calls return the cache.
         float GetArea();
-        float GetChainArea();
         std::uint8_t IntersectsPolygon(TPolygon2D* Polygon);
         std::uint8_t IntersectsEdge(PPolygonEdge Edge);
         std::uint8_t IntersectsSegment(EC_Struct::TPointF First, EC_Struct::TPointF Last);
-        std::uint8_t ChainSelfIntersects();
-        std::uint8_t IntersectsChain(TPolygon2D* Polygon);
         TPolygon2D* Next;
         TPolygon2D* Previous;
         // Owns PPointF entries.

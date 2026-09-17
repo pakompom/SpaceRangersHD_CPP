@@ -17,4 +17,6 @@ namespace GI_XviD {
 
     void TxvidGI_Destroy(TxvidGI* Self);
 
+    void TxvidGI_LoadFromConfigPath(TxvidGI* Self, const pas::WideString& Path);
+
 } // namespace GI_XviD

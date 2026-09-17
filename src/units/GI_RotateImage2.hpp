@@ -11,4 +11,6 @@ namespace GI_RotateImage2 {
 
     void TRotateImage2GI_Destroy(TRotateImage2GI* Self);
 
+    void TRotateImage2GI_LoadFromConfigPath(TRotateImage2GI* Self, const pas::WideString& Path);
+
 } // namespace GI_RotateImage2

@@ -59,33 +59,33 @@ namespace ab_W03 {
         ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
     }
 
-    void TabW03::Advance() {
-        ab_Object::TabObject::Advance();
-        if (!Exploding) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
+    void TabW03_Advance(TabW03* Self) {
+        ab_Object::TabObject_Advance(Self);
+        if (!Self->Exploding) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
         }
-        if (DistanceTravelled > 5.0E+2L) {
-            MaxSpeed = 8.0;
+        if (Self->DistanceTravelled > 5.0E+2L) {
+            Self->MaxSpeed = 8.0;
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (!Exploding) {
-            Collision = FindCollision();
-            if (DistanceTravelled < 5.0E+2L && Collision == SourceObject) {
+        if (!Self->Exploding) {
+            Collision = Self->FindCollision();
+            if (Self->DistanceTravelled < 5.0E+2L && Collision == Self->SourceObject) {
                 Collision = nullptr;
             }
         }
-        if (Collision != nullptr && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if (Collision != nullptr && static_cast<std::uint8_t>(Self->Exploding ^ 1)) {
             if (Collision != nullptr) {
                 {
-                    float cpp_arg = pas::real_divide(Velocity.X, 2.0L);
-                    float cpp_arg_2 = pas::real_divide(Velocity.Y, 2.0L);
+                    float cpp_arg = pas::real_divide(Self->Velocity.X, 2.0L);
+                    float cpp_arg_2 = pas::real_divide(Self->Velocity.Y, 2.0L);
                     Collision->Velocity = EC_Struct::MakePointF(cpp_arg, cpp_arg_2);
                 }
-                Collision->ApplyDamage(Damage, SourceObject, false);
+                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
             }
-            Explode();
-        } else if (Exploding) {
-            DeletionPending = Image->Finished;
+            Self->Explode();
+        } else if (Self->Exploding) {
+            Self->DeletionPending = Self->Image->Finished;
         }
     }
 
@@ -95,6 +95,10 @@ namespace ab_W03 {
 
     void TabW03::p_destroy() {
         ab_W03::TabW03_Destroy(this);
+    }
+
+    void TabW03::virtual_TabObject_Advance() {
+        ab_W03::TabW03_Advance(this);
     }
 
 } // namespace ab_W03

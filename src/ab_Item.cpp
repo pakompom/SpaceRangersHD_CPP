@@ -3,7 +3,6 @@
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "types/aItem.hpp"
-#include "types/aShip.hpp"
 #include "types/ab_MainForm.hpp"
 #include "types/ab_ShipAI.hpp"
 #include "units/ClassesImports.hpp"
@@ -15,6 +14,7 @@
 #include "units/SysUtils.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
+#include "units/aShip.hpp"
 #include "units/ab_Global.hpp"
 #include "units/ab_Item.hpp"
 #include "units/ab_Object.hpp"
@@ -56,7 +56,7 @@ namespace ab_Item {
                         Bonus->State.PolarAngleDegrees = Zone->PolarAngle;
                         Bonus->State.BearingDegrees = aMyFunction::RandomIntRange(0, 359);
                         Distance = 0.0f;
-                        ab_Global::AdvanceSphericalBearingState(Bonus->State.LongitudeDegrees, Bonus->State.PolarAngleDegrees, Bonus->State.BearingDegrees, ab_Global::SphereRadius, Distance);
+                        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Bonus->State.LongitudeDegrees), pas::Var<double>(&Bonus->State.PolarAngleDegrees), pas::Var<double>(&Bonus->State.BearingDegrees), ab_Global::SphereRadius, Distance);
                         Bonus->AttachVisual();
                         ab_Object::ab_Object_Add(Bonus);
                     }
@@ -92,14 +92,14 @@ namespace ab_Item {
                 }
             }
         }
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetCargoHook())) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() != nullptr && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook())) {
             NextObj = ab_Object::FirstArcadeObject;
             while (NextObj != nullptr) {
                 Obj = NextObj;
                 NextObj = NextObj->Next;
                 if (pas::class_cast_if<TabItem*>(Obj) != nullptr && static_cast<TabItem*>(Obj)->Item != nullptr) {
                     if (pas::checked_cast<TabItem*>(Obj)->Item->Weight <= aPlayer::GetPlayer()->CargoFreeSpace && ab_Ship::PlayerArcadeShip->DistanceTo(Obj) < ab_Global::CargoPickupDistance) {
-                        std::int32_t cpp_left = aPlayer::GetPlayer()->CalculateCargoHookPower(aPlayer::GetPlayer()->GetCargoHook());
+                        std::int32_t cpp_left = aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook());
                         if (cpp_left >= pas::checked_cast<TabItem*>(Obj)->Item->Weight) {
                             ab_MainForm::TfAB::PickUpItem(pas::checked_cast<TabItem*>(Obj));
                             Globals::ArcadeBattleScreen->CancelCargoPickup();
@@ -123,7 +123,7 @@ namespace ab_Item {
             Bearing = aMyFunction::RandomIntRange(0, 359);
             Dropped->State = Origin->State;
             Dropped->State.BearingDegrees = Bearing;
-            ab_Global::AdvanceSphericalBearingState(Dropped->State.LongitudeDegrees, Dropped->State.PolarAngleDegrees, Dropped->State.BearingDegrees, ab_Global::SphereRadius, Distance);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Dropped->State.LongitudeDegrees), pas::Var<double>(&Dropped->State.PolarAngleDegrees), pas::Var<double>(&Dropped->State.BearingDegrees), ab_Global::SphereRadius, Distance);
             Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
                 if (pas::class_cast_if<TabItem*>(Obj) != nullptr && Obj->DistanceTo(Dropped) < 2.0E+1L) {
@@ -297,8 +297,8 @@ namespace ab_Item {
         ab_Object::TabObject::UpdateState();
     }
 
-    void TabItem::Advance() {
-        ab_Object::TabObject::Advance();
+    void TabItem_Advance(TabItem* Self) {
+        ab_Object::TabObject_Advance(Self);
     }
 
     void TabItem::UpdateVisuals() {
@@ -335,6 +335,10 @@ namespace ab_Item {
 
     void TabItem::p_destroy() {
         ab_Item::TabItem_Destroy(this);
+    }
+
+    void TabItem::virtual_TabObject_Advance() {
+        ab_Item::TabItem_Advance(this);
     }
 
 } // namespace ab_Item

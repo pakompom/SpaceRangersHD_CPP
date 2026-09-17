@@ -11,4 +11,6 @@ namespace GI_Door {
 
     void TDoorGI_Destroy(TDoorGI* Self);
 
+    void TDoorGI_LoadFromConfigPath(TDoorGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Door

@@ -11,4 +11,6 @@ namespace GI_ShrLight {
 
     void TShrLightGI_Destroy(TShrLightGI* Self);
 
+    void TShrLightGI_LoadFromConfigPath(TShrLightGI* Self, const pas::WideString& Path);
+
 } // namespace GI_ShrLight

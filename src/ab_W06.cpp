@@ -38,52 +38,52 @@ namespace ab_W06 {
         if (Offset != 0.0L) {
             Heading = aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L);
             HeadingDelta = aMyFunction::HeadingDifferenceDegrees(Heading, State.BearingDegrees);
-            ab_Global::AdvanceSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, Heading, ab_Global::SphereRadius, Offset);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees), pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius, Offset);
             State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Heading) + HeadingDelta);
         }
         Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w06_f"_wref.get(), u"GAI,Bm.AB.w06_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
-    void TabW06::Advance() {
+    void TabW06_Advance(TabW06* Self) {
         ab_Ship::TabShip* Enemy{};
         ab_Global::TSphericalBearingDistance Bearing{};
-        ab_Object::TabObject::Advance();
-        if (!Exploding) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
+        ab_Object::TabObject_Advance(Self);
+        if (!Self->Exploding) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (!Exploding) {
-            Collision = FindCollision();
-            if (Collision == SourceObject) {
+        if (!Self->Exploding) {
+            Collision = Self->FindCollision();
+            if (Collision == Self->SourceObject) {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > Self->ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Self->Exploding ^ 1)) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Damage, SourceObject, false);
+                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
             }
-            Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w06a_f"_wref.get(), u"GAI,Bm.AB.w06a_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
-        } else if (static_cast<std::uint8_t>(Exploding ^ 1) && Collision == nullptr) {
-            if (SourceObject != nullptr) {
-                Enemy = pas::checked_cast<ab_Ship::TabShip*>(SourceObject);
-                Enemy = Enemy->FindNearestEnemyWithBearing(this, Bearing);
+            Self->Exploding = true;
+            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w06a_f"_wref.get(), u"GAI,Bm.AB.w06a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
+        } else if (static_cast<std::uint8_t>(Self->Exploding ^ 1) && Collision == nullptr) {
+            if (Self->SourceObject != nullptr) {
+                Enemy = pas::checked_cast<ab_Ship::TabShip*>(Self->SourceObject);
+                Enemy = Enemy->FindNearestEnemyWithBearing(Self, Bearing);
                 if (Enemy != nullptr) {
                     if (Bearing.Distance < 4.0E+2L) {
-                        if (Bearing.BearingDeltaDegrees < -TurnSpeed) {
-                            Bearing.BearingDeltaDegrees = -TurnSpeed;
-                        } else if (Bearing.BearingDeltaDegrees > TurnSpeed) {
-                            Bearing.BearingDeltaDegrees = TurnSpeed;
+                        if (Bearing.BearingDeltaDegrees < -Self->TurnSpeed) {
+                            Bearing.BearingDeltaDegrees = -Self->TurnSpeed;
+                        } else if (Bearing.BearingDeltaDegrees > Self->TurnSpeed) {
+                            Bearing.BearingDeltaDegrees = Self->TurnSpeed;
                         }
-                        State.BearingDegrees = static_cast<long double>(State.BearingDegrees) + Bearing.BearingDeltaDegrees;
+                        Self->State.BearingDegrees = static_cast<long double>(Self->State.BearingDegrees) + Bearing.BearingDeltaDegrees;
                     }
                 }
             }
-        } else if (Exploding) {
-            DeletionPending = Image->Finished;
+        } else if (Self->Exploding) {
+            Self->DeletionPending = Self->Image->Finished;
         }
     }
 
@@ -93,6 +93,10 @@ namespace ab_W06 {
 
     void TabW06::p_destroy() {
         ab_W06::TabW06_Destroy(this);
+    }
+
+    void TabW06::virtual_TabObject_Advance() {
+        ab_W06::TabW06_Advance(this);
     }
 
 } // namespace ab_W06

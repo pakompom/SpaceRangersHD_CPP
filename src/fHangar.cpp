@@ -17,11 +17,9 @@
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "types/aGalaxyStruct.hpp"
-#include "types/aItem.hpp"
 #include "types/aPirate.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aRuins.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/fRuinsTalk.hpp"
 #include "types/fSaveManager.hpp"
@@ -45,12 +43,14 @@
 #include "units/aCalc.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
+#include "units/aItem.hpp"
 #include "units/aKling.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
 #include "units/aRanger.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/fEquipmentShop.hpp"
 #include "units/fGalaxy2.hpp"
 #include "units/fHangar.hpp"
@@ -195,7 +195,7 @@ namespace fHangar {
         std::int32_t I{};
         pas::WideString Path{};
         HoveredShip = nullptr;
-        LoadPanel->OnOpen();
+        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
         if (AmbientAnimationTimer != nullptr) {
             CancelCallbackTimer(AmbientAnimationTimer);
             AmbientAnimationTimer = nullptr;
@@ -319,7 +319,7 @@ namespace fHangar {
         GetByName(u"FaceGB"_wref.get())->SetActive(false);
         {
             GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()));
-            CaptainI->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->GetCaptainPortraitResourceBase(), u"i"}));
+            CaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"i"}));
             CaptainI->SetImageKindX(GI_Main::ikxCenter);
             CaptainI->SetImageKindY(GI_Main::ikyCenter);
             CaptainI->SetActive(true);
@@ -327,7 +327,7 @@ namespace fHangar {
         {
             GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
             CaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-            CaptainA->SetImagePath(pas::concat_wide({aPlayer::GetPlayer()->GetCaptainPortraitResourceBase(), u"a"}));
+            CaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"a"}));
             CaptainA->SequenceIndex = 0;
             CaptainA->UpdateAutoGeometry();
             CaptainA->SetImageKindX(GI_Main::ikxCenter);
@@ -477,7 +477,7 @@ namespace fHangar {
         }
         Result = true;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(I); ) {
-            pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I)->RunTurnCode();
+            aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I));
         }
         Globals::StarMapWeaponPanelOpen = false;
         Globals::FilmCameraFollow = true;
@@ -654,7 +654,7 @@ namespace fHangar {
                 ButRepair->HelpText = aConst::LocalizedColorText(u"Help.ButRepair"_wref.get());
             } else {
                 ButRepair->HelpText = pas::concat_wide({aConst::LocalizedColorText(u"Help.ButRepair"_wref.get()), u" ", ([&] {
-                    pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->GetHull()->CalculateRepairCost());
+                    pas::WideString intToStr = pas::wide_int_to_str(aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.HullStatus.Cost"_wref.get());
                     return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
                 }())});
@@ -690,22 +690,22 @@ namespace fHangar {
             aPlayer::GetPlayer()->SetMoney(0);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(216);
             GI_MessageBox::ShowMessageBoxGI(this, ([&] {
-                pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->GetHull()->CalculateRepairCost());
+                pas::WideString intToStr = pas::wide_int_to_str(aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.HullStatus.NotMoney"_wref.get());
                 return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
             }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
             MainPanel->FlashMoneyWarning();
             return;
         }
-        if (aPlayer::GetPlayer()->GetHull()->CalculateRepairCost() > aPlayer::GetPlayer()->Money) {
+        if (aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()) > aPlayer::GetPlayer()->Money) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(217);
-            aPlayer::GetPlayer()->GetHull()->HullPoints += System::Round(pas::real_divide(aPlayer::GetPlayer()->Money, aPlayer::GetPlayer()->GetHull()->CalculateRepairCost()) * (aPlayer::GetPlayer()->GetHull()->Weight - aPlayer::GetPlayer()->GetHull()->HullPoints));
+            aPlayer::GetPlayer()->GetHull()->HullPoints += System::Round(pas::real_divide(aPlayer::GetPlayer()->Money, aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull())) * (aPlayer::GetPlayer()->GetHull()->Weight - aPlayer::GetPlayer()->GetHull()->HullPoints));
             aPlayer::GetPlayer()->SetMoney(0);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(218);
             GR_Main::SoundManager->PlaySound(u"Sound.Repair"_wref.get());
         } else {
             aGalaxy::Galaxy->CheckIntegrityChecksum(219);
-            aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aPlayer::GetPlayer()->GetHull()->CalculateRepairCost());
+            aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
             aPlayer::GetPlayer()->GetHull()->HullPoints = aPlayer::GetPlayer()->GetHull()->Weight;
             aGalaxy::Galaxy->PrimeIntegrityChecksum(220);
             GR_Main::SoundManager->PlaySound(u"Sound.Repair"_wref.get());
@@ -815,7 +815,7 @@ namespace fHangar {
                 TotalText = aConst::LocalizedText(u"FormHangar.TotalStatus.Bad"_wref.get());
                 Result = false;
                 Warning = true;
-            } else if (!cpp_with->CanUseEquipmentTech(cpp_with->GetFuelTanks())) {
+            } else if (!aShip::TShip_CanUseEquipmentTech(cpp_with, cpp_with->GetFuelTanks())) {
                 Text = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.CanNotUse"_wref.get());
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Bad"_wref.get());
                 Result = false;
@@ -851,7 +851,7 @@ namespace fHangar {
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Bad"_wref.get());
                 Result = false;
                 Warning = true;
-            } else if (static_cast<std::uint8_t>(cpp_with->CanUseEquipmentTech(cpp_with->GetEngine()) ^ 1) || cpp_with->CalculateEngineSpeed(cpp_with->GetEngine(), false) <= 0) {
+            } else if (static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(cpp_with, cpp_with->GetEngine()) ^ 1) || aShip::TShip_CalculateEngineSpeed(cpp_with, cpp_with->GetEngine(), false) <= 0) {
                 Text = aConst::LocalizedColorText(u"FormHangar.EngineStatus.CanNotUse"_wref.get());
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Bad"_wref.get());
                 Result = false;
@@ -1376,7 +1376,7 @@ namespace fHangar {
         } else {
             ColorTag = pas::WideString();
         }
-        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+        if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
             Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->GetHull()->HullPoints), ColorTag), u"/", pas::wide_int_to_str(Ship->GetHull()->Weight)});
             if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                 {
@@ -1392,24 +1392,24 @@ namespace fHangar {
             GI_Label::TLabelGI* cpp_arg_16 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()));
             cpp_arg_16->SetText(wrapTextInColor_4);
         }
-        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Ship->GetDefensePercent() & 0x0000007f), "%"}));
-        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
-            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->GetArmor()), pas::WideString())});
+        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(Ship) & 0x0000007f), "%"}));
+        if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(Ship)), pas::WideString())});
             if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                 Text = pas::concat_wide({Ship->GetManeuverabilitySummary(), Text});
             }
         }
         pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"_wref.get()))->SetText(Text);
         {
-            const pas::WideString& relationLevelTextToShip = Ship->GetRelationLevelTextToShip(aPlayer::GetPlayer());
+            const pas::WideString& relationLevelTextToShip = aShip::TShip_GetRelationLevelTextToShip(Ship, aPlayer::GetPlayer());
             GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"_wref.get()));
             cpp_arg_17->SetText(relationLevelTextToShip);
         }
-        if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship)) {
+        if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship)) {
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()))->SetActive(true);
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()))->SetActive(true);
             {
-                const pas::WideString& cpp_arg_18 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aPlayer::GetPlayer()->GetWinChancePercent(Ship) & 0x0000007f), "%"}));
+                const pas::WideString& cpp_arg_18 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), Ship) & 0x0000007f), "%"}));
                 GI_Label::TLabelGI* cpp_arg_19 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()));
                 cpp_arg_19->SetText(cpp_arg_18);
             }
@@ -1427,7 +1427,7 @@ namespace fHangar {
         }
         {
             GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"_wref.get()));
-            if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+            if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
                 std::int64_t cpp_left = System::Round(pas::real_divide(Ship->GetHull()->HullPoints, Ship->GetHull()->Weight) * BarWidth);
                 std::int32_t cpp_arg_20 = cpp_left - (InfoShipDurable->GetContentSize().X - 5);
                 std::int32_t y = InfoShipDurable->LocalPosition.Y;

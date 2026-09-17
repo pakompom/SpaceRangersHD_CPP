@@ -302,9 +302,9 @@ namespace GI_Image {
         }
     }
 
-    void TImageGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TImageGI_LoadFromConfigPath(TImageGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TImageGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -369,6 +369,10 @@ namespace GI_Image {
 
     void TImageGI::p_destroy() {
         GI_Image::TImageGI_Destroy(this);
+    }
+
+    void TImageGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Image::TImageGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Image

@@ -80,15 +80,15 @@ namespace GI_CheckBox {
         }
     }
 
-    void TCheckBoxGI::LoadFromConfigPath(const pas::WideString& Path) {
+    void TCheckBoxGI_LoadFromConfigPath(TCheckBoxGI* Self, const pas::WideString& Path) {
         EC_BlockPar::TBlockParEC* Block{};
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Checked"_wref.get()) > 0) {
             if (EC_Str::TrimWideString(Block->GetParam(u"Checked"_wref.get())) == u"True") {
-                Checked = true;
+                Self->Checked = true;
             } else {
-                Checked = false;
+                Self->Checked = false;
             }
         }
     }
@@ -107,6 +107,10 @@ namespace GI_CheckBox {
 
     void TCheckBoxGI::p_destroy() {
         GI_CheckBox::TCheckBoxGI_Destroy(this);
+    }
+
+    void TCheckBoxGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_CheckBox::TCheckBoxGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_CheckBox

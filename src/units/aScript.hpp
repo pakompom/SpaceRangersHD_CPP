@@ -260,6 +260,16 @@ namespace aScript {
 
     void TScript_Destroy(TScript* Self);
 
+    void TScript_RunShipState(TScript* Self, TScriptShip* Binding);
+
+    void TScript_RunTurnCode(TScript* Self);
+
+    void TScript_RunAuxiliaryCode(TScript* Self);
+
+    void TScript_CallDialog(TScript* Self, std::int32_t Index);
+
+    void TScript_CallDialogByVariable(TScript* Self, pas::WideString Name);
+
     void TLibraryHandler_Create(TLibraryHandler* Self, pas::WideString LibraryName, std::uint32_t ModuleHandle, EC_BlockPar::TBlockParEC* DefinitionBlock);
 
     void TLibraryHandler_Destroy(TLibraryHandler* Self);

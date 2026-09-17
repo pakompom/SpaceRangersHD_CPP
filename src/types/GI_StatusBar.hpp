@@ -29,7 +29,7 @@ namespace GI_StatusBar {
         void SetValue(double NewValue);
         void SetSize(Types::TPoint Size) override;
         void UpdateImageLayout();
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadStatusProperties(EC_BlockPar::TBlockParEC* Block);
         std::uint8_t cpp_padding[4];

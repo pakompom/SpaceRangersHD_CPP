@@ -1049,7 +1049,7 @@ namespace fSaveManager {
                             }
                             Slot->DisplayName = EC_Str::ExtractFileNameNoExtW(Slot->FileName);
                             LocalTime = Slot->LocalWriteTime;
-                            WindowsImports::FileTimeToLocalFileTime(FindData.ftLastWriteTime, LocalTime);
+                            WindowsImports::FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime>(&FindData.ftLastWriteTime), LocalTime);
                             pas::store_unaligned<Windows::TFileTime>(&Slot->LocalWriteTime, LocalTime);
                             try {
                                 FileObject->SetFileName(Slot->FileName);

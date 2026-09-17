@@ -55,7 +55,7 @@ namespace GI_Tail {
         // Disabling emission leaves existing segments animating.
         void SetEmitting(std::uint8_t Enabled);
         void Invalidate() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Empty in the native binary.
         static void LoadTailProperties(EC_BlockPar::TBlockParEC* Block);

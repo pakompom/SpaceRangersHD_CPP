@@ -54,7 +54,6 @@ namespace aMissile {
         void ResolveLoadedReferences(aGalaxy::TGalaxy* World);
         // Lazily creates and initializes the retained missile scene object.
         SE_Space::TObjectSE* GetGraphObject();
-        void PrepareTurnMovement(std::int32_t StepIndex, std::uint8_t RecordFilm, std::uint8_t PlayShotSound);
         // Returns a hit ship, item or asteroid, or nil when no object was hit.
         pas::Object* StepDay(std::int32_t StepIndex, std::uint8_t RecordFilm);
         std::uint8_t TryReturnToOwner(std::int32_t StepIndex, std::uint8_t RecordFilm, EC_Struct::TPointF PreviousPosition, aShip::TShip* Ship);

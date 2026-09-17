@@ -20,10 +20,8 @@
 #include "types/aPirate.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aRuins.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/aTransport.hpp"
-#include "types/aVector.hpp"
 #include "types/aWarrior.hpp"
 #include "types/fStarMap.hpp"
 #include "units/ClassesImports.hpp"
@@ -54,6 +52,8 @@
 #include "units/aPlayer.hpp"
 #include "units/aRanger.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
+#include "units/aVector.hpp"
 #include "units/fGalaxy2.hpp"
 #include "units/fPanelMain.hpp"
 
@@ -230,8 +230,8 @@ namespace fGalaxy2 {
         Maximum = EC_Struct::MakePointF(-1.0E+20f, -1.0E+20f);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Constellations) - 1); cpp_range.next(I); ) {
             Constellation = pas::list_at<aGalaxy::TConstellation>(aGalaxy::Galaxy->Constellations, I);
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Constellation->OutlinePolygons->CountChain() - 1); cpp_range_2.next(J); ) {
-                Polygon = Constellation->OutlinePolygons->GetChainItem(J);
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, aVector::TPolygon2D_CountChain(Constellation->OutlinePolygons) - 1); cpp_range_2.next(J); ) {
+                Polygon = aVector::TPolygon2D_GetChainItem(Constellation->OutlinePolygons, J);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Polygon->Points) - 1); cpp_range_3.next(K); ) {
                     Vertex = pas::list_at<EC_Struct::TPointF>(Polygon->Points, K);
                     GalaxyOrigin.X = pas::real_min<float>(GalaxyOrigin.X, Vertex->X);
@@ -253,8 +253,8 @@ namespace fGalaxy2 {
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Constellations) - 1); cpp_range_4.next(I); ) {
             Constellation = pas::list_at<aGalaxy::TConstellation>(aGalaxy::Galaxy->Constellations, I);
             if (Constellation->Visible) {
-                for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Constellation->OutlinePolygons->CountChain() - 1); cpp_range_5.next(J); ) {
-                    Polygon = Constellation->OutlinePolygons->GetChainItem(J);
+                for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, aVector::TPolygon2D_CountChain(Constellation->OutlinePolygons) - 1); cpp_range_5.next(J); ) {
+                    Polygon = aVector::TPolygon2D_GetChainItem(Constellation->OutlinePolygons, J);
                     Points.set_length(pas::list_count(Polygon->Points));
                     for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(Polygon->Points) - 1); cpp_range_6.next(K); ) {
                         Vertex = pas::list_at<EC_Struct::TPointF>(Polygon->Points, K);
@@ -442,7 +442,7 @@ namespace fGalaxy2 {
                     OtherFaction = pas::WideString();
                     OtherCount = Star->CountOtherCustomFactionForces(false, OtherFaction, Strength);
                     if (aKling::BlazerShip != nullptr && aKling::BlazerShip->CurrentStar == Star && aKling::BlazerShip->InNormalSpace()) {
-                        if (TfGalaxy2::CanRevealBossPresence(aKling::BlazerShip) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(aKling::BlazerShip)) {
+                        if (TfGalaxy2::CanRevealBossPresence(aKling::BlazerShip) && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), aKling::BlazerShip)) {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
@@ -452,7 +452,7 @@ namespace fGalaxy2 {
                         }
                     }
                     if (aKling::KellerShip != nullptr && aKling::KellerShip->CurrentStar == Star && aKling::KellerShip->InNormalSpace()) {
-                        if (TfGalaxy2::CanRevealBossPresence(aKling::KellerShip) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(aKling::KellerShip)) {
+                        if (TfGalaxy2::CanRevealBossPresence(aKling::KellerShip) && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), aKling::KellerShip)) {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
@@ -462,7 +462,7 @@ namespace fGalaxy2 {
                         }
                     }
                     if (aKling::TerronShip != nullptr && aKling::TerronShip->CurrentStar == Star && aKling::TerronShip->InNormalSpace()) {
-                        if (TfGalaxy2::CanRevealBossPresence(aKling::TerronShip) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(aKling::TerronShip)) {
+                        if (TfGalaxy2::CanRevealBossPresence(aKling::TerronShip) && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), aKling::TerronShip)) {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
@@ -600,7 +600,7 @@ namespace fGalaxy2 {
         {
             GI_Circle::TCircleGI* JampMaxShr = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"JampMaxShr"_wref.get()));
             JampMaxShr->SetCenter(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position));
-            if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr || static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanUseEquipmentTech(aPlayer::GetPlayer()->GetFuelTanks()) ^ 1)) {
+            if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr || static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetFuelTanks()) ^ 1)) {
                 JampMaxShr->SetRadius(1);
             } else {
                 JampMaxShr->SetRadius(GalaxyDistanceToMapDistance(aPlayer::GetPlayer()->JumpRange));
@@ -612,7 +612,7 @@ namespace fGalaxy2 {
         {
             GI_Circle::TCircleGI* JampMaxColor = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"JampMaxColor"_wref.get()));
             JampMaxColor->SetCenter(JampMaxColor->ToAbsolutePoint(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position)));
-            if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr || static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanUseEquipmentTech(aPlayer::GetPlayer()->GetFuelTanks()) ^ 1)) {
+            if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr || static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetFuelTanks()) ^ 1)) {
                 JampMaxColor->SetRadius(1);
             } else {
                 JampMaxColor->SetRadius(GalaxyDistanceToMapDistance(aPlayer::GetPlayer()->JumpRange));
@@ -777,7 +777,7 @@ namespace fGalaxy2 {
 
     // Measured in radar-summary units of 150 range units.
     std::int32_t TfGalaxy2::GetRadarSummaryRadius() {
-        return System::Round(pas::real_divide(aPlayer::GetPlayer()->GetRadarRange(), 1.5E+2L));
+        return System::Round(pas::real_divide(aShip::TShip_GetRadarRange(aPlayer::GetPlayer()), 1.5E+2L));
     }
 
     EC_Struct::TPointF TfGalaxy2::MapPointToGalaxyPoint(WindowsSdk::TPoint Point) {
@@ -1690,7 +1690,7 @@ namespace fGalaxy2 {
             if (Ship->InHyperspace) {
                 return;
             }
-            if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) ^ 1) || static_cast<std::uint8_t>(TfGalaxy2::CanRevealBossPresence(Ship) ^ 1)) {
+            if (static_cast<std::uint8_t>(aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) ^ 1) || static_cast<std::uint8_t>(TfGalaxy2::CanRevealBossPresence(Ship) ^ 1)) {
                 ++UnknownCount;
                 return;
             }

@@ -30,7 +30,7 @@ namespace GI_TransImage {
         void SetImageKindX(GI_Main::TImageKindXGI Value);
         void SetImageKindY(GI_Main::TImageKindYGI Value);
         void SetHalfAlpha(std::uint8_t Value);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void Draw(Types::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;

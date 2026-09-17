@@ -355,7 +355,7 @@ namespace aVector {
         Next = Polygon;
     }
 
-    void TPolygon2D::SplitChainByLine(float A, float B, float C) {
+    void TPolygon2D_SplitChainByLine(TPolygon2D* Self, float A, float B, float C) {
         std::int32_t Index{};
         EC_Struct::PPointF Point{};
         EC_Struct::PPointF Last{};
@@ -368,7 +368,7 @@ namespace aVector {
         TPolygon2D* Following{};
         pas::List* FirstPoints{};
         pas::List* LastPoints{};
-        TPolygon2D* Current = this;
+        TPolygon2D* Current = Self;
         while (Current != nullptr) {
             FirstIndex = -1;
             LastIndex = -1;
@@ -431,7 +431,7 @@ namespace aVector {
                     pas::list_add(LastPoints, static_cast<void*>(Point));
                 }
                 NewPolygon->TakePoints(FirstPoints);
-                NewPolygon->GroupId = GroupId;
+                NewPolygon->GroupId = Self->GroupId;
                 NewPolygon->Flag39 = false;
                 pas::free(Current->Points);
                 Current->Points = LastPoints;
@@ -447,12 +447,12 @@ namespace aVector {
         }
     }
 
-    void TPolygon2D::SplitChainByPoints(EC_Struct::TPointF First, EC_Struct::TPointF Last) {
+    void TPolygon2D_SplitChainByPoints(TPolygon2D* Self, EC_Struct::TPointF First, EC_Struct::TPointF Last) {
         float A{};
         float B{};
         float C{};
         aVector::GetLineEquation(First, Last, A, B, C);
-        SplitChainByLine(A, B, C);
+        aVector::TPolygon2D_SplitChainByLine(Self, A, B, C);
     }
 
     TPolygon2D* TPolygon2D::ExtractFollowingGroup(std::int32_t Id) {
@@ -507,9 +507,9 @@ namespace aVector {
         return Result;
     }
 
-    std::uint8_t TPolygon2D::ChainContainsPoint(EC_Struct::TPointF Point) {
+    std::uint8_t TPolygon2D_ChainContainsPoint(TPolygon2D* Self, EC_Struct::TPointF Point) {
         std::uint8_t Result = true;
-        TPolygon2D* Polygon = this;
+        TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
             if (Polygon->ContainsPoint(Point)) {
                 return Result;
@@ -519,8 +519,8 @@ namespace aVector {
         return false;
     }
 
-    TPolygon2D* TPolygon2D::FindContainingPolygon(EC_Struct::TPointF Point) {
-        TPolygon2D* Polygon = this;
+    TPolygon2D* TPolygon2D_FindContainingPolygon(TPolygon2D* Self, EC_Struct::TPointF Point) {
+        TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
             if (Polygon->ContainsPoint(Point)) {
                 break;
@@ -530,9 +530,9 @@ namespace aVector {
         return Polygon;
     }
 
-    std::uint8_t TPolygon2D::AssignGroupAtPoint(EC_Struct::TPointF Point, std::int32_t Id) {
+    std::uint8_t TPolygon2D_AssignGroupAtPoint(TPolygon2D* Self, EC_Struct::TPointF Point, std::int32_t Id) {
         std::uint8_t Result = false;
-        TPolygon2D* Polygon = FindContainingPolygon(Point);
+        TPolygon2D* Polygon = aVector::TPolygon2D_FindContainingPolygon(Self, Point);
         if (Polygon != nullptr) {
             if (Polygon->GroupId == Id) {
                 Result = true;
@@ -545,10 +545,10 @@ namespace aVector {
         return Result;
     }
 
-    pas::List* TPolygon2D::ExtractBoundaryEdges() {
+    pas::List* TPolygon2D_ExtractBoundaryEdges(TPolygon2D* Self) {
         pas::List* Edges{};
         pas::List* Boundary = pas::make_object<pas::List>();
-        TPolygon2D* Polygon = this;
+        TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
             Edges = Polygon->ExtractEdges();
             Boundary = TPolygon2D::MergeUnsharedEdges(Boundary, Edges);
@@ -634,8 +634,8 @@ namespace aVector {
         return Edges;
     }
 
-    void TPolygon2D::ResetChainGroups() {
-        TPolygon2D* Polygon = this;
+    void TPolygon2D_ResetChainGroups(TPolygon2D* Self) {
+        TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
             Polygon->GroupId = -1;
             Polygon->Unknown14 = -1;
@@ -644,9 +644,9 @@ namespace aVector {
     }
 
     // Includes Self; nil returns zero.
-    std::int32_t TPolygon2D::CountChain() {
+    std::int32_t TPolygon2D_CountChain(TPolygon2D* Self) {
         std::int32_t Result = 0;
-        TPolygon2D* Polygon = this;
+        TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
             ++Result;
             Polygon = Polygon->Next;
@@ -654,8 +654,8 @@ namespace aVector {
         return Result;
     }
 
-    TPolygon2D* TPolygon2D::GetChainItem(std::int32_t Index) {
-        TPolygon2D* Polygon = this;
+    TPolygon2D* TPolygon2D_GetChainItem(TPolygon2D* Self, std::int32_t Index) {
+        TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
             if (Index <= 0) {
                 break;
@@ -710,9 +710,9 @@ namespace aVector {
         return Result;
     }
 
-    float TPolygon2D::GetChainArea() {
+    float TPolygon2D_GetChainArea(TPolygon2D* Self) {
         float Result = 0.0f;
-        TPolygon2D* Polygon = this;
+        TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
             Result = static_cast<long double>(Polygon->GetArea()) + Result;
             Polygon = Polygon->Next;
@@ -759,14 +759,14 @@ namespace aVector {
 
     std::uint8_t TPolygon2D::IntersectsSegment(EC_Struct::TPointF First, EC_Struct::TPointF Last) {
         TPolygonEdge Edge{};
-        Edge.First = First;
-        Edge.Last = Last;
+        pas::store_unaligned<EC_Struct::TPointF>(&Edge.First, First);
+        pas::store_unaligned<EC_Struct::TPointF>(&Edge.Last, Last);
         return IntersectsEdge(&Edge);
     }
 
-    std::uint8_t TPolygon2D::ChainSelfIntersects() {
+    std::uint8_t TPolygon2D_ChainSelfIntersects(TPolygon2D* Self) {
         TPolygon2D* Last{};
-        TPolygon2D* First = this;
+        TPolygon2D* First = Self;
         while (First != nullptr) {
             Last = First->Next;
             while (Last != nullptr) {
@@ -780,9 +780,9 @@ namespace aVector {
         return false;
     }
 
-    std::uint8_t TPolygon2D::IntersectsChain(TPolygon2D* Polygon) {
+    std::uint8_t TPolygon2D_IntersectsChain(TPolygon2D* Self, TPolygon2D* Polygon) {
         TPolygon2D* Last{};
-        TPolygon2D* First = this;
+        TPolygon2D* First = Self;
         while (First != nullptr) {
             Last = Polygon;
             while (Last != nullptr) {

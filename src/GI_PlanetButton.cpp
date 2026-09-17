@@ -48,8 +48,8 @@ namespace GI_PlanetButton {
         DispatchNamedEvent(1, Point.X, Point.Y);
     }
 
-    void TPlanetButtonGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_Panel::TPanelGI::LoadFromConfigPath(Path);
+    void TPlanetButtonGI_LoadFromConfigPath(TPlanetButtonGI* Self, const pas::WideString& Path) {
+        GI_Panel::TPanelGI_LoadFromConfigPath(Self, Path);
     }
 
     void TPlanetButtonGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -80,6 +80,10 @@ namespace GI_PlanetButton {
 
     void TPlanetButtonGI::p_destroy() {
         GI_PlanetButton::TPlanetButtonGI_Destroy(this);
+    }
+
+    void TPlanetButtonGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_PlanetButton::TPlanetButtonGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_PlanetButton

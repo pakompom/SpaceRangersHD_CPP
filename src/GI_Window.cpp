@@ -194,9 +194,9 @@ namespace GI_Window {
         }
     }
 
-    void TWindowGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_Panel::TPanelGI::LoadFromConfigPath(Path);
-        LoadWindowProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TWindowGI_LoadFromConfigPath(TWindowGI* Self, const pas::WideString& Path) {
+        GI_Panel::TPanelGI_LoadFromConfigPath(Self, Path);
+        Self->LoadWindowProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TWindowGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -248,6 +248,10 @@ namespace GI_Window {
 
     void TWindowGI::p_destroy() {
         GI_Window::TWindowGI_Destroy(this);
+    }
+
+    void TWindowGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Window::TWindowGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Window

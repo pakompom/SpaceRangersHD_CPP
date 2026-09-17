@@ -87,7 +87,7 @@ namespace fPlanet {
         }
         MainPanel->OnOpen();
         fPanelPlanet::TfPanelPlanet::OnOpen();
-        LoadPanel->OnOpen();
+        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
         if (aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
             SoundSection = 0;
         } else {

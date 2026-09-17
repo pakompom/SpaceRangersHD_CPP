@@ -11,4 +11,6 @@ namespace GI_SpaceCircle {
 
     void TSpaceCircleGI_Destroy(TSpaceCircleGI* Self);
 
+    void TSpaceCircleGI_LoadFromConfigPath(TSpaceCircleGI* Self, const pas::WideString& Path);
+
 } // namespace GI_SpaceCircle

@@ -7,8 +7,6 @@
 #include "types/ThreadCalc.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aNormalShip.hpp"
-#include "types/aRanger.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/ab_Hit.hpp"
 #include "types/ab_Object.hpp"
@@ -48,8 +46,10 @@
 #include "units/aMyFunction.hpp"
 #include "units/aPlanet.hpp"
 #include "units/aPlayer.hpp"
+#include "units/aRanger.hpp"
 #include "units/aRuins.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/ab_Global.hpp"
 #include "units/ab_Ship.hpp"
 #include "units/fEquipmentShop.hpp"
@@ -678,7 +678,7 @@ namespace CheatCode {
                 }
             }
             aPlayer::GetPlayer()->CareerStatus[aGalaxyStruct::rcPirate] = 100;
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmDecrease, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
             if (GlobalsV::CurrentScreenId == GlobalsV::screenRuinsTalk) {
                 Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenGoodsShop) {
@@ -782,7 +782,7 @@ namespace CheatCode {
                         ++I;
                         if (I == Choice) {
                             Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                            Station->Init(static_cast<aGalaxyStruct::TStationType>(Kind), aPlayer::GetPlayer()->CurrentStar, pas::WideString());
+                            aRuins::TRuins_Init(Station, static_cast<aGalaxyStruct::TStationType>(Kind), aPlayer::GetPlayer()->CurrentStar, pas::WideString());
                             break;
                         }
                     }
@@ -847,7 +847,7 @@ namespace CheatCode {
                     pas::checked_cast<aItem::TWeapon*>(Item)->Range = pas::checked_cast<aItem::TWeapon*>(Item)->Range * 2;
                 }
             }
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmDecrease, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
             CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"PLEVLIESNOGASRUEROPTROINSAEN"_w));
         }
     }
@@ -857,7 +857,7 @@ namespace CheatCode {
             aPlayer::GetPlayer()->GetHull()->Weight = std::min<std::int64_t>(static_cast<std::int64_t>(2000), System::Round(aPlayer::GetPlayer()->GetHull()->Weight * 1.3L));
             aPlayer::GetPlayer()->GetHull()->HullPoints = aPlayer::GetPlayer()->GetHull()->Weight;
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
-            aPlayer::GetPlayer()->RefreshGraphicSize();
+            aShip::TShip_RefreshGraphicSize(aPlayer::GetPlayer());
             Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
             CheatCode::ReportCheat(250, EC_Str::DecodeTextW(u"SRUNPRESROHLUALELS"_w));
         }
@@ -1317,10 +1317,10 @@ namespace CheatCode {
                     if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(cpp_with->GetWeaponInfo()->ShotType)) {
                         cpp_with->AmmoCapacity = cpp_with->CalculateGeneratedAmmoCapacity();
                         if (cpp_with->MicroModuleIndex != 0) {
-                            cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
+                            cpp_with->AmmoCapacity += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
                         }
                         if (cpp_with->SpecialModuleIndex != 0) {
-                            cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[aConst::bonAmmo];
+                            cpp_with->AmmoCapacity += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
                         }
                     }
                 }

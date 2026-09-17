@@ -425,25 +425,25 @@ namespace GI_Grid {
         UpdateGridExtent();
     }
 
-    void TGridGI::SetActiveCellImagePath(pas::WideString Path) {
+    void TGridGI_SetActiveCellImagePath(TGridGI* Self, pas::WideString Path) {
         if (Path == u"") {
-            if (ActiveCellImage != nullptr) {
-                FreeOwnedChild(ActiveCellImage);
-                ActiveCellImage = nullptr;
+            if (Self->ActiveCellImage != nullptr) {
+                Self->FreeOwnedChild(Self->ActiveCellImage);
+                Self->ActiveCellImage = nullptr;
             }
         } else {
-            if (ActiveCellImage == nullptr) {
-                ActiveCellImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, this);
+            if (Self->ActiveCellImage == nullptr) {
+                Self->ActiveCellImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Self);
             }
-            ActiveCellImage->SetImagePath(Path);
-            ActiveCellImage->SetImageKindX(GI_Main::ikxLeftFill);
-            ActiveCellImage->SetImageKindY(GI_Main::ikyTopFill);
-            ActiveCellImage->UserValue = GridDecorationTag;
-            ActiveCellImage->SetDepth(1.0);
-            ActiveCellImage->SetPositionModeW(true);
+            Self->ActiveCellImage->SetImagePath(Path);
+            Self->ActiveCellImage->SetImageKindX(GI_Main::ikxLeftFill);
+            Self->ActiveCellImage->SetImageKindY(GI_Main::ikyTopFill);
+            Self->ActiveCellImage->UserValue = GridDecorationTag;
+            Self->ActiveCellImage->SetDepth(1.0);
+            Self->ActiveCellImage->SetPositionModeW(true);
         }
-        UpdateGridExtent();
-        Invalidate();
+        Self->UpdateGridExtent();
+        Self->Invalidate();
     }
 
     void TGridGI::SetActiveCellImageHalfAlpha(std::uint8_t Value) {
@@ -569,18 +569,18 @@ namespace GI_Grid {
         }
     }
 
-    void TGridGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_PanelScrollBar::TPanelScrollBarGI::LoadFromConfigPath(Path);
+    void TGridGI_LoadFromConfigPath(TGridGI* Self, const pas::WideString& Path) {
+        GI_PanelScrollBar::TPanelScrollBarGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
-        LoadGridProperties(Block);
+        GI_Grid::TGridGI_LoadGridProperties(Self, Block);
     }
 
     void TGridGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         GI_PanelScrollBar::TPanelScrollBarGI::LoadFromBlock(Block);
-        LoadGridProperties(Block);
+        GI_Grid::TGridGI_LoadGridProperties(this, Block);
     }
 
-    void TGridGI::LoadGridProperties(EC_BlockPar::TBlockParEC* Block) {
+    void TGridGI_LoadGridProperties(TGridGI* Self, EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         std::uint8_t Red{};
         std::uint8_t Green{};
@@ -594,25 +594,25 @@ namespace GI_Grid {
         std::int32_t CellX{};
         std::int32_t CellY{};
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            FontName = EC_Str::TrimWideString(Block->GetParam(u"Font"_wref.get()));
+            Self->FontName = EC_Str::TrimWideString(Block->GetParam(u"Font"_wref.get()));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"TextColor"_wref.get());
             Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
             Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
             Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
-            TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
+            Self->TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"GridType"_wref.get()) > 0) {
             Text = EC_Str::TrimWideString(Block->GetParam(u"GridType"_wref.get()));
             if (Text == u"Hide") {
-                SetGridType(gtHide);
+                Self->SetGridType(gtHide);
             } else if (Text == u"Cell") {
-                SetGridType(gtCell);
+                Self->SetGridType(gtCell);
             } else if (Text == u"Row") {
-                SetGridType(gtRow);
+                Self->SetGridType(gtRow);
             } else if (Text == u"Col") {
-                SetGridType(gtCol);
+                Self->SetGridType(gtCol);
             }
         }
         if (Block->CountParams(u"GridColor"_wref.get()) > 0) {
@@ -620,13 +620,13 @@ namespace GI_Grid {
             Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
             Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
             Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
-            GridColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
+            Self->GridColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CountX"_wref.get()) > 0) {
-            SetColumnCount(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"CountX"_wref.get()))));
+            Self->SetColumnCount(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"CountX"_wref.get()))));
         }
         if (Block->CountParams(u"CountY"_wref.get()) > 0) {
-            SetRowCount(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"CountY"_wref.get()))));
+            Self->SetRowCount(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"CountY"_wref.get()))));
         }
         if (Block->CountBlocks(u"GridX"_wref.get()) > 0) {
             Properties = Block->GetBlock(u"GridX"_wref.get());
@@ -634,7 +634,7 @@ namespace GI_Grid {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
                 std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(Properties->GetParamValue(I)));
                 std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(Properties->GetParamName(I)));
-                SetColumnWidth(strToInt_2, strToInt);
+                Self->SetColumnWidth(strToInt_2, strToInt);
             }
         }
         if (Block->CountBlocks(u"GridY"_wref.get()) > 0) {
@@ -644,16 +644,16 @@ namespace GI_Grid {
                 Text = EC_Str::TrimWideString(Properties->GetParamValue(I));
                 RowIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Properties->GetParamName(I)));
                 if (EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) < 2) {
-                    Rows[RowIndex].AutoHeightMinimum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text));
-                    SetRowHeight(RowIndex, SysUtils::StrToInt(static_cast<pas::AnsiString>(Text)));
-                    Rows[RowIndex].AutoHeight = false;
+                    Self->Rows[RowIndex].AutoHeightMinimum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text));
+                    Self->SetRowHeight(RowIndex, SysUtils::StrToInt(static_cast<pas::AnsiString>(Text)));
+                    Self->Rows[RowIndex].AutoHeight = false;
                 } else {
                     if (EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()) == u"Auto") {
-                        SetRowAutoHeightEnabled(RowIndex, true);
+                        Self->SetRowAutoHeightEnabled(RowIndex, true);
                     } else {
-                        SetRowAutoHeightEnabled(RowIndex, false);
+                        Self->SetRowAutoHeightEnabled(RowIndex, false);
                     }
-                    SetRowHeight(RowIndex, SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()))));
+                    Self->SetRowHeight(RowIndex, SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()))));
                 }
             }
         }
@@ -663,9 +663,9 @@ namespace GI_Grid {
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(I); ) {
                 Text = Properties->GetParamName(I);
                 RowIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-                GetCell(SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()))), RowIndex)->LoadTextLinesFromBlockParam(Properties, Text);
-                if (Rows[RowIndex].AutoHeight) {
-                    UpdateRowAutoHeight(RowIndex);
+                Self->GetCell(SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()))), RowIndex)->LoadTextLinesFromBlockParam(Properties, Text);
+                if (Self->Rows[RowIndex].AutoHeight) {
+                    Self->UpdateRowAutoHeight(RowIndex);
                 }
             }
             Count = Properties->GetBlockCount();
@@ -673,7 +673,7 @@ namespace GI_Grid {
                 Text = Properties->GetBlockNameByIndex(I);
                 CellX = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
                 CellY = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-                LabelControl = GetCell(CellX, CellY);
+                LabelControl = Self->GetCell(CellX, CellY);
                 CellProperties = Properties->GetBlockByIndex(I);
                 if (CellProperties->CountParams(u"WordWrap"_wref.get()) > 0) {
                     LabelControl->SetWordWrapEnabled(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(CellProperties->GetParam(u"WordWrap"_wref.get()))));
@@ -699,39 +699,39 @@ namespace GI_Grid {
                 if (CellProperties->CountParams(u"ImageHalfAlpha"_wref.get()) > 0) {
                     LabelControl->SetEmbeddedImageHalfAlpha(GI_Main::ParseEnabledNameGI(CellProperties->GetParam(u"ImageHalfAlpha"_wref.get())));
                 }
-                UpdateRowAutoHeight(CellY);
+                Self->UpdateRowAutoHeight(CellY);
             }
         }
         if (Block->CountParams(u"BackgroundImage"_wref.get()) > 0) {
-            SetBackgroundImagePath(Block->GetParam(u"BackgroundImage"_wref.get()));
+            Self->SetBackgroundImagePath(Block->GetParam(u"BackgroundImage"_wref.get()));
         }
         if (Block->CountParams(u"RowSelect"_wref.get()) > 0) {
             if (EC_Str::TrimWideString(Block->GetParam(u"RowSelect"_wref.get())) == u"True") {
-                SetRowSelectEnabled(true);
+                Self->SetRowSelectEnabled(true);
             } else {
-                SetRowSelectEnabled(false);
+                Self->SetRowSelectEnabled(false);
             }
         }
         if (Block->CountParams(u"ColSelect"_wref.get()) > 0) {
             if (EC_Str::TrimWideString(Block->GetParam(u"ColSelect"_wref.get())) == u"True") {
-                SetColSelectEnabled(true);
+                Self->SetColSelectEnabled(true);
             } else {
-                SetColSelectEnabled(false);
+                Self->SetColSelectEnabled(false);
             }
         }
         if (Block->CountParams(u"ActiveCellImage"_wref.get()) > 0) {
-            SetActiveCellImagePath(Block->GetParam(u"ActiveCellImage"_wref.get()));
+            GI_Grid::TGridGI_SetActiveCellImagePath(Self, Block->GetParam(u"ActiveCellImage"_wref.get()));
         }
         if (Block->CountParams(u"ActiveCell"_wref.get()) > 0) {
             Text = Block->GetParam(u"ActiveCell"_wref.get());
-            SetActiveCell(([&] {
+            Self->SetActiveCell(([&] {
                 std::int32_t strToInt_3 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
                 std::int32_t strToInt_4 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
                 return ClassesImports::Point(strToInt_4, strToInt_3);
             }()));
         }
         if (Block->CountParams(u"ActiveCellImageHalfAlpha"_wref.get()) > 0) {
-            SetActiveCellImageHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"ActiveCellImageHalfAlpha"_wref.get())));
+            Self->SetActiveCellImageHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"ActiveCellImageHalfAlpha"_wref.get())));
         }
     }
 
@@ -741,6 +741,10 @@ namespace GI_Grid {
 
     void TGridGI::p_destroy() {
         GI_Grid::TGridGI_Destroy(this);
+    }
+
+    void TGridGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Grid::TGridGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Grid

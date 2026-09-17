@@ -49,4 +49,29 @@ namespace aVector {
 
     void TPolygon2D_Destroy(TPolygon2D* Self);
 
+    void TPolygon2D_SplitChainByLine(TPolygon2D* Self, float A, float B, float C);
+
+    void TPolygon2D_SplitChainByPoints(TPolygon2D* Self, EC_Struct::TPointF First, EC_Struct::TPointF Last);
+
+    std::uint8_t TPolygon2D_ChainContainsPoint(TPolygon2D* Self, EC_Struct::TPointF Point);
+
+    TPolygon2D* TPolygon2D_FindContainingPolygon(TPolygon2D* Self, EC_Struct::TPointF Point);
+
+    std::uint8_t TPolygon2D_AssignGroupAtPoint(TPolygon2D* Self, EC_Struct::TPointF Point, std::int32_t Id);
+
+    pas::List* TPolygon2D_ExtractBoundaryEdges(TPolygon2D* Self);
+
+    void TPolygon2D_ResetChainGroups(TPolygon2D* Self);
+
+    // Includes Self; nil returns zero.
+    std::int32_t TPolygon2D_CountChain(TPolygon2D* Self);
+
+    TPolygon2D* TPolygon2D_GetChainItem(TPolygon2D* Self, std::int32_t Index);
+
+    float TPolygon2D_GetChainArea(TPolygon2D* Self);
+
+    std::uint8_t TPolygon2D_ChainSelfIntersects(TPolygon2D* Self);
+
+    std::uint8_t TPolygon2D_IntersectsChain(TPolygon2D* Self, TPolygon2D* Polygon);
+
 } // namespace aVector

@@ -26,8 +26,6 @@ namespace EC_Ether {
         TEtherUnit* AppendEntry();
         // Unlinks and frees the entry without updating SortedItems or Count.
         void RemoveEntry(TEtherUnit* Item);
-        // Native assembly restores EAX after loading the entry, returning Self instead of the indexed value.
-        TEtherUnit* GetIndexedEntry(std::int32_t Index);
         void SetIndexedEntry(std::int32_t Index, TEtherUnit* Item);
         std::int32_t FindInsertionIndex(const pas::WideString& Name);
         void Add(const pas::WideString& Name, std::int32_t Value);

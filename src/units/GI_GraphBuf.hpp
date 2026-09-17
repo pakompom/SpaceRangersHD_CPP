@@ -12,4 +12,6 @@ namespace GI_GraphBuf {
     // Frees GraphBuf only when it is owned.
     void TGraphBufGI_Destroy(TGraphBufGI* Self);
 
+    void TGraphBufGI_LoadFromConfigPath(TGraphBufGI* Self, const pas::WideString& Path);
+
 } // namespace GI_GraphBuf

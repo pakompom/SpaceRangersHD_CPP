@@ -37,7 +37,7 @@ namespace GI_Zone {
         void ProcessLeftButtonDown(std::uint32_t KeyState, Types::TPoint Point) override;
         // Native calls inherited ProcessLeftButtonDown before the zone's up callback.
         void ProcessLeftButtonUp(std::uint32_t KeyState, Types::TPoint Point) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadZoneProperties(EC_BlockPar::TBlockParEC* Block);
         void UpdateAutoGeometry() override;

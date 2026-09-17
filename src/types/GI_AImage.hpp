@@ -30,10 +30,8 @@ namespace GI_AImage {
         // Uses rectangular child bounds, regardless of transparent pixels.
         std::uint8_t HitTest(Types::TPoint Point);
         void OnActivate() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
-        // Numeric parameter names supply frame delays; values select child images.
-        void LoadAnimationProperties(EC_BlockPar::TBlockParEC* Block);
         void QueueImageLoad(pas::List* PendingLoads) override;
         GI_MessageLoop::PCallbackTimerGI FrameTimer;
         GI_Main::TImageKindXGI ImageKindX;

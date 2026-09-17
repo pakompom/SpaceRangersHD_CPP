@@ -59,7 +59,7 @@ namespace ab_Ship {
                             Other = ab_Object::FirstArcadeObject;
                             while (Other != nullptr) {
                                 if (Obj != Other && pas::class_cast_if<ab_Hit::TabHit*>(Other) != nullptr && reinterpret_cast<ab_Hit::TabHit*>(Other)->Health > 0 && Other->Active && (!(pas::class_cast_if<abWall::TabWall*>(Other) != nullptr) || Other->ZoneRadius > 1.0L)) {
-                                    ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Distance), Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, 0.0, Other->State.LongitudeDegrees, Other->State.PolarAngleDegrees, ab_Global::SphereRadius);
+                                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, 0.0, Other->State.LongitudeDegrees, Other->State.PolarAngleDegrees, ab_Global::SphereRadius);
                                     if (static_cast<long double>(Obj->ZoneRadius) + Other->ZoneRadius > Distance && Distance > 0.0L) {
                                         Speed = pas::real_max<pas::Extended>(1.0L, pas::real_divide(System::Sqrt(pas::sqr(static_cast<pas::Extended>(Obj->Velocity.X)) + pas::sqr(static_cast<pas::Extended>(Obj->Velocity.Y))), 2.0L));
                                         Bearing = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Bearing + 1.8E+2L));
@@ -560,56 +560,56 @@ namespace ab_Ship {
         }
     }
 
-    void TabShip::Advance() {
+    void TabShip_Advance(TabShip* Self) {
         std::int32_t Index{};
         ab_Zone::PabZone Zone{};
-        ab_Hit::TabHit::Advance();
-        if (Health == 0) {
-            Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-            Thrust = 0.0;
+        ab_Hit::TabHit_Advance(Self);
+        if (Self->Health == 0) {
+            Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+            Self->Thrust = 0.0;
         } else {
             for (Index = 0; Index <= 7; ++Index) {
-                if (BonusTicks[Index] > 0) {
-                    --BonusTicks[Index];
+                if (Self->BonusTicks[Index] > 0) {
+                    --Self->BonusTicks[Index];
                 }
             }
-            if (BonusTicks[ab_Global::abkRegeneration] > 0) {
-                Health = std::min<std::int32_t>(MaxHealth, Health + ab_Global::RegenerationHealthPerTick);
+            if (Self->BonusTicks[ab_Global::abkRegeneration] > 0) {
+                Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + ab_Global::RegenerationHealthPerTick);
             }
-            if (0.01L <= RegenerationRate) {
-                if (RegenerationRate < 1.0E+1L) {
-                    if (pas::imod(TickCounter, System::Round(pas::real_divide(1.0E+1L, RegenerationRate))) == 0) {
-                        Health = std::min<std::int32_t>(MaxHealth, Health + ab_Global::RegenerationHealthPerTick);
+            if (0.01L <= Self->RegenerationRate) {
+                if (Self->RegenerationRate < 1.0E+1L) {
+                    if (pas::imod(Self->TickCounter, System::Round(pas::real_divide(1.0E+1L, Self->RegenerationRate))) == 0) {
+                        Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + ab_Global::RegenerationHealthPerTick);
                     }
                 }
-                if (RegenerationRate >= 1.0E+1L) {
-                    Health = std::min<std::int32_t>(MaxHealth, Health + System::Round(pas::real_divide(static_cast<long double>(ab_Global::RegenerationHealthPerTick) * RegenerationRate, 1.0E+1L)));
+                if (Self->RegenerationRate >= 1.0E+1L) {
+                    Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + System::Round(pas::real_divide(static_cast<long double>(ab_Global::RegenerationHealthPerTick) * Self->RegenerationRate, 1.0E+1L)));
                 }
             }
-            if (this == PlayerArcadeShip && TickCounter % 10 == 0) {
+            if (Self == PlayerArcadeShip && Self->TickCounter % 10 == 0) {
                 if (aPlayer::GetPlayer() != nullptr) {
                     if (aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactDroid) > 0) {
-                        Health = std::min<std::int32_t>(MaxHealth, Health + ab_Global::RegenerationHealthPerTick * aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactDroid));
+                        Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + ab_Global::RegenerationHealthPerTick * aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactDroid));
                     }
                 }
             }
-            if (BonusTicks[ab_Global::abkInvisibility] > 0 && RevealTicks > 0) {
-                --RevealTicks;
+            if (Self->BonusTicks[ab_Global::abkInvisibility] > 0 && Self->RevealTicks > 0) {
+                --Self->RevealTicks;
             }
         }
-        UpdateObstacleSensors();
+        Self->UpdateObstacleSensors();
         if ((ab_Global::ArcadeTickCount & 0x00000040) == 0) {
-            if (ab_Zone::ab_Zone_IsInsideKind10(State.LongitudeDegrees, State.PolarAngleDegrees)) {
-                if (WallCollisionEnabled) {
-                    Zone = ab_Zone::ab_Zone_FindNearestOutside(State.LongitudeDegrees, State.PolarAngleDegrees);
+            if (ab_Zone::ab_Zone_IsInsideKind10(Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees)) {
+                if (Self->WallCollisionEnabled) {
+                    Zone = ab_Zone::ab_Zone_FindNearestOutside(Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees);
                     if (Zone != nullptr) {
-                        State.LongitudeDegrees = Zone->Longitude;
-                        State.PolarAngleDegrees = Zone->PolarAngle;
+                        Self->State.LongitudeDegrees = Zone->Longitude;
+                        Self->State.PolarAngleDegrees = Zone->PolarAngle;
                     }
                 }
             }
         }
-        TickCounter = (TickCounter + 1) % 10000;
+        Self->TickCounter = (Self->TickCounter + 1) % 10000;
     }
 
     void TabShip::UpdateVisuals() {
@@ -761,16 +761,16 @@ namespace ab_Ship {
         if (ab_Global::ArcadeTickCount >= NextObstacleScanTick) {
             NextObstacleScanTick = ab_Global::ArcadeTickCount + 4;
             UpdateAvoidanceDistances();
-            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees), ObstacleDistances[0], ObstacleDistances[4]);
-            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 45.0L)), ObstacleDistances[1], ObstacleDistances[5]);
-            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L)), ObstacleDistances[2], ObstacleDistances[6]);
-            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L + 45.0L)), ObstacleDistances[3], ObstacleDistances[7]);
+            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 0 * sizeof(double))), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 4 * sizeof(double))));
+            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 45.0L)), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 1 * sizeof(double))), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 5 * sizeof(double))));
+            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L)), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 2 * sizeof(double))), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 6 * sizeof(double))));
+            ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L + 45.0L)), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 3 * sizeof(double))), pas::Var<double>(pas::byte_offset(&ObstacleDistances, 7 * sizeof(double))));
             for (Index = 0; Index <= 7; ++Index) {
-                if (ObstacleDistances[Index] > OuterAvoidanceDistance) {
+                if (pas::load_unaligned<double>(pas::byte_offset(&ObstacleDistances, Index * sizeof(double))) > OuterAvoidanceDistance) {
                     ObstacleLevels[Index] = 0;
-                } else if (ObstacleDistances[Index] > MiddleAvoidanceDistance) {
+                } else if (pas::load_unaligned<double>(pas::byte_offset(&ObstacleDistances, Index * sizeof(double))) > MiddleAvoidanceDistance) {
                     ObstacleLevels[Index] = 1;
-                } else if (ObstacleDistances[Index] > InnerAvoidanceDistance) {
+                } else if (pas::load_unaligned<double>(pas::byte_offset(&ObstacleDistances, Index * sizeof(double))) > InnerAvoidanceDistance) {
                     ObstacleLevels[Index] = 2;
                 } else {
                     ObstacleLevels[Index] = 3;
@@ -781,6 +781,10 @@ namespace ab_Ship {
 
     void TabShip::p_destroy() {
         ab_Ship::TabShip_Destroy(this);
+    }
+
+    void TabShip::virtual_TabObject_Advance() {
+        ab_Ship::TabShip_Advance(this);
     }
 
 } // namespace ab_Ship

@@ -1071,7 +1071,7 @@ namespace fShip2 {
         GetByName(u"S_Right"_wref.get())->SetActive(true);
         {
             GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()));
-            CaptainI->SetImagePath(pas::concat_wide({u"GI,", PlayerHoldShip->GetCaptainPortraitResourceBase(), u"i"}));
+            CaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(PlayerHoldShip), u"i"}));
             CaptainI->SetImageKindX(GI_Main::ikxCenter);
             CaptainI->SetImageKindY(GI_Main::ikyCenter);
             CaptainI->SetActive(true);
@@ -1079,7 +1079,7 @@ namespace fShip2 {
         {
             GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
             CaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-            CaptainA->SetImagePath(pas::concat_wide({PlayerHoldShip->GetCaptainPortraitResourceBase(), u"a"}));
+            CaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(PlayerHoldShip), u"a"}));
             CaptainA->SequenceIndex = 0;
             CaptainA->UpdateAutoGeometry();
             CaptainA->SetImageKindX(GI_Main::ikxCenter);
@@ -1446,7 +1446,7 @@ namespace fShip2 {
                 } else {
                     Binding = pas::list_at<aScript::TScriptShip>(aPlayer::GetPlayer()->ScriptShipBindings, I);
                     if (Binding->Script != nullptr) {
-                        Binding->Script->RunShipState(Binding);
+                        aScript::TScript_RunShipState(Binding->Script, Binding);
                     }
                     --I;
                 }
@@ -2032,8 +2032,8 @@ namespace fShip2 {
                 LifeRight->SetActive(false);
             }
         }
-        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(PlayerHoldShip->GetDefensePercent() & 0x0000007f), "%"}));
-        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(PlayerHoldShip->GetArmor()), pas::WideString())});
+        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(PlayerHoldShip) & 0x0000007f), "%"}));
+        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(PlayerHoldShip)), pas::WideString())});
         pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IDef"_wref.get()))->SetText(Text);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(PlayerHoldShip->CalculateMass());
@@ -2146,18 +2146,18 @@ namespace fShip2 {
                 } else {
                     Highlight = SelectedHoldKind == phkEquipment && TfShip2::IsCompatibleSlot(SelectedHoldItem->ItemType, aConst::EquipmentSlotLayouts[I].ItemType);
                 }
-                Boost = SelectedHoldKind == phkArtefact && pas::class_cast_if<aItem::TArtefact*>(SelectedHoldItem) != nullptr && PlayerHoldShip->IsEquipmentUsable(Item) && PlayerHoldShip->CanBoostArtefact(static_cast<std::uint8_t>(reinterpret_cast<aItem::TArtefact*>(SelectedHoldItem)->GetEffectiveType()), Item, true);
+                Boost = SelectedHoldKind == phkArtefact && pas::class_cast_if<aItem::TArtefact*>(SelectedHoldItem) != nullptr && aShip::TShip_IsEquipmentUsable(PlayerHoldShip, Item) && PlayerHoldShip->CanBoostArtefact(static_cast<std::uint8_t>(reinterpret_cast<aItem::TArtefact*>(SelectedHoldItem)->GetEffectiveType()), Item, true);
                 if (Highlight && Item != nullptr && Item->NoDropFlag > 0) {
                     Highlight = false;
                 }
                 GetByName(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"a"}))->SetActive(Highlight && static_cast<std::uint8_t>(Boost ^ 1));
                 {
-                    std::uint8_t cpp_arg_6 = Item != nullptr && static_cast<std::uint8_t>(Highlight ^ 1) && PlayerHoldShip->IsEquipmentUsable(Item) && static_cast<std::uint8_t>(Boost ^ 1);
+                    std::uint8_t cpp_arg_6 = Item != nullptr && static_cast<std::uint8_t>(Highlight ^ 1) && aShip::TShip_IsEquipmentUsable(PlayerHoldShip, Item) && static_cast<std::uint8_t>(Boost ^ 1);
                     GI_MessageLoop::TObjectGI* byName = GetByName(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"n"}));
                     byName->SetActive(cpp_arg_6);
                 }
                 {
-                    std::uint8_t cpp_arg_7 = Item != nullptr && static_cast<std::uint8_t>(Highlight ^ 1) && static_cast<std::uint8_t>(PlayerHoldShip->IsEquipmentUsable(Item) ^ 1) && static_cast<std::uint8_t>(Boost ^ 1);
+                    std::uint8_t cpp_arg_7 = Item != nullptr && static_cast<std::uint8_t>(Highlight ^ 1) && static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(PlayerHoldShip, Item) ^ 1) && static_cast<std::uint8_t>(Boost ^ 1);
                     GI_MessageLoop::TObjectGI* byName_2 = GetByName(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"b"}));
                     byName_2->SetActive(cpp_arg_7);
                 }
@@ -2345,7 +2345,7 @@ namespace fShip2 {
             byName_4->SetActive(cpp_arg_9);
         }
         {
-            std::uint8_t cpp_arg_10 = PlayerHoldShip->AfterburnerActive && PlayerHoldShip->IsEquipmentUsable(PlayerHoldShip->GetEngine());
+            std::uint8_t cpp_arg_10 = PlayerHoldShip->AfterburnerActive && aShip::TShip_IsEquipmentUsable(PlayerHoldShip, PlayerHoldShip->GetEngine());
             GI_MessageLoop::TObjectGI* byName_5 = GetByName(u"ForsageLight"_wref.get());
             byName_5->SetActive(cpp_arg_10);
         }
@@ -2354,7 +2354,7 @@ namespace fShip2 {
             ForsageBut->MouseEnterCallback = pas::bind_method<&TfShip2::ShowShipPropertyInfo>(this);
             ForsageBut->MouseLeaveCallback = pas::bind_method<&TfShip2::HideShipPropertyInfo>(this);
             ForsageBut->UpCallback = pas::bind_method<&TfShip2::ToggleAfterburner>(this);
-            ForsageBut->SetDisabled(static_cast<std::uint8_t>(PlayerHoldShip->IsEquipmentUsable(PlayerHoldShip->GetEngine()) ^ 1) || static_cast<std::uint8_t>(PlayerHoldShip->InNormalSpace() ^ 1));
+            ForsageBut->SetDisabled(static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(PlayerHoldShip, PlayerHoldShip->GetEngine()) ^ 1) || static_cast<std::uint8_t>(PlayerHoldShip->InNormalSpace() ^ 1));
         }
         {
             GI_Label::TLabelGI* IDestrEnergy = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IDestrEnergy"_wref.get()));
@@ -2524,7 +2524,7 @@ namespace fShip2 {
             {
                 GI_Label::TLabelGI* SC_Slot1_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"SC_Slot1_Text"_wref.get()));
                 SC_Slot1_Text->SetText(([&] {
-                    pas::WideString intToStr = pas::wide_int_to_str(pas::checked_cast<aItem::TEquipment*>(Item)->CalculateRepairCost());
+                    pas::WideString intToStr = pas::wide_int_to_str(aItem::TEquipment_CalculateRepairCost(pas::checked_cast<aItem::TEquipment*>(Item)));
                     pas::WideString localizedText = aConst::LocalizedText(u"FormShip.Repair"_wref.get());
                     return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Money>"_w, std::move(intToStr));
                 }()));
@@ -2547,7 +2547,7 @@ namespace fShip2 {
                     }()));
                 } else {
                     SC_Slot2_Text->SetText(([&] {
-                        pas::WideString intToStr_3 = pas::wide_int_to_str(Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                        pas::WideString intToStr_3 = pas::wide_int_to_str(aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                         pas::WideString localizedText_3 = aConst::LocalizedText(u"FormShip.Sell"_wref.get());
                         return aMyFunction::FormatText1(std::move(localizedText_3), pas::WideString(), u"<Money>"_w, std::move(intToStr_3));
                     }()));
@@ -2613,8 +2613,8 @@ namespace fShip2 {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->Inventory) - 1); cpp_range.next(I); ) {
             Equipment = pas::list_at<aItem::TEquipment>(PlayerHoldShip->Inventory, I);
             if (!(pas::class_cast_if<aItem::TWeapon*>(Equipment) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Equipment)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair || aPlayer::GetPlayer()->CanRepairArtefactsAtLocation()) {
-                if (PlayerHoldShip->CanRepairEquipmentTech(Equipment) && Equipment != Item && (Equipment->EquippedFlag != 0 || pas::class_cast_if<aItem::THull*>(Equipment) != nullptr) && Equipment->NeedsRepair()) {
-                    TotalRepair += Equipment->CalculateRepairCost();
+                if (aShip::TShip_CanRepairEquipmentTech(PlayerHoldShip, Equipment) && Equipment != Item && (Equipment->EquippedFlag != 0 || pas::class_cast_if<aItem::THull*>(Equipment) != nullptr) && Equipment->NeedsRepair()) {
+                    TotalRepair += aItem::TEquipment_CalculateRepairCost(Equipment);
                 }
             }
         }
@@ -3191,7 +3191,7 @@ namespace fShip2 {
             if (!RemoteHoldVisible) {
                 Available = std::max<std::int32_t>(0, PlayerHoldShip->CargoFreeSpace);
                 DialogCount = std::min<std::int32_t>(Count, Available);
-                if (SelectedHoldOrigin == 1 && (static_cast<std::uint8_t>(Expanded ^ 1) || Entry == nullptr || reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->CanMerge(Entry->Item))) {
+                if (SelectedHoldOrigin == 1 && (static_cast<std::uint8_t>(Expanded ^ 1) || Entry == nullptr || aItem::TCountableItem_CanMerge(reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem), Entry->Item))) {
                     if (Count > 1) {
                         if (([&] {
                             const pas::WideString& formatText1_2 = ([&] {
@@ -3209,8 +3209,8 @@ namespace fShip2 {
                     Count = DialogCount;
                 }
             }
-            if (reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount != Count || Entry != nullptr && reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->CanMerge(Entry->Item)) {
-                if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && SelectedHoldOrigin == 0 && Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->CanMerge(Entry->Item) ^ 1)) {
+            if (reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount != Count || Entry != nullptr && aItem::TCountableItem_CanMerge(reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem), Entry->Item)) {
+                if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && SelectedHoldOrigin == 0 && Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(aItem::TCountableItem_CanMerge(reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem), Entry->Item) ^ 1)) {
                     ActionResult = 0;
                     if (SelectedHoldItem->ScriptItem != nullptr) {
                         ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
@@ -3243,8 +3243,8 @@ namespace fShip2 {
                 }
                 if (Count < reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount) {
                     Stack = reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem)->Split(Count);
-                    if (Entry != nullptr && Entry->Item != nullptr && Stack->CanMerge(Entry->Item)) {
-                        reinterpret_cast<aItem::TCountableItem*>(Entry->Item)->Merge(Stack);
+                    if (Entry != nullptr && Entry->Item != nullptr && aItem::TCountableItem_CanMerge(Stack, Entry->Item)) {
+                        aItem::TCountableItem_Merge(reinterpret_cast<aItem::TCountableItem*>(Entry->Item), Stack);
                         pas::free(Stack);
                         ReturnSelectedHoldEntry();
                         return;
@@ -3254,8 +3254,8 @@ namespace fShip2 {
                     Stack = reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem);
                     SelectedHoldKind = phkEmpty;
                     SelectedHoldItem = nullptr;
-                    if (Entry != nullptr && Entry->Item != nullptr && Stack->CanMerge(Entry->Item)) {
-                        reinterpret_cast<aItem::TCountableItem*>(Entry->Item)->Merge(Stack);
+                    if (Entry != nullptr && Entry->Item != nullptr && aItem::TCountableItem_CanMerge(Stack, Entry->Item)) {
+                        aItem::TCountableItem_Merge(reinterpret_cast<aItem::TCountableItem*>(Entry->Item), Stack);
                         pas::free(Stack);
                         SelectedHoldItem = nullptr;
                         SelectedHoldKind = phkEmpty;
@@ -3312,7 +3312,7 @@ namespace fShip2 {
                 }
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldEntries) - 1); cpp_range_3.next(J); ) {
                     Swap = pas::list_at<TPlayerHoldUnit>(PlayerHoldEntries, J);
-                    if (Swap->Kind == phkEquipment && pas::checked_cast<aItem::TCountableItem*>(Entry->Item)->Merge(Swap->Item)) {
+                    if (Swap->Kind == phkEquipment && aItem::TCountableItem_Merge(pas::checked_cast<aItem::TCountableItem*>(Entry->Item), Swap->Item)) {
                         pas::list_delete(PlayerHoldShip->Inventory, pas::list_indexof(PlayerHoldShip->Inventory, reinterpret_cast<void*>(Swap->Item)));
                         pas::free(Swap->Item);
                         Swap->Item = nullptr;
@@ -3760,7 +3760,7 @@ namespace fShip2 {
             PlayerHoldShip->RefreshDerivedStats(true);
             if (!PlayerHoldShip->ScriptChameleon) {
                 SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PlayerHoldShip->Graphic));
-                PlayerHoldShip->RefreshGraphic();
+                aShip::TShip_RefreshGraphic(PlayerHoldShip);
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum1(467);
             UpdateActionCursor(true);
@@ -3800,7 +3800,7 @@ namespace fShip2 {
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                         Ship = pas::list_at<aShip::TShip>(PlayerHoldShip->CurrentStar->Ships, I);
                         if (Ship != PlayerHoldShip && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasScriptControl() ^ 1) && pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr && Ship->TypeId != aGalaxyStruct::stPirate) {
-                            Ship->AssignWeaponTargetsInStar();
+                            Ship->virtual_TShip_AssignWeaponTargetsInStar();
                         }
                     }
                 } else {
@@ -3815,7 +3815,7 @@ namespace fShip2 {
                     }
                 }
                 SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PlayerHoldShip->Graphic));
-                PlayerHoldShip->RefreshGraphic();
+                aShip::TShip_RefreshGraphic(PlayerHoldShip);
                 Result = true;
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum1(468);
@@ -4083,7 +4083,7 @@ namespace fShip2 {
                     aPlayer::GetPlayer()->EnterRuinsMode(0);
                 }
             } else if (Key == 'F') {
-                CanAfterburn = PlayerHoldShip->GetSlotCount(aConst::sskAfterburner) > 0 && PlayerHoldShip->IsEquipmentUsable(PlayerHoldShip->GetEngine()) && PlayerHoldShip->InNormalSpace();
+                CanAfterburn = PlayerHoldShip->GetSlotCount(aConst::sskAfterburner) > 0 && aShip::TShip_IsEquipmentUsable(PlayerHoldShip, PlayerHoldShip->GetEngine()) && PlayerHoldShip->InNormalSpace();
                 if (CanAfterburn & static_cast<std::uint8_t>(PlayerHoldShip->AfterburnerActive ^ 1)) {
                     GR_Main::SoundManager->PlaySound(u"Sound.ForsageOn"_wref.get());
                     PlayerHoldShip->AfterburnerActive = true;
@@ -5088,18 +5088,18 @@ namespace fShip2 {
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum1(493);
         if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)->NeedsRepair()) {
-            if (!aPlayer::GetPlayer()->CanRepairEquipmentTech(pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem))) {
+            if (!aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem))) {
                 Flag3BC = true;
                 GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedText(u"FormShip.TooAdvancedForRepair"_wref.get()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
                 RefreshShipView();
             } else if (aPlayer::GetPlayer()->CanRepairArtefactsAtLocation() || !(pas::class_cast_if<aItem::TArtefact*>(SelectedHoldItem) != nullptr) && (!(pas::class_cast_if<aItem::TWeapon*>(SelectedHoldItem) != nullptr) || reinterpret_cast<aItem::TWeapon*>(SelectedHoldItem)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair)) {
-                if (pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)->CalculateRepairCost() > aPlayer::GetPlayer()->Money) {
+                if (aItem::TEquipment_CalculateRepairCost(pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)) > aPlayer::GetPlayer()->Money) {
                     GR_Main::SoundManager->PlaySound(u"Sound.NoMoney"_wref.get());
                     StartMoneyWarning();
                     return;
                 }
                 if (pas::class_cast_if<aItem::TWeapon*>(SelectedHoldItem) != nullptr && reinterpret_cast<aItem::TWeapon*>(SelectedHoldItem)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair) {
-                    Nodes = System::Round(pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)->CalculateRepairCost() * 0.0025L);
+                    Nodes = System::Round(aItem::TEquipment_CalculateRepairCost(pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)) * 0.0025L);
                     if (Nodes == 0) {
                         Nodes = 1;
                     }
@@ -5119,9 +5119,9 @@ namespace fShip2 {
                     }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
                         return;
                     }
-                    aPlayer::GetPlayer()->ConsumeAvailableNodes(Nodes, PlayerHoldShip);
+                    aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Nodes, PlayerHoldShip);
                 }
-                aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)->CalculateRepairCost());
+                aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aItem::TEquipment_CalculateRepairCost(pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)));
                 pas::checked_cast<aItem::TEquipment*>(SelectedHoldItem)->Repair();
                 Flag3BC = true;
                 GR_Main::SoundManager->PlaySound(u"Sound.Repair"_wref.get());
@@ -5269,10 +5269,10 @@ namespace fShip2 {
                 if (([&] {
                     std::int32_t stackCount = pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount;
                     std::int32_t stackCount_2 = pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount;
-                    pas::Extended cpp_left = SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                    pas::Extended cpp_left = aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     float round = System::Round(pas::real_divide(cpp_left, pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount));
                     std::int32_t count = Count;
-                    std::int32_t calculateResaleValue = SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                    std::int32_t calculateResaleValue = aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     const pas::WideString& formatText1_4 = ([&] {
                         pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aItem::GetStackableItemName(SelectedHoldItem));
                         pas::WideString localizedText = aConst::LocalizedText(u"FormShip.SellItem"_wref.get());
@@ -5285,11 +5285,11 @@ namespace fShip2 {
                     return;
                 }
                 Item = pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->Split(Count);
-                Price = Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                Price = aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
                 pas::free(Item);
             } else {
-                Price = SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                Price = aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
                 if (pas::class_cast_if<aItem::TCountableItem*>(SelectedHoldItem) != nullptr) {
                     pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount = 0;
@@ -5301,7 +5301,7 @@ namespace fShip2 {
             if (!(pas::class_cast_if<aItem::TCountableItem*>(SelectedHoldItem) != nullptr)) {
                 Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
                 Event->AddData(SelectedHoldItem->ItemType);
-                Event->AddData(SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                Event->AddData(aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                 Event->AddData(SelectedHoldItem->Weight);
                 Event->AddData(SelectedHoldItem->Id);
                 if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
@@ -5728,11 +5728,11 @@ namespace fShip2 {
         Nodes = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(PlayerHoldShip->Inventory, I);
-            if (PlayerHoldShip->CanRepairEquipmentTech(Item) && Item != SelectedHoldItem && (Item->EquippedFlag != 0 || pas::class_cast_if<aItem::THull*>(Item) != nullptr) && Item->NeedsRepair()) {
+            if (aShip::TShip_CanRepairEquipmentTech(PlayerHoldShip, Item) && Item != SelectedHoldItem && (Item->EquippedFlag != 0 || pas::class_cast_if<aItem::THull*>(Item) != nullptr) && Item->NeedsRepair()) {
                 if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair) {
-                    NodeCost += Item->CalculateRepairCost();
+                    NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                 } else {
-                    Cost += Item->CalculateRepairCost();
+                    Cost += aItem::TEquipment_CalculateRepairCost(Item);
                 }
             }
         }
@@ -5765,7 +5765,7 @@ namespace fShip2 {
                 pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.RepairMsgEnoughNode"_wref.get());
                 return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<NeedNode>"_w, std::move(intToStr_2));
             }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
-                aPlayer::GetPlayer()->ConsumeAvailableNodes(Nodes, PlayerHoldShip);
+                aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Nodes, PlayerHoldShip);
             } else {
                 Nodes = 0;
             }
@@ -5777,7 +5777,7 @@ namespace fShip2 {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->Inventory) - 1); cpp_range_2.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(PlayerHoldShip->Inventory, I);
-                if (PlayerHoldShip->CanRepairEquipmentTech(Item) && (!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair || Nodes != 0) && Item != SelectedHoldItem && (Item->EquippedFlag != 0 || pas::class_cast_if<aItem::THull*>(Item) != nullptr) && Item->NeedsRepair()) {
+                if (aShip::TShip_CanRepairEquipmentTech(PlayerHoldShip, Item) && (!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair || Nodes != 0) && Item != SelectedHoldItem && (Item->EquippedFlag != 0 || pas::class_cast_if<aItem::THull*>(Item) != nullptr) && Item->NeedsRepair()) {
                     Item->Repair();
                     if (pas::class_cast_if<aItem::THull*>(Item) != nullptr) {
                         Control = GetByName(u"HullRepair"_wref.get());
@@ -6430,7 +6430,7 @@ namespace fShip2 {
             SpecialHull = (pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr || pas::class_cast_if<aTranclucator::TTranclucator*>(PlayerHoldShip) != nullptr || pas::class_cast_if<aKling::TKling*>(PlayerHoldShip) != nullptr) && PlayerHoldShip->GetHull() == Equipment;
             if (Item->ItemType == aConst::t_Hull && static_cast<std::uint8_t>(SpecialHull ^ 1)) {
                 {
-                    pas::WideString infoText = Equipment->GetInfoText(u"<color=255,240,100>"_w, PlayerHoldShip);
+                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, PlayerHoldShip);
                     aItem::THull* cpp_arg = pas::checked_cast<aItem::THull*>(Item);
                     fEquipmentShop::TfEquipmentShop* equipmentShopScreen = Globals::EquipmentShopScreen;
                     equipmentShopScreen->RefreshHullInfo(this, cpp_arg, std::move(infoText), true);
@@ -6525,7 +6525,7 @@ namespace fShip2 {
                     itemNameLabel->SetText(wrapTextInColor);
                 }
                 {
-                    const pas::WideString& infoText_2 = Equipment->GetInfoText(u"<color=255,240,100>"_w, PlayerHoldShip);
+                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, PlayerHoldShip);
                     GI_Label::TLabelGI* itemDescriptionLabel = ItemDescriptionLabel;
                     itemDescriptionLabel->SetText(infoText_2);
                 }
@@ -6533,7 +6533,7 @@ namespace fShip2 {
                 ItemPriceLabel->SetText(pas::wide_int_to_str(Equipment->Cost));
                 {
                     GI_Image::TImageGI* cpp_with_6 = ItemRaceImage;
-                    cpp_with_6->SetImagePath(aConst::GetFactionEmblemPath(Equipment->GetOwnerConfigName()));
+                    cpp_with_6->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Equipment)));
                     cpp_with_6->SetImageKindX(GI_Main::ikxCenter);
                     cpp_with_6->SetImageKindY(GI_Main::ikyCenter);
                 }
@@ -7192,7 +7192,7 @@ namespace fShip2 {
                 {
                     GI_Image::TImageGI* cpp_with_2 = StorageImages[I];
                     if (pas::class_cast_if<aItem::TGoods*>(Entry->Item) != nullptr) {
-                        cpp_with_2->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->GetBitmapResourceName()}));
+                        cpp_with_2->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->virtual_TItem_GetBitmapResourceName()}));
                     } else {
                         cpp_with_2->SetImagePath(pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(Entry->Item), u"s"}));
                         if (Entry->Item == Globals::ScriptUseItem) {
@@ -7876,7 +7876,7 @@ namespace fShip2 {
                                             return reinterpret_cast<aItem::TGoods*>(Item)->Quantity * cpp_right;
                                         }());
                                     } else if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                                        Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                                        Value += aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                                     }
                                 }
                             }
@@ -7958,13 +7958,13 @@ namespace fShip2 {
                 for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(PlayerHoldShip->Inventory) - 1); cpp_range.next(I); ) {
                     Item = pas::list_at<aItem::TEquipment>(PlayerHoldShip->Inventory, I);
                     if (Item->EquippedFlag == 0 && Item->NoDropFlag <= 0 && Item->ScriptItem == nullptr && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessStoredItem(Item)) && Item->NoDropFlag <= 0 && (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->CanSell) && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessStoredItem(Item))) {
-                        Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                        Value += aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     }
                 }
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->Artefacts) - 1); cpp_range_2.next(I); ) {
                     Item = pas::list_at<aItem::TEquipment>(PlayerHoldShip->Artefacts, I);
                     if (Item->EquippedFlag == 0 && Item->NoDropFlag <= 0 && (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->CanSell) && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessStoredItem(Item))) {
-                        Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                        Value += aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     }
                 }
                 if (Value > 0) {
@@ -8086,13 +8086,13 @@ namespace fShip2 {
                 if (!(pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr)) {
                     Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
                     Event->AddData(Item->ItemType);
-                    Event->AddData(Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                    Event->AddData(aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                     Event->AddData(Item->Weight);
                     Event->AddData(Item->Id);
                     Event->AddTextData(Item->GetDisplayName());
                     Event->AddTextData(Item->GetCategoryConfigName());
                 }
-                Price = Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                Price = aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
                 if (Price != 0) {
                     PlaySaleSound = true;

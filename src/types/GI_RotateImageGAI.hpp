@@ -42,7 +42,7 @@ namespace GI_RotateImageGAI {
         void SetFrame(std::int32_t Value);
         void ClearFrameSequence();
         std::int32_t GetFrameSourceIndex(std::int32_t Index);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         // Diagnostic retains TgaiGI.AfterLoad, but this is TRotateImageGaiGI's geometry-update override.

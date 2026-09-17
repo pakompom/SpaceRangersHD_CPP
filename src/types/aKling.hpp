@@ -37,20 +37,15 @@ namespace aKling {
         void InitGenerated(aGalaxyStruct::TKlingType Kind, aPlanet::TPlanet* Planet, aGalaxyStruct::TDominatorSeries Series);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
-        void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
-        void NextDay() override;
-        void NextDayLogic() override;
-        void MiniBossNextDayLogic();
-        void BlazerNextDayLogic();
-        void KellerNextDayLogic();
-        void TerronNextDayLogic();
+        void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
+        void virtual_TShip_NextDay() override;
+        void virtual_TShip_NextDayLogic() override;
         aShip::TShip* SelectBertorLeader();
         // Requires a live enemy in the same star and KlingType=ktKlig. Existing kamikaze mode bypasses the proximity/strength test.
         std::uint8_t ShouldKamikaze();
         std::uint8_t LandOnRandomFriendlyPlanet(std::uint8_t OverrideScriptOrder);
         void BuildReachablePlanetQueue() override;
-        // AI ownership check only; does not test travel range.
-        std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
+        std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         std::uint8_t RetreatToReinforcedStar();
         std::uint8_t RetreatIfHullCritical();
         aGalaxy::TStar* FindKellerAttackTarget();
@@ -64,7 +59,7 @@ namespace aKling {
         void CoordinateSeriesInvasions(aGalaxyStruct::TDominatorSeries Series);
         void MoveToRandomPatrolPoint();
         void MoveNearKellerMissionHole();
-        void RepairBrokenEquipmentAtLocation() override;
+        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
@@ -83,11 +78,11 @@ namespace aKling {
         std::uint8_t RelationToRanger(void* Ranger) override;
         void ChangeRelationToRanger(void* Ranger, std::int32_t Amount) override;
         void ReactToAttack(aShip::TShip* Attacker) override;
-        std::uint8_t RecomputeFearState() override;
-        std::uint8_t AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
-        std::uint8_t TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
-        void AssignWeaponTargetsInStar() override;
+        std::uint8_t virtual_TShip_RecomputeFearState() override;
+        std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        void virtual_TShip_AssignWeaponTargetsInStar() override;
         // Marks this series as aware of the player's camouflage and reports a matching active disguise.
         void DetectAttackingPlayer(aShip::TShip* Attacker);
         // Can mark the player's camouflage as detected by this Dominator series. Returns false for non-player ships.
@@ -97,17 +92,17 @@ namespace aKling {
         void UpdateAfterburnerState() override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
         std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         void RefreshCombatSkills();
         // Bosses have a minimum calculated speed of 350.
         std::int32_t CalculateSpeed() override;
         std::uint8_t HasNearbyBertorAura();
-        void RefreshCurrentStanding() override;
+        void virtual_TShip_RefreshCurrentStanding() override;
         // Script.ShipSubType.
         aGalaxyStruct::TKlingType KlingType;
         aGalaxyStruct::TDominatorSeries DominatorSeries;

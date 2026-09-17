@@ -120,9 +120,9 @@ namespace GI_Door {
         }
     }
 
-    void TDoorGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadDoorProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TDoorGI_LoadFromConfigPath(TDoorGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadDoorProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TDoorGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -144,6 +144,10 @@ namespace GI_Door {
 
     void TDoorGI::p_destroy() {
         GI_Door::TDoorGI_Destroy(this);
+    }
+
+    void TDoorGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Door::TDoorGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Door

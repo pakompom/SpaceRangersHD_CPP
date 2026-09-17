@@ -27,7 +27,6 @@
 #include "types/aNormalShip.hpp"
 #include "types/aPath.hpp"
 #include "types/aPirate.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/aTransport.hpp"
 #include "types/aWarrior.hpp"
@@ -78,6 +77,7 @@
 #include "units/aRuins.hpp"
 #include "units/aScript.hpp"
 #include "units/aScriptFun.hpp"
+#include "units/aShip.hpp"
 #include "units/ab_Hit.hpp"
 #include "units/ab_Ship.hpp"
 #include "units/ab_ShipAI.hpp"
@@ -229,9 +229,9 @@ namespace aScriptFun {
             }
         }
         Index = 2;
-        while (Value->RealVType() == EC_Expression::vkArray && Index < LastArg) {
+        while (EC_Expression::TVarEC_RealVType(Value) == EC_Expression::vkArray && Index < LastArg) {
             ++Index;
-            if (av[Index]->RealVType() == EC_Expression::vkString) {
+            if (EC_Expression::TVarEC_RealVType(av[Index]) == EC_Expression::vkString) {
                 Value = ([&] {
                     const pas::WideString& string_5 = av[Index]->GetString();
                     EC_Expression::TVarArrayEC* array = Value->GetArray();
@@ -243,7 +243,7 @@ namespace aScriptFun {
                 Value = EC_Expression::TVarArrayEC_GetItem(array_2, pasint);
             }
         }
-        switch (Value->RealVType()) {
+        switch (EC_Expression::TVarEC_RealVType(Value)) {
             case EC_Expression::vkInt: av[0]->SetInt(Value->GetInt()); break;
             case EC_Expression::vkDword: av[0]->SetDword(Value->GetDword()); break;
             case EC_Expression::vkFloat: av[0]->SetFloat(Value->GetFloat()); break;
@@ -280,7 +280,7 @@ namespace aScriptFun {
         if (Value == nullptr) {
             Value = Script->TurnCode->LocalVar->GetVarNE(Name);
         }
-        if (Value == nullptr || Value->RealVType() != EC_Expression::vkFunction) {
+        if (Value == nullptr || EC_Expression::TVarEC_RealVType(Value) != EC_Expression::vkFunction) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script RunFunctionFromScript - function ", Name, u" not found in script ", av[1]->GetString()}))));
         }
         EC_Expression::TCodeEC* CallCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
@@ -332,7 +332,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetVariableType"_a));
         }
-        av[0]->SetInt(av[1]->RealVType());
+        av[0]->SetInt(EC_Expression::TVarEC_RealVType(av[1]));
     }
 
     void SF_StatusPlayer(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -687,7 +687,7 @@ namespace aScriptFun {
                 }
                 pas::free(Artefact);
                 Ship->RefreshDerivedStats(true);
-                Drone->NextDay();
+                Drone->virtual_TShip_NextDay();
                 av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Drone)));
             }
         }
@@ -818,7 +818,7 @@ namespace aScriptFun {
                 default: Mode = aRanger::rcmCapAt; break;
             }
             Owners = av[5]->GetDword();
-            reinterpret_cast<aRanger::TRanger*>(Ranger)->ChangePlanetRelations(Scope, Mode, av[4]->GetInt(), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&Owners));
+            aRanger::TRanger_ChangePlanetRelations(reinterpret_cast<aRanger::TRanger*>(Ranger), Scope, Mode, av[4]->GetInt(), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&Owners));
         }
     }
 
@@ -1046,7 +1046,10 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetSetGoods"_a));
         }
         std::uint8_t GoodsIndex = av[2]->GetInt();
-        reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Goods[GoodsIndex].Count = av[3]->GetInt();
+        {
+            auto& cpp_target = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Goods[GoodsIndex].Count;
+            cpp_target = av[3]->GetInt();
+        }
     }
 
     void SF_ShipName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -1510,7 +1513,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ChangeState"_a));
         }
-        if (av[1]->RealVType() != EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkString) {
             Index = av[1]->GetInt();
         } else {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aScript::CurrentScript->States) - 1); cpp_range.next(Index); ) {
@@ -1910,7 +1913,8 @@ namespace aScriptFun {
             Ship = aScript::CurrentScript->CurrentShip;
         }
         if (Ship == aPlayer::GetPlayer()) {
-            aScript::GetScriptShipBindingForContext(Ship, aScript::CurrentScript)->Data[Index] = av[1]->GetDword();
+            auto& cpp_target = aScript::GetScriptShipBindingForContext(Ship, aScript::CurrentScript)->Data[Index];
+            cpp_target = av[1]->GetDword();
         } else {
             reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->Data[Index] = av[1]->GetDword();
         }
@@ -1921,7 +1925,8 @@ namespace aScriptFun {
         av = pas::open_array(cpp_array_copy);
         av[0]->SetDword(aScript::GetScriptShipBindingForContext(aScript::CurrentScript->CurrentShip, aScript::CurrentScript)->Data[0]);
         if (av.length() - 1 >= 1) {
-            aScript::GetScriptShipBindingForContext(aScript::CurrentScript->CurrentShip, aScript::CurrentScript)->Data[0] = av[1]->GetDword();
+            auto& cpp_target = aScript::GetScriptShipBindingForContext(aScript::CurrentScript->CurrentShip, aScript::CurrentScript)->Data[0];
+            cpp_target = av[1]->GetDword();
         }
     }
 
@@ -2023,7 +2028,7 @@ namespace aScriptFun {
                 Globals::ScriptDialogIndex = -1;
                 Globals::StarMapScreen->RunTalkDialogs();
                 av[0]->SetInt(1);
-            } else if (reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->OpenPlayerConversation(false)) {
+            } else if (aShip::TShip_OpenPlayerConversation(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword()))), false)) {
                 av[0]->SetInt(1);
             }
             aScript::ScriptUnSnap(Snapshot);
@@ -2038,14 +2043,14 @@ namespace aScriptFun {
                     Binding = pas::list_at<aScript::TScriptShip>(aScript::CurrentScript->Ships, J);
                     if (Binding->GroupIndex == static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Obj)) && aPlayer::GetPlayer() != Binding->Ship) {
                         Globals::ScriptDialogIndex = -1;
-                        aScript::CurrentScript->CallDialog(av[1]->GetInt());
+                        aScript::TScript_CallDialog(aScript::CurrentScript, av[1]->GetInt());
                         if (Globals::ScriptDialogIndex >= 0) {
                             if (Immediate) {
                                 Globals::TalkShip = Binding->Ship;
                                 Globals::TalkScripted = false;
                                 Globals::StarMapScreen->RunTalkDialogs();
                                 av[0]->SetInt(1);
-                            } else if (Binding->Ship->OpenPlayerConversation(false)) {
+                            } else if (aShip::TShip_OpenPlayerConversation(Binding->Ship, false)) {
                                 av[0]->SetInt(1);
                             }
                             aScript::ScriptUnSnap(Snapshot);
@@ -2055,14 +2060,14 @@ namespace aScriptFun {
                 }
             } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
                 Globals::ScriptDialogIndex = -1;
-                aScript::CurrentScript->CallDialog(av[1]->GetInt());
+                aScript::TScript_CallDialog(aScript::CurrentScript, av[1]->GetInt());
                 if (Globals::ScriptDialogIndex >= 0) {
                     if (Immediate) {
                         Globals::TalkShip = reinterpret_cast<aShip::TShip*>(Obj);
                         Globals::TalkScripted = false;
                         Globals::StarMapScreen->RunTalkDialogs();
                         av[0]->SetInt(1);
-                    } else if (reinterpret_cast<aShip::TShip*>(Obj)->OpenPlayerConversation(false)) {
+                    } else if (aShip::TShip_OpenPlayerConversation(reinterpret_cast<aShip::TShip*>(Obj), false)) {
                         av[0]->SetInt(1);
                     }
                     aScript::ScriptUnSnap(Snapshot);
@@ -2070,8 +2075,8 @@ namespace aScriptFun {
                 }
             } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
                 Globals::ScriptDialogIndex = -1;
-                aScript::CurrentScript->CallDialog(av[1]->GetInt());
-                if (Globals::ScriptDialogIndex >= 0 && reinterpret_cast<aPlanet::TPlanet*>(Obj)->RequestDialog()) {
+                aScript::TScript_CallDialog(aScript::CurrentScript, av[1]->GetInt());
+                if (Globals::ScriptDialogIndex >= 0 && aPlanet::TPlanet_RequestDialog(reinterpret_cast<aPlanet::TPlanet*>(Obj))) {
                     av[0]->SetInt(1);
                     aScript::ScriptUnSnap(Snapshot);
                     return;
@@ -2571,7 +2576,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_DropItem"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
             Item = reinterpret_cast<aItem::TEquipment*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
             if (av.length() - 1 >= 3) {
                 Binding = reinterpret_cast<aScript::TScriptItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[3]->GetDword())));
@@ -2821,7 +2826,7 @@ namespace aScriptFun {
             return;
         }
         if (aPlayer::GetPlayer() != Ship) {
-            Ship->DropGoodsIntoSpace(Kind, Quantity);
+            aShip::TShip_DropGoodsIntoSpace(Ship, Kind, Quantity);
             Item = pas::checked_cast<aItem::TItem*>(pas::list_at<aGalaxy::TMovingDropItemEntry>(Ship->CurrentStar->MovingDropItems, pas::list_count(Ship->CurrentStar->MovingDropItems) - 1)->Payload);
         } else {
             GR_Main::SoundManager->PlaySound(u"Sound.Drop"_wref.get());
@@ -3093,7 +3098,7 @@ namespace aScriptFun {
         aScript::ScriptSnap(Snapshot);
         aScript::CurrentScript->BindShip(av[1]->GetInt(), Ship);
         aScript::TScriptShip* Binding = aScript::GetScriptShipBindingForContext(Ship, aScript::CurrentScript);
-        if (av.length() - 1 >= 3 && av[3]->RealVType() == EC_Expression::vkString) {
+        if (av.length() - 1 >= 3 && EC_Expression::TVarEC_RealVType(av[3]) == EC_Expression::vkString) {
             StateIndex = -1;
             if (av[3]->GetString() == u"") {
                 StateIndex = pas::list_at<aScript::TScriptGroup>(aScript::CurrentScript->Groups, Binding->GroupIndex)->InitialStateIndex;
@@ -3164,7 +3169,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInScript"_a));
         }
-        if (reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->HasScriptBindings() || (av.length() - 1 <= 1 || av[2]->GetInt() != 0) && reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->AbsoluteScriptOrder > 0) {
+        if (aShip::TShip_HasScriptBindings(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))) || (av.length() - 1 <= 1 || av[2]->GetInt() != 0) && reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->AbsoluteScriptOrder > 0) {
             av[0]->SetInt(1);
         } else {
             av[0]->SetInt(0);
@@ -3193,7 +3198,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInCurScript"_a));
         }
-        if (reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->HasScriptBindings() && aScript::GetScriptShipBindingForContext(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword()))), aScript::CurrentScript)->Script == aScript::CurrentScript) {
+        if (aShip::TShip_HasScriptBindings(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))) && aScript::GetScriptShipBindingForContext(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword()))), aScript::CurrentScript)->Script == aScript::CurrentScript) {
             av[0]->SetInt(1);
         } else {
             av[0]->SetInt(0);
@@ -3304,12 +3309,12 @@ namespace aScriptFun {
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TArtefact* Item = nullptr;
-        if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x0000ffff) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x0000ffff) {
             Item = reinterpret_cast<aItem::TArtefact*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         }
         if (Item != nullptr && pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(Item->GetEffectiveType())) {
             Name = Item->ConfigBlockName;
-        } else if (av[2]->RealVType() == EC_Expression::vkString) {
+        } else if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             Name = av[2]->GetString();
         }
         if (Name != u"") {
@@ -3339,7 +3344,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArtefactTypeBoosted"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x000000ff) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x000000ff) {
             ItemType = reinterpret_cast<aItem::TArtefact*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())))->GetEffectiveType();
         } else {
             ItemType = av[2]->GetInt();
@@ -3396,7 +3401,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipArmor"_a));
         }
-        av[0]->SetInt(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetArmor());
+        av[0]->SetInt(aShip::TShip_GetArmor(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))));
     }
 
     void SF_ShipProtectability(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -3405,7 +3410,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipProtectability"_a));
         }
-        av[0]->SetInt(System::Round((1.0L - reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetDefenseDamageFactor()) * 1.0E+2L));
+        av[0]->SetInt(System::Round((1.0L - aShip::TShip_GetDefenseDamageFactor(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword()))))) * 1.0E+2L));
     }
 
     void SF_ShipDroidRepair(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -3416,8 +3421,8 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (Ship->IsEquipmentUsable(Ship->GetRepairRobot())) {
-            av[0]->SetInt(Ship->CalculateRepairPoints(Ship->GetRepairRobot()));
+        if (aShip::TShip_IsEquipmentUsable(Ship, Ship->GetRepairRobot())) {
+            av[0]->SetInt(aShip::TShip_CalculateRepairPoints(Ship, Ship->GetRepairRobot()));
         }
     }
 
@@ -3427,7 +3432,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRadarRange"_a));
         }
-        av[0]->SetInt(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetRadarRange());
+        av[0]->SetInt(aShip::TShip_GetRadarRange(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))));
     }
 
     void SF_ShipScanerPower(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -3436,7 +3441,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipScanerPower"_a));
         }
-        av[0]->SetInt(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetScannerPower());
+        av[0]->SetInt(aShip::TShip_GetScannerPower(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))));
     }
 
     void SF_ShipHookPower(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -3447,8 +3452,8 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (Ship->IsEquipmentUsable(Ship->GetCargoHook())) {
-            av[0]->SetInt(Ship->CalculateCargoHookPower(Ship->GetCargoHook()));
+        if (aShip::TShip_IsEquipmentUsable(Ship, Ship->GetCargoHook())) {
+            av[0]->SetInt(aShip::TShip_CalculateCargoHookPower(Ship, Ship->GetCargoHook()));
         }
     }
 
@@ -3460,7 +3465,7 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (Ship->IsEquipmentUsable(Ship->GetCargoHook())) {
+        if (aShip::TShip_IsEquipmentUsable(Ship, Ship->GetCargoHook())) {
             av[0]->SetInt(Ship->GetCargoHookRange());
         }
     }
@@ -3481,7 +3486,7 @@ namespace aScriptFun {
             if (1 <= cpp_last) {
                 for (I = 1; I <= cpp_last; ++I) {
                     Weapon = Ship->Weapons[I];
-                    if (Ship->IsEquipmentUsable(Weapon)) {
+                    if (aShip::TShip_IsEquipmentUsable(Ship, Weapon)) {
                         if (pas::is_one_of<aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Weapon->GetWeaponInfo()->ShotType)) {
                             {
                                 std::int32_t cpp_left_2 = Ship->GetWeaponMinDamage(Weapon);
@@ -3680,7 +3685,7 @@ namespace aScriptFun {
         std::int32_t Count = av.length() - 1 - 1;
         std::int32_t Fuel = 0;
         std::uint8_t CheckFuel = false;
-        if (av[Count + 1]->RealVType() == EC_Expression::vkInt && av[Count + 1]->GetInt() == 1) {
+        if (EC_Expression::TVarEC_RealVType(av[Count + 1]) == EC_Expression::vkInt && av[Count + 1]->GetInt() == 1) {
             CheckFuel = true;
             Fuel = Ship->GetFuelTanks()->Fuel;
             --Count;
@@ -3872,7 +3877,8 @@ namespace aScriptFun {
         }
         av[0]->SetInt(aPlayer::GetPlayer()->DominatorKillsByType[av[1]->GetInt() & 0x0000007f]);
         if (av.length() - 1 > 1) {
-            aPlayer::GetPlayer()->DominatorKillsByType[av[1]->GetInt() & 0x0000007f] = av[2]->GetInt();
+            auto& cpp_target = aPlayer::GetPlayer()->DominatorKillsByType[av[1]->GetInt() & 0x0000007f];
+            cpp_target = av[2]->GetInt();
         }
     }
 
@@ -3954,11 +3960,11 @@ namespace aScriptFun {
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aShip::TShip* Target = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         if (av.length() - 1 > 2 && av[3]->GetInt() != 0) {
-            double chanceToWin = Ship->ChanceToWin(Target);
+            double chanceToWin = aShip::TShip_ChanceToWin(Ship, Target);
             EC_Expression::TVarEC* cpp_arg = av[0];
             cpp_arg->SetFloat(chanceToWin);
         } else {
-            std::int32_t winChancePercent = Ship->GetWinChancePercent(Target);
+            std::int32_t winChancePercent = aShip::TShip_GetWinChancePercent(Ship, Target);
             EC_Expression::TVarEC* cpp_arg_2 = av[0];
             cpp_arg_2->SetInt(winChancePercent);
         }
@@ -4571,7 +4577,10 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetProgramm"_a));
         }
         av[0]->SetInt(aPlayer::GetPlayer()->HasProgram(av[1]->GetDword()) & 127);
-        aPlayer::GetPlayer()->ProgramCounts[av[1]->GetDword() & 0x0000007f] = av[2]->GetInt();
+        {
+            auto& cpp_target = aPlayer::GetPlayer()->ProgramCounts[av[1]->GetDword() & 0x0000007f];
+            cpp_target = av[2]->GetInt();
+        }
     }
 
     void SF_DomikProgramm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -4752,7 +4761,7 @@ namespace aScriptFun {
         }
         aGalaxy::Galaxy->BlazerLandingPlanetId = av[1]->GetDword();
         if (aKling::BlazerShip != nullptr) {
-            aKling::BlazerShip->RefreshCurrentStanding();
+            aKling::BlazerShip->virtual_TShip_RefreshCurrentStanding();
             aKling::BlazerShip->EnemyShip = nullptr;
             {
                 const std::int32_t cpp_last = static_cast<std::int32_t>(aKling::BlazerShip->WeaponCount);
@@ -4846,14 +4855,14 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CT"_a));
         }
         if (av.length() - 1 > 1) {
-            if (av[2]->RealVType() == EC_Expression::vkEmpty) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkEmpty) {
                 av[2]->ConvertToKind(EC_Expression::vkArray);
                 {
                     EC_Expression::TVarArrayEC* cpp_arg = pas::construct_call<EC_Expression::TVarArrayEC>(EC_Expression::TVarArrayEC_Create);
                     EC_Expression::TVarEC* cpp_arg_2 = av[2];
                     cpp_arg_2->SetArray(cpp_arg);
                 }
-            } else if (av[2]->RealVType() != EC_Expression::vkArray) {
+            } else if (EC_Expression::TVarEC_RealVType(av[2]) != EC_Expression::vkArray) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script CT - 2nd argument is not an array"_a));
             }
             av[2]->GetArray()->Clear();
@@ -4931,14 +4940,14 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetMainData"_a));
         }
         if (av.length() - 1 > 1) {
-            if (av[2]->RealVType() == EC_Expression::vkEmpty) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkEmpty) {
                 av[2]->ConvertToKind(EC_Expression::vkArray);
                 {
                     EC_Expression::TVarArrayEC* cpp_arg = pas::construct_call<EC_Expression::TVarArrayEC>(EC_Expression::TVarArrayEC_Create);
                     EC_Expression::TVarEC* cpp_arg_2 = av[2];
                     cpp_arg_2->SetArray(cpp_arg);
                 }
-            } else if (av[2]->RealVType() != EC_Expression::vkArray) {
+            } else if (EC_Expression::TVarEC_RealVType(av[2]) != EC_Expression::vkArray) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script GetMainData - 2nd argument is not an array"_a));
             }
             av[2]->GetArray()->Clear();
@@ -5027,7 +5036,7 @@ namespace aScriptFun {
             return;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, av.length() - 1); cpp_range.next(I); ) {
-            if (av[I]->RealVType() == EC_Expression::vkArray) {
+            if (EC_Expression::TVarEC_RealVType(av[I]) == EC_Expression::vkArray) {
                 aScriptFun::LogArray(pas::concat_wide({av[I]->Name, u"["}), av[I]);
             } else {
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(av[I]->GetString()));
@@ -5040,7 +5049,7 @@ namespace aScriptFun {
         av = pas::open_array(cpp_array_copy);
         if (av.length() - 1 < 1) {
             av[0]->SetInt(EC_Str::CountDelimitedPartsW(GR_Main::SelectedMods, u","_wref.get()));
-        } else if (av[1]->RealVType() == EC_Expression::vkString) {
+        } else if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkString) {
             std::int32_t cpp_arg_2 = ([&] {
                 const pas::WideString& cpp_arg = pas::concat_wide({u", ", av[1]->GetString(), u","});
                 const pas::WideString& selectedModsDisplaySuffix = GR_Main::SelectedModsDisplaySuffix;
@@ -5278,7 +5287,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_TranclucatorData"_a));
         }
         Ship = reinterpret_cast<aTranclucator::TTranclucator*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             if (av[2]->GetString() == u"Proprietor") {
                 Kind = 0;
             } else if (av[2]->GetString() == u"ArtSize") {
@@ -5769,7 +5778,7 @@ namespace aScriptFun {
         if (Item != nullptr) {
             IsGoods = pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics));
             IsCountable = static_cast<std::uint8_t>(IsGoods ^ 1) && pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr;
-            if ((IsCountable || IsGoods) && av.length() - 1 > 1 && av[2]->RealVType() == EC_Expression::vkString && av[2]->GetString() == u"Count") {
+            if ((IsCountable || IsGoods) && av.length() - 1 > 1 && EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString && av[2]->GetString() == u"Count") {
                 if (IsCountable) {
                     av[0]->SetDword(reinterpret_cast<aItem::TCountableItem*>(Item)->StackCount);
                 } else {
@@ -5778,10 +5787,10 @@ namespace aScriptFun {
             } else {
                 av[0]->SetDword(Item->Weight);
             }
-            if (av.length() - 1 > 1 && av[2]->RealVType() != EC_Expression::vkString) {
+            if (av.length() - 1 > 1 && EC_Expression::TVarEC_RealVType(av[2]) != EC_Expression::vkString) {
                 Value = av[2]->GetInt();
                 if (IsCountable) {
-                    if (av.length() - 1 > 2 && av[3]->RealVType() == EC_Expression::vkString && av[3]->GetString() == u"Count") {
+                    if (av.length() - 1 > 2 && EC_Expression::TVarEC_RealVType(av[3]) == EC_Expression::vkString && av[3]->GetString() == u"Count") {
                         Item->Cost = System::Round(pas::real_divide(Item->Cost * Value, std::max<std::int32_t>(1, reinterpret_cast<aItem::TCountableItem*>(Item)->StackCount)));
                         reinterpret_cast<aItem::TCountableItem*>(Item)->StackCount = Value;
                         Item->Weight = Value * reinterpret_cast<aItem::TCountableItem*>(Item)->GetUnitSize();
@@ -5793,7 +5802,7 @@ namespace aScriptFun {
                 } else if (IsGoods) {
                     // Native Count-mode goods handling reads the countable-item offset, then
                     // rescales Cost again below. Preserve both operations for byte matching.
-                    if (av.length() - 1 > 2 && av[3]->RealVType() == EC_Expression::vkString && av[3]->GetString() == u"Count") {
+                    if (av.length() - 1 > 2 && EC_Expression::TVarEC_RealVType(av[3]) == EC_Expression::vkString && av[3]->GetString() == u"Count") {
                         Item->Cost = System::Round(pas::real_divide(Item->Cost * Value, std::max<std::int32_t>(1, reinterpret_cast<aItem::TCountableItem*>(Item)->StackCount)));
                     } else {
                         Item->Cost = System::Round(pas::real_divide(Item->Cost * Value, std::max<std::int32_t>(1, Item->Weight)));
@@ -5948,7 +5957,7 @@ namespace aScriptFun {
                 SetIndex = av[2]->GetInt() - 1;
                 if (SetIndex >= 0 && SetIndex <= 9) {
                     for (I = 0; I <= 11; ++I) {
-                        if (aPlayer::GetPlayer()->EquipmentConfigurations[SetIndex].EquipmentIds[I] == Item->Id) {
+                        if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aPlayer::GetPlayer()->EquipmentConfigurations[SetIndex].EquipmentIds, I * sizeof(std::int32_t))) == Item->Id) {
                             av[0]->SetInt(1);
                             return;
                         }
@@ -5957,13 +5966,13 @@ namespace aScriptFun {
             } else {
                 for (SetIndex = 0; SetIndex <= 9; ++SetIndex) {
                     for (I = 0; I <= 11; ++I) {
-                        if (aPlayer::GetPlayer()->EquipmentConfigurations[SetIndex].EquipmentIds[I] == Item->Id) {
+                        if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aPlayer::GetPlayer()->EquipmentConfigurations[SetIndex].EquipmentIds, I * sizeof(std::int32_t))) == Item->Id) {
                             av[0]->SetInt(SetIndex + 1);
                             return;
                         }
                     }
                     for (I = 0; I <= 31; ++I) {
-                        if (aPlayer::GetPlayer()->EquipmentConfigurations[SetIndex].ArtefactIds[I] == Item->Id) {
+                        if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aPlayer::GetPlayer()->EquipmentConfigurations[SetIndex].ArtefactIds, I * sizeof(std::int32_t))) == Item->Id) {
                             av[0]->SetInt(SetIndex + 1);
                             return;
                         }
@@ -6049,7 +6058,7 @@ namespace aScriptFun {
         av[0]->SetInt(0);
         if (Item != nullptr) {
             if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                av[0]->SetInt(Ship->CanUseEquipmentTech(reinterpret_cast<aItem::TEquipment*>(Item)) & 127);
+                av[0]->SetInt(aShip::TShip_CanUseEquipmentTech(Ship, reinterpret_cast<aItem::TEquipment*>(Item)) & 127);
             }
         }
     }
@@ -6073,7 +6082,7 @@ namespace aScriptFun {
         av[0]->SetInt(0);
         if (Item != nullptr) {
             if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                av[0]->SetInt(Ship->CanRepairEquipmentTech(reinterpret_cast<aItem::TEquipment*>(Item)) & 127);
+                av[0]->SetInt(aShip::TShip_CanRepairEquipmentTech(Ship, reinterpret_cast<aItem::TEquipment*>(Item)) & 127);
             }
         }
     }
@@ -6132,7 +6141,7 @@ namespace aScriptFun {
         }
         if (Item != nullptr) {
             if (av.length() - 1 > 1) {
-                if (av[2]->RealVType() == EC_Expression::vkString) {
+                if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
                     if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
                         Text = av[2]->GetString();
                         reinterpret_cast<aItem::TEquipment*>(Item)->ReplaceInfoTokens(Text, pas::WideString(), nullptr);
@@ -6260,7 +6269,7 @@ namespace aScriptFun {
                     }
                 }
             }
-            if (av[0]->RealVType() == EC_Expression::vkEmpty) {
+            if (EC_Expression::TVarEC_RealVType(av[0]) == EC_Expression::vkEmpty) {
                 av[0]->SetInt(0);
             }
         }
@@ -6320,11 +6329,13 @@ namespace aScriptFun {
                             case 0: pas::checked_cast<aItem::TCargoHook*>(Item)->PickupPower = Value; break;
                             case 1: pas::checked_cast<aItem::TCargoHook*>(Item)->Range = Value; break;
                             case 2: {
-                                pas::checked_cast<aItem::TCargoHook*>(Item)->MinPullSpeed = av[2]->GetFloat();
+                                auto& cpp_target = pas::checked_cast<aItem::TCargoHook*>(Item)->MinPullSpeed;
+                                cpp_target = av[2]->GetFloat();
                                 break;
                             }
                             case 3: {
-                                pas::checked_cast<aItem::TCargoHook*>(Item)->MaxPullSpeed = av[2]->GetFloat();
+                                auto& cpp_target_2 = pas::checked_cast<aItem::TCargoHook*>(Item)->MaxPullSpeed;
+                                cpp_target_2 = av[2]->GetFloat();
                                 break;
                             }
                         }
@@ -6346,7 +6357,11 @@ namespace aScriptFun {
                             case 0: pas::checked_cast<aItem::TSatellite*>(Item)->WaterExplorationRate = Value; break;
                             case 1: pas::checked_cast<aItem::TSatellite*>(Item)->LandExplorationRate = Value; break;
                             case 2: pas::checked_cast<aItem::TSatellite*>(Item)->HillExplorationRate = Value; break;
-                            case 3: pas::checked_cast<aItem::TSatellite*>(Item)->WearPerTurn = av[2]->GetFloat(); break;
+                            case 3: {
+                                auto& cpp_target_3 = pas::checked_cast<aItem::TSatellite*>(Item)->WearPerTurn;
+                                cpp_target_3 = av[2]->GetFloat();
+                                break;
+                            }
                         }
                         break;
                     }
@@ -6674,8 +6689,8 @@ namespace aScriptFun {
         } else if (pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Ship->Inventory) - 1); cpp_range.next(Index); ) {
                 Other = pas::list_at<aItem::TItem>(Ship->Inventory, Index);
-                if (pas::checked_cast<aItem::TCountableItem*>(Item)->CanMerge(Other)) {
-                    pas::checked_cast<aItem::TCountableItem*>(Other)->Merge(Item);
+                if (aItem::TCountableItem_CanMerge(pas::checked_cast<aItem::TCountableItem*>(Item), Other)) {
+                    aItem::TCountableItem_Merge(pas::checked_cast<aItem::TCountableItem*>(Other), Item);
                     pas::free(Item);
                     Item = nullptr;
                     break;
@@ -6711,7 +6726,7 @@ namespace aScriptFun {
         Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetDword(0u);
         if (Ship != nullptr) {
-            if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
                 Item = reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
                 Index = pas::list_indexof(Ship->Inventory, reinterpret_cast<void*>(Item));
                 if (Index < 0) {
@@ -6723,7 +6738,7 @@ namespace aScriptFun {
                     return;
                 }
                 Item = pas::list_at<aItem::TItem>(Ship->Inventory, Index);
-                if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() == 0 && pas::class_cast_if<aItem::THull*>(Item) != nullptr) {
+                if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() == 0 && pas::class_cast_if<aItem::THull*>(Item) != nullptr) {
                     GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning, GetItemFromShip received 0 from dword-type variable and will remove hull from ship ", Ship->GetFullName(u" "_wref.get()), u" (", aScript::GetScriptContextDescription(), u")"})));
                 }
             }
@@ -6759,7 +6774,7 @@ namespace aScriptFun {
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetDword(0u);
         if (Ship != nullptr) {
-            if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
                 Item = reinterpret_cast<aItem::TEquipment*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
                 Index = pas::list_indexof(Ship->Artefacts, reinterpret_cast<void*>(Item));
                 if (Index < 0) {
@@ -6787,7 +6802,7 @@ namespace aScriptFun {
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         Ship->AutoEquipInventory();
         Ship->AutoEquipArtefacts();
-        Ship->DropCargoUntilNotOverloaded();
+        aShip::TShip_DropCargoUntilNotOverloaded(Ship);
         Ship->RefreshAssignedItemSlots();
     }
 
@@ -6887,7 +6902,7 @@ namespace aScriptFun {
             } else {
                 return;
             }
-            if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
                 Index = pas::list_indexof(Items, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword()))));
                 if (Index >= 0) {
                     av[0]->SetDword(av[2]->GetDword());
@@ -6948,8 +6963,8 @@ namespace aScriptFun {
                 if (Entry->LocationOwner == Location) {
                     if (pas::class_cast_if<aItem::TCountableItem*>(Entry->Item) != nullptr) {
                         aItem::TCountableItem* cpp_with_2 = pas::checked_cast<aItem::TCountableItem*>(Entry->Item);
-                        if (cpp_with_2->CanMerge(Item)) {
-                            cpp_with_2->Merge(Item);
+                        if (aItem::TCountableItem_CanMerge(cpp_with_2, Item)) {
+                            aItem::TCountableItem_Merge(cpp_with_2, Item);
                             pas::free(Item);
                             aPlayer::GetPlayer()->RefreshStorageBubbles();
                             return;
@@ -7175,7 +7190,7 @@ namespace aScriptFun {
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetDword(0u);
         if (Star != nullptr) {
-            if (av[2]->RealVType() == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x00010000) {
                 Item = reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
                 Index = pas::list_indexof(Star->Items, reinterpret_cast<void*>(Item));
                 if (Index < 0) {
@@ -7704,7 +7719,7 @@ namespace aScriptFun {
             Source->RefreshAssignedItemSlots();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, 4); cpp_range.next(I); ) {
                 Weapon = pas::checked_cast<aItem::TWeapon*>(Source->FindEquippedItemInSlot(aConst::t_Weapon1, I));
-                if (Source->IsEquipmentUsable(Weapon)) {
+                if (aShip::TShip_IsEquipmentUsable(Source, Weapon)) {
                     if (Weapon->ItemType != aConst::t_CustomWeapon) {
                         ab_W::ab_Weapon_Initialize(&Ship->Weapons[I], Weapon->ItemType);
                     } else {
@@ -7817,9 +7832,9 @@ namespace aScriptFun {
             pas::list_delete(aScript::StagedArcadeShips, 0);
         }
         if (av.length() - 1 > 1) {
-            if (av[2]->RealVType() == EC_Expression::vkInt) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkInt) {
                 Request->BackgroundId = av[2]->GetInt();
-            } else if (av[2]->RealVType() == EC_Expression::vkString) {
+            } else if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
                 Request->BackgroundMapName = av[2]->GetString();
             }
         }
@@ -7906,12 +7921,12 @@ namespace aScriptFun {
                         {
                             aPlayer::TPlanetBattleHistoryEntry& cpp_with = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                             cpp_with.MapId = Globals::RobotMapDefinitions[I].Id;
-                            cpp_with.Statistics[0] = 0;
-                            cpp_with.Statistics[1] = 0;
-                            cpp_with.Statistics[2] = 0;
-                            cpp_with.Statistics[3] = 0;
-                            cpp_with.Statistics[4] = 0;
-                            cpp_with.Statistics[5] = 0;
+                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 0 * sizeof(std::int32_t)), 0);
+                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 1 * sizeof(std::int32_t)), 0);
+                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 2 * sizeof(std::int32_t)), 0);
+                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 3 * sizeof(std::int32_t)), 0);
+                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 4 * sizeof(std::int32_t)), 0);
+                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 5 * sizeof(std::int32_t)), 0);
                             cpp_with.ResultCode = 1;
                             cpp_with.CompletionMode = 0;
                             cpp_with.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -7988,7 +8003,7 @@ namespace aScriptFun {
             return;
         }
         std::uint8_t Current = false;
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             if (av[2]->GetString() == u"Accuracy") {
                 Skill = 0;
             } else if (av[2]->GetString() == u"AccuracyCur") {
@@ -8049,18 +8064,18 @@ namespace aScriptFun {
         Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         if (Ship != nullptr) {
             if (av.length() - 1 > 1) {
-                if (av[2]->RealVType() == EC_Expression::vkString) {
+                if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
                     if (av[2]->GetString() == u"Init") {
                         if (Ship->PortraitFaceId == -1) {
-                            Ship->GetCaptainPortraitResourceBase();
+                            aShip::TShip_GetCaptainPortraitResourceBase(Ship);
                         }
                         av[0]->SetInt(Ship->PortraitFaceId);
                     } else if (av[2]->GetString() == u"New") {
                         Ship->PortraitFaceId = -1;
-                        Ship->GetCaptainPortraitResourceBase();
+                        aShip::TShip_GetCaptainPortraitResourceBase(Ship);
                         av[0]->SetInt(Ship->PortraitFaceId);
                     } else if (av[2]->GetString() == u"Path") {
-                        const pas::WideString& captainPortraitResourceBase = Ship->GetCaptainPortraitResourceBase();
+                        const pas::WideString& captainPortraitResourceBase = aShip::TShip_GetCaptainPortraitResourceBase(Ship);
                         EC_Expression::TVarEC* cpp_arg = av[0];
                         cpp_arg->SetString(captainPortraitResourceBase);
                     } else {
@@ -8578,7 +8593,7 @@ namespace aScriptFun {
             }
             if (av.length() - 1 > 1) {
                 if (av[2]->GetInt() != 0) {
-                    Ship->AfterburnerActive = Ship->GetSlotCount(aConst::sskAfterburner) > 0 && Ship->IsEquipmentUsable(Ship->GetEngine());
+                    Ship->AfterburnerActive = Ship->GetSlotCount(aConst::sskAfterburner) > 0 && aShip::TShip_IsEquipmentUsable(Ship, Ship->GetEngine());
                 } else {
                     Ship->AfterburnerActive = false;
                 }
@@ -8636,7 +8651,7 @@ namespace aScriptFun {
                 Destination.X = av[2]->GetInt();
                 Destination.Y = av[3]->GetInt();
                 Ship->OrderMove(Destination, Absolute);
-            } else if (av[2]->RealVType() == EC_Expression::vkDword && pas::class_cast_if<aScript::TScriptPlace*>(reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())))) != nullptr) {
+            } else if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && pas::class_cast_if<aScript::TScriptPlace*>(reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())))) != nullptr) {
                 Absolute = false;
                 if (av.length() - 1 > 2) {
                     Absolute = av[3]->GetInt() != 0;
@@ -8800,7 +8815,7 @@ namespace aScriptFun {
                 if (reinterpret_cast<aShip::TShip*>(Obj)->RangerRelations != nullptr && pas::list_count(reinterpret_cast<aShip::TShip*>(Obj)->RangerRelations) > 0) {
                     av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(reinterpret_cast<aShip::TShip*>(Obj)->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger))))));
                 } else {
-                    std::int32_t relationToShip = reinterpret_cast<aShip::TShip*>(Obj)->RelationToShip(Ranger);
+                    std::int32_t relationToShip = aShip::TShip_RelationToShip(reinterpret_cast<aShip::TShip*>(Obj), Ranger);
                     EC_Expression::TVarEC* cpp_arg = av[0];
                     cpp_arg->SetInt(relationToShip);
                 }
@@ -8833,7 +8848,7 @@ namespace aScriptFun {
                 EC_Expression::TVarEC* cpp_arg = av[0];
                 cpp_arg->SetInt(relationToShip);
             } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                std::int32_t relationToShip_2 = reinterpret_cast<aShip::TShip*>(Obj)->RelationToShip(Ship);
+                std::int32_t relationToShip_2 = aShip::TShip_RelationToShip(reinterpret_cast<aShip::TShip*>(Obj), Ship);
                 EC_Expression::TVarEC* cpp_arg_2 = av[0];
                 cpp_arg_2->SetInt(relationToShip_2);
             }
@@ -9005,7 +9020,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetSetGraph"_a));
         }
         Planet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             Planet->GraphName = av[2]->GetString();
             RotationInterval = Planet->Graphic->RotationTimerInterval;
             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Planet->Graphic));
@@ -9324,7 +9339,8 @@ namespace aScriptFun {
         } else {
             av[0]->SetFloat(aGalaxy::Galaxy->DominatorResearch[av[1]->GetInt() & 0x0000007f].Progress);
             if (av.length() - 1 > 1) {
-                aGalaxy::Galaxy->DominatorResearch[av[1]->GetInt() & 0x0000007f].Progress = av[2]->GetFloat();
+                auto& cpp_target = aGalaxy::Galaxy->DominatorResearch[av[1]->GetInt() & 0x0000007f].Progress;
+                cpp_target = av[2]->GetFloat();
             }
         }
     }
@@ -9400,7 +9416,7 @@ namespace aScriptFun {
         }
         av[0]->SetInt(Hull->HullPoints);
         if (av.length() - 1 > 1) {
-            if (av[2]->RealVType() == EC_Expression::vkString) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
                 Amount = System::Round(av[2]->GetInt() * 0.01L * Hull->Weight);
                 if (pas::pos(u"UpTo", av[2]->GetString()) == 1) {
                     Hull->HullPoints = std::max<std::int32_t>(Hull->HullPoints, Amount);
@@ -9755,7 +9771,7 @@ namespace aScriptFun {
                 av[0]->SetInt(Found + 1);
                 return;
             }
-            if (av[2]->RealVType() == EC_Expression::vkString) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(I); ) {
                     Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
                     if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) {
@@ -9810,7 +9826,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipOrder"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av.length() - 1 > 1 && av[2]->RealVType() == EC_Expression::vkString) {
+        if (av.length() - 1 > 1 && EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             if (av[2]->GetString() == u"X") {
                 av[0]->SetFloat(Ship->OrderDestination.X);
                 if (av.length() - 1 > 2) {
@@ -9913,7 +9929,7 @@ namespace aScriptFun {
                     aPlayer::GetPlayer()->QueuedTravelTarget = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
                 }
             } else if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-                if (av.length() - 1 > 1 && av[2]->RealVType() == EC_Expression::vkString && av[2]->GetString() == u"Date") {
+                if (av.length() - 1 > 1 && EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString && av[2]->GetString() == u"Date") {
                     // Native Date query reads the target pointer at +558, while its setter writes FlyDate at +55C.
                     av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(reinterpret_cast<aRuins::TRuins*>(Obj)->FlyToStar)));
                     if (av.length() - 1 > 2) {
@@ -9948,7 +9964,7 @@ namespace aScriptFun {
             Kind = av[2]->GetInt();
             if (pas::in_range(static_cast<std::uint8_t>(Kind), static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                 Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                Station->Init(static_cast<aGalaxyStruct::TStationType>(Kind), Star, pas::WideString());
+                aRuins::TRuins_Init(Station, static_cast<aGalaxyStruct::TStationType>(Kind), Star, pas::WideString());
             }
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Station)));
         }
@@ -9965,7 +9981,7 @@ namespace aScriptFun {
         if (Star != nullptr) {
             Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Station)));
-            Station->Init(aGalaxyStruct::rstCustomStation, Star, av[2]->GetString());
+            aRuins::TRuins_Init(Station, aGalaxyStruct::rstCustomStation, Star, av[2]->GetString());
             if (av.length() - 1 > 2) {
                 Station->CurrentStanding = av[3]->GetInt();
             } else {
@@ -9986,7 +10002,7 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
             Station = reinterpret_cast<aRuins::TRuins*>(Obj);
-            if (av[2]->RealVType() == EC_Expression::vkString) {
+            if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
                 for (Index = aGalaxyStruct::rstRangerCenter; Index <= aGalaxyStruct::rstCustomStation; ++Index) {
                     if (([&] {
                         pas::WideString cpp_string = av[2]->GetString();
@@ -10151,7 +10167,8 @@ namespace aScriptFun {
         }
         av[0]->SetInt(System::Round(reinterpret_cast<aMissile::TMissile*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Speed));
         if (av.length() - 1 > 1) {
-            reinterpret_cast<aMissile::TMissile*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Speed = av[2]->GetInt();
+            auto& cpp_target = reinterpret_cast<aMissile::TMissile*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Speed;
+            cpp_target = av[2]->GetInt();
         }
     }
 
@@ -10163,7 +10180,8 @@ namespace aScriptFun {
         }
         av[0]->SetInt(System::Round(reinterpret_cast<aMissile::TMissile*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Direction));
         if (av.length() - 1 > 1) {
-            reinterpret_cast<aMissile::TMissile*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Direction = av[2]->GetInt();
+            auto& cpp_target = reinterpret_cast<aMissile::TMissile*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->Direction;
+            cpp_target = av[2]->GetInt();
         }
     }
 
@@ -10220,11 +10238,11 @@ namespace aScriptFun {
         if (Args.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayAdd"_a));
         }
-        if (Args[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayAdd - not array"_a));
         }
-        EC_Expression::TVarEC* SourceValue = Args[2]->Resolve();
-        EC_Expression::TVarEC* NewValue = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, SourceValue->RealVType());
+        EC_Expression::TVarEC* SourceValue = EC_Expression::TVarEC_Resolve(Args[2]);
+        EC_Expression::TVarEC* NewValue = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::TVarEC_RealVType(SourceValue));
         NewValue->AssignFrom(SourceValue, false);
         if (Args.length() - 1 > 2) {
             NewValue->Name = Args[3]->GetString();
@@ -10240,10 +10258,10 @@ namespace aScriptFun {
         if (Args.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayDelete"_a));
         }
-        if (Args[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayDelete - not array"_a));
         }
-        if (Args[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(Args[2]) == EC_Expression::vkString) {
             const pas::WideString& string = Args[2]->GetString();
             EC_Expression::TVarArrayEC* array = Args[1]->GetArray();
             array->DeleteByName(string);
@@ -10262,7 +10280,7 @@ namespace aScriptFun {
         if (Args.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayClear"_a));
         }
-        if (Args[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayClear - not array"_a));
         }
         Args[1]->GetArray()->Clear();
@@ -10280,7 +10298,7 @@ namespace aScriptFun {
         if (Args.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayDim"_a));
         }
-        if (Args[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayDim - not array"_a));
         }
         Args[0]->SetInt(Args[1]->GetArray()->Count);
@@ -10297,7 +10315,7 @@ namespace aScriptFun {
         if (ArrayCount < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArraySort"_a));
         }
-        if (Args[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArraySort - not array"_a));
         }
         std::int32_t ElementCount = Args[1]->GetArray()->Count;
@@ -10306,7 +10324,7 @@ namespace aScriptFun {
         }
         if (ArrayCount > 1) {
             for (auto cpp_range = pas::for_to<std::int32_t>(2, ArrayCount); cpp_range.next(I); ) {
-                if (Args[I]->RealVType() != EC_Expression::vkArray) {
+                if (EC_Expression::TVarEC_RealVType(Args[I]) != EC_Expression::vkArray) {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script ArraySort - type mismatch"_a));
                 }
                 if (Args[I]->GetArray()->Count != ElementCount) {
@@ -10343,7 +10361,7 @@ namespace aScriptFun {
         if (ArrayCount < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArraySortPartial"_a));
         }
-        if (Args[2]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[2]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArraySortPartial - not array"_a));
         }
         std::int32_t ElementCount = Args[2]->GetArray()->Count;
@@ -10353,7 +10371,7 @@ namespace aScriptFun {
         }
         if (ArrayCount > 1) {
             for (auto cpp_range = pas::for_to<std::int32_t>(2, ArrayCount); cpp_range.next(I); ) {
-                if (Args[I + 1]->RealVType() != EC_Expression::vkArray) {
+                if (EC_Expression::TVarEC_RealVType(Args[I + 1]) != EC_Expression::vkArray) {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script ArraySortPartial - type mismatch"_a));
                 }
                 if (Args[I + 1]->GetArray()->Count != ElementCount) {
@@ -10392,7 +10410,7 @@ namespace aScriptFun {
         if (LastArgIndex < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayRandomize"_a));
         }
-        if (Args[2]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[2]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayRandomize - not array"_a));
         }
         std::int32_t ElementCount = Args[2]->GetArray()->Count;
@@ -10401,13 +10419,13 @@ namespace aScriptFun {
         }
         std::int32_t SwapCount = Args[1]->GetInt();
         std::uint8_t HasSeed = false;
-        if (Args[LastArgIndex]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[LastArgIndex]) != EC_Expression::vkArray) {
             Seed = Args[LastArgIndex]->GetDword();
             HasSeed = true;
             --LastArgIndex;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(3, LastArgIndex); cpp_range.next(I); ) {
-            if (Args[I]->RealVType() != EC_Expression::vkArray) {
+            if (EC_Expression::TVarEC_RealVType(Args[I]) != EC_Expression::vkArray) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayRandomize - type mismatch"_a));
             }
             if (Args[I]->GetArray()->Count != ElementCount) {
@@ -10446,11 +10464,11 @@ namespace aScriptFun {
         if (Args.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayFind"_a));
         }
-        if (Args[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayFind - not array"_a));
         }
         Args[0]->SetInt(-1);
-        if (Args[2]->RealVType() == EC_Expression::vkInt) {
+        if (EC_Expression::TVarEC_RealVType(Args[2]) == EC_Expression::vkInt) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Args[1]->GetArray()->Count - 1); cpp_range.next(ElementIndex); ) {
                 std::int32_t cpp_left = EC_Expression::TVarArrayEC_GetItem(Args[1]->GetArray(), ElementIndex)->GetInt();
                 if (cpp_left == Args[2]->GetInt()) {
@@ -10458,7 +10476,7 @@ namespace aScriptFun {
                     return;
                 }
             }
-        } else if (Args[2]->RealVType() == EC_Expression::vkDword) {
+        } else if (EC_Expression::TVarEC_RealVType(Args[2]) == EC_Expression::vkDword) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Args[1]->GetArray()->Count - 1); cpp_range_2.next(ElementIndex); ) {
                 std::uint32_t cpp_left_2 = EC_Expression::TVarArrayEC_GetItem(Args[1]->GetArray(), ElementIndex)->GetDword();
                 if (cpp_left_2 == Args[2]->GetDword()) {
@@ -10466,7 +10484,7 @@ namespace aScriptFun {
                     return;
                 }
             }
-        } else if (Args[2]->RealVType() == EC_Expression::vkString) {
+        } else if (EC_Expression::TVarEC_RealVType(Args[2]) == EC_Expression::vkString) {
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Args[1]->GetArray()->Count - 1); cpp_range_3.next(ElementIndex); ) {
                 if (([&] {
                     pas::WideString cpp_string = EC_Expression::TVarArrayEC_GetItem(Args[1]->GetArray(), ElementIndex)->GetString();
@@ -10477,7 +10495,7 @@ namespace aScriptFun {
                     return;
                 }
             }
-        } else if (Args[2]->RealVType() == EC_Expression::vkFloat) {
+        } else if (EC_Expression::TVarEC_RealVType(Args[2]) == EC_Expression::vkFloat) {
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Args[1]->GetArray()->Count - 1); cpp_range_4.next(ElementIndex); ) {
                 pas::Extended cpp_left_3 = EC_Expression::TVarArrayEC_GetItem(Args[1]->GetArray(), ElementIndex)->GetFloat();
                 if (cpp_left_3 == Args[2]->GetFloat()) {
@@ -10497,7 +10515,7 @@ namespace aScriptFun {
         if (Args.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayFindInSorted"_a));
         }
-        if (Args[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Args[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayFindInSorted - not array"_a));
         }
         std::int32_t ProbeIndex = 0;
@@ -10659,14 +10677,14 @@ namespace aScriptFun {
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfQuestPossibleLocations"_a));
         }
-        if (av[1]->RealVType() == EC_Expression::vkEmpty) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkEmpty) {
             av[1]->ConvertToKind(EC_Expression::vkArray);
             {
                 EC_Expression::TVarArrayEC* cpp_arg = pas::construct_call<EC_Expression::TVarArrayEC>(EC_Expression::TVarArrayEC_Create);
                 EC_Expression::TVarEC* cpp_arg_2 = av[1];
                 cpp_arg_2->SetArray(cpp_arg);
             }
-        } else if (av[1]->RealVType() != EC_Expression::vkArray) {
+        } else if (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfQuestPossibleLocations - not array"_a));
         }
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
@@ -10953,11 +10971,11 @@ namespace aScriptFun {
         if (av[1]->GetInt() < 0 || av[1]->GetInt() >= aConst::MicroModuleTemplateCount) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BonusValue - number out of range"_a));
         }
-        av[0]->SetInt(*([&] {
-            auto* cpp_array = &aConst::MicroModuleTemplates[av[1]->GetInt()].StatBonuses;
+        av[0]->SetInt(pas::load_unaligned<std::int32_t>(([&] {
+            auto cpp_array = &aConst::MicroModuleTemplates[av[1]->GetInt()].StatBonuses;
             auto cpp_index = av[2]->GetInt() & 0x0000007f;
-            return &(*cpp_array)[cpp_index];
-        }()));
+            return pas::byte_offset(cpp_array, cpp_index * sizeof(std::int32_t));
+        }())));
     }
 
     void SF_FindBonusByName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -11119,7 +11137,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SpecialToEquipment"_a));
         }
-        std::uint8_t RandomMode = av.length() - 1 == 1 || av[1]->RealVType() == EC_Expression::vkDword && av[1]->GetDword() > 0x0000ffff;
+        std::uint8_t RandomMode = av.length() - 1 == 1 || EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkDword && av[1]->GetDword() > 0x0000ffff;
         if (RandomMode) {
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         } else {
@@ -11197,7 +11215,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ModuleToEquipment"_a));
         }
-        std::uint8_t RandomMode = av.length() - 1 == 1 || av[1]->RealVType() == EC_Expression::vkDword && av[1]->GetDword() > 0x0000ffff;
+        std::uint8_t RandomMode = av.length() - 1 == 1 || EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkDword && av[1]->GetDword() > 0x0000ffff;
         if (RandomMode) {
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         } else {
@@ -11354,14 +11372,14 @@ namespace aScriptFun {
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfMMByPriority"_a));
         }
-        if (av[1]->RealVType() == EC_Expression::vkEmpty) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkEmpty) {
             av[1]->ConvertToKind(EC_Expression::vkArray);
             {
                 EC_Expression::TVarArrayEC* cpp_arg = pas::construct_call<EC_Expression::TVarArrayEC>(EC_Expression::TVarArrayEC_Create);
                 EC_Expression::TVarEC* cpp_arg_2 = av[1];
                 cpp_arg_2->SetArray(cpp_arg);
             }
-        } else if (av[1]->RealVType() != EC_Expression::vkArray) {
+        } else if (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfMMByPriority - not array"_a));
         }
         if (av.length() - 1 > 3) {
@@ -11427,14 +11445,14 @@ namespace aScriptFun {
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfNewShips"_a));
         }
-        if (av[1]->RealVType() == EC_Expression::vkEmpty) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkEmpty) {
             av[1]->ConvertToKind(EC_Expression::vkArray);
             {
                 EC_Expression::TVarArrayEC* cpp_arg = pas::construct_call<EC_Expression::TVarArrayEC>(EC_Expression::TVarArrayEC_Create);
                 EC_Expression::TVarEC* cpp_arg_2 = av[1];
                 cpp_arg_2->SetArray(cpp_arg);
             }
-        } else if (av[1]->RealVType() != EC_Expression::vkArray) {
+        } else if (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildListOfNewShips - not array"_a));
         }
         av[1]->GetArray()->Clear();
@@ -11588,11 +11606,11 @@ namespace aScriptFun {
             Ship->ScriptChameleon = true;
             Ship->ChameleonActive = false;
             Ship->RefreshDerivedStats(true);
-            Ship->RefreshGraphicSize();
+            aShip::TShip_RefreshGraphicSize(Ship);
         } else {
             Ship->ScriptChameleon = false;
             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Ship->Graphic));
-            Ship->RefreshGraphic();
+            aShip::TShip_RefreshGraphic(Ship);
         }
         if (av.length() - 1 > 2 && av[3]->GetInt() != 0 && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap) {
             GlobalsV::RequestedScreenId = GlobalsV::screenStarMap;
@@ -11686,7 +11704,7 @@ namespace aScriptFun {
         if (Ship == nullptr) {
             Ship = aPlayer::GetPlayer();
         }
-        if (Ship->ScriptChameleon && av[2]->RealVType() == EC_Expression::vkString) {
+        if (Ship->ScriptChameleon && EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             Mirror = pas::checked_cast<SE_Ship2::TShip2SE*>(SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), av[2]->GetString(), ClassesImports::Point(0, 0)));
             Mirror->CopyDataFromMirrorImage(Ship->Graphic);
             pas::free(Mirror);
@@ -11715,13 +11733,13 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script EquipmentImageName"_a));
         }
-        if (av[1]->RealVType() == EC_Expression::vkString && av[1]->GetString() == u"GetImagePath") {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkString && av[1]->GetString() == u"GetImagePath") {
             if (av.length() - 1 < 2) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script EquipmentImageName 2"_a));
             }
             Item = reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
             {
-                const pas::WideString& bitmapResourceName = Item->GetBitmapResourceName();
+                const pas::WideString& bitmapResourceName = Item->virtual_TItem_GetBitmapResourceName();
                 EC_Expression::TVarEC* cpp_arg = av[0];
                 cpp_arg->SetString(bitmapResourceName);
             }
@@ -11808,10 +11826,10 @@ namespace aScriptFun {
         if (av.length() - 1 < 6) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarListToPlanetList"_a));
         }
-        if (av[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarListToPlanetList - not array"_a));
         }
-        if (av.length() - 1 > 6 && av[7]->RealVType() != EC_Expression::vkArray) {
+        if (av.length() - 1 > 6 && EC_Expression::TVarEC_RealVType(av[7]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarListToPlanetList - not array"_a));
         }
         double Penalty = 0.0;
@@ -12115,7 +12133,7 @@ namespace aScriptFun {
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(aPlayer::GetPlayer()->TalkLocked);
-        } else if (av.length() - 1 == 1 && (av[1]->RealVType() != EC_Expression::vkDword || av[1]->GetDword() < 0x000000ff)) {
+        } else if (av.length() - 1 == 1 && (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkDword || av[1]->GetDword() < 0x000000ff)) {
             av[0]->SetInt(aPlayer::GetPlayer()->TalkLocked);
             aPlayer::GetPlayer()->TalkLocked = av[1]->GetInt() != 0;
         } else {
@@ -12139,7 +12157,7 @@ namespace aScriptFun {
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(aPlayer::GetPlayer()->ScanLocked);
-        } else if (av.length() - 1 == 1 && (av[1]->RealVType() != EC_Expression::vkDword || av[1]->GetDword() < 0x000000ff)) {
+        } else if (av.length() - 1 == 1 && (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkDword || av[1]->GetDword() < 0x000000ff)) {
             av[0]->SetInt(aPlayer::GetPlayer()->ScanLocked);
             aPlayer::GetPlayer()->ScanLocked = av[1]->GetInt() != 0;
         } else {
@@ -12293,15 +12311,15 @@ namespace aScriptFun {
             Partner1 = Ship1->PartnerShip;
             Partner2 = Ship2->PartnerShip;
             if (Partner1 != nullptr && Partner2 != nullptr && (Partner1->EnemyShip == Partner2 || Partner2->EnemyShip == Partner1)) {
-                Partner1->TruceWithShip(Partner2);
+                aShip::TShip_TruceWithShip(Partner1, Partner2);
             }
             if (Partner1 != nullptr && (Partner1->EnemyShip == Ship2 || Ship2->EnemyShip == Partner1)) {
-                Partner1->TruceWithShip(Ship2);
+                aShip::TShip_TruceWithShip(Partner1, Ship2);
             }
             if (Partner2 != nullptr && (Ship1->EnemyShip == Partner2 || Partner2->EnemyShip == Ship1)) {
-                Ship1->TruceWithShip(Partner2);
+                aShip::TShip_TruceWithShip(Ship1, Partner2);
             }
-            Ship1->TruceWithShip(Ship2);
+            aShip::TShip_TruceWithShip(Ship1, Ship2);
         }
     }
 
@@ -12648,7 +12666,7 @@ namespace aScriptFun {
         aGalaxy::TStar* Destination = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[3]->GetDword())));
         std::int32_t Limit = BaseDistance + av[4]->GetInt();
         std::int32_t DirectDistance = System::Round(aMyFunction::PointDistance(Origin->Position, Destination->Position));
-        if (av[1]->RealVType() != EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarListToTransitPlanetList - not array"_a));
         }
         if (av.length() - 1 > 8) {
@@ -12660,7 +12678,7 @@ namespace aScriptFun {
                 Weights[I] = 100;
             }
         }
-        if (av.length() - 1 > 10 && av[10]->RealVType() != EC_Expression::vkArray) {
+        if (av.length() - 1 > 10 && EC_Expression::TVarEC_RealVType(av[10]) != EC_Expression::vkArray) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarListToTransitPlanetList - not array2"_a));
         }
         double Penalty = 0.0;
@@ -13070,7 +13088,7 @@ namespace aScriptFun {
         if (av.length() - 1 == 2) {
             for (Index = 0; Index <= 50; ++Index) {
                 {
-                    std::int32_t selectServiceMicroModule = Station->SelectServiceMicroModule(Kind, Index, false);
+                    std::int32_t selectServiceMicroModule = aRuins::TRuins_SelectServiceMicroModule(Station, Kind, Index, false);
                     EC_Expression::TVarEC* cpp_arg = av[0];
                     cpp_arg->SetInt(selectServiceMicroModule);
                 }
@@ -13086,7 +13104,7 @@ namespace aScriptFun {
                 InvertRarity = false;
             }
             {
-                std::int32_t selectServiceMicroModule_2 = Station->SelectServiceMicroModule(Kind, Index, InvertRarity);
+                std::int32_t selectServiceMicroModule_2 = aRuins::TRuins_SelectServiceMicroModule(Station, Kind, Index, InvertRarity);
                 EC_Expression::TVarEC* cpp_arg_2 = av[0];
                 cpp_arg_2->SetInt(selectServiceMicroModule_2);
             }
@@ -13547,9 +13565,9 @@ namespace aScriptFun {
         aItem::TWeapon* Weapon = reinterpret_cast<aItem::TWeapon*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[3]->GetDword())));
         std::uint8_t RecordFilm = Ship->CurrentStar->RecordingTurnFilm;
         if (pas::class_cast_if<aMissile::TMissile*>(Target) != nullptr) {
-            Ship->FireWeaponAtMissile(Weapon, Target, RecordFilm);
+            aShip::TShip_FireWeaponAtMissile(Ship, Weapon, Target, RecordFilm);
         } else if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
-            Ship->FireWeaponAtShip(Weapon, reinterpret_cast<aShip::TShip*>(Target), RecordFilm);
+            aShip::TShip_FireWeaponAtShip(Ship, Weapon, reinterpret_cast<aShip::TShip*>(Target), RecordFilm);
         } else if (pas::class_cast_if<aItem::TItem*>(Target) != nullptr) {
             Ship->FireWeaponAtItem(Weapon, reinterpret_cast<aItem::TItem*>(Target), RecordFilm);
         } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Target) != nullptr) {
@@ -13576,7 +13594,7 @@ namespace aScriptFun {
             Range = av[4]->GetInt();
         }
         if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
-            std::int32_t applyWeaponHit = reinterpret_cast<aShip::TShip*>(Target)->ApplyWeaponHit(Ship, Weapon, Range, Color, pas::Var<std::uint32_t>(&Flags), 1.0f, 0);
+            std::int32_t applyWeaponHit = aShip::TShip_ApplyWeaponHit(reinterpret_cast<aShip::TShip*>(Target), Ship, Weapon, Range, Color, pas::Var<std::uint32_t>(&Flags), 1.0f, 0);
             EC_Expression::TVarEC* cpp_arg = av[0];
             cpp_arg->SetInt(applyWeaponHit);
         } else if (pas::class_cast_if<aMissile::TMissile*>(Target) != nullptr) {
@@ -13609,7 +13627,7 @@ namespace aScriptFun {
         pas::Object* Source = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         std::int32_t Damage = av[3]->GetInt();
         if (Source != nullptr && pas::class_cast_if<aItem::TItem*>(Source) != nullptr) {
-            std::int32_t applyExplosionDamage = Ship->ApplyExplosionDamage(nullptr, Source, Damage, nullptr);
+            std::int32_t applyExplosionDamage = aShip::TShip_ApplyExplosionDamage(Ship, nullptr, Source, Damage, nullptr);
             EC_Expression::TVarEC* cpp_arg = av[0];
             cpp_arg->SetInt(applyExplosionDamage);
         } else {
@@ -13624,7 +13642,7 @@ namespace aScriptFun {
                 Range = -1;
             }
             {
-                std::int32_t applyDamage = Ship->ApplyDamage(Source, Damage, Range, Color, Flags);
+                std::int32_t applyDamage = aShip::TShip_ApplyDamage(Ship, Source, Damage, Range, Color, Flags);
                 EC_Expression::TVarEC* cpp_arg_2 = av[0];
                 cpp_arg_2->SetInt(applyDamage);
             }
@@ -13663,7 +13681,7 @@ namespace aScriptFun {
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Missile)));
         if (Ship->CurrentStar->RecordingTurnFilm) {
             Step = Ship->CurrentStar->CurrentStepIndex;
-            Missile->PrepareTurnMovement(Step, true, true);
+            aMissile::TMissile_PrepareTurnMovement(Missile, Step, true, true);
             Globals::PrimaryFilm->DetachObject(0, Missile->FilmObject);
         }
     }
@@ -13694,7 +13712,7 @@ namespace aScriptFun {
             Module = 0;
             Special = 0;
         }
-        if (av[9]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[9]) == EC_Expression::vkString) {
             Missile = pas::construct_call<aMissile::TCustomMissile>(aMissile::TMissile_Create);
             reinterpret_cast<aMissile::TCustomMissile*>(Missile)->InitializeUnownedShot_2(Star, Target, X, Y, Direction, MinDamage, MaxDamage, Speed, av[9]->GetString(), Module, Special);
         } else {
@@ -13705,7 +13723,7 @@ namespace aScriptFun {
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Missile)));
         if (Star->RecordingTurnFilm) {
             Step = Star->CurrentStepIndex;
-            Missile->PrepareTurnMovement(Step, true, true);
+            aMissile::TMissile_PrepareTurnMovement(Missile, Step, true, true);
             Globals::PrimaryFilm->DetachObject(0, Missile->FilmObject);
         }
     }
@@ -13739,7 +13757,7 @@ namespace aScriptFun {
             aMyFunction::ReplaceTextToken(Text, u"<ExCount>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
             if (aConst::MicroModuleTemplates[Index].SeparatedNumbers) {
                 for (Bonus = static_cast<std::uint8_t>(0); Bonus <= static_cast<std::uint8_t>(42); ++Bonus) {
-                    Value = Count * aConst::MicroModuleTemplates[Index].StatBonuses[Bonus];
+                    Value = Count * pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Index].StatBonuses, Bonus * sizeof(std::int32_t)));
                     if (Value > 0) {
                         pas::WideString cpp_arg_2 = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
                         pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[Bonus], u">"});
@@ -13920,7 +13938,7 @@ namespace aScriptFun {
                 Ship->SetMoney(av[3]->GetInt());
             }
         }
-        Ship->BuyEquipmentAtLocation(true);
+        aShip::TShip_BuyEquipmentAtLocation(Ship, true);
         if (av.length() - 1 > 1) {
             if (Ship->GetHull()->Weight < av[2]->GetInt()) {
                 Ship->GetHull()->Weight = av[2]->GetInt();
@@ -13945,7 +13963,7 @@ namespace aScriptFun {
             Count = av[2]->GetInt();
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(I); ) {
-            Ship->ImproveRandomEquipment(false);
+            aShip::TShip_ImproveRandomEquipment(Ship, false);
         }
         Ship->RefreshDerivedStats(true);
         if (Ship->GetDesiredCargoFreeSpace() > Ship->CargoFreeSpace) {
@@ -14012,15 +14030,15 @@ namespace aScriptFun {
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aScript::ScriptSnap(Snapshot);
         if (av.length() - 1 < 2 || av[2]->GetInt() == 0) {
-            Ship->NextDayLogic();
+            Ship->virtual_TShip_NextDayLogic();
         } else {
             switch (av[2]->GetInt()) {
-                case 1: Ship->AssignWeaponTargetsInStar(); break;
+                case 1: Ship->virtual_TShip_AssignWeaponTargetsInStar(); break;
                 case 2: Ship->SelectEnemyShipInStar(); break;
                 case 3: Ship->EngageEnemyShip(); break;
-                case 4: Ship->DropCargoUntilNotOverloaded(); break;
+                case 4: aShip::TShip_DropCargoUntilNotOverloaded(Ship); break;
                 case 5: Ship->AutoApplyMicroModules(); break;
-                case 6: Ship->QueueItemsWithinPickupRange(); break;
+                case 6: aShip::TShip_QueueItemsWithinPickupRange(Ship); break;
             }
         }
         aScript::ScriptUnSnap(Snapshot);
@@ -14050,7 +14068,7 @@ namespace aScriptFun {
             if (av.length() - 1 > 2) {
                 Index = av[2]->GetInt() & 0x0000007f;
                 pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ship->CurrentSystemKills, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(av[3]->GetInt()));
-                Ship->RefreshCurrentStanding();
+                Ship->virtual_TShip_RefreshCurrentStanding();
             }
         }
     }
@@ -14271,7 +14289,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipDeleteCustomShipInfo"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->CustomShipInfos) - 1); cpp_range.next(I); ) {
                 Info = pas::list_at<aShip::TCustomShipInfo>(Ship->CustomShipInfos, I);
                 if (static_cast<std::uint8_t>(Info->DeleteQueued ^ 1) && ([&] {
@@ -14346,7 +14364,7 @@ namespace aScriptFun {
         }
         av[0]->SetString(u""_wref.get());
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             Info = nullptr;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->CustomShipInfos) - 1); cpp_range.next(I); ) {
                 Info = pas::list_at<aShip::TCustomShipInfo>(Ship->CustomShipInfos, I);
@@ -14410,7 +14428,7 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             Info = nullptr;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->CustomShipInfos) - 1); cpp_range.next(I); ) {
                 Info = pas::list_at<aShip::TCustomShipInfo>(Ship->CustomShipInfos, I);
@@ -14496,7 +14514,7 @@ namespace aScriptFun {
         }
         av[0]->SetString(u""_wref.get());
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             Info = nullptr;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->CustomShipInfos) - 1); cpp_range.next(I); ) {
                 Info = pas::list_at<aShip::TCustomShipInfo>(Ship->CustomShipInfos, I);
@@ -14599,7 +14617,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarDeleteCustomStarInfo"_a));
         }
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->CustomSystemInfos) - 1); cpp_range.next(I); ) {
                 Info = pas::list_at<aGalaxy::TCustomSystemInfo>(Star->CustomSystemInfos, I);
                 if (([&] {
@@ -14987,7 +15005,7 @@ namespace aScriptFun {
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aConst::TEquipmentBonusKind Kind = static_cast<aConst::TEquipmentBonusKind>(av[2]->GetInt());
-        if (av.length() - 1 > 2 && av[3]->RealVType() == EC_Expression::vkString && av[3]->GetString() == u"Total") {
+        if (av.length() - 1 > 2 && EC_Expression::TVarEC_RealVType(av[3]) == EC_Expression::vkString && av[3]->GetString() == u"Total") {
             av[0]->SetInt(Ship->GetTotalStatBonus(Kind));
         } else {
             av[0]->SetInt(Ship->GetOwnStatBonus(Kind));
@@ -15174,7 +15192,7 @@ namespace aScriptFun {
             Count = (av.length() - 1 - 1) / 2;
             for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(I); ) {
                 EC_Expression::TVarEC* add = ([&] {
-                    EC_Expression::TVarKind realVType = av[I * 2 + 1]->RealVType();
+                    EC_Expression::TVarKind realVType = EC_Expression::TVarEC_RealVType(av[I * 2 + 1]);
                     const pas::WideString& string = av[I * 2]->GetString();
                     EC_Expression::TVarArrayEC* localVar = RunCode->LocalVar;
                     return localVar->Add(string, realVType);
@@ -15316,7 +15334,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateActCodeEvent"_a));
         }
         std::uint8_t ActionType = av[1]->GetInt();
-        if (av[2]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             if (av.length() - 1 < 3) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateActCodeEvent cant call info without ship"_a));
             }
@@ -15548,7 +15566,7 @@ namespace aScriptFun {
                     Globals::ScriptUseItem = nullptr;
                 }
                 aPlayer::GetPlayer()->RefreshDerivedStats(true);
-                Ship->NextDay();
+                Ship->virtual_TShip_NextDay();
                 static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckTranclucatorFleetAchievement();
                 Star = aPlayer::GetPlayer()->CurrentStar;
                 if (aPlayer::GetPlayer()->ChameleonActive) {
@@ -15935,7 +15953,7 @@ namespace aScriptFun {
         pas::List* Choices = nullptr;
         if (av.length() - 1 > 7) {
             Choices = pas::make_object<pas::List>();
-            if (av[8]->RealVType() == EC_Expression::vkArray) {
+            if (EC_Expression::TVarEC_RealVType(av[8]) == EC_Expression::vkArray) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, av[8]->GetArray()->Count - 1); cpp_range.next(Index); ) {
                     pas::new_value(Entry);
                     *Entry = EC_Expression::TVarArrayEC_GetItem(av[8]->GetArray(), Index)->GetString();
@@ -16016,7 +16034,7 @@ namespace aScriptFun {
         Caption = av[1]->GetString();
         pas::List* Choices = pas::make_object<pas::List>();
         Index = -1;
-        if (av[2]->RealVType() == EC_Expression::vkArray) {
+        if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkArray) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, av[2]->GetArray()->Count - 1); cpp_range.next(Index); ) {
                 pas::new_value(Entry);
                 *Entry = EC_Expression::TVarArrayEC_GetItem(av[2]->GetArray(), Index)->GetString();
@@ -16114,7 +16132,8 @@ namespace aScriptFun {
             if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && Index > 0 && Index <= 3) {
                 Value = pas::checked_cast<aItem::TUselessItem*>(Item)->Data[Index - 1];
                 if (av.length() - 1 > 2) {
-                    pas::checked_cast<aItem::TUselessItem*>(Item)->Data[Index - 1] = av[3]->GetInt();
+                    auto& cpp_target = pas::checked_cast<aItem::TUselessItem*>(Item)->Data[Index - 1];
+                    cpp_target = av[3]->GetInt();
                 }
             }
         }
@@ -16626,7 +16645,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ButtonClick - Object not a button"_a));
         }
         GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control);
-        if (av.length() - 1 < 3 || av[3]->RealVType() != EC_Expression::vkString || av[3]->GetString() == u"AllCode") {
+        if (av.length() - 1 < 3 || EC_Expression::TVarEC_RealVType(av[3]) != EC_Expression::vkString || av[3]->GetString() == u"AllCode") {
             if (pas::assigned(Button->UpCallback)) {
                 Button->UpCallback(Button);
             } else if (pas::assigned(Button->DownCallback)) {
@@ -16689,7 +16708,7 @@ namespace aScriptFun {
             }
             return;
         }
-        if (av[1]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkString) {
             if (av[1]->GetString() == u"MoveType") {
                 Query = 0;
             } else if (av[1]->GetString() == u"StackableType") {
@@ -17168,7 +17187,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarMapCustomSelectionMode"_a));
         }
         if (Globals::GetInnermostScreenLoop() == Globals::StarMapScreen) {
-            if (av[1]->RealVType() == EC_Expression::vkString) {
+            if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkString) {
                 Globals::StarMapScreen->CustomSelectionInfoName = av[1]->GetString();
                 Globals::StarMapScreen->CustomSelectionItem = nullptr;
             } else {
@@ -17297,7 +17316,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetCustomWeaponStats"_a));
         }
-        if (av[1]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkString) {
             Info = ([&] {
                 pas::WideString string = av[1]->GetString();
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
@@ -17369,7 +17388,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetCustomWeaponPrimaryDamageType"_a));
         }
-        if (av[1]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkString) {
             Info = ([&] {
                 pas::WideString string = av[1]->GetString();
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
@@ -17477,7 +17496,7 @@ namespace aScriptFun {
         Info->MinDamage = av[2]->GetInt();
         Info->MaxDamage = av[3]->GetInt();
         Flags = static_cast<TWeaponDamageFlags>(EmptyFlags);
-        if (av[4]->RealVType() == EC_Expression::vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[4]) == EC_Expression::vkString) {
             Text = pas::concat_wide({u",", av[4]->GetString(), u","});
             for (Flag = static_cast<std::uint8_t>(0); Flag <= static_cast<std::uint8_t>(20); ++Flag) {
                 if (pas::pos(pas::concat_wide({u",", aConst::WeaponDamageFlagNames[Flag], u","}), Text) > 0) {
@@ -17488,7 +17507,7 @@ namespace aScriptFun {
             pas::store_unaligned<std::uint32_t>(&Flags, av[4]->GetDword());
         }
         Info->DamageFlags = pas::load_unaligned<std::uint32_t>(&Flags);
-        if (av.length() - 1 > 4 && av[5]->RealVType() == EC_Expression::vkString) {
+        if (av.length() - 1 > 4 && EC_Expression::TVarEC_RealVType(av[5]) == EC_Expression::vkString) {
             Text = av[5]->GetString();
             Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
             for (auto cpp_range = pas::for_to<std::int32_t>(1, std::min<std::int32_t>(8, Count)); cpp_range.next(I); ) {
@@ -17496,7 +17515,7 @@ namespace aScriptFun {
             }
         } else {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, std::min<std::int32_t>(8, av.length() - 1 - 4)); cpp_range_2.next(I); ) {
-                if (static_cast<std::uint8_t>(pas::is_one_of<EC_Expression::vkInt, EC_Expression::vkDword>(av[4 + I]->RealVType()) ^ 1) || av[4 + I]->GetInt() != 0) {
+                if (static_cast<std::uint8_t>(pas::is_one_of<EC_Expression::vkInt, EC_Expression::vkDword>(EC_Expression::TVarEC_RealVType(av[4 + I])) ^ 1) || av[4 + I]->GetInt() != 0) {
                     pas::store_unaligned<float>(pas::byte_offset(&Info->DamageScaleByLevel, (I - 1) * sizeof(float)), static_cast<float>(av[4 + I]->GetFloat()));
                 }
             }
@@ -17605,7 +17624,7 @@ namespace aScriptFun {
             av[0]->SetString(reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText);
             if (av.length() - 1 > 1) {
                 reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText = av[2]->GetString();
-                Ship->RefreshCurrentStanding();
+                Ship->virtual_TShip_RefreshCurrentStanding();
             }
         }
     }
@@ -18586,7 +18605,7 @@ namespace aScriptFun {
             } else {
                 Path = pas::concat_wide({Prefix, EC_Str::IntToWideString(I)});
             }
-            if (Item->RealVType() != EC_Expression::vkArray) {
+            if (EC_Expression::TVarEC_RealVType(Item) != EC_Expression::vkArray) {
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Path, u"]=", Item->GetString()})));
             } else {
                 aScriptFun::LogArray(pas::concat_wide({Path, u","}), Item);

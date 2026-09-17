@@ -28,7 +28,6 @@ namespace fPanelLoad {
         PAS_CLASS_META(TfPanelLoad, EC_Struct::TObjectEx, "TfPanelLoad", 160)
         void p_destroy() override;
         void InitializeLayout(GI_MessageLoop::TMessageLoopGI* Screen);
-        void OnOpen();
         void OnClose();
         static std::int32_t GetProgressSegmentCount();
         void Show();

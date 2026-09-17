@@ -80,7 +80,7 @@ namespace GI_GraphButton {
         void ProcessLeftButtonDown(std::uint32_t KeyState, WindowsSdk::TPoint Point) override;
         void ProcessLeftButtonUp(std::uint32_t KeyState, WindowsSdk::TPoint Point) override;
         void ProcessLeftButtonDoubleClick(std::uint32_t KeyState, WindowsSdk::TPoint Point) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Configured state-image positions are absolute; stored positions are relative to this control.
         void LoadButtonProperties(EC_BlockPar::TBlockParEC* Block);

@@ -40,7 +40,7 @@ namespace GI_GraphBuf {
         std::uint8_t HitTestPixel(WindowsSdk::TPoint Point);
         // Uses nonzero pixels. CenterFill is unsupported and can leave bounds changed and temporary storage leaked.
         WindowsSdk::TPoint GetVisualCenter();
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         // Fits the image inside the control size while preserving its aspect ratio.

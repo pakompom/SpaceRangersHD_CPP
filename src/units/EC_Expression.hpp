@@ -156,6 +156,68 @@ namespace EC_Expression {
 
     void TVarEC_Destroy(TVarEC* Self);
 
+    // Returns vkRef for an unresolved reference.
+    TVarKind TVarEC_RealVType(TVarEC* Self);
+
+    // May return nil.
+    TVarEC* TVarEC_Resolve(TVarEC* Self);
+
+    // Nonpositive Count frees the array; positive Count resizes only when Dimension <= 0.
+    void TVarEC_ResizeArray(TVarEC* Self, std::int32_t Count, std::int32_t Dimension);
+
+    // Frees nested arrays; retains vkArray with a nil pointer.
+    void TVarEC_FreeArray(TVarEC* Self);
+
+    void TVarEC_OAdd(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OSub(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OMul(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_ODiv(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OMod(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OBitAnd(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OBitOr(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OBitXor(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OAnd(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OOr(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OShl(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OShr(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_ONotEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OLess(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OMore(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OLessEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OMoreEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right);
+
+    void TVarEC_OMinus(TVarEC* Self, TVarEC* Value);
+
+    void TVarEC_OBitNot(TVarEC* Self, TVarEC* Value);
+
+    void TVarEC_ONot(TVarEC* Self, TVarEC* Value);
+
+    std::uint8_t TVarEC_EqualsValue(TVarEC* Self, TVarEC* Other);
+
+    std::uint8_t TVarEC_LessThan(TVarEC* Self, TVarEC* Other);
+
+    std::uint8_t TVarEC_GreaterThan(TVarEC* Self, TVarEC* Other);
+
+    std::uint8_t TVarEC_IsTrue(TVarEC* Self);
+
     void TVarArrayEC_Create(TVarArrayEC* Self);
 
     void TVarArrayEC_Destroy(TVarArrayEC* Self);

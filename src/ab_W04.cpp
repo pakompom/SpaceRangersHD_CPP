@@ -55,60 +55,60 @@ namespace ab_W04 {
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
-    void TabW04::Advance() {
+    void TabW04_Advance(TabW04* Self) {
         ab_Ship::TabShip* Enemy{};
         TabW04* Child{};
         ab_Global::TSphericalBearingDistance Bearing{};
-        ab_Object::TabObject::Advance();
-        if (Phase != 1 && Phase != 4) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
+        ab_Object::TabObject_Advance(Self);
+        if (Self->Phase != 1 && Self->Phase != 4) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (Phase != 1 && Phase != 4) {
-            Collision = FindCollision();
-            if (Phase == 0 && Collision == SourceObject) {
+        if (Self->Phase != 1 && Self->Phase != 4) {
+            Collision = Self->FindCollision();
+            if (Self->Phase == 0 && Collision == Self->SourceObject) {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && Phase != 1 && Phase != 4) {
+        if ((ab_Global::ArcadeTickCount > Self->ExpireTick || Collision != nullptr) && Self->Phase != 1 && Self->Phase != 4) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Damage, SourceObject, false);
-            } else if (Phase == 0) {
+                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
+            } else if (Self->Phase == 0) {
                 Child = pas::construct_call<TabW04>(TabW04_Create);
                 ab_Object::ab_Object_Add(Child);
-                Child->LaunchChild(this, 35.0f);
+                Child->LaunchChild(Self, 35.0f);
                 Child = pas::construct_call<TabW04>(TabW04_Create);
                 ab_Object::ab_Object_Add(Child);
-                Child->LaunchChild(this, 155.0f);
+                Child->LaunchChild(Self, 155.0f);
                 Child = pas::construct_call<TabW04>(TabW04_Create);
                 ab_Object::ab_Object_Add(Child);
-                Child->LaunchChild(this, 275.0f);
+                Child->LaunchChild(Self, 275.0f);
             }
-            if (Phase == 0) {
-                Phase = 1;
-                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w04a_f"_wref.get(), u"GAI,Bm.AB.w04a_s"_wref.get());
-                ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-                ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
+            if (Self->Phase == 0) {
+                Self->Phase = 1;
+                ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w04a_f"_wref.get(), u"GAI,Bm.AB.w04a_s"_wref.get());
+                ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+                ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
             } else {
-                Phase = 4;
-                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w04c_f"_wref.get(), u"GAI,Bm.AB.w04c_s"_wref.get());
-                ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-                ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
+                Self->Phase = 4;
+                ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w04c_f"_wref.get(), u"GAI,Bm.AB.w04c_s"_wref.get());
+                ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+                ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
             }
-        } else if (Phase == 2 && ab_Global::ArcadeTickCount > AimTick) {
-            if (SourceObject != nullptr) {
-                Enemy = pas::checked_cast<ab_Ship::TabShip*>(SourceObject)->FindNearestEnemyWithBearing(this, Bearing);
+        } else if (Self->Phase == 2 && ab_Global::ArcadeTickCount > Self->AimTick) {
+            if (Self->SourceObject != nullptr) {
+                Enemy = pas::checked_cast<ab_Ship::TabShip*>(Self->SourceObject)->FindNearestEnemyWithBearing(Self, Bearing);
             } else {
                 Enemy = nullptr;
             }
             if (Enemy != nullptr && Bearing.Distance < 5.0E+2L) {
-                Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-                State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Bearing.BearingDeltaDegrees);
-                Thrust = 3.0;
+                Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+                Self->State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Self->State.BearingDegrees) + Bearing.BearingDeltaDegrees);
+                Self->Thrust = 3.0;
             }
-            Phase = 3;
-        } else if (Phase == 1 || Phase == 4) {
-            DeletionPending = Image->Finished;
+            Self->Phase = 3;
+        } else if (Self->Phase == 1 || Self->Phase == 4) {
+            Self->DeletionPending = Self->Image->Finished;
         }
     }
 
@@ -118,6 +118,10 @@ namespace ab_W04 {
 
     void TabW04::p_destroy() {
         ab_W04::TabW04_Destroy(this);
+    }
+
+    void TabW04::virtual_TabObject_Advance() {
+        ab_W04::TabW04_Advance(this);
     }
 
 } // namespace ab_W04

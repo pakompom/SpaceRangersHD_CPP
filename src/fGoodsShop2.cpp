@@ -19,7 +19,6 @@
 #include "types/aPlanet.hpp"
 #include "types/aRanger.hpp"
 #include "types/aRuins.hpp"
-#include "types/aShip.hpp"
 #include "types/fRuinsTalk.hpp"
 #include "types/fStarMap.hpp"
 #include "units/ClassesImports.hpp"
@@ -41,6 +40,7 @@
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/fCount2.hpp"
 #include "units/fEquipmentShop.hpp"
 #include "units/fGoodsShop2.hpp"
@@ -167,7 +167,7 @@ namespace fGoodsShop2 {
         std::int32_t I{};
         pas::WideString BackgroundPath{};
         if (!FlagEC) {
-            LoadPanel->OnOpen();
+            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
         }
         if (!GlobalsV::MusicInPlanetEnabled) {
             GR_Main::MusicManager->RequestFadeOut();
@@ -397,7 +397,7 @@ namespace fGoodsShop2 {
             } else if (aPlayer::GetPlayer()->InNormalSpace()) {
                 {
                     GI_Image::TImageGI* FaceI_3 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"FaceI"_wref.get()));
-                    FaceI_3->SetImagePath(pas::concat_wide({u"GI,", Globals::TalkShip->GetCaptainPortraitResourceBase(), u"i"}));
+                    FaceI_3->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"i"}));
                     FaceI_3->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceI_3->SetImageKindX(GI_Main::ikxCenter);
                     FaceI_3->SetImageKindY(GI_Main::ikyCenter);
@@ -406,7 +406,7 @@ namespace fGoodsShop2 {
                 {
                     GI_GAI::TgaiGI* FaceA_4 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"FaceA"_wref.get()));
                     FaceA_4->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                    FaceA_4->SetImagePath(pas::concat_wide({Globals::TalkShip->GetCaptainPortraitResourceBase(), u"a"}));
+                    FaceA_4->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"a"}));
                     FaceA_4->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceA_4->SequenceIndex = 0;
                     FaceA_4->UpdateAutoGeometry();
@@ -425,7 +425,7 @@ namespace fGoodsShop2 {
             GetByName(u"FaceGB"_wref.get())->SetActive(false);
             {
                 GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()));
-                CaptainI->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->GetCaptainPortraitResourceBase(), u"i"}));
+                CaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"i"}));
                 CaptainI->SetImageKindX(GI_Main::ikxCenter);
                 CaptainI->SetImageKindY(GI_Main::ikyCenter);
                 CaptainI->SetActive(true);
@@ -433,7 +433,7 @@ namespace fGoodsShop2 {
             {
                 GI_GAI::TgaiGI* CaptainA_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
                 CaptainA_2->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                CaptainA_2->SetImagePath(pas::concat_wide({aPlayer::GetPlayer()->GetCaptainPortraitResourceBase(), u"a"}));
+                CaptainA_2->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"a"}));
                 CaptainA_2->SequenceIndex = 0;
                 CaptainA_2->UpdateAutoGeometry();
                 CaptainA_2->SetImageKindX(GI_Main::ikxCenter);
@@ -871,11 +871,11 @@ namespace fGoodsShop2 {
                 if (aPlayer::GetPlayer()->InNormalSpace()) {
                     if (DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20) {
                         if (PartnerCargoLimit <= 0) {
-                            const pas::WideString& lookupTalkText = Globals::TalkShip->LookupTalkText(u"Talk.Trade.NoSpace"_wref.get());
+                            const pas::WideString& lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoSpace"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self = this;
                             GI_MessageBox::ShowMessageBoxGI(self, lookupTalkText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
                         } else {
-                            const pas::WideString& lookupTalkText_2 = Globals::TalkShip->LookupTalkText(u"Talk.Trade.NoMoney"_wref.get());
+                            const pas::WideString& lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoMoney"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self_2 = this;
                             GI_MessageBox::ShowMessageBoxGI(self_2, lookupTalkText_2, GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
                         }
@@ -949,11 +949,11 @@ namespace fGoodsShop2 {
                         return cpp_left_3 < Count;
                     }()) && DraggedGoodsIndex >= 10 && aPlayer::GetPlayer()->InNormalSpace()) {
                         if (Count > PartnerCargoLimit) {
-                            const pas::WideString& lookupTalkText_3 = Globals::TalkShip->LookupTalkText(u"Talk.Trade.NoSpace"_wref.get());
+                            const pas::WideString& lookupTalkText_3 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoSpace"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self_3 = this;
                             GI_MessageBox::ShowMessageBoxGI(self_3, lookupTalkText_3, GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
                         } else {
-                            const pas::WideString& lookupTalkText_4 = Globals::TalkShip->LookupTalkText(u"Talk.Trade.NoMoney"_wref.get());
+                            const pas::WideString& lookupTalkText_4 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoMoney"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self_4 = this;
                             GI_MessageBox::ShowMessageBoxGI(self_4, lookupTalkText_4, GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
                         }
@@ -1020,7 +1020,7 @@ namespace fGoodsShop2 {
                         }
                         if (DraggedGoodsIndex < 10) {
                             GR_Main::SoundManager->PlaySound(u"Sound.Buy"_wref.get());
-                            aPlayer::GetPlayer()->BuyGoodsFromLocation(ShopGoodsOrder[DraggedGoodsIndex], Count);
+                            aShip::TShip_BuyGoodsFromLocation(aPlayer::GetPlayer(), ShopGoodsOrder[DraggedGoodsIndex], Count);
                         } else {
                             GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
                             aPlayer::GetPlayer()->SellGoodsToLocation(ShopGoodsOrder[DraggedGoodsIndex - 10], Count);

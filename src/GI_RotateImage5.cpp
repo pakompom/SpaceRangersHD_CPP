@@ -263,9 +263,9 @@ namespace GI_RotateImage5 {
         return Result;
     }
 
-    void TRotateImage5GI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TRotateImage5GI_LoadFromConfigPath(TRotateImage5GI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TRotateImage5GI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -436,6 +436,10 @@ namespace GI_RotateImage5 {
 
     void TRotateImage5GI::p_destroy() {
         GI_RotateImage5::TRotateImage5GI_Destroy(this);
+    }
+
+    void TRotateImage5GI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_RotateImage5::TRotateImage5GI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_RotateImage5

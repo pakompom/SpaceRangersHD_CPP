@@ -11,4 +11,6 @@ namespace GI_StatusBar {
 
     void TStatusBarGI_Destroy(TStatusBarGI* Self);
 
+    void TStatusBarGI_LoadFromConfigPath(TStatusBarGI* Self, const pas::WideString& Path);
+
 } // namespace GI_StatusBar

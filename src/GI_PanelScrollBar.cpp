@@ -234,9 +234,9 @@ namespace GI_PanelScrollBar {
         }
     }
 
-    void TPanelScrollBarGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_Panel::TPanelGI::LoadFromConfigPath(Path);
-        LoadScrollbarPanelProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TPanelScrollBarGI_LoadFromConfigPath(TPanelScrollBarGI* Self, const pas::WideString& Path) {
+        GI_Panel::TPanelGI_LoadFromConfigPath(Self, Path);
+        Self->LoadScrollbarPanelProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TPanelScrollBarGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -297,6 +297,10 @@ namespace GI_PanelScrollBar {
 
     void TPanelScrollBarGI::p_destroy() {
         GI_PanelScrollBar::TPanelScrollBarGI_Destroy(this);
+    }
+
+    void TPanelScrollBarGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_PanelScrollBar::TPanelScrollBarGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_PanelScrollBar

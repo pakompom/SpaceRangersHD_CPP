@@ -136,9 +136,9 @@ namespace GI_RotateImageGAI {
         return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(FrameIndexTable, Index * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
-    void TRotateImageGaiGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TRotateImageGaiGI_LoadFromConfigPath(TRotateImageGaiGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TRotateImageGaiGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -334,6 +334,10 @@ namespace GI_RotateImageGAI {
 
     void TRotateImageGaiGI::p_destroy() {
         GI_RotateImageGAI::TRotateImageGaiGI_Destroy(this);
+    }
+
+    void TRotateImageGaiGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_RotateImageGAI::TRotateImageGaiGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_RotateImageGAI

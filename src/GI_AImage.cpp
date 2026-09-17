@@ -119,18 +119,18 @@ namespace GI_AImage {
         AdvanceFrame(nullptr, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(FirstChild)));
     }
 
-    void TAImageGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadAnimationProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TAImageGI_LoadFromConfigPath(TAImageGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        GI_AImage::TAImageGI_LoadAnimationProperties(Self, GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TAImageGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
-        LoadAnimationProperties(Block);
+        GI_AImage::TAImageGI_LoadAnimationProperties(this, Block);
     }
 
     // Numeric parameter names supply frame delays; values select child images.
-    void TAImageGI::LoadAnimationProperties(EC_BlockPar::TBlockParEC* Block) {
+    void TAImageGI_LoadAnimationProperties(TAImageGI* Self, EC_BlockPar::TBlockParEC* Block) {
         std::int32_t Index{};
         GI_Image::TImageGI* Frame{};
         std::uint8_t HaveFrame = false;
@@ -138,9 +138,9 @@ namespace GI_AImage {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             if (EC_Str::IsIntegerTextW(Block->GetParamName(Index))) {
                 if (!HaveFrame) {
-                    FreeOwnedChildren();
+                    Self->FreeOwnedChildren();
                 }
-                Frame = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, this);
+                Frame = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Self);
                 Frame->UserValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParamName(Index)));
                 Frame->SetDepth(Count + 1 - Index);
                 Frame->SetImagePath(Block->GetParamValue(Index));
@@ -150,21 +150,21 @@ namespace GI_AImage {
                 HaveFrame = true;
             }
         }
-        CurrentFrame = nullptr;
-        if (FrameTimer != nullptr) {
-            MessageLoop->CancelCallbackTimer(FrameTimer);
-            FrameTimer = nullptr;
+        Self->CurrentFrame = nullptr;
+        if (Self->FrameTimer != nullptr) {
+            Self->MessageLoop->CancelCallbackTimer(Self->FrameTimer);
+            Self->FrameTimer = nullptr;
         }
-        GI_Image::TImageGI* First = pas::checked_cast<GI_Image::TImageGI*>(FirstChild);
+        GI_Image::TImageGI* First = pas::checked_cast<GI_Image::TImageGI*>(Self->FirstChild);
         if (First != nullptr) {
-            FrameTimer = MessageLoop->ScheduleCallbackTimer(First->UserValue, 0x00ffffff, pas::bind_method<&TAImageGI::AdvanceFrame>(this), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(First)));
-            First->SetSize(ClientSize);
-            First->SetImageKindX(ImageKindX);
-            First->SetImageKindY(ImageKindY);
-            CurrentFrame = First;
+            Self->FrameTimer = Self->MessageLoop->ScheduleCallbackTimer(First->UserValue, 0x00ffffff, pas::bind_method<&TAImageGI::AdvanceFrame>(Self), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(First)));
+            First->SetSize(Self->ClientSize);
+            First->SetImageKindX(Self->ImageKindX);
+            First->SetImageKindY(Self->ImageKindY);
+            Self->CurrentFrame = First;
         }
         if (Block->CountParams(u"HalfAlpha"_wref.get()) > 0) {
-            SetHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"HalfAlpha"_wref.get())));
+            Self->SetHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"HalfAlpha"_wref.get())));
         }
     }
 
@@ -178,6 +178,10 @@ namespace GI_AImage {
 
     void TAImageGI::p_destroy() {
         GI_AImage::TAImageGI_Destroy(this);
+    }
+
+    void TAImageGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_AImage::TAImageGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_AImage

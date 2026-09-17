@@ -478,14 +478,14 @@ namespace EC_Expression {
         }
         av[0]->Assume(av[1], false);
         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
-            if (av[0]->RealVType() == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(av[i]->RealVType())) {
-                av[0]->ConvertToKind(av[i]->RealVType());
-            } else if (av[i]->RealVType() == vkFloat) {
-                if (pas::is_one_of<vkInt, vkDword>(av[0]->RealVType())) {
-                    av[0]->ConvertToKind(av[i]->RealVType());
+            if (EC_Expression::TVarEC_RealVType(av[0]) == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(EC_Expression::TVarEC_RealVType(av[i]))) {
+                av[0]->ConvertToKind(EC_Expression::TVarEC_RealVType(av[i]));
+            } else if (EC_Expression::TVarEC_RealVType(av[i]) == vkFloat) {
+                if (pas::is_one_of<vkInt, vkDword>(EC_Expression::TVarEC_RealVType(av[0]))) {
+                    av[0]->ConvertToKind(EC_Expression::TVarEC_RealVType(av[i]));
                 }
             }
-            if (av[0]->GreaterThan(av[i])) {
+            if (EC_Expression::TVarEC_GreaterThan(av[0], av[i])) {
                 av[0]->Assume(av[i], false);
             }
         }
@@ -501,14 +501,14 @@ namespace EC_Expression {
         }
         av[0]->Assume(av[1], false);
         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
-            if (av[0]->RealVType() == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(av[i]->RealVType())) {
-                av[0]->ConvertToKind(av[i]->RealVType());
-            } else if (av[i]->RealVType() == vkFloat) {
-                if (pas::is_one_of<vkInt, vkDword>(av[0]->RealVType())) {
-                    av[0]->ConvertToKind(av[i]->RealVType());
+            if (EC_Expression::TVarEC_RealVType(av[0]) == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(EC_Expression::TVarEC_RealVType(av[i]))) {
+                av[0]->ConvertToKind(EC_Expression::TVarEC_RealVType(av[i]));
+            } else if (EC_Expression::TVarEC_RealVType(av[i]) == vkFloat) {
+                if (pas::is_one_of<vkInt, vkDword>(EC_Expression::TVarEC_RealVType(av[0]))) {
+                    av[0]->ConvertToKind(EC_Expression::TVarEC_RealVType(av[i]));
                 }
             }
-            if (av[0]->LessThan(av[i])) {
+            if (EC_Expression::TVarEC_LessThan(av[0], av[i])) {
                 av[0]->Assume(av[i], false);
             }
         }
@@ -527,7 +527,7 @@ namespace EC_Expression {
         --Count;
         Dimensions.set_length(Count);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            if (av[i + 1]->RealVType() != vkInt || av[i + 1]->GetInt() < 1) {
+            if (EC_Expression::TVarEC_RealVType(av[i + 1]) != vkInt || av[i + 1]->GetInt() < 1) {
                 Dimensions = nullptr;
                 return;
             }
@@ -547,7 +547,7 @@ namespace EC_Expression {
         if (av.length() - 1 >= 3) {
             Dimension = av[3]->GetInt();
         }
-        av[1]->ResizeArray(av[2]->GetInt(), Dimension);
+        EC_Expression::TVarEC_ResizeArray(av[1], av[2]->GetInt(), Dimension);
     }
 
     void EF_Free(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
@@ -560,7 +560,7 @@ namespace EC_Expression {
         }
         av[0]->Assume(av[1], false);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            av[i + 1]->FreeArray();
+            EC_Expression::TVarEC_FreeArray(av[i + 1]);
         }
     }
 
@@ -571,10 +571,10 @@ namespace EC_Expression {
         if (Count < 1) {
             return;
         }
-        if (av[1]->RealVType() == vkArray) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == vkArray) {
             av[0]->SetInt(av[1]->GetArray()->Count);
         }
-        if (av[1]->RealVType() == vkString) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == vkString) {
             std::int32_t cpp_arg = av[1]->GetString().length();
             TVarEC* cpp_arg_2 = av[0];
             cpp_arg_2->SetInt(cpp_arg);
@@ -588,7 +588,7 @@ namespace EC_Expression {
         if (Count < 2) {
             return;
         }
-        av[1]->ResetKind(av[2]->RealVType());
+        av[1]->ResetKind(EC_Expression::TVarEC_RealVType(av[2]));
         av[1]->Assume(av[2], true);
     }
 
@@ -599,7 +599,7 @@ namespace EC_Expression {
         if (Count < 2) {
             return;
         }
-        if (av[1]->RealVType() == vkInt) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == vkInt) {
             av[0]->SetInt(pas::abs(av[1]->GetInt()));
         } else {
             av[0]->SetFloat(std::fabs(static_cast<pas::Extended>(av[1]->GetFloat())));
@@ -649,7 +649,7 @@ namespace EC_Expression {
         } else {
             Step = 1;
         }
-        if (av[1]->RealVType() == vkFloat) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == vkFloat) {
             av[0]->SetInt(static_cast<std::int32_t>(System::Round(pas::real_divide(av[1]->GetFloat(), Step))) * Step);
         } else {
             av[0]->SetInt(static_cast<std::int32_t>(System::Round(pas::real_divide(av[1]->GetInt(), Step))) * Step);
@@ -683,7 +683,7 @@ namespace EC_Expression {
         if (Count < 2) {
             return;
         }
-        if (av[1]->RealVType() == vkInt) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == vkInt) {
             std::int32_t cpp_left = av[1]->GetInt();
             av[0]->SetInt(cpp_left * av[1]->GetInt());
         } else {
@@ -1050,7 +1050,7 @@ namespace EC_Expression {
             TVarArrayEC* localVar = code->LocalVar;
             return localVar->GetVar(string);
         }());
-        if (Found->RealVType() == vkFunction) {
+        if (EC_Expression::TVarEC_RealVType(Found) == vkFunction) {
             Definition = Found->GetFunction();
             if (Definition->IsClassDefinition) {
                 Instance = pas::construct_call<TCodeEC>(TCodeEC_Create);
@@ -1068,7 +1068,7 @@ namespace EC_Expression {
         if (av.length() - 1 != 1) {
             return;
         }
-        if (av[1]->RealVType() == vkClass) {
+        if (EC_Expression::TVarEC_RealVType(av[1]) == vkClass) {
             pas::free(av[1]->GetClass());
             av[1]->ResetKind(vkEmpty);
         }
@@ -1379,8 +1379,8 @@ namespace EC_Expression {
     }
 
     // Returns vkRef for an unresolved reference.
-    TVarKind TVarEC::RealVType() {
-        TVarEC* Value = Resolve();
+    TVarKind TVarEC_RealVType(TVarEC* Self) {
+        TVarEC* Value = EC_Expression::TVarEC_Resolve(Self);
         if (Value == nullptr) {
             return vkRef;
         }
@@ -1974,8 +1974,8 @@ namespace EC_Expression {
     }
 
     // May return nil.
-    TVarEC* TVarEC::Resolve() {
-        TVarEC* Result = this;
+    TVarEC* TVarEC_Resolve(TVarEC* Self) {
+        TVarEC* Result = Self;
         while (Result != nullptr && Result->Kind == vkRef) {
             Result = Result->RefValue;
         }
@@ -2022,7 +2022,7 @@ namespace EC_Expression {
     void CollectScriptArrayDimensions(TVarArrayEC* Values, pas::DynArray<std::int32_t>& Dimensions) {
         Dimensions.set_length(Dimensions.length() - 1 + 1 + 1);
         Dimensions[Dimensions.length() - 1] = Values->Count;
-        if (Values->Count > 0 && EC_Expression::TVarArrayEC_GetItem(Values, 0)->RealVType() == vkArray) {
+        if (Values->Count > 0 && EC_Expression::TVarEC_RealVType(EC_Expression::TVarArrayEC_GetItem(Values, 0)) == vkArray) {
             EC_Expression::CollectScriptArrayDimensions(EC_Expression::TVarArrayEC_GetItem(Values, 0)->GetArray(), Dimensions);
         }
     }
@@ -2037,664 +2037,676 @@ namespace EC_Expression {
     }
 
     // Nonpositive Count frees the array; positive Count resizes only when Dimension <= 0.
-    void TVarEC::ResizeArray(std::int32_t Count, std::int32_t Dimension) {
+    void TVarEC_ResizeArray(TVarEC* Self, std::int32_t Count, std::int32_t Dimension) {
         pas::Array<std::int32_t, 0, 0> Dimensions{};
-        if (RealVType() == vkArray) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkArray) {
             if (Count <= 0) {
-                FreeArray();
+                EC_Expression::TVarEC_FreeArray(Self);
             } else if (Dimension <= 0) {
-                if (GetArray() == nullptr) {
+                if (Self->GetArray() == nullptr) {
                     Dimensions[0] = Count;
-                    CreateArray(pas::open_array(Dimensions));
+                    Self->CreateArray(pas::open_array(Dimensions));
                 } else {
-                    EC_Expression::ResizeScriptArray(GetArray(), Count);
+                    EC_Expression::ResizeScriptArray(Self->GetArray(), Count);
                 }
             }
         }
     }
 
     // Frees nested arrays; retains vkArray with a nil pointer.
-    void TVarEC::FreeArray() {
-        if (RealVType() == vkArray && GetArray() != nullptr) {
-            EC_Expression::FreeScriptArrayTree(GetArray());
-            SetArray(nullptr);
+    void TVarEC_FreeArray(TVarEC* Self) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkArray && Self->GetArray() != nullptr) {
+            EC_Expression::FreeScriptArrayTree(Self->GetArray());
+            Self->SetArray(nullptr);
         }
     }
 
-    void TVarEC::OAdd(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OAdd(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left + Right->GetInt());
+                    Self->SetInt(cpp_left + Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 + Right->GetDword());
+                    Self->SetDword(cpp_left_2 + Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(cpp_left_3 + Right->GetFloat());
+                    Self->SetFloat(cpp_left_3 + Right->GetFloat());
                     break;
                 }
-                case vkString: SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()})); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: {
+                    Self->SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()}));
+                    break;
+                }
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OAdd"_a));
             }
         }
     }
 
-    void TVarEC::OSub(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OSub(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left - Right->GetInt());
+                    Self->SetInt(cpp_left - Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 - Right->GetDword());
+                    Self->SetDword(cpp_left_2 - Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(cpp_left_3 - Right->GetFloat());
+                    Self->SetFloat(cpp_left_3 - Right->GetFloat());
                     break;
                 }
-                case vkString: SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()})); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: {
+                    Self->SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()}));
+                    break;
+                }
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OSub"_a));
             }
         }
     }
 
-    void TVarEC::OMul(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OMul(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left * Right->GetInt());
+                    Self->SetInt(cpp_left * Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 * Right->GetDword());
+                    Self->SetDword(cpp_left_2 * Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(cpp_left_3 * Right->GetFloat());
+                    Self->SetFloat(cpp_left_3 * Right->GetFloat());
                     break;
                 }
-                case vkString: SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()})); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: {
+                    Self->SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()}));
+                    break;
+                }
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OMul"_a));
             }
         }
     }
 
-    void TVarEC::ODiv(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_ODiv(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(pas::idiv(cpp_left, Right->GetInt()));
+                    Self->SetInt(pas::idiv(cpp_left, Right->GetInt()));
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(pas::idiv(cpp_left_2, Right->GetDword()));
+                    Self->SetDword(pas::idiv(cpp_left_2, Right->GetDword()));
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(pas::real_divide(cpp_left_3, Right->GetFloat()));
+                    Self->SetFloat(pas::real_divide(cpp_left_3, Right->GetFloat()));
                     break;
                 }
-                case vkString: SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()})); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: {
+                    Self->SetString(pas::concat_wide_reverse({Right->GetString(), Left->GetString()}));
+                    break;
+                }
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("ODiv"_a));
             }
         }
     }
 
-    void TVarEC::OMod(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OMod(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(pas::imod(cpp_left, Right->GetInt()));
+                    Self->SetInt(pas::imod(cpp_left, Right->GetInt()));
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(pas::imod(cpp_left_2, Right->GetDword()));
+                    Self->SetDword(pas::imod(cpp_left_2, Right->GetDword()));
                     break;
                 }
                 case vkFloat: {
                     std::int64_t cpp_right = System::Trunc(Right->GetFloat());
-                    SetFloat(pas::imod(System::Trunc(Left->GetFloat()), cpp_right));
+                    Self->SetFloat(pas::imod(System::Trunc(Left->GetFloat()), cpp_right));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OMod"_a));
             }
         }
     }
 
-    void TVarEC::OBitAnd(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OBitAnd(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left & Right->GetInt());
+                    Self->SetInt(cpp_left & Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 & Right->GetDword());
+                    Self->SetDword(cpp_left_2 & Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     std::int64_t cpp_left_3 = System::Trunc(Left->GetFloat());
-                    SetFloat(cpp_left_3 & System::Trunc(Right->GetFloat()));
+                    Self->SetFloat(cpp_left_3 & System::Trunc(Right->GetFloat()));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OBitAnd"_a));
             }
         }
     }
 
-    void TVarEC::OBitOr(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OBitOr(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left | Right->GetInt());
+                    Self->SetInt(cpp_left | Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 | Right->GetDword());
+                    Self->SetDword(cpp_left_2 | Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     std::int64_t cpp_left_3 = System::Trunc(Left->GetFloat());
-                    SetFloat(cpp_left_3 | System::Trunc(Right->GetFloat()));
+                    Self->SetFloat(cpp_left_3 | System::Trunc(Right->GetFloat()));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OBitOr"_a));
             }
         }
     }
 
-    void TVarEC::OBitXor(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OBitXor(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left ^ Right->GetInt());
+                    Self->SetInt(cpp_left ^ Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 ^ Right->GetDword());
+                    Self->SetDword(cpp_left_2 ^ Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     std::int64_t cpp_left_3 = System::Trunc(Left->GetFloat());
-                    SetFloat(cpp_left_3 ^ System::Trunc(Right->GetFloat()));
+                    Self->SetFloat(cpp_left_3 ^ System::Trunc(Right->GetFloat()));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OBitXor"_a));
             }
         }
     }
 
-    void TVarEC::OAnd(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OAnd(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
-                case vkInt: SetInt(Left->GetInt() != 0 && Right->GetInt() != 0); break;
-                case vkDword: SetDword(Left->GetDword() != 0 && Right->GetDword() != 0); break;
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
+                case vkInt: Self->SetInt(Left->GetInt() != 0 && Right->GetInt() != 0); break;
+                case vkDword: Self->SetDword(Left->GetDword() != 0 && Right->GetDword() != 0); break;
                 case vkFloat: {
-                    SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0L && Right->GetFloat() != 0.0L));
+                    Self->SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0L && Right->GetFloat() != 0.0L));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OAnd"_a));
             }
         }
     }
 
-    void TVarEC::OOr(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OOr(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
-                case vkInt: SetInt(Left->GetInt() != 0 || Right->GetInt() != 0); break;
-                case vkDword: SetDword(Left->GetDword() != 0 || Right->GetDword() != 0); break;
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
+                case vkInt: Self->SetInt(Left->GetInt() != 0 || Right->GetInt() != 0); break;
+                case vkDword: Self->SetDword(Left->GetDword() != 0 || Right->GetDword() != 0); break;
                 case vkFloat: {
-                    SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0L || Right->GetFloat() != 0.0L));
+                    Self->SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0L || Right->GetFloat() != 0.0L));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OOr"_a));
             }
         }
     }
 
-    void TVarEC::OShl(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OShl(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_right = Right->GetInt();
-                    SetInt(pas::shl(Left->GetInt(), cpp_right));
+                    Self->SetInt(pas::shl(Left->GetInt(), cpp_right));
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_right_2 = Right->GetDword();
-                    SetDword(pas::shl(Left->GetDword(), cpp_right_2));
+                    Self->SetDword(pas::shl(Left->GetDword(), cpp_right_2));
                     break;
                 }
                 case vkFloat: {
                     std::int64_t cpp_right_3 = System::Trunc(Right->GetFloat());
-                    SetFloat(pas::shl(System::Trunc(Left->GetFloat()), cpp_right_3));
+                    Self->SetFloat(pas::shl(System::Trunc(Left->GetFloat()), cpp_right_3));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OShl"_a));
             }
         }
     }
 
-    void TVarEC::OShr(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OShr(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_right = Right->GetInt();
-                    SetInt(pas::shr(Left->GetInt(), cpp_right));
+                    Self->SetInt(pas::shr(Left->GetInt(), cpp_right));
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_right_2 = Right->GetDword();
-                    SetDword(pas::shr(Left->GetDword(), cpp_right_2));
+                    Self->SetDword(pas::shr(Left->GetDword(), cpp_right_2));
                     break;
                 }
                 case vkFloat: {
                     std::int64_t cpp_right_3 = System::Trunc(Right->GetFloat());
-                    SetFloat(pas::shr(System::Trunc(Left->GetFloat()), cpp_right_3));
+                    Self->SetFloat(pas::shr(System::Trunc(Left->GetFloat()), cpp_right_3));
                     break;
                 }
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OShr"_a));
             }
         }
     }
 
-    void TVarEC::OEqual(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left == Right->GetInt());
+                    Self->SetInt(cpp_left == Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 == Right->GetDword());
+                    Self->SetDword(cpp_left_2 == Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(static_cast<std::int32_t>(cpp_left_3 == Right->GetFloat()));
+                    Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 == Right->GetFloat()));
                     break;
                 }
                 case vkString: {
-                    SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
+                    Self->SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
                         pas::WideString cpp_string = Left->GetString();
                         pas::WideString cpp_string_2 = Right->GetString();
                         return cpp_string == cpp_string_2;
                     }()))));
                     break;
                 }
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OEqual"_a));
             }
         }
     }
 
-    void TVarEC::ONotEqual(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_ONotEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left != Right->GetInt());
+                    Self->SetInt(cpp_left != Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 != Right->GetDword());
+                    Self->SetDword(cpp_left_2 != Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(static_cast<std::int32_t>(cpp_left_3 != Right->GetFloat()));
+                    Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 != Right->GetFloat()));
                     break;
                 }
                 case vkString: {
-                    SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
+                    Self->SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
                         pas::WideString cpp_string = Left->GetString();
                         pas::WideString cpp_string_2 = Right->GetString();
                         return cpp_string != cpp_string_2;
                     }()))));
                     break;
                 }
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("ONotEqual"_a));
             }
         }
     }
 
-    void TVarEC::OLess(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OLess(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left < Right->GetInt());
+                    Self->SetInt(cpp_left < Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 < Right->GetDword());
+                    Self->SetDword(cpp_left_2 < Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(static_cast<std::int32_t>(cpp_left_3 < Right->GetFloat()));
+                    Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 < Right->GetFloat()));
                     break;
                 }
                 case vkString: {
-                    SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
+                    Self->SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
                         pas::WideString cpp_string = Left->GetString();
                         pas::WideString cpp_string_2 = Right->GetString();
                         return cpp_string < cpp_string_2;
                     }()))));
                     break;
                 }
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OLess"_a));
             }
         }
     }
 
-    void TVarEC::OMore(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OMore(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left > Right->GetInt());
+                    Self->SetInt(cpp_left > Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 > Right->GetDword());
+                    Self->SetDword(cpp_left_2 > Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(static_cast<std::int32_t>(cpp_left_3 > Right->GetFloat()));
+                    Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 > Right->GetFloat()));
                     break;
                 }
                 case vkString: {
-                    SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
+                    Self->SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
                         pas::WideString cpp_string = Left->GetString();
                         pas::WideString cpp_string_2 = Right->GetString();
                         return cpp_string > cpp_string_2;
                     }()))));
                     break;
                 }
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OMore"_a));
             }
         }
     }
 
-    void TVarEC::OLessEqual(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OLessEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left <= Right->GetInt());
+                    Self->SetInt(cpp_left <= Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 <= Right->GetDword());
+                    Self->SetDword(cpp_left_2 <= Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(static_cast<std::int32_t>(cpp_left_3 <= Right->GetFloat()));
+                    Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 <= Right->GetFloat()));
                     break;
                 }
                 case vkString: {
-                    SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
+                    Self->SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
                         pas::WideString cpp_string = Left->GetString();
                         pas::WideString cpp_string_2 = Right->GetString();
                         return cpp_string <= cpp_string_2;
                     }()))));
                     break;
                 }
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OLessEqual"_a));
             }
         }
     }
 
-    void TVarEC::OMoreEqual(TVarEC* Left, TVarEC* Right) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Left->RealVType());
+    void TVarEC_OMoreEqual(TVarEC* Self, TVarEC* Left, TVarEC* Right) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Left));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Left->RealVType()) {
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Left)) {
                 case vkInt: {
                     std::int32_t cpp_left = Left->GetInt();
-                    SetInt(cpp_left >= Right->GetInt());
+                    Self->SetInt(cpp_left >= Right->GetInt());
                     break;
                 }
                 case vkDword: {
                     std::uint32_t cpp_left_2 = Left->GetDword();
-                    SetDword(cpp_left_2 >= Right->GetDword());
+                    Self->SetDword(cpp_left_2 >= Right->GetDword());
                     break;
                 }
                 case vkFloat: {
                     pas::Extended cpp_left_3 = Left->GetFloat();
-                    SetFloat(static_cast<std::int32_t>(cpp_left_3 >= Right->GetFloat()));
+                    Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 >= Right->GetFloat()));
                     break;
                 }
                 case vkString: {
-                    SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
+                    Self->SetString(pas::wide_int_to_str(static_cast<std::int32_t>(([&] {
                         pas::WideString cpp_string = Left->GetString();
                         pas::WideString cpp_string_2 = Right->GetString();
                         return cpp_string >= cpp_string_2;
                     }()))));
                     break;
                 }
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OMoreEqual"_a));
             }
         }
     }
 
-    void TVarEC::OMinus(TVarEC* Value) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Value->RealVType());
+    void TVarEC_OMinus(TVarEC* Self, TVarEC* Value) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Value));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Value->RealVType()) {
-                case vkInt: SetInt(-Value->GetInt()); break;
-                case vkDword: SetDword(-static_cast<std::int64_t>(Value->GetDword())); break;
-                case vkFloat: SetFloat(-Value->GetFloat()); break;
-                case vkString: SetString(Value->GetString()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Value)) {
+                case vkInt: Self->SetInt(-Value->GetInt()); break;
+                case vkDword: Self->SetDword(-static_cast<std::int64_t>(Value->GetDword())); break;
+                case vkFloat: Self->SetFloat(-Value->GetFloat()); break;
+                case vkString: Self->SetString(Value->GetString()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OMinus"_a));
             }
         }
     }
 
-    void TVarEC::OBitNot(TVarEC* Value) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Value->RealVType());
+    void TVarEC_OBitNot(TVarEC* Self, TVarEC* Value) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Value));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Value->RealVType()) {
-                case vkInt: SetInt(~Value->GetInt()); break;
-                case vkDword: SetDword(~Value->GetDword()); break;
-                case vkFloat: SetFloat(0.0); break;
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Value)) {
+                case vkInt: Self->SetInt(~Value->GetInt()); break;
+                case vkDword: Self->SetDword(~Value->GetDword()); break;
+                case vkFloat: Self->SetFloat(0.0); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("OBitNot"_a));
             }
         }
     }
 
-    void TVarEC::ONot(TVarEC* Value) {
-        if (RealVType() == vkEmpty) {
-            ResetKind(Value->RealVType());
+    void TVarEC_ONot(TVarEC* Self, TVarEC* Value) {
+        if (EC_Expression::TVarEC_RealVType(Self) == vkEmpty) {
+            Self->ResetKind(EC_Expression::TVarEC_RealVType(Value));
         }
-        if (RealVType() != vkEmpty) {
-            switch (Value->RealVType()) {
-                case vkInt: SetInt(Value->GetInt() == 0); break;
-                case vkDword: SetDword(Value->GetInt() == 0); break;
-                case vkFloat: SetFloat(static_cast<std::int32_t>(Value->GetFloat() == 0.0L)); break;
-                case vkString: SetString(u""_wref.get()); break;
-                case vkExternFun: SetExternFun(nullptr); break;
-                case vkFunction: SetFunction(nullptr); break;
-                case vkClass: SetClass(nullptr); break;
-                case vkArray: SetArray(nullptr); break;
+        if (EC_Expression::TVarEC_RealVType(Self) != vkEmpty) {
+            switch (EC_Expression::TVarEC_RealVType(Value)) {
+                case vkInt: Self->SetInt(Value->GetInt() == 0); break;
+                case vkDword: Self->SetDword(Value->GetInt() == 0); break;
+                case vkFloat: Self->SetFloat(static_cast<std::int32_t>(Value->GetFloat() == 0.0L)); break;
+                case vkString: Self->SetString(u""_wref.get()); break;
+                case vkExternFun: Self->SetExternFun(nullptr); break;
+                case vkFunction: Self->SetFunction(nullptr); break;
+                case vkClass: Self->SetClass(nullptr); break;
+                case vkArray: Self->SetArray(nullptr); break;
                 default: pas::raise(pas::make_exception<ExceptionExpressionEC>("ONot"_a));
             }
         }
@@ -2705,7 +2717,7 @@ namespace EC_Expression {
         std::int32_t i{};
         TVarEC* Dest = this;
         if (Kind == vkRef) {
-            Dest = Resolve();
+            Dest = EC_Expression::TVarEC_Resolve(this);
             if (Dest == nullptr) {
                 return;
             }
@@ -2714,7 +2726,7 @@ namespace EC_Expression {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error assigning to function ", Dest->Name}))));
         }
         if (Dest->Kind == vkEmpty) {
-            Dest->ResetKind(Source->RealVType());
+            Dest->ResetKind(EC_Expression::TVarEC_RealVType(Source));
         }
         if (!(Dest->Kind == vkEmpty)) {
             if (Dest->Kind == vkInt) {
@@ -2767,30 +2779,30 @@ namespace EC_Expression {
         }
     }
 
-    std::uint8_t TVarEC::EqualsValue(TVarEC* Other) {
-        switch (RealVType()) {
-            case vkEmpty: return IsEmpty() == Other->IsEmpty();
+    std::uint8_t TVarEC_EqualsValue(TVarEC* Self, TVarEC* Other) {
+        switch (EC_Expression::TVarEC_RealVType(Self)) {
+            case vkEmpty: return Self->IsEmpty() == Other->IsEmpty();
             case vkInt: {
-                std::int32_t cpp_left = GetInt();
+                std::int32_t cpp_left = Self->GetInt();
                 return cpp_left == Other->GetInt();
             }
             case vkDword: {
-                std::uint32_t cpp_left_2 = GetDword();
+                std::uint32_t cpp_left_2 = Self->GetDword();
                 return cpp_left_2 == Other->GetDword();
             }
             case vkFloat: {
-                pas::Extended cpp_left_3 = GetFloat();
+                pas::Extended cpp_left_3 = Self->GetFloat();
                 return cpp_left_3 == Other->GetFloat();
             }
             case vkString: {
-                pas::WideString cpp_string = GetString();
+                pas::WideString cpp_string = Self->GetString();
                 pas::WideString cpp_string_2 = Other->GetString();
                 return cpp_string == cpp_string_2;
             }
             case vkExternFun: return false;
             case vkFunction: return false;
             case vkClass: {
-                TCodeEC* cpp_left_4 = GetClass();
+                TCodeEC* cpp_left_4 = Self->GetClass();
                 return cpp_left_4 == Other->GetClass();
             }
             case vkArray: return false;
@@ -2798,23 +2810,23 @@ namespace EC_Expression {
         }
     }
 
-    std::uint8_t TVarEC::LessThan(TVarEC* Other) {
-        switch (RealVType()) {
-            case vkEmpty: return IsEmpty() < Other->IsEmpty();
+    std::uint8_t TVarEC_LessThan(TVarEC* Self, TVarEC* Other) {
+        switch (EC_Expression::TVarEC_RealVType(Self)) {
+            case vkEmpty: return Self->IsEmpty() < Other->IsEmpty();
             case vkInt: {
-                std::int32_t cpp_left = GetInt();
+                std::int32_t cpp_left = Self->GetInt();
                 return cpp_left < Other->GetInt();
             }
             case vkDword: {
-                std::uint32_t cpp_left_2 = GetDword();
+                std::uint32_t cpp_left_2 = Self->GetDword();
                 return cpp_left_2 < Other->GetDword();
             }
             case vkFloat: {
-                pas::Extended cpp_left_3 = GetFloat();
+                pas::Extended cpp_left_3 = Self->GetFloat();
                 return cpp_left_3 < Other->GetFloat();
             }
             case vkString: {
-                pas::WideString cpp_string = GetString();
+                pas::WideString cpp_string = Self->GetString();
                 pas::WideString cpp_string_2 = Other->GetString();
                 return cpp_string < cpp_string_2;
             }
@@ -2826,23 +2838,23 @@ namespace EC_Expression {
         }
     }
 
-    std::uint8_t TVarEC::GreaterThan(TVarEC* Other) {
-        switch (RealVType()) {
-            case vkEmpty: return IsEmpty() > Other->IsEmpty();
+    std::uint8_t TVarEC_GreaterThan(TVarEC* Self, TVarEC* Other) {
+        switch (EC_Expression::TVarEC_RealVType(Self)) {
+            case vkEmpty: return Self->IsEmpty() > Other->IsEmpty();
             case vkInt: {
-                std::int32_t cpp_left = GetInt();
+                std::int32_t cpp_left = Self->GetInt();
                 return cpp_left > Other->GetInt();
             }
             case vkDword: {
-                std::uint32_t cpp_left_2 = GetDword();
+                std::uint32_t cpp_left_2 = Self->GetDword();
                 return cpp_left_2 > Other->GetDword();
             }
             case vkFloat: {
-                pas::Extended cpp_left_3 = GetFloat();
+                pas::Extended cpp_left_3 = Self->GetFloat();
                 return cpp_left_3 > Other->GetFloat();
             }
             case vkString: {
-                pas::WideString cpp_string = GetString();
+                pas::WideString cpp_string = Self->GetString();
                 pas::WideString cpp_string_2 = Other->GetString();
                 return cpp_string > cpp_string_2;
             }
@@ -2854,17 +2866,17 @@ namespace EC_Expression {
         }
     }
 
-    std::uint8_t TVarEC::IsTrue() {
-        switch (RealVType()) {
+    std::uint8_t TVarEC_IsTrue(TVarEC* Self) {
+        switch (EC_Expression::TVarEC_RealVType(Self)) {
             case vkEmpty: return false;
-            case vkInt: return GetInt() != 0;
-            case vkDword: return GetDword() != 0;
-            case vkFloat: return GetFloat() != 0.0L;
-            case vkString: return GetString() != u"";
+            case vkInt: return Self->GetInt() != 0;
+            case vkDword: return Self->GetDword() != 0;
+            case vkFloat: return Self->GetFloat() != 0.0L;
+            case vkString: return Self->GetString() != u"";
             case vkExternFun: return false;
-            case vkLibraryFun: return Resolve()->LibraryFunData != nullptr;
+            case vkLibraryFun: return EC_Expression::TVarEC_Resolve(Self)->LibraryFunData != nullptr;
             case vkFunction: return false;
-            case vkClass: return GetClass() != nullptr;
+            case vkClass: return Self->GetClass() != nullptr;
             case vkArray: return false;
             default: pas::raise(pas::make_exception<ExceptionExpressionEC>("IsTrue"_a));
         }
@@ -3805,9 +3817,9 @@ namespace EC_Expression {
             Result = Value;
             i = 0;
             while (i <= MemberPath.length() - 1) {
-                if (Result->RealVType() == vkClass) {
+                if (EC_Expression::TVarEC_RealVType(Result) == vkClass) {
                     Result = Result->GetClass()->FindVar(MemberPath[i]);
-                } else if (Result->RealVType() == vkFunction) {
+                } else if (EC_Expression::TVarEC_RealVType(Result) == vkFunction) {
                     Result = Result->GetFunction()->FindVar(MemberPath[i]);
                 } else {
                     pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not link var :", GetFullName()}))));
@@ -4443,20 +4455,20 @@ namespace EC_Expression {
                 switch (Instruction->Opcode) {
                     case eoNegate: {
                         TVarEC* resolve = Left->Resolve(vkEmpty);
-                        TVarEC* resolve_2 = Dest->Resolve(Left->Value->RealVType());
-                        resolve_2->OMinus(resolve);
+                        TVarEC* resolve_2 = Dest->Resolve(EC_Expression::TVarEC_RealVType(Left->Value));
+                        EC_Expression::TVarEC_OMinus(resolve_2, resolve);
                         break;
                     }
                     case eoBitNot: {
                         TVarEC* resolve_3 = Left->Resolve(vkEmpty);
-                        TVarEC* resolve_4 = Dest->Resolve(Left->Value->RealVType());
-                        resolve_4->OBitNot(resolve_3);
+                        TVarEC* resolve_4 = Dest->Resolve(EC_Expression::TVarEC_RealVType(Left->Value));
+                        EC_Expression::TVarEC_OBitNot(resolve_4, resolve_3);
                         break;
                     }
                     case eoNot: {
                         TVarEC* resolve_5 = Left->Resolve(vkEmpty);
-                        TVarEC* resolve_6 = Dest->Resolve(Left->Value->RealVType());
-                        resolve_6->ONot(resolve_5);
+                        TVarEC* resolve_6 = Dest->Resolve(EC_Expression::TVarEC_RealVType(Left->Value));
+                        EC_Expression::TVarEC_ONot(resolve_6, resolve_5);
                         break;
                     }
                 }
@@ -4467,7 +4479,7 @@ namespace EC_Expression {
                 ResultKind = vkEmpty;
                 if (Dest->Value == nullptr && Dest->Kind == evOwned) {
                     if (Instruction->Opcode == eoAdd || Instruction->Opcode == eoSubtract || Instruction->Opcode == eoMultiply || Instruction->Opcode == eoDivide) {
-                        ResultKind = Left->Resolve(vkEmpty)->RealVType();
+                        ResultKind = EC_Expression::TVarEC_RealVType(Left->Resolve(vkEmpty));
                     } else {
                         ResultKind = vkInt;
                     }
@@ -4477,126 +4489,126 @@ namespace EC_Expression {
                         TVarEC* resolve_7 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_8 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_9 = Dest->Resolve(ResultKind);
-                        resolve_9->OAdd(resolve_8, resolve_7);
+                        EC_Expression::TVarEC_OAdd(resolve_9, resolve_8, resolve_7);
                         break;
                     }
                     case eoSubtract: {
                         TVarEC* resolve_10 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_11 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_12 = Dest->Resolve(ResultKind);
-                        resolve_12->OSub(resolve_11, resolve_10);
+                        EC_Expression::TVarEC_OSub(resolve_12, resolve_11, resolve_10);
                         break;
                     }
                     case eoMultiply: {
                         TVarEC* resolve_13 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_14 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_15 = Dest->Resolve(ResultKind);
-                        resolve_15->OMul(resolve_14, resolve_13);
+                        EC_Expression::TVarEC_OMul(resolve_15, resolve_14, resolve_13);
                         break;
                     }
                     case eoDivide: {
                         TVarEC* resolve_16 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_17 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_18 = Dest->Resolve(ResultKind);
-                        resolve_18->ODiv(resolve_17, resolve_16);
+                        EC_Expression::TVarEC_ODiv(resolve_18, resolve_17, resolve_16);
                         break;
                     }
                     case eoModulo: {
                         TVarEC* resolve_19 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_20 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_21 = Dest->Resolve(ResultKind);
-                        resolve_21->OMod(resolve_20, resolve_19);
+                        EC_Expression::TVarEC_OMod(resolve_21, resolve_20, resolve_19);
                         break;
                     }
                     case eoBitAnd: {
                         TVarEC* resolve_22 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_23 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_24 = Dest->Resolve(ResultKind);
-                        resolve_24->OBitAnd(resolve_23, resolve_22);
+                        EC_Expression::TVarEC_OBitAnd(resolve_24, resolve_23, resolve_22);
                         break;
                     }
                     case eoBitOr: {
                         TVarEC* resolve_25 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_26 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_27 = Dest->Resolve(ResultKind);
-                        resolve_27->OBitOr(resolve_26, resolve_25);
+                        EC_Expression::TVarEC_OBitOr(resolve_27, resolve_26, resolve_25);
                         break;
                     }
                     case eoBitXor: {
                         TVarEC* resolve_28 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_29 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_30 = Dest->Resolve(ResultKind);
-                        resolve_30->OBitXor(resolve_29, resolve_28);
+                        EC_Expression::TVarEC_OBitXor(resolve_30, resolve_29, resolve_28);
                         break;
                     }
                     case eoAnd: {
                         TVarEC* resolve_31 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_32 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_33 = Dest->Resolve(ResultKind);
-                        resolve_33->OAnd(resolve_32, resolve_31);
+                        EC_Expression::TVarEC_OAnd(resolve_33, resolve_32, resolve_31);
                         break;
                     }
                     case eoOr: {
                         TVarEC* resolve_34 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_35 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_36 = Dest->Resolve(ResultKind);
-                        resolve_36->OOr(resolve_35, resolve_34);
+                        EC_Expression::TVarEC_OOr(resolve_36, resolve_35, resolve_34);
                         break;
                     }
                     case eoShiftLeft: {
                         TVarEC* resolve_37 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_38 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_39 = Dest->Resolve(ResultKind);
-                        resolve_39->OShl(resolve_38, resolve_37);
+                        EC_Expression::TVarEC_OShl(resolve_39, resolve_38, resolve_37);
                         break;
                     }
                     case eoShiftRight: {
                         TVarEC* resolve_40 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_41 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_42 = Dest->Resolve(ResultKind);
-                        resolve_42->OShr(resolve_41, resolve_40);
+                        EC_Expression::TVarEC_OShr(resolve_42, resolve_41, resolve_40);
                         break;
                     }
                     case eoEqual: {
                         TVarEC* resolve_43 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_44 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_45 = Dest->Resolve(ResultKind);
-                        resolve_45->OEqual(resolve_44, resolve_43);
+                        EC_Expression::TVarEC_OEqual(resolve_45, resolve_44, resolve_43);
                         break;
                     }
                     case eoNotEqual: {
                         TVarEC* resolve_46 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_47 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_48 = Dest->Resolve(ResultKind);
-                        resolve_48->ONotEqual(resolve_47, resolve_46);
+                        EC_Expression::TVarEC_ONotEqual(resolve_48, resolve_47, resolve_46);
                         break;
                     }
                     case eoLess: {
                         TVarEC* resolve_49 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_50 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_51 = Dest->Resolve(ResultKind);
-                        resolve_51->OLess(resolve_50, resolve_49);
+                        EC_Expression::TVarEC_OLess(resolve_51, resolve_50, resolve_49);
                         break;
                     }
                     case eoGreater: {
                         TVarEC* resolve_52 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_53 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_54 = Dest->Resolve(ResultKind);
-                        resolve_54->OMore(resolve_53, resolve_52);
+                        EC_Expression::TVarEC_OMore(resolve_54, resolve_53, resolve_52);
                         break;
                     }
                     case eoLessEqual: {
                         TVarEC* resolve_55 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_56 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_57 = Dest->Resolve(ResultKind);
-                        resolve_57->OLessEqual(resolve_56, resolve_55);
+                        EC_Expression::TVarEC_OLessEqual(resolve_57, resolve_56, resolve_55);
                         break;
                     }
                     case eoGreaterEqual: {
                         TVarEC* resolve_58 = Right->Resolve(vkEmpty);
                         TVarEC* resolve_59 = Left->Resolve(vkEmpty);
                         TVarEC* resolve_60 = Dest->Resolve(ResultKind);
-                        resolve_60->OMoreEqual(resolve_59, resolve_58);
+                        EC_Expression::TVarEC_OMoreEqual(resolve_60, resolve_59, resolve_58);
                         break;
                     }
                 }
@@ -4612,13 +4624,13 @@ namespace EC_Expression {
                 Dest = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[0]);
                 Left = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[1]);
                 Value = Left->Resolve(vkEmpty);
-                if (Value->RealVType() != vkArray) {
+                if (EC_Expression::TVarEC_RealVType(Value) != vkArray) {
                     pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not array:", Left->Name}))));
                 }
                 for (auto cpp_range = pas::for_to<std::int32_t>(2, Instruction->OperandCount - 1); cpp_range.next(j); ) {
                     Right = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[j]);
                     IndexValue = Right->Resolve(vkEmpty);
-                    if (IndexValue->RealVType() == vkString) {
+                    if (EC_Expression::TVarEC_RealVType(IndexValue) == vkString) {
                         Value = ([&] {
                             const pas::WideString& string = IndexValue->GetString();
                             TVarArrayEC* array = Value->GetArray();
@@ -4637,7 +4649,7 @@ namespace EC_Expression {
                             pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error array. name=", Left->Resolve(vkEmpty)->Name, u" index=", pas::wide_int_to_str(Right->Value->GetInt()), u" level=", pas::wide_int_to_str(j - 1)}))));
                         }
                     }
-                    if (j != Instruction->OperandCount - 1 && Value->RealVType() != vkArray) {
+                    if (j != Instruction->OperandCount - 1 && EC_Expression::TVarEC_RealVType(Value) != vkArray) {
                         pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error array:", Left->Name}))));
                     }
                 }
@@ -4647,8 +4659,8 @@ namespace EC_Expression {
                 Left = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[1]);
                 Dest->Resolve(vkEmpty);
                 Callee = Left->Resolve(vkEmpty);
-                if (Callee->RealVType() == vkLibraryFun) {
-                    Value = Callee->Resolve();
+                if (EC_Expression::TVarEC_RealVType(Callee) == vkLibraryFun) {
+                    Value = EC_Expression::TVarEC_Resolve(Callee);
                     if (Value->LibraryFunData.length() - 1 + 1 - 2 != Instruction->OperandCount - 2) {
                         pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Count variable : ", Left->Name}))));
                     }
@@ -4667,7 +4679,7 @@ namespace EC_Expression {
                                         break;
                                     }
                                     case lvString: {
-                                        IndexValue = Argument->Resolve();
+                                        IndexValue = EC_Expression::TVarEC_Resolve(Argument);
                                         if (IndexValue->Kind != vkString) {
                                             pas::raise(pas::make_exception<ExceptionExpressionEC>("Variable not string"_a));
                                         }
@@ -4707,7 +4719,7 @@ namespace EC_Expression {
                     } else if (Value->LibraryFunData[0] == 4) {
                         Dest->Value->SetString(pas::concat_wide({u"", static_cast<pas::WideString>(reinterpret_cast<char16_t*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(LibraryWord))))}));
                     }
-                } else if (Callee->RealVType() == vkExternFun) {
+                } else if (EC_Expression::TVarEC_RealVType(Callee) == vkExternFun) {
                     Arguments.set_length(Instruction->OperandCount - 1);
                     Arguments[0] = Dest->Value;
                     Dest->Value->ResetKind(vkEmpty);
@@ -4723,7 +4735,7 @@ namespace EC_Expression {
                     ScriptCallTraceCount = std::min<std::int32_t>(20, ScriptCallTraceCount + 1);
                     ScriptCallTracePosition = (ScriptCallTracePosition + 1) % 20;
                     pas::callback_from_address<TExpressionCallback>(Callee->GetExternFun())(pas::open_array(Arguments), Code);
-                } else if (Callee->RealVType() == vkFunction) {
+                } else if (EC_Expression::TVarEC_RealVType(Callee) == vkFunction) {
                     if (([&] {
                         std::int32_t cpp_left = Callee->GetFunction()->LocalVar->GetVar(u"funBaseVarCount"_wref.get())->GetInt();
                         return cpp_left < Instruction->OperandCount - 2;
@@ -5021,7 +5033,7 @@ namespace EC_Expression {
 
     void TCodeProcessEC::PushException(TVarEC* Value) {
         PVarEC Entry = static_cast<PVarEC>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, static_cast<std::int32_t>(sizeof(TVarEC*))));
-        pas::store_unaligned<TVarEC*>(Entry, pas::construct_call<TVarEC>(TVarEC_Create, Value->RealVType()));
+        pas::store_unaligned<TVarEC*>(Entry, pas::construct_call<TVarEC>(TVarEC_Create, EC_Expression::TVarEC_RealVType(Value)));
         pas::load_unaligned<TVarEC*>(Entry)->Assume(Value, false);
         pas::list_add(Exceptions, static_cast<void*>(Entry));
     }
@@ -5879,7 +5891,7 @@ namespace EC_Expression {
                                 break;
                             }
                             BaseValue = LocalVar->GetVarNE(Token->Text);
-                            if (BaseValue == nullptr || BaseValue->RealVType() != vkFunction) {
+                            if (BaseValue == nullptr || EC_Expression::TVarEC_RealVType(BaseValue) != vkFunction) {
                                 EC_Expression::FormatScriptError(0, Token->SourceStart, ErrorText);
                                 return;
                             }
@@ -6206,7 +6218,7 @@ namespace EC_Expression {
                 } catch (...) {
                     throw;
                 }
-                if (!Item->Expression->GetResult()->IsTrue()) {
+                if (!EC_Expression::TVarEC_IsTrue(Item->Expression->GetResult())) {
                     Item = Item->Target;
                     continue;
                 }
@@ -6305,7 +6317,7 @@ namespace EC_Expression {
                 } catch (...) {
                     throw;
                 }
-                if (!Item->Expression->GetResult()->IsTrue()) {
+                if (!EC_Expression::TVarEC_IsTrue(Item->Expression->GetResult())) {
                     Item = Item->Target;
                     continue;
                 }

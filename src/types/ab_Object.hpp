@@ -32,7 +32,7 @@ namespace ab_Object {
         TabObject* FindCollision();
         virtual void ApplyDamage(std::int32_t Amount, TabObject* Source, std::uint8_t Disrupt);
         virtual void UpdateState();
-        virtual void Advance();
+        virtual void virtual_TabObject_Advance();
         virtual void UpdateVisuals();
         virtual void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner);
         std::int32_t RandomRange(std::int32_t BoundA, std::int32_t BoundB);

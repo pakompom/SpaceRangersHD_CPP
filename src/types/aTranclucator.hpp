@@ -56,10 +56,9 @@ namespace aTranclucator {
         void Init(aShip::TShip* AOwnerShip, std::uint8_t Faction, std::uint8_t BasicEquipment);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
-        void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
-        void NextDay() override;
-        // Zero-byte pointer additions retain the native evaluation order of IndexOf.
-        void NextDayLogic() override;
+        void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
+        void virtual_TShip_NextDay() override;
+        void virtual_TShip_NextDayLogic() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         std::uint8_t GetGreetingShipCategory() override;
@@ -72,7 +71,7 @@ namespace aTranclucator {
         std::uint8_t CanFollowOwnerInCurrentStar();
         // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
-        void RepairBrokenEquipmentAtLocation() override;
+        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
         // Moves unequipped inventory and artefacts plus all goods; refreshes Self and the destination player's storage bubbles.
         void TransferUnequippedCargo(aShip::TShip* Destination);
         // The +0 index/pointer expressions below preserve native DCC32 argument scheduling.
@@ -82,31 +81,29 @@ namespace aTranclucator {
         std::uint8_t ConvertToStoredArtefact();
         void UpdateFreeFlightOrder();
         void BuildReachablePlanetQueue() override;
-        std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
-        // Returns whether a move order is active; nearby pickups can be queued even when the result is false.
-        std::uint8_t TryCollectPreferredFloatingLoot(std::int32_t MaxTravelDays);
+        std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         void EquipEssentialInventory();
-        void AssignWeaponTargetsInStar() override;
+        void virtual_TShip_AssignWeaponTargetsInStar() override;
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
         std::uint8_t RelationToNonRanger(aShip::TShip* Ship) override;
         std::uint8_t RelationToRanger(void* Ranger) override;
         void ChangeRelationToRanger(void* Ranger, std::int32_t Amount) override;
         void ReactToAttack(aShip::TShip* Attacker) override;
-        std::uint8_t RecomputeFearState() override;
-        std::uint8_t AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
-        std::uint8_t TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_RecomputeFearState() override;
+        std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
         std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        void RefreshCurrentStanding() override;
-        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        void virtual_TShip_RefreshCurrentStanding() override;
+        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
         std::int32_t ArtefactSize;
         pas::WideString ArtefactSystemName;
         // Script.Proprietor.

@@ -11,4 +11,6 @@ namespace GI_TransImage {
 
     void TTransImageGI_Destroy(TTransImageGI* Self);
 
+    void TTransImageGI_LoadFromConfigPath(TTransImageGI* Self, const pas::WideString& Path);
+
 } // namespace GI_TransImage

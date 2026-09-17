@@ -100,20 +100,20 @@ namespace fPanelLoad {
         }
     }
 
-    void TfPanelLoad::OnOpen() {
-        Hide();
+    void TfPanelLoad_OnOpen(TfPanelLoad* Self) {
+        Self->Hide();
         if (Globals::LoadScreen->BackgroundStyle <= 0) {
-            SelectBackgroundStyle(0);
+            Self->SelectBackgroundStyle(0);
         }
-        RefreshBackgroundImages();
-        SetProgress(1.0f);
-        ShutterOpenFraction = 0.0f;
-        SetShutterOpenFraction(ShutterOpenFraction);
+        Self->RefreshBackgroundImages();
+        Self->SetProgress(1.0f);
+        Self->ShutterOpenFraction = 0.0f;
+        Self->SetShutterOpenFraction(Self->ShutterOpenFraction);
         if (GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId != GlobalsV::screenMainMenu && GlobalsV::CurrentScreenId != GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoadQuest || GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu && Globals::SkipVideo || GlobalsV::PreviousScreenId == GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoad || pas::is_one_of<GlobalsV::screenHangar, GlobalsV::screenPlanet, GlobalsV::screenPlanetNO, GlobalsV::screenEquipmentShop, GlobalsV::screenGovernment, GlobalsV::screenRuinsTalk, GlobalsV::screenInfo>(GlobalsV::CurrentScreenId) && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap && aPlayer::GetPlayer()->RuinsMode == 0 || pas::is_one_of<GlobalsV::screenStarMap, GlobalsV::screenRuinsTalk>(GlobalsV::CurrentScreenId) && pas::is_one_of<GlobalsV::screenJump, GlobalsV::screenArcadeBattle>(GlobalsV::PreviousScreenId) || GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap) {
             GlobalsV::PreviousScreenId = GlobalsV::screenNone;
-            StartOpeningShutters();
+            Self->StartOpeningShutters();
         }
-        ActiveLoadPanel = this;
+        ActiveLoadPanel = Self;
     }
 
     void TfPanelLoad::OnClose() {

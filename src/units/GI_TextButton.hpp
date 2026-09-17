@@ -11,4 +11,6 @@ namespace GI_TextButton {
 
     void TTextButtonGI_Destroy(TTextButtonGI* Self);
 
+    void TTextButtonGI_LoadFromConfigPath(TTextButtonGI* Self, const pas::WideString& Path);
+
 } // namespace GI_TextButton

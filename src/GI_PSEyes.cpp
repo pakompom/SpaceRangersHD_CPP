@@ -363,7 +363,7 @@ namespace GI_PSEyes {
             if (BeamTicks > 0) {
                 P = ClassesImports::Point(X, Y);
                 while (Distance - Progress > Step) {
-                    Line.First = P;
+                    pas::store_unaligned<Types::TPoint>(&Line.First, P);
                     {
                         std::int32_t cpp_right_2 = aMyFunction::RandomIntRange(-Dispersion, Dispersion);
                         std::int32_t cpp_arg = Y + pas::idiv((Progress + Step) * DY, Distance) + cpp_right_2;
@@ -371,15 +371,15 @@ namespace GI_PSEyes {
                         std::int32_t cpp_arg_2 = X + pas::idiv((Progress + Step) * DX, Distance) + cpp_right;
                         P = ClassesImports::Point(cpp_arg_2, cpp_arg);
                     }
-                    Line.Last = P;
+                    pas::store_unaligned<Types::TPoint>(&Line.Last, P);
                     Line.Alpha = pas::idiv((255 - StartingAlpha) * (Progress + Step), Distance) + StartingAlpha;
                     Line.Color = SecondaryColor;
                     if (pas::abs(DX) > pas::abs(DY)) {
-                        Shadow.First = ClassesImports::Point(Line.First.X, Line.First.Y - 1);
-                        Shadow.Last = ClassesImports::Point(Line.Last.X, Line.Last.Y - 1);
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                     } else {
-                        Shadow.First = ClassesImports::Point(Line.First.X - 1, Line.First.Y);
-                        Shadow.Last = ClassesImports::Point(Line.Last.X - 1, Line.Last.Y);
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                     }
                     Shadow.Alpha = Line.Alpha;
                     Shadow.Color = PrimaryColor;
@@ -387,16 +387,16 @@ namespace GI_PSEyes {
                     GR_DX::DrawAntialiasedLineDX(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y, GR_DX::Color565ToArgb(Line.Color), Line.Alpha, &ClipRect);
                     GR_DX::DrawAntialiasedLineDX(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y, GR_DX::Color565ToArgb(Shadow.Color), Line.Alpha, &ClipRect);
                 }
-                Line.First = P;
-                Line.Last = ClassesImports::Point(X + DX, Y + DY);
+                pas::store_unaligned<Types::TPoint>(&Line.First, P);
+                pas::store_unaligned<Types::TPoint>(&Line.Last, ClassesImports::Point(X + DX, Y + DY));
                 Line.Alpha = 255;
                 Line.Color = PrimaryColor;
                 if (pas::abs(DX) > pas::abs(DY)) {
-                    Shadow.First = ClassesImports::Point(Line.First.X, Line.First.Y - 1);
-                    Shadow.Last = ClassesImports::Point(Line.Last.X, Line.Last.Y - 1);
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                 } else {
-                    Shadow.First = ClassesImports::Point(Line.First.X - 1, Line.First.Y);
-                    Shadow.Last = ClassesImports::Point(Line.Last.X - 1, Line.Last.Y);
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                 }
                 Shadow.Alpha = Line.Alpha;
                 Shadow.Color = PrimaryColor;
@@ -435,7 +435,7 @@ namespace GI_PSEyes {
             if (BeamTicks > 0) {
                 P = ClassesImports::Point(X, Y);
                 while (Distance - Progress > Step) {
-                    Line.First = P;
+                    pas::store_unaligned<Types::TPoint>(&Line.First, P);
                     {
                         std::int32_t cpp_right_4 = aMyFunction::RandomIntRange(-Dispersion, Dispersion);
                         std::int32_t cpp_arg_3 = Y + pas::idiv((Progress + Step) * DY, Distance) + cpp_right_4;
@@ -443,15 +443,15 @@ namespace GI_PSEyes {
                         std::int32_t cpp_arg_4 = X + pas::idiv((Progress + Step) * DX, Distance) + cpp_right_3;
                         P = ClassesImports::Point(cpp_arg_4, cpp_arg_3);
                     }
-                    Line.Last = P;
+                    pas::store_unaligned<Types::TPoint>(&Line.Last, P);
                     Line.Alpha = pas::idiv((255 - StartingAlpha) * (Progress + Step), Distance) + StartingAlpha;
                     Line.Color = SecondaryColor;
                     if (pas::abs(DX) > pas::abs(DY)) {
-                        Shadow.First = ClassesImports::Point(Line.First.X, Line.First.Y - 1);
-                        Shadow.Last = ClassesImports::Point(Line.Last.X, Line.Last.Y - 1);
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                     } else {
-                        Shadow.First = ClassesImports::Point(Line.First.X - 1, Line.First.Y);
-                        Shadow.Last = ClassesImports::Point(Line.Last.X - 1, Line.Last.Y);
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                     }
                     Shadow.Alpha = Line.Alpha;
                     Shadow.Color = PrimaryColor;
@@ -459,16 +459,16 @@ namespace GI_PSEyes {
                     GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y, Line.Color, Line.Alpha, ClipRect);
                     GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y, Shadow.Color, Line.Alpha, ClipRect);
                 }
-                Line.First = P;
-                Line.Last = ClassesImports::Point(X + DX, Y + DY);
+                pas::store_unaligned<Types::TPoint>(&Line.First, P);
+                pas::store_unaligned<Types::TPoint>(&Line.Last, ClassesImports::Point(X + DX, Y + DY));
                 Line.Alpha = 255;
                 Line.Color = PrimaryColor;
                 if (pas::abs(DX) > pas::abs(DY)) {
-                    Shadow.First = ClassesImports::Point(Line.First.X, Line.First.Y - 1);
-                    Shadow.Last = ClassesImports::Point(Line.Last.X, Line.Last.Y - 1);
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                 } else {
-                    Shadow.First = ClassesImports::Point(Line.First.X - 1, Line.First.Y);
-                    Shadow.Last = ClassesImports::Point(Line.Last.X - 1, Line.Last.Y);
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                 }
                 Shadow.Alpha = Line.Alpha;
                 Shadow.Color = PrimaryColor;

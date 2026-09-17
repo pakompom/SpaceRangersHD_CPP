@@ -11,4 +11,6 @@ namespace GI_Frame {
 
     void TFrameGI_Destroy(TFrameGI* Self);
 
+    void TFrameGI_LoadFromConfigPath(TFrameGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Frame

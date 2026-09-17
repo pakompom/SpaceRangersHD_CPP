@@ -151,9 +151,9 @@ namespace GI_StarField {
         ViewDirty = true;
     }
 
-    void TStarFieldGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_Panel::TPanelGI::LoadFromConfigPath(Path);
-        LoadStarFieldProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TStarFieldGI_LoadFromConfigPath(TStarFieldGI* Self, const pas::WideString& Path) {
+        GI_Panel::TPanelGI_LoadFromConfigPath(Self, Path);
+        Self->LoadStarFieldProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TStarFieldGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -415,6 +415,10 @@ namespace GI_StarField {
 
     void TStarFieldGI::p_destroy() {
         GI_StarField::TStarFieldGI_Destroy(this);
+    }
+
+    void TStarFieldGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_StarField::TStarFieldGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_StarField

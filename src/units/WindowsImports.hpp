@@ -58,7 +58,7 @@ namespace WindowsImports {
 
     std::int32_t PAS_STDCALL FindNextFileA(std::uint32_t Handle, Windows::TWin32FindDataA& Data);
 
-    std::int32_t PAS_STDCALL FileTimeToLocalFileTime(const Windows::TFileTime& FileTime, Windows::TFileTime& LocalTime);
+    std::int32_t PAS_STDCALL FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime> FileTime, Windows::TFileTime& LocalTime);
 
     std::int32_t PAS_STDCALL FileTimeToDosDateTime(const Windows::TFileTime& FileTime, std::uint16_t& DatePart, std::uint16_t& TimePart);
 

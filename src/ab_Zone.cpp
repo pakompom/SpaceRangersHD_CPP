@@ -331,7 +331,7 @@ namespace ab_Zone {
 
     void ab_ZoneLink_UpdateDistance(PabZoneLink Link) {
         double Bearing{};
-        ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Link->Distance), Link->First->Longitude, Link->First->PolarAngle, 0.0, Link->Last->Longitude, Link->Last->PolarAngle, ab_Global::SphereRadius);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Link->Distance), Link->First->Longitude, Link->First->PolarAngle, 0.0, Link->Last->Longitude, Link->Last->PolarAngle, ab_Global::SphereRadius);
     }
 
     void ab_ZoneLink_ClearImages() {
@@ -468,7 +468,7 @@ namespace ab_Zone {
             Zone = FirstZone;
             while (Zone != nullptr) {
                 if (Zone->GravityStrength != 0) {
-                    ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Distance), Zone->Longitude, Zone->PolarAngle, 0.0, Longitude, PolarAngle, ab_Global::SphereRadius);
+                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Zone->Longitude, Zone->PolarAngle, 0.0, Longitude, PolarAngle, ab_Global::SphereRadius);
                     if (Distance < Zone->Radius) {
                         return Zone;
                     }
@@ -569,7 +569,7 @@ namespace ab_Zone {
         std::uint8_t Result{};
         double Bearing{};
         double Distance{};
-        ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Zone->Longitude, Zone->PolarAngle, ab_Global::SphereRadius);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Zone->Longitude, Zone->PolarAngle, ab_Global::SphereRadius);
         if (Zone->Radius >= Distance) {
             Result = true;
             BearingDelta = 0.0;

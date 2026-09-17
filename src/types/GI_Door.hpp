@@ -34,7 +34,7 @@ namespace GI_Door {
         void OnMouseLeave() override;
         void ProcessMouseMove(std::uint32_t KeyState, Types::TPoint Point) override;
         void ProcessLeftButtonUp(std::uint32_t KeyState, Types::TPoint Point) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadDoorProperties(EC_BlockPar::TBlockParEC* Block);
         GI_GAI::TgaiGI* Image;

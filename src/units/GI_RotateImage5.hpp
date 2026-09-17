@@ -13,4 +13,6 @@ namespace GI_RotateImage5 {
 
     void TRotateImage5GI_Destroy(TRotateImage5GI* Self);
 
+    void TRotateImage5GI_LoadFromConfigPath(TRotateImage5GI* Self, const pas::WideString& Path);
+
 } // namespace GI_RotateImage5

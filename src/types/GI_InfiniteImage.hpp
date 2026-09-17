@@ -24,7 +24,7 @@ namespace GI_InfiniteImage {
         void p_destroy() override;
         // Resets size to two billion pixels on each axis and centers the origin.
         void SetImagePath(pas::WideString Path);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         // The hardware drawing path is unimplemented.

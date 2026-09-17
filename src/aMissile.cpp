@@ -7,7 +7,6 @@
 #include "types/aGalaxyStruct.hpp"
 #include "types/aKling.hpp"
 #include "types/aPath.hpp"
-#include "types/aShip.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Buf.hpp"
 #include "units/EC_Struct.hpp"
@@ -26,6 +25,7 @@
 #include "units/aMissile.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
+#include "units/aShip.hpp"
 
 namespace aMissile {
     void TMissile_Create(TMissile* Self) {
@@ -71,14 +71,14 @@ namespace aMissile {
         std::int32_t SpeedBonus = this->OwnerShip->GetTotalStatBonus(aConst::bonMissileSpeed);
         std::int32_t SpecialBonus = 0;
         if (SpecialModuleIndex > 0) {
-            SpecialBonus = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[aConst::bonMissileSpeed];
+            SpecialBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, aConst::bonMissileSpeed * sizeof(std::int32_t)));
         }
         if (MicroModuleIndex > 0) {
-            SpeedBonus += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonMissileSpeed];
+            SpeedBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonMissileSpeed * sizeof(std::int32_t)));
             if (SpecialBonus < 0) {
-                SpecialBonus += System::Round(SpecialBonus * aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] * 1.0E-4L);
+                SpecialBonus += System::Round(SpecialBonus * pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t))) * 1.0E-4L);
             } else {
-                SpecialBonus += System::Round(SpecialBonus * aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff] * 1.0E-4L);
+                SpecialBonus += System::Round(SpecialBonus * pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t))) * 1.0E-4L);
             }
         }
         SpeedBonus += SpecialBonus;
@@ -360,76 +360,76 @@ namespace aMissile {
         return Graphic;
     }
 
-    void TMissile::PrepareTurnMovement(std::int32_t StepIndex, std::uint8_t RecordFilm, std::uint8_t PlayShotSound) {
+    void TMissile_PrepareTurnMovement(TMissile* Self, std::int32_t StepIndex, std::uint8_t RecordFilm, std::uint8_t PlayShotSound) {
         float PathLength{};
         float TurnFraction{};
         EC_BlockPar::TBlockParEC* Config{};
         EC_BlockPar::TBlockParEC* Palette{};
         if (RecordFilm) {
             {
-                SE_Space::TObjectSE* graphObject = GetGraphObject();
-                std::uint32_t id = Id;
+                SE_Space::TObjectSE* graphObject = Self->GetGraphObject();
+                std::uint32_t id = Self->Id;
                 aEFilm::TEFilm* primaryFilm = Globals::PrimaryFilm;
-                FilmObject = primaryFilm->AddObject(id, graphObject, 0, 0);
+                Self->FilmObject = primaryFilm->AddObject(id, graphObject, 0, 0);
             }
-            Globals::PrimaryFilm->SetObjectPosition(StepIndex, FilmObject, Position);
-            Globals::PrimaryFilm->SetObjectAngle(StepIndex, FilmObject, aMyFunction::HeadingDegreesToByte(Direction));
-            Globals::PrimaryFilm->AttachObject(StepIndex, FilmObject);
+            Globals::PrimaryFilm->SetObjectPosition(StepIndex, Self->FilmObject, Self->Position);
+            Globals::PrimaryFilm->SetObjectAngle(StepIndex, Self->FilmObject, aMyFunction::HeadingDegreesToByte(Self->Direction));
+            Globals::PrimaryFilm->AttachObject(StepIndex, Self->FilmObject);
             if (PlayShotSound) {
-                if (pas::class_cast_if<TCustomMissile*>(this) != nullptr) {
-                    Config = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", GetWeaponInfo()->PrimarySE}));
+                if (pas::class_cast_if<TCustomMissile*>(Self) != nullptr) {
+                    Config = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", Self->GetWeaponInfo()->PrimarySE}));
                 } else {
-                    Config = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"SE.Weapon.", SysUtils::IntToStr(ItemType - 50)})));
+                    Config = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"SE.Weapon.", SysUtils::IntToStr(Self->ItemType - 50)})));
                 }
                 Palette = Config->FindBlock(u"Palettes"_wref.get());
                 if (Palette != nullptr) {
-                    Palette = Palette->FindBlock(pas::wide_int_to_str(GetShotVisual()));
+                    Palette = Palette->FindBlock(pas::wide_int_to_str(Self->GetShotVisual()));
                 }
                 if (Palette != nullptr && Palette->CountParams(u"SoundShot"_wref.get()) > 0) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Palette->GetParam(u"SoundShot"_wref.get()));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, Palette->GetParam(u"SoundShot"_wref.get()));
                 } else if (Config->CountParams(u"SoundShot"_wref.get()) > 0) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Config->GetParam(u"SoundShot"_wref.get()));
-                } else if (pas::class_cast_if<TCustomMissile*>(this) != nullptr) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, pas::concat_wide({u"Sound.shot", GetWeaponInfo()->ConfigName}));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, Config->GetParam(u"SoundShot"_wref.get()));
+                } else if (pas::class_cast_if<TCustomMissile*>(Self) != nullptr) {
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, pas::concat_wide({u"Sound.shot", Self->GetWeaponInfo()->ConfigName}));
                 } else {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, static_cast<pas::WideString>(pas::concat_ansi({"Sound.shot", SysUtils::IntToStr(ItemType - 50)})));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, static_cast<pas::WideString>(pas::concat_ansi({"Sound.shot", SysUtils::IntToStr(Self->ItemType - 50)})));
                 }
             }
         }
-        if (FlightTicks == 0) {
-            if (OwnerShip != nullptr) {
-                SourceHeading = OwnerShip->MovementDirection;
-                Speed = pas::real_max<float>(static_cast<float>(OwnerShip->Speed), MaximumSpeed);
+        if (Self->FlightTicks == 0) {
+            if (Self->OwnerShip != nullptr) {
+                Self->SourceHeading = Self->OwnerShip->MovementDirection;
+                Self->Speed = pas::real_max<float>(static_cast<float>(Self->OwnerShip->Speed), Self->MaximumSpeed);
                 PathLength = 0.0f;
-                if (OwnerShip->MovementPath != nullptr && OwnerShip->MovementPath->NodeCount > 0) {
-                    PathLength = OwnerShip->MovementPath->GetLength();
-                    TurnFraction = pas::real_divide(StepIndex, CurrentStar->MovementStepCount);
+                if (Self->OwnerShip->MovementPath != nullptr && Self->OwnerShip->MovementPath->NodeCount > 0) {
+                    PathLength = Self->OwnerShip->MovementPath->GetLength();
+                    TurnFraction = pas::real_divide(StepIndex, Self->CurrentStar->MovementStepCount);
                     if (1.0L - TurnFraction == 0.0L) {
                         PathLength = 0.0f;
                     } else {
                         PathLength = pas::real_divide(PathLength, 1.0L - TurnFraction);
                     }
-                    if (aMyFunction::HeadingDifferenceDegrees(OwnerShip->MovementDirection, aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(static_cast<long double>(OwnerShip->MovementPath->ActiveTail->Position.X) - OwnerShip->Position.X, -(static_cast<long double>(OwnerShip->MovementPath->ActiveTail->Position.Y) - OwnerShip->Position.Y)))) < 0.0L) {
-                        TurnDirection = -1.0f;
+                    if (aMyFunction::HeadingDifferenceDegrees(Self->OwnerShip->MovementDirection, aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(static_cast<long double>(Self->OwnerShip->MovementPath->ActiveTail->Position.X) - Self->OwnerShip->Position.X, -(static_cast<long double>(Self->OwnerShip->MovementPath->ActiveTail->Position.Y) - Self->OwnerShip->Position.Y)))) < 0.0L) {
+                        Self->TurnDirection = -1.0f;
                     } else {
-                        TurnDirection = 1.0f;
+                        Self->TurnDirection = 1.0f;
                     }
                 } else {
-                    TurnDirection = 1.0f;
+                    Self->TurnDirection = 1.0f;
                 }
                 // The initial maximum above is overwritten in the native routine too.
-                Speed = PathLength + 1.0E+2L;
-                if (Speed < 2.0E+2L) {
-                    Speed = 2.0E+2f;
+                Self->Speed = PathLength + 1.0E+2L;
+                if (Self->Speed < 2.0E+2L) {
+                    Self->Speed = 2.0E+2f;
                 }
             } else {
-                Speed = MaximumSpeed;
-                SourceHeading = 0.0f;
-                TurnDirection = 0.0f;
+                Self->Speed = Self->MaximumSpeed;
+                Self->SourceHeading = 0.0f;
+                Self->TurnDirection = 0.0f;
             }
-            ++FlightTicks;
+            ++Self->FlightTicks;
         }
-        OvershootTicks = -1;
+        Self->OvershootTicks = -1;
     }
 
     // Returns a hit ship, item or asteroid, or nil when no object was hit.
@@ -635,7 +635,7 @@ namespace aMissile {
                     if (TryReturnToOwner(StepIndex, RecordFilm, PreviousPosition, Ship)) {
                         return Result;
                     }
-                    if (OwnerShip != Ship && (Target == Ship || OwnerShip == nullptr || OwnerShip->GetRelationLevelToShip(Ship) == aGalaxyStruct::rlHostile)) {
+                    if (OwnerShip != Ship && (Target == Ship || OwnerShip == nullptr || aShip::TShip_GetRelationLevelToShip(OwnerShip, Ship) == aGalaxyStruct::rlHostile)) {
                         Stage = 26;
                         if (aMyFunction::SegmentIntersectsCircle(PreviousPosition, Position, Ship->Position, 2.0E+1f)) {
                             return Ship;
@@ -753,7 +753,7 @@ namespace aMissile {
             BestShip = nullptr;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
-                if (static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1) && Ship != PreviousTarget && Ship->GetRelationLevelToShip(OwnerShip) <= aGalaxyStruct::rlHostile && (!(pas::class_cast_if<aKling::TKling*>(OwnerShip) != nullptr) || static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(OwnerShip)->IsPlayerCamouflageEffective(Ship) ^ 1)) && (!(pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) || static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Ship)->IsPlayerCamouflageEffective(OwnerShip) ^ 1))) {
+                if (static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1) && Ship != PreviousTarget && aShip::TShip_GetRelationLevelToShip(Ship, OwnerShip) <= aGalaxyStruct::rlHostile && (!(pas::class_cast_if<aKling::TKling*>(OwnerShip) != nullptr) || static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(OwnerShip)->IsPlayerCamouflageEffective(Ship) ^ 1)) && (!(pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) || static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Ship)->IsPlayerCamouflageEffective(OwnerShip) ^ 1))) {
                     Distance = aMyFunction::PointDistance(Ship->Position, Position);
                     if (Distance <= 7.0E+2L && Distance < BestDistance) {
                         BestDistance = Distance;
@@ -822,7 +822,7 @@ namespace aMissile {
         }
         if (OwnerShip != nullptr) {
             if (aPlayer::GetPlayer()->HasScannerArtefact(OwnerShip)) {
-                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(OwnerShip) || aPlayer::GetPlayer() == OwnerShip || aPlayer::GetPlayer() == OwnerShip->PartnerShip || OwnerShip->TypeId == aGalaxyStruct::stTranclucator) {
+                if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), OwnerShip) || aPlayer::GetPlayer() == OwnerShip || aPlayer::GetPlayer() == OwnerShip->PartnerShip || OwnerShip->TypeId == aGalaxyStruct::stTranclucator) {
                     SpeedText = pas::wide_int64_to_str(System::Round(Speed));
                     if (OwnerShip->TypeId == aGalaxyStruct::stKling && pas::checked_cast<aKling::TKling*>(OwnerShip)->KlingType == aGalaxyStruct::ktBoss) {
                         DamageFactor = aGalaxy::Galaxy->InterpolateDifficulty(-1, 0.7f, 1.0f, 1.2f, 1.5f) * 2.0L;

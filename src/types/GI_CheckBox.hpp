@@ -28,7 +28,7 @@ namespace GI_CheckBox {
         void SetSize(Types::TPoint Size) override;
         void RefreshStateImages();
         void ProcessLeftButtonDown(std::uint32_t KeyState, Types::TPoint Point) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         GI_TransImage::TTransImageGI* CheckedImage;
         GI_TransImage::TTransImageGI* UncheckedImage;

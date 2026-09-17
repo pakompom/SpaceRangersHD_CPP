@@ -159,9 +159,9 @@ namespace GI_SBPath {
         }
     }
 
-    void TSBPathGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadPathProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TSBPathGI_LoadFromConfigPath(TSBPathGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadPathProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TSBPathGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -204,6 +204,10 @@ namespace GI_SBPath {
 
     void TSBPathGI::p_destroy() {
         GI_SBPath::TSBPathGI_Destroy(this);
+    }
+
+    void TSBPathGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_SBPath::TSBPathGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_SBPath

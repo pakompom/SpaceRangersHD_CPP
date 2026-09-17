@@ -126,8 +126,6 @@ namespace GI_MessageLoop {
         virtual void InvalidateRect(WindowsSdk::TRect Rect);
         virtual void Invalidate();
         void InvalidateChildren(std::uint8_t IncludePanels);
-        // Walks active panel subtrees until StartControl, then invalidates affected controls by moving them out and back. Rect is passed through but unused.
-        TObjectGI* InvalidateScrollOverlap(WindowsSdk::TRect Rect, WindowsSdk::TPoint Delta, TObjectGI* StartControl);
         // Suppressed while PendingRedraw is set.
         virtual void Draw(WindowsSdk::TRect ClipRect);
         virtual void DrawUpdateRects(WindowsSdk::TRect ClipRect);
@@ -139,7 +137,7 @@ namespace GI_MessageLoop {
         virtual void PrepareFrameDraw();
         // Empty base hook called before queued drawing for RegionDrawControl.
         virtual void PrepareRegionDraw(WindowsSdk::TRect ClipRect);
-        virtual void LoadFromConfigPath(const pas::WideString& Path);
+        virtual void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path);
         virtual void LoadFromBlock(EC_BlockPar::TBlockParEC* Block);
         void ReloadFromBlock();
         virtual void UpdateAutoGeometry();

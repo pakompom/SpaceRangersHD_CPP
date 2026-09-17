@@ -20,4 +20,6 @@ namespace GI_GAI {
 
     void TgaiGI_Destroy(TgaiGI* Self);
 
+    void TgaiGI_LoadFromConfigPath(TgaiGI* Self, const pas::WideString& Path);
+
 } // namespace GI_GAI

@@ -41,7 +41,7 @@ namespace GI_CountBar {
         void OnMouseLeave() override;
         void ProcessLeftButtonDown(std::uint32_t KeyState, Types::TPoint Point) override;
         void ProcessLeftButtonUp(std::uint32_t KeyState, Types::TPoint Point) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadCountBarProperties(EC_BlockPar::TBlockParEC* Block);
         std::int32_t Minimum;

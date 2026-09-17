@@ -46,7 +46,7 @@ namespace GI_PanelScrollBar {
         // Clamps the panel back to scrollbar positions when UnlimitedWorld is false.
         void PanelScrollChanged(GI_MessageLoop::TObjectGI* Sender);
         void ScrollbarDestroyed(GI_MessageLoop::TObjectGI* Sender);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadScrollbarPanelProperties(EC_BlockPar::TBlockParEC* Block);
         std::uint8_t cpp_padding[4];

@@ -2,6 +2,11 @@
 #include "types/aConst.hpp"
 #include "types/aItem.hpp"
 
+namespace EC_BlockPar {
+    struct TBlockParEC;
+
+} // namespace EC_BlockPar
+
 namespace EC_Buf {
     struct TBufEC;
 
@@ -113,13 +118,97 @@ namespace aItem {
 
     void TItem_Destroy(TItem* Self);
 
+    void TItem_LoadFromBlock(TItem* Self, EC_BlockPar::TBlockParEC* Block);
+
+    // Applies the trading-skill percentage to Cost minus repair cost; equipment has a minimum value of 1. Goods use Cost directly.
+    std::int32_t TItem_CalculateResaleValue(TItem* Self, std::uint8_t TradingSkill);
+
+    // Equipment deducts repair cost, with a minimum result of 1; goods return Cost unchanged.
+    std::int32_t TItem_GetConditionAdjustedCost(TItem* Self);
+
+    pas::WideString TItem_GetInfoText(TItem* Self, pas::WideString ColorTag, void* Ship);
+
+    // Manufacturer/faction resource key, including custom factions and Dominator series.
+    pas::WideString TItem_GetOwnerConfigName(TItem* Self);
+
     void TEquipment_Create(TEquipment* Self);
 
     void TEquipment_Destroy(TEquipment* Self);
 
+    void TEquipment_LoadFromBlock(TEquipment* Self, EC_BlockPar::TBlockParEC* Block);
+
+    // Undiscounted cost; hulls use HullPoints, other supported equipment uses ConditionPercent and BrokenFlag.
+    std::int32_t TEquipment_CalculateRepairCost(TEquipment* Self);
+
+    // Includes player technology restrictions as well as wear and breakage.
+    pas::WideString TEquipment_GetConditionText(TEquipment* Self, std::uint8_t PrefixNewLine);
+
+    pas::WideString TEquipment_GetBitmapResourceName(TEquipment* Self);
+
+    void THull_LoadFromBlock(THull* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString THull_GetInfoText(THull* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString THull_GetBitmapResourceName(THull* Self);
+
+    void TFuelTanks_LoadFromBlock(TFuelTanks* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TFuelTanks_GetInfoText(TFuelTanks* Self, pas::WideString ColorTag, void* Ship);
+
+    void TEngine_LoadFromBlock(TEngine* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TEngine_GetInfoText(TEngine* Self, pas::WideString ColorTag, void* Ship);
+
+    void TRadar_LoadFromBlock(TRadar* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TRadar_GetInfoText(TRadar* Self, pas::WideString ColorTag, void* Ship);
+
+    void TScaner_LoadFromBlock(TScaner* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TScaner_GetInfoText(TScaner* Self, pas::WideString ColorTag, void* Ship);
+
+    void TRepairRobot_LoadFromBlock(TRepairRobot* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TRepairRobot_GetInfoText(TRepairRobot* Self, pas::WideString ColorTag, void* Ship);
+
     void TCargoHook_Create(TCargoHook* Self);
 
+    void TCargoHook_LoadFromBlock(TCargoHook* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TCargoHook_GetInfoText(TCargoHook* Self, pas::WideString ColorTag, void* Ship);
+
+    void TDefGenerator_LoadFromBlock(TDefGenerator* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TDefGenerator_GetInfoText(TDefGenerator* Self, pas::WideString ColorTag, void* Ship);
+
     void TWeapon_Destroy(TWeapon* Self);
+
+    void TWeapon_LoadFromBlock(TWeapon* Self, EC_BlockPar::TBlockParEC* Block);
+
+    void TCustomWeapon_LoadFromBlock(TCustomWeapon* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TWeapon_GetInfoText(TWeapon* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TWeapon_GetBitmapResourceName(TWeapon* Self);
+
+    pas::WideString TCustomWeapon_GetBitmapResourceName(TCustomWeapon* Self);
+
+    pas::WideString TGoods_GetInfoText(TGoods* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TGoods_GetBitmapResourceName(TGoods* Self);
+
+    pas::WideString TCountableItem_GetInfoText(TCountableItem* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TCountableItem_GetBitmapResourceName(TCountableItem* Self);
+
+    std::uint8_t TCountableItem_CanMerge(TCountableItem* Self, pas::Object* Other);
+
+    // Leaves Other unchanged.
+    std::uint8_t TCountableItem_Merge(TCountableItem* Self, pas::Object* Other);
+
+    pas::WideString TProtoplasm_GetInfoText(TProtoplasm* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TProtoplasm_GetBitmapResourceName(TProtoplasm* Self);
 
     void TEquipmentWithActCode_Create(TEquipmentWithActCode* Self);
 
@@ -129,10 +218,50 @@ namespace aItem {
 
     void TUselessItem_Destroy(TUselessItem* Self);
 
+    void TUselessItem_LoadFromBlock(TUselessItem* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TUselessItem_GetInfoText(TUselessItem* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TUselessItem_GetBitmapResourceName(TUselessItem* Self);
+
+    void TCistern_LoadFromBlock(TCistern* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TCistern_GetInfoText(TCistern* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TCistern_GetBitmapResourceName(TCistern* Self);
+
+    void TSatellite_LoadFromBlock(TSatellite* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TSatellite_GetInfoText(TSatellite* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TSatellite_GetBitmapResourceName(TSatellite* Self);
+
+    pas::WideString TTreasureMap_GetInfoText(TTreasureMap* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TTreasureMap_GetBitmapResourceName(TTreasureMap* Self);
+
+    pas::WideString TMicroModule_GetInfoText(TMicroModule* Self, pas::WideString ColorTag, void* Ship);
+
+    pas::WideString TMicroModule_GetBitmapResourceName(TMicroModule* Self);
+
     void TArtefact_Create(TArtefact* Self);
 
     void TArtefact_Destroy(TArtefact* Self);
 
+    pas::WideString TArtefact_GetBitmapResourceName(TArtefact* Self);
+
+    pas::WideString TArtefact_GetInfoText(TArtefact* Self, pas::WideString ColorTag, void* Ship);
+
+    void TArtefactTransmitter_LoadFromBlock(TArtefactTransmitter* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TArtefactTransmitter_GetInfoText(TArtefactTransmitter* Self, pas::WideString ColorTag, void* Ship);
+
     void TArtefactTranclucator_Destroy(TArtefactTranclucator* Self);
+
+    void TArtefactTranclucator_LoadFromBlock(TArtefactTranclucator* Self, EC_BlockPar::TBlockParEC* Block);
+
+    void TArtefactCustom_LoadFromBlock(TArtefactCustom* Self, EC_BlockPar::TBlockParEC* Block);
+
+    pas::WideString TArtefactCustom_GetInfoText(TArtefactCustom* Self, pas::WideString ColorTag, void* Ship);
 
 } // namespace aItem

@@ -19,7 +19,7 @@ namespace GI_Line {
         void p_destroy() override;
         void Clear() override;
         void SetColor(std::uint32_t Value);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadLineProperties(EC_BlockPar::TBlockParEC* Block);
         void Draw(Types::TRect ClipRect) override;

@@ -11,4 +11,6 @@ namespace GI_Image {
 
     void TImageGI_Destroy(TImageGI* Self);
 
+    void TImageGI_LoadFromConfigPath(TImageGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Image

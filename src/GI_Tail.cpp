@@ -240,8 +240,8 @@ namespace GI_Tail {
         }
     }
 
-    void TTailGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TTailGI_LoadFromConfigPath(TTailGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         TTailGI::LoadTailProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
@@ -374,6 +374,10 @@ namespace GI_Tail {
 
     void TTailGI::p_destroy() {
         GI_Tail::TTailGI_Destroy(this);
+    }
+
+    void TTailGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Tail::TTailGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Tail

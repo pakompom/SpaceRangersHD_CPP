@@ -11,4 +11,6 @@ namespace GI_Panel {
 
     void TPanelGI_Destroy(TPanelGI* Self);
 
+    void TPanelGI_LoadFromConfigPath(TPanelGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Panel

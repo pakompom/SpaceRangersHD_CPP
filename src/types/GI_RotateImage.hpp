@@ -37,7 +37,7 @@ namespace GI_RotateImage {
         Types::TRect GetLocalBounds() override;
         // Uses the current Origin as the rotation pivot.
         void SetImage(pas::WideString Path, Types::TPoint ImageSize);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void Draw(Types::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;

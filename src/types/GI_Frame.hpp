@@ -28,7 +28,7 @@ namespace GI_Frame {
         void SetColor(std::uint32_t Value);
         void SetFillColor(std::uint32_t Value);
         void SetFill(std::uint8_t Value);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadFrameProperties(EC_BlockPar::TBlockParEC* Block);
         // Fill is independent of Kind. FillAlpha values other than 255 all produce alpha 64.

@@ -17,4 +17,6 @@ namespace GI_MultiImage {
 
     void TMultiImageGI_Destroy(TMultiImageGI* Self);
 
+    void TMultiImageGI_LoadFromConfigPath(TMultiImageGI* Self, const pas::WideString& Path);
+
 } // namespace GI_MultiImage

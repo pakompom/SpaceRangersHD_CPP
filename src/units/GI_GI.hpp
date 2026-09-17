@@ -18,4 +18,6 @@ namespace GI_GI {
 
     void TgiGI_Destroy(TgiGI* Self);
 
+    void TgiGI_LoadFromConfigPath(TgiGI* Self, const pas::WideString& Path);
+
 } // namespace GI_GI

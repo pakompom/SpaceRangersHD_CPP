@@ -33,10 +33,10 @@ namespace GI_Line {
         }
     }
 
-    void TLineGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TLineGI_LoadFromConfigPath(TLineGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
-        LoadLineProperties(Block);
+        Self->LoadLineProperties(Block);
     }
 
     void TLineGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -60,6 +60,10 @@ namespace GI_Line {
 
     void TLineGI::p_destroy() {
         GI_Line::TLineGI_Destroy(this);
+    }
+
+    void TLineGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Line::TLineGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Line

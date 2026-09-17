@@ -11,4 +11,6 @@ namespace GI_PlanetButton {
 
     void TPlanetButtonGI_Destroy(TPlanetButtonGI* Self);
 
+    void TPlanetButtonGI_LoadFromConfigPath(TPlanetButtonGI* Self, const pas::WideString& Path);
+
 } // namespace GI_PlanetButton

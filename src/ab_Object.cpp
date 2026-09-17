@@ -261,7 +261,7 @@ namespace ab_Object {
     void TabObject::UpdateState() {
     }
 
-    void TabObject::Advance() {
+    void TabObject_Advance(TabObject* Self) {
         EC_Struct::TPointF Force{};
         double TravelBearing{};
         double HeadingDelta{};
@@ -273,50 +273,50 @@ namespace ab_Object {
         double Distance{};
         double UnusedResult{};
         Force = EC_Struct::MakePointF(0.0f, 0.0f);
-        if (Thrust != 0.0L) {
-            Force.X = Force.X + System::Sin(aMyFunction::HeadingDegreesToRadians(State.BearingDegrees)) * Thrust * MovementScale;
-            Force.Y = Force.Y - System::Cos(aMyFunction::HeadingDegreesToRadians(State.BearingDegrees)) * Thrust * MovementScale;
+        if (Self->Thrust != 0.0L) {
+            Force.X = Force.X + System::Sin(aMyFunction::HeadingDegreesToRadians(Self->State.BearingDegrees)) * Self->Thrust * Self->MovementScale;
+            Force.Y = Force.Y - System::Cos(aMyFunction::HeadingDegreesToRadians(Self->State.BearingDegrees)) * Self->Thrust * Self->MovementScale;
         }
-        if (GravityEnabled) {
-            Zone = ab_Zone::ab_Zone_FindNearestEnabled(State.LongitudeDegrees, State.PolarAngleDegrees);
+        if (Self->GravityEnabled) {
+            Zone = ab_Zone::ab_Zone_FindNearestEnabled(Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees);
             if (Zone != nullptr) {
-                ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Distance), State.LongitudeDegrees, State.PolarAngleDegrees, 0.0, Zone->Longitude, Zone->PolarAngle, ab_Global::SphereRadius);
+                ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees, 0.0, Zone->Longitude, Zone->PolarAngle, ab_Global::SphereRadius);
                 Limit = 2.0f;
-                if (ab_Ship::PlayerArcadeShip == this) {
-                    if (pas::sqr(static_cast<pas::Extended>(Velocity.X)) + pas::sqr(static_cast<pas::Extended>(Velocity.Y)) > pas::sqr(2.0L)) {
+                if (ab_Ship::PlayerArcadeShip == Self) {
+                    if (pas::sqr(static_cast<pas::Extended>(Self->Velocity.X)) + pas::sqr(static_cast<pas::Extended>(Self->Velocity.Y)) > pas::sqr(2.0L)) {
                         Limit = 8.0f;
                     }
                 }
                 if (Zone->GravityStrength < 0) {
                     Factor = -([&] {
                         pas::Extended cpp_arg = pas::real_divide(Limit, 2.0L);
-                        pas::Extended cpp_arg_2 = pas::real_divide(static_cast<long double>(pas::abs(Zone->GravityStrength)) * Mass, pas::sqr(static_cast<pas::Extended>(Distance)) + 0.1L);
+                        pas::Extended cpp_arg_2 = pas::real_divide(static_cast<long double>(pas::abs(Zone->GravityStrength)) * Self->Mass, pas::sqr(static_cast<pas::Extended>(Distance)) + 0.1L);
                         return pas::real_min<pas::Extended>(cpp_arg, cpp_arg_2);
                     }());
                 } else {
-                    Factor = pas::real_min<pas::Extended>(static_cast<pas::Extended>(Limit), pas::real_divide(static_cast<long double>(pas::abs(Zone->GravityStrength)) * Mass, pas::sqr(static_cast<pas::Extended>(Distance)) + 0.1L));
+                    Factor = pas::real_min<pas::Extended>(static_cast<pas::Extended>(Limit), pas::real_divide(static_cast<long double>(pas::abs(Zone->GravityStrength)) * Self->Mass, pas::sqr(static_cast<pas::Extended>(Distance)) + 0.1L));
                 }
                 Bearing = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Bearing));
-                Force.X = Force.X + System::Sin(Bearing) * Factor * GravityScale;
-                Force.Y = Force.Y - System::Cos(Bearing) * Factor * GravityScale;
+                Force.X = Force.X + System::Sin(Bearing) * Factor * Self->GravityScale;
+                Force.Y = Force.Y - System::Cos(Bearing) * Factor * Self->GravityScale;
             }
         }
-        if (ZoneDamageEnabled && pas::checked_cast<ab_Hit::TabHit*>(this)->Health > 0) {
+        if (Self->ZoneDamageEnabled && pas::checked_cast<ab_Hit::TabHit*>(Self)->Health > 0) {
             Zone = ab_Zone::FirstZone;
             while (Zone != nullptr) {
                 if (Zone->DamagePerTick != 0) {
-                    ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Distance), Zone->Longitude, Zone->PolarAngle, 0.0, State.LongitudeDegrees, State.PolarAngleDegrees, ab_Global::SphereRadius);
-                    if (static_cast<long double>(Zone->Radius) + ZoneRadius + 5.0L > Distance) {
+                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Zone->Longitude, Zone->PolarAngle, 0.0, Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees, ab_Global::SphereRadius);
+                    if (static_cast<long double>(Zone->Radius) + Self->ZoneRadius + 5.0L > Distance) {
                         if (Zone->DamagePerTick < 0) {
-                            pas::checked_cast<ab_Hit::TabHit*>(this)->Health = ([&] {
-                                std::int32_t maxHealth = pas::checked_cast<ab_Hit::TabHit*>(this)->MaxHealth;
-                                std::int32_t cpp_arg_3 = pas::checked_cast<ab_Hit::TabHit*>(this)->Health + -Zone->DamagePerTick;
+                            pas::checked_cast<ab_Hit::TabHit*>(Self)->Health = ([&] {
+                                std::int32_t maxHealth = pas::checked_cast<ab_Hit::TabHit*>(Self)->MaxHealth;
+                                std::int32_t cpp_arg_3 = pas::checked_cast<ab_Hit::TabHit*>(Self)->Health + -Zone->DamagePerTick;
                                 return std::min<std::int32_t>(maxHealth, cpp_arg_3);
                             }());
                         } else {
-                            ApplyDamage(Zone->DamagePerTick, nullptr, false);
-                            if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(this) != nullptr) {
-                                pas::checked_cast<ab_ShipAI::TabShipAI*>(this)->NoticeDamagingZone(Zone);
+                            Self->ApplyDamage(Zone->DamagePerTick, nullptr, false);
+                            if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Self) != nullptr) {
+                                pas::checked_cast<ab_ShipAI::TabShipAI*>(Self)->NoticeDamagingZone(Zone);
                             }
                         }
                     }
@@ -324,19 +324,19 @@ namespace ab_Object {
                 Zone = Zone->Next;
             }
         }
-        Factor = pas::real_divide(1.0L, Mass);
-        Velocity.X = Velocity.X + static_cast<long double>(Force.X) * Factor;
-        Velocity.Y = Velocity.Y + static_cast<long double>(Force.Y) * Factor;
-        double ArcDistance = System::Sqrt(pas::sqr(static_cast<pas::Extended>(Velocity.X)) + pas::sqr(static_cast<pas::Extended>(Velocity.Y)));
-        if (static_cast<long double>(MaxSpeed) * SpeedScale < ArcDistance) {
-            ArcDistance = static_cast<long double>(MaxSpeed) * SpeedScale;
+        Factor = pas::real_divide(1.0L, Self->Mass);
+        Self->Velocity.X = Self->Velocity.X + static_cast<long double>(Force.X) * Factor;
+        Self->Velocity.Y = Self->Velocity.Y + static_cast<long double>(Force.Y) * Factor;
+        double ArcDistance = System::Sqrt(pas::sqr(static_cast<pas::Extended>(Self->Velocity.X)) + pas::sqr(static_cast<pas::Extended>(Self->Velocity.Y)));
+        if (static_cast<long double>(Self->MaxSpeed) * Self->SpeedScale < ArcDistance) {
+            ArcDistance = static_cast<long double>(Self->MaxSpeed) * Self->SpeedScale;
         }
-        ArcDistance = pas::real_max<pas::Extended>(0.0L, static_cast<long double>(ArcDistance) - aMyFunction::RemapClamped(ArcDistance, 0.0, MaxSpeed, ab_Global::SphereLowSpeedDrag, ab_Global::SphereHighSpeedDrag));
-        TravelBearing = aMyFunction::PointBearingDegrees(EC_Struct::MakePointF(0.0f, 0.0f), Velocity);
-        if (ab_Ship::PlayerArcadeShip == this) {
-            ab_Ship::PlayerArcadeShip->TurnSpeed = aMyFunction::RemapClamped(ArcDistance, 0.0, MaxSpeed, ab_Global::PlayerSlowTurnSpeed, ab_Global::PlayerFastTurnSpeed);
+        ArcDistance = pas::real_max<pas::Extended>(0.0L, static_cast<long double>(ArcDistance) - aMyFunction::RemapClamped(ArcDistance, 0.0, Self->MaxSpeed, ab_Global::SphereLowSpeedDrag, ab_Global::SphereHighSpeedDrag));
+        TravelBearing = aMyFunction::PointBearingDegrees(EC_Struct::MakePointF(0.0f, 0.0f), Self->Velocity);
+        if (ab_Ship::PlayerArcadeShip == Self) {
+            ab_Ship::PlayerArcadeShip->TurnSpeed = aMyFunction::RemapClamped(ArcDistance, 0.0, Self->MaxSpeed, ab_Global::PlayerSlowTurnSpeed, ab_Global::PlayerFastTurnSpeed);
             Limit = ab_Global::PlayerDriftTurnStep;
-            Factor = aMyFunction::HeadingDifferenceDegrees(TravelBearing, State.BearingDegrees);
+            Factor = aMyFunction::HeadingDifferenceDegrees(TravelBearing, Self->State.BearingDegrees);
             if (std::fabs(static_cast<pas::Extended>(Factor)) < 9.0E+1L) {
                 if (-Limit > Factor) {
                     TravelBearing = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearing) - Limit);
@@ -344,7 +344,7 @@ namespace ab_Object {
                     TravelBearing = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearing) + Limit);
                 }
             } else {
-                Factor = aMyFunction::HeadingDifferenceDegrees(TravelBearing, aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 1.8E+2L));
+                Factor = aMyFunction::HeadingDifferenceDegrees(TravelBearing, aMyFunction::WrapHeadingDegrees(Self->State.BearingDegrees + 1.8E+2L));
                 if (-Limit > Factor) {
                     TravelBearing = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearing) - Limit);
                 } else if (Factor > Limit) {
@@ -353,29 +353,29 @@ namespace ab_Object {
             }
         }
         if (ArcDistance != 0.0L) {
-            if (WallCollisionEnabled) {
+            if (Self->WallCollisionEnabled) {
                 {
-                    ab_Global::TSphericalBearingState advanceSphericalStateAlongBearing = ab_Global::AdvanceSphericalStateAlongBearing(State, TravelBearing, ArcDistance);
-                    ab_Global::TSphericalBearingState state = State;
+                    ab_Global::TSphericalBearingState advanceSphericalStateAlongBearing = ab_Global::AdvanceSphericalStateAlongBearing(Self->State, TravelBearing, ArcDistance);
+                    ab_Global::TSphericalBearingState state = Self->State;
                     if (ab_StopLine::ab_StopLine_ReflectMovement(state, advanceSphericalStateAlongBearing, HeadingDelta, ReflectedSpeed, UnusedResult)) {
                         ArcDistance = ReflectedSpeed;
                         TravelBearing = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearing) + HeadingDelta);
                     }
                 }
-                State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + UnusedResult);
+                Self->State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Self->State.BearingDegrees) + UnusedResult);
             }
             if (ArcDistance > 0.0L) {
-                State = ab_Global::AdvanceSphericalStateAndTravelBearing(State, TravelBearing, ArcDistance);
-                DistanceTravelled = static_cast<long double>(DistanceTravelled) + ArcDistance;
-                Velocity.X = System::Sin(aMyFunction::HeadingDegreesToRadians(TravelBearing)) * ArcDistance;
-                Velocity.Y = -System::Cos(aMyFunction::HeadingDegreesToRadians(TravelBearing)) * ArcDistance;
+                Self->State = ab_Global::AdvanceSphericalStateAndTravelBearing(Self->State, TravelBearing, ArcDistance);
+                Self->DistanceTravelled = static_cast<long double>(Self->DistanceTravelled) + ArcDistance;
+                Self->Velocity.X = System::Sin(aMyFunction::HeadingDegreesToRadians(TravelBearing)) * ArcDistance;
+                Self->Velocity.Y = -System::Cos(aMyFunction::HeadingDegreesToRadians(TravelBearing)) * ArcDistance;
             } else {
-                Velocity.X = 0.0f;
-                Velocity.Y = 0.0f;
+                Self->Velocity.X = 0.0f;
+                Self->Velocity.Y = 0.0f;
             }
         } else {
-            Velocity.X = 0.0f;
-            Velocity.Y = 0.0f;
+            Self->Velocity.X = 0.0f;
+            Self->Velocity.Y = 0.0f;
         }
     }
 
@@ -399,6 +399,10 @@ namespace ab_Object {
 
     void TabObject::p_destroy() {
         ab_Object::TabObject_Destroy(this);
+    }
+
+    void TabObject::virtual_TabObject_Advance() {
+        ab_Object::TabObject_Advance(this);
     }
 
 } // namespace ab_Object

@@ -41,33 +41,33 @@ namespace ab_W14 {
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
-    void TabW14::Advance() {
-        ab_Object::TabObject::Advance();
-        if (Phase != 1) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
+    void TabW14_Advance(TabW14* Self) {
+        ab_Object::TabObject_Advance(Self);
+        if (Self->Phase != 1) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (Phase != 1) {
-            Collision = FindCollision();
-            if (Collision != nullptr && SourceObject != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Collision) != nullptr && pas::list_indexof(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies, reinterpret_cast<void*>(Collision)) < 0) {
+        if (Self->Phase != 1) {
+            Collision = Self->FindCollision();
+            if (Collision != nullptr && Self->SourceObject != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Collision) != nullptr && pas::list_indexof(reinterpret_cast<ab_Ship::TabShip*>(Self->SourceObject)->Enemies, reinterpret_cast<void*>(Collision)) < 0) {
                 Collision = nullptr;
-            } else if (Collision == SourceObject) {
+            } else if (Collision == Self->SourceObject) {
                 Collision = nullptr;
             } else if (pas::class_cast_if<TabW14*>(Collision) != nullptr) {
                 Collision = nullptr;
             }
         }
         // Native launch sets ExpireTick, but flight expires by half-circumference.
-        if ((DistanceTravelled > SystemImports::Pi * ab_Global::SphereRadius || Collision != nullptr) && Phase != 1) {
+        if ((Self->DistanceTravelled > SystemImports::Pi * ab_Global::SphereRadius || Collision != nullptr) && Self->Phase != 1) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Damage, SourceObject, false);
+                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
             }
-            Phase = 1;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w14a_f"_wref.get(), u"GAI,Bm.AB.w14a_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
-        } else if (Phase == 1) {
-            DeletionPending = Image->Finished;
+            Self->Phase = 1;
+            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w14a_f"_wref.get(), u"GAI,Bm.AB.w14a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
+        } else if (Self->Phase == 1) {
+            Self->DeletionPending = Self->Image->Finished;
         }
     }
 
@@ -91,6 +91,10 @@ namespace ab_W14 {
 
     void TabW14::p_destroy() {
         ab_W14::TabW14_Destroy(this);
+    }
+
+    void TabW14::virtual_TabObject_Advance() {
+        ab_W14::TabW14_Advance(this);
     }
 
 } // namespace ab_W14

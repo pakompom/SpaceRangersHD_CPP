@@ -14,7 +14,7 @@ namespace ab_W03 {
         void p_destroy() override;
         void Launch(ab_Object::TabObject* Owner, std::int32_t Amount, float Offset);
         void Explode();
-        void Advance() override;
+        void virtual_TabObject_Advance() override;
         void UpdateVisuals() override;
         std::int32_t Damage;
         ab_WorldImage::PabWorldImage Image;

@@ -1353,7 +1353,7 @@ namespace aConst {
         for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range_2.next(DamageKind); ) {
             Values = Block->GetParam(pas::concat_wide({u"mFragilityByLevel", WeaponDamageClasses[DamageKind].Name}));
             for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_3.next(Level); ) {
-                HullLevelStats[Level].Fragility[DamageKind] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get()));
+                pas::store_unaligned<float>(pas::byte_offset(&HullLevelStats[Level].Fragility, DamageKind * sizeof(float)), EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
             }
             Values = Block->GetParam(pas::concat_wide({u"mFragilityByOwner", WeaponDamageClasses[DamageKind].Name}));
             for (auto cpp_range_4 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_4.next(Owner); ) {
@@ -1503,7 +1503,7 @@ namespace aConst {
                 }
                 Values = Block->GetParam(u"mWeaponDamage"_wref.get());
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, 8); cpp_range_2.next(Level); ) {
-                    cpp_with.DamageScaleByLevel[Level] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get()));
+                    pas::store_unaligned<float>(pas::byte_offset(&cpp_with.DamageScaleByLevel, (Level - 1) * sizeof(float)), EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
                 }
             }
         }
@@ -1636,11 +1636,11 @@ namespace aConst {
                 for (BonusKind = static_cast<std::uint8_t>(0); BonusKind <= static_cast<std::uint8_t>(42); ++BonusKind) {
                     Value = ReadMicroModuleParam(EquipmentBonusNames[BonusKind]);
                     if (Value == u"") {
-                        cpp_with.StatBonuses[BonusKind] = 0;
+                        pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.StatBonuses, BonusKind * sizeof(std::int32_t)), 0);
                     } else if (pas::in_set<29, 30>(BonusKind)) {
-                        cpp_with.StatBonuses[BonusKind] = System::Round(EC_Str::ExtractDecimalToSingleW(Value) * 1.0E+2L);
+                        pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.StatBonuses, BonusKind * sizeof(std::int32_t)), static_cast<std::int32_t>(System::Round(EC_Str::ExtractDecimalToSingleW(Value) * 1.0E+2L)));
                     } else {
-                        cpp_with.StatBonuses[BonusKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                        pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.StatBonuses, BonusKind * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                     }
                 }
                 Value = ReadMicroModuleParam(u"Cost"_w);
@@ -1664,9 +1664,9 @@ namespace aConst {
                 for (DamageClass = static_cast<std::uint8_t>(0); DamageClass <= static_cast<std::uint8_t>(2); ++DamageClass) {
                     Value = ReadMicroModuleParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageClass].Name}));
                     if (Value == u"") {
-                        cpp_with.FragilityFactorByDamageClass[DamageClass] = cpp_with.FragilityFactor;
+                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityFactorByDamageClass, DamageClass * sizeof(float)), cpp_with.FragilityFactor);
                     } else {
-                        cpp_with.FragilityFactorByDamageClass[DamageClass] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
+                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityFactorByDamageClass, DamageClass * sizeof(float)), static_cast<float>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L));
                     }
                 }
                 Value = ReadMicroModuleParam(u"Owner"_w);
@@ -2246,56 +2246,56 @@ namespace aConst {
                         pas::include_at(&cpp_with.AllowedShipTypes, aGalaxyStruct::htFlagship);
                     }
                 }
-                cpp_with.SlotBonuses[0] = 0;
-                cpp_with.SlotBonuses[1] = 0;
-                cpp_with.SlotBonuses[10] = 0;
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 0 * sizeof(std::int32_t)), 0);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 1 * sizeof(std::int32_t)), 0);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 10 * sizeof(std::int32_t)), 0);
                 Value = ReadHullSeriesParam(u"Radar"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[2] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 2 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[2] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 2 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Scaner"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[3] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 3 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[3] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 3 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Droid"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[4] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 4 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[4] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 4 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Hook"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[5] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 5 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[5] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 5 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Def"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[6] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 6 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[6] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 6 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Weapon"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[7] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 7 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[7] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 7 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Artefact"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[8] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 8 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[8] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 8 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Forsage"_w);
                 if (Value == u"") {
-                    cpp_with.SlotBonuses[9] = 0;
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 9 * sizeof(std::int32_t)), 0);
                 } else {
-                    cpp_with.SlotBonuses[9] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
+                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 9 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
                 }
                 Value = ReadHullSeriesParam(u"Size"_w);
                 if (Value == u"") {
@@ -2318,9 +2318,9 @@ namespace aConst {
                 for (DamageKind = static_cast<std::uint8_t>(0); DamageKind <= static_cast<std::uint8_t>(2); ++DamageKind) {
                     Value = ReadHullSeriesParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageKind].Name}));
                     if (Value == u"") {
-                        cpp_with.FragilityByDamageClass[DamageKind] = cpp_with.FragilityFactor;
+                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityByDamageClass, DamageKind * sizeof(float)), cpp_with.FragilityFactor);
                     } else {
-                        cpp_with.FragilityByDamageClass[DamageKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
+                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityByDamageClass, DamageKind * sizeof(float)), static_cast<float>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L));
                     }
                 }
                 Value = ReadHullSeriesParam(u"Year"_w);

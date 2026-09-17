@@ -12,4 +12,6 @@ namespace GI_PanelScrollBar {
     // Frees both scrollbars, including when parented outside this panel.
     void TPanelScrollBarGI_Destroy(TPanelScrollBarGI* Self);
 
+    void TPanelScrollBarGI_LoadFromConfigPath(TPanelScrollBarGI* Self, const pas::WideString& Path);
+
 } // namespace GI_PanelScrollBar

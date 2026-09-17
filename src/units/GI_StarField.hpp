@@ -15,4 +15,6 @@ namespace GI_StarField {
 
     void TStarFieldGI_Destroy(TStarFieldGI* Self);
 
+    void TStarFieldGI_LoadFromConfigPath(TStarFieldGI* Self, const pas::WideString& Path);
+
 } // namespace GI_StarField

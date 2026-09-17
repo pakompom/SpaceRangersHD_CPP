@@ -102,8 +102,8 @@ namespace aEFilm {
             TEFilmCameraEvent& cpp_with = CameraEvents[CameraEventCount];
             cpp_with.StepIndex = AStepIndex;
             cpp_with.Priority = APriority;
-            cpp_with.StartPosition = AStartPosition;
-            cpp_with.EndPosition = AEndPosition;
+            pas::store_unaligned<EC_Struct::TPointF>(&cpp_with.StartPosition, AStartPosition);
+            pas::store_unaligned<EC_Struct::TPointF>(&cpp_with.EndPosition, AEndPosition);
         }
         ++CameraEventCount;
     }
@@ -699,7 +699,10 @@ namespace aEFilm {
                         pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->SetRotationTimerInterval(reinterpret_cast<PEFilmObjectCommand>(Command)->Value & 0x00ffffff);
                         pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->SetRingKind(pas::shr(reinterpret_cast<PEFilmObjectCommand>(Command)->Value, 24));
                         pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->SetSurfaceMapStep(reinterpret_cast<PEFilmObjectCommand>(Command)->ExtraValue);
-                        pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->OrbitalVelocity = pas::real_divide(static_cast<std::int16_t>(reinterpret_cast<PEFilmObjectCommand>(Command)->Flags & 0x0000ffff), 1.0E+3L);
+                        {
+                            auto& cpp_target = pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->OrbitalVelocity;
+                            cpp_target = pas::real_divide(static_cast<std::int16_t>(reinterpret_cast<PEFilmObjectCommand>(Command)->Flags & 0x0000ffff), 1.0E+3L);
+                        }
                         pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->SetMinimapOwner(pas::shr(reinterpret_cast<PEFilmObjectCommand>(Command)->Flags, 24));
                         pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->Civilized = pas::checked_cast<SE_Planet::TPlanetSE*>(reinterpret_cast<PEFilmObjectCommand>(Command)->Obj->SceneObject)->MinimapOwner != 6;
                     }

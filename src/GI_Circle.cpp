@@ -134,10 +134,10 @@ namespace GI_Circle {
         }
     }
 
-    void TCircleGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TCircleGI_LoadFromConfigPath(TCircleGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
-        LoadShapeProperties(Block);
+        Self->LoadShapeProperties(Block);
     }
 
     void TCircleGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -290,6 +290,10 @@ namespace GI_Circle {
 
     void TCircleGI::p_destroy() {
         GI_Circle::TCircleGI_Destroy(this);
+    }
+
+    void TCircleGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Circle::TCircleGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Circle

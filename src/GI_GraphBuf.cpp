@@ -408,9 +408,9 @@ namespace GI_GraphBuf {
         return Result;
     }
 
-    void TGraphBufGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TGraphBufGI_LoadFromConfigPath(TGraphBufGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TGraphBufGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -576,6 +576,10 @@ namespace GI_GraphBuf {
 
     void TGraphBufGI::p_destroy() {
         GI_GraphBuf::TGraphBufGI_Destroy(this);
+    }
+
+    void TGraphBufGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_GraphBuf::TGraphBufGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_GraphBuf

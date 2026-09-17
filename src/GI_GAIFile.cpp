@@ -337,9 +337,9 @@ namespace GI_GAIFile {
         }
     }
 
-    void TGAIFileGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TGAIFileGI_LoadFromConfigPath(TGAIFileGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TGAIFileGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -542,6 +542,10 @@ namespace GI_GAIFile {
 
     void TGAIFileThreadGI::virtual_TThreadEC_Execute() {
         GI_GAIFile::TGAIFileThreadGI_Execute(this);
+    }
+
+    void TGAIFileGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_GAIFile::TGAIFileGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_GAIFile

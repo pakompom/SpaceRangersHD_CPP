@@ -101,14 +101,12 @@ namespace aPlayer {
         void p_destroy() override;
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
-        void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
+        void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Inherited ranger registration followed by player career/skill defaults; CharacterPreset is unused here.
         void InitializePlayerAtPlanet(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset);
-        // Twenty-five race/preset loadouts, stored cargo and initial planet relations. Planet is unused.
-        void ApplyCharacterPreset(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset);
-        void NextDay() override;
+        void virtual_TShip_NextDay() override;
         // Capped at 100000000; zero for nonpositive principal.
         std::int32_t ComputeDepositAccruedValue();
         // Increments every carried transmitter in the global player's artefact list, including unequipped ones.
@@ -125,7 +123,7 @@ namespace aPlayer {
         // Requires a TKling victim; records its hull capacity even when no reward is due.
         std::uint8_t TryAwardDominatorPrograms(aShip::TShip* Victim);
         // Returns the highest-scoring visible Coalition trade route; retains output arguments on failure and excludes their previous endpoints.
-        std::uint8_t FindProfitableTradeRoute(std::uint8_t Nearby, std::uint32_t Seed, aPlanet::TPlanet*& PurchasePlanet, aPlanet::TPlanet*& SalePlanet, std::uint8_t& Good, aGalaxyStruct::TItemTypeMask GoodsMask);
+        std::uint8_t FindProfitableTradeRoute(std::uint8_t Nearby, std::uint32_t Seed, pas::Var<aPlanet::TPlanet*> PurchasePlanet, pas::Var<aPlanet::TPlanet*> SalePlanet, std::uint8_t& Good, aGalaxyStruct::TItemTypeMask GoodsMask);
         // Uses Self.Satellites.Count but reads the global player's list.
         std::uint8_t HasDeployedSatellites();
         // Requires Self=GetPlayer(): uses Self for the list count but fetches entries from the global player's deployed satellites.
@@ -191,8 +189,6 @@ namespace aPlayer {
         std::uint8_t HasEquipmentConfiguration(std::int32_t Index);
         // Includes the carrier's hold and the player's current-location storage.
         std::int32_t GetAvailableNodeCount(aShip::TShip* Carrier);
-        // Uses the carrier's hold, then current-location storage; refreshes Self even when Carrier differs.
-        void ConsumeAvailableNodes(std::int32_t Count, aShip::TShip* Carrier);
         // Pirate career thresholds, eminent title and active license.
         std::int32_t GetMaxPiratePartners();
         // As pirate partners, with an additional threshold above career status 50.
@@ -210,8 +206,6 @@ namespace aPlayer {
         pas::WideString ExportNews();
         // Copies galaxy news whose IDs are absent locally.
         void MergeGalaxyNews();
-        // Updates eligible docked players after turn 300 and retains the newest 100 entries.
-        void RefreshNewsAtLocation();
         std::int32_t CalculateSpeed() override;
         // Creates a military-base proxy and removes it from the ordinary system ship list.
         void CreateRuinsProxy();
@@ -221,8 +215,7 @@ namespace aPlayer {
         void CloseRuinsModeScreen();
         // Restores the real docking target and rebuilds its temporary shop stock.
         void ExitRuinsMode();
-        // Includes the player's current-system kill counts and main pirate planet exception.
-        void RefreshCurrentStanding() override;
+        void virtual_TShip_RefreshCurrentStanding() override;
         // Honors scripted targeting restrictions, chameleon logic and friendly station standing masks.
         std::uint8_t CanSelectShipTarget(aShip::TShip* Ship);
         // Checks station/Dominator restrictions and invokes the player's scan-permission item scripts.

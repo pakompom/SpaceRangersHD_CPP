@@ -99,16 +99,16 @@ namespace GI_RotateImage {
         }
     }
 
-    void TRotateImageGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TRotateImageGI_LoadFromConfigPath(TRotateImageGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Image"_wref.get()) > 0 && Block->CountParams(u"Size"_wref.get()) > 0) {
             Types::TPoint pointGI = GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get()));
             pas::WideString param = Block->GetParam(u"Image"_wref.get());
-            SetImage(std::move(param), pointGI);
+            Self->SetImage(std::move(param), pointGI);
         }
         if (Block->CountParams(u"Angle"_wref.get()) > 0) {
-            Angle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"_wref.get())));
+            Self->Angle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"_wref.get())));
         }
     }
 
@@ -185,6 +185,10 @@ namespace GI_RotateImage {
 
     void TRotateImageGI::p_destroy() {
         GI_RotateImage::TRotateImageGI_Destroy(this);
+    }
+
+    void TRotateImageGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_RotateImage::TRotateImageGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_RotateImage

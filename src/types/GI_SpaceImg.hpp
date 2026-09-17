@@ -36,7 +36,7 @@ namespace GI_SpaceImg {
         void Invalidate() override;
         void OnActivate() override;
         void OnDeactivate() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Empty in native code.
         static void LoadSpaceImageProperties(EC_BlockPar::TBlockParEC* Block);

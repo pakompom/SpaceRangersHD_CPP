@@ -32,7 +32,6 @@
 #include "types/aPath.hpp"
 #include "types/aPirate.hpp"
 #include "types/aRuins.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/ab_MainForm.hpp"
 #include "types/fFilmFile.hpp"
@@ -79,6 +78,7 @@
 #include "units/aRanger.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/fGalaxy2.hpp"
 #include "units/fGoodsShop2.hpp"
 #include "units/fLoad.hpp"
@@ -396,7 +396,7 @@ namespace fStarMap {
         } else {
             aGalaxy::TGalaxy::ClearIntegrityStatus();
         }
-        LoadPanel->OnOpen();
+        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
         BreakOnNextFilm = false;
         AnimateSpacePanelOnResume = false;
         if (PlanetBattleState == 1) {
@@ -425,7 +425,7 @@ namespace fStarMap {
             if (!GlobalsV::MemorySnapshotActive) {
                 aSaveLoad::SaveGameToMemorySnapshot();
             }
-            LoadPanel->OnOpen();
+            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
             LoadPanel->SelectBackgroundStyle(3);
             LoadPanel->RefreshBackgroundImages();
             try {
@@ -477,12 +477,12 @@ namespace fStarMap {
             {
                 aPlayer::TPlanetBattleHistoryEntry& cpp_with = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                 cpp_with.MapId = PlanetBattleMapId;
-                cpp_with.Statistics[0] = Robot::RobotBattleStatistics[0];
-                cpp_with.Statistics[1] = Robot::RobotBattleStatistics[1];
-                cpp_with.Statistics[2] = Robot::RobotBattleStatistics[2];
-                cpp_with.Statistics[3] = Robot::RobotBattleStatistics[3];
-                cpp_with.Statistics[4] = Robot::RobotBattleStatistics[4];
-                cpp_with.Statistics[5] = Robot::RobotBattleStatistics[5];
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 0 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[0]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 1 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[1]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 2 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[2]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 3 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[3]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 4 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[4]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 5 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[5]);
                 cpp_with.ResultCode = 1;
                 cpp_with.CompletionMode = PlanetBattleState;
                 cpp_with.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -509,7 +509,7 @@ namespace fStarMap {
                 RequestClose(1);
                 return;
             }
-            LoadPanel->OnOpen();
+            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
             LoadPanel->SelectBackgroundStyle(0);
             LoadPanel->RefreshBackgroundImages();
             Globals::StarMapScreen->ResumeMode = smrTurnFilm;
@@ -523,12 +523,12 @@ namespace fStarMap {
             {
                 aPlayer::TPlanetBattleHistoryEntry& cpp_with_2 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                 cpp_with_2.MapId = PlanetBattleMapId;
-                cpp_with_2.Statistics[0] = Robot::RobotBattleStatistics[0];
-                cpp_with_2.Statistics[1] = Robot::RobotBattleStatistics[1];
-                cpp_with_2.Statistics[2] = Robot::RobotBattleStatistics[2];
-                cpp_with_2.Statistics[3] = Robot::RobotBattleStatistics[3];
-                cpp_with_2.Statistics[4] = Robot::RobotBattleStatistics[4];
-                cpp_with_2.Statistics[5] = Robot::RobotBattleStatistics[5];
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 0 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[0]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 1 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[1]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 2 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[2]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 3 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[3]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 4 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[4]);
+                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 5 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[5]);
                 cpp_with_2.ResultCode = 1;
                 cpp_with_2.CompletionMode = PlanetBattleState;
                 cpp_with_2.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -562,7 +562,7 @@ namespace fStarMap {
                 RequestClose(1);
                 return;
             }
-            LoadPanel->OnOpen();
+            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
             LoadPanel->SelectBackgroundStyle(0);
             LoadPanel->RefreshBackgroundImages();
             Globals::StarMapScreen->ResumeMode = smrTurnFilm;
@@ -960,9 +960,9 @@ namespace fStarMap {
             Image = SpaceImage->GetImage(Index);
             if (Image->TemplateIndex >= 100) {
                 aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].ImageIndex = Image->Unknown70;
-                aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].OrbitCenter = Image->OrbitCenter;
-                aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].Position = EC_Struct::MakeVector3D(Image->X, Image->Y, Image->Depth);
-                aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].Unknown38 = Image->Unknown38;
+                pas::store_unaligned<EC_Struct::TVector3D>(&aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].OrbitCenter, Image->OrbitCenter);
+                pas::store_unaligned<EC_Struct::TVector3D>(&aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].Position, EC_Struct::MakeVector3D(Image->X, Image->Y, Image->Depth));
+                pas::store_unaligned<EC_Struct::TVector3D>(&aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].Unknown38, Image->Unknown38);
                 aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].OrbitStepDegrees = Image->OrbitStepDegrees;
                 aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].FrameIndex = Image->FrameIndex;
                 ++SavedCount;
@@ -997,7 +997,7 @@ namespace fStarMap {
                     aPlayer::GetPlayer()->OrderNone(false);
                 }
                 if (aRanger::PendingPlayerFollowTarget != nullptr) {
-                    aPlayer::GetPlayer()->ProcessPendingPlayerFollowTargeting();
+                    aRanger::TRanger_ProcessPendingPlayerFollowTargeting(aPlayer::GetPlayer());
                 }
                 Globals::PreviousFilmActivity = 0u;
                 MainPanel->TryAutoTurnSave();
@@ -1012,7 +1012,7 @@ namespace fStarMap {
                 if (!Globals::PlayerStarDayPrepared) {
                     GR_Main::AppendLogLineThreadSafe("Not calc NextDay header"_a);
                 }
-                aPlayer::GetPlayer()->NextDay();
+                aPlayer::GetPlayer()->virtual_TShip_NextDay();
                 aCalc::QueuePlayerStarTurnCalculation();
                 Events[0] = Globals::TurnCalculationThread->IdleEvent;
                 Events[1] = Globals::TalkRequestEvent;
@@ -1088,12 +1088,12 @@ namespace fStarMap {
                     MainPanel->QuickLoad(1);
                 } else if (Key == WindowsSdk::VK_NUMPAD0) {
                     aGalaxy::Galaxy->CheckIntegrityChecksum(55);
-                    aPlayer::GetPlayer()->TogglePickupTargets(false);
+                    aShip::TShip_TogglePickupTargets(aPlayer::GetPlayer(), false);
                     aGalaxy::Galaxy->PrimeIntegrityChecksum(56);
                     RebuildTargetMarkers();
                 } else if (Key == WindowsSdk::VK_DECIMAL) {
                     aGalaxy::Galaxy->CheckIntegrityChecksum(55);
-                    aPlayer::GetPlayer()->TogglePickupTargets(true);
+                    aShip::TShip_TogglePickupTargets(aPlayer::GetPlayer(), true);
                     aGalaxy::Galaxy->PrimeIntegrityChecksum(56);
                     RebuildTargetMarkers();
                 } else if (Key == WindowsSdk::VK_INSERT) {
@@ -1789,7 +1789,7 @@ namespace fStarMap {
                 Ship = pas::checked_cast<aShip::TShip*>(Obj);
                 if (aPlayer::GetPlayer()->CurrentStar == Ship->CurrentStar && Ship->InNormalSpace()) {
                     pas::Extended cpp_left = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
-                    if (cpp_left <= aPlayer::GetPlayer()->GetRadarRange()) {
+                    if (cpp_left <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                         Globals::TalkShip = Ship;
                         Globals::TalkScripted = false;
                         Globals::ScriptDialogIndex = -1;
@@ -2366,8 +2366,8 @@ namespace fStarMap {
         aGalaxy::Galaxy->CheckIntegrityChecksum(311);
         UpdateTerronTransformation();
         aGalaxy::Galaxy->PrimeIntegrityChecksum(310);
-        TalkButton->SetDisabled(static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetRadar()) ^ 1));
-        ScannerButton->SetDisabled((static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetRadar()) ^ 1) || static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetScanner()) ^ 1)) && aGalaxy::Galaxy->UltraScanModEnabled == 0);
+        TalkButton->SetDisabled(static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar()) ^ 1));
+        ScannerButton->SetDisabled((static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar()) ^ 1) || static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetScanner()) ^ 1)) && aGalaxy::Galaxy->UltraScanModEnabled == 0);
         if (CenterShipButton->IsHovered()) {
             CenterShipMouseLeave(nullptr);
             CenterShipMouseEnter(nullptr);
@@ -2807,7 +2807,7 @@ namespace fStarMap {
                     if (SelectedWeapons[Index]) {
                         Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
                         {
-                            pas::Extended cpp_right = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                            pas::Extended cpp_right = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                             if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position) <= cpp_right) {
                                 SelectedWeapons[Index] = false;
                                 Weapon->Target = CursorObject;
@@ -2845,7 +2845,7 @@ namespace fStarMap {
                 }
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(42);
                 RebuildTargetMarkers();
-            } else if (!(aPlayer::GetPlayer()->Order == aShip::soLand && aPlayer::GetPlayer()->OrderTarget == Ship || static_cast<std::uint8_t>(Ship->GetRelationLevelToShip(aPlayer::GetPlayer())) <= 0 && (Ship != aKling::TerronShip || aGalaxy::Galaxy->TerronLandingLockTurn <= 0))) {
+            } else if (!(aPlayer::GetPlayer()->Order == aShip::soLand && aPlayer::GetPlayer()->OrderTarget == Ship || static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Ship, aPlayer::GetPlayer())) <= 0 && (Ship != aKling::TerronShip || aGalaxy::Galaxy->TerronLandingLockTurn <= 0))) {
                 aPlayer::GetPlayer()->OrderLanding(Ship, false);
                 aPlayer::GetPlayer()->OrderDestination = EC_Struct::SubtractPointsF(Destination, Ship->Position);
                 {
@@ -2864,8 +2864,8 @@ namespace fStarMap {
             if (ScannerSelectionActive) {
                 if (([&] {
                     pas::Extended cpp_left = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
-                    return cpp_left <= aPlayer::GetPlayer()->GetRadarRange();
-                }()) && aPlayer::GetPlayer() != CursorObject && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanScanShip(Ship)) && (aGalaxy::Galaxy->UltraScanModEnabled != 0 || aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || Ship->TypeId == aGalaxyStruct::stTranclucator)) {
+                    return cpp_left <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+                }()) && aPlayer::GetPlayer() != CursorObject && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanScanShip(Ship)) && (aGalaxy::Galaxy->UltraScanModEnabled != 0 || aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || Ship->TypeId == aGalaxyStruct::stTranclucator)) {
                     if (pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr && static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer()) {
                         ShipToInspect = Ship;
                         ShipClicked(nullptr);
@@ -2892,7 +2892,7 @@ namespace fStarMap {
                     ShipClicked(nullptr);
                 } else {
                     pas::Extended cpp_left_2 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position);
-                    if (cpp_left_2 > aPlayer::GetPlayer()->GetRadarRange()) {
+                    if (cpp_left_2 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                         ScanUnresolved = false;
                         {
                             const pas::WideString& lookupLocalizedTextByKey_10 = GR_Main::LookupLocalizedTextByKey(u"Help.ScanOutRange"_wref.get());
@@ -2900,7 +2900,7 @@ namespace fStarMap {
                             self_11->ShowLargeHelp(lookupLocalizedTextByKey_10);
                         }
                     } else if (aPlayer::GetPlayer() != CursorObject && !(pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr)) {
-                        if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(CursorObject) ^ 1) && pas::checked_cast<aShip::TShip*>(CursorObject)->TypeId != aGalaxyStruct::stTranclucator) {
+                        if (static_cast<std::uint8_t>(aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), CursorObject) ^ 1) && pas::checked_cast<aShip::TShip*>(CursorObject)->TypeId != aGalaxyStruct::stTranclucator) {
                             ScanUnresolved = false;
                             {
                                 const pas::WideString& lookupLocalizedTextByKey_11 = GR_Main::LookupLocalizedTextByKey(u"Help.ScanPowerLow"_wref.get());
@@ -2913,7 +2913,7 @@ namespace fStarMap {
             } else if (TalkSelectionActive) {
                 if (([&] {
                     pas::Extended cpp_left_3 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position);
-                    return cpp_left_3 <= aPlayer::GetPlayer()->GetRadarRange();
+                    return cpp_left_3 <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
                 }()) && aPlayer::GetPlayer() != CursorObject && !(pas::class_cast_if<aKling::TKling*>(CursorObject) != nullptr && static_cast<aKling::TKling*>(CursorObject)->IsProgramActive(aGalaxyStruct::prgDisconnection))) {
                     HideLargeHelp();
                     TalkUnresolved = false;
@@ -2929,7 +2929,7 @@ namespace fStarMap {
                     BuildShipPathOverlay(aPlayer::GetPlayer(), false, pas::WideString());
                 } else {
                     pas::Extended cpp_left_4 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position);
-                    if (cpp_left_4 > aPlayer::GetPlayer()->GetRadarRange()) {
+                    if (cpp_left_4 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                         TalkUnresolved = false;
                         {
                             const pas::WideString& lookupLocalizedTextByKey_12 = GR_Main::LookupLocalizedTextByKey(u"Help.TalkOutRange"_wref.get());
@@ -2960,7 +2960,7 @@ namespace fStarMap {
                     if (SelectedWeapons[Index]) {
                         Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
                         {
-                            pas::Extended cpp_right_2 = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                            pas::Extended cpp_right_2 = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                             if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position) <= cpp_right_2) {
                                 SelectedWeapons[Index] = false;
                                 Weapon->Target = CursorObject;
@@ -3024,7 +3024,7 @@ namespace fStarMap {
                             Mode = 0;
                         }
                         if (GlobalsV::DefaultOrder == 0) {
-                            if (static_cast<std::uint8_t>(Ship->GetRelationLevelToShip(aPlayer::GetPlayer())) <= 0) {
+                            if (static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Ship, aPlayer::GetPlayer())) <= 0) {
                                 Mode = 1;
                             } else {
                                 Mode = 2;
@@ -3091,7 +3091,7 @@ namespace fStarMap {
         } else if (pas::class_cast_if<aGalaxy::TStar*>(CursorObject) != nullptr) {
             if (TalkSelectionActive) {
                 pas::Extended cpp_left_5 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, aKling::TerronShip->Position);
-                if (cpp_left_5 <= aPlayer::GetPlayer()->GetRadarRange()) {
+                if (cpp_left_5 <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                     Globals::TalkShip = aKling::TerronShip;
                     Globals::TalkScripted = false;
                     Globals::ScriptDialogIndex = -1;
@@ -3115,7 +3115,7 @@ namespace fStarMap {
                     if (SelectedWeapons[Index]) {
                         Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
                         {
-                            pas::Extended cpp_right_3 = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                            pas::Extended cpp_right_3 = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                             if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aItem::TItem*>(CursorObject)->Position) <= cpp_right_3) {
                                 SelectedWeapons[Index] = false;
                                 Weapon->Target = CursorObject;
@@ -3158,7 +3158,7 @@ namespace fStarMap {
                     if (SelectedWeapons[Index]) {
                         Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
                         {
-                            pas::Extended cpp_right_4 = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                            pas::Extended cpp_right_4 = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                             if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aAsteroid::TAsteroid*>(CursorObject)->Position) <= cpp_right_4) {
                                 SelectedWeapons[Index] = false;
                                 Weapon->Target = CursorObject;
@@ -3190,7 +3190,7 @@ namespace fStarMap {
                     if (SelectedWeapons[Index]) {
                         Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
                         {
-                            pas::Extended cpp_right_5 = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                            pas::Extended cpp_right_5 = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                             if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aMissile::TMissile*>(CursorObject)->Position) <= cpp_right_5) {
                                 SelectedWeapons[Index] = false;
                                 Weapon->Target = CursorObject;
@@ -3264,7 +3264,7 @@ namespace fStarMap {
                 aPlayer::GetPlayer()->OrderDestination = Destination;
                 aPlayer::GetPlayer()->BuildOrderMovementPath(999999);
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(62);
-            } else if (CursorObject != nullptr && (pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && pas::checked_cast<aRuins::TRuins*>(CursorObject)->CanDock(aPlayer::GetPlayer()) || CursorObject == aKling::TerronShip && aGalaxy::Galaxy->TerronLandingLockTurn > 0)) {
+            } else if (CursorObject != nullptr && (pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && pas::checked_cast<aRuins::TRuins*>(CursorObject)->virtual_TShip_CanDock(aPlayer::GetPlayer()) || CursorObject == aKling::TerronShip && aGalaxy::Galaxy->TerronLandingLockTurn > 0)) {
                 Ship = pas::checked_cast<aShip::TShip*>(CursorObject);
                 ClearPathOverlay(true);
                 aGalaxy::Galaxy->CheckIntegrityChecksum(63);
@@ -3291,7 +3291,7 @@ namespace fStarMap {
                         FollowMode = 0;
                     }
                     if (GlobalsV::DefaultOrder == 0) {
-                        if (static_cast<std::uint8_t>(Ship->GetRelationLevelToShip(aPlayer::GetPlayer())) <= 0) {
+                        if (static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Ship, aPlayer::GetPlayer())) <= 0) {
                             FollowMode = 1;
                         } else {
                             FollowMode = 2;
@@ -3394,11 +3394,11 @@ namespace fStarMap {
             } else if (pas::class_cast_if<aShip::TShip*>(CursorObject) != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr)) {
                 Ship = pas::checked_cast<aShip::TShip*>(CursorObject);
                 if (Ship != aPlayer::GetPlayer() && static_cast<std::uint8_t>(ScannerSelectionActive ^ 1) && static_cast<std::uint8_t>(TalkSelectionActive ^ 1)) {
-                    if (GlobalsV::RightClickOnShip == 0 && (aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetScanner()) && aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetRadar()) || aGalaxy::Galaxy->UltraScanModEnabled == 1)) {
+                    if (GlobalsV::RightClickOnShip == 0 && (aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetScanner()) && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar()) || aGalaxy::Galaxy->UltraScanModEnabled == 1)) {
                         if (([&] {
                             pas::Extended cpp_left = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
-                            return cpp_left <= aPlayer::GetPlayer()->GetRadarRange();
-                        }()) && Ship != aPlayer::GetPlayer() && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanScanShip(Ship)) && (aGalaxy::Galaxy->UltraScanModEnabled != 0 || aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || Ship->TypeId == aGalaxyStruct::stTranclucator)) {
+                            return cpp_left <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+                        }()) && Ship != aPlayer::GetPlayer() && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanScanShip(Ship)) && (aGalaxy::Galaxy->UltraScanModEnabled != 0 || aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || Ship->TypeId == aGalaxyStruct::stTranclucator)) {
                             if (Ship->NoScan || aPlayer::GetPlayer()->ScanLocked) {
                                 const pas::WideString& lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"Help.ScanImpossible"_wref.get());
                                 TfStarMap* self = this;
@@ -3425,20 +3425,20 @@ namespace fStarMap {
                             ShipClicked(nullptr);
                         } else {
                             pas::Extended cpp_left_2 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
-                            if (cpp_left_2 > aPlayer::GetPlayer()->GetRadarRange()) {
+                            if (cpp_left_2 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                                 const pas::WideString& lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(u"Help.ScanOutRange"_wref.get());
                                 TfStarMap* self_2 = this;
                                 self_2->ShowLargeHelp(lookupLocalizedTextByKey_2);
-                            } else if (CursorObject != aPlayer::GetPlayer() && !(pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(CursorObject) ^ 1) && Ship->TypeId != aGalaxyStruct::stTranclucator) {
+                            } else if (CursorObject != aPlayer::GetPlayer() && !(pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr) && static_cast<std::uint8_t>(aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), CursorObject) ^ 1) && Ship->TypeId != aGalaxyStruct::stTranclucator) {
                                 const pas::WideString& lookupLocalizedTextByKey_3 = GR_Main::LookupLocalizedTextByKey(u"Help.ScanPowerLow"_wref.get());
                                 TfStarMap* self_3 = this;
                                 self_3->ShowLargeHelp(lookupLocalizedTextByKey_3);
                             }
                         }
-                    } else if (GlobalsV::RightClickOnShip == 1 && aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetRadar())) {
+                    } else if (GlobalsV::RightClickOnShip == 1 && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar())) {
                         if (([&] {
                             pas::Extended cpp_left_3 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
-                            return cpp_left_3 <= aPlayer::GetPlayer()->GetRadarRange();
+                            return cpp_left_3 <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
                         }()) && CursorObject != aPlayer::GetPlayer() && !(pas::class_cast_if<aKling::TKling*>(CursorObject) != nullptr && static_cast<aKling::TKling*>(CursorObject)->IsProgramActive(aGalaxyStruct::prgDisconnection))) {
                             if (Ship->NoTalk || aPlayer::GetPlayer()->TalkLocked) {
                                 const pas::WideString& lookupLocalizedTextByKey_4 = GR_Main::LookupLocalizedTextByKey(u"Help.TalkImpossible"_wref.get());
@@ -3459,7 +3459,7 @@ namespace fStarMap {
                             }
                         } else {
                             pas::Extended cpp_left_4 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
-                            if (cpp_left_4 > aPlayer::GetPlayer()->GetRadarRange()) {
+                            if (cpp_left_4 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                                 const pas::WideString& lookupLocalizedTextByKey_5 = GR_Main::LookupLocalizedTextByKey(u"Help.TalkOutRange"_wref.get());
                                 TfStarMap* self_5 = this;
                                 self_5->ShowLargeHelp(lookupLocalizedTextByKey_5);
@@ -3483,7 +3483,7 @@ namespace fStarMap {
                                 FollowMode = 0;
                             }
                             if (GlobalsV::DefaultOrder == 0) {
-                                if (static_cast<std::uint8_t>(Ship->GetRelationLevelToShip(aPlayer::GetPlayer())) <= 0) {
+                                if (static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Ship, aPlayer::GetPlayer())) <= 0) {
                                     FollowMode = 1;
                                 } else {
                                     FollowMode = 2;
@@ -3535,10 +3535,10 @@ namespace fStarMap {
                 }
             } else if (pas::class_cast_if<aPlanet::TPlanet*>(CursorObject) != nullptr && pas::in_set<0, 4, 7, 7>(static_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId) && static_cast<aPlanet::TPlanet*>(CursorObject)->CurrentStar->Status.CustomFaction == u"" && ([&] {
                 pas::Extended cpp_left_5 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, static_cast<aPlanet::TPlanet*>(CursorObject)->GetPosition());
-                return cpp_left_5 <= aPlayer::GetPlayer()->GetRadarRange();
-            }()) || pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && pas::checked_cast<aRuins::TRuins*>(CursorObject)->CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(pas::checked_cast<aRuins::TRuins*>(CursorObject)->NoTalk ^ 1) && ([&] {
+                return cpp_left_5 <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+            }()) || pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && pas::checked_cast<aRuins::TRuins*>(CursorObject)->virtual_TShip_CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(pas::checked_cast<aRuins::TRuins*>(CursorObject)->NoTalk ^ 1) && ([&] {
                 pas::Extended cpp_left_6 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aRuins::TRuins*>(CursorObject)->Position);
-                return cpp_left_6 <= aPlayer::GetPlayer()->GetRadarRange();
+                return cpp_left_6 <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
             }())) {
                 {
                     const pas::WideString& priceSnapshotKey = TfStarMap::GetPriceSnapshotKey(CursorObject);
@@ -3597,7 +3597,7 @@ namespace fStarMap {
                 InterceptorSelectionActive = false;
                 CustomSelectionActive = false;
                 Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
-                if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(Weapon) ^ 1) || pas::in_range(static_cast<std::uint8_t>(Weapon->GetWeaponInfo()->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
+                if (static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1) || pas::in_range(static_cast<std::uint8_t>(Weapon->GetWeaponInfo()->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
                     SelectedWeapons[Index] = false;
                 } else {
                     Weapon->Target = nullptr;
@@ -3667,7 +3667,7 @@ namespace fStarMap {
             } else if (Key == 'W') {
                 ToggleWeaponPanelClicked(nullptr);
             } else if (Key == 'F' && Mode == smmOrders) {
-                CanAfterburn = aPlayer::GetPlayer()->GetSlotCount(aConst::sskAfterburner) > 0 && aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetEngine()) && aPlayer::GetPlayer()->InNormalSpace();
+                CanAfterburn = aPlayer::GetPlayer()->GetSlotCount(aConst::sskAfterburner) > 0 && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetEngine()) && aPlayer::GetPlayer()->InNormalSpace();
                 if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->AfterburnerActive ^ 1) && CanAfterburn) {
                     GR_Main::SoundManager->PlaySound(u"Sound.ForsageOn"_wref.get());
                     ShowLargeHelp(GR_Main::LookupLocalizedTextByKey(u"Help.ForsageOn"_wref.get()));
@@ -3684,7 +3684,7 @@ namespace fStarMap {
                             } else {
                                 Binding = pas::list_at<aScript::TScriptShip>(aPlayer::GetPlayer()->ScriptShipBindings, Index);
                                 if (Binding->Script != nullptr) {
-                                    Binding->Script->RunShipState(Binding);
+                                    aScript::TScript_RunShipState(Binding->Script, Binding);
                                 }
                                 --Index;
                             }
@@ -3708,7 +3708,7 @@ namespace fStarMap {
                             } else {
                                 Binding = pas::list_at<aScript::TScriptShip>(aPlayer::GetPlayer()->ScriptShipBindings, Index);
                                 if (Binding->Script != nullptr) {
-                                    Binding->Script->RunShipState(Binding);
+                                    aScript::TScript_RunShipState(Binding->Script, Binding);
                                 }
                                 --Index;
                             }
@@ -3732,7 +3732,7 @@ namespace fStarMap {
         aGalaxy::Galaxy->CheckIntegrityChecksum(85);
         for (Index = 0; Index <= 4; ++Index) {
             Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
-            if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(Weapon) ^ 1) || pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
+            if (static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1) || pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
                 SelectedWeapons[Index] = false;
             } else {
                 Weapon->Target = nullptr;
@@ -3747,7 +3747,7 @@ namespace fStarMap {
         aItem::TWeapon* Weapon{};
         for (Index = 0; Index <= 4; ++Index) {
             Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
-            if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(Weapon) ^ 1) || pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
+            if (static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1) || pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
                 SelectedWeapons[Index] = false;
             } else if (Weapon->Target == nullptr) {
                 SelectedWeapons[Index] = true;
@@ -3817,16 +3817,16 @@ namespace fStarMap {
                 DisplayedObject = nullptr;
             } else if (aPlayer::GetPlayer() == nullptr || pas::class_cast_if<aItem::TItem*>(Obj) != nullptr && ([&] {
                 pas::Extended cpp_left_3 = aMyFunction::PointDistance(reinterpret_cast<aItem::TItem*>(Obj)->Position, aPlayer::GetPlayer()->Position);
-                return cpp_left_3 > aPlayer::GetPlayer()->GetRadarRange();
+                return cpp_left_3 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
             }()) || pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && (aPlayer::GetPlayer()->CurrentStar != reinterpret_cast<aShip::TShip*>(Obj)->CurrentStar || reinterpret_cast<aShip::TShip*>(Obj)->InHyperspace && Obj != aKling::TerronShip || ([&] {
                 pas::Extended cpp_left_4 = aMyFunction::PointDistance(reinterpret_cast<aShip::TShip*>(Obj)->Position, aPlayer::GetPlayer()->Position);
-                return cpp_left_4 > aPlayer::GetPlayer()->GetRadarRange();
+                return cpp_left_4 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
             }())) || pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr && ([&] {
                 pas::Extended cpp_left_5 = aMyFunction::PointDistance(reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->Position, aPlayer::GetPlayer()->Position);
-                return cpp_left_5 > aPlayer::GetPlayer()->GetRadarRange();
+                return cpp_left_5 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
             }()) || pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr && ([&] {
                 pas::Extended cpp_left_6 = aMyFunction::PointDistance(reinterpret_cast<aMissile::TMissile*>(Obj)->Position, aPlayer::GetPlayer()->Position);
-                return cpp_left_6 > aPlayer::GetPlayer()->GetRadarRange();
+                return cpp_left_6 > aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
             }()) || pas::class_cast_if<aGalaxy::THole*>(Obj) != nullptr || pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
                 InfoWindow->SetActive(false);
                 ItemInfoWindow->SetActive(false);
@@ -3851,7 +3851,7 @@ namespace fStarMap {
                         if (pas::class_cast_if<aItem::TGoods*>(Obj) != nullptr) {
                             InfoStdImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(reinterpret_cast<aItem::TItem*>(Obj)->ItemType)}));
                         } else {
-                            InfoStdImage->SetImagePath(pas::concat_wide({u"GI,", reinterpret_cast<aItem::TItem*>(Obj)->GetBitmapResourceName(), u"s"}));
+                            InfoStdImage->SetImagePath(pas::concat_wide({u"GI,", reinterpret_cast<aItem::TItem*>(Obj)->virtual_TItem_GetBitmapResourceName(), u"s"}));
                         }
                         InfoStdImage->SetImageKindX(GI_Main::ikxCenter);
                         InfoStdImage->SetImageKindY(GI_Main::ikyCenter);
@@ -4221,7 +4221,7 @@ namespace fStarMap {
                     if (pas::class_cast_if<aItem::TGoods*>(Obj) != nullptr) {
                         InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(reinterpret_cast<aItem::TItem*>(Obj)->ItemType)}));
                     } else {
-                        InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", reinterpret_cast<aItem::TItem*>(Obj)->GetBitmapResourceName(), u"s"}));
+                        InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", reinterpret_cast<aItem::TItem*>(Obj)->virtual_TItem_GetBitmapResourceName(), u"s"}));
                     }
                     InfoItemImage->SetImageKindX(GI_Main::ikxCenter);
                     InfoItemImage->SetImageKindY(GI_Main::ikyCenter);
@@ -4254,7 +4254,7 @@ namespace fStarMap {
                         cpp_arg_58->SetText(wrapTextInColor_10);
                     }
                     {
-                        const pas::WideString& infoText_2 = reinterpret_cast<aItem::TItem*>(Obj)->GetInfoText(u"<color=255,240,100>"_w, nullptr);
+                        const pas::WideString& infoText_2 = reinterpret_cast<aItem::TItem*>(Obj)->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
                         GI_Label::TLabelGI* cpp_arg_59 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
                         cpp_arg_59->SetText(infoText_2);
                     }
@@ -4271,7 +4271,7 @@ namespace fStarMap {
                 }
                 {
                     GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"_wref.get()));
-                    InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(pas::checked_cast<aItem::TItem*>(Obj)->GetOwnerConfigName()));
+                    InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(pas::checked_cast<aItem::TItem*>(Obj))));
                     InfoItemEmRace->SetImageKindX(GI_Main::ikxCenter);
                     InfoItemEmRace->SetImageKindY(GI_Main::ikyCenter);
                 }
@@ -4471,7 +4471,7 @@ namespace fStarMap {
                         ColorTag = pas::WideString();
                     }
                 }
-                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
+                if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
                     Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->HullPoints), ColorTag), u"/", pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->Weight)});
                     if (aPlayer::GetPlayer()->HasScannerArtefact(pas::checked_cast<aShip::TShip*>(Obj))) {
                         {
@@ -4487,24 +4487,24 @@ namespace fStarMap {
                     GI_Label::TLabelGI* cpp_arg_81 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()));
                     cpp_arg_81->SetText(wrapTextInColor_14);
                 }
-                Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(pas::checked_cast<aShip::TShip*>(Obj)->GetDefensePercent() & 0x0000007f), "%"}));
-                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
-                    Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetArmor()), pas::WideString())});
+                Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(pas::checked_cast<aShip::TShip*>(Obj)) & 0x0000007f), "%"}));
+                if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
+                    Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(pas::checked_cast<aShip::TShip*>(Obj))), pas::WideString())});
                     if (aPlayer::GetPlayer()->HasScannerArtefact(pas::checked_cast<aShip::TShip*>(Obj))) {
                         Text = pas::concat_wide({pas::checked_cast<aShip::TShip*>(Obj)->GetManeuverabilitySummary(), Text});
                     }
                 }
                 pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"_wref.get()))->SetText(Text);
                 {
-                    const pas::WideString& relationLevelTextToShip_2 = pas::checked_cast<aShip::TShip*>(Obj)->GetRelationLevelTextToShip(aPlayer::GetPlayer());
+                    const pas::WideString& relationLevelTextToShip_2 = aShip::TShip_GetRelationLevelTextToShip(pas::checked_cast<aShip::TShip*>(Obj), aPlayer::GetPlayer());
                     GI_Label::TLabelGI* cpp_arg_82 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"_wref.get()));
                     cpp_arg_82->SetText(relationLevelTextToShip_2);
                 }
-                if (aPlayer::GetPlayer() != Obj && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj)) {
+                if (aPlayer::GetPlayer() != Obj && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Obj)) {
                     pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()))->SetActive(true);
                     pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()))->SetActive(true);
                     {
-                        const pas::WideString& cpp_arg_83 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aPlayer::GetPlayer()->GetWinChancePercent(pas::checked_cast<aShip::TShip*>(Obj)) & 0x0000007f), "%"}));
+                        const pas::WideString& cpp_arg_83 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), pas::checked_cast<aShip::TShip*>(Obj)) & 0x0000007f), "%"}));
                         GI_Label::TLabelGI* cpp_arg_84 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()));
                         cpp_arg_84->SetText(cpp_arg_83);
                     }
@@ -4524,7 +4524,7 @@ namespace fStarMap {
                 }
                 {
                     GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"_wref.get()));
-                    if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
+                    if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
                         pas::Extended cpp_left_12 = pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->HullPoints;
                         std::int64_t cpp_left_11 = System::Round(pas::real_divide(cpp_left_12, pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->Weight) * BarWidth);
                         std::int32_t cpp_arg_85 = cpp_left_11 - (InfoShipDurable->GetContentSize().X - 5);
@@ -5046,7 +5046,7 @@ namespace fStarMap {
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(false);
                 {
-                    const pas::WideString& objectInfoText = aPlayer::GetPlayer()->GetObjectInfoText(Obj);
+                    const pas::WideString& objectInfoText = aRanger::TRanger_GetObjectInfoText(aPlayer::GetPlayer(), Obj);
                     GI_Label::TLabelGI* infoTextLabel = InfoTextLabel;
                     infoTextLabel->SetText(objectInfoText);
                 }
@@ -5151,7 +5151,7 @@ namespace fStarMap {
             Planet = pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, Index);
             if (pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
                 pas::Extended cpp_left = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Planet->GetPosition());
-                if (cpp_left <= aPlayer::GetPlayer()->GetRadarRange()) {
+                if (cpp_left <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                     {
                         const pas::WideString& priceSnapshotKey = TfStarMap::GetPriceSnapshotKey(Planet);
                         const pas::WideString& buildPriceText = fGoodsShop2::TfGoodsShop2::BuildPriceText(Planet);
@@ -5165,9 +5165,9 @@ namespace fStarMap {
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range_2.next(Index); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, Index);
             if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) {
-                if (pas::checked_cast<aRuins::TRuins*>(Ship)->CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(Ship->NoTalk ^ 1)) {
+                if (pas::checked_cast<aRuins::TRuins*>(Ship)->virtual_TShip_CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(Ship->NoTalk ^ 1)) {
                     pas::Extended cpp_left_2 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
-                    if (cpp_left_2 <= aPlayer::GetPlayer()->GetRadarRange()) {
+                    if (cpp_left_2 <= aShip::TShip_GetRadarRange(aPlayer::GetPlayer())) {
                         {
                             const pas::WideString& priceSnapshotKey_2 = TfStarMap::GetPriceSnapshotKey(Ship);
                             const pas::WideString& buildPriceText_2 = fGoodsShop2::TfGoodsShop2::BuildPriceText(Ship);
@@ -5265,7 +5265,7 @@ namespace fStarMap {
             }
             InterceptorSelectionActive = false;
             CustomSelectionActive = false;
-            if ((static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetScanner()) ^ 1) || static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetRadar()) ^ 1)) && aGalaxy::Galaxy->UltraScanModEnabled == 0) {
+            if ((static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetScanner()) ^ 1) || static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar()) ^ 1)) && aGalaxy::Galaxy->UltraScanModEnabled == 0) {
                 ScannerSelectionActive = false;
             } else {
                 ScannerSelectionActive = static_cast<std::uint8_t>(ScannerSelectionActive ^ 1);
@@ -5288,7 +5288,7 @@ namespace fStarMap {
             }
             InterceptorSelectionActive = false;
             CustomSelectionActive = false;
-            if (!aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetRadar())) {
+            if (!aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar())) {
                 TalkSelectionActive = false;
             } else {
                 TalkSelectionActive = static_cast<std::uint8_t>(TalkSelectionActive ^ 1);
@@ -5362,7 +5362,7 @@ namespace fStarMap {
             ScannerSelectionActive = false;
             InterceptorSelectionActive = false;
             CustomSelectionActive = false;
-            if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(Weapon) ^ 1) || pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
+            if (static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1) || pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
                 SelectedWeapons[Index] = false;
             } else if (Weapon->Target != nullptr) {
                 Weapon->Target = nullptr;
@@ -5386,12 +5386,12 @@ namespace fStarMap {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 4); cpp_range.next(Slot); ) {
             Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Slot));
             Button = WeaponButtons[Slot];
-            Button->SetDisabled(aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon) <= Slot || static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsEquipmentUsable(Weapon) ^ 1));
+            Button->SetDisabled(aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon) <= Slot || static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1));
             if (aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon) <= Slot) {
                 Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.PanelMain2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Slot + 1), u"Disabled"}));
             } else if (Weapon == nullptr) {
                 Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.PanelMain2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Slot + 1), u"Empty"}));
-            } else if (!aPlayer::GetPlayer()->IsEquipmentUsable(Weapon)) {
+            } else if (!aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon)) {
                 Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.PanelMain2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Slot + 1), u"Red"}));
             }
             if (SelectedWeapons[Slot]) {
@@ -5414,7 +5414,7 @@ namespace fStarMap {
                 Image->SetActive(false);
             } else {
                 Image->SetActive(true);
-                Image->SetImagePath(pas::concat_wide({u"GI,", Weapon->GetBitmapResourceName(), u"s"}));
+                Image->SetImagePath(pas::concat_wide({u"GI,", Weapon->virtual_TItem_GetBitmapResourceName(), u"s"}));
             }
             Image->SetImageKindX(GI_Main::ikxCenter);
             Image->SetImageKindY(GI_Main::ikyCenter);
@@ -5455,14 +5455,14 @@ namespace fStarMap {
             }
         }
         RadarCenter = aPlayer::GetPlayer()->Position;
-        std::int32_t RadarRadius = aPlayer::GetPlayer()->GetRadarRange();
+        std::int32_t RadarRadius = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
         std::uint32_t RadarColor = 0u;
         InnerCenter = EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position);
         std::int32_t InnerRadius = 0;
         std::uint32_t InnerColor = 0u;
         std::uint8_t InnerVisible = false;
         MainCenter = EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position);
-        std::int32_t MainRadius = aPlayer::GetPlayer()->GetRadarRange();
+        std::int32_t MainRadius = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
         std::uint32_t MainColor = 0u;
         std::uint8_t MainVisible = false;
         if (ScannerSelectionActive) {
@@ -5491,11 +5491,11 @@ namespace fStarMap {
             for (Slot = 0; Slot <= 4; ++Slot) {
                 if (SelectedWeapons[Slot]) {
                     Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Slot));
-                    if (aPlayer::GetPlayer()->GetWeaponActionRange(Weapon) < MinRange) {
-                        MinRange = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                    if (aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon) < MinRange) {
+                        MinRange = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                     }
-                    if (aPlayer::GetPlayer()->GetWeaponActionRange(Weapon) > MaxRange) {
-                        MaxRange = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                    if (aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon) > MaxRange) {
+                        MaxRange = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                     }
                 }
             }
@@ -5513,7 +5513,7 @@ namespace fStarMap {
             MainVisible = false;
             RadarColor = GR_Main::CurrentPixelFormat->PackRgbBytes(0, 255, 0);
         } else if (pas::class_cast_if<aItem::TItem*>(CursorObject) != nullptr) {
-            InnerRadius = aPlayer::GetPlayer()->GetRadarRange();
+            InnerRadius = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
             InnerColor = GR_Main::CurrentPixelFormat->PackRgbBytes(0, 255, 0);
             InnerVisible = true;
             if (aPlayer::GetPlayer()->GetCargoHook() != nullptr) {
@@ -5567,7 +5567,7 @@ namespace fStarMap {
                 if (SelectedWeapons[Slot]) {
                     Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Slot));
                     if (!pas::in_range(static_cast<std::uint8_t>(Weapon->GetWeaponInfo()->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                        RangeValue = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                        RangeValue = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                         if (DirectRange > RangeValue) {
                             RangeMaximum = DirectRange;
                         } else {
@@ -5697,7 +5697,7 @@ namespace fStarMap {
                                 }
                             }
                             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, MapControls);
-                            Image->SetImagePath(pas::concat_wide({u"GI,", Weapon->GetBitmapResourceName(), u"s"}));
+                            Image->SetImagePath(pas::concat_wide({u"GI,", Weapon->virtual_TItem_GetBitmapResourceName(), u"s"}));
                             Image->SetSize(Image->GetContentSize());
                             Image->SetOrigin(EC_Struct::HalfPoint(Image->ClientSize));
                             Image->SetPosition(EC_Struct::TruncatePointF(Point));
@@ -5707,7 +5707,7 @@ namespace fStarMap {
                             Image->UserIndex = I;
                             Image->MouseBlocking = true;
                             if (pas::class_cast_if<aShip::TShip*>(Weapon->Target) != nullptr) {
-                                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Weapon->Target) && Weapon->GetDamageFlags() * static_cast<aGalaxyStruct::TDamageFlagSet>(TargetDamageFlags) != static_cast<aGalaxyStruct::TDamageFlagSet>(NoDamageFlags)) {
+                                if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Weapon->Target) && Weapon->GetDamageFlags() * static_cast<aGalaxyStruct::TDamageFlagSet>(TargetDamageFlags) != static_cast<aGalaxyStruct::TDamageFlagSet>(NoDamageFlags)) {
                                     Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, MapControls);
                                     Image->SetImagePath(u"GI,Bm.Items.WeaponTarget"_w);
                                     Image->SetSize(Image->GetContentSize());
@@ -5805,7 +5805,7 @@ namespace fStarMap {
         if (ScannerSelectionActive) {
             Obj = FindObjectAtCursor();
             if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) && !(pas::class_cast_if<aKling::TKling*>(Obj) != nullptr)) {
-                pas::Extended cpp_left = pas::sqr(aPlayer::GetPlayer()->GetRadarRange());
+                pas::Extended cpp_left = pas::sqr(aShip::TShip_GetRadarRange(aPlayer::GetPlayer()));
                 if (cpp_left >= aMyFunction::PointDistanceSquared(pas::checked_cast<aShip::TShip*>(Obj)->Position, aPlayer::GetPlayer()->Position)) {
                     if (!IsCursorImageSelected(u"ScanFull"_wref.get())) {
                         SetCursorByName(u"ScanFull"_wref.get());
@@ -5819,7 +5819,7 @@ namespace fStarMap {
         } else if (TalkSelectionActive) {
             Obj = FindObjectAtCursor();
             if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr)) {
-                pas::Extended cpp_left_2 = pas::sqr(aPlayer::GetPlayer()->GetRadarRange());
+                pas::Extended cpp_left_2 = pas::sqr(aShip::TShip_GetRadarRange(aPlayer::GetPlayer()));
                 if (cpp_left_2 >= aMyFunction::PointDistanceSquared(pas::checked_cast<aShip::TShip*>(Obj)->Position, aPlayer::GetPlayer()->Position)) {
                     if (!IsCursorImageSelected(u"TalkFull"_wref.get())) {
                         SetCursorByName(u"TalkFull"_wref.get());
@@ -5903,8 +5903,8 @@ namespace fStarMap {
                 for (Index = 0; Index <= 4; ++Index) {
                     if (SelectedWeapons[Index]) {
                         Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Index));
-                        if (aPlayer::GetPlayer()->GetWeaponActionRange(Weapon) > Range) {
-                            Range = aPlayer::GetPlayer()->GetWeaponActionRange(Weapon);
+                        if (aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon) > Range) {
+                            Range = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                         }
                     }
                 }
@@ -6311,7 +6311,7 @@ namespace fStarMap {
                             Globals::ArcadeBattleScreen->SelectedMapName = pas::WideString();
                         }
                         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(Index); ) {
-                            pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index)->RunTurnCode();
+                            aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index));
                         }
                         if (pas::list_count(aScript::QueuedArcadeBattles) > 0) {
                             Stage = 14;
@@ -6348,7 +6348,7 @@ namespace fStarMap {
                             double cpp_arg = aMyFunction::NextRandomUnitFloat(aPlayer::GetPlayer()->RandomState) * 15.0L;
                             aItem::TEquipment* engine = aPlayer::GetPlayer()->GetEngine();
                             aShip::TShip* player = aPlayer::GetPlayer();
-                            player->ApplyItemDegradation(engine, aShip::idkUse, cpp_arg);
+                            aShip::TShip_ApplyItemDegradation(player, engine, aShip::idkUse, cpp_arg);
                         }
                         GlobalsV::RequestedScreenId = GlobalsV::screenPlanetNO;
                     } else {

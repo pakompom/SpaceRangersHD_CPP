@@ -37,7 +37,7 @@ namespace GI_SpaceCircle {
         void SetActive(std::uint8_t Enabled) override;
         void OnActivate() override;
         void OnDeactivate() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Empty in native code.
         static void LoadSpaceCircleProperties(EC_BlockPar::TBlockParEC* Block);

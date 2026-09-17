@@ -151,30 +151,30 @@ namespace aGroup {
     }
 
     // May remove and free Self when empty or older than 150 days.
-    void TGroup::NextDay() {
-        if (pas::list_count(Ships) == 0) {
-            pas::list_delete(aGalaxy::Galaxy->LiberationGroups, pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(this)));
-            pas::free(this);
-        } else if (aGalaxy::Galaxy->CurrentTurn > CreatedTurn + 150) {
-            Disband();
+    void TGroup_NextDay(TGroup* Self) {
+        if (pas::list_count(Self->Ships) == 0) {
+            pas::list_delete(aGalaxy::Galaxy->LiberationGroups, pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(Self)));
+            pas::free(Self);
+        } else if (aGalaxy::Galaxy->CurrentTurn > Self->CreatedTurn + 150) {
+            aGroup::TGroup_Disband(Self);
         }
     }
 
     // Detaches member ships, removes Self from Galaxy.LiberationGroups, and frees Self.
-    void TGroup::Disband() {
+    void TGroup_Disband(TGroup* Self) {
         std::int32_t I{};
         aShip::TShip* Ship{};
         {
-            const std::int32_t cpp_first = pas::list_count(Ships) - 1;
+            const std::int32_t cpp_first = pas::list_count(Self->Ships) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
-                    Ship = pas::list_at<aShip::TShip>(Ships, I);
+                    Ship = pas::list_at<aShip::TShip>(Self->Ships, I);
                     Ship->LeaveLiberationGroup();
                 }
             }
         }
-        pas::list_delete(aGalaxy::Galaxy->LiberationGroups, pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(this)));
-        pas::free(this);
+        pas::list_delete(aGalaxy::Galaxy->LiberationGroups, pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(Self)));
+        pas::free(Self);
     }
 
     // Chooses TargetStar and a Coalition AssemblyStar within 28 parsecs. Failure disbands and frees Self.
@@ -186,7 +186,7 @@ namespace aGroup {
             if (Attempts > 10) {
                 TargetStar = nullptr;
                 AssemblyStar = nullptr;
-                Disband();
+                aGroup::TGroup_Disband(this);
                 return false;
             }
             TargetStar = aGalaxy::Galaxy->SelectStarForLiberationAttack(FindCentralMemberStar(), aGalaxyStruct::sfCoalition);
@@ -197,7 +197,7 @@ namespace aGroup {
             TargetStar = nullptr;
             AssemblyStar = nullptr;
             Result = false;
-            Disband();
+            aGroup::TGroup_Disband(this);
             return Result;
         }
         return true;
@@ -221,7 +221,7 @@ namespace aGroup {
         aPlanet::TPlanet* Planet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(AssemblyStar->FindFirstInhabitedPlanet()));
         if (Planet == nullptr) {
             Result = false;
-            Disband();
+            aGroup::TGroup_Disband(this);
             return Result;
         }
         {
@@ -235,7 +235,7 @@ namespace aGroup {
             TGroupRouteOrder& cpp_with_3 = Route[2];
             cpp_with_3.Kind = 1;
             cpp_with_3.Target = nullptr;
-            cpp_with_3.Destination = AssemblyStar->GetBoundaryPointTowardStar(TargetStar);
+            pas::store_unaligned<EC_Struct::TPointF>(&cpp_with_3.Destination, AssemblyStar->GetBoundaryPointTowardStar(TargetStar));
             cpp_with_3.WaitMode = 3;
             {
                 std::int32_t cpp_right = aMyFunction::NextRandomIntRange(45, 55, RandomState);

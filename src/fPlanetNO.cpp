@@ -15,7 +15,6 @@
 #include "types/aGalaxyStruct.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aRanger.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/fPlanetQuest.hpp"
 #include "types/fSaveManager.hpp"
@@ -45,6 +44,7 @@
 #include "units/aPlayer.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/fGalaxy2.hpp"
 #include "units/fPanelLoad.hpp"
 #include "units/fPanelMain.hpp"
@@ -148,7 +148,7 @@ namespace fPlanetNO {
     void TfPlanetNO::OnOpen() {
         SelectMusic();
         MainPanel->OnOpen();
-        LoadPanel->OnOpen();
+        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
         GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfPlanetNO::MainPanelKeyDown>(this);
         {
             GI_Image::TImageGI* PlanetBG = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PlanetBG"_wref.get()));
@@ -222,7 +222,7 @@ namespace fPlanetNO {
         Globals::PruneExpiredPersistentPlayerMessages();
         aPlayer::GetPlayer()->OrderTakeoff();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(I); ) {
-            pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I)->RunTurnCode();
+            aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I));
         }
         Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position));
         aGalaxy::PlayerStar->RefreshSpaceObjectPositions();
@@ -421,7 +421,7 @@ namespace fPlanetNO {
         MainPanel->ShipClicked(Sender);
         if (ExitCode == 0 && ResearchPanelVisible) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(777);
-            aPlayer::GetPlayer()->AssignSatelliteIndicesFromHoldOrder();
+            aShip::TShip_AssignSatelliteIndicesFromHoldOrder(aPlayer::GetPlayer());
             aGalaxy::Galaxy->PrimeIntegrityChecksum(774);
             RefreshResearchPanel();
         }
@@ -465,7 +465,7 @@ namespace fPlanetNO {
         aGalaxy::Galaxy->CheckIntegrityChecksum(117);
         aPlayer::GetPlayer()->RepairDuplicateSatelliteTrajectoryIndices();
         aPlayer::GetPlayer()->CompactSatelliteTrajectoryIndices();
-        aPlayer::GetPlayer()->AssignSatelliteIndicesFromHoldOrder();
+        aShip::TShip_AssignSatelliteIndicesFromHoldOrder(aPlayer::GetPlayer());
         aGalaxy::Galaxy->PrimeIntegrityChecksum(118);
         ResearchPanelVisible = true;
         for (I = 0; I <= 5; ++I) {
@@ -908,12 +908,12 @@ namespace fPlanetNO {
                         cpp_with_3->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Entry));
                         if (!Undiscovered) {
                             if (pas::class_cast_if<aItem::TGoods*>(Entry->Item) != nullptr) {
-                                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->GetBitmapResourceName()}));
+                                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->virtual_TItem_GetBitmapResourceName()}));
                             } else {
-                                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->GetBitmapResourceName(), u"s"}));
+                                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->virtual_TItem_GetBitmapResourceName(), u"s"}));
                             }
                         } else {
-                            cpp_with_3->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->GetBitmapResourceName(), u"ab"}));
+                            cpp_with_3->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->virtual_TItem_GetBitmapResourceName(), u"ab"}));
                         }
                         cpp_with_3->SetSize(cpp_with_3->GetContentSize());
                         cpp_with_3->SetOrigin(EC_Struct::HalfPoint(cpp_with_3->ClientSize));
@@ -921,10 +921,10 @@ namespace fPlanetNO {
                     } else if (!(pas::class_cast_if<aItem::TGoods*>(Entry->Item) != nullptr)) {
                         if (([&] {
                             pas::WideString cpp_string = Child->GetImagePath();
-                            pas::WideString cpp_string_2 = pas::concat_wide({u"GI,", Entry->Item->GetBitmapResourceName(), u"s"});
+                            pas::WideString cpp_string_2 = pas::concat_wide({u"GI,", Entry->Item->virtual_TItem_GetBitmapResourceName(), u"s"});
                             return cpp_string != cpp_string_2;
                         }()) && static_cast<std::uint8_t>(Undiscovered ^ 1)) {
-                            Child->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->GetBitmapResourceName(), u"s"}));
+                            Child->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->virtual_TItem_GetBitmapResourceName(), u"s"}));
                             Child->SetSize(Child->GetContentSize());
                             Child->SetOrigin(EC_Struct::HalfPoint(Child->ClientSize));
                             Child->SetPosition(ClassesImports::Point(Entry->GridX * GR_Main::GiScalePixelsEx(36, 28) + GR_Main::GiScalePixelsEx(36, 28) / 2, Entry->GridY * GR_Main::GiScalePixelsEx(36, 28) + GR_Main::GiScalePixelsEx(36, 28) / 2));
@@ -960,7 +960,7 @@ namespace fPlanetNO {
                     if (!GlobalsV::AnimItem) {
                         GI_Image::TImageGI* cpp_with_4 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
                         cpp_with_4->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Satellite));
-                        cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Satellite->GetBitmapResourceName(), u"s"}));
+                        cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Satellite->virtual_TItem_GetBitmapResourceName(), u"s"}));
                         cpp_with_4->SetSize(cpp_with_4->GetContentSize());
                         cpp_with_4->SetOrigin(EC_Struct::HalfPoint(cpp_with_4->ClientSize));
                         if (SatellitePanelNeedsLayout) {
@@ -971,7 +971,7 @@ namespace fPlanetNO {
                     } else {
                         GI_GAI::TgaiGI* cpp_with_5 = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Panel);
                         cpp_with_5->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Satellite));
-                        cpp_with_5->SetImagePath(pas::concat_wide({Satellite->GetBitmapResourceName(), u"a"}));
+                        cpp_with_5->SetImagePath(pas::concat_wide({Satellite->virtual_TItem_GetBitmapResourceName(), u"a"}));
                         cpp_with_5->SequenceIndex = 0;
                         cpp_with_5->UpdateAutoGeometry();
                         cpp_with_5->SetSize(cpp_with_5->GetContentSize());
@@ -997,7 +997,7 @@ namespace fPlanetNO {
                 if (InventorySatellite == nullptr) {
                     cpp_with_6->SetImagePath(pas::WideString());
                 } else {
-                    cpp_with_6->SetImagePath(pas::concat_wide({u"GI,", InventorySatellite->GetBitmapResourceName(), u"s"}));
+                    cpp_with_6->SetImagePath(pas::concat_wide({u"GI,", InventorySatellite->virtual_TItem_GetBitmapResourceName(), u"s"}));
                     cpp_with_6->SetImageKindX(GI_Main::ikxCenter);
                     cpp_with_6->SetImageKindY(GI_Main::ikyCenter);
                 }
@@ -1188,7 +1188,7 @@ namespace fPlanetNO {
             HeldSatellite = nullptr;
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
             aPlayer::GetPlayer()->RemoveEmptySatelliteTrajectoryIndex(SatelliteInventoryPageStart + Sender->UserValue + 1);
-            aPlayer::GetPlayer()->ArrangeHoldSatellitesByTrajectoryIndex();
+            aShip::TShip_ArrangeHoldSatellitesByTrajectoryIndex(aPlayer::GetPlayer());
             UpdateActionCursor(false);
             RefreshResearchPanel();
             GR_Main::PostMouseMoveMessage();
@@ -1291,7 +1291,7 @@ namespace fPlanetNO {
 
     void TfPlanetNO::UpdateActionCursor(std::uint8_t ForceHand) {
         if (HeldSatellite != nullptr) {
-            const pas::WideString& cpp_arg = pas::concat_wide({u"GI,", HeldSatellite->GetBitmapResourceName(), u"s"});
+            const pas::WideString& cpp_arg = pas::concat_wide({u"GI,", HeldSatellite->virtual_TItem_GetBitmapResourceName(), u"s"});
             GI_MessageLoop::TMessageLoopGI* self = this;
             self->SetCursorImage(cpp_arg, ClassesImports::Point(16, 16));
         } else if (SelectedTrajectoryIndex >= 0 && TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex) != nullptr) {
@@ -1431,7 +1431,7 @@ namespace fPlanetNO {
                     ItemInfoWindow->SetActive(true);
                     {
                         GI_Image::TImageGI* cpp_with = ItemInfoImage;
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", Equipment->GetBitmapResourceName(), u"s"}));
+                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", Equipment->virtual_TItem_GetBitmapResourceName(), u"s"}));
                         cpp_with->SetImageKindX(GI_Main::ikxCenter);
                         cpp_with->SetImageKindY(GI_Main::ikyCenter);
                         {
@@ -1450,7 +1450,7 @@ namespace fPlanetNO {
                         itemInfoNameLabel->SetText(wrapTextInColor);
                     }
                     {
-                        const pas::WideString& infoText = Equipment->GetInfoText(u"<color=255,240,100>"_w, aPlayer::GetPlayer());
+                        const pas::WideString& infoText = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, aPlayer::GetPlayer());
                         GI_Label::TLabelGI* itemInfoTextLabel = ItemInfoTextLabel;
                         itemInfoTextLabel->SetText(infoText);
                     }
@@ -1458,7 +1458,7 @@ namespace fPlanetNO {
                     ItemInfoCostLabel->SetText(pas::wide_int_to_str(Equipment->Cost));
                     {
                         GI_Image::TImageGI* cpp_with_2 = ItemInfoRaceIcon;
-                        cpp_with_2->SetImagePath(aConst::GetFactionEmblemPath(Equipment->GetOwnerConfigName()));
+                        cpp_with_2->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Equipment)));
                         cpp_with_2->SetImageKindX(GI_Main::ikxCenter);
                         cpp_with_2->SetImageKindY(GI_Main::ikyCenter);
                     }

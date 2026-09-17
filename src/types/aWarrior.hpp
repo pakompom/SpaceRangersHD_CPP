@@ -46,16 +46,13 @@ namespace aWarrior {
         void InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::uint8_t Kind);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
-        void NextDay() override;
-        void NextDayLogic() override;
-        // Flagship branch; its diagnostic retains TWarrior.NextDayLogic.
-        void NextDayFlagshipLogic();
+        void virtual_TShip_NextDay() override;
+        void virtual_TShip_NextDayLogic() override;
         std::uint8_t NavigateToHomePlanet();
         void BuildReachablePlanetQueue() override;
-        // AI ownership check only; does not test travel range.
-        std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
+        std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         void MoveToRandomPatrolPoint();
-        void RepairBrokenEquipmentAtLocation() override;
+        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
@@ -72,39 +69,34 @@ namespace aWarrior {
         std::uint8_t RelationToRanger(void* Ranger) override;
         void ChangeRelationToRanger(void* Ranger, std::int32_t Amount) override;
         void ReactToAttack(aShip::TShip* Attacker) override;
-        std::uint8_t RecomputeFearState() override;
-        std::uint8_t AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
-        std::uint8_t TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
-        // Native diagnostic name: TWarrior.ArmsToTarget.
-        void AssignWeaponTargetsInStar() override;
-        // Flagship branch; shares the TWarrior.ArmsToTarget diagnostic.
-        void AssignFlagshipWeaponTargets();
-        aShip::TShip* FindNearestFriendlyFlagship();
+        std::uint8_t virtual_TShip_RecomputeFearState() override;
+        std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
+        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        void virtual_TShip_AssignWeaponTargetsInStar() override;
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
-        void ManeuverFlagship();
         // Scores Coalition systems and same-race garrisons; moves the flagship between home rosters without changing its current position.
         void ReassignFlagshipHomePlanet();
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
         std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         void MoveToRandomPlanetOrbit();
         // Requires the home system and (Id + CurrentTurn) mod 100 < 25.
         std::uint8_t IsHomePatrolTurn();
         void ConsumeNodes(std::int32_t Amount);
         std::uint8_t UnknownVirtualC0(void* Argument) override;
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
-        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        float virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
         std::uint8_t AcceptPickupItem(aItem::TItem* Item) override;
         std::uint8_t AcceptPickupDistance(aItem::TItem* Item, double Distance) override;
-        void RefreshCurrentStanding() override;
+        void virtual_TShip_RefreshCurrentStanding() override;
         // wtRegular / wtFlagship; exposed as Script.ShipSubType.
         std::uint8_t WarriorType;
         std::uint8_t cpp_padding[3];

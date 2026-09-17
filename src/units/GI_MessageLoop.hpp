@@ -1,11 +1,7 @@
 #pragma once
 #include "types/GI_MessageLoop.hpp"
+#include "types/Types.hpp"
 #include "types/Windows_group.hpp"
-
-namespace Types {
-    struct TPoint;
-
-} // namespace Types
 
 namespace GI_MessageLoop {
     extern pas::List* MessageLoopStack;
@@ -29,6 +25,11 @@ namespace GI_MessageLoop {
     void TObjectGI_Create(TObjectGI* Self, TObjectGI* Owner);
 
     void TObjectGI_Destroy(TObjectGI* Self);
+
+    // Walks active panel subtrees until StartControl, then invalidates affected controls by moving them out and back. Rect is passed through but unused.
+    TObjectGI* TObjectGI_InvalidateScrollOverlap(TObjectGI* Self, WindowsSdk::TRect Rect, WindowsSdk::TPoint Delta, TObjectGI* StartControl);
+
+    void TObjectGI_LoadFromConfigPath(TObjectGI* Self, const pas::WideString& Path);
 
     // Each string is a sound name; its Data slot stores an integer weight.
     void TFormSoundGroup_Create(TFormSoundGroup* Self);

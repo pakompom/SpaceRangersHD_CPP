@@ -11,4 +11,6 @@ namespace GI_PolyLine {
 
     void TPolyLineGI_Destroy(TPolyLineGI* Self);
 
+    void TPolyLineGI_LoadFromConfigPath(TPolyLineGI* Self, const pas::WideString& Path);
+
 } // namespace GI_PolyLine

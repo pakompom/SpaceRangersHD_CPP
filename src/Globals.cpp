@@ -2870,7 +2870,11 @@ namespace Globals {
         PlanetAdvertDefinitions.set_length(Root->GetBlockCount());
         for (auto cpp_range = pas::for_to<std::int32_t>(0, PlanetAdvertDefinitions.length() - 1); cpp_range.next(GroupIndex); ) {
             GroupBlock = Root->GetBlockByIndex(GroupIndex);
-            PlanetAdvertDefinitions[GroupIndex].Position = GI_Main::GetPointGI(GroupBlock->GetParamByPathOrMarker(u"Info.Pos"_wref.get()));
+            {
+                WindowsSdk::TPoint cpp_value = GI_Main::GetPointGI(GroupBlock->GetParamByPathOrMarker(u"Info.Pos"_wref.get()));
+                auto cpp_target = &PlanetAdvertDefinitions[GroupIndex].Position;
+                pas::store_unaligned<WindowsSdk::TPoint>(cpp_target, cpp_value);
+            }
             if (GroupBlock->GetBlock(u"Info"_wref.get())->CountParams(u"Image1"_wref.get()) > 0) {
                 PlanetAdvertDefinitions[GroupIndex].Image1 = GroupBlock->GetParamByPathOrMarker(u"Info.Image1"_wref.get());
             }
@@ -3284,17 +3288,17 @@ namespace Globals {
                 Variable = EC_Expression::TVarArrayEC_GetItemByNameOrder(GlobalScriptVariables, Index);
                 Other = EC_Expression::TVarArrayEC_GetItemByNameOrder(GlobalScriptVariables, Index + 1);
                 if (Variable->Name == Other->Name) {
-                    if (Variable->RealVType() != Other->RealVType()) {
-                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <", Variable->Name, u"> found! Types are ", ScriptVariableTypeNames[static_cast<std::int32_t>(Variable->RealVType()) & 0x0000007f], u" and ", ScriptVariableTypeNames[static_cast<std::int32_t>(Other->RealVType()) & 0x0000007f]});
-                        if (Variable->RealVType() == EC_Expression::vkEmpty) {
-                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[static_cast<std::int32_t>(Variable->RealVType()) & 0x0000007f], u" will be discarded"});
+                    if (EC_Expression::TVarEC_RealVType(Variable) != EC_Expression::TVarEC_RealVType(Other)) {
+                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <", Variable->Name, u"> found! Types are ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Variable)) & 0x0000007f], u" and ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Other)) & 0x0000007f]});
+                        if (EC_Expression::TVarEC_RealVType(Variable) == EC_Expression::vkEmpty) {
+                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Variable)) & 0x0000007f], u" will be discarded"});
                             GlobalScriptVariables->Remove(Variable);
                         } else {
-                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[static_cast<std::int32_t>(Other->RealVType()) & 0x0000007f], u" will be discarded"});
+                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Other)) & 0x0000007f], u" will be discarded"});
                             GlobalScriptVariables->Remove(Other);
                         }
                         GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(WarningText));
-                    } else if (Variable->EqualsValue(Other) || static_cast<std::uint8_t>(pas::is_one_of<EC_Expression::vkInt, EC_Expression::vkDword, EC_Expression::vkFloat, EC_Expression::vkString>(Variable->RealVType()) ^ 1)) {
+                    } else if (EC_Expression::TVarEC_EqualsValue(Variable, Other) || static_cast<std::uint8_t>(pas::is_one_of<EC_Expression::vkInt, EC_Expression::vkDword, EC_Expression::vkFloat, EC_Expression::vkString>(EC_Expression::TVarEC_RealVType(Variable)) ^ 1)) {
                         GlobalScriptVariables->Remove(Other);
                     } else {
                         WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <", Variable->Name, u"> found! Initial values are ", Variable->GetString(), u" and ", Other->GetString(), u". Value ", Variable->GetString(), u" will be used"});

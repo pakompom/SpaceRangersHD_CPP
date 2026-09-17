@@ -675,51 +675,51 @@ namespace GI_Label {
         GI_MessageLoop::TObjectGI::ProcessLeftButtonUp(KeyState, Point);
     }
 
-    void TLabelGI::LoadFromConfigPath(const pas::WideString& Path) {
+    void TLabelGI_LoadFromConfigPath(TLabelGI* Self, const pas::WideString& Path) {
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString Alignment{};
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
         }
-        LoadTextLinesFromBlockParam(Block, u"Text"_wref.get());
+        Self->LoadTextLinesFromBlockParam(Block, u"Text"_wref.get());
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            SetEmbeddedImagePath(Block->GetParam(u"Image"_wref.get()));
+            Self->SetEmbeddedImagePath(Block->GetParam(u"Image"_wref.get()));
         }
         if (Block->CountParams(u"ImageKindX"_wref.get()) > 0) {
-            SetEmbeddedImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"ImageKindX"_wref.get())));
+            Self->SetEmbeddedImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"ImageKindX"_wref.get())));
         }
         if (Block->CountParams(u"ImageKindY"_wref.get()) > 0) {
-            SetEmbeddedImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"ImageKindY"_wref.get())));
+            Self->SetEmbeddedImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"ImageKindY"_wref.get())));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
-            SetTextColor(GI_Main::GetColorGI(Block->GetParam(u"TextColor"_wref.get())));
+            Self->SetTextColor(GI_Main::GetColorGI(Block->GetParam(u"TextColor"_wref.get())));
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
             if (Block->GetParam(u"Border"_wref.get()) == u"True") {
-                BorderEnabled = true;
+                Self->BorderEnabled = true;
             } else {
-                BorderEnabled = false;
+                Self->BorderEnabled = false;
             }
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
-            SetBorderLightColor(GI_Main::GetColorGI(Block->GetParam(u"BorderLightColor"_wref.get())));
-            SetBorderDarkColor(BorderLightColor);
+            Self->SetBorderLightColor(GI_Main::GetColorGI(Block->GetParam(u"BorderLightColor"_wref.get())));
+            Self->SetBorderDarkColor(Self->BorderLightColor);
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
-            SetBorderDarkColor(GI_Main::GetColorGI(Block->GetParam(u"BorderDarkColor"_wref.get())));
+            Self->SetBorderDarkColor(GI_Main::GetColorGI(Block->GetParam(u"BorderDarkColor"_wref.get())));
         }
         if (Block->CountParams(u"WordWrap"_wref.get()) > 0) {
-            SetWordWrapEnabled(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"WordWrap"_wref.get()))));
+            Self->SetWordWrapEnabled(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"WordWrap"_wref.get()))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
             Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignY"_wref.get()));
-            SetTextAlignY(GI_Main::ParseTextAlignYName(Alignment));
+            Self->SetTextAlignY(GI_Main::ParseTextAlignYName(Alignment));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
             Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignX"_wref.get()));
-            SetTextAlignX(GI_Main::ParseTextAlignXName(Alignment));
+            Self->SetTextAlignX(GI_Main::ParseTextAlignXName(Alignment));
         }
     }
 
@@ -1303,6 +1303,10 @@ namespace GI_Label {
 
     void TLabelGI::p_destroy() {
         GI_Label::TLabelGI_Destroy(this);
+    }
+
+    void TLabelGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Label::TLabelGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Label

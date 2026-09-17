@@ -167,10 +167,10 @@ namespace WindowsImports {
         return cpp_import(Handle, &Data);
     }
 
-    std::int32_t PAS_STDCALL FileTimeToLocalFileTime(const Windows::TFileTime& FileTime, Windows::TFileTime& LocalTime) {
+    std::int32_t PAS_STDCALL FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime> FileTime, Windows::TFileTime& LocalTime) {
         using CppImport = std::int32_t (PAS_STDCALL *)(const Windows::TFileTime*, Windows::TFileTime*);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "FileTimeToLocalFileTime");
-        return cpp_import(&FileTime, &LocalTime);
+        return cpp_import(static_cast<const Windows::TFileTime*>(FileTime.address), &LocalTime);
     }
 
     std::int32_t PAS_STDCALL FileTimeToDosDateTime(const Windows::TFileTime& FileTime, std::uint16_t& DatePart, std::uint16_t& TimePart) {

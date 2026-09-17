@@ -16,4 +16,6 @@ namespace abWall {
 
     void TabWall_Destroy(TabWall* Self);
 
+    void TabWall_Advance(TabWall* Self);
+
 } // namespace abWall

@@ -32,7 +32,7 @@ namespace GI_PolyLine {
         void ClearSegments();
         void RemoveSegment(PPolyLineSegmentGI Segment);
         void AllocatePixelBuffers(PPolyLineSegmentGI Segment);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Empty in native code.
         static void LoadPolyLineProperties(EC_BlockPar::TBlockParEC* Block);

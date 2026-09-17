@@ -13,7 +13,6 @@
 #include "types/aPirate.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aRanger.hpp"
-#include "types/aShip.hpp"
 #include "types/fShip2.hpp"
 #include "types/fStarMap.hpp"
 #include "units/ClassesImports.hpp"
@@ -36,6 +35,7 @@
 #include "units/aGalaxy.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
+#include "units/aShip.hpp"
 #include "units/fPanelMain.hpp"
 #include "units/fRating2.hpp"
 #include "units/fRewards.hpp"
@@ -373,7 +373,7 @@ namespace fRating2 {
                 GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}), RewardImage->GraphBuf);
             }
-        } else if (Rows[Sender->UserValue].Ranger->IsInPrison()) {
+        } else if (aShip::TShip_IsInPrison(Rows[Sender->UserValue].Ranger)) {
             {
                 GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
                 RewardName_2->SetText(([&] {
@@ -1157,7 +1157,7 @@ namespace fRating2 {
             Image->SetPosition(ClassesImports::Point(1 - System::Round((1.0L - Ratio) * (Image->ClientSize.X / 2)), 1));
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             Image->SetDepth(13.0);
-            Image->SetImagePath(pas::concat_wide({u"GI,", Ranger->GetCaptainPortraitResourceBase(), u"i"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ranger), u"i"}));
             Image->SetImageKindX(GI_Main::ikxCenter);
             Image->SetImageKindY(GI_Main::ikyCenter);
             if (GR_Main::GiResourceVariant() == 1) {
@@ -1174,7 +1174,7 @@ namespace fRating2 {
                 Animation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Panel);
                 Animation->SetDepth(12.0);
                 Animation->UsesPlaybackBuffer = true;
-                Animation->SetImagePath(pas::concat_wide({Ranger->GetCaptainPortraitResourceBase(), u"a"}));
+                Animation->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ranger), u"a"}));
                 Animation->SequenceIndex = 0;
                 Animation->UpdateAutoGeometry();
                 Animation->TransparentColor = GR_Main::CurrentPixelFormat->PackRgbBytes(255, 0, 255);
@@ -1207,11 +1207,11 @@ namespace fRating2 {
             Image->LeftButtonDownCallback = pas::bind_method<&TfRating2::RowMouseDown>(this);
             Panel->SetSize(Image->ClientSize);
         }
-        if (aPlayer::GetPlayer() == Ranger || Ranger->IsInPrison() || Ranger->PartnerShip != nullptr || Ranger->CountWingmen() > 0) {
+        if (aPlayer::GetPlayer() == Ranger || aShip::TShip_IsInPrison(Ranger) || Ranger->PartnerShip != nullptr || Ranger->CountWingmen() > 0) {
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             if (aPlayer::GetPlayer() == Ranger) {
                 Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Player"}));
-            } else if (Ranger->IsInPrison()) {
+            } else if (aShip::TShip_IsInPrison(Ranger)) {
                 Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Prison"}));
             } else {
                 Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Duty"}));
@@ -1344,7 +1344,7 @@ namespace fRating2 {
             {
                 GI_Image::TImageGI* TraderCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TraderCaptainI"_wref.get()));
                 TraderCaptainI->UserValue = Ship->Id;
-                TraderCaptainI->SetImagePath(pas::concat_wide({u"GI,", Ship->GetCaptainPortraitResourceBase(), u"i"}));
+                TraderCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 TraderCaptainI->SetImageKindX(GI_Main::ikxCenter);
                 TraderCaptainI->SetImageKindY(GI_Main::ikyCenter);
                 TraderCaptainI->SetActive(true);
@@ -1352,7 +1352,7 @@ namespace fRating2 {
             {
                 GI_GAI::TgaiGI* TraderCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TraderCaptainA"_wref.get()));
                 TraderCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                TraderCaptainA->SetImagePath(pas::concat_wide({Ship->GetCaptainPortraitResourceBase(), u"a"}));
+                TraderCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
                 TraderCaptainA->SequenceIndex = 0;
                 TraderCaptainA->UpdateAutoGeometry();
                 TraderCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0, TraderCaptainA->SequenceFrameCount - 1));
@@ -1386,7 +1386,7 @@ namespace fRating2 {
             {
                 GI_Image::TImageGI* WarriorCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"WarriorCaptainI"_wref.get()));
                 WarriorCaptainI->UserValue = Ship->Id;
-                WarriorCaptainI->SetImagePath(pas::concat_wide({u"GI,", Ship->GetCaptainPortraitResourceBase(), u"i"}));
+                WarriorCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 WarriorCaptainI->SetImageKindX(GI_Main::ikxCenter);
                 WarriorCaptainI->SetImageKindY(GI_Main::ikyCenter);
                 WarriorCaptainI->SetActive(true);
@@ -1394,7 +1394,7 @@ namespace fRating2 {
             {
                 GI_GAI::TgaiGI* WarriorCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"WarriorCaptainA"_wref.get()));
                 WarriorCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                WarriorCaptainA->SetImagePath(pas::concat_wide({Ship->GetCaptainPortraitResourceBase(), u"a"}));
+                WarriorCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
                 WarriorCaptainA->SequenceIndex = 0;
                 WarriorCaptainA->UpdateAutoGeometry();
                 WarriorCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0, WarriorCaptainA->SequenceFrameCount - 1));
@@ -1428,7 +1428,7 @@ namespace fRating2 {
             {
                 GI_Image::TImageGI* PirateCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PirateCaptainI"_wref.get()));
                 PirateCaptainI->UserValue = Ship->Id;
-                PirateCaptainI->SetImagePath(pas::concat_wide({u"GI,", Ship->GetCaptainPortraitResourceBase(), u"i"}));
+                PirateCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 PirateCaptainI->SetImageKindX(GI_Main::ikxCenter);
                 PirateCaptainI->SetImageKindY(GI_Main::ikyCenter);
                 PirateCaptainI->SetActive(true);
@@ -1436,7 +1436,7 @@ namespace fRating2 {
             {
                 GI_GAI::TgaiGI* PirateCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PirateCaptainA"_wref.get()));
                 PirateCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                PirateCaptainA->SetImagePath(pas::concat_wide({Ship->GetCaptainPortraitResourceBase(), u"a"}));
+                PirateCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
                 PirateCaptainA->SequenceIndex = 0;
                 PirateCaptainA->UpdateAutoGeometry();
                 PirateCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0, PirateCaptainA->SequenceFrameCount - 1));

@@ -1,6 +1,11 @@
 #pragma once
 #include "types/aGalaxy.hpp"
 
+namespace EC_Buf {
+    struct TBufEC;
+
+} // namespace EC_Buf
+
 namespace SE_Space {
     struct TObjectSE;
 
@@ -61,6 +66,8 @@ namespace aGalaxy {
     void TGalaxy_Create(TGalaxy* Self);
 
     void TGalaxy_Destroy(TGalaxy* Self);
+
+    void TGalaxy_LoadFromBuffer(TGalaxy* Self, EC_Buf::TBufEC* Buffer);
 
     void THole_Create(THole* Self);
 

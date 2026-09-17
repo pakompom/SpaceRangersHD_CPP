@@ -378,7 +378,7 @@ namespace GI_MessageLoop {
 
     // Virtual loading sees the previous ConfigPath.
     void TObjectGI::SetConfigPath(const pas::WideString& Path) {
-        LoadFromConfigPath(Path);
+        this->virtual_TObjectGI_LoadFromConfigPath(Path);
         ConfigPath = Path;
     }
 
@@ -776,22 +776,22 @@ namespace GI_MessageLoop {
     }
 
     // Walks active panel subtrees until StartControl, then invalidates affected controls by moving them out and back. Rect is passed through but unused.
-    TObjectGI* TObjectGI::InvalidateScrollOverlap(WindowsSdk::TRect Rect, WindowsSdk::TPoint Delta, TObjectGI* StartControl) {
+    TObjectGI* TObjectGI_InvalidateScrollOverlap(TObjectGI* Self, WindowsSdk::TRect Rect, WindowsSdk::TPoint Delta, TObjectGI* StartControl) {
         TObjectGI* Child{};
-        if (this == StartControl) {
+        if (Self == StartControl) {
             StartControl = nullptr;
         }
-        if (pas::class_cast_if<GI_Panel::TPanelGI*>(this) != nullptr && static_cast<std::uint8_t>(ScrollUpdate ^ 1)) {
-            Child = FirstChild;
+        if (pas::class_cast_if<GI_Panel::TPanelGI*>(Self) != nullptr && static_cast<std::uint8_t>(Self->ScrollUpdate ^ 1)) {
+            Child = Self->FirstChild;
             while (Child != nullptr) {
                 if (Child->Active) {
-                    StartControl = Child->InvalidateScrollOverlap(Rect, Delta, StartControl);
+                    StartControl = GI_MessageLoop::TObjectGI_InvalidateScrollOverlap(Child, Rect, Delta, StartControl);
                 }
                 Child = Child->NextSibling;
             }
-        } else if (StartControl == nullptr && (static_cast<std::uint8_t>(PositionModeW ^ 1) || ScrollUpdate)) {
-            SetPosition(ClassesImports::Point(LocalPosition.X + Delta.X, LocalPosition.Y + Delta.Y));
-            SetPosition(ClassesImports::Point(LocalPosition.X - Delta.X, LocalPosition.Y - Delta.Y));
+        } else if (StartControl == nullptr && (static_cast<std::uint8_t>(Self->PositionModeW ^ 1) || Self->ScrollUpdate)) {
+            Self->SetPosition(ClassesImports::Point(Self->LocalPosition.X + Delta.X, Self->LocalPosition.Y + Delta.Y));
+            Self->SetPosition(ClassesImports::Point(Self->LocalPosition.X - Delta.X, Self->LocalPosition.Y - Delta.Y));
         }
         return StartControl;
     }
@@ -896,7 +896,7 @@ namespace GI_MessageLoop {
     void TObjectGI::PrepareRegionDraw(WindowsSdk::TRect ClipRect) {
     }
 
-    void TObjectGI::LoadFromConfigPath(const pas::WideString& Path) {
+    void TObjectGI_LoadFromConfigPath(TObjectGI* Self, const pas::WideString& Path) {
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString Text{};
         std::int32_t Count{};
@@ -905,50 +905,50 @@ namespace GI_MessageLoop {
             Text = Block->GetParam(u"Pos"_wref.get());
             Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
             if (Count >= 2) {
-                LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-                LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+                Self->LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+                Self->LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
             }
             if (Count >= 3) {
-                SetDepthByName(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+                Self->SetDepthByName(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
             }
             if (Count >= 4) {
                 if (EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, 3, u","_wref.get())) == u"w") {
-                    PositionModeW = true;
+                    Self->PositionModeW = true;
                 }
             }
         }
         if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
-            SetDepthByName(Block->GetParam(u"PosZ"_wref.get()));
+            Self->SetDepthByName(Block->GetParam(u"PosZ"_wref.get()));
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
             Text = Block->GetParam(u"Size"_wref.get());
-            ClientSize.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            ClientSize.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            Self->ClientSize.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+            Self->ClientSize.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
         }
         if (Block->CountParams(u"Sme"_wref.get()) > 0) {
             Text = Block->GetParam(u"Sme"_wref.get());
-            OriginPoint.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            OriginPoint.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            Self->OriginPoint.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+            Self->OriginPoint.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
         }
         if (Block->CountParams(u"Name"_wref.get()) > 0) {
-            ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"_wref.get()));
+            Self->ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"_wref.get()));
         }
         if (Block->CountParams(u"Help"_wref.get()) > 0) {
-            HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"_wref.get())));
+            Self->HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"_wref.get())));
         }
         if (Block->CountParams(u"Active"_wref.get()) > 0) {
             if (EC_Str::TrimWideString(Block->GetParam(u"Active"_wref.get())) == u"False") {
-                Active = false;
+                Self->Active = false;
             }
         }
         if (Block->CountParams(u"MouseBlocking"_wref.get()) > 0) {
-            MouseBlocking = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"_wref.get())));
+            Self->MouseBlocking = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"_wref.get())));
         }
         if (Block->CountParams(u"MouseBlockingTest"_wref.get()) > 0) {
-            MouseBlockingTest = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"_wref.get())));
+            Self->MouseBlockingTest = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"_wref.get())));
         }
         if (Block->CountParams(u"MVUpdate"_wref.get()) > 0) {
-            SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"_wref.get()))));
+            Self->SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"_wref.get()))));
         }
     }
 
@@ -1389,7 +1389,7 @@ namespace GI_MessageLoop {
                     Stage = 21;
                     ProcessCallbackTimers();
                     if (PopUp::PopupController != nullptr) {
-                        PopUp::PopupController->AdvancePopups(TimerTick);
+                        PopUp::TfPopUpController_AdvancePopups(PopUp::PopupController, TimerTick);
                     }
                     Stage = 22;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(SoundGroupList) - 1); cpp_range_2.next(Index); ) {
@@ -1550,7 +1550,7 @@ namespace GI_MessageLoop {
                         Stage = 23;
                         AdvanceTimerTick();
                         if (PopUp::PopupController != nullptr) {
-                            PopUp::PopupController->AdvancePopups(TimerTick);
+                            PopUp::TfPopUpController_AdvancePopups(PopUp::PopupController, TimerTick);
                         }
                     }
                     Stage = 24;
@@ -2408,8 +2408,8 @@ namespace GI_MessageLoop {
         if (SavedLines.length() - 1 + 1 == SavedLineCount) {
             SavedLines.set_length(SavedLineCount + 100);
         }
-        SavedLines[SavedLineCount].First = First;
-        SavedLines[SavedLineCount].Last = Last;
+        pas::store_unaligned<WindowsSdk::TPoint>(&SavedLines[SavedLineCount].First, First);
+        pas::store_unaligned<WindowsSdk::TPoint>(&SavedLines[SavedLineCount].Last, Last);
         SavedLines[SavedLineCount].Pixels = Pixels;
         SavedLines[SavedLineCount].Heap = WindowsSdk::GetProcessHeap();
         ++SavedLineCount;
@@ -2570,6 +2570,10 @@ namespace GI_MessageLoop {
 
     void TMessageLoopGI::p_destroy() {
         GI_MessageLoop::TMessageLoopGI_Destroy(this);
+    }
+
+    void TObjectGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(this, Path);
     }
 
     pas::Method<void(std::uint32_t, std::uint32_t, std::int32_t)> TMessageLoopGI::bind_ProcessWindowMessage() {

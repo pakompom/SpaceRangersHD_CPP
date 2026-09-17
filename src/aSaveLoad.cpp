@@ -383,7 +383,7 @@ namespace aSaveLoad {
         }
         aGalaxy::TGalaxy* LoadingGalaxy = aGalaxy::Galaxy;
         aGalaxy::Galaxy = nullptr;
-        LoadingGalaxy->LoadFromBuffer(Buffer);
+        aGalaxy::TGalaxy_LoadFromBuffer(LoadingGalaxy, Buffer);
         if (GR_Main::ApplyEditableSaveOnLoad) {
             aGalaxy::Galaxy->ApplyEditableState();
             GR_Main::ApplyEditableSaveOnLoad = false;
@@ -498,7 +498,7 @@ namespace aSaveLoad {
             Entry->GoodsIndex = EC_Buf::TBufEC_GetByte(MemorySnapshotBuffer);
             Entry->ItemId = EC_Buf::TBufEC_GetUInt32(MemorySnapshotBuffer);
         }
-        aGalaxy::Galaxy->LoadFromBuffer(MemorySnapshotBuffer);
+        aGalaxy::TGalaxy_LoadFromBuffer(aGalaxy::Galaxy, MemorySnapshotBuffer);
         --aGalaxy::Galaxy->LoadCount;
         {
             std::uint32_t uInt32 = EC_Buf::TBufEC_GetUInt32(MemorySnapshotBuffer);

@@ -409,7 +409,7 @@ namespace ab_StopLine {
         return Result;
     }
 
-    void ab_StopLine_GetDistances(ab_Global::TSphericalBearingState Source, double& ForwardDistance, double& BackwardDistance) {
+    void ab_StopLine_GetDistances(ab_Global::TSphericalBearingState Source, pas::Var<double> ForwardDistance, pas::Var<double> BackwardDistance) {
         double CenterDepth{};
         PabStopLine Line{};
         ab_Global::TMatrix4D Matrix{};
@@ -435,8 +435,8 @@ namespace ab_StopLine {
             }
             return true;
         };
-        ForwardDistance = 1.0E+20;
-        BackwardDistance = 1.0E+20;
+        pas::store_unaligned<double>(ForwardDistance.address, 1.0E+20);
+        pas::store_unaligned<double>(BackwardDistance.address, 1.0E+20);
         if (FirstStopLine != nullptr) {
             A = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(Source.PolarAngleDegrees), ab_Global::SphereCameraDistance);
             B = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
@@ -463,21 +463,25 @@ namespace ab_StopLine {
                     Line = Line->NextCollision;
                     continue;
                 }
-                if (Hit.Y <= 0.0L && -Hit.Y < ForwardDistance) {
-                    ForwardDistance = -Hit.Y;
+                if (Hit.Y <= 0.0L && -Hit.Y < pas::load_unaligned<double>(ForwardDistance.address)) {
+                    pas::store_unaligned<double>(ForwardDistance.address, -Hit.Y);
                 }
-                if (Hit.Y >= 0.0L && BackwardDistance > Hit.Y) {
-                    BackwardDistance = Hit.Y;
+                if (Hit.Y >= 0.0L && pas::load_unaligned<double>(BackwardDistance.address) > Hit.Y) {
+                    pas::store_unaligned<double>(BackwardDistance.address, Hit.Y);
                 }
                 Line = Line->NextCollision;
             }
-            if (ForwardDistance < 1.0E+15L && ForwardDistance != 0.0L) {
-                pas::Extended cpp_left = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(ForwardDistance, ab_Global::SphereRadius)));
-                ForwardDistance = cpp_left * pas::real_divide(SystemImports::Pi * ab_Global::SphereRadius, 1.8E+2L);
+            if (pas::load_unaligned<double>(ForwardDistance.address) < 1.0E+15L && pas::load_unaligned<double>(ForwardDistance.address) != 0.0L) {
+                pas::store_unaligned<double>(ForwardDistance.address, static_cast<double>(([&] {
+                    pas::Extended cpp_left = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(pas::load_unaligned<double>(ForwardDistance.address), ab_Global::SphereRadius)));
+                    return cpp_left * pas::real_divide(SystemImports::Pi * ab_Global::SphereRadius, 1.8E+2L);
+                }())));
             }
-            if (BackwardDistance < 1.0E+15L && BackwardDistance != 0.0L) {
-                pas::Extended cpp_left_2 = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(BackwardDistance, ab_Global::SphereRadius)));
-                BackwardDistance = cpp_left_2 * pas::real_divide(SystemImports::Pi * ab_Global::SphereRadius, 1.8E+2L);
+            if (pas::load_unaligned<double>(BackwardDistance.address) < 1.0E+15L && pas::load_unaligned<double>(BackwardDistance.address) != 0.0L) {
+                pas::store_unaligned<double>(BackwardDistance.address, static_cast<double>(([&] {
+                    pas::Extended cpp_left_2 = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(pas::load_unaligned<double>(BackwardDistance.address), ab_Global::SphereRadius)));
+                    return cpp_left_2 * pas::real_divide(SystemImports::Pi * ab_Global::SphereRadius, 1.8E+2L);
+                }())));
             }
         }
     }
@@ -487,8 +491,8 @@ namespace ab_StopLine {
         double Distance{};
         double ForwardDistance{};
         double BackwardDistance{};
-        ab_Global::ComputeSphericalBearingAndDistance(BearingDelta, pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
-        ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(SourceLongitude, SourcePolarAngle, BearingDelta), ForwardDistance, BackwardDistance);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&BearingDelta), pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
+        ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(SourceLongitude, SourcePolarAngle, BearingDelta), pas::Var<double>(&ForwardDistance), pas::Var<double>(&BackwardDistance));
         return ForwardDistance < Distance;
     }
 

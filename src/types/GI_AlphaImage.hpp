@@ -30,7 +30,7 @@ namespace GI_AlphaImage {
         void SetImageKindY(GI_Main::TImageKindYGI Value);
         // Black pixels do not count as hits.
         std::uint8_t HitTestPixel(Types::TPoint Point);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void Draw(Types::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;

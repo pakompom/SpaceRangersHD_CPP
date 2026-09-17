@@ -97,9 +97,9 @@ namespace GI_RotateImage2 {
         Invalidate();
     }
 
-    void TRotateImage2GI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TRotateImage2GI_LoadFromConfigPath(TRotateImage2GI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TRotateImage2GI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -188,6 +188,10 @@ namespace GI_RotateImage2 {
 
     void TRotateImage2GI::p_destroy() {
         GI_RotateImage2::TRotateImage2GI_Destroy(this);
+    }
+
+    void TRotateImage2GI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_RotateImage2::TRotateImage2GI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_RotateImage2

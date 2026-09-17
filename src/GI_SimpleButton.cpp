@@ -54,23 +54,23 @@ namespace GI_SimpleButton {
         DispatchNamedEvent(2, Point.X, Point.Y);
     }
 
-    void TSimpleButtonGI::LoadFromConfigPath(const pas::WideString& Path) {
+    void TSimpleButtonGI_LoadFromConfigPath(TSimpleButtonGI* Self, const pas::WideString& Path) {
         EC_BlockPar::TBlockParEC* Block{};
         EC_CacheBitmap::TCBitmapEC* Bitmap{};
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            NormalImage->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
-            Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(NormalImage);
+            Self->NormalImage->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(Self->NormalImage);
             {
                 pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                    NormalImage->Release();
+                    Self->NormalImage->Release();
                 };
-                SetSize(ClassesImports::Point(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height));
+                Self->SetSize(ClassesImports::Point(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height));
             }
         }
         if (Block->CountParams(u"ImageActive"_wref.get()) > 0) {
-            ActiveImage->SetCacheKey(Block->GetParam(u"ImageActive"_wref.get()));
+            Self->ActiveImage->SetCacheKey(Block->GetParam(u"ImageActive"_wref.get()));
         }
     }
 
@@ -116,6 +116,10 @@ namespace GI_SimpleButton {
 
     void TSimpleButtonGI::p_destroy() {
         GI_SimpleButton::TSimpleButtonGI_Destroy(this);
+    }
+
+    void TSimpleButtonGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_SimpleButton::TSimpleButtonGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_SimpleButton

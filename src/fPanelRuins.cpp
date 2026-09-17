@@ -197,7 +197,7 @@ namespace fPanelRuins {
         Globals::PruneExpiredPersistentPlayerMessages();
         aPlayer::GetPlayer()->OrderTakeoff();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(Index); ) {
-            pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index)->RunTurnCode();
+            aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index));
         }
         Globals::StarMapWeaponPanelOpen = false;
         Globals::FilmCameraFollow = true;

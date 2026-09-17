@@ -21,7 +21,6 @@
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "types/aGalaxyStruct.hpp"
-#include "types/aRanger.hpp"
 #include "types/aShip.hpp"
 #include "types/fHangar.hpp"
 #include "types/fLoadQuest.hpp"
@@ -54,6 +53,7 @@
 #include "units/aMyFunction.hpp"
 #include "units/aPlanet.hpp"
 #include "units/aPlayer.hpp"
+#include "units/aRanger.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
 #include "units/fPlanetQuest.hpp"
@@ -1116,7 +1116,7 @@ namespace fPlanetQuest {
             Quest = nullptr;
         }
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ProcessQuestTimersAndOutcomes();
+            aRanger::TRanger_ProcessQuestTimersAndOutcomes(aPlayer::GetPlayer());
         }
         if (GlobalsV::RequestedScreenId == GlobalsV::screenMainMenu || GlobalsV::RequestedScreenId == GlobalsV::screenLoad) {
             aScript::ClearPendingScriptRequests();
@@ -1835,7 +1835,7 @@ namespace fPlanetQuest {
                     Variable = Globals::SharedScriptVariables->GetVarNE(Name);
                 }
                 if (Variable != nullptr) {
-                    if (Variable->RealVType() == EC_Expression::vkInt) {
+                    if (EC_Expression::TVarEC_RealVType(Variable) == EC_Expression::vkInt) {
                         Variable->SetInt(Quest->GetParameter(I)->Value);
                     }
                 }
@@ -1863,7 +1863,7 @@ namespace fPlanetQuest {
                     Variable = Globals::SharedScriptVariables->GetVarNE(Name);
                 }
                 if (Variable != nullptr) {
-                    if (Variable->RealVType() == EC_Expression::vkInt) {
+                    if (EC_Expression::TVarEC_RealVType(Variable) == EC_Expression::vkInt) {
                         {
                             ParameterClass::TParameter* parameter = Quest->GetParameter(I);
                             std::int32_t pasint = Variable->GetInt();

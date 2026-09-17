@@ -39,7 +39,7 @@ namespace GI_StarField {
         void SetViewPosition(EC_Struct::TPointF Position);
         void SetSize(WindowsSdk::TPoint Size) override;
         void MarkViewDirty();
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadStarFieldProperties(EC_BlockPar::TBlockParEC* Block);
         // Empty in native code.

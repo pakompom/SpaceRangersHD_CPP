@@ -11,4 +11,6 @@ namespace GI_SBPath {
 
     void TSBPathGI_Destroy(TSBPathGI* Self);
 
+    void TSBPathGI_LoadFromConfigPath(TSBPathGI* Self, const pas::WideString& Path);
+
 } // namespace GI_SBPath

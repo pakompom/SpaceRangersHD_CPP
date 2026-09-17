@@ -81,7 +81,7 @@ namespace GI_Planet {
         void SetCloud3MapOffset(std::int32_t Value);
         // A full turn has 256 steps; requires initialized light buffers when the angle changes.
         void SetLightAngle(std::uint8_t Value);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // The native routine does not release its third cloud layer's cache acquisitions.
         void Draw(Types::TRect ClipRect) override;

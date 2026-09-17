@@ -32,20 +32,20 @@ namespace GI_RadioGroup {
         GI_MessageLoop::TObjectGI::SetSize(Size);
     }
 
-    void TRadioGroupGI::AddItem(pas::WideString Name, Types::TPoint Position) {
-        GI_TransImage::TTransImageGI* Image = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, this);
+    void TRadioGroupGI_AddItem(TRadioGroupGI* Self, pas::WideString Name, Types::TPoint Position) {
+        GI_TransImage::TTransImageGI* Image = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, Self);
         Image->SetPosition(Position);
         Image->SetName(Name);
         Image->UserValue = 0;
         Image->SetActive(true);
-        Image->LeftButtonDownCallback = pas::bind_method<&TRadioGroupGI::ItemClick>(this);
-        Image = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, this);
+        Image->LeftButtonDownCallback = pas::bind_method<&TRadioGroupGI::ItemClick>(Self);
+        Image = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, Self);
         Image->SetPosition(Position);
         Image->SetName(Name);
         Image->UserValue = 1;
         Image->SetActive(false);
-        Image->LeftButtonDownCallback = pas::bind_method<&TRadioGroupGI::ItemClick>(this);
-        RefreshItemImages();
+        Image->LeftButtonDownCallback = pas::bind_method<&TRadioGroupGI::ItemClick>(Self);
+        Self->RefreshItemImages();
     }
 
     void TRadioGroupGI::RefreshItemImages() {
@@ -102,8 +102,8 @@ namespace GI_RadioGroup {
         }
     }
 
-    void TRadioGroupGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TRadioGroupGI_LoadFromConfigPath(TRadioGroupGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
     }
 
     void TRadioGroupGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -124,7 +124,7 @@ namespace GI_RadioGroup {
                         return ClassesImports::Point(strToInt_2, strToInt);
                     }());
                     pas::WideString paramName = Items->GetParamName(Index);
-                    AddItem(std::move(paramName), point);
+                    GI_RadioGroup::TRadioGroupGI_AddItem(this, std::move(paramName), point);
                 }
             }
         }
@@ -135,6 +135,10 @@ namespace GI_RadioGroup {
 
     void TRadioGroupGI::p_destroy() {
         GI_RadioGroup::TRadioGroupGI_Destroy(this);
+    }
+
+    void TRadioGroupGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_RadioGroup::TRadioGroupGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_RadioGroup

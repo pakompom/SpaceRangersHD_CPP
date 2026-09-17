@@ -554,9 +554,9 @@ namespace GI_GAI {
         GI_MessageLoop::TObjectGI::OnDeactivate();
     }
 
-    void TgaiGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadAnimationProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TgaiGI_LoadFromConfigPath(TgaiGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadAnimationProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TgaiGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -1203,6 +1203,10 @@ namespace GI_GAI {
 
     void TgaiGI::p_destroy() {
         GI_GAI::TgaiGI_Destroy(this);
+    }
+
+    void TgaiGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_GAI::TgaiGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_GAI

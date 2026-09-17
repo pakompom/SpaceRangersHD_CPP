@@ -133,13 +133,6 @@ namespace aShip {
 
     using TStationStandingMask = pas::Set<0, 15>;
 
-    enum TItemDegradationKind : std::uint8_t {
-        idkBattle = 0,
-        idkUse = 1,
-        idkForce = 2,
-        idkAfterburner = 3,
-    };
-
     enum TPilotSkill : std::uint8_t {
         psAccuracy = 0,
         psManeuverability = 1,
@@ -171,8 +164,7 @@ namespace aShip {
         virtual void SaveToBlock(EC_BlockPar::TBlockParEC* Block);
         // Applies edits to existing state and can append items or issue new orders. Cargo quantities change without updating cost basis.
         virtual void LoadFromBlock(EC_BlockPar::TBlockParEC* Block);
-        // Converts saved IDs to object references; requires all referenced objects to have been loaded.
-        virtual void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy);
+        virtual void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy);
         // Clamps to 0..100000000.
         void SetMoney(std::int32_t Value);
         // Can cancel the player's jump when remaining fuel is insufficient.
@@ -181,10 +173,9 @@ namespace aShip {
         // without narrowing object addresses to Integer.
         // Can unlock carried equipment use/repair and notify the player.
         void RefreshTechKnowledgeAtLocation();
-        virtual void NextDay();
-        virtual void NextDayLogic();
-        // The base implementation clears all weapon targets.
-        virtual void AssignWeaponTargetsInStar();
+        virtual void virtual_TShip_NextDay();
+        virtual void virtual_TShip_NextDayLogic();
+        virtual void virtual_TShip_AssignWeaponTargetsInStar();
         // Native no-op, called after loading/editing and refreshing derived stats.
         static void DerivedStateCompatibilityHook();
         virtual pas::WideString GetTypeNameKey();
@@ -192,8 +183,6 @@ namespace aShip {
         pas::WideString GetFactionNameKey();
         std::uint8_t GetDefaultHullType();
         std::int32_t NextRandomInteger(std::int32_t Minimum, std::int32_t Maximum);
-        // Requires a player; includes current order, hull, speed and relation information.
-        pas::WideString GetSpaceInfoText();
         virtual std::int32_t GetDesiredCargoFreeSpace();
         std::uint8_t IsHullDestroyed();
         // Fractional part of signed Seed divided by CurrentTurn + TurnOffset; denominator must be nonzero. Does not advance RandomState.
@@ -206,43 +195,29 @@ namespace aShip {
         std::uint8_t HasLockedOrFollowOrder();
         std::uint8_t HasHullDamageOrBrokenEquippedItems();
         std::uint8_t CanRefuel();
-        // Returns empty unless the player shares CurrentStar. Substitutes OtherShip for <TalkShip>.
-        pas::WideString LookupVisibleTalkText(const pas::WideString& Path, TShip* OtherShip);
         void UpdateBestRangerRelativeRatings();
         // Does not guard against zero AverageRangerStrength.
         void UpdateAverageRangerRelativeStrength();
         // Updates Wealth. Includes player storage and accrued deposit but does not subtract debt; capped at MaxInt.
         std::int32_t CalculateWealth();
-        double CalculateAttackStrength();
         double CalculateDefenseStrength();
-        double GetRepairStrengthFactor();
         // Updates Strength; calculating the player's strength also refreshes galaxy ranger strength statistics.
         double CalculateStrength();
         // Temporarily restores hull points. Leaves cached Strength and player galaxy-strength statistics at the full-hull values; byte result is not clamped.
         std::uint8_t GetFullHullRelativeStrengthPercent();
         // Uses cached Wealth and the configured scale table; no index validation.
         std::int32_t GetWealthScaledAmount(std::uint8_t ScaleIndex);
-        // For the player, checks the script-binding list; for NPC ships, checks ScriptShip.
-        std::uint8_t HasScriptBindings();
         // Leaves the result storage unchanged when Graphic is not a supported graphic class.
         pas::WideString GetShipPortraitImagePath();
-        // May assign PortraitFaceId lazily. Returns a resource base without the GI prefix or animation suffix.
-        pas::WideString GetCaptainPortraitResourceBase();
         // Reads the player rather than Self; requires a player.
         static std::uint8_t HasPlayerChameleonCharges();
         std::uint8_t SelectChameleonVisualType();
         // Requires a player; action-17 script handlers can override the default result.
         std::uint8_t IsPlayerChameleonEffectiveAgainstSelf();
-        // ScriptChameleon preserves the assigned graphic while updating GraphDominator.
-        void RefreshGraphic();
         void CreateNormalGraphic();
         void CreateDominatorGraphic();
         // Moves Self and docked ships between star lists; does not clear InHyperspace.
         void TransferToStar(aGalaxy::TStar* Star);
-        // Includes artefacts, guaranteed drops, stored Tranclucator inventories and station shop stock; result is borrowed.
-        aItem::TItem* FindCarriedItemById(std::uint32_t Id);
-        // Can subsidize and queue an unseen NPC for relocation to a peaceful Coalition system; excludes protected quest/script/partner ships.
-        void TryRelocateUnseenShip();
         // Copies the carrier's star and position, moving star-list membership when necessary. Does nothing without DockedTo.
         void SynchronizeDockedLocation();
         std::uint8_t InNormalSpace();
@@ -265,8 +240,6 @@ namespace aShip {
         aPlanet::TPlanet* NavigateToQueuedPlanet(std::uint8_t Absolute);
         // Uses the existing PlanetQueue; false means it is nil or empty. True does not guarantee that the order was accepted.
         std::uint8_t NavigateToEscapePlanet(std::uint8_t Absolute);
-        // Requires a ranger PartnerShip. True reports handled travel, not necessarily a changed or accepted order.
-        std::uint8_t TryMirrorPartnerTravelOrders();
         void OrderRandomFreeFlightMove();
         // False only when Target is jumping and its distance is at least twice Self.Speed; does not validate shared star or speed.
         std::uint8_t IsTargetStillPursuable(TShip* Target);
@@ -285,30 +258,14 @@ namespace aShip {
         std::int32_t EstimateTravelTurnsToObject(pas::Object* Target);
         // Returns -1 for zero speed, nil planet/star, or a different star.
         std::int32_t EstimateTravelTurnsToPlanet(aPlanet::TPlanet* Planet);
-        // Ranger, pirate or Tranclucator death notification; does not itself check player partnership.
-        void NotifyCompanionDeath();
-        // Source may be nil, ship or missile. HitRange=-1 selects direct-hit rules; other values select area-hit rules. Returns adjusted damage, zero for rejection, or negative damage for an impulse-shield block; not actual hull loss. May run death handling without freeing Self.
-        std::int32_t ApplyDamage(pas::Object* Source, std::int32_t Damage, float HitRange, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet DamageFlags);
-        // Returns ApplyDamage's signed result. Positive FixedDamage bypasses the initial roll/armor stage unless weapon flag 0x800 is already set; later effects still apply.
-        std::int32_t ApplyWeaponHit(TShip* Source, aItem::TWeapon* Weapon, float HitRange, std::uint32_t& DamageColor, pas::Var<std::uint32_t> DamageFlags, float DamageScale, std::int32_t FixedDamage);
-        // Requires a TMissile; returns ApplyDamage's signed result.
-        std::int32_t ApplyMissileHit(pas::Object* Missile, std::uint32_t& DamageColor, pas::Var<std::uint32_t> DamageFlags);
-        // Ignores non-missile targets; can free the target and nearby missiles.
-        void FireWeaponAtMissile(aItem::TWeapon* Weapon, pas::Object* Target, std::uint8_t RecordFilm);
-        // Can affect additional ships through chained, area or penetrating fire.
-        void FireWeaponAtShip(aItem::TWeapon* Weapon, TShip* Target, std::uint8_t RecordFilm);
         // Weapon may be nil. Script handlers can change the target; a destroyed item may explode and be freed.
         void FireWeaponAtItem(aItem::TWeapon* Weapon, aItem::TItem* Target, std::uint8_t RecordFilm);
         // Ignores non-asteroid targets. Respawning preserves the target object but invalidates its previous motion and mineral reserve.
         void FireWeaponAtAsteroid(aItem::TWeapon* Weapon, pas::Object* Target, std::uint8_t RecordFilm);
         // Uses InterceptorSourceShip; absent source gives base damage 25. Returns ApplyDamage's signed result.
         std::int32_t ApplyInterceptorDamage(std::uint32_t& DamageColor);
-        // Uses rounded shock strength and nonlethal flag 0x1000; returns ApplyDamage's signed result.
-        std::int32_t ApplyShockStatusDamage(std::uint32_t& DamageColor);
         // Returns script-adjusted damage, which may exceed actual hull loss. DamageColor uses the current packed pixel format and is zero for nonpositive damage.
         std::int32_t ApplyAsteroidImpactDamage(aAsteroid::TAsteroid* Asteroid, std::uint32_t& DamageColor);
-        // ExplodingObject may be an item or ship; SourceShip and Missile may be nil. Returns script-adjusted damage, not actual hull loss; can trigger death handling without freeing Self.
-        std::int32_t ApplyExplosionDamage(TShip* SourceShip, pas::Object* ExplodingObject, std::int32_t ExtraDamage, pas::Object* Missile);
         // Also refuels up to five units inside the damage radius. Returns script-adjusted damage; Dominator bosses survive with at least one hull point.
         std::int32_t ApplyStarHeatDamage();
         std::uint8_t CountEquippedWeapons();
@@ -324,20 +281,12 @@ namespace aShip {
         pas::WideString GetRepairPointsSummary();
         // Callers pass the target ship in EDX. This routine ignores it and only checks Self's active scanner artefact count.
         std::uint8_t HasScannerArtefact(TShip* UnusedTarget);
-        // Same result as GetWeaponRange in this binary.
-        std::int32_t GetWeaponActionRange(aItem::TWeapon* Weapon);
-        // Weapon slots are numbered 1..5.
-        std::int32_t GetWeaponSlotRange(std::int32_t SlotIndex);
         std::int32_t GetWeaponMinDamage(aItem::TWeapon* Weapon);
         std::int32_t GetWeaponMaxDamage(aItem::TWeapon* Weapon);
-        std::int32_t GetMaxWeaponRange();
         // Nil clears every cached weapon target; otherwise clears only matches.
         void ClearWeaponTargets(pas::Object* Target);
         // Includes weapon targets, interceptor attribution and shock/acid source IDs; requires non-nil Target.
         std::uint8_t IsAttackingShip(TShip* Target);
-        // Returns a combat strength ratio, not a probability.
-        double ChanceToWin(TShip* Target);
-        std::uint8_t GetWinChancePercent(TShip* Target);
         // Assigns both ships' enemies and eligible weapons, then issues pursuit orders where possible.
         void SetJointAttackTarget(TShip* Ally, TShip* Target);
         std::uint8_t IsEnemyPursuingSelf();
@@ -345,16 +294,6 @@ namespace aShip {
         std::uint8_t CanSafelyDetonateItem(aItem::TItem* Item);
         // Requires a non-nil relation list; nonempty lists require a registered ranger. Stores representative values 5, 20, 45, 70 or 90.
         void SetStoredRangerRelationLevel(TShip* Ranger, aGalaxyStruct::TRelationLevel Level);
-        aGalaxyStruct::TRelationLevel GetRelationLevelToShip(TShip* Ship);
-        // Stations can display their stored ranger relation instead of the effective relation.
-        pas::WideString GetRelationLevelTextToShip(TShip* Ship);
-        // Attempts a cargo or money demand through the target's dialogue handler; requires a player.
-        std::uint8_t TryExtortShip(TShip* Target);
-        // Cancels reciprocal attacks and pursuers, including wingmen/Tranclucators and missiles. Only the player's TruceShip is set reciprocally.
-        void TruceWithShip(TShip* Ship);
-        // May ask the player or nearby allied NPCs; requires a player.
-        void RequestAlliesAttackShip(TShip* Target);
-        std::uint8_t IsInPrison();
         // Rangers and pirates only; other classes return zero.
         std::int32_t GetPrisonTermRemaining();
         void ClearPrisonTerm();
@@ -373,8 +312,6 @@ namespace aShip {
         std::uint8_t IsCargoGoodIllegalOnCurrentPlanet(std::uint8_t Good);
         // Rejects Count above carried stock; does not reject a negative Count. Player trade losses offset later profit before trade experience is awarded.
         void SellGoodsToLocation(std::uint8_t Good, std::int32_t Count);
-        // Checks stock and cash, but not free cargo space or negative Count.
-        void BuyGoodsFromLocation(std::uint8_t Good, std::int32_t Count);
         // Requires an in-range route index when a group is assigned; may leave the group or issue travel/combat orders.
         void ProcessLiberationGroupRoute();
         // Requires a current liberation group.
@@ -389,10 +326,6 @@ namespace aShip {
         aItem::TDefGenerator* GetDefGenerator();
         // Pirate/science bases, licensed station names and the main pirate planet; follows DockedTo recursively.
         std::uint8_t CanRepairArtefactsAtLocation();
-        std::uint8_t CanUseEquipmentTech(aItem::TEquipment* Item);
-        std::uint8_t CanRepairEquipmentTech(aItem::TEquipment* Item);
-        // Does not require EquippedFlag.
-        std::uint8_t IsEquipmentUsable(aItem::TEquipment* Item);
         // Does not add Item to the inventory.
         void EquipItem(aItem::TEquipment* Item);
         // Direct types 42..49 require a populated slot; weapon types 50..68 require a valid one-based WeaponIndex. Compacts the weapon cache; does not remove/free inventory.
@@ -405,7 +338,6 @@ namespace aShip {
         std::int32_t CalculateEquippedMass(aItem::TEquipment* ItemForModule);
         // Not clamped to 0..100.
         std::uint8_t GetHullIntegrityPercent();
-        std::int32_t GetArmor();
         // Truncated map distance for a jump order; zero otherwise.
         std::int32_t GetJumpDestinationDistance();
         // Zero without tanks. Uses current planet owner, or owner six off-planet; overfilled tanks can produce a negative cost.
@@ -415,30 +347,17 @@ namespace aShip {
         std::int32_t GetFuelLimitedJumpRange();
         // Ignores fuel; broken engines retain 60% range.
         std::int32_t GetJumpRange();
-        // Zero-based template index; true means disallowed. Includes custom faction, Dominator series and pilot-race restrictions.
-        std::uint8_t IsMicroModuleRaciallyRestricted(std::int32_t ModuleIndex);
-        std::int32_t GetEquipmentStatBonus(std::uint8_t BonusKind, aItem::TEquipment* Item);
         std::int32_t GetTotalStatBonus(std::uint8_t BonusKind);
-        std::int32_t GetRadarRange();
-        std::int32_t GetScannerPower();
-        // Ignores radar range and Dominator scanner series; non-ship targets require only a usable scanner.
-        std::uint8_t CanResolveObjectWithScanner(pas::Object* Target);
-        void ApplyRepairDroidHealing();
         float GetCargoHookMinPullSpeed();
         float GetCargoHookMaxPullSpeed();
         std::int32_t GetCargoHookRange();
         std::int32_t GetCargoHookRangeSquared();
         // Raw PickupPower; zero without a hook. Does not check usability.
         std::int32_t GetBaseCargoHookPower();
-        // 1 means no damage reduction.
-        double GetDefenseDamageFactor();
-        std::uint8_t GetDefensePercent();
         std::int32_t GetAttackMultiplier();
         // Rejects ID 255 and appends without deduplication; stops when list count equals 255. Extends the visible prefix only when all previous awards were visible.
         void AddAward(std::uint8_t AwardId);
         void RefreshDerivedStats(std::uint8_t UpdateRelativeRatings);
-        // Requires Graphic; chooses dimensions from ship class, hull and special equipment.
-        void RefreshGraphicSize();
         // Can unequip items whose slots are unavailable.
         void RebuildEquipmentCache();
         // Can be negative.
@@ -459,8 +378,6 @@ namespace aShip {
         std::int32_t CountCarriedEquipmentByType(aConst::TItemType ItemType);
         aItem::TWeapon* SelectBestUnequippedWeapon();
         std::uint8_t HasLooseNonScriptItemsOrGoods();
-        // Preserves named script items; drops through the normal item/artefact helpers.
-        void DropUnequippedItemsAndGoods();
         // Always adds to the player's storage, even when Self is an NPC. Caller must detach the item from its previous owner. Negative Slot allocates a free slot.
         void AddItemToPlayerStorage(aItem::TItem* Item, pas::Object* Location, std::int32_t Slot);
         // Transfers ownership; a successful goods/countable merge frees Item.
@@ -476,33 +393,21 @@ namespace aShip {
         float CalculateItemEffectiveness(aItem::TItem* Item);
         // Returns one for a non-weapon; adjusts weapon damage for galaxy technology and accuracy.
         float EstimateWeaponDamageAgainstTypicalDefense(aItem::TItem* Item);
-        std::int32_t GetWeaponRange(aItem::TWeapon* Weapon);
-        std::int32_t CalculateHullArmor(aItem::THull* Hull);
         // Zero unless Item is fuel tanks.
         static std::int32_t GetItemFuelTankCapacity(aItem::TItem* Item);
-        std::int32_t CalculateEngineSpeed(aItem::TEngine* Engine, std::uint8_t ApplyBrokenPenalty);
-        std::int32_t CalculateEngineJumpRange(aItem::TEngine* Engine);
-        std::int32_t CalculateRadarRange(aItem::TRadar* Radar);
-        std::int32_t CalculateScannerPower(aItem::TScaner* Scanner);
-        std::int32_t CalculateRepairPoints(aItem::TRepairRobot* RepairRobot);
-        std::int32_t CalculateCargoHookPower(aItem::TCargoHook* CargoHook);
-        float CalculateDefGeneratorFactor(aItem::TDefGenerator* DefGenerator);
-        float GetEquipmentEvaluationSynergyBonus(aItem::TEquipment* Item);
         float GetWeaponArtefactDamageFactor(aItem::TWeapon* Weapon);
         void UpdateSpeedTrackingMetrics();
         void RefreshEquipmentEvaluationMetrics();
         float EvaluateItem(aItem::TItem* Item, std::uint8_t PriceMode);
         // Price modes: 1 negated item cost, 3 resale value, 4 item cost; other modes omit the price term. Mode 0 also omits weight/fragility penalties; the supplied effectiveness is recomputed.
         virtual float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness);
-        virtual float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value);
-        virtual float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage);
+        virtual float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value);
+        virtual float virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage);
         // Evaluates a temporary clone; restores NextItemId but leaves LoadedSaveVersion set to CurrentSaveVersion. ModuleIndex is zero-based.
         virtual float EvaluateMicroModuleGain(aItem::TEquipment* Item, std::int32_t ModuleIndex);
         // Consumes beneficial carried modules, preferring installed equipment; refreshes derived stats after each application.
         void AutoApplyMicroModules();
         void AutoEquipInventory();
-        // Sells at a location or jettisons in space. May flag a long-stranded NPC for destruction when overload cannot be resolved.
-        void DropCargoUntilNotOverloaded();
         void DropRandomCheapItemsOnDestruction(std::int32_t Count);
         void DropRandomValuableItemsOnDestruction(std::int32_t Count);
         // Requires a Dominator; used by dialogue and Script.DomikProgramm. Attempts at most 100 selections.
@@ -512,20 +417,12 @@ namespace aShip {
         // Requires membership in Artefacts; honors ship/item NoDrop.
         std::uint8_t DropCarriedArtefactAsMovingLoot(aItem::TArtefact* Item);
         void DropGuaranteedDeathDropItems();
-        // Deterministic eligibility roll for an ordinary pirate without a script binding or player partnership.
-        std::uint8_t CanDropTreasureMap();
         // Searches reachable uninhabited planets with accessible artefact/module loot; excludes maps already carried or stored by the player.
         aPlanet::TPlanet* SelectTreasureMapPlanet();
-        std::uint8_t TryDropTreasureMap();
         // Player drops are placed immediately and may be consumed by scripts or stellar heat. Native artefact branch mistakenly deletes Inventory at the Artefacts index (); preserved here as observed behavior.
         std::uint8_t DropItemIntoStar(aItem::TItem* Item);
         void DropAllArtefactsOnDestruction();
-        // Caller supplies a valid good and quantity; does not itself honor ship NoDrop.
-        void DropGoodsIntoSpace(std::uint8_t Good, std::int32_t Count);
         std::uint8_t JettisonCargoGoodsTowardTargetValue(std::int32_t TargetValue);
-        void DropAllCargoGoods();
-        // Caller detaches Item first. Script action 33 can suppress transfer or free Item; otherwise the moving-drop descriptor takes ownership.
-        void QueueMovingItemDrop(aItem::TItem* Item, std::uint8_t UseFlag);
         // Considers protection, essential equipment and value per mass; can return the hull when no alternative qualifies.
         aItem::TItem* SelectLeastValuableInventoryItem();
         // Native scan starts at index one; an artefact list with one element yields nil.
@@ -534,26 +431,14 @@ namespace aShip {
         std::uint8_t SelectCheapestCargoGood();
         // Can sell equipment, artefacts and excess cargo; outside a market, excess goods are refunded at their cost basis.
         void OptimizeInventory();
-        // Normally credits resale value and frees Item; eligible NPC node stacks instead feed DepositCarriedNodes and automatic training.
-        void LiquidateInventoryItem(aItem::TItem* Item);
         // Removes and frees Item after crediting resale value.
         void LiquidateArtefact(aItem::TArtefact* Item);
         // Returns whether AI should remain docked; false does not guarantee full repair. Does not charge Money.
         std::uint8_t RepairHullAtLocation();
         void ReloadWeaponAmmo();
-        void ApplyCombatItemDegradation(double BaseDurabilityDamage);
-        void ApplyArtefactUseDegradation(double BaseDurabilityDamage);
-        void ApplyAfterburnerItemDegradation();
-        // True only when the item becomes newly broken. Nil is accepted; script actions 36..39 can modify the damage.
-        std::uint8_t ApplyItemDegradation(aItem::TEquipment* Item, TItemDegradationKind Kind, double DurabilityDamage);
         std::uint8_t CanGenerateMicroModuleForLoadout();
         // True for the player or when the current hull already has a special module.
         std::uint8_t CanGenerateSpecialHullModule();
-        void ImproveRandomEquipment(std::uint8_t ResolveOverload);
-        // Selects up to three qualifying candidates within 51 attempts, applies the best positive gain, then auto-equips. Nil Item is accepted.
-        void GenerateAndApplyMicroModule(aItem::TEquipment* Item, std::uint8_t ResolveOverload);
-        // Adds a generated weapon, may improve/module it, then auto-equips and optimizes inventory.
-        void GenerateExtraWeapon();
         // Requires an installable target and no carried module of the same index.
         std::uint8_t NeedsMicroModule(std::int32_t ModuleIndexPlusOne);
         // Skips inventory index 0.
@@ -566,10 +451,6 @@ namespace aShip {
         std::uint8_t NeedsEssentialEquipment();
         // Can subsidize equipment purchases; does not guarantee success.
         void RestoreEssentialEquipment();
-        void BuyEquipmentAtLocation(std::uint8_t ForceGeneratedOffers);
-        aItem::THull* CreateAndEquipHull(std::uint16_t Capacity, std::uint8_t Level, std::uint8_t Owner, std::int32_t Series, std::uint8_t PirateBuilt);
-        // Normal ships use PilotRace rather than OwnerId; selects rarity 1..100 through the galaxy RNG.
-        std::int32_t SelectRandomHullSeries();
         aItem::TFuelTanks* CreateAndEquipFuelTanks(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
         aItem::TEngine* CreateAndEquipEngine(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
         aItem::TRadar* CreateAndEquipRadar(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
@@ -578,13 +459,7 @@ namespace aShip {
         aItem::TCargoHook* CreateAndEquipCargoHook(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
         aItem::TDefGenerator* CreateAndEquipDefGenerator(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
         aItem::TWeapon* CreateAndEquipWeapon(std::uint8_t ItemType, std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
-        std::uint8_t ScanForCollectableItems();
-        void QueueItemsWithinPickupRange();
-        // May queue nearby pickups and issue/cancel a move order; true means a move order remains.
-        std::uint8_t TryCollectBestFloatingItem(std::int32_t MaximumTravelTurns);
         std::int32_t GetReservedPickupWeight();
-        // Also checks hook eligibility.
-        std::uint8_t IsItemInPickupRange(aItem::TItem* Item);
         // Base implementation returns false.
         virtual std::uint8_t AcceptPickupItem(aItem::TItem* Item);
         std::uint8_t ShouldPickUpItem(aItem::TItem* Item);
@@ -596,8 +471,6 @@ namespace aShip {
         void ClearPickupTargets();
         // Frees the target list when it becomes empty.
         void RemoveInvalidPickupTargets();
-        // Adds missing eligible targets; removes eligible targets only if none were added.
-        void TogglePickupTargets(std::uint8_t IgnoreRange);
         std::uint8_t HasPickupTarget(aItem::TItem* Item);
         std::int32_t CountOtherShipsTargetingItem(aItem::TItem* Item);
         // Ties are allowed; requires positive speed.
@@ -673,10 +546,6 @@ namespace aShip {
         // Does nothing if Index is occupied.
         void RemoveEmptySatelliteTrajectoryIndex(std::int32_t Index);
         void CompactSatelliteTrajectoryIndices();
-        // Uses and refreshes global hold-view state.
-        void AssignSatelliteIndicesFromHoldOrder();
-        // Reorders the satellite entries in the global hold view.
-        void ArrangeHoldSatellitesByTrajectoryIndex();
         // Requires minimum charge; records a galaxy event and consumes charge even if no Dominators respond.
         std::uint8_t UseDominatorTransmitter(aItem::TArtefactTransmitter* Artefact);
         // Custom items match by configuration name; generic artefacts also compare names.
@@ -687,16 +556,6 @@ namespace aShip {
         std::uint8_t HasEquippedArtefactOfSameUseGroup(aItem::TItem* Item);
         // Item=nil checks cached installed equipment. A supplied item need not be equipped; eligible equipment types depend on ArtefactType.
         std::uint8_t CanBoostArtefact(std::uint8_t ArtefactType, aItem::TEquipment* Item, std::uint8_t IgnoreArtefactAvailability);
-        // Prefers installed inventory equipment; selects at most one repairable item and may clear BrokenFlag.
-        void ApplyNanoArtefactRepair();
-        // Uses Self's radar with a 500-unit minimum and both NoTalk flags; does not test system membership.
-        std::uint8_t CanContactShip(TShip* OtherShip);
-        // Selects among at most ten contiguous variants using ship seed and turn; substitutes ship names and HomePlanet. Missing text returns an unavailable marker.
-        pas::WideString LookupTalkText(const pas::WideString& Path);
-        // Turn-worker/UI handshake; waits for conversation completion or shutdown. Requires an active visible-space turn.
-        std::uint8_t OpenPlayerConversation(std::uint8_t RespectChameleon);
-        // Returns the global dialogue response, or zero when conversation cannot open. Amount only replaces the global amount when positive.
-        std::uint8_t ShowPlayerDialogue(std::uint8_t Kind, const pas::WideString& Text, std::int32_t Amount);
         void NotifyMoneyDemand(TShip* OtherShip, pas::WideString Response, std::int32_t Amount);
         void NotifyCargoDemand(TShip* OtherShip, pas::WideString Response);
         void NotifyFearCargoDrop(TShip* OtherShip);
@@ -715,23 +574,12 @@ namespace aShip {
         virtual std::uint8_t UnknownVirtualC0(void* Argument);
         // Payment/wealth and relation determine contract months; a player stimulant can double the result.
         std::int32_t CalculatePartnershipMonths(std::int32_t Amount, TShip* OtherShip);
-        pas::WideString GetGreetingText();
-        // Requires ScriptShip; clears EndState, applies state orders and refreshes completion/pickup state.
-        void InitializeScriptStateOrders();
-        // Requires ScriptShip; may issue travel orders and assign script-selected weapon targets.
-        void ApplyScriptStateOrders();
-        // Requires ScriptShip; updates EndState and queues state-requested pickups.
-        void UpdateScriptStateCompletionAndPickups();
-        // Requires ScriptShip; script execution can remove the binding.
-        void ScriptNextDay();
         // Requires ScriptShip; matches the state's group in the current system.
         TShip* FindScriptFollowTarget();
         // Source kind 0 bypasses diminishing returns.
         void GainExperience(std::int32_t Amount, std::uint8_t SourceKind);
         // Subtracts independently from total and free experience, capped at each current balance.
         void RemoveExperience(std::int32_t Amount);
-        // Deposits every carried stack and awards experience.
-        void DepositCarriedNodes();
         std::uint8_t TrainSkill(TPilotSkill Skill);
         std::uint8_t CanTrainSkill(TPilotSkill Skill);
         std::uint8_t GetBaseSkillLevel(TPilotSkill Skill);
@@ -774,7 +622,6 @@ namespace aShip {
         // Hull override or five when zero.
         std::uint8_t GetInterceptorPassCount();
         std::uint8_t HasScriptControl();
-        std::uint8_t HasNoUsableWeapons();
         std::int32_t GetOwnStatBonus(std::uint8_t BonusKind);
         // Zero removes and frees the matching bonus entry; nonzero inserts or replaces it.
         void SetStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value);
@@ -788,9 +635,6 @@ namespace aShip {
         void ClearCombatStatusEffects();
         // Daily decay; exactly zero remains until a subsequent reduction.
         void DecayCombatStatusEffects();
-        float GetShockStatusDecay(float Strength);
-        float GetAcidStatusDecay(float UnusedStrength);
-        float GetMagneticStatusDecay(float Strength);
         static float GetWeaponBlockStatusDecay(float Strength);
         static float GetDroidBlockStatusDecay(float Strength);
         static float GetBWBuffStatusDecay(float Strength);
@@ -805,7 +649,7 @@ namespace aShip {
         pas::WideString GetCombatStatusDescription(std::int32_t& Count, std::uint8_t ShowStrength);
         // Native base implementation is a no-op.
         virtual void UpdateAfterburnerState();
-        virtual void RefreshCurrentStanding();
+        virtual void virtual_TShip_RefreshCurrentStanding();
         std::uint8_t HasScriptStateText();
         // Requires a nonempty faction not beginning with SubFaction. The native substring result is used as Boolean, so absence also returns true.
         std::uint8_t HasIndependentScriptFaction();
@@ -815,11 +659,9 @@ namespace aShip {
         std::int32_t GetScriptStandingOverrideMode();
         // Returns Param after script handlers modify it; object slots may carry event-specific integer values.
         std::int32_t ScriptItemsAct(std::uint8_t ActionType, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
-        // Base implementation always returns false.
-        virtual std::uint8_t CanDock(TShip* Ship);
+        virtual std::uint8_t virtual_TShip_CanDock(TShip* Ship);
         // Base implementation clears Response and returns false.
         virtual std::uint8_t CheckDockingPermission(TShip* Ship, pas::WideString& Response);
-        std::uint8_t RelationToShip(TShip* Ship);
         // Abstract entries in native TShip VMT share the RTL stub.
         // Signatures come from verified concrete overrides and their callers.
         virtual pas::WideString GetName() = 0;
@@ -830,27 +672,27 @@ namespace aShip {
         virtual aGalaxyStruct::TRangerCareer GetDominantCareer() = 0;
         virtual std::uint8_t GetStrengthScaledPirateStatus() = 0;
         virtual void RefuelAtLocation() = 0;
-        virtual void RepairBrokenEquipmentAtLocation() = 0;
+        virtual void virtual_TShip_RepairBrokenEquipmentAtLocation() = 0;
         virtual void BuildReachablePlanetQueue() = 0;
-        virtual std::uint8_t CanQueueReachablePlanet(aPlanet::TPlanet* Planet) = 0;
+        virtual std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) = 0;
         virtual void SelectEnemyShipInStar() = 0;
         virtual void EngageEnemyShip() = 0;
         virtual std::uint8_t RelationToRanger(void* Ranger) = 0;
         virtual void ChangeRelationToRanger(void* Ranger, std::int32_t Amount) = 0;
         virtual void ReactToAttack(TShip* Attacker) = 0;
         virtual std::uint8_t RelationToNonRanger(TShip* Ship) = 0;
-        virtual std::uint8_t RecomputeFearState() = 0;
-        virtual std::uint8_t AcceptsRansomDemandFrom(TShip* Ship) = 0;
-        virtual std::uint8_t TrustsAttackRequester(TShip* Ship) = 0;
-        virtual std::uint8_t EvaluateAllyRelationAndStrength(TShip* Ship) = 0;
+        virtual std::uint8_t virtual_TShip_RecomputeFearState() = 0;
+        virtual std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(TShip* Ship) = 0;
+        virtual std::uint8_t virtual_TShip_TrustsAttackRequester(TShip* Ship) = 0;
+        virtual std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(TShip* Ship) = 0;
         virtual void ProcessCombatDialogue() = 0;
         virtual void ReactToExtortionDemand(void* Ranger) = 0;
-        virtual std::uint8_t BuildMoneyExtortionResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) = 0;
-        virtual std::uint8_t BuildCargoExtortionResponse(TShip* OtherShip, pas::WideString& Response) = 0;
+        virtual std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) = 0;
+        virtual std::uint8_t virtual_TShip_BuildCargoExtortionResponse(TShip* OtherShip, pas::WideString& Response) = 0;
         virtual std::uint8_t BuildTrucePaymentResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) = 0;
-        virtual std::uint8_t BuildAttackRequestResponse(TShip* Requester, pas::WideString& Response, TShip* Target) = 0;
-        virtual std::uint8_t AcceptPartnershipOffer(TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) = 0;
-        virtual std::uint8_t BuildPartnershipOfferResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) = 0;
+        virtual std::uint8_t virtual_TShip_BuildAttackRequestResponse(TShip* Requester, pas::WideString& Response, TShip* Target) = 0;
+        virtual std::uint8_t virtual_TShip_AcceptPartnershipOffer(TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) = 0;
+        virtual std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) = 0;
         std::int32_t Id;
         pas::WideString Name;
         pas::WideString TypeNameOverrideKey;
@@ -1099,5 +941,12 @@ namespace aShip {
     #pragma pack(pop)
 
     using PCustomShipInfo = TCustomShipInfo*;
+
+    enum TItemDegradationKind : std::uint8_t {
+        idkBattle = 0,
+        idkUse = 1,
+        idkForce = 2,
+        idkAfterburner = 3,
+    };
 
 } // namespace aShip

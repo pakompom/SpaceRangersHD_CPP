@@ -47,7 +47,7 @@ namespace ab_W07 {
         if (Offset != 0.0L) {
             Heading = aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L);
             HeadingDelta = aMyFunction::HeadingDifferenceDegrees(Heading, State.BearingDegrees);
-            ab_Global::AdvanceSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, Heading, ab_Global::SphereRadius, Offset);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees), pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius, Offset);
             State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Heading) + HeadingDelta);
         }
         TrailDistance = 0.0f;
@@ -55,47 +55,47 @@ namespace ab_W07 {
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
-    void TabW07::Advance() {
+    void TabW07_Advance(TabW07* Self) {
         ab_Ship::TabShip* Enemy{};
         ab_Global::TSphericalBearingDistance cpp_with{};
-        ab_Object::TabObject::Advance();
-        if (!Exploding) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
+        ab_Object::TabObject_Advance(Self);
+        if (!Self->Exploding) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
         }
-        if (DistanceTravelled > 4.0E+2L) {
-            MaxSpeed = 5.0;
+        if (Self->DistanceTravelled > 4.0E+2L) {
+            Self->MaxSpeed = 5.0;
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (!Exploding) {
-            Collision = FindCollision();
-            if (DistanceTravelled < 4.0E+2L && Collision == SourceObject) {
+        if (!Self->Exploding) {
+            Collision = Self->FindCollision();
+            if (Self->DistanceTravelled < 4.0E+2L && Collision == Self->SourceObject) {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > Self->ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Self->Exploding ^ 1)) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Damage, SourceObject, false);
+                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
             }
-            Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w07b_f"_wref.get(), u"GAI,Bm.AB.w07b_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
-        } else if (static_cast<std::uint8_t>(Exploding ^ 1) && Collision == nullptr) {
-            if (SourceObject != nullptr) {
-                Enemy = pas::checked_cast<ab_Ship::TabShip*>(SourceObject);
-                Enemy = Enemy->FindNearestEnemy(this);
+            Self->Exploding = true;
+            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w07b_f"_wref.get(), u"GAI,Bm.AB.w07b_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
+        } else if (static_cast<std::uint8_t>(Self->Exploding ^ 1) && Collision == nullptr) {
+            if (Self->SourceObject != nullptr) {
+                Enemy = pas::checked_cast<ab_Ship::TabShip*>(Self->SourceObject);
+                Enemy = Enemy->FindNearestEnemy(Self);
                 if (Enemy != nullptr) {
-                    cpp_with = BearingAndDistanceTo(Enemy);
-                    if (cpp_with.BearingDeltaDegrees < -TurnSpeed) {
-                        cpp_with.BearingDeltaDegrees = -TurnSpeed;
-                    } else if (cpp_with.BearingDeltaDegrees > TurnSpeed) {
-                        cpp_with.BearingDeltaDegrees = TurnSpeed;
+                    cpp_with = Self->BearingAndDistanceTo(Enemy);
+                    if (cpp_with.BearingDeltaDegrees < -Self->TurnSpeed) {
+                        cpp_with.BearingDeltaDegrees = -Self->TurnSpeed;
+                    } else if (cpp_with.BearingDeltaDegrees > Self->TurnSpeed) {
+                        cpp_with.BearingDeltaDegrees = Self->TurnSpeed;
                     }
-                    State.BearingDegrees = static_cast<long double>(State.BearingDegrees) + cpp_with.BearingDeltaDegrees;
+                    Self->State.BearingDegrees = static_cast<long double>(Self->State.BearingDegrees) + cpp_with.BearingDeltaDegrees;
                 }
             }
-        } else if (Exploding) {
-            DeletionPending = Image->Finished;
+        } else if (Self->Exploding) {
+            Self->DeletionPending = Self->Image->Finished;
         }
     }
 
@@ -128,6 +128,10 @@ namespace ab_W07 {
 
     void TabW07::p_destroy() {
         ab_W07::TabW07_Destroy(this);
+    }
+
+    void TabW07::virtual_TabObject_Advance() {
+        ab_W07::TabW07_Advance(this);
     }
 
 } // namespace ab_W07

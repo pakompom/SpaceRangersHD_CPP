@@ -45,7 +45,7 @@ namespace GI_Panel {
         void OnMouseLeave() override;
         void ProcessRightButtonDown(std::uint32_t KeyState, Types::TPoint Point) override;
         void ProcessRightButtonUp(std::uint32_t KeyState, Types::TPoint Point) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         std::uint8_t DragScrollingEnabled;
         TPanelScrollTypeGI ScrollType;

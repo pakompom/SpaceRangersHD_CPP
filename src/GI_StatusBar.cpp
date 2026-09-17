@@ -134,9 +134,9 @@ namespace GI_StatusBar {
         }
     }
 
-    void TStatusBarGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_Panel::TPanelGI::LoadFromConfigPath(Path);
-        LoadStatusProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TStatusBarGI_LoadFromConfigPath(TStatusBarGI* Self, const pas::WideString& Path) {
+        GI_Panel::TPanelGI_LoadFromConfigPath(Self, Path);
+        Self->LoadStatusProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TStatusBarGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -167,6 +167,10 @@ namespace GI_StatusBar {
 
     void TStatusBarGI::p_destroy() {
         GI_StatusBar::TStatusBarGI_Destroy(this);
+    }
+
+    void TStatusBarGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_StatusBar::TStatusBarGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_StatusBar

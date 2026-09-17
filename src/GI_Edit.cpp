@@ -269,40 +269,40 @@ namespace GI_Edit {
         Invalidate();
     }
 
-    void TEditGI::LoadFromConfigPath(const pas::WideString& Path) {
+    void TEditGI_LoadFromConfigPath(TEditGI* Self, const pas::WideString& Path) {
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString ColorText{};
         std::uint8_t Red{};
         std::uint8_t Green{};
         std::uint8_t Blue{};
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
         }
         if (Block->CountParams(u"Text"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Text"_wref.get());
-            if (GR_Main::LanguageDataConfig->CountParamsByPath(Text) > 0) {
-                Text = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(Text);
+            Self->Text = Block->GetParam(u"Text"_wref.get());
+            if (GR_Main::LanguageDataConfig->CountParamsByPath(Self->Text) > 0) {
+                Self->Text = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(Self->Text);
             }
         }
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            BackgroundCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
-            EC_Cache::TCacheEC::ResetControl(BackgroundCache);
-            BackgroundCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            Self->BackgroundCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+            EC_Cache::TCacheEC::ResetControl(Self->BackgroundCache);
+            Self->BackgroundCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"TextColor"_wref.get());
             Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
             Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
             Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
-            TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
+            Self->TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
             if (Block->GetParam(u"Border"_wref.get()) == u"True") {
-                BorderEnabled = true;
+                Self->BorderEnabled = true;
             } else {
-                BorderEnabled = false;
+                Self->BorderEnabled = false;
             }
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
@@ -310,29 +310,29 @@ namespace GI_Edit {
             Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
             Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
             Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
-            BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
-            BorderDarkColor = BorderLightColor;
+            Self->BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
+            Self->BorderDarkColor = Self->BorderLightColor;
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"BorderDarkColor"_wref.get());
             Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
             Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
             Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
-            BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
+            Self->BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CursorColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"CursorColor"_wref.get());
             Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
             Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
             Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
-            CaretColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
+            Self->CaretColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"MaxLen"_wref.get()) > 0) {
-            MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"_wref.get())));
+            Self->MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"_wref.get())));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
             GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(EC_Str::TrimWideString(Block->GetParam(u"AlignX"_wref.get())));
-            TEditGI* self = this;
+            TEditGI* self = Self;
             self->SetTextAlignX(parseTextAlignXName);
         }
     }
@@ -582,6 +582,10 @@ namespace GI_Edit {
 
     void TEditGI::p_destroy() {
         GI_Edit::TEditGI_Destroy(this);
+    }
+
+    void TEditGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_Edit::TEditGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_Edit

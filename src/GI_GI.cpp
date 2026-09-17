@@ -311,9 +311,9 @@ namespace GI_GI {
         return Result;
     }
 
-    void TgiGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TgiGI_LoadFromConfigPath(TgiGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TgiGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -459,6 +459,10 @@ namespace GI_GI {
 
     void TgiGI::p_destroy() {
         GI_GI::TgiGI_Destroy(this);
+    }
+
+    void TgiGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_GI::TgiGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_GI

@@ -110,7 +110,7 @@ namespace aScript {
         std::int32_t Count = EC_Expression::ScriptCallTraceCount;
         Position = (EC_Expression::ScriptCallTracePosition - 1 + 20) % 20;
         Cell = EC_Expression::ScriptCallTrace[Position];
-        while (Cell != nullptr && Cell->RealVType() == EC_Expression::vkFunction) {
+        while (Cell != nullptr && EC_Expression::TVarEC_RealVType(Cell) == EC_Expression::vkFunction) {
             --Count;
             if (Count <= 0) {
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Non-function error at beginning or after return from user function ", Cell->Name})));
@@ -444,7 +444,7 @@ namespace aScript {
         ResumingScript = Request->Script;
         if (Request->Script != nullptr) {
             Request->Script->InitCode->LocalVar->GetVar(u"GABStatus"_wref.get())->SetInt(Status);
-            Request->Script->RunTurnCode();
+            aScript::TScript_RunTurnCode(Request->Script);
             if (Request->Script->InitCode->LocalVar->GetVar(u"GABStatus"_wref.get())->GetInt() == Status) {
                 Request->Script->InitCode->LocalVar->GetVar(u"GABStatus"_wref.get())->SetInt(0);
             }
@@ -464,7 +464,7 @@ namespace aScript {
         ResumingScript = Request->Script;
         if (Request->Script != nullptr) {
             Request->Script->InitCode->LocalVar->GetVar(u"GQuestStatus"_wref.get())->SetInt(static_cast<std::int32_t>(Status));
-            Request->Script->RunTurnCode();
+            aScript::TScript_RunTurnCode(Request->Script);
             if (Request->Script->InitCode->LocalVar->GetVar(u"GQuestStatus"_wref.get())->GetInt() == static_cast<std::int32_t>(Status)) {
                 Request->Script->InitCode->LocalVar->GetVar(u"GQuestStatus"_wref.get())->SetInt(0);
             }
@@ -482,7 +482,7 @@ namespace aScript {
         ResumingScript = Request->Script;
         if (Request->Script != nullptr) {
             Request->Script->InitCode->LocalVar->GetVar(u"GRobotStatus"_wref.get())->SetInt(Status);
-            Request->Script->RunTurnCode();
+            aScript::TScript_RunTurnCode(Request->Script);
             if (Request->Script->InitCode->LocalVar->GetVar(u"GRobotStatus"_wref.get())->GetInt() == Status) {
                 Request->Script->InitCode->LocalVar->GetVar(u"GRobotStatus"_wref.get())->SetInt(0);
             }
@@ -503,7 +503,7 @@ namespace aScript {
         ResumingScript = Request->Script;
         if (Request->Script != nullptr) {
             Request->Script->InitCode->LocalVar->GetVar(u"GVideoStatus"_wref.get())->SetInt(Status);
-            Request->Script->RunTurnCode();
+            aScript::TScript_RunTurnCode(Request->Script);
             if (Request->Script->InitCode->LocalVar->GetVar(u"GVideoStatus"_wref.get())->GetInt() == Status) {
                 Request->Script->InitCode->LocalVar->GetVar(u"GVideoStatus"_wref.get())->SetInt(0);
             }
@@ -2209,15 +2209,15 @@ namespace aScript {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script. Not found item =", Name}))));
     }
 
-    void TScript::RunShipState(TScriptShip* Binding) {
+    void TScript_RunShipState(TScript* Self, TScriptShip* Binding) {
         TScript* SavedScript{};
         TScriptState* SavedState{};
         TScriptState* State = Binding->State;
         try {
             if (State != nullptr && State->StateCode != nullptr) {
                 SavedScript = CurrentScript;
-                CurrentScript = this;
-                PublishShipContext(Binding);
+                CurrentScript = Self;
+                Self->PublishShipContext(Binding);
                 SavedState = CurrentScriptState;
                 CurrentScriptState = State;
                 State->StateCode->Run(ScriptProcess);
@@ -2230,76 +2230,76 @@ namespace aScript {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in state code of script ", ScriptFileName, u" state #", pas::wide_int_to_str(pas::list_indexof(States, reinterpret_cast<void*>(State))), u"(", State->Name, u")"}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in state code of script ", Self->ScriptFileName, u" state #", pas::wide_int_to_str(pas::list_indexof(Self->States, reinterpret_cast<void*>(State))), u"(", State->Name, u")"}))));
             } else {
                 throw;
             }
         }
     }
 
-    void TScript::RunTurnCode() {
+    void TScript_RunTurnCode(TScript* Self) {
         try {
-            CurrentScript = this;
-            TurnCode->Run(ScriptProcess);
+            CurrentScript = Self;
+            Self->TurnCode->Run(ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in turn code of script ", ScriptFileName}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in turn code of script ", Self->ScriptFileName}))));
             } else {
                 throw;
             }
         }
     }
 
-    void TScript::RunAuxiliaryCode() {
+    void TScript_RunAuxiliaryCode(TScript* Self) {
         try {
-            CurrentScript = this;
-            AuxiliaryCode->Run(ScriptProcess);
+            CurrentScript = Self;
+            Self->AuxiliaryCode->Run(ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in dialog code of script ", ScriptFileName}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in dialog code of script ", Self->ScriptFileName}))));
             } else {
                 throw;
             }
         }
     }
 
-    void TScript::CallDialog(std::int32_t Index) {
-        if (Index < 0 || Index >= pas::list_count(Dialogs)) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialog ", EC_Str::IntToWideString(Index), u" ", ScriptFileName}))));
+    void TScript_CallDialog(TScript* Self, std::int32_t Index) {
+        if (Index < 0 || Index >= pas::list_count(Self->Dialogs)) {
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialog ", EC_Str::IntToWideString(Index), u" ", Self->ScriptFileName}))));
         }
-        CurrentScript = this;
-        CurrentDialog = Index;
-        SkipGreeting = false;
+        CurrentScript = Self;
+        Self->CurrentDialog = Index;
+        Self->SkipGreeting = false;
         Globals::ScriptDialogIndex = -1;
         try {
-            pas::list_at<TScriptDialog>(Dialogs, Index)->Code->Run(ScriptProcess);
+            pas::list_at<TScriptDialog>(Self->Dialogs, Index)->Code->Run(ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in call dialog code of script ", ScriptFileName, u" (", pas::list_at<TScriptDialog>(Dialogs, Index)->Name, u")"}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in call dialog code of script ", Self->ScriptFileName, u" (", pas::list_at<TScriptDialog>(Self->Dialogs, Index)->Name, u")"}))));
             } else {
                 throw;
             }
         }
     }
 
-    void TScript::CallDialogByVariable(pas::WideString Name) {
-        EC_Expression::TVarEC* Cell = InitCode->LocalVar->GetVarNE(Name);
+    void TScript_CallDialogByVariable(TScript* Self, pas::WideString Name) {
+        EC_Expression::TVarEC* Cell = Self->InitCode->LocalVar->GetVarNE(Name);
         if (Cell == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Dialog ", Name, u" not found in script ", ScriptFileName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Dialog ", Name, u" not found in script ", Self->ScriptFileName}))));
         }
-        CallDialog(Cell->GetInt());
+        aScript::TScript_CallDialog(Self, Cell->GetInt());
     }
 
     void TScript::CallDialogMessage(std::int32_t Index) {
@@ -2452,7 +2452,7 @@ namespace aScript {
             Binding->State->EntryCode->Run(ScriptProcess);
         }
         if (!(pas::class_cast_if<aPlayer::TPlayer*>(Binding->Ship) != nullptr)) {
-            Binding->Ship->InitializeScriptStateOrders();
+            aShip::TShip_InitializeScriptStateOrders(Binding->Ship);
         }
         if (Binding->State->StateCode != nullptr) {
             PublishShipContext(Binding);
@@ -4157,7 +4157,7 @@ namespace aScript {
         EC_Expression::TVarEC* Cell{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, InitCode->LocalVar->Count - 1); cpp_range.next(I); ) {
             Cell = EC_Expression::TVarArrayEC_GetItemByNameOrder(InitCode->LocalVar, I);
-            if (Cell->RealVType() == EC_Expression::vkLibraryFun && Cell->GetString() != u"") {
+            if (EC_Expression::TVarEC_RealVType(Cell) == EC_Expression::vkLibraryFun && Cell->GetString() != u"") {
                 if (ScriptLibraryCache == nullptr) {
                     ScriptLibraryCache = pas::construct_call<TLibraryCache>(TLibraryCache_Create);
                 }
@@ -4171,7 +4171,7 @@ namespace aScript {
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, TurnCode->LocalVar->Count - 1); cpp_range_2.next(I); ) {
             Cell = EC_Expression::TVarArrayEC_GetItemByNameOrder(TurnCode->LocalVar, I);
-            if (Cell->RealVType() == EC_Expression::vkLibraryFun && Cell->GetString() != u"") {
+            if (EC_Expression::TVarEC_RealVType(Cell) == EC_Expression::vkLibraryFun && Cell->GetString() != u"") {
                 if (ScriptLibraryCache == nullptr) {
                     ScriptLibraryCache = pas::construct_call<TLibraryCache>(TLibraryCache_Create);
                 }
@@ -4324,7 +4324,7 @@ namespace aScript {
                 Cell->Name = Name;
                 Scope->AddItem(Cell);
             }
-            if (Cell->RealVType() == EC_Expression::vkLibraryFun) {
+            if (EC_Expression::TVarEC_RealVType(Cell) == EC_Expression::vkLibraryFun) {
                 Cell->SetString(pas::concat_wide({LibraryName, u",", Name}));
                 InitFunction(Cell);
             }

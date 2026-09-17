@@ -13,4 +13,6 @@ namespace GI_GAIFile {
 
     void TGAIFileGI_Destroy(TGAIFileGI* Self);
 
+    void TGAIFileGI_LoadFromConfigPath(TGAIFileGI* Self, const pas::WideString& Path);
+
 } // namespace GI_GAIFile

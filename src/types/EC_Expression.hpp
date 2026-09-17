@@ -99,8 +99,6 @@ namespace EC_Expression {
         // Preserves the value where conversion is supported; ResetKind discards it.
         void ConvertToKind(TVarKind NewKind);
         void ResetKind(TVarKind NewKind);
-        // Returns vkRef for an unresolved reference.
-        TVarKind RealVType();
         void AssignFrom(TVarEC* Source, std::uint8_t CopyArrays);
         // Tests this cell's tag without dereferencing.
         std::uint8_t IsEmpty();
@@ -129,45 +127,14 @@ namespace EC_Expression {
         // Value is borrowed; follows references.
         void SetArray(TVarArrayEC* Value);
         void SetRef(TVarEC* Value);
-        // May return nil.
-        TVarEC* Resolve();
         // Stores ANSI bytes inside StringValue's UTF-16 allocation.
         void PackAnsiString();
         // Non-string cells are converted to string without unpacking.
         void UnpackAnsiString();
         // Requires at least one dimension.
         void CreateArray(pas::OpenArray<std::int32_t> Dimensions);
-        // Nonpositive Count frees the array; positive Count resizes only when Dimension <= 0.
-        void ResizeArray(std::int32_t Count, std::int32_t Dimension);
-        // Frees nested arrays; retains vkArray with a nil pointer.
-        void FreeArray();
-        void OAdd(TVarEC* Left, TVarEC* Right);
-        void OSub(TVarEC* Left, TVarEC* Right);
-        void OMul(TVarEC* Left, TVarEC* Right);
-        void ODiv(TVarEC* Left, TVarEC* Right);
-        void OMod(TVarEC* Left, TVarEC* Right);
-        void OBitAnd(TVarEC* Left, TVarEC* Right);
-        void OBitOr(TVarEC* Left, TVarEC* Right);
-        void OBitXor(TVarEC* Left, TVarEC* Right);
-        void OAnd(TVarEC* Left, TVarEC* Right);
-        void OOr(TVarEC* Left, TVarEC* Right);
-        void OShl(TVarEC* Left, TVarEC* Right);
-        void OShr(TVarEC* Left, TVarEC* Right);
-        void OEqual(TVarEC* Left, TVarEC* Right);
-        void ONotEqual(TVarEC* Left, TVarEC* Right);
-        void OLess(TVarEC* Left, TVarEC* Right);
-        void OMore(TVarEC* Left, TVarEC* Right);
-        void OLessEqual(TVarEC* Left, TVarEC* Right);
-        void OMoreEqual(TVarEC* Left, TVarEC* Right);
-        void OMinus(TVarEC* Value);
-        void OBitNot(TVarEC* Value);
-        void ONot(TVarEC* Value);
         // Assigns through references, converting to the destination kind.
         void Assume(TVarEC* Source, std::uint8_t CopyArrays);
-        std::uint8_t EqualsValue(TVarEC* Other);
-        std::uint8_t LessThan(TVarEC* Other);
-        std::uint8_t GreaterThan(TVarEC* Other);
-        std::uint8_t IsTrue();
         // Only scalar, string and array kinds have serialized payloads.
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer);

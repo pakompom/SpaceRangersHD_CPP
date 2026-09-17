@@ -587,32 +587,32 @@ namespace fGameSettings {
             {
                 aGalaxy::TStar* currentStar = aPlayer::GetPlayer()->CurrentStar;
                 aRuins::TRuins* cpp_arg_2 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_2->Init(aGalaxyStruct::rstRangerCenter, currentStar, pas::WideString());
+                aRuins::TRuins_Init(cpp_arg_2, aGalaxyStruct::rstRangerCenter, currentStar, pas::WideString());
             }
             {
                 aGalaxy::TStar* currentStar_2 = aPlayer::GetPlayer()->CurrentStar;
                 aRuins::TRuins* cpp_arg_3 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_3->Init(aGalaxyStruct::rstScienceBase, currentStar_2, pas::WideString());
+                aRuins::TRuins_Init(cpp_arg_3, aGalaxyStruct::rstScienceBase, currentStar_2, pas::WideString());
             }
             {
                 aGalaxy::TStar* currentStar_3 = aPlayer::GetPlayer()->CurrentStar;
                 aRuins::TRuins* cpp_arg_4 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_4->Init(aGalaxyStruct::rstMedicalBase, currentStar_3, pas::WideString());
+                aRuins::TRuins_Init(cpp_arg_4, aGalaxyStruct::rstMedicalBase, currentStar_3, pas::WideString());
             }
             {
                 aGalaxy::TStar* cpp_arg_5 = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[3].Star));
                 aRuins::TRuins* cpp_arg_6 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_6->Init(aGalaxyStruct::rstPirateBase, cpp_arg_5, pas::WideString());
+                aRuins::TRuins_Init(cpp_arg_6, aGalaxyStruct::rstPirateBase, cpp_arg_5, pas::WideString());
             }
             {
                 aGalaxy::TStar* cpp_arg_7 = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[1].Star));
                 aRuins::TRuins* cpp_arg_8 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_8->Init(aGalaxyStruct::rstBusinessCenter, cpp_arg_7, pas::WideString());
+                aRuins::TRuins_Init(cpp_arg_8, aGalaxyStruct::rstBusinessCenter, cpp_arg_7, pas::WideString());
             }
             {
                 aGalaxy::TStar* cpp_arg_9 = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[2].Star));
                 aRuins::TRuins* cpp_arg_10 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_10->Init(aGalaxyStruct::rstMilitaryBase, cpp_arg_9, pas::WideString());
+                aRuins::TRuins_Init(cpp_arg_10, aGalaxyStruct::rstMilitaryBase, cpp_arg_9, pas::WideString());
             }
             aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
             Stage = 15;
@@ -817,7 +817,7 @@ namespace fGameSettings {
             }
             Stage = 19;
             // Native code passes the last planet visited by the population loop above.
-            aPlayer::GetPlayer()->ApplyCharacterPreset(Planet, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].DifficultyValue18, Self->CharacterPreset);
+            aPlayer::TPlayer_ApplyCharacterPreset(aPlayer::GetPlayer(), Planet, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].DifficultyValue18, Self->CharacterPreset);
             aPlayer::GetPlayer()->RefreshStorageBubbles();
             aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 0);
             fIntroduction::NewGameGenerationStage = 8;

@@ -31,7 +31,7 @@ namespace GI_ShrLight {
         void SetKind(TShrLightKindGI Value);
         void SetLightShift(std::int32_t Value);
         void SetSize(Types::TPoint Size) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadLightProperties(EC_BlockPar::TBlockParEC* Block);
         void Draw(Types::TRect ClipRect) override;

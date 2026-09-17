@@ -119,7 +119,7 @@ namespace fJournal {
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->SetHitTestDisabled(true);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"_wref.get()))->SetHitTestDisabled(true);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->RefreshNewsAtLocation();
+            aPlayer::TPlayer_RefreshNewsAtLocation(aPlayer::GetPlayer());
         }
         {
             GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());

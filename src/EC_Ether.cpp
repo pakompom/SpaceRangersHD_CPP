@@ -60,9 +60,9 @@ namespace EC_Ether {
     }
 
     // Native assembly restores EAX after loading the entry, returning Self instead of the indexed value.
-    TEtherUnit* TEther::GetIndexedEntry(std::int32_t Index) {
+    TEtherUnit* TEther_GetIndexedEntry(TEther* Self, std::int32_t Index) {
         // Manual port: the native routine restores EAX, returning Self (not the entry).
-        return reinterpret_cast<TEtherUnit*>(this);
+        return reinterpret_cast<TEtherUnit*>(Self);
     }
 
     void TEther::SetIndexedEntry(std::int32_t Index, TEtherUnit* Item) {
@@ -80,7 +80,7 @@ namespace EC_Ether {
         std::int32_t Right = Count - 1;
         do {
             Middle = pas::shr(Right - Left, 1) + Left;
-            Item = GetIndexedEntry(Middle);
+            Item = EC_Ether::TEther_GetIndexedEntry(this, Middle);
             Comparison = EC_Str::CompareWideChars(Name.pchar(), Item->Name.pchar());
             if (Comparison == 0) {
                 return Middle;

@@ -31,8 +31,7 @@ namespace GI_SimpleImage {
         void SetImageKindX(GI_Main::TImageKindXGI Value);
         void SetImageKindY(GI_Main::TImageKindYGI Value);
         void SetHalfAlpha(std::uint8_t Value);
-        // Image is optional.
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         // Requires Image; does not update SourceRGBA from the key suffix.
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // CenterFill is unimplemented on both axes.

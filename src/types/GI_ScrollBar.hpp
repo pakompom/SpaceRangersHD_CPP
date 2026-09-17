@@ -70,7 +70,7 @@ namespace GI_ScrollBar {
         void StartAutoRepeat(std::int32_t DelayMs, std::int32_t RepeatMs);
         void StopAutoRepeat();
         void AutoRepeat(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadScrollBarProperties(EC_BlockPar::TBlockParEC* Block);
         std::uint8_t cpp_padding[4];

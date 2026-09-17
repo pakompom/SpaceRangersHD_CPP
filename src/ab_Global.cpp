@@ -191,19 +191,19 @@ namespace ab_Global {
     }
 
     // Negative distance moves backward. Longitude and bearing pass through Single precision when wrapped.
-    void AdvanceSphericalBearingState(double& LongitudeDegrees, double& PolarAngleDegrees, double& BearingDegrees, double SphereRadius, double ArcDistance) {
+    void AdvanceSphericalBearingState(pas::Var<double> LongitudeDegrees, pas::Var<double> PolarAngleDegrees, pas::Var<double> BearingDegrees, double SphereRadius, double ArcDistance) {
         double InvSin{};
         std::uint8_t Reverse{};
         if (ArcDistance < 0.0L) {
             Reverse = true;
             ArcDistance = -ArcDistance;
-            BearingDegrees = aMyFunction::WrapHeadingDegrees(BearingDegrees + 1.8E+2L);
+            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(pas::load_unaligned<double>(BearingDegrees.address) + 1.8E+2L)));
         } else {
             Reverse = false;
         }
-        double OldBearing = aMyFunction::HeadingDegreesToRadians(BearingDegrees);
+        double OldBearing = aMyFunction::HeadingDegreesToRadians(pas::load_unaligned<double>(BearingDegrees.address));
         double ArcAngle = pas::real_divide(ArcDistance, pas::constant(2.0L * SystemImports::Pi) * SphereRadius) * SystemImports::Pi * 2.0L;
-        double OldPolar = aMyFunction::HeadingDegreesToRadians(PolarAngleDegrees);
+        double OldPolar = aMyFunction::HeadingDegreesToRadians(pas::load_unaligned<double>(PolarAngleDegrees.address));
         pas::Extended cpp_left_2 = System::Cos(OldPolar);
         pas::Extended cpp_left = cpp_left_2 * System::Cos(ArcAngle);
         pas::Extended cpp_left_4 = System::Sin(OldPolar);
@@ -238,23 +238,23 @@ namespace ab_Global {
             Value = 1.0;
         }
         double NewBearing = MathImports::ArcCos(Value);
-        if (BearingDegrees > 1.8E+2L) {
-            BearingDegrees = aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi + NewBearing));
-            LongitudeDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(LongitudeDegrees) - aMyFunction::RadiansToHeadingDegrees(LongitudeDelta));
+        if (pas::load_unaligned<double>(BearingDegrees.address) > 1.8E+2L) {
+            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi + NewBearing))));
+            pas::store_unaligned<double>(LongitudeDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(static_cast<long double>(pas::load_unaligned<double>(LongitudeDegrees.address)) - aMyFunction::RadiansToHeadingDegrees(LongitudeDelta))));
         } else {
-            BearingDegrees = aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi - NewBearing));
-            LongitudeDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(LongitudeDegrees) + aMyFunction::RadiansToHeadingDegrees(LongitudeDelta));
+            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi - NewBearing))));
+            pas::store_unaligned<double>(LongitudeDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(static_cast<long double>(pas::load_unaligned<double>(LongitudeDegrees.address)) + aMyFunction::RadiansToHeadingDegrees(LongitudeDelta))));
         }
-        PolarAngleDegrees = aMyFunction::RadiansToHeadingDegrees(NewPolar);
+        pas::store_unaligned<double>(PolarAngleDegrees.address, aMyFunction::RadiansToHeadingDegrees(NewPolar));
         if (Reverse) {
-            BearingDegrees = aMyFunction::WrapHeadingDegrees(BearingDegrees + 1.8E+2L);
+            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(pas::load_unaligned<double>(BearingDegrees.address) + 1.8E+2L)));
         }
     }
 
     TSphericalBearingState AdvanceSphericalStateOnCurrentSphere(TSphericalBearingState Source, double ArcDistance) {
         TSphericalBearingState Result{};
         Result = Source;
-        ab_Global::AdvanceSphericalBearingState(Result.LongitudeDegrees, Result.PolarAngleDegrees, Result.BearingDegrees, SphereRadius, ArcDistance);
+        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees), pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&Result.BearingDegrees), SphereRadius, ArcDistance);
         return Result;
     }
 
@@ -263,7 +263,7 @@ namespace ab_Global {
         TSphericalBearingState Result{};
         Result = Source;
         double RelativeBearing = aMyFunction::HeadingDifferenceDegrees(TravelBearingDegrees, Result.BearingDegrees);
-        ab_Global::AdvanceSphericalBearingState(Result.LongitudeDegrees, Result.PolarAngleDegrees, TravelBearingDegrees, SphereRadius, ArcDistance);
+        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees), pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&TravelBearingDegrees), SphereRadius, ArcDistance);
         Result.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearingDegrees) + RelativeBearing);
         return Result;
     }
@@ -273,13 +273,13 @@ namespace ab_Global {
         TSphericalBearingState Result{};
         Result = Source;
         double RelativeBearing = aMyFunction::HeadingDifferenceDegrees(TravelBearingDegrees, Result.BearingDegrees);
-        ab_Global::AdvanceSphericalBearingState(Result.LongitudeDegrees, Result.PolarAngleDegrees, TravelBearingDegrees, SphereRadius, ArcDistance);
+        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees), pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&TravelBearingDegrees), SphereRadius, ArcDistance);
         Result.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearingDegrees) + RelativeBearing);
         return Result;
     }
 
     // Bearing is relative to SourceBearingDegrees; coincident points return zero bearing delta and distance.
-    void ComputeSphericalBearingAndDistance(double& BearingDeltaDegrees, pas::Var<double> Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius) {
+    void ComputeSphericalBearingAndDistance(pas::Var<double> BearingDeltaDegrees, pas::Var<double> Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius) {
         double TargetPolar = aMyFunction::HeadingDegreesToRadians(TargetPolarAngleDegrees);
         double SourcePolar = aMyFunction::HeadingDegreesToRadians(SourcePolarAngleDegrees);
         double LongitudeDelta = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<long double>(TargetLongitudeDegrees) - SourceLongitudeDegrees));
@@ -296,7 +296,7 @@ namespace ab_Global {
         double ArcAngle = MathImports::ArcCos(Value);
         pas::store_unaligned<double>(Distance.address, static_cast<double>(pas::real_divide(ArcAngle, pas::constant(2.0L * SystemImports::Pi)) * 2.0L * SystemImports::Pi * SphereRadius));
         if (ArcAngle == 0.0L) {
-            BearingDeltaDegrees = 0.0;
+            pas::store_unaligned<double>(BearingDeltaDegrees.address, 0.0);
             return;
         }
         {
@@ -316,7 +316,7 @@ namespace ab_Global {
         if (aMyFunction::HeadingDifferenceDegrees(SourceLongitudeDegrees, TargetLongitudeDegrees) < 0.0L) {
             Bearing = -Bearing;
         }
-        BearingDeltaDegrees = aMyFunction::HeadingDifferenceDegrees(SourceBearingDegrees, aMyFunction::RadiansToHeadingDegrees(Bearing));
+        pas::store_unaligned<double>(BearingDeltaDegrees.address, aMyFunction::HeadingDifferenceDegrees(SourceBearingDegrees, aMyFunction::RadiansToHeadingDegrees(Bearing)));
     }
 
     void ComputeSphericalDistance(double& Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double UnusedSourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius) {
@@ -340,7 +340,7 @@ namespace ab_Global {
     // Uses the current sphere radius; ignores Target.BearingDegrees.
     TSphericalBearingDistance GetSphericalBearingAndDistance(TSphericalBearingState Source, TSphericalBearingState Target) {
         TSphericalBearingDistance Result{};
-        ab_Global::ComputeSphericalBearingAndDistance(Result.BearingDeltaDegrees, pas::Var<double>(&Result.Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Target.LongitudeDegrees, Target.PolarAngleDegrees, SphereRadius);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Result.BearingDeltaDegrees), pas::Var<double>(&Result.Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Target.LongitudeDegrees, Target.PolarAngleDegrees, SphereRadius);
         return Result;
     }
 

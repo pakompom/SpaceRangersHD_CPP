@@ -51,7 +51,7 @@ namespace GI_Edit {
         // Requires a font glyph, acceptance by the optional callback, and length below MaxLength.
         void ProcessCharacter(char16_t Character) override;
         void OnCaretBlink() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void Draw(WindowsSdk::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;

@@ -124,7 +124,7 @@ namespace ab_Hit {
                     animation->LoadFrameSequenceFromText(cpp_arg);
                 }
                 Animation->SetSequenceFrame(Frame);
-                Animation->CycleCompleteCallback = pas::bind_method<&TabHit::KellerBreakupComplete>(this);
+                Animation->CycleCompleteCallback = pas::bind_method<TabHit_KellerBreakupComplete>(this);
                 StateCC = false;
             }
             if (Health > 0 || ab_Ship::KellerArcadeShip != this) {
@@ -213,7 +213,7 @@ namespace ab_Hit {
         ab_Object::TabObject::UpdateState();
     }
 
-    void TabHit::Advance() {
+    void TabHit_Advance(TabHit* Self) {
         std::int32_t Index{};
         double ArcDistance{};
         GI_GAI::TgaiGI* OutwardAnimation{};
@@ -222,19 +222,19 @@ namespace ab_Hit {
         ab_ShipAI::TabShipAI* Ship{};
         ab_Global::TSphericalBearingState Source{};
         ab_Global::TSphericalBearingDistance Bearing{};
-        ab_Object::TabObject::Advance();
-        if (Health == 0) {
-            Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-            Thrust = 0.0;
+        ab_Object::TabObject_Advance(Self);
+        if (Self->Health == 0) {
+            Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+            Self->Thrust = 0.0;
         }
-        if (ab_Ship::KellerArcadeShip == this && KellerFragments[0] != nullptr) {
+        if (ab_Ship::KellerArcadeShip == Self && KellerFragments[0] != nullptr) {
             ++KellerBreakupTicks;
             if (KellerBreakupTicks > 150 && aPlayer::GetPlayer() != nullptr && aKling::KellerShip != nullptr && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && KellerFinishRequested) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, 3); cpp_range.next(Index); ) {
-                    KellerFragments[Index]->ApplyDamage(KellerFragments[Index]->Health, this, false);
+                    KellerFragments[Index]->ApplyDamage(KellerFragments[Index]->Health, Self, false);
                     KellerFragments[Index] = nullptr;
                 }
-                DeletionPending = true;
+                Self->DeletionPending = true;
                 aGalaxy::Galaxy->CheckIntegrityChecksum1(650);
                 ++aPlayer::GetPlayer()->DominatorKillsByType[0];
                 aKling::KellerShip->ScriptItemsAct(61, nullptr, nullptr, 0);
@@ -242,7 +242,7 @@ namespace ab_Hit {
                 aGalaxy::Galaxy->PrimeIntegrityChecksum1(651);
             } else {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 3); cpp_range_2.next(Index); ) {
-                    Source = State;
+                    Source = Self->State;
                     Source.BearingDegrees = 0.0;
                     Bearing = ab_Global::GetSphericalBearingAndDistance(Source, KellerFragments[Index]->State);
                     if (KellerBreakupTicks < 150) {
@@ -254,10 +254,10 @@ namespace ab_Hit {
                         InwardAnimation->SetSequenceFrame(std::min<std::int64_t>(static_cast<std::int64_t>(InwardAnimation->SequenceFrameCount - 1), System::Round(InwardAnimation->SequenceFrameCount / 2 * pas::real_divide(KellerBreakupTicks, 1.5E+2L))));
                         KellerFragments[Index]->Velocity.X = 0.0f;
                         KellerFragments[Index]->Velocity.Y = 0.0f;
-                        KellerFragments[Index]->State = State;
+                        KellerFragments[Index]->State = Self->State;
                         KellerFragments[Index]->State.BearingDegrees = aMyFunction::WrapHeadingDegrees(Bearing.BearingDeltaDegrees);
                         ArcDistance = (1.0L - pas::real_divide(KellerBreakupTicks - 150, 1.5E+2L)) * KellerFragmentDistances[Index];
-                        ab_Global::AdvanceSphericalBearingState(KellerFragments[Index]->State.LongitudeDegrees, KellerFragments[Index]->State.PolarAngleDegrees, KellerFragments[Index]->State.BearingDegrees, ab_Global::SphereRadius, ArcDistance);
+                        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&KellerFragments[Index]->State.LongitudeDegrees), pas::Var<double>(&KellerFragments[Index]->State.PolarAngleDegrees), pas::Var<double>(&KellerFragments[Index]->State.BearingDegrees), ab_Global::SphereRadius, ArcDistance);
                         if (KellerBreakupTicks >= 300) {
                             KellerFragments[Index]->DeletionPending = true;
                             KellerFragments[Index] = nullptr;
@@ -266,9 +266,9 @@ namespace ab_Hit {
                 }
                 if (KellerFragments[0] == nullptr) {
                     KellerSplitActive = false;
-                    StateCC = true;
-                    Health = MaxHealth;
-                    pas::checked_cast<ab_Ship::TabShip*>(this)->AttachVisual();
+                    Self->StateCC = true;
+                    Self->Health = Self->MaxHealth;
+                    pas::checked_cast<ab_Ship::TabShip*>(Self)->AttachVisual();
                     if (KellerDeathPending) {
                         DeathAnimation = pas::checked_cast<SE_Ruins::TRuinsSE*>(ab_Ship::KellerArcadeShip->Visual)->Animation;
                         DeathAnimation->SetImagePath(u"Bm.Ruins.Keller_Out"_wref.get());
@@ -276,7 +276,7 @@ namespace ab_Hit {
                         DeathAnimation->UpdateAutoGeometry();
                         DeathAnimation->SetSize(DeathAnimation->GetContentSize());
                         DeathAnimation->SetOrigin(EC_Struct::HalfPoint(DeathAnimation->ClientSize));
-                        DeathAnimation->CycleCompleteCallback = pas::bind_method<&TabHit::KellerDeathComplete>(this);
+                        DeathAnimation->CycleCompleteCallback = pas::bind_method<&TabHit::KellerDeathComplete>(Self);
                         Ship = pas::checked_cast<ab_ShipAI::TabShipAI*>(ab_Ship::KellerArcadeShip);
                         Ship->WallCollisionEnabled = false;
                         Ship->GravityEnabled = false;
@@ -322,7 +322,7 @@ namespace ab_Hit {
         }
     }
 
-    void TabHit::KellerBreakupComplete(GI_MessageLoop::TObjectGI* Sender) {
+    void TabHit_KellerBreakupComplete(TabHit* Self, GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t Index{};
         ab_Ship::TabShip* Ship{};
         double Angle{};
@@ -342,14 +342,14 @@ namespace ab_Hit {
         }
         KellerBreakupTicks = 0;
         KellerFinishRequested = false;
-        SourcePoint = Globals::ArcadeBattleScreen->WorldPanel->ToAbsolutePoint(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(this)->Visual)->Animation->LocalPosition);
+        SourcePoint = Globals::ArcadeBattleScreen->WorldPanel->ToAbsolutePoint(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(Self)->Visual)->Animation->LocalPosition);
         if (!Globals::ArcadeBattleScreen->ScreenPointToSphere(SourcePoint, SourceLongitude, SourcePolarAngle)) {
             SourceLongitude = -1.0E+20;
             SourcePolarAngle = -1.0E+20;
         }
-        GI_GAI::TgaiGI* Animation = pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(this)->Visual)->Animation;
+        GI_GAI::TgaiGI* Animation = pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(Self)->Visual)->Animation;
         Animation->CycleCompleteCallback = nullptr;
-        pas::checked_cast<ab_Ship::TabShip*>(this)->DetachVisual();
+        pas::checked_cast<ab_Ship::TabShip*>(Self)->DetachVisual();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 3); cpp_range_2.next(Index); ) {
             Ship = pas::construct_call<ab_Ship::TabShip>(ab_Ship::TabShip_Create);
             ab_Object::ab_Object_Add(Ship);
@@ -361,7 +361,7 @@ namespace ab_Hit {
             Ship->MaxHealth = 1000000000;
             Ship->WeaponCount = 0;
             Ship->PrimaryWeapon = 0;
-            Ship->State = State;
+            Ship->State = Self->State;
             Ship->State.BearingDegrees = aMyFunction::RandomIntRange(0, 359);
             Ship->CollisionRadius = 0.0;
             Ship->WallCollisionEnabled = false;
@@ -387,7 +387,7 @@ namespace ab_Hit {
                 TargetPoint.X = SourcePoint.X + System::Round(System::Sin(Angle) * 1.0E+2L);
                 TargetPoint.Y = SourcePoint.Y - System::Round(System::Cos(Angle) * 1.0E+2L);
                 if (Globals::ArcadeBattleScreen->ScreenPointToSphere(TargetPoint, TargetLongitude, TargetPolarAngle)) {
-                    ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
+                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
                     Bearing = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Bearing));
                     Ship->Velocity.X = System::Sin(Bearing) * 1.0E+1L;
                     Ship->Velocity.Y = -System::Cos(Bearing) * 1.0E+1L;
@@ -396,7 +396,7 @@ namespace ab_Hit {
             }
             Ship->AttachVisual();
             Ship->UpdateState();
-            Ship->Advance();
+            Ship->virtual_TabObject_Advance();
             Ship->UpdateVisuals();
             FragmentAnimation = pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->Animation;
             FragmentAnimation->StopAutoPlayback();
@@ -415,6 +415,10 @@ namespace ab_Hit {
 
     void TabHit::p_destroy() {
         ab_Hit::TabHit_Destroy(this);
+    }
+
+    void TabHit::virtual_TabObject_Advance() {
+        ab_Hit::TabHit_Advance(this);
     }
 
 } // namespace ab_Hit

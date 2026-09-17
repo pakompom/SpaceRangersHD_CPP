@@ -45,7 +45,7 @@ namespace GI_RotateImage5 {
         void SetImage(pas::WideString Path, Types::TPoint ImageSize, Types::TPoint Pivot);
         // Uses the last rendered image. Alpha must exceed 8 in software, or 0 in hardware.
         std::uint8_t HitTestPixel(Types::TPoint Point);
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         void Draw(Types::TRect ClipRect) override;

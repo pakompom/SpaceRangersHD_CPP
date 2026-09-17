@@ -301,8 +301,8 @@ namespace GI_StarFieldImg {
         GI_MessageLoop::TObjectGI::OnDeactivate();
     }
 
-    void TStarFieldImgGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TStarFieldImgGI_LoadFromConfigPath(TStarFieldImgGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         TStarFieldImgGI::ApplyStarConfig(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
@@ -391,6 +391,10 @@ namespace GI_StarFieldImg {
 
     void TStarFieldImgGI::p_destroy() {
         GI_StarFieldImg::TStarFieldImgGI_Destroy(this);
+    }
+
+    void TStarFieldImgGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_StarFieldImg::TStarFieldImgGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_StarFieldImg

@@ -32,9 +32,9 @@ namespace GI_InfiniteImage {
         ImageCache->SetCacheKey(Path);
     }
 
-    void TInfiniteImageGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TInfiniteImageGI_LoadFromConfigPath(TInfiniteImageGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TInfiniteImageGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -103,6 +103,10 @@ namespace GI_InfiniteImage {
 
     void TInfiniteImageGI::p_destroy() {
         GI_InfiniteImage::TInfiniteImageGI_Destroy(this);
+    }
+
+    void TInfiniteImageGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_InfiniteImage::TInfiniteImageGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_InfiniteImage

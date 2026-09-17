@@ -40,7 +40,7 @@ namespace GI_StarFieldImg {
         void Invalidate() override;
         void OnActivate() override;
         void OnDeactivate() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Native empty extension hook.
         static void ApplyStarConfig(EC_BlockPar::TBlockParEC* Block);

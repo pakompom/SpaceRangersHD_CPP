@@ -11,4 +11,6 @@ namespace GI_CheckBox {
 
     void TCheckBoxGI_Destroy(TCheckBoxGI* Self);
 
+    void TCheckBoxGI_LoadFromConfigPath(TCheckBoxGI* Self, const pas::WideString& Path);
+
 } // namespace GI_CheckBox

@@ -20,7 +20,6 @@
 #include "types/aGalaxyStruct.hpp"
 #include "types/aGroup.hpp"
 #include "types/aPirate.hpp"
-#include "types/aShip.hpp"
 #include "types/aWarrior.hpp"
 #include "types/fHangar.hpp"
 #include "types/fSaveManager.hpp"
@@ -55,6 +54,7 @@
 #include "units/aRuins.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/fEquipmentShop.hpp"
 #include "units/fGalaxy2.hpp"
 #include "units/fPanelLoad.hpp"
@@ -527,7 +527,7 @@ namespace fRuinsTalk {
                 GR_Main::MusicManager->RequestFadeOut();
             }
             Stage = 1;
-            LoadPanel->OnOpen();
+            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
             Stage = 2;
             if (ShowArrivalVideo && static_cast<std::uint8_t>(Globals::SkipVideo ^ 1)) {
                 LoadPanel->SetShutterOpenFraction(1.0f);
@@ -1563,7 +1563,7 @@ namespace fRuinsTalk {
                 Text = reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip)->GetGroup()->DefinitionText;
                 if (Text != u"") {
                     Script->PublishShipContext(reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip));
-                    Script->CallDialogByVariable(Text);
+                    aScript::TScript_CallDialogByVariable(Script, Text);
                 }
             }
             Stage = 4;
@@ -1870,7 +1870,7 @@ namespace fRuinsTalk {
                 Stage = 18;
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range_2.next(I); ) {
                     Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I);
-                    Script->RunAuxiliaryCode();
+                    aScript::TScript_RunAuxiliaryCode(Script);
                 }
                 Stage = 19;
                 if (pas::list_count(aScript::ScriptDialogOverrides) > 0) {
@@ -1892,7 +1892,7 @@ namespace fRuinsTalk {
                     Text = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, SelectedIndex)->DialogName;
                     if (Text != u"") {
                         Script->PublishCurrentShip(aPlayer::GetPlayer()->DockedTo);
-                        Script->CallDialogByVariable(Text);
+                        aScript::TScript_CallDialogByVariable(Script, Text);
                         if (Globals::ScriptDialogIndex < 0) {
                             GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Script->ScriptFileName, u" has overriden dialog with ", Text, u" but it failed to start"})));
                         }
@@ -2760,7 +2760,7 @@ namespace fRuinsTalk {
     // Deposits every carried node stack.
     void TfRuinsTalk::DepositNodesAtRangerCenter(std::int32_t Action) {
         std::int32_t Count = aPlayer::GetPlayer()->GetCarriedNodeCount();
-        aPlayer::GetPlayer()->DepositCarriedNodes();
+        aShip::TShip_DepositCarriedNodes(aPlayer::GetPlayer());
         static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckNodesAchievement();
         aGalaxy::Galaxy->RefreshRangerRatingPlaces();
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
@@ -2775,7 +2775,7 @@ namespace fRuinsTalk {
         pas::WideString Text{};
         DialogText = aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.RCAnswer"_wref.get());
         for (I = 0; I <= 50; ++I) {
-            NodeExchangeLowPriorityModule = reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->SelectServiceMicroModule(2, I, false);
+            NodeExchangeLowPriorityModule = aRuins::TRuins_SelectServiceMicroModule(reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), 2, I, false);
             if (aPlayer::GetPlayer()->NeedsMicroModule(NodeExchangeLowPriorityModule + 1)) {
                 break;
             }
@@ -2793,7 +2793,7 @@ namespace fRuinsTalk {
         aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeLowPriorityModule, u"<color=255,240,100>"_w), pas::WideString());
         DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
         for (I = 0; I <= 50; ++I) {
-            NodeExchangeMediumPriorityModule = reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->SelectServiceMicroModule(1, I, false);
+            NodeExchangeMediumPriorityModule = aRuins::TRuins_SelectServiceMicroModule(reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), 1, I, false);
             if (aPlayer::GetPlayer()->NeedsMicroModule(NodeExchangeMediumPriorityModule + 1)) {
                 break;
             }
@@ -2811,7 +2811,7 @@ namespace fRuinsTalk {
         aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeMediumPriorityModule, u"<color=255,240,100>"_w), pas::WideString());
         DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
         for (I = 0; I <= 50; ++I) {
-            NodeExchangeHighPriorityModule = reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->SelectServiceMicroModule(0, I, false);
+            NodeExchangeHighPriorityModule = aRuins::TRuins_SelectServiceMicroModule(reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), 0, I, false);
             if (aPlayer::GetPlayer()->NeedsMicroModule(NodeExchangeHighPriorityModule + 1)) {
                 break;
             }
@@ -3206,7 +3206,7 @@ namespace fRuinsTalk {
                     }
                 }
             }
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmRaiseTo, 70, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 70, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
             aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 70, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
             if (aPlanet::MainPiratePlanet != nullptr) {
                 RangerIndex = pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(aPlayer::GetPlayer()));
@@ -3344,11 +3344,11 @@ namespace fRuinsTalk {
                 pas::list_put(aPlanet::MainPiratePlanet->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(45))));
             }
             aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan));
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmCapAt, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmCapAt, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
             aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmCapAt, 20, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
             DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.AnswerPlayerOkPirate"_wref.get());
         } else {
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmRaiseTo, 45, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 45, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
             aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
             if (Relation > 20 && aPlanet::MainPiratePlanet != nullptr) {
                 pas::list_put(aPlanet::MainPiratePlanet->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(20))));
@@ -3501,7 +3501,7 @@ namespace fRuinsTalk {
         std::int32_t BaseNodes = aPlayer::GetPlayer()->BaseNodes;
         if (CarriedNodes + BaseNodes >= Cost) {
             if (CarriedNodes > 0) {
-                aPlayer::GetPlayer()->ConsumeAvailableNodes(Cost, nullptr);
+                aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Cost, nullptr);
             }
             if (Cost > CarriedNodes) {
                 aPlayer::GetPlayer()->BaseNodes = std::max<std::int32_t>(0, aPlayer::GetPlayer()->BaseNodes - (Cost - CarriedNodes));
@@ -3540,8 +3540,8 @@ namespace fRuinsTalk {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
                 if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
-                    if (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->CanRepairEquipmentTech(Item)) {
-                        NodeCost += Item->CalculateRepairCost();
+                    if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
+                        NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
                 }
             }
@@ -3596,8 +3596,8 @@ namespace fRuinsTalk {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
                 if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
-                    if (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->CanRepairEquipmentTech(Item)) {
-                        NodeCost += Item->CalculateRepairCost();
+                    if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
+                        NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
                 }
             }
@@ -3612,7 +3612,7 @@ namespace fRuinsTalk {
         std::uint8_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         std::int32_t DiscountedCost = std::max<std::int64_t>(static_cast<std::int64_t>(1), static_cast<std::int64_t>(Cost - System::Round(pas::real_divide(Cost, 1.0E+2L) * Discount)));
         if (aPlayer::GetPlayer()->Money >= DiscountedCost && aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) >= NodeCost) {
-            aPlayer::GetPlayer()->ConsumeAvailableNodes(NodeCost, nullptr);
+            aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), NodeCost, nullptr);
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + (Cost - DiscountedCost));
             pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->RepairShipEquipment(aPlayer::GetPlayer());
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
@@ -4014,9 +4014,9 @@ namespace fRuinsTalk {
             Group = pas::list_at<aGroup::TGroup>(aGalaxy::Galaxy->LiberationGroups, pas::list_count(aGalaxy::Galaxy->LiberationGroups) - 1);
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
             aPlayer::GetPlayer()->StationServiceLastUseTurns[aGalaxyStruct::cpWarOperation] = aGalaxy::Galaxy->CurrentTurn;
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}}));
-            aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
             {
                 const std::int32_t cpp_first = pas::list_count(Group->Ships) - 1;
                 if (cpp_first >= 0) {
@@ -4200,7 +4200,7 @@ namespace fRuinsTalk {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-                if (Item->CanImprove() && aPlayer::GetPlayer()->CanUseEquipmentTech(Item) && aPlayer::GetPlayer()->CanRepairEquipmentTech(Item)) {
+                if (Item->CanImprove() && aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), Item) && aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), Item)) {
                     ++Count;
                     Text = pas::concat_wide({Text, u"\r\n", pas::wide_int_to_str(Count), u") ", aConst::LocalizedColorText(u"FormRuins.SB.Improvement.ItemReadyForImprovement"_wref.get())});
                     {
@@ -4381,7 +4381,7 @@ namespace fRuinsTalk {
         if (aPlayer::GetPlayer()->Money >= Cost && aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) >= Nodes) {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
             if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
-                aPlayer::GetPlayer()->ConsumeAvailableNodes(Nodes, nullptr);
+                aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Nodes, nullptr);
             }
             Item->DetailImprovement = StationImprovementDetail;
             Item->Improve(Kind);
@@ -4453,8 +4453,8 @@ namespace fRuinsTalk {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
                 if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
-                    if (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->CanRepairEquipmentTech(Item)) {
-                        NodeCost += Item->CalculateRepairCost();
+                    if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
+                        NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
                 }
             }
@@ -4509,8 +4509,8 @@ namespace fRuinsTalk {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
                 if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
-                    if (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->CanRepairEquipmentTech(Item)) {
-                        NodeCost += Item->CalculateRepairCost();
+                    if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
+                        NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
                 }
             }
@@ -4522,7 +4522,7 @@ namespace fRuinsTalk {
             }
         }
         if (aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) >= NodeCost) {
-            aPlayer::GetPlayer()->ConsumeAvailableNodes(NodeCost, nullptr);
+            aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), NodeCost, nullptr);
             pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->RepairShipEquipment(aPlayer::GetPlayer());
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Repair.SBAfterOk"_wref.get());
@@ -4560,7 +4560,7 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(dialogText, u"<SatName>"_w, std::move(displayName), u"<color=255,240,100>"_w);
             }
             {
-                pas::WideString infoText = Satellite->GetInfoText(pas::WideString(), nullptr);
+                pas::WideString infoText = Satellite->virtual_TItem_GetInfoText(pas::WideString(), nullptr);
                 pas::WideString& dialogText_2 = DialogText;
                 aMyFunction::ReplaceTextToken(dialogText_2, u"<SatText>"_w, std::move(infoText), pas::WideString());
             }
@@ -6000,7 +6000,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateRangerCenter: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 RangerCenter = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                RangerCenter->Init(aGalaxyStruct::rstRangerCenter, InvestmentRangerCenterStar, pas::WideString());
+                aRuins::TRuins_Init(RangerCenter, aGalaxyStruct::rstRangerCenter, InvestmentRangerCenterStar, pas::WideString());
                 {
                     pas::WideString formatText3 = ([&] {
                         pas::WideString name = RangerCenter->GetName();
@@ -6025,7 +6025,7 @@ namespace fRuinsTalk {
                 aPlayer::GetPlayer()->GainExperience(Experience, 0);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(Experience), u"<color=255,240,100>"_w);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 10, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 10, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 40, static_cast<aConst::THullShipTypeMask>(RangerTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
                 break;
@@ -6033,7 +6033,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreatePirateBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 PirateBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                PirateBase->Init(aGalaxyStruct::rstPirateBase, InvestmentPirateBaseStar, pas::WideString());
+                aRuins::TRuins_Init(PirateBase, aGalaxyStruct::rstPirateBase, InvestmentPirateBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_2 = ([&] {
                         pas::WideString name_4 = PirateBase->GetName();
@@ -6055,15 +6055,15 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, PirateBase->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, PirateBase->CurrentStar->Name, u"<color=255,240,100>"_w);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}}));
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
                 break;
             }
             case aGalaxyStruct::cpCreateMilitaryBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 MilitaryBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                MilitaryBase->Init(aGalaxyStruct::rstMilitaryBase, InvestmentMilitaryBaseStar, pas::WideString());
+                aRuins::TRuins_Init(MilitaryBase, aGalaxyStruct::rstMilitaryBase, InvestmentMilitaryBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_3 = ([&] {
                         pas::WideString name_7 = MilitaryBase->GetName();
@@ -6094,7 +6094,7 @@ namespace fRuinsTalk {
                     aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(RankPoints), u"<color=255,240,100>"_w);
                 }
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 10, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, static_cast<aConst::THullShipTypeMask>(PirateTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
@@ -6103,7 +6103,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateScienceBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 ScienceBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                ScienceBase->Init(aGalaxyStruct::rstScienceBase, InvestmentScienceBaseStar, pas::WideString());
+                aRuins::TRuins_Init(ScienceBase, aGalaxyStruct::rstScienceBase, InvestmentScienceBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_4 = ([&] {
                         pas::WideString name_10 = ScienceBase->GetName();
@@ -6132,7 +6132,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateBusinessCenter: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 BusinessCenter = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                BusinessCenter->Init(aGalaxyStruct::rstBusinessCenter, InvestmentBusinessCenterStar, pas::WideString());
+                aRuins::TRuins_Init(BusinessCenter, aGalaxyStruct::rstBusinessCenter, InvestmentBusinessCenterStar, pas::WideString());
                 {
                     pas::WideString formatText3_5 = ([&] {
                         pas::WideString name_13 = BusinessCenter->GetName();
@@ -6161,7 +6161,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateMedicalBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 MedicalBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                MedicalBase->Init(aGalaxyStruct::rstMedicalBase, InvestmentMedicalBaseStar, pas::WideString());
+                aRuins::TRuins_Init(MedicalBase, aGalaxyStruct::rstMedicalBase, InvestmentMedicalBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_6 = ([&] {
                         pas::WideString name_16 = MedicalBase->GetName();
@@ -6305,7 +6305,7 @@ namespace fRuinsTalk {
                 }
                 aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 20, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 20, static_cast<aConst::THullShipTypeMask>(PirateTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 break;
@@ -6339,7 +6339,7 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, InvestmentDefensePlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
                 InvestmentDefensePlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, static_cast<aConst::THullShipTypeMask>(PirateTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
                 break;
             }
@@ -6449,8 +6449,8 @@ namespace fRuinsTalk {
                         return;
                     }
                     {
-                        aPlanet::TPlanet*& fromPlanet = Routes[I].FromPlanet;
-                        aPlanet::TPlanet*& toPlanet = Routes[I].ToPlanet;
+                        pas::Var<aPlanet::TPlanet*> fromPlanet = pas::Var<aPlanet::TPlanet*>(&Routes[I].FromPlanet);
+                        pas::Var<aPlanet::TPlanet*> toPlanet = pas::Var<aPlanet::TPlanet*>(&Routes[I].ToPlanet);
                         std::uint8_t& goodsIndex = Routes[I].GoodsIndex;
                         aGalaxyStruct::TItemTypeMask goodsMask = GoodsMask;
                         std::uint32_t cpp_arg = aMyFunction::AdvanceRandomSeed(aGalaxy::Galaxy->RandomState) + static_cast<std::uint8_t>(Nearby);
@@ -6998,7 +6998,7 @@ namespace fRuinsTalk {
         } else {
             GR_Main::RaiseWideMessage(u"Ask special ship"_wref.get());
         }
-        std::int32_t Price = Hull->GetConditionAdjustedCost();
+        std::int32_t Price = aItem::TItem_GetConditionAdjustedCost(Hull);
         pas::free(Hull);
         DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Info"}));
         if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
@@ -7131,7 +7131,7 @@ namespace fRuinsTalk {
         } else {
             GR_Main::RaiseWideMessage(u"Buy special ship"_wref.get());
         }
-        std::int32_t Price = Hull->GetConditionAdjustedCost();
+        std::int32_t Price = aItem::TItem_GetConditionAdjustedCost(Hull);
         if (aPlayer::GetPlayer()->Money >= Price) {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Price);
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
@@ -7140,9 +7140,9 @@ namespace fRuinsTalk {
                 aPlayer::GetPlayer()->AddItemToPlayerStorage(Hull, aPlayer::GetPlayer()->DockedTo, -1);
             }
             if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), static_cast<aGalaxyStruct::TOwnerMask>(PirateOwners));
-                aPlayer::GetPlayer()->ChangePlanetRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 50, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), static_cast<aGalaxyStruct::TOwnerMask>(CoalitionOwners));
             }
         } else {
@@ -7175,7 +7175,7 @@ namespace fRuinsTalk {
             var->SetDword(answerData);
         }
         Globals::ScriptDialogIndex = -1;
-        aScript::CurrentScript->CallDialogByVariable(Injection->DialogName);
+        aScript::TScript_CallDialogByVariable(aScript::CurrentScript, Injection->DialogName);
         if (Globals::ScriptDialogIndex < 0) {
             M_Main(true);
         } else {
@@ -7614,7 +7614,7 @@ namespace fRuinsTalk {
         }
         Ship->InitGenerated(Planet, TotalCost / 10 + 1000, 0);
         Ship->DockedTo = aPlayer::GetPlayer()->DockedTo;
-        Ship->TrainSkillsAutomatically();
+        aNormalShip::TNormalShip_TrainSkillsAutomatically(Ship);
         Ship->RefreshEquipmentEvaluationMetrics();
         Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
         if (aPlayer::GetPlayer()->GetMaxDominionShips() > pas::list_count(aPlayer::GetPlayer()->PiratePartners)) {
@@ -7653,7 +7653,7 @@ namespace fRuinsTalk {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-                if (Item->CanImprove() && aPlayer::GetPlayer()->CanUseEquipmentTech(Item) && aPlayer::GetPlayer()->CanRepairEquipmentTech(Item)) {
+                if (Item->CanImprove() && aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), Item) && aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), Item)) {
                     ++Count;
                     Text = pas::concat_wide({Text, u"\r\n", pas::wide_int_to_str(Count), u") ", aConst::LocalizedColorText(u"FormRuins.CB.Improvement.ItemReadyForImprovement"_wref.get())});
                     {
@@ -7755,7 +7755,7 @@ namespace fRuinsTalk {
         if (aPlayer::GetPlayer()->Money >= Cost && aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) >= Nodes) {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
             if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
-                aPlayer::GetPlayer()->ConsumeAvailableNodes(Nodes, nullptr);
+                aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Nodes, nullptr);
             }
             Item->ImproveAtScientificBase();
             aPlayer::GetPlayer()->RefreshDerivedStats(true);

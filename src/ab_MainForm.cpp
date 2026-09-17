@@ -19,7 +19,6 @@
 #include "types/aGalaxyStruct.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aRuins.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/fScore.hpp"
 #include "types/fStarMap.hpp"
@@ -62,6 +61,7 @@
 #include "units/aPlayer.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/abWall.hpp"
 #include "units/ab_Global.hpp"
 #include "units/ab_Hit.hpp"
@@ -259,7 +259,7 @@ namespace ab_MainForm {
         if (!GlobalsV::MusicInHyperEnabled) {
             GR_Main::MusicManager->RequestFadeOut();
         }
-        LoadPanel->OnOpen();
+        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
         if (pas::list_count(aScript::QueuedArcadeBattles) > 0) {
             ActiveArcadeRequest = pas::list_at<aScript::TScriptABRequest>(aScript::QueuedArcadeBattles, 0);
         } else {
@@ -931,7 +931,7 @@ namespace ab_MainForm {
                 RebuildShipPath();
                 BuildShipPathImages();
             }
-        } else if (ab_Global::ArcadeViewMode == 0 && CargoPickupItem != nullptr && CargoPickupItem->BonusKind < 0 && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= CargoPickupItem->Item->Weight && ab_Ship::PlayerArcadeShip->DistanceTo(CargoPickupItem) < ab_Global::ManualCargoPickupDistance && aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetCargoHook()) && aPlayer::GetPlayer()->CalculateCargoHookPower(aPlayer::GetPlayer()->GetCargoHook()) >= CargoPickupItem->Item->Weight) {
+        } else if (ab_Global::ArcadeViewMode == 0 && CargoPickupItem != nullptr && CargoPickupItem->BonusKind < 0 && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= CargoPickupItem->Item->Weight && ab_Ship::PlayerArcadeShip->DistanceTo(CargoPickupItem) < ab_Global::ManualCargoPickupDistance && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) && aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) >= CargoPickupItem->Item->Weight) {
             TfAB::PickUpItem(CargoPickupItem);
             CancelCargoPickup();
         }
@@ -943,7 +943,7 @@ namespace ab_MainForm {
     void TfAB::BattleRightMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr && static_cast<std::uint8_t>(ContentPanel->IsOccludedAtPoint(Point) ^ 1)) {
             MapDrag.Active = true;
-            MapDrag.Position = Point;
+            pas::store_unaligned<WindowsSdk::TPoint>(&MapDrag.Position, Point);
             if (IsCursorImageSelected(u"Main"_wref.get())) {
                 SetCursorByName(u"Scroll"_wref.get());
             }
@@ -972,7 +972,7 @@ namespace ab_MainForm {
                 SetCursorByName(u"Scroll"_wref.get());
             }
             ab_Global::ArcadeMapViewPosition = ClassesImports::Point(ab_Global::ArcadeMapViewPosition.X + MapDrag.Position.X - Point.X, ab_Global::ArcadeMapViewPosition.Y + MapDrag.Position.Y - Point.Y);
-            MapDrag.Position = Point;
+            pas::store_unaligned<WindowsSdk::TPoint>(&MapDrag.Position, Point);
             if (ab_Global::ArcadeMapBounds.Top - ab_Global::ArcadeMapPanMargin > ab_Global::ArcadeMapViewPosition.Y) {
                 ab_Global::ArcadeMapViewPosition.Y = ab_Global::ArcadeMapBounds.Top - ab_Global::ArcadeMapPanMargin;
             }
@@ -1123,7 +1123,7 @@ namespace ab_MainForm {
                         Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"H"}));
                     } else if (Item == nullptr) {
                         Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"E"}));
-                    } else if (!aPlayer::GetPlayer()->IsEquipmentUsable(Item)) {
+                    } else if (!aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Item)) {
                         Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"R"}));
                     }
                 }
@@ -1134,7 +1134,7 @@ namespace ab_MainForm {
                     GI_Image::TImageGI* cpp_with = WeaponIcons[Value - 1];
                     if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1) != nullptr) {
                         WeaponIcons[Value - 1]->SetActive(true);
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1)->GetBitmapResourceName(), u"s"}));
+                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1)->virtual_TItem_GetBitmapResourceName(), u"s"}));
                     } else if (Button->UserIndex >= 0) {
                         WeaponIcons[Value - 1]->SetActive(true);
                         cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ab_Ship::PlayerArcadeShip->Weapons[Button->UserIndex].ItemType], u"s"}));
@@ -1640,7 +1640,7 @@ namespace ab_MainForm {
             LongitudeStep = pas::constant(static_cast<double>(SystemImports::Pi / 8.0L));
             PolarStep = pas::constant(static_cast<double>(SystemImports::Pi / 16.0L));
             Longitude = 0.0;
-            while (Longitude < pas::constant(pas::constant(SystemImports::Pi * 2.0L) - 0.001L)) {
+            while (Longitude < 6.282185307179586477L) {
                 PolarAngle = PolarStep * 2.0L;
                 while (PolarAngle < SystemImports::Pi - PolarStep * 2.0L - 0.001L) {
                     First = ab_Global::SphericalToVector3D(Longitude, PolarAngle, ab_Global::SphereRadius);
@@ -1660,7 +1660,7 @@ namespace ab_MainForm {
             PolarAngle = PolarStep;
             while (PolarAngle < SystemImports::Pi - PolarStep + 0.001L) {
                 Longitude = 0.0;
-                while (Longitude < pas::constant(pas::constant(SystemImports::Pi * 2.0L) - 0.001L)) {
+                while (Longitude < 6.282185307179586477L) {
                     First = ab_Global::SphericalToVector3D(Longitude, PolarAngle, ab_Global::SphereRadius);
                     Last = ab_Global::SphericalToVector3D(static_cast<long double>(Longitude) + LongitudeStep, PolarAngle, ab_Global::SphereRadius);
                     {
@@ -2724,7 +2724,7 @@ namespace ab_MainForm {
                 Stage = 22;
                 Obj = ab_Object::FirstArcadeObject;
                 while (Obj != nullptr) {
-                    Obj->Advance();
+                    Obj->virtual_TabObject_Advance();
                     if (Obj->DeletionPending) {
                         Stage = 23;
                         NextObject = Obj;
@@ -2776,12 +2776,12 @@ namespace ab_MainForm {
                     Bearing.Distance = ab_Global::CameraFollowStep;
                 }
                 BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(ab_Global::SphereViewState.BearingDegrees) + Bearing.BearingDeltaDegrees);
-                ab_Global::AdvanceSphericalBearingState(ab_Global::SphereViewState.LongitudeDegrees, ab_Global::SphereViewState.PolarAngleDegrees, BearingDegrees, ab_Global::SphereRadius, Bearing.Distance);
+                ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&ab_Global::SphereViewState.LongitudeDegrees), pas::Var<double>(&ab_Global::SphereViewState.PolarAngleDegrees), pas::Var<double>(&BearingDegrees), ab_Global::SphereRadius, Bearing.Distance);
             } else if (ab_Global::ArcadeViewMode == 4 && ab_Ship::KellerArcadeShip != nullptr) {
                 Stage = 27;
                 ScreenPointToSphere(ClassesImports::Point(GR_Main::GameScreenWidth / 2, GR_Main::GameScreenHeight / 2), TargetLongitude, TargetPolarAngle);
                 ScreenPointToSphere(ClassesImports::Point(GR_Main::GiScalePixels(250), GR_Main::GiScalePixels(300)), SourceLongitude, SourcePolarAngle);
-                ab_Global::ComputeSphericalBearingAndDistance(BearingDegrees, pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
+                ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&BearingDegrees), pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
                 if (BearingDegrees < 0.0L) {
                     BearingDegrees = 3.6E+2L + BearingDegrees;
                 }
@@ -2792,7 +2792,7 @@ namespace ab_MainForm {
                     Bearing.Distance = ab_Global::CameraFollowStep * 2.0L;
                 }
                 BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(ab_Global::SphereViewState.BearingDegrees) + Bearing.BearingDeltaDegrees);
-                ab_Global::AdvanceSphericalBearingState(ab_Global::SphereViewState.LongitudeDegrees, ab_Global::SphereViewState.PolarAngleDegrees, BearingDegrees, ab_Global::SphereRadius, Bearing.Distance);
+                ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&ab_Global::SphereViewState.LongitudeDegrees), pas::Var<double>(&ab_Global::SphereViewState.PolarAngleDegrees), pas::Var<double>(&BearingDegrees), ab_Global::SphereRadius, Bearing.Distance);
                 ab_Global::SphereViewState.BearingDegrees = 0.0;
                 if (Bearing.Distance < 5.0L) {
                     Stage = 28;
@@ -2812,7 +2812,7 @@ namespace ab_MainForm {
                     Stage = 29;
                     Globals::ScriptDialogIndex = -1;
                     reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->Script->PublishShipContext(pas::checked_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip));
-                    aScript::CurrentScript->CallDialogByVariable(reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->State->AuxiliaryText);
+                    aScript::TScript_CallDialogByVariable(aScript::CurrentScript, reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->State->AuxiliaryText);
                     if (Globals::ScriptDialogIndex < 0) {
                         GR_Main::RaiseWideMessage(u"Not found dialog"_wref.get());
                     }
@@ -3232,7 +3232,7 @@ namespace ab_MainForm {
                                     Item = nullptr;
                                 }
                                 if (Item != nullptr) {
-                                    cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"ab"}));
+                                    cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Item->virtual_TItem_GetBitmapResourceName(), u"ab"}));
                                     cpp_with_4->SetSize(cpp_with_4->GetContentSize());
                                     cpp_with_4->SetOrigin(EC_Struct::HalfPoint(cpp_with_4->ClientSize));
                                     pas::free(Item);
@@ -3329,7 +3329,7 @@ namespace ab_MainForm {
                                     Item = nullptr;
                                 }
                                 if (Item != nullptr) {
-                                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"ab"}));
+                                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,", Item->virtual_TItem_GetBitmapResourceName(), u"ab"}));
                                     cpp_with_7->SetSize(cpp_with_7->GetContentSize());
                                     cpp_with_7->SetOrigin(EC_Struct::HalfPoint(cpp_with_7->ClientSize));
                                     pas::free(Item);
@@ -4004,7 +4004,7 @@ namespace ab_MainForm {
                 SetCursorByName(u"Take"_wref.get());
             }
         } else {
-            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && ab_Ship::PlayerArcadeShip->DistanceTo(Item) < ab_Global::ManualCargoPickupDistance && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && aPlayer::GetPlayer()->IsEquipmentUsable(aPlayer::GetPlayer()->GetCargoHook()) && aPlayer::GetPlayer()->CalculateCargoHookPower(aPlayer::GetPlayer()->GetCargoHook()) >= Item->Item->Weight) {
+            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && ab_Ship::PlayerArcadeShip->DistanceTo(Item) < ab_Global::ManualCargoPickupDistance && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) && aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) >= Item->Item->Weight) {
                 if (!IsCursorImageSelected(u"Take"_wref.get())) {
                     SetCursorByName(u"Take"_wref.get());
                 }
@@ -4026,7 +4026,7 @@ namespace ab_MainForm {
                 if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
                     InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(Instance->ItemType)}));
                 } else {
-                    InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", Instance->GetBitmapResourceName(), u"s"}));
+                    InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", Instance->virtual_TItem_GetBitmapResourceName(), u"s"}));
                 }
                 InfoItemImage->SetImageKindX(GI_Main::ikxCenter);
                 InfoItemImage->SetImageKindY(GI_Main::ikyCenter);
@@ -4059,7 +4059,7 @@ namespace ab_MainForm {
                     cpp_arg_3->SetText(wrapTextInColor_2);
                 }
                 {
-                    const pas::WideString& infoText = Instance->GetInfoText(u"<color=255,240,100>"_w, nullptr);
+                    const pas::WideString& infoText = Instance->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
                     GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
                     cpp_arg_4->SetText(infoText);
                 }
@@ -4079,7 +4079,7 @@ namespace ab_MainForm {
                 if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
                     InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(aConst::OwnerInfo[aGalaxyStruct::oiUninhabited].InternalName));
                 } else {
-                    InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(Instance->GetOwnerConfigName()));
+                    InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Instance)));
                 }
                 InfoItemEmRace->SetImageKindX(GI_Main::ikxCenter);
                 InfoItemEmRace->SetImageKindY(GI_Main::ikyCenter);
@@ -4235,7 +4235,7 @@ namespace ab_MainForm {
             SlotCount = aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, SlotCount - 1); cpp_range.next(SlotIndex); ) {
                 Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, SlotIndex));
-                if (aPlayer::GetPlayer()->IsEquipmentUsable(Item)) {
+                if (aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Item)) {
                     if (CampaignWeapons[ab_Ship::PlayerArcadeShip->WeaponCount] != Item || ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount].SlotData != Item->AssignedSlotData) {
                         ab_W::ab_Weapon_InitializeFromInfo(&ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount], Item->GetWeaponInfo());
                         CampaignWeapons[ab_Ship::PlayerArcadeShip->WeaponCount] = Item;
@@ -4289,13 +4289,13 @@ namespace ab_MainForm {
             Count = pas::list_count(aPlayer::GetPlayer()->Inventory);
             while (Index < Count) {
                 Other = pas::list_at<pas::Object>(aPlayer::GetPlayer()->Inventory, Index);
-                if (pas::checked_cast<aItem::TCountableItem*>(Instance)->CanMerge(Other)) {
+                if (aItem::TCountableItem_CanMerge(pas::checked_cast<aItem::TCountableItem*>(Instance), Other)) {
                     break;
                 }
                 ++Index;
             }
             if (Index < Count && Other != nullptr) {
-                pas::checked_cast<aItem::TCountableItem*>(Other)->Merge(Instance);
+                aItem::TCountableItem_Merge(pas::checked_cast<aItem::TCountableItem*>(Other), Instance);
                 pas::free(Instance);
             } else {
                 pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Instance));

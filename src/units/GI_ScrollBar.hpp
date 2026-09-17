@@ -11,4 +11,6 @@ namespace GI_ScrollBar {
 
     void TScrollBarGI_Destroy(TScrollBarGI* Self);
 
+    void TScrollBarGI_LoadFromConfigPath(TScrollBarGI* Self, const pas::WideString& Path);
+
 } // namespace GI_ScrollBar

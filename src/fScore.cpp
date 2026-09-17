@@ -308,12 +308,12 @@ namespace fScore {
             if (0 <= cpp_last_3) {
                 for (I = 0; I <= cpp_last_3; ++I) {
                     Buffer->AddIntegerValue(PlanetBattleHistory[I].MapId);
-                    Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics[0]);
-                    Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics[1]);
-                    Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics[2]);
-                    Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics[3]);
-                    Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics[4]);
-                    Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics[5]);
+                    Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 0 * sizeof(std::int32_t))));
+                    Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 1 * sizeof(std::int32_t))));
+                    Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 2 * sizeof(std::int32_t))));
+                    Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 3 * sizeof(std::int32_t))));
+                    Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 4 * sizeof(std::int32_t))));
+                    Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 5 * sizeof(std::int32_t))));
                     Buffer->AddAnsiChar(PlanetBattleHistory[I].ResultCode);
                     Buffer->AddAnsiChar(PlanetBattleHistory[I].CompletionMode);
                     Buffer->AddIntegerValue(PlanetBattleHistory[I].DateTurn);
@@ -394,12 +394,36 @@ namespace fScore {
                     if (0 <= cpp_last_2) {
                         for (I = 0; I <= cpp_last_2; ++I) {
                             PlanetBattleHistory[I].MapId = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics[0] = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics[1] = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics[2] = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics[3] = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics[4] = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics[5] = EC_Buf::TBufEC_GetInt32(Buffer);
+                            {
+                                std::int32_t cpp_value = EC_Buf::TBufEC_GetInt32(Buffer);
+                                auto cpp_target = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 0 * sizeof(std::int32_t));
+                                pas::store_unaligned<std::int32_t>(cpp_target, cpp_value);
+                            }
+                            {
+                                std::int32_t cpp_value_2 = EC_Buf::TBufEC_GetInt32(Buffer);
+                                auto cpp_target_2 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 1 * sizeof(std::int32_t));
+                                pas::store_unaligned<std::int32_t>(cpp_target_2, cpp_value_2);
+                            }
+                            {
+                                std::int32_t cpp_value_3 = EC_Buf::TBufEC_GetInt32(Buffer);
+                                auto cpp_target_3 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 2 * sizeof(std::int32_t));
+                                pas::store_unaligned<std::int32_t>(cpp_target_3, cpp_value_3);
+                            }
+                            {
+                                std::int32_t cpp_value_4 = EC_Buf::TBufEC_GetInt32(Buffer);
+                                auto cpp_target_4 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 3 * sizeof(std::int32_t));
+                                pas::store_unaligned<std::int32_t>(cpp_target_4, cpp_value_4);
+                            }
+                            {
+                                std::int32_t cpp_value_5 = EC_Buf::TBufEC_GetInt32(Buffer);
+                                auto cpp_target_5 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 4 * sizeof(std::int32_t));
+                                pas::store_unaligned<std::int32_t>(cpp_target_5, cpp_value_5);
+                            }
+                            {
+                                std::int32_t cpp_value_6 = EC_Buf::TBufEC_GetInt32(Buffer);
+                                auto cpp_target_6 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 5 * sizeof(std::int32_t));
+                                pas::store_unaligned<std::int32_t>(cpp_target_6, cpp_value_6);
+                            }
                             PlanetBattleHistory[I].ResultCode = EC_Buf::TBufEC_GetByte(Buffer);
                             PlanetBattleHistory[I].CompletionMode = EC_Buf::TBufEC_GetByte(Buffer);
                             PlanetBattleHistory[I].DateTurn = EC_Buf::TBufEC_GetInt32(Buffer);

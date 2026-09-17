@@ -321,8 +321,8 @@ namespace ab_ShipAI {
                         }
                         if (([&] {
                             pas::Extended cpp_right = pas::real_max<pas::Extended>(8.0E+2L, static_cast<long double>(aPlayer::GetPlayer()->Wealth) * aMyFunction::RemapClamped(Attempts, 0.0, 5.0E+2, 0.01L * RewardScale, 0.03L * RewardScale));
-                            return Item->GetConditionAdjustedCost() < cpp_right;
-                        }()) && (Item->GetConditionAdjustedCost() > aPlayer::GetPlayer()->Wealth * 0.008L * RewardScale || Attempts > 500)) {
+                            return aItem::TItem_GetConditionAdjustedCost(Item) < cpp_right;
+                        }()) && (aItem::TItem_GetConditionAdjustedCost(Item) > aPlayer::GetPlayer()->Wealth * 0.008L * RewardScale || Attempts > 500)) {
                             fShip2::ClearPlayerHoldEntries();
                             aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Item, nullptr, 0);
                             pas::list_insert(aPlayer::GetPlayer()->Inventory, 1, reinterpret_cast<void*>(Item));
@@ -363,48 +363,48 @@ namespace ab_ShipAI {
         }
     }
 
-    void TabShipAI::Advance() {
+    void TabShipAI_Advance(TabShipAI* Self) {
         double ForwardDistance{};
         double BackwardDistance{};
         std::int32_t Attempt{};
         std::int32_t Index{};
-        ab_Ship::TabShip::Advance();
-        if (AIEnabled && Health > 0) {
+        ab_Ship::TabShip_Advance(Self);
+        if (Self->AIEnabled && Self->Health > 0) {
             if ((ab_Global::ArcadeTickCount & 31) == 0) {
-                RecentHitCount = 0;
+                Self->RecentHitCount = 0;
             }
-            if (ab_Ship::PlayerArcadeShip != this || ab_Global::ArcadeAutopilotEnabled) {
-                if (WeaponCount > 1 && (ab_Global::ArcadeTickCount & 31) == 0 && Weapons[PrimaryWeapon].Ammo < pas::real_divide(Weapons[PrimaryWeapon].MaxAmmo, 4.0L)) {
-                    for (auto cpp_range = pas::for_to<std::int32_t>(0, WeaponCount - 2); cpp_range.next(Attempt); ) {
-                        Index = RandomRange(0, WeaponCount - 1);
-                        if (Weapons[Index].Ammo > Weapons[Index].MaxAmmo * 0.9L || (Weapons[Index].Kind == 13 || Weapons[Index].Kind == 14) && Weapons[Index].Ammo > Weapons[Index].MaxAmmo * 0.7L) {
-                            SelectWeapon(Index);
+            if (ab_Ship::PlayerArcadeShip != Self || ab_Global::ArcadeAutopilotEnabled) {
+                if (Self->WeaponCount > 1 && (ab_Global::ArcadeTickCount & 31) == 0 && Self->Weapons[Self->PrimaryWeapon].Ammo < pas::real_divide(Self->Weapons[Self->PrimaryWeapon].MaxAmmo, 4.0L)) {
+                    for (auto cpp_range = pas::for_to<std::int32_t>(0, Self->WeaponCount - 2); cpp_range.next(Attempt); ) {
+                        Index = Self->RandomRange(0, Self->WeaponCount - 1);
+                        if (Self->Weapons[Index].Ammo > Self->Weapons[Index].MaxAmmo * 0.9L || (Self->Weapons[Index].Kind == 13 || Self->Weapons[Index].Kind == 14) && Self->Weapons[Index].Ammo > Self->Weapons[Index].MaxAmmo * 0.7L) {
+                            Self->SelectWeapon(Index);
                             break;
                         }
                     }
                 }
-                if (TargetShip != nullptr && pas::list_indexof(Enemies, reinterpret_cast<void*>(TargetShip)) < 0) {
-                    TargetShip = nullptr;
+                if (Self->TargetShip != nullptr && pas::list_indexof(Self->Enemies, reinterpret_cast<void*>(Self->TargetShip)) < 0) {
+                    Self->TargetShip = nullptr;
                 }
-                if (TargetShip != nullptr && TargetShip->Health <= 0) {
-                    TargetShip = nullptr;
+                if (Self->TargetShip != nullptr && Self->TargetShip->Health <= 0) {
+                    Self->TargetShip = nullptr;
                 }
-                if (TargetShip != nullptr && TargetShip->BonusTicks[ab_Global::abkInvisibility] > 0 && TargetShip->RevealTicks <= 0) {
-                    TargetShip = nullptr;
+                if (Self->TargetShip != nullptr && Self->TargetShip->BonusTicks[ab_Global::abkInvisibility] > 0 && Self->TargetShip->RevealTicks <= 0) {
+                    Self->TargetShip = nullptr;
                 }
-                if (TargetShip == nullptr) {
-                    TargetShip = FindNearestEnemy(this);
+                if (Self->TargetShip == nullptr) {
+                    Self->TargetShip = Self->FindNearestEnemy(Self);
                 }
-                if (TargetShip != nullptr) {
-                    TargetBearing = BearingAndDistanceTo(TargetShip);
-                    ReverseTargetBearing = TargetShip->BearingAndDistanceTo(this);
+                if (Self->TargetShip != nullptr) {
+                    Self->TargetBearing = Self->BearingAndDistanceTo(Self->TargetShip);
+                    Self->ReverseTargetBearing = Self->TargetShip->BearingAndDistanceTo(Self);
                 }
-                TargetPathClear = false;
-                if (TargetShip != nullptr) {
-                    ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + TargetBearing.BearingDeltaDegrees)), ForwardDistance, BackwardDistance);
-                    TargetPathClear = TargetBearing.Distance < ForwardDistance;
+                Self->TargetPathClear = false;
+                if (Self->TargetShip != nullptr) {
+                    ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(static_cast<long double>(Self->State.BearingDegrees) + Self->TargetBearing.BearingDeltaDegrees)), pas::Var<double>(&ForwardDistance), pas::Var<double>(&BackwardDistance));
+                    Self->TargetPathClear = Self->TargetBearing.Distance < ForwardDistance;
                 }
-                DecideActions();
+                Self->DecideActions();
             }
         }
     }
@@ -583,7 +583,7 @@ namespace ab_ShipAI {
             FollowDirectDestination();
         }
         if (DamagingZone != nullptr) {
-            ab_Global::ComputeSphericalBearingAndDistance(ZoneInfo.BearingDeltaDegrees, pas::Var<double>(&ZoneInfo.Distance), State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees, DamagingZone->Longitude, DamagingZone->PolarAngle, ab_Global::SphereRadius);
+            ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&ZoneInfo.BearingDeltaDegrees), pas::Var<double>(&ZoneInfo.Distance), State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees, DamagingZone->Longitude, DamagingZone->PolarAngle, ab_Global::SphereRadius);
             if (std::fabs(static_cast<pas::Extended>(ZoneInfo.BearingDeltaDegrees)) < 9.0E+1L) {
                 StopThrust();
             } else {
@@ -636,8 +636,8 @@ namespace ab_ShipAI {
         DirectTargetLongitude = Longitude;
         DirectTargetPolarAngle = PolarAngle;
         DirectPathClear = false;
-        ab_Global::ComputeSphericalBearingAndDistance(DirectBearing.BearingDeltaDegrees, pas::Var<double>(&DirectBearing.Distance), State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees, DirectTargetLongitude, DirectTargetPolarAngle, ab_Global::SphereRadius);
-        ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + DirectBearing.BearingDeltaDegrees)), ForwardDistance, BackwardDistance);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&DirectBearing.BearingDeltaDegrees), pas::Var<double>(&DirectBearing.Distance), State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees, DirectTargetLongitude, DirectTargetPolarAngle, ab_Global::SphereRadius);
+        ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + DirectBearing.BearingDeltaDegrees)), pas::Var<double>(&ForwardDistance), pas::Var<double>(&BackwardDistance));
         DirectPathClear = DirectBearing.Distance < ForwardDistance;
     }
 
@@ -849,8 +849,8 @@ namespace ab_ShipAI {
         double Distance{};
         double Bearing{};
         SetAndFollowRoute(Zone);
-        ab_Global::ComputeSphericalBearingAndDistance(Bearing, pas::Var<double>(&Distance), State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees, Longitude, PolarAngle, ab_Global::SphereRadius);
-        ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Bearing)), ForwardDistance, BackwardDistance);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), State.LongitudeDegrees, State.PolarAngleDegrees, State.BearingDegrees, Longitude, PolarAngle, ab_Global::SphereRadius);
+        ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(State.LongitudeDegrees, State.PolarAngleDegrees, aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Bearing)), pas::Var<double>(&ForwardDistance), pas::Var<double>(&BackwardDistance));
         if (Distance >= ForwardDistance) {
             return RouteZone != nullptr;
         }
@@ -935,6 +935,10 @@ namespace ab_ShipAI {
 
     void TabShipAI::p_destroy() {
         ab_ShipAI::TabShipAI_Destroy(this);
+    }
+
+    void TabShipAI::virtual_TabObject_Advance() {
+        ab_ShipAI::TabShipAI_Advance(this);
     }
 
 } // namespace ab_ShipAI

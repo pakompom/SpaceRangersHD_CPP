@@ -76,7 +76,7 @@ namespace GI_Image {
         Types::TPoint GetVisualCenter();
         void RestartPlayback();
         void StopPlayback();
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         // Auto-geometry bit 0 uses content origin; bit 1 uses content size.

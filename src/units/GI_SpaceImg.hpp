@@ -11,4 +11,6 @@ namespace GI_SpaceImg {
 
     void TSpaceImgGI_Destroy(TSpaceImgGI* Self);
 
+    void TSpaceImgGI_LoadFromConfigPath(TSpaceImgGI* Self, const pas::WideString& Path);
+
 } // namespace GI_SpaceImg

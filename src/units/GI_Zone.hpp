@@ -11,4 +11,6 @@ namespace GI_Zone {
 
     void TZoneGI_Destroy(TZoneGI* Self);
 
+    void TZoneGI_LoadFromConfigPath(TZoneGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Zone

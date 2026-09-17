@@ -20,7 +20,6 @@
 #include "types/aNormalShip.hpp"
 #include "types/aRanger.hpp"
 #include "types/aRuins.hpp"
-#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/fShip2.hpp"
 #include "types/fStarMap.hpp"
@@ -43,6 +42,7 @@
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
 #include "units/aScript.hpp"
+#include "units/aShip.hpp"
 #include "units/fEquipmentShop.hpp"
 #include "units/fRewards.hpp"
 #include "units/fScaner.hpp"
@@ -288,7 +288,7 @@ namespace fScaner {
             Stage = 18;
             {
                 GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()));
-                CaptainI->SetImagePath(pas::concat_wide({u"GI,", ShipToInspect->GetCaptainPortraitResourceBase(), u"i"}));
+                CaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(ShipToInspect), u"i"}));
                 CaptainI->SetImageKindX(GI_Main::ikxCenter);
                 CaptainI->SetImageKindY(GI_Main::ikyCenter);
                 CaptainI->SetActive(true);
@@ -297,7 +297,7 @@ namespace fScaner {
             {
                 GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
                 CaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                CaptainA->SetImagePath(pas::concat_wide({ShipToInspect->GetCaptainPortraitResourceBase(), u"a"}));
+                CaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(ShipToInspect), u"a"}));
                 CaptainA->SequenceIndex = 0;
                 CaptainA->UpdateAutoGeometry();
                 CaptainA->SetImageKindX(GI_Main::ikxCenter);
@@ -358,7 +358,7 @@ namespace fScaner {
                 byName_2->SetActive(cpp_arg_5);
             }
             {
-                std::uint8_t cpp_arg_6 = ShipToInspect->AfterburnerActive && ShipToInspect->IsEquipmentUsable(ShipToInspect->GetEngine());
+                std::uint8_t cpp_arg_6 = ShipToInspect->AfterburnerActive && aShip::TShip_IsEquipmentUsable(ShipToInspect, ShipToInspect->GetEngine());
                 GI_MessageLoop::TObjectGI* byName_3 = GetByName(u"ForsageLight"_wref.get());
                 byName_3->SetActive(cpp_arg_6);
             }
@@ -874,8 +874,8 @@ namespace fScaner {
         try {
             ShipToInspect->RefreshAssignedItemSlots();
             Stage = 1;
-            Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(ShipToInspect->GetDefensePercent() & 0x0000007f), "%"}));
-            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(ShipToInspect->GetArmor()), pas::WideString())});
+            Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(ShipToInspect) & 0x0000007f), "%"}));
+            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(ShipToInspect)), pas::WideString())});
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IDef"_wref.get()))->SetText(Text);
             Stage = 2;
             {
@@ -974,12 +974,12 @@ namespace fScaner {
                     Stage = 16;
                     GetByName(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(SlotIndex), u"a"}))->SetActive(false);
                     {
-                        std::uint8_t cpp_arg_4 = Item != nullptr && ShipToInspect->IsEquipmentUsable(reinterpret_cast<aItem::TEquipment*>(Item));
+                        std::uint8_t cpp_arg_4 = Item != nullptr && aShip::TShip_IsEquipmentUsable(ShipToInspect, reinterpret_cast<aItem::TEquipment*>(Item));
                         GI_MessageLoop::TObjectGI* byName = GetByName(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(SlotIndex), u"n"}));
                         byName->SetActive(cpp_arg_4);
                     }
                     {
-                        std::uint8_t cpp_arg_5 = Item != nullptr && static_cast<std::uint8_t>(ShipToInspect->IsEquipmentUsable(reinterpret_cast<aItem::TEquipment*>(Item)) ^ 1);
+                        std::uint8_t cpp_arg_5 = Item != nullptr && static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(ShipToInspect, reinterpret_cast<aItem::TEquipment*>(Item)) ^ 1);
                         GI_MessageLoop::TObjectGI* byName_2 = GetByName(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(SlotIndex), u"b"}));
                         byName_2->SetActive(cpp_arg_5);
                     }
@@ -1307,7 +1307,7 @@ namespace fScaner {
             }
             if (Item->ItemType == aConst::t_Hull && ShipToInspect->TypeId != aGalaxyStruct::stTranclucator && ShipToInspect->TypeId != aGalaxyStruct::stKling && static_cast<std::uint8_t>(CompactHullInfo ^ 1)) {
                 {
-                    pas::WideString infoText = Equipment->GetInfoText(u"<color=255,240,100>"_w, ShipToInspect);
+                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, ShipToInspect);
                     aItem::THull* cpp_arg = pas::checked_cast<aItem::THull*>(Item);
                     GI_MessageLoop::TMessageLoopGI* self = this;
                     fEquipmentShop::TfEquipmentShop* equipmentShopScreen = Globals::EquipmentShopScreen;
@@ -1389,7 +1389,7 @@ namespace fScaner {
                     cpp_arg_2->SetText(wrapTextInColor);
                 }
                 {
-                    const pas::WideString& infoText_2 = Equipment->GetInfoText(u"<color=255,240,100>"_w, ShipToInspect);
+                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, ShipToInspect);
                     GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"_wref.get()));
                     cpp_arg_3->SetText(infoText_2);
                 }
@@ -1405,7 +1405,7 @@ namespace fScaner {
                 }
                 {
                     GI_Image::TImageGI* EmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"EmRace"_wref.get()));
-                    EmRace->SetImagePath(aConst::GetFactionEmblemPath(Equipment->GetOwnerConfigName()));
+                    EmRace->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Equipment)));
                     EmRace->SetImageKindX(GI_Main::ikxCenter);
                     EmRace->SetImageKindY(GI_Main::ikyCenter);
                 }

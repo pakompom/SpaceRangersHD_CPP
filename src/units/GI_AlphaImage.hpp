@@ -11,4 +11,6 @@ namespace GI_AlphaImage {
 
     void TAlphaImageGI_Destroy(TAlphaImageGI* Self);
 
+    void TAlphaImageGI_LoadFromConfigPath(TAlphaImageGI* Self, const pas::WideString& Path);
+
 } // namespace GI_AlphaImage

@@ -37,4 +37,6 @@ namespace GI_Label {
 
     void TLabelGI_Destroy(TLabelGI* Self);
 
+    void TLabelGI_LoadFromConfigPath(TLabelGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Label

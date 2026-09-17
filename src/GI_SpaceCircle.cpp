@@ -201,8 +201,8 @@ namespace GI_SpaceCircle {
         }
     }
 
-    void TSpaceCircleGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TSpaceCircleGI_LoadFromConfigPath(TSpaceCircleGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         TSpaceCircleGI::LoadSpaceCircleProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
@@ -338,6 +338,10 @@ namespace GI_SpaceCircle {
 
     void TSpaceCircleGI::p_destroy() {
         GI_SpaceCircle::TSpaceCircleGI_Destroy(this);
+    }
+
+    void TSpaceCircleGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_SpaceCircle::TSpaceCircleGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_SpaceCircle

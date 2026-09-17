@@ -48,7 +48,7 @@ namespace GI_GAIFile {
         std::int32_t GetSequenceFrame(std::int32_t Index);
         std::int32_t GetFrameDelay(std::int32_t Index);
         void OnDeactivate() override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         void UpdateAutoGeometry() override;

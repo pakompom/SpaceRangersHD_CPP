@@ -679,9 +679,9 @@ namespace GI_GraphButton {
         GI_MessageLoop::TObjectGI::ProcessLeftButtonDoubleClick(KeyState, Point);
     }
 
-    void TGraphButtonGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadButtonProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TGraphButtonGI_LoadFromConfigPath(TGraphButtonGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadButtonProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TGraphButtonGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -944,6 +944,10 @@ namespace GI_GraphButton {
 
     void TGraphButtonGI::p_destroy() {
         GI_GraphButton::TGraphButtonGI_Destroy(this);
+    }
+
+    void TGraphButtonGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_GraphButton::TGraphButtonGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_GraphButton

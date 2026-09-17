@@ -13,4 +13,6 @@ namespace GI_Tail {
 
     void TTailGI_Destroy(TTailGI* Self);
 
+    void TTailGI_LoadFromConfigPath(TTailGI* Self, const pas::WideString& Path);
+
 } // namespace GI_Tail

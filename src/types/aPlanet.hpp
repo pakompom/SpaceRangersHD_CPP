@@ -79,7 +79,6 @@ namespace aPlanet {
         // Creates graphics, surface terrain, loot and initial market/research state; caller owns planet registration.
         void InitGeneratedUninhabited(aGalaxy::TStar* Star);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
-        void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy);
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block);
         // Loads editable text fields, updates existing items/ships and processes creation requests. The first matching item name ends the search even when its type is disallowed or creation returns nil.
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block);
@@ -87,7 +86,6 @@ namespace aPlanet {
         void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy);
         // Daily strength, control and delay gates; returns nil when no ship is spawned.
         void* TrySpawnDominator();
-        void NextDay();
         // Uses Self's random state for galaxy-wide attacks; disabled by pirate ending 3.
         void TryDispatchPirateAttacks();
         // Targets a pirate base in a Coalition system; disabled by pirate endings 3 and 5.
@@ -96,10 +94,7 @@ namespace aPlanet {
         void InitializeFilmState(std::int32_t StepIndex, std::uint8_t RecordFilm);
         void AdvanceOrbitStep(std::int32_t StepIndex, std::uint8_t RecordFilm);
         EC_Struct::TPointF PredictPosition(std::int32_t StepsAhead);
-        // Queues planet dialogue to the UI thread and waits for its event; requires normal-space player state.
-        std::uint8_t RequestDialog();
         void UpdateOwnerFlags();
-        void UpdateMarketState();
         void TriggerGovernmentRevolution();
         // May trigger a revolution, goods scarcity or surplus and publish planet news; honors NoRandomEvents.
         void TryTriggerEconomicEvent();
@@ -176,14 +171,9 @@ namespace aPlanet {
         std::int32_t SelectHullOfferSpecialMicroModule(aItem::THull* Hull);
         // Returns a zero-based module index or -1; advances planet RNG.
         std::int32_t SelectWeaponOfferSpecialMicroModule(aItem::TWeapon* Weapon);
-        // Weekly replacement/generation gate; disabled by sumDisabled and sumGoodsOnly.
-        void RefreshEquipmentShopInventory();
         aItem::THull* GenerateHullOffer(void* Ship);
         // New item or nil; does not add it to EquipmentShop.
         aItem::TWeapon* GenerateWeaponOffer(void* Ship);
-        aItem::TEquipment* GenerateEquipmentOffer(void* Ship, std::uint8_t ItemType);
-        // Returns a new owning list of generated equipment, using the race quota table. Caller forwards ForceGeneratedOffers in CL; this routine saves but never reads it.
-        aMyFunction::TObjectList* BuildEquipmentOfferBatch(void* Ship, std::uint8_t UnusedForceGeneratedOffers);
         // Population, economy and deterministic turn jitter adjust race quotas; clamps to 10..20.
         std::int32_t CalculateEquipmentShopTargetCount();
         // Bucket 50 includes all weapon types 50..68; other buckets require an exact type.

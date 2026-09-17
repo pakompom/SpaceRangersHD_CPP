@@ -276,9 +276,9 @@ namespace GI_CountBar {
         }
     }
 
-    void TCountBarGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
-        LoadCountBarProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
+    void TCountBarGI_LoadFromConfigPath(TCountBarGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
+        Self->LoadCountBarProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
     void TCountBarGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -328,6 +328,10 @@ namespace GI_CountBar {
 
     void TCountBarGI::p_destroy() {
         GI_CountBar::TCountBarGI_Destroy(this);
+    }
+
+    void TCountBarGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_CountBar::TCountBarGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_CountBar

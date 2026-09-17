@@ -603,7 +603,7 @@ namespace SysUtilsImports {
                 return WindowsImports::GetLastError();
             }
         }
-        WindowsImports::FileTimeToLocalFileTime(F.FindData.ftLastWriteTime, LocalFileTime);
+        WindowsImports::FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime>(&F.FindData.ftLastWriteTime), LocalFileTime);
         WindowsImports::FileTimeToDosDateTime(LocalFileTime, DatePart, TimePart);
         F.Time = pas::shl(static_cast<std::int32_t>(DatePart), 16) | TimePart;
         F.Size = F.FindData.nFileSizeLow | pas::shl(static_cast<std::int64_t>(F.FindData.nFileSizeHigh), 32);

@@ -27,7 +27,7 @@ namespace ab_Item {
         void AttachVisual();
         void DetachVisual();
         void UpdateState() override;
-        void Advance() override;
+        void virtual_TabObject_Advance() override;
         void UpdateVisuals() override;
         // Campaign equipment; nil for arena bonuses.
         aItem::TItem* Item;

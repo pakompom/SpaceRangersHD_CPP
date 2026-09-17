@@ -36,7 +36,7 @@ namespace GI_GI {
         std::uint8_t HitTestPixel(Types::TPoint Point);
         // Returns the mean coordinates of nonzero rendered pixels, or (0,0) when none exist.
         Types::TPoint GetVisualCenter();
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
         void SetHardwareMirrorHorizontal(std::uint8_t Value);

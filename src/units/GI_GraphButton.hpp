@@ -11,4 +11,6 @@ namespace GI_GraphButton {
 
     void TGraphButtonGI_Destroy(TGraphButtonGI* Self);
 
+    void TGraphButtonGI_LoadFromConfigPath(TGraphButtonGI* Self, const pas::WideString& Path);
+
 } // namespace GI_GraphButton

@@ -32,7 +32,7 @@ namespace GI_PlanetButton {
         void OnMouseEnter() override;
         void OnMouseLeave() override;
         void ProcessLeftButtonDown(std::uint32_t KeyState, Types::TPoint Point) override;
-        void LoadFromConfigPath(const pas::WideString& Path) override;
+        void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         std::uint8_t cpp_padding[4];
         GI_Planet::TPlanetGI* NormalPlanet;

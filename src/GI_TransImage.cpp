@@ -73,38 +73,38 @@ namespace GI_TransImage {
         }
     }
 
-    void TTransImageGI::LoadFromConfigPath(const pas::WideString& Path) {
+    void TTransImageGI_LoadFromConfigPath(TTransImageGI* Self, const pas::WideString& Path) {
         EC_BlockPar::TBlockParEC* Block{};
         EC_CacheTBitmap::TCTBitmapEC* Bitmap{};
         pas::WideString Text{};
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            ImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
-            Bitmap = EC_CacheTBitmap::AcquireCachedTransBitmap(ImageCache);
+            Self->ImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            Bitmap = EC_CacheTBitmap::AcquireCachedTransBitmap(Self->ImageCache);
             {
                 pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                    ImageCache->Release();
+                    Self->ImageCache->Release();
                 };
-                SetSize(Bitmap->PixelSize);
+                Self->SetSize(Bitmap->PixelSize);
             }
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
             Text = Block->GetParam(u"Size"_wref.get());
-            SetSize(([&] {
+            Self->SetSize(([&] {
                 std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
                 std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }()));
         }
         if (Block->CountParams(u"KindX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
+            Self->SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
         }
         if (Block->CountParams(u"KindY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
+            Self->SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
         }
         if (Block->CountParams(u"HalfAlpha"_wref.get()) > 0) {
-            SetHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"HalfAlpha"_wref.get())));
+            Self->SetHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"HalfAlpha"_wref.get())));
         }
     }
 
@@ -221,6 +221,10 @@ namespace GI_TransImage {
 
     void TTransImageGI::p_destroy() {
         GI_TransImage::TTransImageGI_Destroy(this);
+    }
+
+    void TTransImageGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_TransImage::TTransImageGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_TransImage

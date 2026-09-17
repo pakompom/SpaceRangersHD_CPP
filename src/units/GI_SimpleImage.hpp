@@ -11,4 +11,7 @@ namespace GI_SimpleImage {
 
     void TSimpleImageGI_Destroy(TSimpleImageGI* Self);
 
+    // Image is optional.
+    void TSimpleImageGI_LoadFromConfigPath(TSimpleImageGI* Self, const pas::WideString& Path);
+
 } // namespace GI_SimpleImage

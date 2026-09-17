@@ -166,8 +166,8 @@ namespace GI_XviD {
         }
     }
 
-    void TxvidGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TxvidGI_LoadFromConfigPath(TxvidGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         TxvidGI::ReadVideoConfig(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
@@ -205,8 +205,8 @@ namespace GI_XviD {
             Frame.Bitstream = Data;
             Frame.Length = BytesRead;
             Frame.Output.ColorSpace = ColorSpace;
-            Frame.Output.Planes[0] = LockedRect.Bits;
-            Frame.Output.Strides[0] = LockedRect.Pitch;
+            pas::store_unaligned<void*>(pas::byte_offset(&Frame.Output.Planes, 0 * sizeof(void*)), LockedRect.Bits);
+            pas::store_unaligned<std::int32_t>(pas::byte_offset(&Frame.Output.Strides, 0 * sizeof(std::int32_t)), LockedRect.Pitch);
             BytesUsed = GI_XviD::XvidDecore(DecoderHandle, 2, &Frame, &Stats);
             if (BytesUsed < 0) {
                 GR_Main::RaiseWideMessage(u"AVI decode"_wref.get());
@@ -249,6 +249,10 @@ namespace GI_XviD {
 
     void TxvidGI::p_destroy() {
         GI_XviD::TxvidGI_Destroy(this);
+    }
+
+    void TxvidGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_XviD::TxvidGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_XviD

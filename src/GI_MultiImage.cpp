@@ -310,8 +310,8 @@ namespace GI_MultiImage {
         return pas::list_count(Images) - 1;
     }
 
-    void TMultiImageGI::LoadFromConfigPath(const pas::WideString& Path) {
-        GI_MessageLoop::TObjectGI::LoadFromConfigPath(Path);
+    void TMultiImageGI_LoadFromConfigPath(TMultiImageGI* Self, const pas::WideString& Path) {
+        GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         TMultiImageGI::LoadImageProperties(GR_Main::UiStyleConfig->GetBlockByPath(Path));
     }
 
@@ -458,6 +458,10 @@ namespace GI_MultiImage {
 
     void TMultiImageGI::p_destroy() {
         GI_MultiImage::TMultiImageGI_Destroy(this);
+    }
+
+    void TMultiImageGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {
+        GI_MultiImage::TMultiImageGI_LoadFromConfigPath(this, Path);
     }
 
 } // namespace GI_MultiImage

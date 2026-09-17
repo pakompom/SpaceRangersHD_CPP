@@ -8,4 +8,6 @@ namespace ab_W15 {
 
     void TabW15_Destroy(TabW15* Self);
 
+    void TabW15_Advance(TabW15* Self);
+
 } // namespace ab_W15

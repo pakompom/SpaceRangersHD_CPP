@@ -130,7 +130,6 @@ namespace aGalaxy {
         void InitializeCampaignState();
         // Increments SaveCount and restores temporary shop stock before serialization.
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
-        void LoadFromBuffer(EC_Buf::TBufEC* Buffer);
         // Replaces the shared editable-save block, including player, holes and stars. Requires a player.
         void SaveEditableState();
         // Only runs when FinalizationNameEncoded is empty; consumes and clears the shared editable-save block. Requires a player.

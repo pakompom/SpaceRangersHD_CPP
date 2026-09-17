@@ -170,7 +170,7 @@ namespace ab_Global {
     void VectorToSphericalAngles(EC_Struct::TVector3D Vector, double& LongitudeDegrees, double& PolarAngleDegrees);
 
     // Negative distance moves backward. Longitude and bearing pass through Single precision when wrapped.
-    void AdvanceSphericalBearingState(double& LongitudeDegrees, double& PolarAngleDegrees, double& BearingDegrees, double SphereRadius, double ArcDistance);
+    void AdvanceSphericalBearingState(pas::Var<double> LongitudeDegrees, pas::Var<double> PolarAngleDegrees, pas::Var<double> BearingDegrees, double SphereRadius, double ArcDistance);
 
     TSphericalBearingState AdvanceSphericalStateOnCurrentSphere(TSphericalBearingState Source, double ArcDistance);
 
@@ -181,7 +181,7 @@ namespace ab_Global {
     TSphericalBearingState AdvanceSphericalStateAndTravelBearing(TSphericalBearingState Source, double& TravelBearingDegrees, double ArcDistance);
 
     // Bearing is relative to SourceBearingDegrees; coincident points return zero bearing delta and distance.
-    void ComputeSphericalBearingAndDistance(double& BearingDeltaDegrees, pas::Var<double> Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius);
+    void ComputeSphericalBearingAndDistance(pas::Var<double> BearingDeltaDegrees, pas::Var<double> Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius);
 
     void ComputeSphericalDistance(double& Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double UnusedSourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius);
 
