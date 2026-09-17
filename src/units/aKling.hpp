@@ -46,28 +46,14 @@ namespace aKling {
 
     void TKling_NextDayLogic(TKling* Self);
 
-    void TKling_MiniBossNextDayLogic(TKling* Self);
-
-    void TKling_BlazerNextDayLogic(TKling* Self);
-
-    void TKling_KellerNextDayLogic(TKling* Self);
-
-    void TKling_TerronNextDayLogic(TKling* Self);
-
     // AI ownership check only; does not test travel range.
     std::uint8_t TKling_CanQueueReachablePlanet(TKling* Self, aPlanet::TPlanet* Planet);
-
-    void TKling_RepairBrokenEquipmentAtLocation(TKling* Self);
 
     std::uint8_t TKling_RecomputeFearState(TKling* Self);
 
     std::uint8_t TKling_AcceptsRansomDemandFrom(TKling* Self, aShip::TShip* Ship);
 
     std::uint8_t TKling_TrustsAttackRequester(TKling* Self, aShip::TShip* Ship);
-
-    std::uint8_t TKling_EvaluateAllyRelationAndStrength(TKling* Self, aShip::TShip* Ship);
-
-    void TKling_AssignWeaponTargetsInStar(TKling* Self);
 
     std::uint8_t TKling_BuildMoneyExtortionResponse(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
 

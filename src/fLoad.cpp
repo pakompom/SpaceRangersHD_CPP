@@ -256,7 +256,7 @@ namespace fLoad {
 
     void TfLoad::OnOpen() {
         IntroSkipRequest = 0;
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         ContentPanel->KeyDownCallback = pas::bind_method<&TfLoad::IntroKeyDown>(this);
         ContentPanel->LeftButtonDownCallback = pas::bind_method<&TfLoad::IntroMouseDown>(this);
         ContentPanel->RightButtonDownCallback = pas::bind_method<&TfLoad::IntroMouseDown>(this);

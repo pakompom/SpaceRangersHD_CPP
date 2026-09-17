@@ -28,8 +28,6 @@ namespace ab_Hit {
 
     void TabHit_Destroy(TabHit* Self);
 
-    void TabHit_Advance(TabHit* Self);
-
     void TabHit_KellerBreakupComplete(TabHit* Self, GI_MessageLoop::TObjectGI* Sender);
 
 } // namespace ab_Hit

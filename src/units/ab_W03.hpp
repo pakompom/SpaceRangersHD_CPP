@@ -8,6 +8,4 @@ namespace ab_W03 {
 
     void TabW03_Destroy(TabW03* Self);
 
-    void TabW03_Advance(TabW03* Self);
-
 } // namespace ab_W03

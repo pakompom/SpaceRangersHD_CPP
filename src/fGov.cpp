@@ -265,7 +265,7 @@ namespace fGov {
             }
             MainPanel->OnOpen();
             fPanelPlanet::TfPanelPlanet::OnOpen();
-            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+            LoadPanel->OnOpen();
             SavedChoiceScroll = -1;
             Stage = 1;
             pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfGov::EndTurnClicked>(this);
@@ -398,7 +398,7 @@ namespace fGov {
                 if (!GlobalsV::MemorySnapshotActive) {
                     aSaveLoad::SaveGameToMemorySnapshot();
                 }
-                fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+                LoadPanel->OnOpen();
                 LoadPanel->SelectBackgroundStyle(3);
                 LoadPanel->RefreshBackgroundImages();
                 Stage = 10;
@@ -1076,7 +1076,7 @@ namespace fGov {
             {
                 pas::WideString textAt = ScriptDialogNames->GetTextAt(ScriptDialogCursor);
                 aScript::TScript* script = Script;
-                aScript::TScript_CallDialogByVariable(script, std::move(textAt));
+                script->CallDialogByVariable(std::move(textAt));
             }
             if (Globals::ScriptDialogIndex >= 0) {
                 break;
@@ -1108,7 +1108,7 @@ namespace fGov {
                 }
                 Text = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, Selected)->DialogName;
                 if (Text != u"") {
-                    aScript::TScript_CallDialogByVariable(Script, Text);
+                    Script->CallDialogByVariable(Text);
                     if (Globals::ScriptDialogIndex < 0) {
                         GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Script->ScriptFileName, u" has overriden dialog with ", Text, u" but it failed to start"})));
                     }
@@ -1206,7 +1206,7 @@ namespace fGov {
         aScript::TScript* Script = nullptr;
         while (ScriptDialogCursor < ScriptDialogNames->GetCount()) {
             Script = static_cast<aScript::TScript*>(ScriptDialogNames->GetDataAt(ScriptDialogCursor));
-            aScript::TScript_CallDialogByVariable(Script, ScriptDialogNames->GetTextAt(ScriptDialogCursor));
+            Script->CallDialogByVariable(ScriptDialogNames->GetTextAt(ScriptDialogCursor));
             if (Globals::ScriptDialogIndex >= 0) {
                 break;
             }
@@ -1826,7 +1826,7 @@ namespace fGov {
             var->SetDword(answerData);
         }
         Globals::ScriptDialogIndex = -1;
-        aScript::TScript_CallDialogByVariable(aScript::CurrentScript, Injection->DialogName);
+        aScript::CurrentScript->CallDialogByVariable(Injection->DialogName);
         if (Globals::ScriptDialogIndex < 0) {
             BuildGovernmentChoices(true);
         } else {

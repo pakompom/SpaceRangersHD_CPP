@@ -167,7 +167,7 @@ namespace fGoodsShop2 {
         std::int32_t I{};
         pas::WideString BackgroundPath{};
         if (!FlagEC) {
-            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+            LoadPanel->OnOpen();
         }
         if (!GlobalsV::MusicInPlanetEnabled) {
             GR_Main::MusicManager->RequestFadeOut();
@@ -1020,7 +1020,7 @@ namespace fGoodsShop2 {
                         }
                         if (DraggedGoodsIndex < 10) {
                             GR_Main::SoundManager->PlaySound(u"Sound.Buy"_wref.get());
-                            aShip::TShip_BuyGoodsFromLocation(aPlayer::GetPlayer(), ShopGoodsOrder[DraggedGoodsIndex], Count);
+                            aPlayer::GetPlayer()->BuyGoodsFromLocation(ShopGoodsOrder[DraggedGoodsIndex], Count);
                         } else {
                             GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
                             aPlayer::GetPlayer()->SellGoodsToLocation(ShopGoodsOrder[DraggedGoodsIndex - 10], Count);

@@ -442,7 +442,7 @@ namespace fGalaxy2 {
                     OtherFaction = pas::WideString();
                     OtherCount = Star->CountOtherCustomFactionForces(false, OtherFaction, Strength);
                     if (aKling::BlazerShip != nullptr && aKling::BlazerShip->CurrentStar == Star && aKling::BlazerShip->InNormalSpace()) {
-                        if (TfGalaxy2::CanRevealBossPresence(aKling::BlazerShip) && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), aKling::BlazerShip)) {
+                        if (TfGalaxy2::CanRevealBossPresence(aKling::BlazerShip) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(aKling::BlazerShip)) {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
@@ -452,7 +452,7 @@ namespace fGalaxy2 {
                         }
                     }
                     if (aKling::KellerShip != nullptr && aKling::KellerShip->CurrentStar == Star && aKling::KellerShip->InNormalSpace()) {
-                        if (TfGalaxy2::CanRevealBossPresence(aKling::KellerShip) && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), aKling::KellerShip)) {
+                        if (TfGalaxy2::CanRevealBossPresence(aKling::KellerShip) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(aKling::KellerShip)) {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
@@ -462,7 +462,7 @@ namespace fGalaxy2 {
                         }
                     }
                     if (aKling::TerronShip != nullptr && aKling::TerronShip->CurrentStar == Star && aKling::TerronShip->InNormalSpace()) {
-                        if (TfGalaxy2::CanRevealBossPresence(aKling::TerronShip) && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), aKling::TerronShip)) {
+                        if (TfGalaxy2::CanRevealBossPresence(aKling::TerronShip) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(aKling::TerronShip)) {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
@@ -777,7 +777,7 @@ namespace fGalaxy2 {
 
     // Measured in radar-summary units of 150 range units.
     std::int32_t TfGalaxy2::GetRadarSummaryRadius() {
-        return System::Round(pas::real_divide(aShip::TShip_GetRadarRange(aPlayer::GetPlayer()), 1.5E+2L));
+        return System::Round(pas::real_divide(aPlayer::GetPlayer()->GetRadarRange(), 1.5E+2L));
     }
 
     EC_Struct::TPointF TfGalaxy2::MapPointToGalaxyPoint(WindowsSdk::TPoint Point) {
@@ -1690,7 +1690,7 @@ namespace fGalaxy2 {
             if (Ship->InHyperspace) {
                 return;
             }
-            if (static_cast<std::uint8_t>(aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) ^ 1) || static_cast<std::uint8_t>(TfGalaxy2::CanRevealBossPresence(Ship) ^ 1)) {
+            if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) ^ 1) || static_cast<std::uint8_t>(TfGalaxy2::CanRevealBossPresence(Ship) ^ 1)) {
                 ++UnknownCount;
                 return;
             }

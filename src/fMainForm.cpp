@@ -271,7 +271,7 @@ namespace fMainForm {
     void TfMainForm::OnOpen() {
         std::int32_t I{};
         GR_Main::SuppressModRetryPrompt = true;
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         LastMenuShipAnimation = -1;
         LastGaalShipAnimation = -1;
         MenuTextState = pas::WideString();

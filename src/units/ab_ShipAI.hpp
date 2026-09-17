@@ -16,6 +16,4 @@ namespace ab_ShipAI {
 
     void TabShipAI_Destroy(TabShipAI* Self);
 
-    void TabShipAI_Advance(TabShipAI* Self);
-
 } // namespace ab_ShipAI

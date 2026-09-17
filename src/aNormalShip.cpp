@@ -368,9 +368,9 @@ namespace aNormalShip {
             Self->virtual_TShip_RecomputeFearState();
             if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar && Self->Order != aShip::soNone && Globals::PlayerStarDayPrepared && aGalaxy::TurnsSinceLastShipMessage > 5 && static_cast<std::int32_t>(Self->Seed) * aGalaxy::Galaxy->CurrentTurn % 7 == 0 && Self->InNormalSpace() && aPlayer::GetPlayer()->InNormalSpace() && ([&] {
                 pas::Extended cpp_left = aMyFunction::PointDistance(Self->Position, aPlayer::GetPlayer()->Position);
-                return cpp_left < aShip::TShip_GetRadarRange(Self);
+                return cpp_left < Self->GetRadarRange();
             }()) && static_cast<std::uint8_t>(aRanger::PlayerAutomaticControl ^ 1) && static_cast<std::uint8_t>(aRanger::TRanger_ProcessPendingPlayerFollowTargeting(aPlayer::GetPlayer()) ^ 1) && Self->ScriptShip == nullptr && Self->LiberationGroup == nullptr) {
-                MessageText = Self->SelectSituationalMessage(true);
+                MessageText = aNormalShip::TNormalShip_SelectSituationalMessage(Self, true);
                 if (MessageText != u"") {
                     Self->ShowMessageToPlayer(MessageText);
                 }
@@ -1395,7 +1395,7 @@ namespace aNormalShip {
     }
 
     // Automatic messages suppress object links and select the automatic-message category.
-    pas::WideString TNormalShip::SelectSituationalMessage(std::uint8_t Automatic) {
+    pas::WideString TNormalShip_SelectSituationalMessage(TNormalShip* Self, std::uint8_t Automatic) {
         pas::DynArray<Globals::TShipGreetingsInfo> Definitions{};
         std::int32_t LastIndex{};
         Globals::TShipGreetingsInfo SwapA{};
@@ -1424,14 +1424,14 @@ namespace aNormalShip {
                 Definitions[I] = Globals::ShipGreetingDefinitions[I];
             }
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, LastIndex / 2); cpp_range_2.next(I); ) {
-                OtherIndex = aMyFunction::SeededRandomIntRange(0, LastIndex, this->Seed + 7 * I);
+                OtherIndex = aMyFunction::SeededRandomIntRange(0, LastIndex, Self->Seed + 7 * I);
                 SwapA = Definitions[OtherIndex];
                 SwapB = Definitions[I];
                 Definitions[I] = SwapA;
                 Definitions[OtherIndex] = SwapB;
             }
         };
-        if (aPlayer::GetPlayer() == PartnerShip || aPlayer::GetPlayer()->ChameleonActive || HasIndependentScriptFaction()) {
+        if (aPlayer::GetPlayer() == Self->PartnerShip || aPlayer::GetPlayer()->ChameleonActive || Self->HasIndependentScriptFaction()) {
             return pas::WideString();
         }
         ItemTypes = pas::WideString();
@@ -1440,11 +1440,11 @@ namespace aNormalShip {
         std::int32_t Minimum = 0;
         LastIndex = Globals::ShipGreetingCount - 1;
         ShuffleDefinitions();
-        EntryIndex = aMyFunction::SeededRandomIntRange(0, LastIndex, static_cast<std::int32_t>(Seed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn)) / 20);
+        EntryIndex = aMyFunction::SeededRandomIntRange(0, LastIndex, static_cast<std::int32_t>(Self->Seed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn)) / 20);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LastIndex); cpp_range.next(I); ) {
             MessageText = pas::WideString();
             aMyFunction::IncrementWrapped(EntryIndex, Minimum, LastIndex);
-            if (IsFemaleHumanPilot() != (Definitions[EntryIndex].Female == 0)) {
+            if (Self->IsFemaleHumanPilot() != (Definitions[EntryIndex].Female == 0)) {
                 continue;
             }
             if (Definitions[EntryIndex].CoalitionAlreadyDefeated != 2 && (Definitions[EntryIndex].CoalitionAlreadyDefeated == 0 && !(aGalaxy::Galaxy->CoalitionDefeatedTurn != 0) || Definitions[EntryIndex].CoalitionAlreadyDefeated == 1 && aGalaxy::Galaxy->CoalitionDefeatedTurn != 0)) {
@@ -1456,8 +1456,8 @@ namespace aNormalShip {
             if (BestPriority > 0) {
                 CandidatePriority = Definitions[EntryIndex].Priority;
                 {
-                    std::int32_t cpp_left = CandidatePriority * aMyFunction::SeededRandomIntRange(1, 100, Seed + EntryIndex * (aGalaxy::Galaxy->CurrentTurn / 20));
-                    if (cpp_left < BestPriority * aMyFunction::SeededRandomIntRange(1, 100, Seed + EntryIndex * (aGalaxy::Galaxy->CurrentTurn / 20) * 3)) {
+                    std::int32_t cpp_left = CandidatePriority * aMyFunction::SeededRandomIntRange(1, 100, Self->Seed + EntryIndex * (aGalaxy::Galaxy->CurrentTurn / 20));
+                    if (cpp_left < BestPriority * aMyFunction::SeededRandomIntRange(1, 100, Self->Seed + EntryIndex * (aGalaxy::Galaxy->CurrentTurn / 20) * 3)) {
                         continue;
                     }
                 }
@@ -1472,14 +1472,14 @@ namespace aNormalShip {
             if (Definitions[EntryIndex].FlyType == 0) {
                 MessageText = aConst::LocalizedColorText(pas::concat_wide({u"ShipGreetings.", Definitions[EntryIndex].Name, u".Text"}));
             } else if (Definitions[EntryIndex].FlyType == 1) {
-                if (!(pas::class_cast_if<aPlanet::TPlanet*>(OrderTarget) != nullptr)) {
+                if (!(pas::class_cast_if<aPlanet::TPlanet*>(Self->OrderTarget) != nullptr)) {
                     continue;
                 }
-                Planet = pas::checked_cast<aPlanet::TPlanet*>(OrderTarget);
+                Planet = pas::checked_cast<aPlanet::TPlanet*>(Self->OrderTarget);
                 if (!pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
                     continue;
                 }
-                if (CurrentStar->Status.CustomFaction != u"") {
+                if (Self->CurrentStar->Status.CustomFaction != u"") {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToPlanetRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToPlanetRace, Planet->RaceId) ^ 1)) {
@@ -1519,10 +1519,10 @@ namespace aNormalShip {
                         continue;
                     }
                 }
-                if (Definitions[EntryIndex].ToPlanetIsHomePlanet != 2 && (Definitions[EntryIndex].ToPlanetIsHomePlanet == 0 && !(HomePlanet == Planet) || Definitions[EntryIndex].ToPlanetIsHomePlanet == 1 && HomePlanet == Planet)) {
+                if (Definitions[EntryIndex].ToPlanetIsHomePlanet != 2 && (Definitions[EntryIndex].ToPlanetIsHomePlanet == 0 && !(Self->HomePlanet == Planet) || Definitions[EntryIndex].ToPlanetIsHomePlanet == 1 && Self->HomePlanet == Planet)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToPlanetRaceIsShipRace != 2 && (Definitions[EntryIndex].ToPlanetRaceIsShipRace == 0 && !(Planet->RaceId == PilotRace) || Definitions[EntryIndex].ToPlanetRaceIsShipRace == 1 && Planet->RaceId == PilotRace)) {
+                if (Definitions[EntryIndex].ToPlanetRaceIsShipRace != 2 && (Definitions[EntryIndex].ToPlanetRaceIsShipRace == 0 && !(Planet->RaceId == Self->PilotRace) || Definitions[EntryIndex].ToPlanetRaceIsShipRace == 1 && Planet->RaceId == Self->PilotRace)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToPlanetRaceIsPlayerRace != 2 && (Definitions[EntryIndex].ToPlanetRaceIsPlayerRace == 0 && !(aPlayer::GetPlayer()->PilotRace == Planet->RaceId) || Definitions[EntryIndex].ToPlanetRaceIsPlayerRace == 1 && aPlayer::GetPlayer()->PilotRace == Planet->RaceId)) {
@@ -1534,14 +1534,14 @@ namespace aNormalShip {
                 if (Definitions[EntryIndex].ToPlanetGovernment != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToPlanetGovernment, static_cast<std::uint8_t>(Planet->Government)) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToPlanetIsLastPlanet != 2 && (Definitions[EntryIndex].ToPlanetIsLastPlanet == 0 && !(LastDockedPlanet == Planet) || Definitions[EntryIndex].ToPlanetIsLastPlanet == 1 && LastDockedPlanet == Planet)) {
+                if (Definitions[EntryIndex].ToPlanetIsLastPlanet != 2 && (Definitions[EntryIndex].ToPlanetIsLastPlanet == 0 && !(Self->LastDockedPlanet == Planet) || Definitions[EntryIndex].ToPlanetIsLastPlanet == 1 && Self->LastDockedPlanet == Planet)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace != 2) {
-                    if (!pas::in_set<0, 4, 7, 7>(LastDockedPlanet->OwnerId)) {
+                    if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
                         continue;
                     }
-                    if (Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace == 0 && !(Planet->RaceId == LastDockedPlanet->RaceId) || Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace == 1 && Planet->RaceId == LastDockedPlanet->RaceId) {
+                    if (Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace == 0 && !(Planet->RaceId == Self->LastDockedPlanet->RaceId) || Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace == 1 && Planet->RaceId == Self->LastDockedPlanet->RaceId) {
                         continue;
                     }
                 }
@@ -1552,13 +1552,13 @@ namespace aNormalShip {
                     MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToPlanetGoodsBuy>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Planet)), u"<color=255,240,100>"_w);
                 }
             } else if (Definitions[EntryIndex].FlyType == 2) {
-                if (!(pas::class_cast_if<aGalaxy::TStar*>(OrderTarget) != nullptr)) {
+                if (!(pas::class_cast_if<aGalaxy::TStar*>(Self->OrderTarget) != nullptr)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].HomePlanetInToStar != 2 && (Definitions[EntryIndex].HomePlanetInToStar == 0 && !(HomePlanet->CurrentStar == OrderTarget) || Definitions[EntryIndex].HomePlanetInToStar == 1 && HomePlanet->CurrentStar == OrderTarget)) {
+                if (Definitions[EntryIndex].HomePlanetInToStar != 2 && (Definitions[EntryIndex].HomePlanetInToStar == 0 && !(Self->HomePlanet->CurrentStar == Self->OrderTarget) || Definitions[EntryIndex].HomePlanetInToStar == 1 && Self->HomePlanet->CurrentStar == Self->OrderTarget)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].HomePlanetInCurStar != 2 && (Definitions[EntryIndex].HomePlanetInCurStar == 0 && !(HomePlanet->CurrentStar == CurrentStar) || Definitions[EntryIndex].HomePlanetInCurStar == 1 && HomePlanet->CurrentStar == CurrentStar)) {
+                if (Definitions[EntryIndex].HomePlanetInCurStar != 2 && (Definitions[EntryIndex].HomePlanetInCurStar == 0 && !(Self->HomePlanet->CurrentStar == Self->CurrentStar) || Definitions[EntryIndex].HomePlanetInCurStar == 1 && Self->HomePlanet->CurrentStar == Self->CurrentStar)) {
                     continue;
                 }
                 Rejected = false;
@@ -1572,8 +1572,8 @@ namespace aNormalShip {
                     }
                     if (CountMask != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
                         Count = 0;
-                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Ships) - 1); cpp_range_2.next(K); ) {
-                            Other = pas::list_at<aShip::TShip>(pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Ships, K);
+                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Ships) - 1); cpp_range_2.next(K); ) {
+                            Other = pas::list_at<aShip::TShip>(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Ships, K);
                             if (static_cast<std::uint8_t>(Other->HasScriptStateText() ^ 1) && Other->TypeNameOverrideKey == u"" && Other->TypeId == ShipKind) {
                                 ++Count;
                             }
@@ -1589,39 +1589,39 @@ namespace aNormalShip {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToStarControlByKling != 2) {
-                    if (pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.CustomFaction != u"") {
+                    if (pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.CustomFaction != u"") {
                         continue;
                     }
-                    if (Definitions[EntryIndex].ToStarControlByKling == 0 && !(pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) || Definitions[EntryIndex].ToStarControlByKling == 1 && pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) {
+                    if (Definitions[EntryIndex].ToStarControlByKling == 0 && !(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) || Definitions[EntryIndex].ToStarControlByKling == 1 && pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) {
                         continue;
                     }
                 }
                 if (Definitions[EntryIndex].ToStarControlByPirates != 2) {
-                    if (pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.CustomFaction != u"") {
+                    if (pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.CustomFaction != u"") {
                         continue;
                     }
-                    if (Definitions[EntryIndex].ToStarControlByPirates == 0 && !(pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) || Definitions[EntryIndex].ToStarControlByPirates == 1 && pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) {
+                    if (Definitions[EntryIndex].ToStarControlByPirates == 0 && !(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) || Definitions[EntryIndex].ToStarControlByPirates == 1 && pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) {
                         continue;
                     }
                 }
-                if (Definitions[EntryIndex].ToStarInBattle != 2 && (Definitions[EntryIndex].ToStarInBattle == 0 && !(pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.Battle != 0) || Definitions[EntryIndex].ToStarInBattle == 1 && pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Status.Battle != 0)) {
+                if (Definitions[EntryIndex].ToStarInBattle != 2 && (Definitions[EntryIndex].ToStarInBattle == 0 && !(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.Battle != 0) || Definitions[EntryIndex].ToStarInBattle == 1 && pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.Battle != 0)) {
                     continue;
                 }
                 MessageText = aConst::LocalizedColorText(pas::concat_wide({u"ShipGreetings.", Definitions[EntryIndex].Name, u".Text"}));
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToStar>"_w, pas::checked_cast<aGalaxy::TStar*>(OrderTarget)->Name, u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToStar>"_w, pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Name, u"<color=255,240,100>"_w);
             } else if (Definitions[EntryIndex].FlyType == 3) {
-                if (Order != aShip::soMove || static_cast<std::uint8_t>(OrderAbsolute ^ 1)) {
+                if (Self->Order != aShip::soMove || static_cast<std::uint8_t>(Self->OrderAbsolute ^ 1)) {
                     continue;
                 }
                 Rejected = false;
                 Item = nullptr;
-                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Items) - 1); cpp_range_3.next(J); ) {
-                    Item = pas::list_at<aItem::TItem>(CurrentStar->Items, J);
+                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Items) - 1); cpp_range_3.next(J); ) {
+                    Item = pas::list_at<aItem::TItem>(Self->CurrentStar->Items, J);
                     // Native accepts either matching coordinate, rather than requiring both.
-                    if (GetPickupApproachPosition(Item->Position).X == OrderDestination.X || GetPickupApproachPosition(Item->Position).Y == OrderDestination.Y) {
+                    if (Self->GetPickupApproachPosition(Item->Position).X == Self->OrderDestination.X || Self->GetPickupApproachPosition(Item->Position).Y == Self->OrderDestination.Y) {
                         ItemTypes = Definitions[EntryIndex].ItemType;
                         if (ItemTypes == u"" || ItemTypes == u"Any" || EC_Str::FindTextPosW(Item->GetCategoryConfigName(), ItemTypes) != 0) {
-                            if (Definitions[EntryIndex].ShipNeedInItem != 2 && (Definitions[EntryIndex].ShipNeedInItem == 0 && static_cast<std::uint8_t>(ShouldPickUpItem(Item) ^ 1) || Definitions[EntryIndex].ShipNeedInItem == 1 && ShouldPickUpItem(Item))) {
+                            if (Definitions[EntryIndex].ShipNeedInItem != 2 && (Definitions[EntryIndex].ShipNeedInItem == 0 && static_cast<std::uint8_t>(Self->ShouldPickUpItem(Item) ^ 1) || Definitions[EntryIndex].ShipNeedInItem == 1 && Self->ShouldPickUpItem(Item))) {
                                 continue;
                             }
                             Rejected = true;
@@ -1635,58 +1635,58 @@ namespace aNormalShip {
                 MessageText = aConst::LocalizedColorText(pas::concat_wide({u"ShipGreetings.", Definitions[EntryIndex].Name, u".Text"}));
                 MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<Item>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Item, Automatic), Item->GetDisplayName()}), u"<color=255,240,100>"_w);
             } else if (Definitions[EntryIndex].FlyType == 4) {
-                if (!(pas::class_cast_if<aShip::TShip*>(OrderTarget) != nullptr)) {
+                if (!(pas::class_cast_if<aShip::TShip*>(Self->OrderTarget) != nullptr)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipType != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipType, pas::checked_cast<aShip::TShip*>(OrderTarget)->GetGreetingShipCategory()) ^ 1)) {
+                if (Definitions[EntryIndex].ToShipType != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipType, pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->GetGreetingShipCategory()) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipRace, pas::checked_cast<aShip::TShip*>(OrderTarget)->PilotRace) ^ 1)) {
+                if (Definitions[EntryIndex].ToShipRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipRace, pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->PilotRace) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipInPlanet != 2 && (Definitions[EntryIndex].ToShipInPlanet == 0 && !(pas::checked_cast<aShip::TShip*>(OrderTarget)->CurrentPlanet != nullptr) || Definitions[EntryIndex].ToShipInPlanet == 1 && pas::checked_cast<aShip::TShip*>(OrderTarget)->CurrentPlanet != nullptr)) {
+                if (Definitions[EntryIndex].ToShipInPlanet != 2 && (Definitions[EntryIndex].ToShipInPlanet == 0 && !(pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet != nullptr) || Definitions[EntryIndex].ToShipInPlanet == 1 && pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet != nullptr)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipBad != 2 && (Definitions[EntryIndex].ToShipBad == 0 && !(pas::checked_cast<aShip::TShip*>(OrderTarget)->EnemyShip == this) || Definitions[EntryIndex].ToShipBad == 1 && pas::checked_cast<aShip::TShip*>(OrderTarget)->EnemyShip == this)) {
+                if (Definitions[EntryIndex].ToShipBad != 2 && (Definitions[EntryIndex].ToShipBad == 0 && !(pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->EnemyShip == Self) || Definitions[EntryIndex].ToShipBad == 1 && pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->EnemyShip == Self)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToShipRelations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                    std::uint8_t cpp_element_4 = static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(this, pas::checked_cast<aShip::TShip*>(OrderTarget)));
+                    std::uint8_t cpp_element_4 = static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Self, pas::checked_cast<aShip::TShip*>(Self->OrderTarget)));
                     const Globals::TGreetingMask& cpp_set_4 = Definitions[EntryIndex].ToShipRelations;
                     return pas::contains(cpp_set_4, cpp_element_4);
                 }()) ^ 1)) {
                     continue;
                 }
                 MessageText = aConst::LocalizedColorText(pas::concat_wide({u"ShipGreetings.", Definitions[EntryIndex].Name, u".Text"}));
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToShip>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(OrderTarget, Automatic), pas::checked_cast<aShip::TShip*>(OrderTarget)->GetName()}), u"<color=255,240,100>"_w);
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToFullShip>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(OrderTarget, Automatic), pas::checked_cast<aShip::TShip*>(OrderTarget)->GetFullName(u" "_wref.get())}), u"<color=255,240,100>"_w);
-                if (pas::checked_cast<aShip::TShip*>(OrderTarget)->CurrentPlanet != nullptr) {
-                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToShipInPlanet>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(pas::checked_cast<aShip::TShip*>(OrderTarget)->CurrentPlanet, Automatic), pas::checked_cast<aShip::TShip*>(OrderTarget)->CurrentPlanet->GetFullName(u" "_w)}), u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToShip>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Self->OrderTarget, Automatic), pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->GetName()}), u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToFullShip>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Self->OrderTarget, Automatic), pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->GetFullName(u" "_wref.get())}), u"<color=255,240,100>"_w);
+                if (pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet != nullptr) {
+                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ToShipInPlanet>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet, Automatic), pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet->GetFullName(u" "_w)}), u"<color=255,240,100>"_w);
                 }
             }
-            if (Definitions[EntryIndex].ShipType != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipType, GetGreetingShipCategory()) ^ 1)) {
+            if (Definitions[EntryIndex].ShipType != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipType, Self->GetGreetingShipCategory()) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].Relations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                std::uint8_t cpp_element_5 = static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(this, aPlayer::GetPlayer()));
+                std::uint8_t cpp_element_5 = static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Self, aPlayer::GetPlayer()));
                 const Globals::TGreetingMask& cpp_set_5 = Definitions[EntryIndex].Relations;
                 return pas::contains(cpp_set_5, cpp_element_5);
             }()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRace, PilotRace) ^ 1)) {
+            if (Definitions[EntryIndex].ShipRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRace, Self->PilotRace) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerRace, aPlayer::GetPlayer()->PilotRace) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipRaceIsPlayerRace != 2 && (Definitions[EntryIndex].ShipRaceIsPlayerRace == 0 && !(aPlayer::GetPlayer()->PilotRace == PilotRace) || Definitions[EntryIndex].ShipRaceIsPlayerRace == 1 && aPlayer::GetPlayer()->PilotRace == PilotRace)) {
+            if (Definitions[EntryIndex].ShipRaceIsPlayerRace != 2 && (Definitions[EntryIndex].ShipRaceIsPlayerRace == 0 && !(aPlayer::GetPlayer()->PilotRace == Self->PilotRace) || Definitions[EntryIndex].ShipRaceIsPlayerRace == 1 && aPlayer::GetPlayer()->PilotRace == Self->PilotRace)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerAttackGoodShip != 2) {
                 if (pas::class_cast_if<aShip::TShip*>(aPlayer::GetPlayer()->OrderTarget) != nullptr) {
                     Other = pas::checked_cast<aShip::TShip*>(aPlayer::GetPlayer()->OrderTarget);
-                    Rejected = pas::class_cast_if<TNormalShip*>(Other) != nullptr && aPlayer::GetPlayer() != Other->OrderTarget && aShip::TShip_GetRelationLevelToShip(this, Other) == aGalaxyStruct::rlExcellent && aShip::TShip_GetRelationLevelToShip(Other, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile;
+                    Rejected = pas::class_cast_if<TNormalShip*>(Other) != nullptr && aPlayer::GetPlayer() != Other->OrderTarget && aShip::TShip_GetRelationLevelToShip(Self, Other) == aGalaxyStruct::rlExcellent && aShip::TShip_GetRelationLevelToShip(Other, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile;
                 } else {
                     Rejected = false;
                 }
@@ -1702,32 +1702,32 @@ namespace aNormalShip {
                     MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<FullShipGood>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(aPlayer::GetPlayer()->OrderTarget, Automatic), pas::checked_cast<aShip::TShip*>(aPlayer::GetPlayer()->OrderTarget)->GetFullName(u" "_wref.get())}), pas::WideString());
                 }
             }
-            if (Definitions[EntryIndex].InFear != 2 && (Definitions[EntryIndex].InFear == 0 && static_cast<std::uint8_t>(InFear ^ 1) || Definitions[EntryIndex].InFear == 1 && InFear)) {
+            if (Definitions[EntryIndex].InFear != 2 && (Definitions[EntryIndex].InFear == 0 && static_cast<std::uint8_t>(Self->InFear ^ 1) || Definitions[EntryIndex].InFear == 1 && Self->InFear)) {
                 continue;
             }
             if (Definitions[EntryIndex].ShipBadFlyToShip != 2) {
-                Rejected = IsEnemyPursuingSelf();
+                Rejected = Self->IsEnemyPursuingSelf();
                 if (Definitions[EntryIndex].ShipBadFlyToShip == 0 && static_cast<std::uint8_t>(Rejected ^ 1) || Definitions[EntryIndex].ShipBadFlyToShip == 1 && Rejected) {
                     continue;
                 }
             }
-            if (Definitions[EntryIndex].ShipBadType != pas::constant_set<Globals::TGreetingMask>({}) && EnemyShip != nullptr && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipBadType, EnemyShip->GetGreetingShipCategory()) ^ 1)) {
+            if (Definitions[EntryIndex].ShipBadType != pas::constant_set<Globals::TGreetingMask>({}) && Self->EnemyShip != nullptr && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipBadType, Self->EnemyShip->GetGreetingShipCategory()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipBadRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && EnemyShip != nullptr && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipBadRace, EnemyShip->PilotRace) ^ 1)) {
+            if (Definitions[EntryIndex].ShipBadRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && Self->EnemyShip != nullptr && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipBadRace, Self->EnemyShip->PilotRace) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipFlyToPlayer != 2 && (Definitions[EntryIndex].ShipFlyToPlayer == 0 && !(aPlayer::GetPlayer() == OrderTarget) || Definitions[EntryIndex].ShipFlyToPlayer == 1 && aPlayer::GetPlayer() == OrderTarget)) {
+            if (Definitions[EntryIndex].ShipFlyToPlayer != 2 && (Definitions[EntryIndex].ShipFlyToPlayer == 0 && !(aPlayer::GetPlayer() == Self->OrderTarget) || Definitions[EntryIndex].ShipFlyToPlayer == 1 && aPlayer::GetPlayer() == Self->OrderTarget)) {
                 continue;
             }
-            if (Definitions[EntryIndex].PlayerFlyToShip != 2 && (Definitions[EntryIndex].PlayerFlyToShip == 0 && !(aPlayer::GetPlayer()->OrderTarget == this) || Definitions[EntryIndex].PlayerFlyToShip == 1 && aPlayer::GetPlayer()->OrderTarget == this)) {
+            if (Definitions[EntryIndex].PlayerFlyToShip != 2 && (Definitions[EntryIndex].PlayerFlyToShip == 0 && !(aPlayer::GetPlayer()->OrderTarget == Self) || Definitions[EntryIndex].PlayerFlyToShip == 1 && aPlayer::GetPlayer()->OrderTarget == Self)) {
                 continue;
             }
-            if (Definitions[EntryIndex].PlayerIsShipBad != 2 && (Definitions[EntryIndex].PlayerIsShipBad == 0 && !(aPlayer::GetPlayer() == EnemyShip) || Definitions[EntryIndex].PlayerIsShipBad == 1 && aPlayer::GetPlayer() == EnemyShip)) {
+            if (Definitions[EntryIndex].PlayerIsShipBad != 2 && (Definitions[EntryIndex].PlayerIsShipBad == 0 && !(aPlayer::GetPlayer() == Self->EnemyShip) || Definitions[EntryIndex].PlayerIsShipBad == 1 && aPlayer::GetPlayer() == Self->EnemyShip)) {
                 continue;
             }
             if (Definitions[EntryIndex].ShipTurnBeforeEndOrder != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
-                Count = std::min<std::int32_t>(10, EstimateOrderTravelTurns());
+                Count = std::min<std::int32_t>(10, Self->EstimateOrderTravelTurns());
                 if (!pas::contains(Definitions[EntryIndex].ShipTurnBeforeEndOrder, static_cast<std::uint32_t>(Count))) {
                     continue;
                 }
@@ -1738,37 +1738,37 @@ namespace aNormalShip {
                     continue;
                 }
             }
-            if (EnemyShip != nullptr && EnemyShip->CurrentStar == CurrentStar && EnemyShip->InNormalSpace() && Definitions[EntryIndex].ShipBadTurnBeforeEndOrder != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
-                Count = std::min<std::int32_t>(10, EnemyShip->EstimateOrderTravelTurns());
+            if (Self->EnemyShip != nullptr && Self->EnemyShip->CurrentStar == Self->CurrentStar && Self->EnemyShip->InNormalSpace() && Definitions[EntryIndex].ShipBadTurnBeforeEndOrder != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
+                Count = std::min<std::int32_t>(10, Self->EnemyShip->EstimateOrderTravelTurns());
                 if (!pas::contains(Definitions[EntryIndex].ShipBadTurnBeforeEndOrder, static_cast<std::uint32_t>(Count))) {
                     continue;
                 }
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(this) != nullptr && Definitions[EntryIndex].ShipStatus != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStatus, static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(this)->GetDominantCareer())) ^ 1)) {
+            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr && Definitions[EntryIndex].ShipStatus != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStatus, static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(Self)->GetDominantCareer())) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerStatus != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerStatus, static_cast<std::uint8_t>(aPlayer::GetPlayer()->GetDominantCareer())) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipStrength != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStrength, GetRelativeStrengthCategory()) ^ 1)) {
+            if (Definitions[EntryIndex].ShipStrength != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStrength, Self->GetRelativeStrengthCategory()) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerStrength != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerStrength, aPlayer::GetPlayer()->GetRelativeStrengthCategory()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipStructure != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStructure, GetHullConditionCategory()) ^ 1)) {
+            if (Definitions[EntryIndex].ShipStructure != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStructure, Self->GetHullConditionCategory()) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerStructure != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerStructure, aPlayer::GetPlayer()->GetHullConditionCategory()) ^ 1)) {
                 continue;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(this) != nullptr && static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(this)->ExcludedFromRating ^ 1) && Definitions[EntryIndex].ShipRating != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRating, GetRangerRatingBand()) ^ 1)) {
+            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr && static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(Self)->ExcludedFromRating ^ 1) && Definitions[EntryIndex].ShipRating != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRating, Self->GetRangerRatingBand()) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerRating != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerRating, aPlayer::GetPlayer()->GetRangerRatingBand()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipRank != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRank, Rank) ^ 1)) {
+            if (Definitions[EntryIndex].ShipRank != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRank, Self->Rank) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerRank != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerRank, aPlayer::GetPlayer()->Rank) ^ 1)) {
@@ -1777,43 +1777,43 @@ namespace aNormalShip {
             if (Definitions[EntryIndex].PlayerPirateRank != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerPirateRank, aPlayer::GetPlayer()->PirateRank) ^ 1)) {
                 continue;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(this) != nullptr && static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(this)->ExcludedFromRating ^ 1) && Definitions[EntryIndex].RatingShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                std::uint8_t cpp_element_6 = (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipRatingComparison(this));
+            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr && static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(Self)->ExcludedFromRating ^ 1) && Definitions[EntryIndex].RatingShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
+                std::uint8_t cpp_element_6 = (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipRatingComparison(Self));
                 const Globals::TGreetingMask& cpp_set_6 = Definitions[EntryIndex].RatingShipWithPlayer;
                 return pas::contains(cpp_set_6, cpp_element_6);
             }()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].RankShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].RankShipWithPlayer, (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipRankComparison(this))) ^ 1)) {
+            if (Definitions[EntryIndex].RankShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].RankShipWithPlayer, (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipRankComparison(Self))) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].RankShipWithPlayerExtra != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].RankShipWithPlayerExtra, (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipPirateRankComparison(this))) ^ 1)) {
+            if (Definitions[EntryIndex].RankShipWithPlayerExtra != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].RankShipWithPlayerExtra, (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipPirateRankComparison(Self))) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].StrengthShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].StrengthShipWithPlayer, (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipStrengthComparison(this))) ^ 1)) {
+            if (Definitions[EntryIndex].StrengthShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].StrengthShipWithPlayer, (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipStrengthComparison(Self))) ^ 1)) {
                 continue;
             }
             if (Good != 50) {
-                if (Definitions[EntryIndex].ShipGoodsCnt != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipGoodsCnt, aGalaxy::Galaxy->ClassifyGoodsQuantity(CargoGoods[Good].Count, Good)) ^ 1)) {
+                if (Definitions[EntryIndex].ShipGoodsCnt != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipGoodsCnt, aGalaxy::Galaxy->ClassifyGoodsQuantity(Self->CargoGoods[Good].Count, Good)) ^ 1)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].PlayerGoodsCnt != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerGoodsCnt, aGalaxy::Galaxy->ClassifyGoodsQuantity(aPlayer::GetPlayer()->CargoGoods[Good].Count, Good)) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ShipHaveGoods != 2 && (Definitions[EntryIndex].ShipHaveGoods == 0 && CargoGoods[Good].Count == 0 || Definitions[EntryIndex].ShipHaveGoods == 1 && CargoGoods[Good].Count > 0)) {
+                if (Definitions[EntryIndex].ShipHaveGoods != 2 && (Definitions[EntryIndex].ShipHaveGoods == 0 && Self->CargoGoods[Good].Count == 0 || Definitions[EntryIndex].ShipHaveGoods == 1 && Self->CargoGoods[Good].Count > 0)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].PlayerHaveGoods != 2 && (Definitions[EntryIndex].PlayerHaveGoods == 0 && aPlayer::GetPlayer()->CargoGoods[Good].Count == 0 || Definitions[EntryIndex].PlayerHaveGoods == 1 && aPlayer::GetPlayer()->CargoGoods[Good].Count > 0)) {
                     continue;
                 }
             }
-            if (Definitions[EntryIndex].ShipGoodsTypeCnt != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipGoodsTypeCnt, CountCargoGoodsTypes()) ^ 1)) {
+            if (Definitions[EntryIndex].ShipGoodsTypeCnt != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipGoodsTypeCnt, Self->CountCargoGoodsTypes()) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerGoodsTypeCnt != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerGoodsTypeCnt, aPlayer::GetPlayer()->CountCargoGoodsTypes()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].ShipMayScanPlayer != 2 && (Definitions[EntryIndex].ShipMayScanPlayer == 0 && !(aShip::TShip_CanResolveObjectWithScanner(this, aPlayer::GetPlayer()) && aShip::TShip_GetRadarRange(this) > 0) || Definitions[EntryIndex].ShipMayScanPlayer == 1 && (aShip::TShip_CanResolveObjectWithScanner(this, aPlayer::GetPlayer()) && aShip::TShip_GetRadarRange(this) > 0))) {
+            if (Definitions[EntryIndex].ShipMayScanPlayer != 2 && (Definitions[EntryIndex].ShipMayScanPlayer == 0 && !(Self->CanResolveObjectWithScanner(aPlayer::GetPlayer()) && Self->GetRadarRange() > 0) || Definitions[EntryIndex].ShipMayScanPlayer == 1 && (Self->CanResolveObjectWithScanner(aPlayer::GetPlayer()) && Self->GetRadarRange() > 0))) {
                 continue;
             }
             Rejected = false;
@@ -1827,8 +1827,8 @@ namespace aNormalShip {
                 }
                 if (CountMask != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
                     Count = 0;
-                    for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range_4.next(K); ) {
-                        Other = pas::list_at<aShip::TShip>(CurrentStar->Ships, K);
+                    for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range_4.next(K); ) {
+                        Other = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, K);
                         if (static_cast<std::uint8_t>(Other->HasScriptStateText() ^ 1) && Other->TypeNameOverrideKey == u"" && Other->TypeId == ShipKind) {
                             ++Count;
                         }
@@ -1844,32 +1844,32 @@ namespace aNormalShip {
                 continue;
             }
             if (Definitions[EntryIndex].LastPlanetRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({})) {
-                if (LastDockedPlanet == nullptr) {
+                if (Self->LastDockedPlanet == nullptr) {
                     continue;
                 }
-                if (!pas::in_set<0, 4, 7, 7>(LastDockedPlanet->OwnerId)) {
+                if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
                     continue;
                 }
-                if (LastDockedPlanet->CurrentStar->Status.CustomFaction != u"") {
+                if (Self->LastDockedPlanet->CurrentStar->Status.CustomFaction != u"") {
                     continue;
                 }
-                if (!pas::contains(Definitions[EntryIndex].LastPlanetRace, LastDockedPlanet->RaceId)) {
+                if (!pas::contains(Definitions[EntryIndex].LastPlanetRace, Self->LastDockedPlanet->RaceId)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].LastPlanetRelations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                    std::uint8_t cpp_element_7 = static_cast<std::uint8_t>(LastDockedPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()));
+                    std::uint8_t cpp_element_7 = static_cast<std::uint8_t>(Self->LastDockedPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()));
                     const Globals::TGreetingMask& cpp_set_7 = Definitions[EntryIndex].LastPlanetRelations;
                     return pas::contains(cpp_set_7, cpp_element_7);
                 }()) ^ 1)) {
                     continue;
                 }
                 if (Good != 50) {
-                    if (Definitions[EntryIndex].LastPlanetGoodsCnt != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetGoodsCnt, aGalaxy::Galaxy->ClassifyGoodsQuantity(LastDockedPlanet->Goods[Good].Count, Good)) ^ 1)) {
+                    if (Definitions[EntryIndex].LastPlanetGoodsCnt != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetGoodsCnt, aGalaxy::Galaxy->ClassifyGoodsQuantity(Self->LastDockedPlanet->Goods[Good].Count, Good)) ^ 1)) {
                         continue;
                     }
                     if (Definitions[EntryIndex].LastPlanetGoodsSale != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
                         std::uint8_t cpp_element_8 = ([&] {
-                            std::int32_t shopGoodsPurchasePrice_2 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, LastDockedPlanet);
+                            std::int32_t shopGoodsPurchasePrice_2 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Self->LastDockedPlanet);
                             aGalaxy::TGalaxy* galaxy_3 = aGalaxy::Galaxy;
                             return galaxy_3->ClassifyGoodsPrice(shopGoodsPurchasePrice_2, Good);
                         }());
@@ -1880,7 +1880,7 @@ namespace aNormalShip {
                     }
                     if (Definitions[EntryIndex].LastPlanetGoodsBuy != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
                         std::uint8_t cpp_element_9 = ([&] {
-                            std::int32_t shopGoodsSellPrice_2 = aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, LastDockedPlanet);
+                            std::int32_t shopGoodsSellPrice_2 = aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Self->LastDockedPlanet);
                             aGalaxy::TGalaxy* galaxy_4 = aGalaxy::Galaxy;
                             return galaxy_4->ClassifyGoodsPrice(shopGoodsSellPrice_2, Good);
                         }());
@@ -1890,36 +1890,36 @@ namespace aNormalShip {
                         continue;
                     }
                 }
-                if (Definitions[EntryIndex].LastPlanetIsHomePlanet != 2 && (Definitions[EntryIndex].LastPlanetIsHomePlanet == 0 && !(LastDockedPlanet == HomePlanet) || Definitions[EntryIndex].LastPlanetIsHomePlanet == 1 && LastDockedPlanet == HomePlanet)) {
+                if (Definitions[EntryIndex].LastPlanetIsHomePlanet != 2 && (Definitions[EntryIndex].LastPlanetIsHomePlanet == 0 && !(Self->LastDockedPlanet == Self->HomePlanet) || Definitions[EntryIndex].LastPlanetIsHomePlanet == 1 && Self->LastDockedPlanet == Self->HomePlanet)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].LastPlanetRaceIsShipRace != 2) {
-                    if (!pas::in_set<0, 4, 7, 7>(LastDockedPlanet->OwnerId)) {
+                    if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
                         continue;
                     }
-                    if (Definitions[EntryIndex].LastPlanetRaceIsShipRace == 0 && !(LastDockedPlanet->RaceId == PilotRace) || Definitions[EntryIndex].LastPlanetRaceIsShipRace == 1 && LastDockedPlanet->RaceId == PilotRace) {
+                    if (Definitions[EntryIndex].LastPlanetRaceIsShipRace == 0 && !(Self->LastDockedPlanet->RaceId == Self->PilotRace) || Definitions[EntryIndex].LastPlanetRaceIsShipRace == 1 && Self->LastDockedPlanet->RaceId == Self->PilotRace) {
                         continue;
                     }
                 }
                 if (Definitions[EntryIndex].LastPlanetRaceIsPlayerRace != 2) {
-                    if (!pas::in_set<0, 4, 7, 7>(LastDockedPlanet->OwnerId)) {
+                    if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
                         continue;
                     }
-                    if (Definitions[EntryIndex].LastPlanetRaceIsPlayerRace == 0 && !(aPlayer::GetPlayer()->PilotRace == LastDockedPlanet->RaceId) || Definitions[EntryIndex].LastPlanetRaceIsPlayerRace == 1 && aPlayer::GetPlayer()->PilotRace == LastDockedPlanet->RaceId) {
+                    if (Definitions[EntryIndex].LastPlanetRaceIsPlayerRace == 0 && !(aPlayer::GetPlayer()->PilotRace == Self->LastDockedPlanet->RaceId) || Definitions[EntryIndex].LastPlanetRaceIsPlayerRace == 1 && aPlayer::GetPlayer()->PilotRace == Self->LastDockedPlanet->RaceId) {
                         continue;
                     }
                 }
-                if (Definitions[EntryIndex].LastPlanetEconomy != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetEconomy, static_cast<std::uint8_t>(LastDockedPlanet->Economy)) ^ 1)) {
+                if (Definitions[EntryIndex].LastPlanetEconomy != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetEconomy, static_cast<std::uint8_t>(Self->LastDockedPlanet->Economy)) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].LastPlanetGovernment != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetGovernment, static_cast<std::uint8_t>(LastDockedPlanet->Government)) ^ 1)) {
+                if (Definitions[EntryIndex].LastPlanetGovernment != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetGovernment, static_cast<std::uint8_t>(Self->LastDockedPlanet->Government)) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].LastPlanetInCurStar != 2 && (Definitions[EntryIndex].LastPlanetInCurStar == 0 && !(LastDockedPlanet->CurrentStar == CurrentStar) || Definitions[EntryIndex].LastPlanetInCurStar == 1 && LastDockedPlanet->CurrentStar == CurrentStar)) {
+                if (Definitions[EntryIndex].LastPlanetInCurStar != 2 && (Definitions[EntryIndex].LastPlanetInCurStar == 0 && !(Self->LastDockedPlanet->CurrentStar == Self->CurrentStar) || Definitions[EntryIndex].LastPlanetInCurStar == 1 && Self->LastDockedPlanet->CurrentStar == Self->CurrentStar)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].LastPlanetDistToShipInTurn != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
-                    Count = std::min<std::int32_t>(10, EstimateTravelTurnsToPlanet(LastDockedPlanet));
+                    Count = std::min<std::int32_t>(10, Self->EstimateTravelTurnsToPlanet(Self->LastDockedPlanet));
                     if (Count == -1) {
                         continue;
                     }
@@ -1927,7 +1927,7 @@ namespace aNormalShip {
                         continue;
                     }
                 }
-                if (LastDockedPlanet->CurrentStar != CurrentStar) {
+                if (Self->LastDockedPlanet->CurrentStar != Self->CurrentStar) {
                     Rejected = false;
                     for (ShipKind = static_cast<std::uint8_t>(0); ShipKind <= static_cast<std::uint8_t>(4); ++ShipKind) {
                         switch (ShipKind) {
@@ -1939,8 +1939,8 @@ namespace aNormalShip {
                         }
                         if (CountMask != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
                             Count = 0;
-                            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(LastDockedPlanet->CurrentStar->Ships) - 1); cpp_range_5.next(K); ) {
-                                Other = pas::list_at<aShip::TShip>(LastDockedPlanet->CurrentStar->Ships, K);
+                            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Self->LastDockedPlanet->CurrentStar->Ships) - 1); cpp_range_5.next(K); ) {
+                                Other = pas::list_at<aShip::TShip>(Self->LastDockedPlanet->CurrentStar->Ships, K);
                                 if (static_cast<std::uint8_t>(Other->HasScriptStateText() ^ 1) && Other->TypeNameOverrideKey == u"" && Other->TypeId == ShipKind) {
                                     ++Count;
                                 }
@@ -1956,26 +1956,26 @@ namespace aNormalShip {
                         continue;
                     }
                 }
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanet>"_w, pas::concat_wide({LastDockedPlanet->Name, aGalaxy::GetLocalObjectLink(LastDockedPlanet, Automatic)}), u"<color=255,240,100>"_w);
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanetStar>"_w, LastDockedPlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanet>"_w, pas::concat_wide({Self->LastDockedPlanet->Name, aGalaxy::GetLocalObjectLink(Self->LastDockedPlanet, Automatic)}), u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanetStar>"_w, Self->LastDockedPlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
                 if (Good != 50) {
-                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanetGoodsSale>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, LastDockedPlanet)), u"<color=255,240,100>"_w);
-                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanetGoodsBuy>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, LastDockedPlanet)), u"<color=255,240,100>"_w);
+                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanetGoodsSale>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Self->LastDockedPlanet)), u"<color=255,240,100>"_w);
+                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<LastPlanetGoodsBuy>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Self->LastDockedPlanet)), u"<color=255,240,100>"_w);
                 }
             }
             if (MessageText != u"") {
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<Ship>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(this, Automatic), GetName()}), u"<color=255,240,100>"_w);
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<FullShip>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(this, Automatic), GetFullName(u" "_wref.get())}), u"<color=255,240,100>"_w);
-                if (EnemyShip != nullptr) {
-                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ShipBad>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(EnemyShip, Automatic), EnemyShip->GetName()}), u"<color=255,240,100>"_w);
-                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<FullShipBad>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(EnemyShip, Automatic), EnemyShip->GetFullName(u" "_wref.get())}), u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<Ship>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Self, Automatic), Self->GetName()}), u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<FullShip>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Self, Automatic), Self->GetFullName(u" "_wref.get())}), u"<color=255,240,100>"_w);
+                if (Self->EnemyShip != nullptr) {
+                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ShipBad>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Self->EnemyShip, Automatic), Self->EnemyShip->GetName()}), u"<color=255,240,100>"_w);
+                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<FullShipBad>"_w, pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Self->EnemyShip, Automatic), Self->EnemyShip->GetFullName(u" "_wref.get())}), u"<color=255,240,100>"_w);
                 }
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ShipRank>"_w, GetRankName(), u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<ShipRank>"_w, Self->GetRankName(), u"<color=255,240,100>"_w);
                 MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<PlayerRank>"_w, aPlayer::GetPlayer()->GetRankName(), u"<color=255,240,100>"_w);
-                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<CurStar>"_w, CurrentStar->Name, u"<color=255,240,100>"_w);
-                if (HomePlanet != nullptr) {
-                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<HomePlanet>"_w, pas::concat_wide({HomePlanet->Name, aGalaxy::GetLocalObjectLink(HomePlanet, Automatic)}), u"<color=255,240,100>"_w);
-                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<HomePlanetStar>"_w, HomePlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
+                MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<CurStar>"_w, Self->CurrentStar->Name, u"<color=255,240,100>"_w);
+                if (Self->HomePlanet != nullptr) {
+                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<HomePlanet>"_w, pas::concat_wide({Self->HomePlanet->Name, aGalaxy::GetLocalObjectLink(Self->HomePlanet, Automatic)}), u"<color=255,240,100>"_w);
+                    MessageText = aMyFunction::ReplaceColoredToken(MessageText, u"<HomePlanetStar>"_w, Self->HomePlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
                 }
                 BestText = MessageText;
                 if (CandidatePriority == -1) {
@@ -1997,7 +1997,7 @@ namespace aNormalShip {
         RefreshDerivedStats(true);
     }
 
-    void TNormalShip_TrainSkillsAutomatically(TNormalShip* Self) {
+    void TNormalShip::TrainSkillsAutomatically() {
         float Score{};
         float BestScore{};
         aShip::TPilotSkill Skill{};
@@ -2008,10 +2008,10 @@ namespace aNormalShip {
             BestSkill = aShip::psAccuracy;
             for (Bonus = static_cast<std::uint8_t>(22); Bonus <= static_cast<std::uint8_t>(27); ++Bonus) {
                 Skill = static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[Bonus - 22]);
-                if (Self->BaseSkills[Skill] < 6) {
+                if (BaseSkills[Skill] < 6) {
                     {
-                        pas::Extended cpp_left = pas::sqr(static_cast<pas::Extended>(Self->virtual_TShip_EvaluateStatBonus(static_cast<aConst::TEquipmentBonusKind>(Bonus), 1)));
-                        Score = pas::real_divide(cpp_left, aConst::SkillTrainingCosts[Self->BaseSkills[Skill] + 1][Skill]);
+                        pas::Extended cpp_left = pas::sqr(static_cast<pas::Extended>(EvaluateStatBonus(static_cast<aConst::TEquipmentBonusKind>(Bonus), 1)));
+                        Score = pas::real_divide(cpp_left, aConst::SkillTrainingCosts[BaseSkills[Skill] + 1][Skill]);
                     }
                     if (Score > BestScore) {
                         BestScore = Score;
@@ -2019,10 +2019,10 @@ namespace aNormalShip {
                     }
                 }
             }
-            if (BestScore < 0.0L || aConst::SkillTrainingCosts[Self->BaseSkills[BestSkill] + 1][BestSkill] > Self->FreeExperience) {
+            if (BestScore < 0.0L || aConst::SkillTrainingCosts[BaseSkills[BestSkill] + 1][BestSkill] > FreeExperience) {
                 break;
             }
-        } while (Self->TrainSkill(BestSkill));
+        } while (TrainSkill(BestSkill));
     }
 
     void TNormalShip::p_destroy() {

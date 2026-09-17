@@ -1,7 +1,6 @@
 #include "layout/fTalk.hpp"
 #include "types/BreakMessageGIException.hpp"
 #include "types/EC_CacheFont.hpp"
-#include "types/EC_Expression.hpp"
 #include "types/GI_GraphBuf.hpp"
 #include "types/GI_MessageLoop.hpp"
 #include "types/GI_PanelScrollBar.hpp"
@@ -19,10 +18,12 @@
 #include "types/aPirate.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aRuins.hpp"
+#include "types/aTranclucator.hpp"
 #include "types/aWarrior.hpp"
 #include "types/fStarMap.hpp"
 #include "units/Achievements.hpp"
 #include "units/ClassesImports.hpp"
+#include "units/EC_Expression.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/GI_GAI.hpp"
@@ -49,7 +50,6 @@
 #include "units/aRanger.hpp"
 #include "units/aScript.hpp"
 #include "units/aShip.hpp"
-#include "units/aTranclucator.hpp"
 #include "units/fTalk.hpp"
 
 namespace fTalk {
@@ -448,7 +448,7 @@ namespace fTalk {
             RequestedMapCenter = nullptr;
             ClearChoices(false);
             Count = aPlayer::GetPlayer()->ProgramCounts[aGalaxyStruct::prgIntercom];
-            if (Globals::TalkShip != nullptr && Globals::TalkShip->TypeId == aGalaxyStruct::stKling && Count > 0 && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Globals::TalkShip)) {
+            if (Globals::TalkShip != nullptr && Globals::TalkShip->TypeId == aGalaxyStruct::stKling && Count > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Globals::TalkShip)) {
                 --Count;
                 aPlayer::GetPlayer()->ProgramCounts[aGalaxyStruct::prgIntercom] = Count;
                 SysUtilsImports::Sleep(1u);
@@ -472,7 +472,7 @@ namespace fTalk {
                         ++I;
                     } else {
                         if (Ship->ScriptShip != nullptr) {
-                            aShip::TShip_ScriptNextDay(Ship);
+                            Ship->ScriptNextDay();
                         }
                         ++I;
                     }
@@ -1080,7 +1080,7 @@ namespace fTalk {
             Text = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, Selected)->DialogName;
             if (Text != u"") {
                 Script->PublishCurrentShip(Globals::TalkShip);
-                aScript::TScript_CallDialogByVariable(Script, Text);
+                Script->CallDialogByVariable(Text);
                 if (Globals::ScriptDialogIndex < 0) {
                     GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Script->ScriptFileName, u" has overriden dialog with ", Text, u" but it failed to start"})));
                 }
@@ -1354,7 +1354,7 @@ namespace fTalk {
                                 break;
                             }
                         }
-                        if (Globals::TalkShip->HasLooseNonScriptItemsOrGoods() || static_cast<std::uint8_t>(aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Globals::TalkShip) ^ 1)) {
+                        if (Globals::TalkShip->HasLooseNonScriptItemsOrGoods() || static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(Globals::TalkShip) ^ 1)) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.PlayerSendDropCargo"_wref.get())}), 0, pas::bind_method<&TfTalk::OrderPartnerDropCargo>(this), 0);
                         }
                         AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.FinancesCheck"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowPartnerFinances>(this), 0);
@@ -1428,7 +1428,7 @@ namespace fTalk {
                     break;
                 }
                 case aGalaxyStruct::stKling: {
-                    if (Globals::TalkShip != aKling::BlazerShip && Globals::TalkShip != aKling::KellerShip && Globals::TalkShip != aKling::TerronShip && pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramAppliedTurn <= 0 && aPlayer::GetPlayer()->HasProgram(aGalaxyStruct::prgIntercom) && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Globals::TalkShip)) {
+                    if (Globals::TalkShip != aKling::BlazerShip && Globals::TalkShip != aKling::KellerShip && Globals::TalkShip != aKling::TerronShip && pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramAppliedTurn <= 0 && aPlayer::GetPlayer()->HasProgram(aGalaxyStruct::prgIntercom) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Globals::TalkShip)) {
                         for (ProgramIndex = static_cast<std::uint8_t>(0); ProgramIndex <= static_cast<std::uint8_t>(11); ++ProgramIndex) {
                             if (aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] > 0 && pas::in_range(ProgramIndex, aGalaxyStruct::prgShipwreck, aGalaxyStruct::prgDisconnection) && pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramAppliedTurn == 0) {
                                 AddChoice(pas::concat_wide({u"- ", ([&] {
@@ -1534,7 +1534,7 @@ namespace fTalk {
                 Binding = reinterpret_cast<aScript::TScriptShip*>(Globals::TalkShip->ScriptShip);
                 if (Binding->State->AuxiliaryCode != nullptr) {
                     try {
-                        Binding->State->AuxiliaryCode->Run(aScript::ScriptProcess);
+                        EC_Expression::TCodeEC_Run(Binding->State->AuxiliaryCode, aScript::ScriptProcess);
                     } catch (...) {
                         auto cpp_exception = pas::caught_object();
                         if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -1548,7 +1548,7 @@ namespace fTalk {
                     }
                     BuildStandardChoices(false);
                 } else if (Binding->State->AuxiliaryText != u"" && Binding->Script->InitCode->LocalVar->GetVarNE(Binding->State->AuxiliaryText) != nullptr) {
-                    aScript::TScript_CallDialogByVariable(aScript::CurrentScript, Binding->State->AuxiliaryText);
+                    aScript::CurrentScript->CallDialogByVariable(Binding->State->AuxiliaryText);
                     if (Globals::ScriptDialogIndex < 0) {
                         if (!KeepGreeting) {
                             if (Globals::TalkScripted) {
@@ -1843,8 +1843,8 @@ namespace fTalk {
         auto AddAvailableAttackTargets = [&]() -> void {
             std::int32_t I{};
             {
-                std::int32_t cpp_left = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
-                RadarRangeSquared = cpp_left * aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+                std::int32_t cpp_left = aPlayer::GetPlayer()->GetRadarRange();
+                RadarRangeSquared = cpp_left * aPlayer::GetPlayer()->GetRadarRange();
             }
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
@@ -2002,7 +2002,7 @@ namespace fTalk {
             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Exit"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
             return;
         }
-        if (Globals::TalkShip->virtual_TShip_EvaluateAllyRelationAndStrength(aPlayer::GetPlayer())) {
+        if (Globals::TalkShip->EvaluateAllyRelationAndStrength(aPlayer::GetPlayer())) {
             CanEscape = Target->CanEscapePursuer(Globals::TalkShip);
             FearsAttacker = Target->virtual_TShip_AcceptsRansomDemandFrom(Globals::TalkShip);
             {
@@ -2108,7 +2108,7 @@ namespace fTalk {
         std::int32_t I{};
         if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && static_cast<std::uint8_t>(Globals::TalkShip->virtual_TShip_RecomputeFearState() ^ 1)) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.PreserveItems.ComputerNotFearAndWar"_wref.get());
-        } else if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) >= aGalaxyStruct::rlGood || Globals::TalkShip->virtual_TShip_EvaluateAllyRelationAndStrength(aPlayer::GetPlayer())) {
+        } else if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) >= aGalaxyStruct::rlGood || Globals::TalkShip->EvaluateAllyRelationAndStrength(aPlayer::GetPlayer())) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.PreserveItems.", Globals::TalkShip->GetTypeNameKey(), u"Ok"}));
             if (aPlayer::GetPlayer()->PickupTargets != nullptr) {
                 const std::int32_t cpp_last = static_cast<std::int32_t>(Globals::TalkShip->WeaponCount);
@@ -2278,13 +2278,13 @@ namespace fTalk {
         if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile) {
             Globals::TalkShip->ChangeRelationToRanger(aPlayer::GetPlayer(), 10);
         }
-        if (!aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Globals::TalkShip)) {
+        if (!aPlayer::GetPlayer()->CanResolveObjectWithScanner(Globals::TalkShip)) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerDropCargoNo"_wref.get());
             ClearChoices(false);
             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Exit"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
         } else {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerDropCargoOk"_wref.get());
-            aShip::TShip_DropUnequippedItemsAndGoods(Globals::TalkShip);
+            Globals::TalkShip->DropUnequippedItemsAndGoods();
             BuildStandardChoices(true);
         }
     }
@@ -2399,7 +2399,7 @@ namespace fTalk {
         Ship->FollowOwner = false;
         Ship->SeekItems = true;
         if (Ship->CargoFreeSpace > 0) {
-            aTranclucator::TTranclucator_TryCollectPreferredFloatingLoot(Ship, 50);
+            Ship->TryCollectPreferredFloatingLoot(50);
         }
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.SeekItems.Ok"_wref.get());
         ClearChoices(false);
@@ -2566,7 +2566,7 @@ namespace fTalk {
         aTranclucator::TTranclucator* Ship = pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip);
         Ship->FollowOwner = false;
         Ship->SeekItems = false;
-        aShip::TShip_DropUnequippedItemsAndGoods(Ship);
+        Ship->DropUnequippedItemsAndGoods();
         Ship->UpdateFreeFlightOrder();
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.DropCargo.Ok"_wref.get());
         ClearChoices(false);
@@ -2643,7 +2643,7 @@ namespace fTalk {
                 }
                 if (Target->SeekItems) {
                     if (Current->CargoFreeSpace > 0) {
-                        aTranclucator::TTranclucator_TryCollectPreferredFloatingLoot(Target, 50);
+                        Target->TryCollectPreferredFloatingLoot(50);
                     } else {
                         Target->UpdateFreeFlightOrder();
                     }
@@ -2733,8 +2733,8 @@ namespace fTalk {
         ClearChoices(false);
         std::uint8_t ReservedFlag = false;
         std::uint8_t FollowMode = ReservedFlag;
-        std::int32_t cpp_left = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
-        std::int32_t RadarRangeSquared = cpp_left * aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+        std::int32_t cpp_left = aPlayer::GetPlayer()->GetRadarRange();
+        std::int32_t RadarRangeSquared = cpp_left * aPlayer::GetPlayer()->GetRadarRange();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
             if ((Globals::TalkShip->OrderTarget != Ship || Globals::TalkShip->Order != aShip::soFollowShip || Globals::TalkShip->OrderStateData == FollowMode) && aPlayer::GetPlayer() != Ship && Globals::TalkShip != Ship && aPlayer::GetPlayer() != Ship->PartnerShip && Ship->InNormalSpace()) {
@@ -3024,8 +3024,8 @@ namespace fTalk {
         aShip::TShip* Ship{};
         aItem::TWeapon* Weapon{};
         std::uint8_t Result = false;
-        std::int32_t cpp_left = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
-        std::int32_t RadarRangeSquared = cpp_left * aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+        std::int32_t cpp_left = aPlayer::GetPlayer()->GetRadarRange();
+        std::int32_t RadarRangeSquared = cpp_left * aPlayer::GetPlayer()->GetRadarRange();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
             if (!pas::in_set<1, 2>(Ship->TargetingRestriction)) {
@@ -3104,7 +3104,7 @@ namespace fTalk {
                 std::uint32_t answerData = Injection->AnswerData;
                 var->SetDword(answerData);
             }
-            aScript::TScript_CallDialogByVariable(aScript::CurrentScript, Injection->DialogName);
+            aScript::CurrentScript->CallDialogByVariable(Injection->DialogName);
             if (Globals::ScriptDialogIndex < 0) {
                 BuildStandardChoices(false);
             } else {

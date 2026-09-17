@@ -79,6 +79,7 @@ namespace GI_Grid {
         void SetRowSelectEnabled(std::uint8_t Value);
         void SetColSelectEnabled(std::uint8_t Value);
         void SetBackgroundImagePath(pas::WideString Path);
+        void SetActiveCellImagePath(pas::WideString Path);
         void SetActiveCellImageHalfAlpha(std::uint8_t Value);
         // Invalid coordinates become (-1,-1); valid cells are scrolled into view.
         void SetActiveCell(WindowsSdk::TPoint Cell);
@@ -91,6 +92,7 @@ namespace GI_Grid {
         void ProcessKeyDown(std::int32_t Key) override;
         void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
+        void LoadGridProperties(EC_BlockPar::TBlockParEC* Block);
         void Draw(WindowsSdk::TRect ClipRect) override;
         std::uint8_t cpp_padding[4];
         std::int32_t ColumnCount;

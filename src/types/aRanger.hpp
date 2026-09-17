@@ -113,6 +113,8 @@ namespace aRanger {
         // Rounded pirate career status times StrengthInBestRanger, clamped to 0..100.
         std::uint8_t GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
+        // Dispatches by object class and radar distance; unsupported objects yield unknown object.
+        pas::WideString GetObjectInfoText(pas::Object* Instance);
         // Counts galaxy star-list ships whose PartnerShip is Self; includes docked ships.
         std::int32_t CountWingmen();
         std::uint8_t NeedsStrengthCatchup();
@@ -147,7 +149,8 @@ namespace aRanger {
         // Skips queue index 0. Leaves BestPlanet unchanged unless a candidate improves the score; UnitCost must be nonzero.
         std::uint8_t FindBestQueuedSellPlanetProfitScore(std::uint8_t Good, aPlanet::TPlanet*& BestPlanet, double UnitCost);
         void ApplyIllegalGoodsTradeRelationsPenalty(std::int32_t TotalTradeValue);
-        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
+        // Repairs eligible installed items even without sufficient money; subtracts cost only when Money is strictly greater.
+        void RepairBrokenEquipmentAtLocation() override;
         std::uint8_t RelationToNonRanger(aShip::TShip* Ship) override;
         // Two female human pilots receive 100; otherwise reads the stored galaxy-indexed relation.
         std::uint8_t RelationToRanger(void* Ranger) override;
@@ -160,7 +163,8 @@ namespace aRanger {
         void TryRecruitWingman();
         void CheckForPartnershipBreakup();
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        // Tests relation plus a relative-strength score against 120; precise dialogue role remains unresolved.
+        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
         // Returns whether imprisonment blocks this turn; may imprison, release or update standing.
         std::uint8_t ProcessPrisonAndHostileCheck();
         // Scope filters by ship, star or sector; nil selects all. Bulk changes skip scripted ships for which HasScriptControl is true. Masks use ShipToHullType categories and owner IDs, not TShip.TypeId.
@@ -169,7 +173,7 @@ namespace aRanger {
         std::uint8_t GlobalRelationsShips(pas::Object* Scope, std::uint16_t HullTypeMask, std::uint8_t OwnerMask);
         // Averages Coalition planets in matching stars/sectors; empty selection returns 50. A planet Scope does not narrow this native scan.
         std::uint8_t GlobalRelationsPlanets(pas::Object* Scope, std::uint8_t OwnerMask);
-        void virtual_TShip_AssignWeaponTargetsInStar() override;
+        void AssignWeaponTargetsInStar() override;
         // May attempt extortion and assign weapon targets; preserves a prior enemy when no replacement qualifies.
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
@@ -196,12 +200,13 @@ namespace aRanger {
         // At least one; uses galaxy seed, turn and difficulty.
         static std::int32_t GetProgramRewardCount(std::uint8_t ProgramIndex);
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
-        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
         // Always true.
         std::uint8_t AcceptPickupItem(aItem::TItem* Item) override;
         std::uint8_t AcceptPickupDistance(aItem::TItem* Item, double Distance) override;
         void virtual_TShip_RefreshCurrentStanding() override;
+        void ProcessQuestTimersAndOutcomes();
         // Uses player history.
         static std::int32_t CountFailedQuests(std::uint8_t OwnerId, aGalaxyStruct::TQuestTypes QuestTypes);
         void CheckQuestFailureAward(PQuest Quest, aGalaxyStruct::TQuestTypes QuestTypes);

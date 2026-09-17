@@ -87,10 +87,9 @@ namespace aNormalShip {
         // Maximum rank is 7; promotion resets PirateRankPoints.
         std::uint8_t TryPromotePirateRank();
         std::uint8_t CanPromotePirateRank();
-        // Automatic messages suppress object links and select the automatic-message category.
-        pas::WideString SelectSituationalMessage(std::uint8_t Automatic);
         // Enables afterburner for multi-turn orders with a serviceable engine.
         void UpdateAfterburnerState() override;
+        void TrainSkillsAutomatically();
         aPlanet::TPlanet* LastDockedPlanet;
         std::int32_t TotalShipKillCount;
         std::int32_t PirateKillCount;

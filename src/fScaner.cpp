@@ -874,8 +874,8 @@ namespace fScaner {
         try {
             ShipToInspect->RefreshAssignedItemSlots();
             Stage = 1;
-            Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(ShipToInspect) & 0x0000007f), "%"}));
-            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(ShipToInspect)), pas::WideString())});
+            Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(ShipToInspect->GetDefensePercent() & 0x0000007f), "%"}));
+            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(ShipToInspect->GetArmor()), pas::WideString())});
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IDef"_wref.get()))->SetText(Text);
             Stage = 2;
             {

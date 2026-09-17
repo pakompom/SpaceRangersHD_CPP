@@ -57,57 +57,57 @@ namespace ab_W08 {
         }
     }
 
-    void TabW08_Advance(TabW08* Self) {
+    void TabW08::Advance() {
         TabW08* Child{};
-        ab_Object::TabObject_Advance(Self);
-        if (!Self->Exploding) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
+        ab_Object::TabObject::Advance();
+        if (!Exploding) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (!Self->Exploding) {
-            Collision = Self->FindCollision();
-            if (Self->DistanceTravelled < 2.0E+2L && Collision == Self->SourceObject) {
+        if (!Exploding) {
+            Collision = FindCollision();
+            if (DistanceTravelled < 2.0E+2L && Collision == SourceObject) {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > Self->ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Self->Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
-            } else if (Self->Generation <= 1) {
+                Collision->ApplyDamage(Damage, SourceObject, false);
+            } else if (Generation <= 1) {
                 Child = pas::construct_call<TabW08>(TabW08_Create);
                 ab_Object::ab_Object_Add(Child);
                 {
                     float randomIntRange = aMyFunction::RandomIntRange(0, 360);
-                    std::int32_t cpp_arg = Self->Generation + 1;
-                    ab_Object::TabObject* cpp_arg_2 = pas::checked_cast<ab_Ship::TabShip*>(Self->SourceObject);
-                    std::int32_t cpp_arg_3 = Self->Damage / 3;
-                    Child->Launch(cpp_arg_2, cpp_arg_3, randomIntRange, cpp_arg, Self);
+                    std::int32_t cpp_arg = Generation + 1;
+                    ab_Object::TabObject* cpp_arg_2 = pas::checked_cast<ab_Ship::TabShip*>(SourceObject);
+                    std::int32_t cpp_arg_3 = Damage / 3;
+                    Child->Launch(cpp_arg_2, cpp_arg_3, randomIntRange, cpp_arg, this);
                 }
                 Child = pas::construct_call<TabW08>(TabW08_Create);
                 ab_Object::ab_Object_Add(Child);
                 {
                     float randomIntRange_2 = aMyFunction::RandomIntRange(0, 360);
-                    std::int32_t cpp_arg_4 = Self->Generation + 1;
-                    ab_Object::TabObject* cpp_arg_5 = pas::checked_cast<ab_Ship::TabShip*>(Self->SourceObject);
-                    std::int32_t cpp_arg_6 = Self->Damage / 3;
-                    Child->Launch(cpp_arg_5, cpp_arg_6, randomIntRange_2, cpp_arg_4, Self);
+                    std::int32_t cpp_arg_4 = Generation + 1;
+                    ab_Object::TabObject* cpp_arg_5 = pas::checked_cast<ab_Ship::TabShip*>(SourceObject);
+                    std::int32_t cpp_arg_6 = Damage / 3;
+                    Child->Launch(cpp_arg_5, cpp_arg_6, randomIntRange_2, cpp_arg_4, this);
                 }
                 Child = pas::construct_call<TabW08>(TabW08_Create);
                 ab_Object::ab_Object_Add(Child);
                 {
                     float randomIntRange_3 = aMyFunction::RandomIntRange(0, 360);
-                    std::int32_t cpp_arg_7 = Self->Generation + 1;
-                    ab_Object::TabObject* cpp_arg_8 = pas::checked_cast<ab_Ship::TabShip*>(Self->SourceObject);
-                    std::int32_t cpp_arg_9 = Self->Damage / 3;
-                    Child->Launch(cpp_arg_8, cpp_arg_9, randomIntRange_3, cpp_arg_7, Self);
+                    std::int32_t cpp_arg_7 = Generation + 1;
+                    ab_Object::TabObject* cpp_arg_8 = pas::checked_cast<ab_Ship::TabShip*>(SourceObject);
+                    std::int32_t cpp_arg_9 = Damage / 3;
+                    Child->Launch(cpp_arg_8, cpp_arg_9, randomIntRange_3, cpp_arg_7, this);
                 }
             }
-            Self->Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w08a_f"_wref.get(), u"GAI,Bm.AB.w08a_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
-        } else if (Self->Exploding) {
-            Self->DeletionPending = Self->Image->Finished;
+            Exploding = true;
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w08a_f"_wref.get(), u"GAI,Bm.AB.w08a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
+        } else if (Exploding) {
+            DeletionPending = Image->Finished;
         }
     }
 
@@ -117,10 +117,6 @@ namespace ab_W08 {
 
     void TabW08::p_destroy() {
         ab_W08::TabW08_Destroy(this);
-    }
-
-    void TabW08::virtual_TabObject_Advance() {
-        ab_W08::TabW08_Advance(this);
     }
 
 } // namespace ab_W08

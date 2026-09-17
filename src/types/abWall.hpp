@@ -30,7 +30,7 @@ namespace abWall {
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
         void ApplyDamage(std::int32_t Amount, ab_Object::TabObject* Source, std::uint8_t Disrupt) override;
         void UpdateState() override;
-        void virtual_TabObject_Advance() override;
+        void Advance() override;
         void UpdateVisuals() override;
         ab_Zone::PabZone Zone;
         ab_WorldImage::PabWorldImage WorldImage;

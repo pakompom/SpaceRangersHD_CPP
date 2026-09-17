@@ -8,6 +8,4 @@ namespace fPanelLoad {
 
     void TfPanelLoad_Destroy(TfPanelLoad* Self);
 
-    void TfPanelLoad_OnOpen(TfPanelLoad* Self);
-
 } // namespace fPanelLoad

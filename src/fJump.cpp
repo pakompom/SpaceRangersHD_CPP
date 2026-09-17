@@ -75,7 +75,7 @@ namespace fJump {
         GR_DX::ReleaseAllTextureSurfaces();
         if (!aPlayer::GetPlayer()->IsDockedToShip()) {
             SetCursorActive(true);
-            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+            LoadPanel->OnOpen();
             aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 2);
             LoadingStarted = false;
             NoPendingLoads = false;
@@ -90,7 +90,7 @@ namespace fJump {
             Present();
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             SetCursorActive(false);
-            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+            LoadPanel->OnOpen();
             aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 2);
             LoadingStarted = false;
             NoPendingLoads = false;

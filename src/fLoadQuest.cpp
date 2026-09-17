@@ -90,7 +90,7 @@ namespace fLoadQuest {
 
     void TfLoadQuest::OnOpen() {
         GI_MessageLoop::TMessageLoopGI::OnOpen();
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         KeyHistory = pas::WideString();
         if (GlobalsV::PreviousScreenId != GlobalsV::screenPlanetQuest) {
             if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {

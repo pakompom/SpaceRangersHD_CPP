@@ -41,49 +41,49 @@ namespace ab_W02 {
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
-    void TabW02_Advance(TabW02* Self) {
+    void TabW02::Advance() {
         ab_Ship::TabShip* Enemy{};
         ab_Global::TSphericalBearingDistance Bearing{};
-        ab_Object::TabObject_Advance(Self);
-        if (Self->Phase != 2) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
+        ab_Object::TabObject::Advance();
+        if (Phase != 2) {
+            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
         }
         ab_Object::TabObject* Collision = nullptr;
-        if (Self->Phase != 2) {
-            Collision = Self->FindCollision();
-            if (Self->Phase == 0 && Collision == Self->SourceObject) {
+        if (Phase != 2) {
+            Collision = FindCollision();
+            if (Phase == 0 && Collision == SourceObject) {
                 Collision = nullptr;
             }
         }
-        if (Collision != nullptr && Self->Phase != 2) {
+        if (Collision != nullptr && Phase != 2) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
+                Collision->ApplyDamage(Damage, SourceObject, false);
             }
-            Self->Phase = 2;
-            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(), u"GAI,Bm.AB.w02a_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
-        } else if (Self->Phase == 0 && ab_Global::ArcadeTickCount > Self->ArmTick) {
-            Self->Phase = 1;
-            Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-            Self->Thrust = 0.0;
-        } else if (Self->Phase == 1 && ab_Global::ArcadeTickCount > Self->ExpireTick) {
-            Self->Phase = 2;
-            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(), u"GAI,Bm.AB.w02a_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
-        } else if (Self->Phase == 1 && Self->SourceObject != nullptr) {
-            Enemy = pas::checked_cast<ab_Ship::TabShip*>(Self->SourceObject)->FindNearestEnemyWithBearing(Self, Bearing);
+            Phase = 2;
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(), u"GAI,Bm.AB.w02a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
+        } else if (Phase == 0 && ab_Global::ArcadeTickCount > ArmTick) {
+            Phase = 1;
+            Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+            Thrust = 0.0;
+        } else if (Phase == 1 && ab_Global::ArcadeTickCount > ExpireTick) {
+            Phase = 2;
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(), u"GAI,Bm.AB.w02a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
+        } else if (Phase == 1 && SourceObject != nullptr) {
+            Enemy = pas::checked_cast<ab_Ship::TabShip*>(SourceObject)->FindNearestEnemyWithBearing(this, Bearing);
             if (Enemy != nullptr && Bearing.Distance < 3.0E+2L) {
-                Self->State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Self->State.BearingDegrees) + Bearing.BearingDeltaDegrees);
-                Self->Thrust = 2.0;
-                Self->MaxSpeed = 2.0;
+                State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Bearing.BearingDeltaDegrees);
+                Thrust = 2.0;
+                MaxSpeed = 2.0;
             } else {
-                Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-                Self->Thrust = 0.0;
+                Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+                Thrust = 0.0;
             }
-        } else if (Self->Phase == 2) {
-            Self->DeletionPending = Self->Image->Finished;
+        } else if (Phase == 2) {
+            DeletionPending = Image->Finished;
         }
     }
 
@@ -93,10 +93,6 @@ namespace ab_W02 {
 
     void TabW02::p_destroy() {
         ab_W02::TabW02_Destroy(this);
-    }
-
-    void TabW02::virtual_TabObject_Advance() {
-        ab_W02::TabW02_Advance(this);
     }
 
 } // namespace ab_W02

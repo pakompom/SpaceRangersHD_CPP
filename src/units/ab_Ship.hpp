@@ -19,6 +19,4 @@ namespace ab_Ship {
 
     void TabShip_Destroy(TabShip* Self);
 
-    void TabShip_Advance(TabShip* Self);
-
 } // namespace ab_Ship

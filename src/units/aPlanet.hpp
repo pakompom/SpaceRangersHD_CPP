@@ -48,9 +48,6 @@ namespace aPlanet {
 
     void TPlanet_UpdateMarketState(TPlanet* Self);
 
-    // Weekly replacement/generation gate; disabled by sumDisabled and sumGoodsOnly.
-    void TPlanet_RefreshEquipmentShopInventory(TPlanet* Self);
-
     aItem::TEquipment* TPlanet_GenerateEquipmentOffer(TPlanet* Self, void* Ship, std::uint8_t ItemType);
 
     // Returns a new owning list of generated equipment, using the race quota table. Caller forwards ForceGeneratedOffers in CL; this routine saves but never reads it.

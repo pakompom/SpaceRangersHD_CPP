@@ -55,7 +55,7 @@ namespace fGameLoad {
     }
 
     void TfGameLoad::OnOpen() {
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         LoadPanel->Show();
         if (GR_Main::MusicManager->CategoryOverride == u"") {
             GR_Main::MusicManager->RequestFadeOut();

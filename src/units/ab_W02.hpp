@@ -6,6 +6,4 @@ namespace ab_W02 {
 
     void TabW02_Destroy(TabW02* Self);
 
-    void TabW02_Advance(TabW02* Self);
-
 } // namespace ab_W02

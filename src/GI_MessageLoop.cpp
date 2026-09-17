@@ -1389,7 +1389,7 @@ namespace GI_MessageLoop {
                     Stage = 21;
                     ProcessCallbackTimers();
                     if (PopUp::PopupController != nullptr) {
-                        PopUp::TfPopUpController_AdvancePopups(PopUp::PopupController, TimerTick);
+                        PopUp::PopupController->AdvancePopups(TimerTick);
                     }
                     Stage = 22;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(SoundGroupList) - 1); cpp_range_2.next(Index); ) {
@@ -1550,7 +1550,7 @@ namespace GI_MessageLoop {
                         Stage = 23;
                         AdvanceTimerTick();
                         if (PopUp::PopupController != nullptr) {
-                            PopUp::TfPopUpController_AdvancePopups(PopUp::PopupController, TimerTick);
+                            PopUp::PopupController->AdvancePopups(TimerTick);
                         }
                     }
                     Stage = 24;

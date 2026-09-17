@@ -6,11 +6,6 @@ namespace aGalaxy {
 
 } // namespace aGalaxy
 
-namespace aPlanet {
-    struct TPlanet;
-
-} // namespace aPlanet
-
 namespace aShip {
     struct TShip;
 
@@ -52,9 +47,6 @@ namespace aPlayer {
     void TPlayer_Destroy(TPlayer* Self);
 
     void TPlayer_ResolveLoadedReferences(TPlayer* Self, aGalaxy::TGalaxy* Galaxy);
-
-    // Twenty-five race/preset loadouts, stored cargo and initial planet relations. Planet is unused.
-    void TPlayer_ApplyCharacterPreset(TPlayer* Self, aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset);
 
     void TPlayer_NextDay(TPlayer* Self);
 

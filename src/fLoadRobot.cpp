@@ -108,7 +108,7 @@ namespace fLoadRobot {
         pas::WideString LossText{};
         pas::WideString TerronName{};
         GI_MessageLoop::TMessageLoopGI::OnOpen();
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         KeyHistory = pas::WideString();
         if (BattleResult == 1) {
             if (Entries[SelectedIndex].MapIndex >= 0) {
@@ -136,7 +136,7 @@ namespace fLoadRobot {
             aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get()), u"<color=255,240,100>"_w);
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(LossText);
             TerronName = aConst::LocalizedText(u"FormLoadRobot.PPlace"_wref.get());
-            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+            LoadPanel->OnOpen();
             LoadPanel->SelectBackgroundStyle(3);
             LoadPanel->RefreshBackgroundImages();
             BattleResult = Robot::FRun(Entries[SelectedIndex].FileName, StartText, WinText, LossText, TerronName);

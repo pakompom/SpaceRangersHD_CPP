@@ -108,7 +108,7 @@ namespace aRuins {
     }
 
     // Also registers the station in Star. Type 13 inherits ranger-center defaults.
-    void TRuins_Init(TRuins* Self, aGalaxyStruct::TStationType StationType, aGalaxy::TStar* Star, pas::WideString TypeNameOverride) {
+    void TRuins::Init(aGalaxyStruct::TStationType StationType, aGalaxy::TStar* Star, pas::WideString TypeNameOverride) {
         std::int32_t I{};
         aRanger::TRanger* Ranger{};
         aGalaxyEvent::TGalaxyEvent* Event{};
@@ -127,19 +127,19 @@ namespace aRuins {
             if (Config == nullptr) {
                 return;
             }
-            if (Config->CountBlocks(aConst::ShipTypeNames[Self->TypeId].Name) == 0) {
+            if (Config->CountBlocks(aConst::ShipTypeNames[this->TypeId].Name) == 0) {
                 return;
             }
-            std::int32_t LastName = Config->GetBlock(aConst::ShipTypeNames[Self->TypeId].Name)->GetParamCount() - 1;
-            Index = aMyFunction::NextRandomIntRange(0, LastName, Self->RandomState);
+            std::int32_t LastName = Config->GetBlock(aConst::ShipTypeNames[this->TypeId].Name)->GetParamCount() - 1;
+            Index = aMyFunction::NextRandomIntRange(0, LastName, this->RandomState);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, LastName); cpp_range.next(I); ) {
-                Self->Name = Config->GetBlock(aConst::ShipTypeNames[Self->TypeId].Name)->GetParamValue(Index);
+                this->Name = Config->GetBlock(aConst::ShipTypeNames[this->TypeId].Name)->GetParamValue(Index);
                 Used = false;
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_2.next(J); ) {
                     OtherStar = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, J);
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(OtherStar->Ships) - 1); cpp_range_3.next(K); ) {
                         Ship = pas::list_at<aShip::TShip>(OtherStar->Ships, K);
-                        if (Ship->TypeId == Self->TypeId && Ship->Name == Self->Name && Ship != Self) {
+                        if (Ship->TypeId == this->TypeId && Ship->Name == this->Name && Ship != this) {
                             Used = true;
                             break;
                         }
@@ -153,162 +153,162 @@ namespace aRuins {
                 }
                 aMyFunction::IncrementWrapped(Index, 0, LastName);
                 if (I == LastName) {
-                    Self->Name = pas::concat_wide({Self->Name, u" ", u"-", pas::wide_int_to_str(aMyFunction::NextRandomIntRange(10, 99, Self->RandomState)), u"-"});
+                    this->Name = pas::concat_wide({this->Name, u" ", u"-", pas::wide_int_to_str(aMyFunction::NextRandomIntRange(10, 99, this->RandomState)), u"-"});
                 }
             }
         };
         auto RandomStationEquipmentSize = [&](std::int32_t BaseSize) -> std::int32_t {
             std::int32_t round = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[1] * 2.0L);
             std::int32_t round_2 = System::Round(static_cast<long double>(BaseSize) * aConst::EquipmentSizeFactors[2] * 2.0L);
-            return aMyFunction::NextRandomIntRange(round_2, round, Self->RandomState);
+            return aMyFunction::NextRandomIntRange(round_2, round, this->RandomState);
         };
         if (StationType == aGalaxyStruct::rstCustomStation) {
-            Self->TypeId = static_cast<std::uint8_t>(aGalaxyStruct::rstRangerCenter);
+            TypeId = static_cast<std::uint8_t>(aGalaxyStruct::rstRangerCenter);
         } else {
-            pas::store_unaligned<aGalaxyStruct::TStationType>(&Self->TypeId, StationType);
+            pas::store_unaligned<aGalaxyStruct::TStationType>(&TypeId, StationType);
         }
-        Self->TypeNameOverrideKey = TypeNameOverride;
-        Self->CurrentStar = Star;
-        pas::list_add(Self->CurrentStar->Ships, reinterpret_cast<void*>(Self));
-        Self->HomePlanet = nullptr;
-        Self->CurrentPlanet = nullptr;
+        TypeNameOverrideKey = TypeNameOverride;
+        CurrentStar = Star;
+        pas::list_add(CurrentStar->Ships, reinterpret_cast<void*>(this));
+        HomePlanet = nullptr;
+        CurrentPlanet = nullptr;
         if (aGalaxy::Galaxy->CurrentTurn < 300 && aPlayer::GetPlayer()->CurrentStar->Constellation == Star->Constellation) {
-            Self->PilotRace = StationPilotRaces[Self->TypeId][0];
-        } else if (aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.5L) {
-            Self->PilotRace = StationPilotRaces[Self->TypeId][0];
+            PilotRace = StationPilotRaces[TypeId][0];
+        } else if (aMyFunction::NextRandomUnitFloat(RandomState) < 0.5L) {
+            PilotRace = StationPilotRaces[TypeId][0];
         } else {
-            Self->PilotRace = StationPilotRaces[Self->TypeId][1];
+            PilotRace = StationPilotRaces[TypeId][1];
         }
-        Self->OwnerId = aConst::RaceToOwner(Self->PilotRace);
-        Self->RandomizePosition();
-        Self->Name = pas::WideString();
+        OwnerId = aConst::RaceToOwner(PilotRace);
+        RandomizePosition();
+        Name = pas::WideString();
         SelectStationName(GR_Main::ModRuinNameConfig);
-        if (Self->GetName().length() == 0) {
+        if (GetName().length() == 0) {
             SelectStationName(GR_Main::LanguageDataConfig->GetBlock(u"RuinName"_wref.get()));
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
             Ranger = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
-            pas::list_add(Self->RangerRelations, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(*([&] {
+            pas::list_add(RangerRelations, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(*([&] {
                 auto cpp_index = aConst::RaceToOwner(Ranger->PilotRace) & 0x0000007f;
-                auto* cpp_array = &aConst::OwnerRelations[aConst::RaceToOwner(Self->PilotRace) & 0x0000007f];
+                auto* cpp_array = &aConst::OwnerRelations[aConst::RaceToOwner(PilotRace) & 0x0000007f];
                 return &(*cpp_array)[cpp_index];
             }())))));
         }
-        Self->GenerateCombatSkills();
-        Self->virtual_TShip_RefreshCurrentStanding();
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->RuinsProxy != Self) {
+        GenerateCombatSkills();
+        this->virtual_TShip_RefreshCurrentStanding();
+        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->RuinsProxy != this) {
             Event = aGalaxyEvent::AddGalaxyEvent(u"RuinsCreated"_w, nullptr);
             Event->AddData(StationType);
-            Event->AddData(Self->Id);
+            Event->AddData(Id);
             Event->AddData(Star->Id);
-            Event->AddTextData(Self->Name);
+            Event->AddTextData(Name);
             Event->AddTextData(TypeNameOverride);
         }
-        Self->ChameleonActive = false;
-        Self->GraphDominator = aGalaxy::Galaxy->GraphDominatorSurfacesEnabled;
-        aRuins::TRuins_RefreshShopInventory(Self);
+        ChameleonActive = false;
+        GraphDominator = aGalaxy::Galaxy->GraphDominatorSurfacesEnabled;
+        RefreshShopInventory();
         for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
-            Self->ShopGoods[Good].Count = System::Round(static_cast<long double>(aConst::GoodsMarket[Good].BaseStock) * aConst::StationGoodsFactors[Self->TypeId][Good].StockFactor);
-            Self->ShopGoods[Good].PriceState = aConst::GoodsMarket[Good].AveragePrice;
-            Self->ShopGoods[Good].PurchasePrice = System::Round(Self->ShopGoods[Good].PriceState);
-            Self->ShopGoods[Good].BaseSalePrice = System::Round(Self->ShopGoods[Good].PriceState * 0.98L - 1.0L);
+            ShopGoods[Good].Count = System::Round(static_cast<long double>(aConst::GoodsMarket[Good].BaseStock) * aConst::StationGoodsFactors[TypeId][Good].StockFactor);
+            ShopGoods[Good].PriceState = aConst::GoodsMarket[Good].AveragePrice;
+            ShopGoods[Good].PurchasePrice = System::Round(ShopGoods[Good].PriceState);
+            ShopGoods[Good].BaseSalePrice = System::Round(ShopGoods[Good].PriceState * 0.98L - 1.0L);
         }
-        if (Self->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
+        if (CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
             EquipmentOwner = 7;
         } else {
-            EquipmentOwner = Self->OwnerId;
+            EquipmentOwner = OwnerId;
         }
         {
-            std::uint8_t ownerId = Self->OwnerId;
-            std::uint8_t cpp_arg = Self->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates;
-            std::int32_t cpp_left_2 = aMyFunction::NextRandomIntRange(StationHullGeneration[Self->TypeId].MinSize, StationHullGeneration[Self->TypeId].MaxSize, Self->RandomState);
-            pas::Extended cpp_left = cpp_left_2 + aGalaxy::Galaxy->ScaleIntByTechLevel(0, StationHullGeneration[Self->TypeId].TechSizeBonus);
+            std::uint8_t ownerId = OwnerId;
+            std::uint8_t cpp_arg = CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates;
+            std::int32_t cpp_left_2 = aMyFunction::NextRandomIntRange(StationHullGeneration[TypeId].MinSize, StationHullGeneration[TypeId].MaxSize, RandomState);
+            pas::Extended cpp_left = cpp_left_2 + aGalaxy::Galaxy->ScaleIntByTechLevel(0, StationHullGeneration[TypeId].TechSizeBonus);
             std::uint16_t roundAndTruncateToTens = aMyFunction::RoundAndTruncateToTens(cpp_left * aConst::HullCapacityScale);
-            std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(StationHullGeneration[Self->TypeId].MinLevel, StationHullGeneration[Self->TypeId].MaxLevel, Self->RandomState);
+            std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(StationHullGeneration[TypeId].MinLevel, StationHullGeneration[TypeId].MaxLevel, RandomState);
             aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
             std::uint8_t scaleIntByTechLevel = galaxy->ScaleIntByTechLevel(1, nextRandomIntRange);
-            aShip::TShip* self = Self;
+            aShip::TShip* self = this;
             aShip::TShip_CreateAndEquipHull(self, roundAndTruncateToTens, scaleIntByTechLevel, ownerId, -1, cpp_arg);
         }
         {
             std::int32_t randomStationEquipmentSize = RandomStationEquipmentSize(aConst::FuelTanksBaseSize);
-            aShip::TShip* self_2 = Self;
+            aShip::TShip* self_2 = this;
             self_2->CreateAndEquipFuelTanks(randomStationEquipmentSize, 1, EquipmentOwner);
         }
         {
             std::int32_t randomStationEquipmentSize_2 = RandomStationEquipmentSize(aConst::EngineBaseSize);
-            aShip::TShip* self_3 = Self;
+            aShip::TShip* self_3 = this;
             self_3->CreateAndEquipEngine(randomStationEquipmentSize_2, 1, EquipmentOwner);
         }
         {
-            std::int32_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(StationDefenseLevels[Self->TypeId].Minimum, StationDefenseLevels[Self->TypeId].Maximum, Self->RandomState);
+            std::int32_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(StationDefenseLevels[TypeId].Minimum, StationDefenseLevels[TypeId].Maximum, RandomState);
             aGalaxy::TGalaxy* galaxy_2 = aGalaxy::Galaxy;
             std::uint8_t scaleIntByTechLevel_2 = galaxy_2->ScaleIntByTechLevel(1, nextRandomIntRange_2);
             std::int32_t randomStationEquipmentSize_3 = RandomStationEquipmentSize(aConst::DefGeneratorBaseSize);
-            aShip::TShip* self_4 = Self;
+            aShip::TShip* self_4 = this;
             self_4->CreateAndEquipDefGenerator(randomStationEquipmentSize_3, scaleIntByTechLevel_2, EquipmentOwner);
         }
         {
-            std::int32_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(StationRepairLevels[Self->TypeId].Minimum, StationRepairLevels[Self->TypeId].Maximum, Self->RandomState);
+            std::int32_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(StationRepairLevels[TypeId].Minimum, StationRepairLevels[TypeId].Maximum, RandomState);
             aGalaxy::TGalaxy* galaxy_3 = aGalaxy::Galaxy;
             std::uint8_t scaleIntByTechLevel_3 = galaxy_3->ScaleIntByTechLevel(1, nextRandomIntRange_3);
             std::int32_t randomStationEquipmentSize_4 = RandomStationEquipmentSize(aConst::RepairRobotBaseSize);
-            aShip::TShip* self_5 = Self;
+            aShip::TShip* self_5 = this;
             self_5->CreateAndEquipRepairRobot(randomStationEquipmentSize_4, scaleIntByTechLevel_3, EquipmentOwner);
         }
-        if (aConst::WeaponInfos[StationWeaponTypes[Self->TypeId][2]].TechLevel <= aGalaxy::Galaxy->TechLevel && aMyFunction::NextRandomUnitFloat(Self->RandomState) > 0.6L) {
+        if (aConst::WeaponInfos[StationWeaponTypes[TypeId][2]].TechLevel <= aGalaxy::Galaxy->TechLevel && aMyFunction::NextRandomUnitFloat(RandomState) > 0.6L) {
             Weapon = ([&] {
-                std::int32_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(StationWeaponGeneration[Self->TypeId].AdvancedLevel + 1, 8, Self->RandomState);
-                std::int32_t advancedLevel = StationWeaponGeneration[Self->TypeId].AdvancedLevel;
+                std::int32_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(StationWeaponGeneration[TypeId].AdvancedLevel + 1, 8, RandomState);
+                std::int32_t advancedLevel = StationWeaponGeneration[TypeId].AdvancedLevel;
                 aGalaxy::TGalaxy* galaxy_4 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_4 = galaxy_4->ScaleIntByTechLevel(advancedLevel, nextRandomIntRange_4);
-                std::int32_t randomStationEquipmentSize_5 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[Self->TypeId][2]].AverageSize);
-                std::uint8_t cpp_arg_2 = StationWeaponTypes[Self->TypeId][2];
-                aShip::TShip* self_6 = Self;
+                std::int32_t randomStationEquipmentSize_5 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][2]].AverageSize);
+                std::uint8_t cpp_arg_2 = StationWeaponTypes[TypeId][2];
+                aShip::TShip* self_6 = this;
                 return self_6->CreateAndEquipWeapon(cpp_arg_2, randomStationEquipmentSize_5, scaleIntByTechLevel_4, EquipmentOwner);
             }());
-        } else if (aConst::WeaponInfos[StationWeaponTypes[Self->TypeId][1]].TechLevel <= aGalaxy::Galaxy->TechLevel && aMyFunction::NextRandomUnitFloat(Self->RandomState) > 0.6L) {
+        } else if (aConst::WeaponInfos[StationWeaponTypes[TypeId][1]].TechLevel <= aGalaxy::Galaxy->TechLevel && aMyFunction::NextRandomUnitFloat(RandomState) > 0.6L) {
             Weapon = ([&] {
-                std::int32_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(StationWeaponGeneration[Self->TypeId].IntermediateLevel + 1, 8, Self->RandomState);
-                std::int32_t intermediateLevel = StationWeaponGeneration[Self->TypeId].IntermediateLevel;
+                std::int32_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(StationWeaponGeneration[TypeId].IntermediateLevel + 1, 8, RandomState);
+                std::int32_t intermediateLevel = StationWeaponGeneration[TypeId].IntermediateLevel;
                 aGalaxy::TGalaxy* galaxy_5 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_5 = galaxy_5->ScaleIntByTechLevel(intermediateLevel, nextRandomIntRange_5);
-                std::int32_t randomStationEquipmentSize_6 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[Self->TypeId][1]].AverageSize);
-                std::uint8_t cpp_arg_3 = StationWeaponTypes[Self->TypeId][1];
-                aShip::TShip* self_7 = Self;
+                std::int32_t randomStationEquipmentSize_6 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][1]].AverageSize);
+                std::uint8_t cpp_arg_3 = StationWeaponTypes[TypeId][1];
+                aShip::TShip* self_7 = this;
                 return self_7->CreateAndEquipWeapon(cpp_arg_3, randomStationEquipmentSize_6, scaleIntByTechLevel_5, EquipmentOwner);
             }());
         } else {
             Weapon = ([&] {
-                std::int32_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(StationWeaponGeneration[Self->TypeId].BasicLevel + 1, 8, Self->RandomState);
-                std::int32_t basicLevel = StationWeaponGeneration[Self->TypeId].BasicLevel;
+                std::int32_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(StationWeaponGeneration[TypeId].BasicLevel + 1, 8, RandomState);
+                std::int32_t basicLevel = StationWeaponGeneration[TypeId].BasicLevel;
                 aGalaxy::TGalaxy* galaxy_6 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_6 = galaxy_6->ScaleIntByTechLevel(basicLevel, nextRandomIntRange_6);
-                std::int32_t randomStationEquipmentSize_7 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[Self->TypeId][0]].AverageSize);
-                std::uint8_t cpp_arg_4 = StationWeaponTypes[Self->TypeId][0];
-                aShip::TShip* self_8 = Self;
+                std::int32_t randomStationEquipmentSize_7 = RandomStationEquipmentSize(aConst::WeaponInfos[StationWeaponTypes[TypeId][0]].AverageSize);
+                std::uint8_t cpp_arg_4 = StationWeaponTypes[TypeId][0];
+                aShip::TShip* self_8 = this;
                 return self_8->CreateAndEquipWeapon(cpp_arg_4, randomStationEquipmentSize_7, scaleIntByTechLevel_6, EquipmentOwner);
             }());
         }
-        Weapon->Range = std::max<std::int32_t>(Weapon->Range, StationWeaponGeneration[Self->TypeId].MinimumRange);
-        if (Self->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion)) {
-            Self->CurrentStar->Dominion = Self;
+        Weapon->Range = std::max<std::int32_t>(Weapon->Range, StationWeaponGeneration[TypeId].MinimumRange);
+        if (TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion)) {
+            CurrentStar->Dominion = this;
             {
-                std::int32_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(5, 8, Self->RandomState);
+                std::int32_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(5, 8, RandomState);
                 aGalaxy::TGalaxy* galaxy_7 = aGalaxy::Galaxy;
                 std::uint8_t scaleIntByTechLevel_7 = galaxy_7->ScaleIntByTechLevel(2, nextRandomIntRange_7);
                 std::int32_t randomStationEquipmentSize_8 = RandomStationEquipmentSize(aConst::CargoHookBaseSize);
-                aShip::TShip* self_9 = Self;
+                aShip::TShip* self_9 = this;
                 Hook = self_9->CreateAndEquipCargoHook(randomStationEquipmentSize_8, scaleIntByTechLevel_7, EquipmentOwner);
             }
             Hook->Range = std::max<std::int32_t>(Hook->Range, 200);
         }
-        if (Self->GetCargoFreeSpace() < 0) {
-            Self->GetHull()->Weight += pas::abs(Self->GetCargoFreeSpace());
+        if (GetCargoFreeSpace() < 0) {
+            GetHull()->Weight += pas::abs(GetCargoFreeSpace());
         }
-        Self->RefreshDerivedStats(true);
-        Self->NodeReserve = 0;
-        pas::store_unaligned<aGalaxyStruct::TStationType>(&Self->TypeId, StationType);
+        RefreshDerivedStats(true);
+        NodeReserve = 0;
+        pas::store_unaligned<aGalaxyStruct::TStationType>(&TypeId, StationType);
     }
 
     void TRuins::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
@@ -551,14 +551,14 @@ namespace aRuins {
     void TRuins_NextDay(TRuins* Self) {
         aShip::TShip_NextDay(Self);
         if (Self->ScriptShip != nullptr && Self->HasScriptControl()) {
-            aShip::TShip_ScriptNextDay(Self);
+            Self->ScriptNextDay();
             if (Self->ScriptShip != nullptr) {
                 return;
             }
         }
         Self->virtual_TShip_NextDayLogic();
         if (Self->ScriptShip != nullptr && static_cast<std::uint8_t>(Self->HasScriptControl() ^ 1)) {
-            aShip::TShip_ScriptNextDay(Self);
+            Self->ScriptNextDay();
         }
     }
 
@@ -594,17 +594,17 @@ namespace aRuins {
             }
             Stage = 2;
             if (aMyFunction::NextRandomIntRange(1, 60, Self->RandomState) == 1) {
-                Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
+                Self->RepairBrokenEquipmentAtLocation();
                 Self->ReloadWeapons();
                 if (aGalaxy::Galaxy->IsStationShopUpdateEnabled() && static_cast<std::uint8_t>(Self->ModernizationSponsor ^ 1)) {
                     aShip::TShip_BuyEquipmentAtLocation(Self, false);
-                    Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
+                    Self->RepairBrokenEquipmentAtLocation();
                 }
             }
             Stage = 3;
-            Self->virtual_TShip_AssignWeaponTargetsInStar();
+            Self->AssignWeaponTargetsInStar();
             Stage = 4;
-            aShip::TShip_QueueItemsWithinPickupRange(Self);
+            Self->QueueItemsWithinPickupRange();
             Stage = 5;
             if (Self->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
                 Stage = 6;
@@ -673,7 +673,7 @@ namespace aRuins {
                 Self->RegenerateSatelliteOffer();
             }
             Stage = 11;
-            aRuins::TRuins_RefreshShopInventory(Self);
+            Self->RefreshShopInventory();
             Stage = 12;
             Self->UpdateGoodsMarketState();
             Stage = 13;
@@ -767,26 +767,26 @@ namespace aRuins {
     }
 
     // Sponsored stations restore equipment condition without a repair transaction.
-    void TRuins_RepairBrokenEquipmentAtLocation(TRuins* Self) {
+    void TRuins::RepairBrokenEquipmentAtLocation() {
         std::int32_t I{};
         aItem::TEquipment* Item{};
         aItem::TEquipment* Artefact{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range.next(I); ) {
-            Item = pas::list_at<aItem::TEquipment>(Self->Inventory, I);
-            if ((!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair) && aShip::TShip_CanRepairEquipmentTech(Self, Item) && (Item->BrokenFlag != 0 || Item->ConditionPercent < 1.0L)) {
+        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Inventory) - 1); cpp_range.next(I); ) {
+            Item = pas::list_at<aItem::TEquipment>(Inventory, I);
+            if ((!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair) && aShip::TShip_CanRepairEquipmentTech(this, Item) && (Item->BrokenFlag != 0 || Item->ConditionPercent < 1.0L)) {
                 Item->BrokenFlag = 0;
-                if (Self->ModernizationSponsor) {
+                if (ModernizationSponsor) {
                     Item->ConditionPercent = 1.0;
                 } else {
                     Item->Repair();
                 }
             }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Self->Artefacts) - 1); cpp_range_2.next(I); ) {
-            Artefact = pas::list_at<aItem::TEquipment>(Self->Artefacts, I);
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Artefacts) - 1); cpp_range_2.next(I); ) {
+            Artefact = pas::list_at<aItem::TEquipment>(Artefacts, I);
             if (Artefact->BrokenFlag != 0 || Artefact->ConditionPercent < 1.0L) {
                 Artefact->BrokenFlag = 0;
-                if (Self->ModernizationSponsor) {
+                if (ModernizationSponsor) {
                     Artefact->ConditionPercent = 1.0;
                 } else {
                     Artefact->Repair();
@@ -817,31 +817,31 @@ namespace aRuins {
     }
 
     // Disabled in modes 1 and 3; otherwise follows the station's weekly schedule after initial setup.
-    void TRuins_RefreshShopInventory(TRuins* Self) {
+    void TRuins::RefreshShopInventory() {
         std::int32_t I{};
         std::int32_t Attempts{};
         aItem::TEquipment* Item{};
         std::uint8_t Kind{};
-        if (pas::is_one_of<aGalaxyStruct::sumDisabled, aGalaxyStruct::sumGoodsOnly>(Self->ShopUpdateMode)) {
+        if (pas::is_one_of<aGalaxyStruct::sumDisabled, aGalaxyStruct::sumGoodsOnly>(ShopUpdateMode)) {
             return;
         }
-        if (aGalaxy::Galaxy->CurrentTurn > Self->CreationTurn + 1 && static_cast<std::int32_t>(Self->Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn)) % 7 != 0) {
+        if (aGalaxy::Galaxy->CurrentTurn > CreationTurn + 1 && static_cast<std::int32_t>(Seed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn)) % 7 != 0) {
             return;
         }
-        std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(0, pas::list_count(Self->CurrentStar->Planets) - 1, Self->RandomState);
-        aMyFunction::TObjectList* planets = Self->CurrentStar->Planets;
+        std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(0, pas::list_count(CurrentStar->Planets) - 1, RandomState);
+        aMyFunction::TObjectList* planets = CurrentStar->Planets;
         aPlanet::TPlanet* Planet = pas::list_at<aPlanet::TPlanet>(planets, nextRandomIntRange);
         if (Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
             Planet = nullptr;
         }
         {
-            std::int32_t cpp_left = pas::list_count(Self->EquipmentShop);
-            if (cpp_left >= Self->CalculateEquipmentShopTargetCount()) {
+            std::int32_t cpp_left = pas::list_count(EquipmentShop);
+            if (cpp_left >= CalculateEquipmentShopTargetCount()) {
                 if (Planet != nullptr) {
-                    I = aMyFunction::SeededRandomIntRange(0, pas::list_count(Self->EquipmentShop) - 1, Self->Seed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn));
-                    Item = pas::list_at<aItem::TEquipment>(Self->EquipmentShop, I);
+                    I = aMyFunction::SeededRandomIntRange(0, pas::list_count(EquipmentShop) - 1, Seed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn));
+                    Item = pas::list_at<aItem::TEquipment>(EquipmentShop, I);
                     if (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->Name == u"") {
-                        pas::list_delete(Self->EquipmentShop, I);
+                        pas::list_delete(EquipmentShop, I);
                         pas::free(Item);
                     }
                 }
@@ -849,14 +849,14 @@ namespace aRuins {
         }
         std::int32_t Added = 0;
         while (([&] {
-            pas::Extended cpp_left_2 = pas::list_count(Self->EquipmentShop);
-            return cpp_left_2 <= Self->CalculateEquipmentShopTargetCount() * 0.7L;
+            pas::Extended cpp_left_2 = pas::list_count(EquipmentShop);
+            return cpp_left_2 <= CalculateEquipmentShopTargetCount() * 0.7L;
         }()) || ([&] {
-            std::int32_t cpp_left_3 = pas::list_count(Self->EquipmentShop);
-            return cpp_left_3 <= Self->CalculateEquipmentShopTargetCount();
+            std::int32_t cpp_left_3 = pas::list_count(EquipmentShop);
+            return cpp_left_3 <= CalculateEquipmentShopTargetCount();
         }()) && Planet != nullptr) {
             if (Planet == nullptr) {
-                Planet = Self->FindFirstInhabitedPlanetInStar();
+                Planet = FindFirstInhabitedPlanetInStar();
             }
             ++Added;
             if (Added > 10) {
@@ -865,12 +865,12 @@ namespace aRuins {
             Attempts = 0;
             do {
                 ++Attempts;
-                Kind = aMyFunction::SeededRandomIntRange(42, 50, Self->Seed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) * 175 + static_cast<std::uint32_t>(Attempts));
-            } while (!(Attempts > 20 || Self->CountEquipmentShopItems(Kind) < pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::StationEquipmentOfferQuotas[Self->TypeId], (Kind - 42) * sizeof(std::int32_t)))));
-            Item = aRuins::TRuins_GenerateEquipmentOffer(Self, aPlayer::GetPlayer(), Planet, Kind);
+                Kind = aMyFunction::SeededRandomIntRange(42, 50, Seed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) * 175 + static_cast<std::uint32_t>(Attempts));
+            } while (!(Attempts > 20 || CountEquipmentShopItems(Kind) < pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::StationEquipmentOfferQuotas[TypeId], (Kind - 42) * sizeof(std::int32_t)))));
+            Item = aRuins::TRuins_GenerateEquipmentOffer(this, aPlayer::GetPlayer(), Planet, Kind);
             if (Item != nullptr) {
-                pas::list_add(Self->EquipmentShop, reinterpret_cast<void*>(Item));
-                Self->RemoveSimilarShopItem(Item);
+                pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
+                RemoveSimilarShopItem(Item);
             }
         }
     }
@@ -1208,7 +1208,7 @@ namespace aRuins {
     }
 
     // Targets hostile ships, incoming missiles and nearby asteroids.
-    void TRuins_AssignWeaponTargetsInStar(TRuins* Self) {
+    void TRuins::AssignWeaponTargetsInStar() {
         std::int32_t I{};
         std::int32_t J{};
         aShip::TShip* Ship{};
@@ -1218,29 +1218,29 @@ namespace aRuins {
         aMissile::TMissile* Missile{};
         std::int32_t Assigned = 0;
         {
-            const std::int32_t cpp_last = static_cast<std::int32_t>(Self->WeaponCount);
+            const std::int32_t cpp_last = static_cast<std::int32_t>(WeaponCount);
             if (1 <= cpp_last) {
                 for (I = 1; I <= cpp_last; ++I) {
-                    Weapon = Self->Weapons[I];
+                    Weapon = Weapons[I];
                     Weapon->Target = nullptr;
                 }
             }
         }
-        if (aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar || aMyFunction::NextRandomUnitFloat(Self->RandomState) > 0.7L || aGalaxy::Galaxy->IsFullStationTargetingEnabled() || Self->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators || Self->CurrentStar->Status.CustomFaction != u"") {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-                Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
-                if ((Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || aShip::TShip_RelationToShip(Ship, Self) < 10) && Ship->InNormalSpace() && (static_cast<std::uint8_t>(Self->HasIndependentScriptFaction() ^ 1) || static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) || reinterpret_cast<aScript::TScriptShip*>(Self->ScriptShip)->StateText != reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText)) {
-                    const std::int32_t cpp_last_2 = static_cast<std::int32_t>(Self->WeaponCount);
+        if (aPlayer::GetPlayer()->CurrentStar == CurrentStar || aMyFunction::NextRandomUnitFloat(RandomState) > 0.7L || aGalaxy::Galaxy->IsFullStationTargetingEnabled() || CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators || CurrentStar->Status.CustomFaction != u"") {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
+                Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
+                if ((Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || aShip::TShip_RelationToShip(Ship, this) < 10) && Ship->InNormalSpace() && (static_cast<std::uint8_t>(HasIndependentScriptFaction() ^ 1) || static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) || reinterpret_cast<aScript::TScriptShip*>(ScriptShip)->StateText != reinterpret_cast<aScript::TScriptShip*>(Ship->ScriptShip)->StateText)) {
+                    const std::int32_t cpp_last_2 = static_cast<std::int32_t>(WeaponCount);
                     if (1 <= cpp_last_2) {
                         for (J = 1; J <= cpp_last_2; ++J) {
-                            Weapon = Self->Weapons[J];
-                            if (Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(Self, Weapon) && ([&] {
-                                pas::Extended cpp_right = pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon));
-                                return aMyFunction::PointDistanceSquared(Self->Position, Ship->Position) <= cpp_right;
+                            Weapon = Weapons[J];
+                            if (Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(this, Weapon) && ([&] {
+                                pas::Extended cpp_right = pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon));
+                                return aMyFunction::PointDistanceSquared(Position, Ship->Position) <= cpp_right;
                             }())) {
                                 Weapon->Target = Ship;
                                 ++Assigned;
-                                if (Assigned == Self->WeaponCount) {
+                                if (Assigned == WeaponCount) {
                                     return;
                                 }
                             }
@@ -1249,20 +1249,20 @@ namespace aRuins {
                 }
             }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Missiles) - 1); cpp_range_2.next(I); ) {
-            Missile = pas::list_at<aMissile::TMissile>(Self->CurrentStar->Missiles, I);
-            if (Missile->OwnerShip != Self && Missile->Target == Self) {
-                const std::int32_t cpp_last_3 = static_cast<std::int32_t>(Self->WeaponCount);
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Missiles) - 1); cpp_range_2.next(I); ) {
+            Missile = pas::list_at<aMissile::TMissile>(CurrentStar->Missiles, I);
+            if (Missile->OwnerShip != this && Missile->Target == this) {
+                const std::int32_t cpp_last_3 = static_cast<std::int32_t>(WeaponCount);
                 if (1 <= cpp_last_3) {
                     for (J = 1; J <= cpp_last_3; ++J) {
-                        Weapon = Self->Weapons[J];
-                        if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(Self, Weapon) && ([&] {
-                            pas::Extended cpp_right_2 = pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon));
-                            return aMyFunction::PointDistanceSquared(Self->Position, Missile->Position) <= cpp_right_2;
+                        Weapon = Weapons[J];
+                        if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(this, Weapon) && ([&] {
+                            pas::Extended cpp_right_2 = pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon));
+                            return aMyFunction::PointDistanceSquared(Position, Missile->Position) <= cpp_right_2;
                         }())) {
                             Weapon->Target = Missile;
                             ++Assigned;
-                            if (Assigned == Self->WeaponCount) {
+                            if (Assigned == WeaponCount) {
                                 return;
                             }
                             break;
@@ -1271,19 +1271,19 @@ namespace aRuins {
                 }
             }
         }
-        if (pas::list_count(Self->CurrentStar->Items) < 10 && aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar && aPlayer::GetPlayer()->InNormalSpace()) {
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Asteroids) - 1); cpp_range_3.next(I); ) {
-                Asteroid = pas::list_at<aAsteroid::TAsteroid>(Self->CurrentStar->Asteroids, I);
-                DistanceSquared = aMyFunction::PointDistanceSquared(Self->Position, Asteroid->Position);
+        if (pas::list_count(CurrentStar->Items) < 10 && aPlayer::GetPlayer()->CurrentStar == CurrentStar && aPlayer::GetPlayer()->InNormalSpace()) {
+            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Asteroids) - 1); cpp_range_3.next(I); ) {
+                Asteroid = pas::list_at<aAsteroid::TAsteroid>(CurrentStar->Asteroids, I);
+                DistanceSquared = aMyFunction::PointDistanceSquared(Position, Asteroid->Position);
                 if (DistanceSquared <= 1.0E+6L) {
-                    const std::int32_t cpp_last_4 = static_cast<std::int32_t>(Self->WeaponCount);
+                    const std::int32_t cpp_last_4 = static_cast<std::int32_t>(WeaponCount);
                     if (1 <= cpp_last_4) {
                         for (J = 1; J <= cpp_last_4; ++J) {
-                            Weapon = Self->Weapons[J];
-                            if ((aMyFunction::NextRandomUnitFloat(Self->RandomState) <= 0.9L || Self->GetHullIntegrityPercent() <= 90) && static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstAreaDamage), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && aShip::TShip_IsEquipmentUsable(Self, Weapon) && static_cast<long double>(pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon))) >= DistanceSquared) {
+                            Weapon = Weapons[J];
+                            if ((aMyFunction::NextRandomUnitFloat(RandomState) <= 0.9L || GetHullIntegrityPercent() <= 90) && static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstAreaDamage), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && aShip::TShip_IsEquipmentUsable(this, Weapon) && static_cast<long double>(pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon))) >= DistanceSquared) {
                                 Weapon->Target = Asteroid;
                                 ++Assigned;
-                                if (Assigned == Self->WeaponCount) {
+                                if (Assigned == WeaponCount) {
                                     return;
                                 }
                                 break;
@@ -1439,14 +1439,14 @@ namespace aRuins {
     }
 
     // Posts the native Pirate Clan success/failure message after the station reappears.
-    void TRuins_ReportAbductionOutcome(TRuins* Self) {
+    void TRuins::ReportAbductionOutcome() {
         pas::WideString Text{};
         std::int32_t I{};
         aShip::TShip* Ship{};
         std::int32_t Abducted = 0;
         std::int32_t Pirates = 0;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
+            Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
             if (Ship->AbductedByPirateClan) {
                 ++Abducted;
             }
@@ -1454,17 +1454,17 @@ namespace aRuins {
                 ++Pirates;
             }
         }
-        Text = pas::concat_wide({u"<color=255,240,100>", Self->GetFullName(u" "_wref.get()), u"</color>", u"\r\n"});
+        Text = pas::concat_wide({u"<color=255,240,100>", GetFullName(u" "_wref.get()), u"</color>", u"\r\n"});
         if (Abducted == 0) {
-            Text = pas::concat_wide_reverse({aShip::TShip_LookupTalkText(Self, u"Talk.PirateClan.RuinTalkAfterAbduct.Failure"_wref.get()), Text});
+            Text = pas::concat_wide_reverse({aShip::TShip_LookupTalkText(this, u"Talk.PirateClan.RuinTalkAfterAbduct.Failure"_wref.get()), Text});
         } else if (Pirates == 0) {
-            Text = pas::concat_wide_reverse({aShip::TShip_LookupTalkText(Self, u"Talk.PirateClan.RuinTalkAfterAbduct.SuccessNoPirate"_wref.get()), Text});
+            Text = pas::concat_wide_reverse({aShip::TShip_LookupTalkText(this, u"Talk.PirateClan.RuinTalkAfterAbduct.SuccessNoPirate"_wref.get()), Text});
         } else {
-            Text = pas::concat_wide_reverse({aShip::TShip_LookupTalkText(Self, u"Talk.PirateClan.RuinTalkAfterAbduct.Success"_wref.get()), Text});
+            Text = pas::concat_wide_reverse({aShip::TShip_LookupTalkText(this, u"Talk.PirateClan.RuinTalkAfterAbduct.Success"_wref.get()), Text});
         }
         {
             auto& cpp_target = Globals::AddOrUpdatePlayerBubble(1, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get())->Targets[0].ShipId;
-            cpp_target = Self->Id;
+            cpp_target = Id;
         }
     }
 
@@ -1504,24 +1504,24 @@ namespace aRuins {
         return Result;
     }
 
-    float TRuins_EvaluateRelocationPosition(TRuins* Self, EC_Struct::TPointF Point) {
+    float TRuins::EvaluateRelocationPosition(EC_Struct::TPointF Point) {
         std::int32_t I{};
         std::int32_t RangeSquared{};
         aItem::TItem* Item{};
         float Result = 0.0f;
-        if (aShip::TShip_IsEquipmentUsable(Self, Self->GetCargoHook())) {
-            RangeSquared = Self->GetCargoHookRangeSquared();
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Items) - 1); cpp_range.next(I); ) {
-                Item = pas::list_at<aItem::TItem>(Self->CurrentStar->Items, I);
-                if (aItem::CanCargoHookHandleItem(Item, Self) && static_cast<long double>(aMyFunction::PointDistanceSquared(Point, Item->Position)) <= RangeSquared && Self->AcceptPickupItem(Item)) {
+        if (aShip::TShip_IsEquipmentUsable(this, GetCargoHook())) {
+            RangeSquared = GetCargoHookRangeSquared();
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Items) - 1); cpp_range.next(I); ) {
+                Item = pas::list_at<aItem::TItem>(CurrentStar->Items, I);
+                if (aItem::CanCargoHookHandleItem(Item, this) && static_cast<long double>(aMyFunction::PointDistanceSquared(Point, Item->Position)) <= RangeSquared && AcceptPickupItem(Item)) {
                     Result = static_cast<long double>(Result) + Item->Cost;
                 }
             }
         }
         Result = pas::real_divide(Result, std::max<std::int32_t>(10, aGalaxy::Galaxy->ComputeScaledMiniMoney(2)));
-        Result = static_cast<long double>(Result) * aMyFunction::RemapClamped(Self->RelocationAge, 3.0E+1, 9.0E+1, 0.3, 1.0);
-        if (Self->CurrentStar->Status.Battle != 0) {
-            return static_cast<long double>(Result) + Self->EvaluateLocalForceBalance(Point);
+        Result = static_cast<long double>(Result) * aMyFunction::RemapClamped(RelocationAge, 3.0E+1, 9.0E+1, 0.3, 1.0);
+        if (CurrentStar->Status.Battle != 0) {
+            return static_cast<long double>(Result) + EvaluateLocalForceBalance(Point);
         }
         return Result;
     }
@@ -1546,11 +1546,11 @@ namespace aRuins {
             }
         }
         SavedPoint = Position;
-        float InitialScore = aRuins::TRuins_EvaluateRelocationPosition(this, Position);
+        float InitialScore = EvaluateRelocationPosition(Position);
         float BestScore = InitialScore;
         for (I = 0; I <= 100; ++I) {
             RandomizePosition();
-            Score = aRuins::TRuins_EvaluateRelocationPosition(this, Position);
+            Score = EvaluateRelocationPosition(Position);
             if (Score >= BestScore && DistanceToNearestShipByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) > 7.0E+2L) {
                 BestScore = Score;
                 BestPoint = Position;
@@ -1565,7 +1565,7 @@ namespace aRuins {
             Position.X = BestPoint.X + aMyFunction::NextRandomIntRange(-100, 100, RandomState) * 0.01L * Radius;
             Position.Y = BestPoint.Y + aMyFunction::NextRandomIntRange(-100, 100, RandomState) * 0.01L * Radius;
             if (DistanceToNearestShipByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) > 7.0E+2L && pas::sqr(static_cast<pas::Extended>(Position.X)) + pas::sqr(static_cast<pas::Extended>(Position.Y)) >= pas::sqr(static_cast<pas::Extended>(CurrentStar->SafeRadius)) * 1.1L) {
-                Score = aRuins::TRuins_EvaluateRelocationPosition(this, Position);
+                Score = EvaluateRelocationPosition(Position);
                 if (Score >= BestScore) {
                     BestScore = Score;
                     BestPoint = Position;
@@ -1780,7 +1780,7 @@ namespace aRuins {
         return true;
     }
 
-    std::uint8_t TRuins_EvaluateAllyRelationAndStrength(TRuins* Self, aShip::TShip* Ship) {
+    std::uint8_t TRuins::EvaluateAllyRelationAndStrength(aShip::TShip* Ship) {
         return false;
     }
 
@@ -1926,7 +1926,7 @@ namespace aRuins {
         return Effectiveness;
     }
 
-    float TRuins_EvaluateStatBonus(TRuins* Self, aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
+    float TRuins::EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
         static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
         float Result = 0.0f;
@@ -1938,11 +1938,11 @@ namespace aRuins {
             if (cpp_case == aConst::bonHull) {
                 Result = Value * 300;
             } else if (cpp_case == aConst::bonRadar) {
-                Result = static_cast<std::int8_t>(Self->GetRadar() == nullptr);
+                Result = static_cast<std::int8_t>(GetRadar() == nullptr);
             } else if (cpp_case == aConst::bonScan) {
-                Result = Value * 20 * (Self->CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(ScannerFlags)) & 0x0000007f);
+                Result = Value * 20 * (CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(ScannerFlags)) & 0x0000007f);
             } else if (cpp_case == aConst::bonDroid) {
-                Result = pas::real_divide(Value * 20, pas::real_max<float>(0.1f, Self->GetHull()->GetFragilityFactor(static_cast<aGalaxyStruct::TDamageFlagSet>(NoFlags))));
+                Result = pas::real_divide(Value * 20, pas::real_max<float>(0.1f, GetHull()->GetFragilityFactor(static_cast<aGalaxyStruct::TDamageFlagSet>(NoFlags))));
             } else if (cpp_case == aConst::bonDef) {
                 Result = pas::real_divide(pas::real_divide(Value * 8 * 100, std::max<std::int32_t>(5, 100 - Value)) * 45.0L, std::max<std::int32_t>(5, 45 - Value));
             } else if (cpp_case == aConst::bonWEnergy) {
@@ -1950,25 +1950,25 @@ namespace aRuins {
             } else if (cpp_case == aConst::bonWSplinter) {
                 Result = Value * 10;
             } else if (cpp_case == aConst::bonWMissile) {
-                Result = Value * 10 * (0.1L + static_cast<std::int8_t>(aShip::TShip_GetRadarRange(Self) > 0) * 0.9L);
+                Result = Value * 10 * (0.1L + static_cast<std::int8_t>(GetRadarRange() > 0) * 0.9L);
             } else if (cpp_case == aConst::bonWRadius) {
                 Result = Value;
             } else if (cpp_case >= aConst::bonSkill1 && cpp_case <= aConst::bonSkill6) {
                 if (Value > 0) {
-                    Result = std::min<std::int32_t>(6 - (Self->GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f), Value) * StationSkillBonusWeights[BonusKind];
+                    Result = std::min<std::int32_t>(6 - (GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f), Value) * StationSkillBonusWeights[BonusKind];
                 }
-                if (Value > 0 && Value + (Self->GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f) > 6) {
-                    Result = Result + StationSkillBonusWeights[BonusKind] * 0.05L * (Value + (Self->GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f) - 6);
+                if (Value > 0 && Value + (GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f) > 6) {
+                    Result = Result + StationSkillBonusWeights[BonusKind] * 0.05L * (Value + (GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f) - 6);
                 }
                 if (Value < 0) {
-                    Result = std::min<std::int32_t>(Self->GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f, -Value) * -StationSkillBonusWeights[BonusKind];
+                    Result = std::min<std::int32_t>(GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f, -Value) * -StationSkillBonusWeights[BonusKind];
                 }
-                if (Value < 0 && Value + (Self->GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f) < 0) {
-                    Result = Result + StationSkillBonusWeights[BonusKind] * 0.03L * (Value + (Self->GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f));
+                if (Value < 0 && Value + (GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f) < 0) {
+                    Result = Result + StationSkillBonusWeights[BonusKind] * 0.03L * (Value + (GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[BonusKind - 22]), false) & 0x0000007f));
                 }
             }
         }
-        if (Self->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion)) {
+        if (TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion)) {
             switch (BonusKind) {
                 case aConst::bonHook: {
                     return (pas::real_min<pas::Extended>(static_cast<pas::Extended>(Value), static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[5]) + Value * 0.1L) * 1.0L;
@@ -1980,7 +1980,7 @@ namespace aRuins {
         return Result;
     }
 
-    float TRuins_EvaluateWeaponDamage(TRuins* Self, aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) {
+    float TRuins::EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) {
         static const pas::Set<0, 255> ScannerFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkScanBonus, aGalaxyStruct::dkDroidBlock}});
         static const pas::Set<0, 255> ShockFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkShock}});
         static const pas::Set<0, 255> AcidFlags = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::dkAcid}});
@@ -1989,18 +1989,18 @@ namespace aRuins {
         std::int32_t I{};
         std::int32_t ShotTotal{};
         Flags = Weapon->GetDamageFlags();
-        if (Flags * static_cast<aGalaxyStruct::TDamageFlagSet>(ScannerFlags) != pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}) && Self->GetScanner() != nullptr && Self->GetRadar() != nullptr) {
+        if (Flags * static_cast<aGalaxyStruct::TDamageFlagSet>(ScannerFlags) != pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}) && GetScanner() != nullptr && GetRadar() != nullptr) {
             std::int32_t cpp_right = aItem::DefenseDamageFactorToPercent(aItem::GetGeneratedDefenseDamageFactor(aGalaxy::Galaxy->TechLevel)) & 0x0000007f;
-            ScannerFactor = aMyFunction::RemapClamped(aShip::TShip_GetScannerPower(Self) - cpp_right + 1, -5.0, 1.0E+1, 0.1, 2.0);
+            ScannerFactor = aMyFunction::RemapClamped(GetScannerPower() - cpp_right + 1, -5.0, 1.0E+1, 0.1, 2.0);
         } else {
             ScannerFactor = 0.0f;
         }
-        float Result = static_cast<long double>(BaseDamage) * Self->GetWeaponArtefactDamageFactor(Weapon);
+        float Result = static_cast<long double>(BaseDamage) * GetWeaponArtefactDamageFactor(Weapon);
         if (pas::contains(Flags, aGalaxyStruct::dkDrain)) {
             Result = Result * 1.5L;
         }
         if (pas::contains(Flags, aGalaxyStruct::dkShock)) {
-            Result = Result * (1.05L + (Self->CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(ShockFlags)) & 0x0000007f) * 0.05L);
+            Result = Result * (1.05L + (CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(ShockFlags)) & 0x0000007f) * 0.05L);
         }
         if (pas::contains(Flags, aGalaxyStruct::dkAcid)) {
             Result = Result * 1.05L;
@@ -2021,13 +2021,13 @@ namespace aRuins {
                 Result = Result + ScannerFactor * 5.0L;
             }
             {
-                std::int32_t cpp_left = Self->CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(AcidFlags));
+                std::int32_t cpp_left = CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(AcidFlags));
                 Result = static_cast<long double>(Result) + cpp_left * Weapon->GetShotCount();
             }
             if (pas::contains(Flags, aGalaxyStruct::dkAcid)) {
                 ShotTotal = 1;
-                for (auto cpp_range = pas::for_to<std::int32_t>(1, Self->CountEquippedWeapons() & 0x0000007f); cpp_range.next(I); ) {
-                    ShotTotal += Self->Weapons[I]->GetShotCount();
+                for (auto cpp_range = pas::for_to<std::int32_t>(1, CountEquippedWeapons() & 0x0000007f); cpp_range.next(I); ) {
+                    ShotTotal += Weapons[I]->GetShotCount();
                 }
                 Result = static_cast<long double>(Result) + ShotTotal * 2;
             }
@@ -2061,8 +2061,8 @@ namespace aRuins {
         }
         Result = static_cast<long double>(Result) * Weapon->GetAttackCount();
         std::uint8_t HasOtherWeapon = false;
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Self->CountEquippedWeapons() & 0x0000007f); cpp_range_2.next(I); ) {
-            if (!pas::in_range(Self->Weapons[I]->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstAreaDamage), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, CountEquippedWeapons() & 0x0000007f); cpp_range_2.next(I); ) {
+            if (!pas::in_range(Weapons[I]->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstAreaDamage), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
                 HasOtherWeapon = true;
             }
         }
@@ -2706,16 +2706,8 @@ namespace aRuins {
         aRuins::TRuins_NextDayLogic(this);
     }
 
-    void TRuins::virtual_TShip_RepairBrokenEquipmentAtLocation() {
-        aRuins::TRuins_RepairBrokenEquipmentAtLocation(this);
-    }
-
     std::uint8_t TRuins::virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) {
         return aRuins::TRuins_CanQueueReachablePlanet(this, Planet);
-    }
-
-    void TRuins::virtual_TShip_AssignWeaponTargetsInStar() {
-        aRuins::TRuins_AssignWeaponTargetsInStar(this);
     }
 
     std::uint8_t TRuins::virtual_TShip_RecomputeFearState() {
@@ -2728,10 +2720,6 @@ namespace aRuins {
 
     std::uint8_t TRuins::virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) {
         return aRuins::TRuins_TrustsAttackRequester(this, Ship);
-    }
-
-    std::uint8_t TRuins::virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) {
-        return aRuins::TRuins_EvaluateAllyRelationAndStrength(this, Ship);
     }
 
     std::uint8_t TRuins::virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) {
@@ -2752,14 +2740,6 @@ namespace aRuins {
 
     std::uint8_t TRuins::virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) {
         return aRuins::TRuins_BuildPartnershipOfferResponse(this, OtherShip, Response, PaymentAmount);
-    }
-
-    float TRuins::virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) {
-        return aRuins::TRuins_EvaluateStatBonus(this, BonusKind, Value);
-    }
-
-    float TRuins::virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) {
-        return aRuins::TRuins_EvaluateWeaponDamage(this, Weapon, IncludeAdditiveBonuses, BaseDamage);
     }
 
     void TRuins::virtual_TShip_RefreshCurrentStanding() {

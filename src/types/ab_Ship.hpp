@@ -57,7 +57,7 @@ namespace ab_Ship {
         double MaximumWeaponRange();
         void AddWeapon(std::int32_t Kind);
         void UpdateState() override;
-        void virtual_TabObject_Advance() override;
+        void Advance() override;
         void UpdateVisuals() override;
         void UpdateAvoidanceDistances();
         void UpdateObstacleSensors();

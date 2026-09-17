@@ -61,7 +61,8 @@ namespace aTransport {
         std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         // Requires CurrentPlanet. Can sell below cost; purchases can exhaust money and cargo space.
         void ProcessTrading();
-        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
+        // Restores equipment condition without charging Money.
+        void RepairBrokenEquipmentAtLocation() override;
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
@@ -79,10 +80,11 @@ namespace aTransport {
         void ChangeRelationToRanger(void* Ranger, std::int32_t Amount) override;
         void ReactToAttack(aShip::TShip* Attacker) override;
         std::uint8_t virtual_TShip_RecomputeFearState() override;
+        void TryOfferRansomToPursuer();
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
-        void virtual_TShip_AssignWeaponTargetsInStar() override;
+        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        void AssignWeaponTargetsInStar() override;
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
         void ProcessCombatDialogue() override;
@@ -94,8 +96,8 @@ namespace aTransport {
         std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
-        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
         void virtual_TShip_RefreshCurrentStanding() override;
         // Script.ShipSubType.
         TTransportType TransportType;

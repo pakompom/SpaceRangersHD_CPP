@@ -40,6 +40,10 @@ namespace aKling {
         void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
         void virtual_TShip_NextDay() override;
         void virtual_TShip_NextDayLogic() override;
+        void MiniBossNextDayLogic();
+        void BlazerNextDayLogic();
+        void KellerNextDayLogic();
+        void TerronNextDayLogic();
         aShip::TShip* SelectBertorLeader();
         // Requires a live enemy in the same star and KlingType=ktKlig. Existing kamikaze mode bypasses the proximity/strength test.
         std::uint8_t ShouldKamikaze();
@@ -59,7 +63,7 @@ namespace aKling {
         void CoordinateSeriesInvasions(aGalaxyStruct::TDominatorSeries Series);
         void MoveToRandomPatrolPoint();
         void MoveNearKellerMissionHole();
-        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
+        void RepairBrokenEquipmentAtLocation() override;
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
@@ -81,8 +85,8 @@ namespace aKling {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
-        void virtual_TShip_AssignWeaponTargetsInStar() override;
+        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        void AssignWeaponTargetsInStar() override;
         // Marks this series as aware of the player's camouflage and reports a matching active disguise.
         void DetectAttackingPlayer(aShip::TShip* Attacker);
         // Can mark the player's camouflage as detected by this Dominator series. Returns false for non-player ships.

@@ -150,6 +150,7 @@ namespace aScript {
         PScriptPlanetBinding GetPlanetBinding(pas::WideString Name);
         // Raises when absent.
         TScriptItem* GetItem(pas::WideString Name);
+        void CallDialogByVariable(pas::WideString Name);
         void CallDialogMessage(std::int32_t Index);
         void BuildDialogAnswer(std::int32_t Index);
         // Index -1 is ignored.

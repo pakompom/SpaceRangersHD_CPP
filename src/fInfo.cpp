@@ -219,7 +219,7 @@ namespace fInfo {
             GR_Main::MusicManager->RequestFadeOut();
         }
         MainPanel->OnOpen();
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
             fPanelPlanet::TfPanelPlanet::OnOpen();
             PlanetPanel->Show();
@@ -664,7 +664,7 @@ namespace fInfo {
         Image->SetSize(ClassesImports::Point(Size, Size));
         Image->SourceHasPerPixelAlpha = true;
         {
-            const pas::WideString& cpp_arg = pas::concat_wide({Item->virtual_TItem_GetBitmapResourceName(), u"i"});
+            const pas::WideString& cpp_arg = pas::concat_wide({Item->GetBitmapResourceName(), u"i"});
             GR_GraphBuf::TGraphBufGR* graphBuf = Image->GraphBuf;
             GI_GI::LoadGiByPathIntoGraphBuf(cpp_arg, graphBuf);
         }
@@ -1099,49 +1099,49 @@ namespace fInfo {
             if (this->SelectedSearchCategory == 1) {
                 if (pas::class_cast_if<aItem::TEngine*>(Value) != nullptr) {
                     Engine = pas::checked_cast<aItem::TEngine*>(Value);
-                    if ((MinSpeed == 0 || MinSpeed <= Engine->Speed) && (RangeFilter == 0 || Engine->JumpRange >= RangeFilter) && (SizeFilter == 0 || SizeFilter >= Engine->Weight) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Engine) <= MaxCost) && pas::contains(Owners, Engine->OwnerId)) {
+                    if ((MinSpeed == 0 || MinSpeed <= Engine->Speed) && (RangeFilter == 0 || Engine->JumpRange >= RangeFilter) && (SizeFilter == 0 || SizeFilter >= Engine->Weight) && (MaxCost == 0 || Engine->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Engine->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 2) {
                 if (pas::class_cast_if<aItem::TFuelTanks*>(Value) != nullptr) {
                     Fuel = pas::checked_cast<aItem::TFuelTanks*>(Value);
-                    if ((MinFuel == 0 || Fuel->Capacity >= MinFuel) && (SizeFilter == 0 || Fuel->Weight <= SizeFilter) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Fuel) <= MaxCost) && pas::contains(Owners, Fuel->OwnerId)) {
+                    if ((MinFuel == 0 || Fuel->Capacity >= MinFuel) && (SizeFilter == 0 || Fuel->Weight <= SizeFilter) && (MaxCost == 0 || Fuel->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Fuel->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 3) {
                 if (pas::class_cast_if<aItem::TRadar*>(Value) != nullptr) {
                     Radar = pas::checked_cast<aItem::TRadar*>(Value);
-                    if ((RangeFilter == 0 || Radar->Range >= RangeFilter) && (SizeFilter == 0 || Radar->Weight <= SizeFilter) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Radar) <= MaxCost) && pas::contains(Owners, Radar->OwnerId)) {
+                    if ((RangeFilter == 0 || Radar->Range >= RangeFilter) && (SizeFilter == 0 || Radar->Weight <= SizeFilter) && (MaxCost == 0 || Radar->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Radar->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 4) {
                 if (pas::class_cast_if<aItem::TScaner*>(Value) != nullptr) {
                     Scanner = pas::checked_cast<aItem::TScaner*>(Value);
-                    if ((MinPower == 0 || Scanner->ScanPower >= MinPower) && (SizeFilter == 0 || Scanner->Weight <= SizeFilter) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Scanner) <= MaxCost) && pas::contains(Owners, Scanner->OwnerId)) {
+                    if ((MinPower == 0 || Scanner->ScanPower >= MinPower) && (SizeFilter == 0 || Scanner->Weight <= SizeFilter) && (MaxCost == 0 || Scanner->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Scanner->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 5) {
                 if (pas::class_cast_if<aItem::TRepairRobot*>(Value) != nullptr) {
                     Droid = pas::checked_cast<aItem::TRepairRobot*>(Value);
-                    if ((MinPower == 0 || Droid->RepairPoints >= MinPower) && (SizeFilter == 0 || Droid->Weight <= SizeFilter) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Droid) <= MaxCost) && pas::contains(Owners, Droid->OwnerId)) {
+                    if ((MinPower == 0 || Droid->RepairPoints >= MinPower) && (SizeFilter == 0 || Droid->Weight <= SizeFilter) && (MaxCost == 0 || Droid->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Droid->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 6) {
                 if (pas::class_cast_if<aItem::TCargoHook*>(Value) != nullptr) {
                     Hook = pas::checked_cast<aItem::TCargoHook*>(Value);
-                    if ((MinPickup == 0 || Hook->PickupPower >= MinPickup) && (SizeFilter == 0 || Hook->Weight <= SizeFilter) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Hook) <= MaxCost) && pas::contains(Owners, Hook->OwnerId)) {
+                    if ((MinPickup == 0 || Hook->PickupPower >= MinPickup) && (SizeFilter == 0 || Hook->Weight <= SizeFilter) && (MaxCost == 0 || Hook->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Hook->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 7) {
                 if (pas::class_cast_if<aItem::TDefGenerator*>(Value) != nullptr) {
                     Defense = pas::checked_cast<aItem::TDefGenerator*>(Value);
-                    if ((MinDefense == 0 || (aItem::DefenseDamageFactorToPercent(Defense->DamageFactor) & 0x0000007f) >= MinDefense) && (SizeFilter == 0 || Defense->Weight <= SizeFilter) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Defense) <= MaxCost) && pas::contains(Owners, Defense->OwnerId)) {
+                    if ((MinDefense == 0 || (aItem::DefenseDamageFactorToPercent(Defense->DamageFactor) & 0x0000007f) >= MinDefense) && (SizeFilter == 0 || Defense->Weight <= SizeFilter) && (MaxCost == 0 || Defense->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Defense->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
@@ -1239,7 +1239,7 @@ namespace fInfo {
             } else if (this->SelectedSearchCategory == 11) {
                 if (pas::class_cast_if<aItem::THull*>(Value) != nullptr) {
                     Hull = pas::checked_cast<aItem::THull*>(Value);
-                    if (pas::contains(Owners, Hull->OwnerId) && (Hull->HullType != aGalaxyStruct::htRanger || IncludeRangerType) && (Hull->HullType != aGalaxyStruct::htWarrior || IncludeWarriorType) && (Hull->HullType != aGalaxyStruct::htPirate || IncludePirateType) && (Hull->HullType != aGalaxyStruct::htTransport || IncludeTransportType) && (Hull->HullType != aGalaxyStruct::htLiner || IncludeLinerType) && (Hull->HullType != aGalaxyStruct::htDiplomat || IncludeDiplomatType) && (SizeFilter == 0 || Hull->Weight >= SizeFilter) && (MinArmor == 0 || Hull->Armor >= MinArmor) && (MaxCost == 0 || aItem::TItem_GetConditionAdjustedCost(Hull) <= MaxCost) && (WeaponSlots == 0 || Hull->GetSlotCount(aConst::sskWeapon) >= WeaponSlots) && (ScannerSlots == 0 || Hull->GetSlotCount(aConst::sskScanner) >= ScannerSlots) && (RadarSlots == 0 || Hull->GetSlotCount(aConst::sskRadar) >= RadarSlots) && (DroidSlots == 0 || Hull->GetSlotCount(aConst::sskRepairRobot) >= DroidSlots) && (HookSlots == 0 || Hull->GetSlotCount(aConst::sskCargoHook) >= HookSlots) && (DefenseSlots == 0 || Hull->GetSlotCount(aConst::sskDefGenerator) >= DefenseSlots) && (ArtifactSlots == 0 || Hull->GetSlotCount(aConst::sskArtefact) >= ArtifactSlots) && (AfterburnerSlots == 0 || Hull->GetSlotCount(aConst::sskAfterburner) >= AfterburnerSlots)) {
+                    if (pas::contains(Owners, Hull->OwnerId) && (Hull->HullType != aGalaxyStruct::htRanger || IncludeRangerType) && (Hull->HullType != aGalaxyStruct::htWarrior || IncludeWarriorType) && (Hull->HullType != aGalaxyStruct::htPirate || IncludePirateType) && (Hull->HullType != aGalaxyStruct::htTransport || IncludeTransportType) && (Hull->HullType != aGalaxyStruct::htLiner || IncludeLinerType) && (Hull->HullType != aGalaxyStruct::htDiplomat || IncludeDiplomatType) && (SizeFilter == 0 || Hull->Weight >= SizeFilter) && (MinArmor == 0 || Hull->Armor >= MinArmor) && (MaxCost == 0 || Hull->GetConditionAdjustedCost() <= MaxCost) && (WeaponSlots == 0 || Hull->GetSlotCount(aConst::sskWeapon) >= WeaponSlots) && (ScannerSlots == 0 || Hull->GetSlotCount(aConst::sskScanner) >= ScannerSlots) && (RadarSlots == 0 || Hull->GetSlotCount(aConst::sskRadar) >= RadarSlots) && (DroidSlots == 0 || Hull->GetSlotCount(aConst::sskRepairRobot) >= DroidSlots) && (HookSlots == 0 || Hull->GetSlotCount(aConst::sskCargoHook) >= HookSlots) && (DefenseSlots == 0 || Hull->GetSlotCount(aConst::sskDefGenerator) >= DefenseSlots) && (ArtifactSlots == 0 || Hull->GetSlotCount(aConst::sskArtefact) >= ArtifactSlots) && (AfterburnerSlots == 0 || Hull->GetSlotCount(aConst::sskAfterburner) >= AfterburnerSlots)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
@@ -1267,7 +1267,7 @@ namespace fInfo {
                     if (SizeFilter != 0 && Weapon->Weight > SizeFilter) {
                         return;
                     }
-                    if (MaxCost != 0 && aItem::TItem_GetConditionAdjustedCost(Weapon) > MaxCost) {
+                    if (MaxCost != 0 && Weapon->GetConditionAdjustedCost() > MaxCost) {
                         return;
                     }
                     if ((std::bit_cast<std::uint32_t>(Weapon->GetDamageFlags()) & 1) != 0 && static_cast<std::uint8_t>(IncludeEnergy ^ 1)) {
@@ -1842,7 +1842,7 @@ namespace fInfo {
         pas::WideString Detail{};
         pas::WideString Text{};
         Text = pas::concat_wide({Text, ([&] {
-            pas::WideString intToStr = pas::wide_int_to_str(aItem::TItem_GetConditionAdjustedCost(Item));
+            pas::WideString intToStr = pas::wide_int_to_str(Item->GetConditionAdjustedCost());
             pas::WideString localizedText = aConst::LocalizedText(u"FormInfo.Equipment.Cost"_wref.get());
             return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<val>"_w, std::move(intToStr));
         }())});
@@ -2168,7 +2168,7 @@ namespace fInfo {
         Image->SetSize(ClassesImports::Point(Size, Height));
         Image->SourceHasPerPixelAlpha = true;
         {
-            const pas::WideString& cpp_arg = pas::concat_wide({Item->virtual_TItem_GetBitmapResourceName(), u"i"});
+            const pas::WideString& cpp_arg = pas::concat_wide({Item->GetBitmapResourceName(), u"i"});
             GR_GraphBuf::TGraphBufGR* graphBuf = Image->GraphBuf;
             GI_GI::LoadGiByPathIntoGraphBuf(cpp_arg, graphBuf);
         }

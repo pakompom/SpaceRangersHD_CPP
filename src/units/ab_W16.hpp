@@ -6,6 +6,4 @@ namespace ab_W16 {
 
     void TabW16_Destroy(TabW16* Self);
 
-    void TabW16_Advance(TabW16* Self);
-
 } // namespace ab_W16

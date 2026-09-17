@@ -1007,19 +1007,19 @@ namespace aItem {
     }
 
     // Applies the trading-skill percentage to Cost minus repair cost; equipment has a minimum value of 1. Goods use Cost directly.
-    std::int32_t TItem_CalculateResaleValue(TItem* Self, std::uint8_t TradingSkill) {
-        if (pas::class_cast_if<TEquipment*>(Self) != nullptr) {
-            return std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round((Self->Cost - aItem::TEquipment_CalculateRepairCost(pas::checked_cast<TEquipment*>(Self))) * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]));
+    std::int32_t TItem::CalculateResaleValue(std::uint8_t TradingSkill) {
+        if (pas::class_cast_if<TEquipment*>(this) != nullptr) {
+            return std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round((Cost - aItem::TEquipment_CalculateRepairCost(pas::checked_cast<TEquipment*>(this))) * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]));
         }
-        return System::Round(Self->Cost * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]);
+        return System::Round(Cost * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]);
     }
 
     // Equipment deducts repair cost, with a minimum result of 1; goods return Cost unchanged.
-    std::int32_t TItem_GetConditionAdjustedCost(TItem* Self) {
-        if (pas::class_cast_if<TEquipment*>(Self) != nullptr) {
-            return std::max<std::int32_t>(1, Self->Cost - aItem::TEquipment_CalculateRepairCost(pas::checked_cast<TEquipment*>(Self)));
+    std::int32_t TItem::GetConditionAdjustedCost() {
+        if (pas::class_cast_if<TEquipment*>(this) != nullptr) {
+            return std::max<std::int32_t>(1, Cost - aItem::TEquipment_CalculateRepairCost(pas::checked_cast<TEquipment*>(this)));
         }
-        return Self->Cost;
+        return Cost;
     }
 
     // Groups weapon types under Weapon and built-in artefacts under Artefact; otherwise returns the item-type configuration name.
@@ -1556,11 +1556,11 @@ namespace aItem {
     }
 
     // Includes player technology restrictions as well as wear and breakage.
-    pas::WideString TEquipment_GetConditionText(TEquipment* Self, std::uint8_t PrefixNewLine) {
+    pas::WideString TEquipment::GetConditionText(std::uint8_t PrefixNewLine) {
         pas::WideString Result{};
         static const pas::Set<0, 255> SupportedTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         pas::WideString Prefix{};
-        if (!pas::contains(SupportedTypes, static_cast<std::uint8_t>(Self->ItemType))) {
+        if (!pas::contains(SupportedTypes, static_cast<std::uint8_t>(ItemType))) {
             return pas::WideString();
         }
         if (PrefixNewLine) {
@@ -1568,41 +1568,41 @@ namespace aItem {
         } else {
             Prefix = pas::WideString();
         }
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), Self) ^ 1)) {
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), this) ^ 1)) {
             return aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())}), u"<color=255,0,0>"_w);
         }
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), Self) ^ 1) && Self->BrokenFlag != 0 && static_cast<std::uint8_t>(pas::in_range(Self->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_Engine)) ^ 1)) {
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), this) ^ 1) && BrokenFlag != 0 && static_cast<std::uint8_t>(pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_Engine)) ^ 1)) {
             return aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())}), u"<color=255,0,0>"_w);
         }
-        if (Self->BrokenFlag != 0) {
-            if (pas::in_range(Self->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[Self->ItemType], u".Broken"}))}), u"<color=255,0,0>"_w);
-            } else if (pas::in_range(Self->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+        if (BrokenFlag != 0) {
+            if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Broken"}))}), u"<color=255,0,0>"_w);
+            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Weapon.Broken"_wref.get())}), u"<color=255,0,0>"_w);
-            } else if (pas::in_range(Self->ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", Self->ConfigBlockName, u".Broken"}))}), u"<color=255,0,0>"_w);
-            } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(Self->ItemType)) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Broken"}))}), u"<color=255,0,0>"_w);
-            } else if (Self->ItemType == aConst::t_Satellite) {
+            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
+                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".Broken"}))}), u"<color=255,0,0>"_w);
+            } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
+                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Broken"}))}), u"<color=255,0,0>"_w);
+            } else if (ItemType == aConst::t_Satellite) {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Satellite.Broken"_wref.get())}), u"<color=255,0,0>"_w);
             } else {
                 Result = pas::WideString();
             }
-        } else if (pas::class_cast_if<TArtefact*>(Self) != nullptr) {
+        } else if (pas::class_cast_if<TArtefact*>(this) != nullptr) {
             // Native retains this transmitter branch despite the initial supported-type set.
-            if (Self->ItemType == aConst::t_ArtefactTransmitter && pas::checked_cast<TArtefactTransmitter*>(Self)->Power < aConst::MinTransmitterPower) {
+            if (ItemType == aConst::t_ArtefactTransmitter && pas::checked_cast<TArtefactTransmitter*>(this)->Power < aConst::MinTransmitterPower) {
                 Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Artefacts.ArtTransmitter.Broken"_wref.get())}), u"<color=254,217,7>"_w);
             } else {
                 Result = pas::WideString();
             }
-        } else if (Self->ConditionPercent < 2.0E+1L) {
+        } else if (ConditionPercent < 2.0E+1L) {
             Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.SmallDuration"_wref.get())}), u"<color=254,217,7>"_w);
-        } else if (Self->ConditionPercent < 5.0E+1L) {
+        } else if (ConditionPercent < 5.0E+1L) {
             Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.AverageDuration"_wref.get())}), u"<color=127,127,127>"_w);
         } else {
             Result = pas::WideString();
         }
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), Self) ^ 1)) {
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), this) ^ 1)) {
             if (!PrefixNewLine) {
                 Result = pas::WideString();
             }
@@ -1803,24 +1803,24 @@ namespace aItem {
         return true;
     }
 
-    pas::WideString TEquipment_GetBitmapResourceName(TEquipment* Self) {
+    pas::WideString TEquipment::GetBitmapResourceName() {
         pas::WideString Result{};
         pas::WideString Path{};
-        if (Self->ConfigBlockName != u"") {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
-        } else if (Self->SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].KindGraph != u"") {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType], aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].KindGraph});
-        } else if (Self->CustomFaction != u"") {
-            Path = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType], Self->CustomFaction});
+        if (ConfigBlockName != u"") {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
+        } else if (SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph != u"") {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
+        } else if (CustomFaction != u"") {
+            Path = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], CustomFaction});
             if (GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"a"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"i"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"s"}))) {
                 Result = Path;
             }
         }
         if (Result == u"") {
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
-                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType], u"Kling0"});
+            if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], u"Kling0"});
             }
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType], pas::wide_int_to_str(Self->GetLevel() - 1)});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], pas::wide_int_to_str(GetLevel() - 1)});
         }
         return Result;
     }
@@ -1954,7 +1954,7 @@ namespace aItem {
         return Result + CombinedBonus;
     }
 
-    pas::WideString TEquipment::GetBonusDescription(pas::WideString ColorTag) {
+    pas::WideString TEquipment_GetBonusDescription(TEquipment* Self, pas::WideString ColorTag) {
         pas::WideString Result{};
         pas::WideString Description{};
         std::int32_t EffectPercent{};
@@ -1995,45 +1995,45 @@ namespace aItem {
             return Result;
         };
         Result = pas::WideString();
-        if (MicroModuleIndex != 0) {
-            EffectPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t)));
-            PenaltyPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t)));
+        if (Self->MicroModuleIndex != 0) {
+            EffectPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t)));
+            PenaltyPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t)));
         } else {
             EffectPercent = 0;
             PenaltyPercent = 0;
         }
-        if (SpecialModuleIndex != 0) {
-            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ConfigName, u".Text"}));
-            if (aConst::MicroModuleTemplates[SpecialModuleIndex - 1].SeparatedNumbers) {
-                Description = ExpandModuleTokens(Description, SpecialModuleIndex, 1);
+        if (Self->SpecialModuleIndex != 0) {
+            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].ConfigName, u".Text"}));
+            if (aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].SeparatedNumbers) {
+                Description = ExpandModuleTokens(Description, Self->SpecialModuleIndex, 1);
             }
-            if (pas::class_cast_if<TWeapon*>(this) != nullptr && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].TextReplace == u"" && GetSpecialModuleName() != u"") {
-                Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(GetSpecialModuleName(), u"<color=255,240,100>"_w)});
+            if (pas::class_cast_if<TWeapon*>(Self) != nullptr && aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].TextReplace == u"" && Self->GetSpecialModuleName() != u"") {
+                Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(Self->GetSpecialModuleName(), u"<color=255,240,100>"_w)});
                 if (Description != u"") {
-                    Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1))});
+                    Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1))});
                 }
             } else if (Description != u"") {
-                Result = pas::concat_wide({u"\r\n \r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1))});
+                Result = pas::concat_wide({u"\r\n \r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1))});
             }
         }
-        if (MicroModuleIndex != 0) {
-            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigName, u".ExText"}));
+        if (Self->MicroModuleIndex != 0) {
+            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].ConfigName, u".ExText"}));
             if (Description != u"") {
-                if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].SeparatedNumbers) {
-                    Description = ExpandModuleTokens(Description, MicroModuleIndex, 0);
+                if (aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].SeparatedNumbers) {
+                    Description = ExpandModuleTokens(Description, Self->MicroModuleIndex, 0);
                 }
-                Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(MicroModuleIndex - 1))});
+                Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(Self->MicroModuleIndex - 1))});
             }
         }
-        if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(Index); ) {
-                ModuleIndexPlusOne = pas::list_at<TExtraSpecial>(ExtraSpecials, Index)->ModuleIndexPlusOne;
-                if (ModuleIndexPlusOne != MicroModuleIndex || aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
+        if (Self->ExtraSpecials != nullptr) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->ExtraSpecials) - 1); cpp_range.next(Index); ) {
+                ModuleIndexPlusOne = pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->ModuleIndexPlusOne;
+                if (ModuleIndexPlusOne != Self->MicroModuleIndex || aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
                     Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].ConfigName, u".ExText"}));
                     if (Description != u"") {
-                        aMyFunction::ReplaceTextToken(Description, u"<ExCount>"_w, pas::wide_int_to_str(pas::list_at<TExtraSpecial>(ExtraSpecials, Index)->Count), ColorTag);
+                        aMyFunction::ReplaceTextToken(Description, u"<ExCount>"_w, pas::wide_int_to_str(pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count), ColorTag);
                         if (aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
-                            Description = ExpandModuleTokens(Description, ModuleIndexPlusOne, pas::list_at<TExtraSpecial>(ExtraSpecials, Index)->Count);
+                            Description = ExpandModuleTokens(Description, ModuleIndexPlusOne, pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count);
                         }
                         Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(ModuleIndexPlusOne - 1))});
                     }
@@ -2042,7 +2042,7 @@ namespace aItem {
         }
         if (Result != u"") {
             for (auto cpp_range_2 = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range_2.next(BonusKind); ) {
-                StatBonus = GetDescriptionStatBonus(BonusKind);
+                StatBonus = Self->GetDescriptionStatBonus(BonusKind);
                 if (StatBonus > 0) {
                     pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}));
                     pas::WideString cpp_arg_2 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusKind], u">"});
@@ -2443,7 +2443,7 @@ namespace aItem {
         aMyFunction::ReplaceTextToken(Text, u"<Size>"_w, pas::wide_int_to_str(Self->HullPoints), SizeColor);
         aMyFunction::ReplaceTextToken(Text, u"<MaxSize>"_w, pas::wide_int_to_str(Self->Weight), ColorTag);
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
@@ -2497,35 +2497,35 @@ namespace aItem {
         }
     }
 
-    pas::WideString THull_GetBitmapResourceName(THull* Self) {
+    pas::WideString THull::GetBitmapResourceName() {
         pas::WideString Result{};
-        if (Self->ConfigBlockName != u"") {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
-        } else if (Self->HullType == aGalaxyStruct::htRanger) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[Self->OwnerId].InternalName, u"_R_"});
-        } else if (Self->HullType == aGalaxyStruct::htWarrior) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[Self->OwnerId].InternalName, u"_W_"});
-        } else if (Self->HullType == aGalaxyStruct::htPirate) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[Self->OwnerId].InternalName, u"_P_"});
-        } else if (Self->HullType == aGalaxyStruct::htTransport) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[Self->OwnerId].InternalName, u"_T_"});
-        } else if (Self->HullType == aGalaxyStruct::htLiner) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[Self->OwnerId].InternalName, u"_L_"});
-        } else if (Self->HullType == aGalaxyStruct::htDiplomat) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[Self->OwnerId].InternalName, u"_D_"});
-        } else if (Self->HullType == aGalaxyStruct::htSpecial && Self->SpecialModuleIndex != 0) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", Self->GetSpecialKindGraph(), u"_"});
+        if (ConfigBlockName != u"") {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
+        } else if (HullType == aGalaxyStruct::htRanger) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_R_"});
+        } else if (HullType == aGalaxyStruct::htWarrior) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_W_"});
+        } else if (HullType == aGalaxyStruct::htPirate) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_P_"});
+        } else if (HullType == aGalaxyStruct::htTransport) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_T_"});
+        } else if (HullType == aGalaxyStruct::htLiner) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_L_"});
+        } else if (HullType == aGalaxyStruct::htDiplomat) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_D_"});
+        } else if (HullType == aGalaxyStruct::htSpecial && SpecialModuleIndex != 0) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", GetSpecialKindGraph(), u"_"});
         } else {
             GR_Main::RaiseWideMessage(u"THull.Image"_wref.get());
         }
-        aShip::TShip* Ship = static_cast<aShip::TShip*>(Self->OwnerShip);
+        aShip::TShip* Ship = static_cast<aShip::TShip*>(OwnerShip);
         if (Ship != nullptr) {
-            if (Self->HullType == aGalaxyStruct::htSpecial && Self->SpecialModuleIndex != 0 && Self->GetSpecialKindGraph() == u"J" && Ship->IsFemaleHumanPilot() && Ship->TypeId == aGalaxyStruct::stRanger) {
+            if (HullType == aGalaxyStruct::htSpecial && SpecialModuleIndex != 0 && GetSpecialKindGraph() == u"J" && Ship->IsFemaleHumanPilot() && Ship->TypeId == aGalaxyStruct::stRanger) {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_J_alt_"});
-            } else if (Self->HullType == aGalaxyStruct::htRanger && Self->SpecialModuleIndex == 0 && Ship->UsesVeteranHumanRangerAppearance()) {
+            } else if (HullType == aGalaxyStruct::htRanger && SpecialModuleIndex == 0 && Ship->UsesVeteranHumanRangerAppearance()) {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_People_ROld_"});
             } else if (Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::checked_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
-                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[Self->OwnerId].InternalName, u"_PC_"});
+                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_PC_"});
             } else {
                 return Result;
             }
@@ -2786,11 +2786,11 @@ namespace aItem {
         }
         aMyFunction::ReplaceTextToken(Text, u"<Fuel>"_w, pas::wide_int_to_str(Self->Fuel), ColorTag);
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TFuelTanks::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -3016,11 +3016,11 @@ namespace aItem {
             }
         }
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TEngine::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -3218,11 +3218,11 @@ namespace aItem {
             }
         }
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TRadar::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -3377,11 +3377,11 @@ namespace aItem {
             }
         }
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TScaner::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -3551,11 +3551,11 @@ namespace aItem {
             }
         }
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TRepairRobot::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -3811,11 +3811,11 @@ namespace aItem {
             }
         }
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TCargoHook::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -4001,11 +4001,11 @@ namespace aItem {
             }
         }
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TDefGenerator::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -4476,11 +4476,11 @@ namespace aItem {
             pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.AddText"_wref.get());
             return aMyFunction::FormatText1(std::move(localizedText), ColorTag, u"<WeaponType>"_w, std::move(cpp_arg));
         }())});
-        Text = pas::concat_wide_reverse({Self->GetBonusDescription(ColorTag), Text});
+        Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Text});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Text});
     }
 
     void TWeapon::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
@@ -4665,23 +4665,23 @@ namespace aItem {
         return 1.0L - SpeedPercent * 0.01L;
     }
 
-    pas::WideString TWeapon_GetBitmapResourceName(TWeapon* Self) {
-        if (Self->ConfigBlockName != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
-        } else if (Self->SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].KindGraph != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType], aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].KindGraph});
+    pas::WideString TWeapon::GetBitmapResourceName() {
+        if (ConfigBlockName != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
+        } else if (SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
         } else {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType]});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType]});
         }
     }
 
-    pas::WideString TCustomWeapon_GetBitmapResourceName(TCustomWeapon* Self) {
-        if (Self->ConfigBlockName != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
-        } else if (Self->SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].KindGraph != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"W", Self->GetConfigName(), aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].KindGraph});
+    pas::WideString TCustomWeapon::GetBitmapResourceName() {
+        if (ConfigBlockName != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
+        } else if (SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"W", GetConfigName(), aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
         } else {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"W", Self->GetConfigName()});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"W", GetConfigName()});
         }
     }
 
@@ -4832,8 +4832,8 @@ namespace aItem {
         return aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Description.", SysUtils::IntToStr(ItemType + 1)})));
     }
 
-    pas::WideString TGoods_GetBitmapResourceName(TGoods* Self) {
-        return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType]});
+    pas::WideString TGoods::GetBitmapResourceName() {
+        return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType]});
     }
 
     void TCountableItem::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
@@ -4882,17 +4882,17 @@ namespace aItem {
         return aConst::LocalizedText(pas::concat_wide({u"Items.CustomCountables.", ConfigBlockName, u".Description"}));
     }
 
-    pas::WideString TCountableItem_GetBitmapResourceName(TCountableItem* Self) {
-        if (Self->StackCount <= 19) {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"0_"});
-        } else if (Self->StackCount <= 39) {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"1_"});
-        } else if (Self->StackCount <= 59) {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"2_"});
-        } else if (Self->StackCount <= 79) {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"3_"});
+    pas::WideString TCountableItem::GetBitmapResourceName() {
+        if (StackCount <= 19) {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"0_"});
+        } else if (StackCount <= 39) {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"1_"});
+        } else if (StackCount <= 59) {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"2_"});
+        } else if (StackCount <= 79) {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"3_"});
         } else {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"4_"});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"4_"});
         }
     }
 
@@ -5038,14 +5038,14 @@ namespace aItem {
         return aConst::LocalizedText(u"Items.Nod.Description"_wref.get());
     }
 
-    pas::WideString TProtoplasm_GetBitmapResourceName(TProtoplasm* Self) {
-        if (Self->StackCount <= 19) {
+    pas::WideString TProtoplasm::GetBitmapResourceName() {
+        if (StackCount <= 19) {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Nod0_"});
-        } else if (Self->StackCount <= 39) {
+        } else if (StackCount <= 39) {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Nod1_"});
-        } else if (Self->StackCount <= 59) {
+        } else if (StackCount <= 59) {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Nod2_"});
-        } else if (Self->StackCount <= 79) {
+        } else if (StackCount <= 79) {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Nod3_"});
         } else {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Nod4_"});
@@ -5200,17 +5200,17 @@ namespace aItem {
         return aConst::LocalizedText(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Description"}));
     }
 
-    pas::WideString TUselessItem_GetBitmapResourceName(TUselessItem* Self) {
+    pas::WideString TUselessItem::GetBitmapResourceName() {
         pas::WideString Result{};
-        if (pas::pos(u"Remains", Self->ConfigBlockName) > 0) {
-            Result = pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"_", pas::wide_int_to_str(static_cast<std::int32_t>(Self->DominatorSeries)), u"_"});
-        } else if (pas::pos(u"Mimic", Self->ConfigBlockName) > 0) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), EC_Str::CopyWideStringUnchecked(Self->ConfigBlockName, 6, Self->ConfigBlockName.length() - 5), u"_"});
+        if (pas::pos(u"Remains", ConfigBlockName) > 0) {
+            Result = pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"_", pas::wide_int_to_str(static_cast<std::int32_t>(DominatorSeries)), u"_"});
+        } else if (pas::pos(u"Mimic", ConfigBlockName) > 0) {
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), EC_Str::CopyWideStringUnchecked(ConfigBlockName, 6, ConfigBlockName.length() - 5), u"_"});
         } else {
-            Result = pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"_"});
+            Result = pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"_"});
         }
         if (!GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Result, u"s"}))) {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Can not find image for useless item ", Self->ConfigBlockName, u" changing to Usl_FishCont"})));
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Can not find image for useless item ", ConfigBlockName, u" changing to Usl_FishCont"})));
             return pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), u"Usl_FishCont_"});
         }
         return Result;
@@ -5325,9 +5325,9 @@ namespace aItem {
         return aConst::LocalizedText(u"Items.Cistern.Description"_wref.get());
     }
 
-    pas::WideString TCistern_GetBitmapResourceName(TCistern* Self) {
-        if (Self->ConfigBlockName != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
+    pas::WideString TCistern::GetBitmapResourceName() {
+        if (ConfigBlockName != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         }
         return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Cistern_"});
     }
@@ -5473,7 +5473,7 @@ namespace aItem {
         } else {
             aMyFunction::ReplaceTextToken(Result, u"<Hill>"_w, u"-"_w, pas::WideString());
         }
-        return pas::concat_wide_reverse({aItem::TEquipment_GetConditionText(Self, true), Result});
+        return pas::concat_wide_reverse({Self->GetConditionText(true), Result});
     }
 
     pas::WideString TSatellite::GetBrokenInUseText_2() {
@@ -5509,11 +5509,11 @@ namespace aItem {
         return aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Description"})));
     }
 
-    pas::WideString TSatellite_GetBitmapResourceName(TSatellite* Self) {
-        if (Self->ConfigBlockName != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
+    pas::WideString TSatellite::GetBitmapResourceName() {
+        if (ConfigBlockName != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         }
-        return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Satellite", pas::wide_int_to_str(static_cast<std::int32_t>(Self->SatelliteTypeId)), u"_"});
+        return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Satellite", pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u"_"});
     }
 
     void TTreasureMap::Init(void* Planet, void* Victim) {
@@ -5577,9 +5577,9 @@ namespace aItem {
         return aConst::LocalizedText(u"Items.TreasureMap.Description"_wref.get());
     }
 
-    pas::WideString TTreasureMap_GetBitmapResourceName(TTreasureMap* Self) {
+    pas::WideString TTreasureMap::GetBitmapResourceName() {
         std::int32_t Kind{};
-        if (pas::in_range(Self->OwnerId, static_cast<std::int32_t>(aGalaxyStruct::oiMaloc), static_cast<std::int32_t>(aGalaxyStruct::oiHuman))) {
+        if (pas::in_range(OwnerId, static_cast<std::int32_t>(aGalaxyStruct::oiMaloc), static_cast<std::int32_t>(aGalaxyStruct::oiHuman))) {
             Kind = 1;
         } else {
             Kind = 2;
@@ -5743,11 +5743,11 @@ namespace aItem {
         return pas::WideString();
     }
 
-    pas::WideString TMicroModule_GetBitmapResourceName(TMicroModule* Self) {
-        if (Self->ConfigBlockName != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
+    pas::WideString TMicroModule::GetBitmapResourceName() {
+        if (ConfigBlockName != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         }
-        return aItem::GetMicroModuleBitmapResourceName(Self->MicroModuleIndex - 1);
+        return aItem::GetMicroModuleBitmapResourceName(MicroModuleIndex - 1);
     }
 
     // Node refund at the current ranger center, using priority and docked station ID. Priorities 31..69 are capped by half LowPriorityOfferCost; 70..100 by half MediumPriorityOfferCost. Minimum 5 nodes.
@@ -6225,13 +6225,13 @@ namespace aItem {
         Cost = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(Cost) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].QuestTimeAndExperienceFactor);
     }
 
-    pas::WideString TArtefact_GetBitmapResourceName(TArtefact* Self) {
-        if (pas::class_cast_if<TArtefactCustom*>(Self) != nullptr) {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName, u"_"});
-        } else if (Self->ConfigBlockName != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), Self->ConfigBlockName});
+    pas::WideString TArtefact::GetBitmapResourceName() {
+        if (pas::class_cast_if<TArtefactCustom*>(this) != nullptr) {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"_"});
+        } else if (ConfigBlockName != u"") {
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         } else {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[Self->ItemType], u"_"});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], u"_"});
         }
     }
 
@@ -6244,9 +6244,9 @@ namespace aItem {
 
     pas::WideString TArtefact_GetInfoText(TArtefact* Self, pas::WideString ColorTag, void* Ship) {
         if (Self->ConfigBlockName != u"" && GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"_wref.get())->CountBlocks(Self->ConfigBlockName) > 0) {
-            return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", Self->ConfigBlockName, u".Text"})), Self->GetBonusDescription(ColorTag), aItem::TEquipment_GetConditionText(Self, true), Self->GetBoostStatusText()});
+            return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", Self->ConfigBlockName, u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
         }
-        return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Text"})), Self->GetBonusDescription(ColorTag), aItem::TEquipment_GetConditionText(Self, true), Self->GetBoostStatusText()});
+        return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
     }
 
     pas::WideString TArtefact::GetDescriptionText() {
@@ -6332,7 +6332,7 @@ namespace aItem {
     pas::WideString TArtefactTransmitter_GetInfoText(TArtefactTransmitter* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Result{};
         std::int32_t DisplayPower{};
-        Result = pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Text"})), aItem::TEquipment_GetConditionText(Self, true), Self->GetBoostStatusText()});
+        Result = pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Text"})), Self->GetConditionText(true), Self->GetBoostStatusText()});
         if (Self->Power < 0) {
             DisplayPower = 0;
         } else {
@@ -6548,7 +6548,7 @@ namespace aItem {
 
     pas::WideString TArtefactCustom_GetInfoText(TArtefactCustom* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Result{};
-        Result = pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.CustomArtefacts.", Self->ConfigBlockName, u".Text"})), Self->GetBonusDescription(ColorTag), aItem::TEquipment_GetConditionText(Self, true), Self->GetBoostStatusText()});
+        Result = pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.CustomArtefacts.", Self->ConfigBlockName, u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
         aMyFunction::ReplaceTextToken(Result, u"<Data1>"_w, pas::wide_int_to_str(Self->Data[1]), ColorTag);
         aMyFunction::ReplaceTextToken(Result, u"<Data2>"_w, pas::wide_int_to_str(Self->Data[2]), ColorTag);
         aMyFunction::ReplaceTextToken(Result, u"<Data3>"_w, pas::wide_int_to_str(Self->Data[3]), ColorTag);
@@ -6642,20 +6642,12 @@ namespace aItem {
         aItem::TEquipment_LoadFromBlock(this, Block);
     }
 
-    pas::WideString TEquipment::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TEquipment_GetBitmapResourceName(this);
-    }
-
     void THull::virtual_TItem_LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::THull_LoadFromBlock(this, Block);
     }
 
     pas::WideString THull::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {
         return aItem::THull_GetInfoText(this, std::move(ColorTag), Ship);
-    }
-
-    pas::WideString THull::virtual_TItem_GetBitmapResourceName() {
-        return aItem::THull_GetBitmapResourceName(this);
     }
 
     void TFuelTanks::virtual_TItem_LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -6726,36 +6718,16 @@ namespace aItem {
         return aItem::TWeapon_GetInfoText(this, std::move(ColorTag), Ship);
     }
 
-    pas::WideString TWeapon::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TWeapon_GetBitmapResourceName(this);
-    }
-
-    pas::WideString TCustomWeapon::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TCustomWeapon_GetBitmapResourceName(this);
-    }
-
     pas::WideString TGoods::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {
         return aItem::TGoods_GetInfoText(this, std::move(ColorTag), Ship);
-    }
-
-    pas::WideString TGoods::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TGoods_GetBitmapResourceName(this);
     }
 
     pas::WideString TCountableItem::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {
         return aItem::TCountableItem_GetInfoText(this, std::move(ColorTag), Ship);
     }
 
-    pas::WideString TCountableItem::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TCountableItem_GetBitmapResourceName(this);
-    }
-
     pas::WideString TProtoplasm::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {
         return aItem::TProtoplasm_GetInfoText(this, std::move(ColorTag), Ship);
-    }
-
-    pas::WideString TProtoplasm::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TProtoplasm_GetBitmapResourceName(this);
     }
 
     void TUselessItem::virtual_TItem_LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -6766,20 +6738,12 @@ namespace aItem {
         return aItem::TUselessItem_GetInfoText(this, std::move(ColorTag), Ship);
     }
 
-    pas::WideString TUselessItem::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TUselessItem_GetBitmapResourceName(this);
-    }
-
     void TCistern::virtual_TItem_LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TCistern_LoadFromBlock(this, Block);
     }
 
     pas::WideString TCistern::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {
         return aItem::TCistern_GetInfoText(this, std::move(ColorTag), Ship);
-    }
-
-    pas::WideString TCistern::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TCistern_GetBitmapResourceName(this);
     }
 
     void TSatellite::virtual_TItem_LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
@@ -6790,28 +6754,12 @@ namespace aItem {
         return aItem::TSatellite_GetInfoText(this, std::move(ColorTag), Ship);
     }
 
-    pas::WideString TSatellite::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TSatellite_GetBitmapResourceName(this);
-    }
-
     pas::WideString TTreasureMap::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {
         return aItem::TTreasureMap_GetInfoText(this, std::move(ColorTag), Ship);
     }
 
-    pas::WideString TTreasureMap::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TTreasureMap_GetBitmapResourceName(this);
-    }
-
     pas::WideString TMicroModule::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {
         return aItem::TMicroModule_GetInfoText(this, std::move(ColorTag), Ship);
-    }
-
-    pas::WideString TMicroModule::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TMicroModule_GetBitmapResourceName(this);
-    }
-
-    pas::WideString TArtefact::virtual_TItem_GetBitmapResourceName() {
-        return aItem::TArtefact_GetBitmapResourceName(this);
     }
 
     pas::WideString TArtefact::virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) {

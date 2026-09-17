@@ -21,6 +21,7 @@
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "types/aGalaxyStruct.hpp"
+#include "types/aRanger.hpp"
 #include "types/aShip.hpp"
 #include "types/fHangar.hpp"
 #include "types/fLoadQuest.hpp"
@@ -53,7 +54,6 @@
 #include "units/aMyFunction.hpp"
 #include "units/aPlanet.hpp"
 #include "units/aPlayer.hpp"
-#include "units/aRanger.hpp"
 #include "units/aSaveLoad.hpp"
 #include "units/aScript.hpp"
 #include "units/fPlanetQuest.hpp"
@@ -1116,7 +1116,7 @@ namespace fPlanetQuest {
             Quest = nullptr;
         }
         if (aPlayer::GetPlayer() != nullptr) {
-            aRanger::TRanger_ProcessQuestTimersAndOutcomes(aPlayer::GetPlayer());
+            aPlayer::GetPlayer()->ProcessQuestTimersAndOutcomes();
         }
         if (GlobalsV::RequestedScreenId == GlobalsV::screenMainMenu || GlobalsV::RequestedScreenId == GlobalsV::screenLoad) {
             aScript::ClearPendingScriptRequests();

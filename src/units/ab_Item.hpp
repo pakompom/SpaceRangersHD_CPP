@@ -27,6 +27,4 @@ namespace ab_Item {
 
     void TabItem_Destroy(TabItem* Self);
 
-    void TabItem_Advance(TabItem* Self);
-
 } // namespace ab_Item

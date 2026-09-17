@@ -300,7 +300,7 @@ namespace aScriptFun {
                 var->SetRef(cpp_arg);
             }
             aScript::CurrentScript = Script;
-            CallCode->Run(aScript::ScriptProcess);
+            EC_Expression::TCodeEC_Run(CallCode, aScript::ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -3169,7 +3169,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInScript"_a));
         }
-        if (aShip::TShip_HasScriptBindings(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))) || (av.length() - 1 <= 1 || av[2]->GetInt() != 0) && reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->AbsoluteScriptOrder > 0) {
+        if (reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->HasScriptBindings() || (av.length() - 1 <= 1 || av[2]->GetInt() != 0) && reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->AbsoluteScriptOrder > 0) {
             av[0]->SetInt(1);
         } else {
             av[0]->SetInt(0);
@@ -3198,7 +3198,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInCurScript"_a));
         }
-        if (aShip::TShip_HasScriptBindings(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))) && aScript::GetScriptShipBindingForContext(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword()))), aScript::CurrentScript)->Script == aScript::CurrentScript) {
+        if (reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->HasScriptBindings() && aScript::GetScriptShipBindingForContext(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword()))), aScript::CurrentScript)->Script == aScript::CurrentScript) {
             av[0]->SetInt(1);
         } else {
             av[0]->SetInt(0);
@@ -3401,7 +3401,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipArmor"_a));
         }
-        av[0]->SetInt(aShip::TShip_GetArmor(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))));
+        av[0]->SetInt(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetArmor());
     }
 
     void SF_ShipProtectability(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -3410,7 +3410,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipProtectability"_a));
         }
-        av[0]->SetInt(System::Round((1.0L - aShip::TShip_GetDefenseDamageFactor(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword()))))) * 1.0E+2L));
+        av[0]->SetInt(System::Round((1.0L - reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetDefenseDamageFactor()) * 1.0E+2L));
     }
 
     void SF_ShipDroidRepair(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -3432,7 +3432,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRadarRange"_a));
         }
-        av[0]->SetInt(aShip::TShip_GetRadarRange(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))));
+        av[0]->SetInt(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetRadarRange());
     }
 
     void SF_ShipScanerPower(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -3441,7 +3441,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipScanerPower"_a));
         }
-        av[0]->SetInt(aShip::TShip_GetScannerPower(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))));
+        av[0]->SetInt(reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->GetScannerPower());
     }
 
     void SF_ShipHookPower(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -9964,7 +9964,7 @@ namespace aScriptFun {
             Kind = av[2]->GetInt();
             if (pas::in_range(static_cast<std::uint8_t>(Kind), static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                 Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                aRuins::TRuins_Init(Station, static_cast<aGalaxyStruct::TStationType>(Kind), Star, pas::WideString());
+                Station->Init(static_cast<aGalaxyStruct::TStationType>(Kind), Star, pas::WideString());
             }
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Station)));
         }
@@ -9981,7 +9981,7 @@ namespace aScriptFun {
         if (Star != nullptr) {
             Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Station)));
-            aRuins::TRuins_Init(Station, aGalaxyStruct::rstCustomStation, Star, av[2]->GetString());
+            Station->Init(aGalaxyStruct::rstCustomStation, Star, av[2]->GetString());
             if (av.length() - 1 > 2) {
                 Station->CurrentStanding = av[3]->GetInt();
             } else {
@@ -11606,7 +11606,7 @@ namespace aScriptFun {
             Ship->ScriptChameleon = true;
             Ship->ChameleonActive = false;
             Ship->RefreshDerivedStats(true);
-            aShip::TShip_RefreshGraphicSize(Ship);
+            Ship->RefreshGraphicSize();
         } else {
             Ship->ScriptChameleon = false;
             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Ship->Graphic));
@@ -11739,7 +11739,7 @@ namespace aScriptFun {
             }
             Item = reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
             {
-                const pas::WideString& bitmapResourceName = Item->virtual_TItem_GetBitmapResourceName();
+                const pas::WideString& bitmapResourceName = Item->GetBitmapResourceName();
                 EC_Expression::TVarEC* cpp_arg = av[0];
                 cpp_arg->SetString(bitmapResourceName);
             }
@@ -13681,7 +13681,7 @@ namespace aScriptFun {
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Missile)));
         if (Ship->CurrentStar->RecordingTurnFilm) {
             Step = Ship->CurrentStar->CurrentStepIndex;
-            aMissile::TMissile_PrepareTurnMovement(Missile, Step, true, true);
+            Missile->PrepareTurnMovement(Step, true, true);
             Globals::PrimaryFilm->DetachObject(0, Missile->FilmObject);
         }
     }
@@ -13723,7 +13723,7 @@ namespace aScriptFun {
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Missile)));
         if (Star->RecordingTurnFilm) {
             Step = Star->CurrentStepIndex;
-            aMissile::TMissile_PrepareTurnMovement(Missile, Step, true, true);
+            Missile->PrepareTurnMovement(Step, true, true);
             Globals::PrimaryFilm->DetachObject(0, Missile->FilmObject);
         }
     }
@@ -13963,7 +13963,7 @@ namespace aScriptFun {
             Count = av[2]->GetInt();
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(I); ) {
-            aShip::TShip_ImproveRandomEquipment(Ship, false);
+            Ship->ImproveRandomEquipment(false);
         }
         Ship->RefreshDerivedStats(true);
         if (Ship->GetDesiredCargoFreeSpace() > Ship->CargoFreeSpace) {
@@ -14033,12 +14033,12 @@ namespace aScriptFun {
             Ship->virtual_TShip_NextDayLogic();
         } else {
             switch (av[2]->GetInt()) {
-                case 1: Ship->virtual_TShip_AssignWeaponTargetsInStar(); break;
+                case 1: Ship->AssignWeaponTargetsInStar(); break;
                 case 2: Ship->SelectEnemyShipInStar(); break;
                 case 3: Ship->EngageEnemyShip(); break;
                 case 4: aShip::TShip_DropCargoUntilNotOverloaded(Ship); break;
                 case 5: Ship->AutoApplyMicroModules(); break;
-                case 6: aShip::TShip_QueueItemsWithinPickupRange(Ship); break;
+                case 6: Ship->QueueItemsWithinPickupRange(); break;
             }
         }
         aScript::ScriptUnSnap(Snapshot);
@@ -15201,7 +15201,7 @@ namespace aScriptFun {
                 add->Assume(cpp_arg, true);
             }
             try {
-                RunCode->Run(aScript::ScriptProcess);
+                EC_Expression::TCodeEC_Run(RunCode, aScript::ScriptProcess);
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {

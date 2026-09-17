@@ -195,7 +195,7 @@ namespace fHangar {
         std::int32_t I{};
         pas::WideString Path{};
         HoveredShip = nullptr;
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         if (AmbientAnimationTimer != nullptr) {
             CancelCallbackTimer(AmbientAnimationTimer);
             AmbientAnimationTimer = nullptr;
@@ -1376,15 +1376,15 @@ namespace fHangar {
         } else {
             ColorTag = pas::WideString();
         }
-        if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
             Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->GetHull()->HullPoints), ColorTag), u"/", pas::wide_int_to_str(Ship->GetHull()->Weight)});
             if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                 {
-                    const pas::WideString& weaponDamageSummary = Ship->GetWeaponDamageSummary();
+                    const pas::WideString& weaponDamageSummary = aShip::TShip_GetWeaponDamageSummary(Ship);
                     GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"_wref.get()));
                     cpp_arg_15->SetText(weaponDamageSummary);
                 }
-                Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(Ship->GetRepairPointsSummary(), pas::WideString())});
+                Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(aShip::TShip_GetRepairPointsSummary(Ship), pas::WideString())});
             }
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()))->SetText(Text);
         } else {
@@ -1392,9 +1392,9 @@ namespace fHangar {
             GI_Label::TLabelGI* cpp_arg_16 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()));
             cpp_arg_16->SetText(wrapTextInColor_4);
         }
-        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(Ship) & 0x0000007f), "%"}));
-        if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
-            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(Ship)), pas::WideString())});
+        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Ship->GetDefensePercent() & 0x0000007f), "%"}));
+        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->GetArmor()), pas::WideString())});
             if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                 Text = pas::concat_wide({Ship->GetManeuverabilitySummary(), Text});
             }
@@ -1405,7 +1405,7 @@ namespace fHangar {
             GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"_wref.get()));
             cpp_arg_17->SetText(relationLevelTextToShip);
         }
-        if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship)) {
+        if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship)) {
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()))->SetActive(true);
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()))->SetActive(true);
             {
@@ -1427,7 +1427,7 @@ namespace fHangar {
         }
         {
             GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"_wref.get()));
-            if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+            if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
                 std::int64_t cpp_left = System::Round(pas::real_divide(Ship->GetHull()->HullPoints, Ship->GetHull()->Weight) * BarWidth);
                 std::int32_t cpp_arg_20 = cpp_left - (InfoShipDurable->GetContentSize().X - 5);
                 std::int32_t y = InfoShipDurable->LocalPosition.Y;

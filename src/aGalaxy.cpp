@@ -1871,7 +1871,7 @@ namespace aGalaxy {
             for (auto cpp_range_42 = pas::for_to<std::int32_t>(0, pas::list_count(Self->LoadedShips) - 1); cpp_range_42.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(Self->LoadedShips, I);
                 Ship->RefreshDerivedStats(false);
-                aShip::TShip_RefreshGraphicSize(Ship);
+                Ship->RefreshGraphicSize();
                 aShip::TShip::DerivedStateCompatibilityHook();
             }
             Self->RefreshRangerStrengthStats();
@@ -2188,7 +2188,7 @@ namespace aGalaxy {
                     if (cpp_first >= 0) {
                         for (I = cpp_first; I >= 0; --I) {
                             Group = pas::list_at<aGroup::TGroup>(LiberationGroups, I);
-                            aGroup::TGroup_NextDay(Group);
+                            Group->NextDay();
                         }
                     }
                 }
@@ -2630,7 +2630,7 @@ namespace aGalaxy {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, L - 1); cpp_range_2.next(K); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, K);
                 Ship->RefreshDerivedStats(true);
-                aShip::TShip_RefreshGraphicSize(Ship);
+                Ship->RefreshGraphicSize();
             }
         }
     }
@@ -2823,7 +2823,7 @@ namespace aGalaxy {
                     return Item;
                 }
                 if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                    Result = aShip::TShip_FindCarriedItemById(static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship), Id);
+                    Result = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->FindCarriedItemById(Id);
                     if (Result != nullptr) {
                         return Result;
                     }
@@ -2840,7 +2840,7 @@ namespace aGalaxy {
                     return Item;
                 }
                 if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                    Result = aShip::TShip_FindCarriedItemById(static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship), Id);
+                    Result = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->FindCarriedItemById(Id);
                     if (Result != nullptr) {
                         return Result;
                     }
@@ -2849,7 +2849,7 @@ namespace aGalaxy {
             ListCount = pas::list_count(Star->Ships);
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, ListCount - 1); cpp_range_4.next(j); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, j);
-                Item = aShip::TShip_FindCarriedItemById(Ship, Id);
+                Item = Ship->FindCarriedItemById(Id);
                 if (Item != nullptr) {
                     return Item;
                 }
@@ -2861,7 +2861,7 @@ namespace aGalaxy {
                             return Item;
                         }
                         if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                            Result = aShip::TShip_FindCarriedItemById(static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship), Id);
+                            Result = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->FindCarriedItemById(Id);
                             if (Result != nullptr) {
                                 return Result;
                             }
@@ -2875,7 +2875,7 @@ namespace aGalaxy {
                 SubCount = pas::list_count(Planet->Warriors);
                 for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_7.next(k); ) {
                     Ship = pas::list_at<aShip::TShip>(Planet->Warriors, k);
-                    Item = aShip::TShip_FindCarriedItemById(Ship, Id);
+                    Item = Ship->FindCarriedItemById(Id);
                     if (Item != nullptr) {
                         return Item;
                     }
@@ -2887,7 +2887,7 @@ namespace aGalaxy {
                         return Item;
                     }
                     if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                        Result = aShip::TShip_FindCarriedItemById(static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship), Id);
+                        Result = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->FindCarriedItemById(Id);
                         if (Result != nullptr) {
                             return Result;
                         }
@@ -2904,7 +2904,7 @@ namespace aGalaxy {
                             return Item;
                         }
                         if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                            Result = aShip::TShip_FindCarriedItemById(static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship), Id);
+                            Result = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->FindCarriedItemById(Id);
                             if (Result != nullptr) {
                                 return Result;
                             }
@@ -2932,7 +2932,7 @@ namespace aGalaxy {
                 return Stored->Item;
             }
             if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                Result = aShip::TShip_FindCarriedItemById(static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship), Id);
+                Result = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->FindCarriedItemById(Id);
                 if (Result != nullptr) {
                     return Result;
                 }
@@ -4774,7 +4774,7 @@ namespace aGalaxy {
                     if (aConst::ShipTypeNames[StationType].Name == Value) {
                         aRuins::TRuins* cpp_arg = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
                         TStar* self = this;
-                        aRuins::TRuins_Init(cpp_arg, static_cast<aGalaxyStruct::TStationType>(StationType), self, pas::WideString());
+                        cpp_arg->Init(static_cast<aGalaxyStruct::TStationType>(StationType), self, pas::WideString());
                         break;
                     }
                 }
@@ -5439,8 +5439,8 @@ namespace aGalaxy {
         aMissile::TMissile* Missile{};
         if (aPlayer::GetPlayer() != nullptr) {
             Globals::SpaceProcess->RadarCenter = aPlayer::GetPlayer()->Position;
-            Globals::SpaceProcess->RadarRange = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
-            Globals::SpaceProcess->ActionRange = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+            Globals::SpaceProcess->RadarRange = aPlayer::GetPlayer()->GetRadarRange();
+            Globals::SpaceProcess->ActionRange = aPlayer::GetPlayer()->GetRadarRange();
             Globals::SpaceProcess->ActionColor = GR_Main::CurrentPixelFormat->PackRgbBytes(0, 255, 0);
         } else {
             Globals::SpaceProcess->RadarCenter = EC_Struct::MakePointF(0.0f, 0.0f);
@@ -9305,7 +9305,7 @@ namespace aGalaxy {
                             }
                         }
                         Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                        aRuins::TRuins_Init(Station, StationType, Star, pas::WideString());
+                        Station->Init(StationType, Star, pas::WideString());
                         if (CoalitionDefeatedTurn == 0) {
                             pas::WideString formatText3 = ([&] {
                                 pas::WideString name = Station->GetName();
@@ -9696,12 +9696,12 @@ namespace aGalaxy {
                 if (1.0E+1L * GroupStrength >= static_cast<long double>(aMyFunction::NextRandomIntRange(3, 10, RandomState)) * EnemyStrength || aMyFunction::NextRandomIntRange(0, 700, RandomState) == 0) {
                     return Group->BuildLiberationOrders();
                 }
-                aGroup::TGroup_Disband(Group);
+                Group->Disband();
             } else {
                 if (ShipCount >= 5) {
                     return Group->BuildLiberationOrders();
                 }
-                aGroup::TGroup_Disband(Group);
+                Group->Disband();
             }
         }
         return false;
@@ -12099,7 +12099,7 @@ namespace aGalaxy {
                 aGalaxy::CurrentFilm()->RadarRange = 0;
                 Stage = 60;
                 if (aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar())) {
-                    aGalaxy::CurrentFilm()->RadarRange = aShip::TShip_GetRadarRange(aPlayer::GetPlayer());
+                    aGalaxy::CurrentFilm()->RadarRange = aPlayer::GetPlayer()->GetRadarRange();
                 }
                 Stage = 61;
                 ObjectFilm = aGalaxy::CurrentFilm()->AddObject(static_cast<std::int32_t>(Id), Graphic, 0, 0);
@@ -12517,7 +12517,7 @@ namespace aGalaxy {
                     Ship->GetHull()->InterceptorTarget = nullptr;
                     if (Ship->AfterburnerActive) {
                         if (aShip::TShip_IsEquipmentUsable(Ship, Ship->GetEngine()) && Ship->GetSlotCount(aConst::sskAfterburner) > 0) {
-                            aShip::TShip_ApplyAfterburnerItemDegradation(Ship);
+                            Ship->ApplyAfterburnerItemDegradation();
                         }
                     }
                 }
@@ -12529,7 +12529,7 @@ namespace aGalaxy {
             Stage = 23;
             for (auto cpp_range_28 = pas::for_to<std::int32_t>(0, pas::list_count(Missiles) - 1); cpp_range_28.next(Index); ) {
                 Missile = static_cast<aMissile::TMissile*>(pas::load_unaligned<void*>(pas::byte_offset(pas::list_data(Missiles), Index * sizeof(void*))));
-                aMissile::TMissile_PrepareTurnMovement(Missile, StepIndex, RecordFilm, false);
+                Missile->PrepareTurnMovement(StepIndex, RecordFilm, false);
             }
             Stage = 24;
             if (RecordFilm) {
@@ -13086,7 +13086,7 @@ namespace aGalaxy {
                                                 Missile->MaxDamage = static_cast<std::uint32_t>(System::Round(Missile->MaxDamage * 1.25L));
                                             }
                                             reinterpret_cast<aShip::TShip*>(CombatEvent->Attacker)->ScriptItemsAct(aConst::satOnMissileShot, Missile, reinterpret_cast<aItem::TWeapon*>(CombatEvent->Weapon), 0);
-                                            aMissile::TMissile_PrepareTurnMovement(Missile, StepIndex, RecordFilm, true);
+                                            Missile->PrepareTurnMovement(StepIndex, RecordFilm, true);
                                             if (RecordFilm) {
                                                 aGalaxy::CurrentFilm()->DetachObject(0, Missile->FilmObject);
                                             }
@@ -13400,7 +13400,7 @@ namespace aGalaxy {
                     Stage = 29733;
                     if (4 * (Count / 5) == StepIndex) {
                         if (System::Round(Ship->GetCombatStatusStrength(aShip::cseShock)) >= 1 && (static_cast<std::uint8_t>(Ship->IsHullDestroyed() ^ 1) && (Ship->InNormalSpace() && (aPlayer::GetPlayer() != Ship || Galaxy->GodModEnabled != 1 && Galaxy->SpecialSimulationMode == 0)) && (aPlayer::GetPlayer() == Ship || Galaxy->StasisModEnabled != 1))) {
-                            Damage = aShip::TShip_ApplyShockStatusDamage(Ship, DamageColor);
+                            Damage = Ship->ApplyShockStatusDamage(DamageColor);
                             if (RecordFilm) {
                                 aGalaxy::CreateFilmEffect(u"Weapon.Shock"_wref.get(), 0, Effect, EffectFilm);
                                 aGalaxy::CurrentFilm()->SetWeaponEndpoints(StepIndex, EffectFilm, Ship->FilmObject, Ship->FilmObject);

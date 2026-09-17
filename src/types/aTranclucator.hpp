@@ -71,7 +71,7 @@ namespace aTranclucator {
         std::uint8_t CanFollowOwnerInCurrentStar();
         // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
-        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
+        void RepairBrokenEquipmentAtLocation() override;
         // Moves unequipped inventory and artefacts plus all goods; refreshes Self and the destination player's storage bubbles.
         void TransferUnequippedCargo(aShip::TShip* Destination);
         // The +0 index/pointer expressions below preserve native DCC32 argument scheduling.
@@ -82,8 +82,10 @@ namespace aTranclucator {
         void UpdateFreeFlightOrder();
         void BuildReachablePlanetQueue() override;
         std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
+        // Returns whether a move order is active; nearby pickups can be queued even when the result is false.
+        std::uint8_t TryCollectPreferredFloatingLoot(std::int32_t MaxTravelDays);
         void EquipEssentialInventory();
-        void virtual_TShip_AssignWeaponTargetsInStar() override;
+        void AssignWeaponTargetsInStar() override;
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
         std::uint8_t RelationToNonRanger(aShip::TShip* Ship) override;
@@ -93,7 +95,7 @@ namespace aTranclucator {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
         std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
@@ -103,7 +105,7 @@ namespace aTranclucator {
         std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         void virtual_TShip_RefreshCurrentStanding() override;
-        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
         std::int32_t ArtefactSize;
         pas::WideString ArtefactSystemName;
         // Script.Proprietor.

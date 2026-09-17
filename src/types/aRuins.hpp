@@ -60,6 +60,8 @@ namespace aRuins {
     struct TRuins : aShip::TShip {
         PAS_CLASS_META(TRuins, aShip::TShip, "TRuins", 1384)
         void p_destroy() override;
+        // Also registers the station in Star. Type 13 inherits ranger-center defaults.
+        void Init(aGalaxyStruct::TStationType StationType, aGalaxy::TStar* Star, pas::WideString TypeNameOverride);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         // Requires a fresh instance. FlyToStar temporarily contains a saved star ID.
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
@@ -84,9 +86,12 @@ namespace aRuins {
         // Invalidates TargetPlanet on the existing offer.
         void RegenerateSatelliteOffer();
         void RefuelAtLocation() override;
-        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
+        // Sponsored stations restore equipment condition without a repair transaction.
+        void RepairBrokenEquipmentAtLocation() override;
         // Sponsored stations gain only one round per weapon; other stations refill to capacity.
         void ReloadWeapons();
+        // Disabled in modes 1 and 3; otherwise follows the station's weekly schedule after initial setup.
+        void RefreshShopInventory();
         // Returns 10..18; advances the station RNG state.
         std::int32_t CalculateEquipmentShopTargetCount();
         // Bucket 50 includes all weapon item types 50..68.
@@ -108,11 +113,15 @@ namespace aRuins {
         void SelectEnemyShipInStar() override;
         // Empty.
         void EngageEnemyShip() override;
-        void virtual_TShip_AssignWeaponTargetsInStar() override;
+        // Targets hostile ships, incoming missiles and nearby asteroids.
+        void AssignWeaponTargetsInStar() override;
         std::uint8_t TryStartAbductionCycle();
         // May redirect a departing ship to this station during its abduction cycle.
         void TryAbductDepartingShip(aShip::TShip* Ship);
+        // Posts the native Pirate Clan success/failure message after the station reappears.
+        void ReportAbductionOutcome();
         float EvaluateLocalForceBalance(EC_Struct::TPointF Point);
+        float EvaluateRelocationPosition(EC_Struct::TPointF Point);
         // Successful repositioning initiates a teleport.
         std::uint8_t TryRepositionInStar();
         // Travel starts next turn; transfers the star's Dominion ownership reference.
@@ -129,7 +138,7 @@ namespace aRuins {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
         std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
@@ -147,8 +156,8 @@ namespace aRuins {
         // Search is limited to 1001 attempts.
         EC_Struct::TPointF SelectTeleportArrivalPoint(aGalaxy::TStar* Star);
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
-        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
         void virtual_TShip_RefreshCurrentStanding() override;
         // Type-13 fallback through the planet's hull generator; may apply a special module.
         aItem::THull* GeneratePlanetHullOffer(pas::Object* Ship, aPlanet::TPlanet* Planet);

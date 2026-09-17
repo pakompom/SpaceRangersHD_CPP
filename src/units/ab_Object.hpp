@@ -25,6 +25,4 @@ namespace ab_Object {
 
     void TabObject_Destroy(TabObject* Self);
 
-    void TabObject_Advance(TabObject* Self);
-
 } // namespace ab_Object

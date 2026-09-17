@@ -1,11 +1,6 @@
 #pragma once
 #include "types/GI_Grid.hpp"
 
-namespace EC_BlockPar {
-    struct TBlockParEC;
-
-} // namespace EC_BlockPar
-
 namespace GI_MessageLoop {
     struct TObjectGI;
 
@@ -18,10 +13,6 @@ namespace GI_Grid {
 
     void TGridGI_Destroy(TGridGI* Self);
 
-    void TGridGI_SetActiveCellImagePath(TGridGI* Self, pas::WideString Path);
-
     void TGridGI_LoadFromConfigPath(TGridGI* Self, const pas::WideString& Path);
-
-    void TGridGI_LoadGridProperties(TGridGI* Self, EC_BlockPar::TBlockParEC* Block);
 
 } // namespace GI_Grid

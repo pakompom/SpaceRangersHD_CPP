@@ -106,6 +106,8 @@ namespace aPlayer {
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Inherited ranger registration followed by player career/skill defaults; CharacterPreset is unused here.
         void InitializePlayerAtPlanet(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset);
+        // Twenty-five race/preset loadouts, stored cargo and initial planet relations. Planet is unused.
+        void ApplyCharacterPreset(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset);
         void virtual_TShip_NextDay() override;
         // Capped at 100000000; zero for nonpositive principal.
         std::int32_t ComputeDepositAccruedValue();

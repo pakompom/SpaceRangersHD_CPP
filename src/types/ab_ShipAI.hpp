@@ -31,7 +31,7 @@ namespace ab_ShipAI {
         aItem::TItem* GetRewardItem(std::uint8_t Preview);
         void ApplyDamage(std::int32_t Amount, ab_Object::TabObject* Source, std::uint8_t Disrupt) override;
         void UpdateState() override;
-        void virtual_TabObject_Advance() override;
+        void Advance() override;
         void NoticeCollision();
         void NoticeDamagingZone(ab_Zone::PabZone Zone);
         void ResetIntent();

@@ -551,7 +551,7 @@ namespace aScript {
             Template = pas::list_at<Globals::TScriptTemplUnit>(Candidates, I);
             Globals::ScriptTemplateStartRequested = false;
             try {
-                Template->ConditionCode->Run(ScriptProcess);
+                EC_Expression::TCodeEC_Run(Template->ConditionCode, ScriptProcess);
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -1297,7 +1297,7 @@ namespace aScript {
             }
         }
         try {
-            Code->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -1352,7 +1352,7 @@ namespace aScript {
             Code->LinkAll(ParentCode->LocalVar, false);
         }
         try {
-            Code->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -1424,7 +1424,7 @@ namespace aScript {
                     Code->LocalVar->Add(u"KEYMOD"_wref.get(), EC_Expression::vkDword)->SetDword(KeyModifiers);
                 }
             }
-            Code->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -2220,7 +2220,7 @@ namespace aScript {
                 Self->PublishShipContext(Binding);
                 SavedState = CurrentScriptState;
                 CurrentScriptState = State;
-                State->StateCode->Run(ScriptProcess);
+                EC_Expression::TCodeEC_Run(State->StateCode, ScriptProcess);
                 CurrentScriptState = SavedState;
                 CurrentScript = SavedScript;
             }
@@ -2240,7 +2240,7 @@ namespace aScript {
     void TScript_RunTurnCode(TScript* Self) {
         try {
             CurrentScript = Self;
-            Self->TurnCode->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(Self->TurnCode, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -2257,7 +2257,7 @@ namespace aScript {
     void TScript_RunAuxiliaryCode(TScript* Self) {
         try {
             CurrentScript = Self;
-            Self->AuxiliaryCode->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(Self->AuxiliaryCode, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -2280,7 +2280,7 @@ namespace aScript {
         Self->SkipGreeting = false;
         Globals::ScriptDialogIndex = -1;
         try {
-            pas::list_at<TScriptDialog>(Self->Dialogs, Index)->Code->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialog>(Self->Dialogs, Index)->Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -2294,12 +2294,12 @@ namespace aScript {
         }
     }
 
-    void TScript_CallDialogByVariable(TScript* Self, pas::WideString Name) {
-        EC_Expression::TVarEC* Cell = Self->InitCode->LocalVar->GetVarNE(Name);
+    void TScript::CallDialogByVariable(pas::WideString Name) {
+        EC_Expression::TVarEC* Cell = InitCode->LocalVar->GetVarNE(Name);
         if (Cell == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Dialog ", Name, u" not found in script ", Self->ScriptFileName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Dialog ", Name, u" not found in script ", ScriptFileName}))));
         }
-        aScript::TScript_CallDialog(Self, Cell->GetInt());
+        aScript::TScript_CallDialog(this, Cell->GetInt());
     }
 
     void TScript::CallDialogMessage(std::int32_t Index) {
@@ -2307,7 +2307,7 @@ namespace aScript {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialogMsg ", ScriptFileName}))));
         }
         try {
-            pas::list_at<TScriptDialogMsg>(DialogMessages, Index)->Code->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogMsg>(DialogMessages, Index)->Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -2327,7 +2327,7 @@ namespace aScript {
         }
         CurrentAnswer = Index;
         try {
-            pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->AnswerCode->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->AnswerCode, ScriptProcess);
             CurrentAnswer = -1;
         } catch (...) {
             auto cpp_exception = pas::caught_object();
@@ -2351,7 +2351,7 @@ namespace aScript {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialogAnswerCode ", ScriptFileName}))));
         }
         try {
-            pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->ActionCode->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->ActionCode, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -2449,14 +2449,14 @@ namespace aScript {
         }
         Binding->State = pas::list_at<TScriptState>(States, StateIndex);
         if (Binding->State->EntryCode != nullptr) {
-            Binding->State->EntryCode->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(Binding->State->EntryCode, ScriptProcess);
         }
         if (!(pas::class_cast_if<aPlayer::TPlayer*>(Binding->Ship) != nullptr)) {
-            aShip::TShip_InitializeScriptStateOrders(Binding->Ship);
+            Binding->Ship->InitializeScriptStateOrders();
         }
         if (Binding->State->StateCode != nullptr) {
             PublishShipContext(Binding);
-            Binding->State->StateCode->Run(ScriptProcess);
+            EC_Expression::TCodeEC_Run(Binding->State->StateCode, ScriptProcess);
         }
     }
 
@@ -3311,7 +3311,7 @@ namespace aScript {
         InitCode->ScriptFunLinked = true;
         if (CreateObjects) {
             try {
-                InitCode->Run(ScriptProcess);
+                EC_Expression::TCodeEC_Run(InitCode, ScriptProcess);
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {

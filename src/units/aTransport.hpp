@@ -1,16 +1,10 @@
 #pragma once
-#include "types/aConst.hpp"
 #include "types/aTransport.hpp"
 
 namespace aGalaxy {
     struct TGalaxy;
 
 } // namespace aGalaxy
-
-namespace aItem {
-    struct TWeapon;
-
-} // namespace aItem
 
 namespace aPlanet {
     struct TPlanet;
@@ -42,21 +36,12 @@ namespace aTransport {
     // AI ownership check only; does not test travel range.
     std::uint8_t TTransport_CanQueueReachablePlanet(TTransport* Self, aPlanet::TPlanet* Planet);
 
-    // Restores equipment condition without charging Money.
-    void TTransport_RepairBrokenEquipmentAtLocation(TTransport* Self);
-
     // Updates InFear and may replace EnemyShip.
     std::uint8_t TTransport_RecomputeFearState(TTransport* Self);
-
-    void TTransport_TryOfferRansomToPursuer(TTransport* Self);
 
     std::uint8_t TTransport_AcceptsRansomDemandFrom(TTransport* Self, aShip::TShip* Ship);
 
     std::uint8_t TTransport_TrustsAttackRequester(TTransport* Self, aShip::TShip* Ship);
-
-    std::uint8_t TTransport_EvaluateAllyRelationAndStrength(TTransport* Self, aShip::TShip* Ship);
-
-    void TTransport_AssignWeaponTargetsInStar(TTransport* Self);
 
     std::uint8_t TTransport_BuildMoneyExtortionResponse(TTransport* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
 
@@ -67,10 +52,6 @@ namespace aTransport {
     std::uint8_t TTransport_AcceptPartnershipOffer(TTransport* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
 
     std::uint8_t TTransport_BuildPartnershipOfferResponse(TTransport* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
-
-    float TTransport_EvaluateStatBonus(TTransport* Self, aConst::TEquipmentBonusKind BonusKind, std::int32_t Value);
-
-    float TTransport_EvaluateWeaponDamage(TTransport* Self, aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage);
 
     void TTransport_RefreshCurrentStanding(TTransport* Self);
 

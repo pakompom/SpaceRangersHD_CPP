@@ -13,7 +13,7 @@ namespace ab_W13 {
         PAS_CLASS_META(TabW13, ab_Object::TabObject, "TabW13", 196)
         void p_destroy() override;
         void Launch(ab_Object::TabObject* Owner, std::int32_t Amount, float Angle, std::int32_t AGeneration, ab_Object::TabObject* Origin);
-        void virtual_TabObject_Advance() override;
+        void Advance() override;
         void UpdateVisuals() override;
         std::int32_t Damage;
         ab_WorldImage::PabWorldImage Image;

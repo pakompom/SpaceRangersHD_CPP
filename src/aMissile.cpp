@@ -360,76 +360,76 @@ namespace aMissile {
         return Graphic;
     }
 
-    void TMissile_PrepareTurnMovement(TMissile* Self, std::int32_t StepIndex, std::uint8_t RecordFilm, std::uint8_t PlayShotSound) {
+    void TMissile::PrepareTurnMovement(std::int32_t StepIndex, std::uint8_t RecordFilm, std::uint8_t PlayShotSound) {
         float PathLength{};
         float TurnFraction{};
         EC_BlockPar::TBlockParEC* Config{};
         EC_BlockPar::TBlockParEC* Palette{};
         if (RecordFilm) {
             {
-                SE_Space::TObjectSE* graphObject = Self->GetGraphObject();
-                std::uint32_t id = Self->Id;
+                SE_Space::TObjectSE* graphObject = GetGraphObject();
+                std::uint32_t id = Id;
                 aEFilm::TEFilm* primaryFilm = Globals::PrimaryFilm;
-                Self->FilmObject = primaryFilm->AddObject(id, graphObject, 0, 0);
+                FilmObject = primaryFilm->AddObject(id, graphObject, 0, 0);
             }
-            Globals::PrimaryFilm->SetObjectPosition(StepIndex, Self->FilmObject, Self->Position);
-            Globals::PrimaryFilm->SetObjectAngle(StepIndex, Self->FilmObject, aMyFunction::HeadingDegreesToByte(Self->Direction));
-            Globals::PrimaryFilm->AttachObject(StepIndex, Self->FilmObject);
+            Globals::PrimaryFilm->SetObjectPosition(StepIndex, FilmObject, Position);
+            Globals::PrimaryFilm->SetObjectAngle(StepIndex, FilmObject, aMyFunction::HeadingDegreesToByte(Direction));
+            Globals::PrimaryFilm->AttachObject(StepIndex, FilmObject);
             if (PlayShotSound) {
-                if (pas::class_cast_if<TCustomMissile*>(Self) != nullptr) {
-                    Config = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", Self->GetWeaponInfo()->PrimarySE}));
+                if (pas::class_cast_if<TCustomMissile*>(this) != nullptr) {
+                    Config = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", GetWeaponInfo()->PrimarySE}));
                 } else {
-                    Config = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"SE.Weapon.", SysUtils::IntToStr(Self->ItemType - 50)})));
+                    Config = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"SE.Weapon.", SysUtils::IntToStr(ItemType - 50)})));
                 }
                 Palette = Config->FindBlock(u"Palettes"_wref.get());
                 if (Palette != nullptr) {
-                    Palette = Palette->FindBlock(pas::wide_int_to_str(Self->GetShotVisual()));
+                    Palette = Palette->FindBlock(pas::wide_int_to_str(GetShotVisual()));
                 }
                 if (Palette != nullptr && Palette->CountParams(u"SoundShot"_wref.get()) > 0) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, Palette->GetParam(u"SoundShot"_wref.get()));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Palette->GetParam(u"SoundShot"_wref.get()));
                 } else if (Config->CountParams(u"SoundShot"_wref.get()) > 0) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, Config->GetParam(u"SoundShot"_wref.get()));
-                } else if (pas::class_cast_if<TCustomMissile*>(Self) != nullptr) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, pas::concat_wide({u"Sound.shot", Self->GetWeaponInfo()->ConfigName}));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Config->GetParam(u"SoundShot"_wref.get()));
+                } else if (pas::class_cast_if<TCustomMissile*>(this) != nullptr) {
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, pas::concat_wide({u"Sound.shot", GetWeaponInfo()->ConfigName}));
                 } else {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, Self->FilmObject, static_cast<pas::WideString>(pas::concat_ansi({"Sound.shot", SysUtils::IntToStr(Self->ItemType - 50)})));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, static_cast<pas::WideString>(pas::concat_ansi({"Sound.shot", SysUtils::IntToStr(ItemType - 50)})));
                 }
             }
         }
-        if (Self->FlightTicks == 0) {
-            if (Self->OwnerShip != nullptr) {
-                Self->SourceHeading = Self->OwnerShip->MovementDirection;
-                Self->Speed = pas::real_max<float>(static_cast<float>(Self->OwnerShip->Speed), Self->MaximumSpeed);
+        if (FlightTicks == 0) {
+            if (OwnerShip != nullptr) {
+                SourceHeading = OwnerShip->MovementDirection;
+                Speed = pas::real_max<float>(static_cast<float>(OwnerShip->Speed), MaximumSpeed);
                 PathLength = 0.0f;
-                if (Self->OwnerShip->MovementPath != nullptr && Self->OwnerShip->MovementPath->NodeCount > 0) {
-                    PathLength = Self->OwnerShip->MovementPath->GetLength();
-                    TurnFraction = pas::real_divide(StepIndex, Self->CurrentStar->MovementStepCount);
+                if (OwnerShip->MovementPath != nullptr && OwnerShip->MovementPath->NodeCount > 0) {
+                    PathLength = OwnerShip->MovementPath->GetLength();
+                    TurnFraction = pas::real_divide(StepIndex, CurrentStar->MovementStepCount);
                     if (1.0L - TurnFraction == 0.0L) {
                         PathLength = 0.0f;
                     } else {
                         PathLength = pas::real_divide(PathLength, 1.0L - TurnFraction);
                     }
-                    if (aMyFunction::HeadingDifferenceDegrees(Self->OwnerShip->MovementDirection, aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(static_cast<long double>(Self->OwnerShip->MovementPath->ActiveTail->Position.X) - Self->OwnerShip->Position.X, -(static_cast<long double>(Self->OwnerShip->MovementPath->ActiveTail->Position.Y) - Self->OwnerShip->Position.Y)))) < 0.0L) {
-                        Self->TurnDirection = -1.0f;
+                    if (aMyFunction::HeadingDifferenceDegrees(OwnerShip->MovementDirection, aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(static_cast<long double>(OwnerShip->MovementPath->ActiveTail->Position.X) - OwnerShip->Position.X, -(static_cast<long double>(OwnerShip->MovementPath->ActiveTail->Position.Y) - OwnerShip->Position.Y)))) < 0.0L) {
+                        TurnDirection = -1.0f;
                     } else {
-                        Self->TurnDirection = 1.0f;
+                        TurnDirection = 1.0f;
                     }
                 } else {
-                    Self->TurnDirection = 1.0f;
+                    TurnDirection = 1.0f;
                 }
                 // The initial maximum above is overwritten in the native routine too.
-                Self->Speed = PathLength + 1.0E+2L;
-                if (Self->Speed < 2.0E+2L) {
-                    Self->Speed = 2.0E+2f;
+                Speed = PathLength + 1.0E+2L;
+                if (Speed < 2.0E+2L) {
+                    Speed = 2.0E+2f;
                 }
             } else {
-                Self->Speed = Self->MaximumSpeed;
-                Self->SourceHeading = 0.0f;
-                Self->TurnDirection = 0.0f;
+                Speed = MaximumSpeed;
+                SourceHeading = 0.0f;
+                TurnDirection = 0.0f;
             }
-            ++Self->FlightTicks;
+            ++FlightTicks;
         }
-        Self->OvershootTicks = -1;
+        OvershootTicks = -1;
     }
 
     // Returns a hit ship, item or asteroid, or nil when no object was hit.
@@ -822,7 +822,7 @@ namespace aMissile {
         }
         if (OwnerShip != nullptr) {
             if (aPlayer::GetPlayer()->HasScannerArtefact(OwnerShip)) {
-                if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), OwnerShip) || aPlayer::GetPlayer() == OwnerShip || aPlayer::GetPlayer() == OwnerShip->PartnerShip || OwnerShip->TypeId == aGalaxyStruct::stTranclucator) {
+                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(OwnerShip) || aPlayer::GetPlayer() == OwnerShip || aPlayer::GetPlayer() == OwnerShip->PartnerShip || OwnerShip->TypeId == aGalaxyStruct::stTranclucator) {
                     SpeedText = pas::wide_int64_to_str(System::Round(Speed));
                     if (OwnerShip->TypeId == aGalaxyStruct::stKling && pas::checked_cast<aKling::TKling*>(OwnerShip)->KlingType == aGalaxyStruct::ktBoss) {
                         DamageFactor = aGalaxy::Galaxy->InterpolateDifficulty(-1, 0.7f, 1.0f, 1.2f, 1.5f) * 2.0L;

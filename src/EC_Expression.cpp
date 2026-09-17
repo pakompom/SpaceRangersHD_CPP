@@ -4760,9 +4760,9 @@ namespace EC_Expression {
                             var->SetRef(value);
                         }
                         if (DebugContext == nullptr) {
-                            Invocation->Run(Process);
+                            EC_Expression::TCodeEC_Run(Invocation, Process);
                         } else {
-                            Invocation->RunDebug(Process, DebugContext);
+                            EC_Expression::TCodeEC_RunDebug(Invocation, Process, DebugContext);
                         }
                         ScriptCallTrace[ScriptCallTracePosition] = Callee;
                         ScriptCallTraceCount = std::min<std::int32_t>(20, ScriptCallTraceCount + 1);
@@ -6184,14 +6184,14 @@ namespace EC_Expression {
         LinkAll(LocalVar, false);
     }
 
-    void TCodeEC::Run(TCodeProcessEC* Process) {
+    void TCodeEC_Run(TCodeEC* Self, TCodeProcessEC* Process) {
         PCodeExceptionHandler Handler{};
         PVarEC Pending{};
         ScriptCallTracePosition = 0;
         ScriptCallTraceCount = 0;
-        LinkAll(LocalVar, false);
+        Self->LinkAll(Self->LocalVar, false);
         TVarEC* Caught = nullptr;
-        TCodeUnitEC* Item = First;
+        TCodeUnitEC* Item = Self->First;
         std::int32_t Steps = 0;
         std::int32_t TotalSteps = 0;
         while (Item != nullptr) {
@@ -6205,7 +6205,7 @@ namespace EC_Expression {
             }
             if (Item->Opcode == coExpression) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, this, nullptr);
+                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
                 } catch (...) {
                     throw;
                 }
@@ -6214,7 +6214,7 @@ namespace EC_Expression {
                 continue;
             } else if (Item->Opcode == coBranchFalse) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, this, nullptr);
+                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
                 } catch (...) {
                     throw;
                 }
@@ -6225,19 +6225,19 @@ namespace EC_Expression {
             } else if (Item->Opcode == coExit) {
                 while (true) {
                     Handler = Process->GetHandler();
-                    if (Handler == nullptr || Handler->Code != this) {
+                    if (Handler == nullptr || Handler->Code != Self) {
                         break;
                     }
                     Process->PopHandler();
                 }
                 break;
             } else if (Item->Opcode == coPushHandler) {
-                Process->PushHandler(this, Item->Target);
+                Process->PushHandler(Self, Item->Target);
             } else if (Item->Opcode == coPopHandler) {
                 Process->PopHandler();
             } else if (Item->Opcode == coThrow) {
                 if (Item->Expression != nullptr) {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, this, nullptr);
+                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
                     Process->PushException(Item->Expression->GetResult());
                 } else if (Caught != nullptr) {
                     Process->PushException(Caught);
@@ -6248,7 +6248,7 @@ namespace EC_Expression {
             if (Pending != nullptr) {
                 Handler = Process->GetHandler();
                 if (Handler != nullptr) {
-                    if (Handler->Code != this) {
+                    if (Handler->Code != Self) {
                         break;
                     }
                     Item = Handler->Handler;
@@ -6273,18 +6273,18 @@ namespace EC_Expression {
         ScriptCallTraceCount = 0;
     }
 
-    void TCodeEC::RunDebug(TCodeProcessEC* Process, TScriptDebugState* DebugContext) {
+    void TCodeEC_RunDebug(TCodeEC* Self, TCodeProcessEC* Process, TScriptDebugState* DebugContext) {
         pas::Array<std::uint32_t, 0, 1> Events{};
         std::uint32_t WaitResult{};
         PCodeExceptionHandler Handler{};
         PVarEC Pending{};
         ScriptCallTracePosition = 0;
         ScriptCallTraceCount = 0;
-        LinkAll(LocalVar, false);
+        Self->LinkAll(Self->LocalVar, false);
         TVarEC* Caught = nullptr;
         Events[0] = DebugContext->StopEvent;
         Events[1] = DebugContext->ResumeEvent;
-        TCodeUnitEC* Item = First;
+        TCodeUnitEC* Item = Self->First;
         while (Item != nullptr) {
             WaitResult = WindowsSdk::WaitForSingleObject(DebugContext->StopEvent, 0u);
             if (WaitResult == WindowsSdk::WAIT_FAILED || WaitResult == WindowsSdk::WAIT_OBJECT_0 || WaitResult == WindowsSdk::WAIT_ABANDONED_0) {
@@ -6297,14 +6297,14 @@ namespace EC_Expression {
                 if (WaitResult == WindowsSdk::WAIT_FAILED || WaitResult == WindowsSdk::WAIT_OBJECT_0 || WaitResult >= WindowsSdk::WAIT_ABANDONED_0 && WaitResult < WindowsSdk::WAIT_ABANDONED_0 + 2) {
                     break;
                 }
-                DebugContext->CurrentCode = this;
+                DebugContext->CurrentCode = Self;
                 if (DebugContext->StepMode == 1) {
                     DebugContext->Paused = true;
                 }
             }
             if (Item->Opcode == coExpression) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, this, DebugContext);
+                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, DebugContext);
                 } catch (...) {
                     throw;
                 }
@@ -6313,7 +6313,7 @@ namespace EC_Expression {
                 continue;
             } else if (Item->Opcode == coBranchFalse) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, this, DebugContext);
+                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, DebugContext);
                 } catch (...) {
                     throw;
                 }
@@ -6324,19 +6324,19 @@ namespace EC_Expression {
             } else if (Item->Opcode == coExit) {
                 while (true) {
                     Handler = Process->GetHandler();
-                    if (Handler == nullptr || Handler->Code != this) {
+                    if (Handler == nullptr || Handler->Code != Self) {
                         break;
                     }
                     Process->PopHandler();
                 }
                 break;
             } else if (Item->Opcode == coPushHandler) {
-                Process->PushHandler(this, Item->Target);
+                Process->PushHandler(Self, Item->Target);
             } else if (Item->Opcode == coPopHandler) {
                 Process->PopHandler();
             } else if (Item->Opcode == coThrow) {
                 if (Item->Expression != nullptr) {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, this, nullptr);
+                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
                     Process->PushException(Item->Expression->GetResult());
                 } else if (Caught != nullptr) {
                     Process->PushException(Caught);
@@ -6347,7 +6347,7 @@ namespace EC_Expression {
             if (Pending != nullptr) {
                 Handler = Process->GetHandler();
                 if (Handler != nullptr) {
-                    if (Handler->Code != this) {
+                    if (Handler->Code != Self) {
                         break;
                     }
                     Item = Handler->Handler;
@@ -6363,12 +6363,12 @@ namespace EC_Expression {
                     break;
                 }
             }
-            if (DebugContext->StepMode == 2 && DebugContext->CurrentCode == this) {
+            if (DebugContext->StepMode == 2 && DebugContext->CurrentCode == Self) {
                 DebugContext->Paused = true;
             }
             Item = Item->Next;
         }
-        if ((DebugContext->StepMode == 2 || DebugContext->StepMode == 3) && DebugContext->CurrentCode == this) {
+        if ((DebugContext->StepMode == 2 || DebugContext->StepMode == 3) && DebugContext->CurrentCode == Self) {
             DebugContext->Paused = true;
         }
         if (Caught != nullptr) {

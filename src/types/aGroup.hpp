@@ -52,6 +52,10 @@ namespace aGroup {
         void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy);
         // Appends Ship, assigns LiberationGroup and resets its order index.
         void AddShip(aShip::TShip* Ship);
+        // May remove and free Self when empty or older than 150 days.
+        void NextDay();
+        // Detaches member ships, removes Self from Galaxy.LiberationGroups, and frees Self.
+        void Disband();
         // Chooses TargetStar and a Coalition AssemblyStar within 28 parsecs. Failure disbands and frees Self.
         std::uint8_t SelectLiberationTarget();
         // Builds staging, landing and attack orders and publishes news. May disband and free Self when no suitable staging planet exists.

@@ -31,6 +31,7 @@ namespace aNormalShip {
     // Nearby rangers attacking a friend incur a penalty; attacks on an enemy can improve relations.
     void TNormalShip_UpdateRelationsForNearbyCombat(TNormalShip* Self);
 
-    void TNormalShip_TrainSkillsAutomatically(TNormalShip* Self);
+    // Automatic messages suppress object links and select the automatic-message category.
+    pas::WideString TNormalShip_SelectSituationalMessage(TNormalShip* Self, std::uint8_t Automatic);
 
 } // namespace aNormalShip

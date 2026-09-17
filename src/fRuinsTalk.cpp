@@ -527,7 +527,7 @@ namespace fRuinsTalk {
                 GR_Main::MusicManager->RequestFadeOut();
             }
             Stage = 1;
-            fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+            LoadPanel->OnOpen();
             Stage = 2;
             if (ShowArrivalVideo && static_cast<std::uint8_t>(Globals::SkipVideo ^ 1)) {
                 LoadPanel->SetShutterOpenFraction(1.0f);
@@ -1563,7 +1563,7 @@ namespace fRuinsTalk {
                 Text = reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip)->GetGroup()->DefinitionText;
                 if (Text != u"") {
                     Script->PublishShipContext(reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip));
-                    aScript::TScript_CallDialogByVariable(Script, Text);
+                    Script->CallDialogByVariable(Text);
                 }
             }
             Stage = 4;
@@ -1892,7 +1892,7 @@ namespace fRuinsTalk {
                     Text = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, SelectedIndex)->DialogName;
                     if (Text != u"") {
                         Script->PublishCurrentShip(aPlayer::GetPlayer()->DockedTo);
-                        aScript::TScript_CallDialogByVariable(Script, Text);
+                        Script->CallDialogByVariable(Text);
                         if (Globals::ScriptDialogIndex < 0) {
                             GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Script->ScriptFileName, u" has overriden dialog with ", Text, u" but it failed to start"})));
                         }
@@ -2760,7 +2760,7 @@ namespace fRuinsTalk {
     // Deposits every carried node stack.
     void TfRuinsTalk::DepositNodesAtRangerCenter(std::int32_t Action) {
         std::int32_t Count = aPlayer::GetPlayer()->GetCarriedNodeCount();
-        aShip::TShip_DepositCarriedNodes(aPlayer::GetPlayer());
+        aPlayer::GetPlayer()->DepositCarriedNodes();
         static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckNodesAchievement();
         aGalaxy::Galaxy->RefreshRangerRatingPlaces();
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
@@ -6000,7 +6000,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateRangerCenter: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 RangerCenter = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                aRuins::TRuins_Init(RangerCenter, aGalaxyStruct::rstRangerCenter, InvestmentRangerCenterStar, pas::WideString());
+                RangerCenter->Init(aGalaxyStruct::rstRangerCenter, InvestmentRangerCenterStar, pas::WideString());
                 {
                     pas::WideString formatText3 = ([&] {
                         pas::WideString name = RangerCenter->GetName();
@@ -6033,7 +6033,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreatePirateBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 PirateBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                aRuins::TRuins_Init(PirateBase, aGalaxyStruct::rstPirateBase, InvestmentPirateBaseStar, pas::WideString());
+                PirateBase->Init(aGalaxyStruct::rstPirateBase, InvestmentPirateBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_2 = ([&] {
                         pas::WideString name_4 = PirateBase->GetName();
@@ -6063,7 +6063,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateMilitaryBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 MilitaryBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                aRuins::TRuins_Init(MilitaryBase, aGalaxyStruct::rstMilitaryBase, InvestmentMilitaryBaseStar, pas::WideString());
+                MilitaryBase->Init(aGalaxyStruct::rstMilitaryBase, InvestmentMilitaryBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_3 = ([&] {
                         pas::WideString name_7 = MilitaryBase->GetName();
@@ -6103,7 +6103,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateScienceBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 ScienceBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                aRuins::TRuins_Init(ScienceBase, aGalaxyStruct::rstScienceBase, InvestmentScienceBaseStar, pas::WideString());
+                ScienceBase->Init(aGalaxyStruct::rstScienceBase, InvestmentScienceBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_4 = ([&] {
                         pas::WideString name_10 = ScienceBase->GetName();
@@ -6132,7 +6132,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateBusinessCenter: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 BusinessCenter = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                aRuins::TRuins_Init(BusinessCenter, aGalaxyStruct::rstBusinessCenter, InvestmentBusinessCenterStar, pas::WideString());
+                BusinessCenter->Init(aGalaxyStruct::rstBusinessCenter, InvestmentBusinessCenterStar, pas::WideString());
                 {
                     pas::WideString formatText3_5 = ([&] {
                         pas::WideString name_13 = BusinessCenter->GetName();
@@ -6161,7 +6161,7 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateMedicalBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 MedicalBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                aRuins::TRuins_Init(MedicalBase, aGalaxyStruct::rstMedicalBase, InvestmentMedicalBaseStar, pas::WideString());
+                MedicalBase->Init(aGalaxyStruct::rstMedicalBase, InvestmentMedicalBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_6 = ([&] {
                         pas::WideString name_16 = MedicalBase->GetName();
@@ -6998,7 +6998,7 @@ namespace fRuinsTalk {
         } else {
             GR_Main::RaiseWideMessage(u"Ask special ship"_wref.get());
         }
-        std::int32_t Price = aItem::TItem_GetConditionAdjustedCost(Hull);
+        std::int32_t Price = Hull->GetConditionAdjustedCost();
         pas::free(Hull);
         DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Info"}));
         if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
@@ -7131,7 +7131,7 @@ namespace fRuinsTalk {
         } else {
             GR_Main::RaiseWideMessage(u"Buy special ship"_wref.get());
         }
-        std::int32_t Price = aItem::TItem_GetConditionAdjustedCost(Hull);
+        std::int32_t Price = Hull->GetConditionAdjustedCost();
         if (aPlayer::GetPlayer()->Money >= Price) {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Price);
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
@@ -7175,7 +7175,7 @@ namespace fRuinsTalk {
             var->SetDword(answerData);
         }
         Globals::ScriptDialogIndex = -1;
-        aScript::TScript_CallDialogByVariable(aScript::CurrentScript, Injection->DialogName);
+        aScript::CurrentScript->CallDialogByVariable(Injection->DialogName);
         if (Globals::ScriptDialogIndex < 0) {
             M_Main(true);
         } else {
@@ -7614,7 +7614,7 @@ namespace fRuinsTalk {
         }
         Ship->InitGenerated(Planet, TotalCost / 10 + 1000, 0);
         Ship->DockedTo = aPlayer::GetPlayer()->DockedTo;
-        aNormalShip::TNormalShip_TrainSkillsAutomatically(Ship);
+        Ship->TrainSkillsAutomatically();
         Ship->RefreshEquipmentEvaluationMetrics();
         Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
         if (aPlayer::GetPlayer()->GetMaxDominionShips() > pas::list_count(aPlayer::GetPlayer()->PiratePartners)) {

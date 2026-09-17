@@ -52,7 +52,7 @@ namespace aWarrior {
         void BuildReachablePlanetQueue() override;
         std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         void MoveToRandomPatrolPoint();
-        void virtual_TShip_RepairBrokenEquipmentAtLocation() override;
+        void RepairBrokenEquipmentAtLocation() override;
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
@@ -72,10 +72,13 @@ namespace aWarrior {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
-        void virtual_TShip_AssignWeaponTargetsInStar() override;
+        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        // Native diagnostic name: TWarrior.ArmsToTarget.
+        void AssignWeaponTargetsInStar() override;
+        aShip::TShip* FindNearestFriendlyFlagship();
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;
+        void ManeuverFlagship();
         // Scores Coalition systems and same-race garrisons; moves the flagship between home rosters without changing its current position.
         void ReassignFlagshipHomePlanet();
         void ProcessCombatDialogue() override;
@@ -92,8 +95,8 @@ namespace aWarrior {
         void ConsumeNodes(std::int32_t Amount);
         std::uint8_t UnknownVirtualC0(void* Argument) override;
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
-        float virtual_TShip_EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float virtual_TShip_EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
+        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
         std::uint8_t AcceptPickupItem(aItem::TItem* Item) override;
         std::uint8_t AcceptPickupDistance(aItem::TItem* Item, double Distance) override;
         void virtual_TShip_RefreshCurrentStanding() override;

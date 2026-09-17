@@ -297,8 +297,8 @@ namespace ab_Item {
         ab_Object::TabObject::UpdateState();
     }
 
-    void TabItem_Advance(TabItem* Self) {
-        ab_Object::TabObject_Advance(Self);
+    void TabItem::Advance() {
+        ab_Object::TabObject::Advance();
     }
 
     void TabItem::UpdateVisuals() {
@@ -335,10 +335,6 @@ namespace ab_Item {
 
     void TabItem::p_destroy() {
         ab_Item::TabItem_Destroy(this);
-    }
-
-    void TabItem::virtual_TabObject_Advance() {
-        ab_Item::TabItem_Advance(this);
     }
 
 } // namespace ab_Item

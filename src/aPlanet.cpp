@@ -2510,7 +2510,7 @@ namespace aPlanet {
                         }
                     }
                     Self->AdvanceInventionProgress();
-                    aPlanet::TPlanet_RefreshEquipmentShopInventory(Self);
+                    Self->RefreshEquipmentShopInventory();
                     if (Self->HasHostileShipsInSystem()) {
                         for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, pas::list_count(Self->Warriors) - 1); cpp_range_7.next(I); ) {
                             Ship = pas::list_at<aShip::TShip>(Self->Warriors, I);
@@ -2557,22 +2557,22 @@ namespace aPlanet {
                                                 aShip::TShip_GenerateExtraWeapon(Ship);
                                             }
                                             if (Ship->StrengthInBestRanger < 0.5L && aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.2L) {
-                                                aShip::TShip_ImproveRandomEquipment(Ship, true);
+                                                Ship->ImproveRandomEquipment(true);
                                             }
                                             if (Ship->StrengthInBestRanger < 0.3L && aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.1L) {
                                                 Ship->GainExperience(aMyFunction::NextRandomIntRange(500, 1500, Self->RandomState), 0);
-                                                aNormalShip::TNormalShip_TrainSkillsAutomatically(pas::checked_cast<aWarrior::TWarrior*>(Ship));
+                                                pas::checked_cast<aWarrior::TWarrior*>(Ship)->TrainSkillsAutomatically();
                                             }
                                             Ship->RefreshDerivedStats(true);
                                         }
                                     }
                                     if (aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) <= 5 && aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.05L) {
-                                        aShip::TShip_ImproveRandomEquipment(Ship, true);
+                                        Ship->ImproveRandomEquipment(true);
                                     }
                                     if (aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) <= 2 && aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.05L) {
                                         aShip::TShip_BuyEquipmentAtLocation(Ship, false);
                                         Ship->RestoreEssentialEquipment();
-                                        aShip::TShip_ImproveRandomEquipment(Ship, true);
+                                        Ship->ImproveRandomEquipment(true);
                                     }
                                     if (reinterpret_cast<aWarrior::TWarrior*>(Ship)->IsHomePatrolTurn()) {
                                         aShip::TShip_BuyEquipmentAtLocation(Ship, false);
@@ -2596,7 +2596,7 @@ namespace aPlanet {
                         Self->AdvanceInventionProgress();
                     }
                     if (aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.2L) {
-                        aPlanet::TPlanet_RefreshEquipmentShopInventory(Self);
+                        Self->RefreshEquipmentShopInventory();
                     }
                     if (!Self->NoAutomaticShipSpawning) {
                         Self->TrySpawnDominator();
@@ -2778,12 +2778,12 @@ namespace aPlanet {
                             if (Self->CurrentStar->Constellation->Id == 20 && aGalaxy::Galaxy->PirateWinType != 3) {
                                 Boost = PirateLimitFactor;
                                 while (Boost > 1.0L) {
-                                    aShip::TShip_ImproveRandomEquipment(Ship, true);
+                                    Ship->ImproveRandomEquipment(true);
                                     Ship->GainExperience(Ship->TotalExperience / 7, 0);
                                     Ship->SetMoney(Ship->Money / 7 * 8);
                                     Boost = Boost * 0.85L;
                                 }
-                                aNormalShip::TNormalShip_TrainSkillsAutomatically(pas::checked_cast<aNormalShip::TNormalShip*>(Ship));
+                                pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->TrainSkillsAutomatically();
                                 aShip::TShip_BuyEquipmentAtLocation(Ship, false);
                                 aShip::TShip_BuyEquipmentAtLocation(Ship, false);
                                 aShip::TShip_BuyEquipmentAtLocation(Ship, false);
@@ -2794,12 +2794,12 @@ namespace aPlanet {
                             if (Self->CurrentStar->Constellation->Id == 20 && aGalaxy::Galaxy->PirateWinType != 3) {
                                 Boost = GarrisonLimitFactor;
                                 while (Boost > 1.0L) {
-                                    aShip::TShip_ImproveRandomEquipment(Ship, true);
+                                    Ship->ImproveRandomEquipment(true);
                                     Ship->GainExperience(Ship->TotalExperience / 7, 0);
                                     Ship->SetMoney(Ship->Money / 7 * 8);
                                     Boost = Boost * 0.85L;
                                 }
-                                aNormalShip::TNormalShip_TrainSkillsAutomatically(pas::checked_cast<aNormalShip::TNormalShip*>(Ship));
+                                pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->TrainSkillsAutomatically();
                                 aShip::TShip_BuyEquipmentAtLocation(Ship, false);
                                 aShip::TShip_BuyEquipmentAtLocation(Ship, false);
                                 aShip::TShip_BuyEquipmentAtLocation(Ship, false);
@@ -2821,7 +2821,7 @@ namespace aPlanet {
                         Self->AdvanceInventionProgress();
                     }
                     if (aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.5L || Self->IsMainPiratePlanet) {
-                        aPlanet::TPlanet_RefreshEquipmentShopInventory(Self);
+                        Self->RefreshEquipmentShopInventory();
                     }
                 }
             }
@@ -3187,7 +3187,7 @@ namespace aPlanet {
             Ship->CurrentPlanet = nullptr;
             Ship->DockedTo = TargetBase;
             reinterpret_cast<aPirate::TPirate*>(Ship)->RaidPressure = 1.0f;
-            aNormalShip::TNormalShip_TrainSkillsAutomatically(reinterpret_cast<aNormalShip::TNormalShip*>(Ship));
+            reinterpret_cast<aNormalShip::TNormalShip*>(Ship)->TrainSkillsAutomatically();
             SpawnPlanet->OwnerId = OldOwner;
         }
         if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0) {
@@ -4682,15 +4682,15 @@ namespace aPlanet {
                     Ship->RefreshDerivedStats(true);
                 }
                 if (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinSpeed > Ship->Speed) {
-                    aShip::TShip_ImproveRandomEquipment(Ship, true);
+                    Ship->ImproveRandomEquipment(true);
                 }
                 Ship->RefreshDerivedStats(true);
                 if (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinStrength > Ship->StrengthInBestRanger && reinterpret_cast<aScript::TScriptGroup*>(Rules)->WeaponRequirement == 1) {
-                    aShip::TShip_ImproveRandomEquipment(Ship, true);
+                    Ship->ImproveRandomEquipment(true);
                 }
                 Ship->RefreshDerivedStats(true);
                 if (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinStrength > Ship->StrengthInBestRanger && reinterpret_cast<aScript::TScriptGroup*>(Rules)->WeaponRequirement == 1) {
-                    aShip::TShip_ImproveRandomEquipment(Ship, true);
+                    Ship->ImproveRandomEquipment(true);
                 }
                 Ship->RefreshDerivedStats(true);
                 if (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxStrength < Ship->StrengthInBestRanger && reinterpret_cast<aScript::TScriptGroup*>(Rules)->WeaponRequirement == 1) {
@@ -5120,41 +5120,41 @@ namespace aPlanet {
     }
 
     // Weekly replacement/generation gate; disabled by sumDisabled and sumGoodsOnly.
-    void TPlanet_RefreshEquipmentShopInventory(TPlanet* Self) {
+    void TPlanet::RefreshEquipmentShopInventory() {
         std::int32_t Index{};
         std::int32_t Attempts{};
         aItem::TEquipment* Item{};
         std::uint8_t ItemType{};
-        if (pas::is_one_of<aGalaxyStruct::sumDisabled, aGalaxyStruct::sumGoodsOnly>(static_cast<aGalaxyStruct::TShopUpdateMode>(Self->ShopUpdateMode))) {
+        if (pas::is_one_of<aGalaxyStruct::sumDisabled, aGalaxyStruct::sumGoodsOnly>(static_cast<aGalaxyStruct::TShopUpdateMode>(ShopUpdateMode))) {
             return;
         }
-        if ((aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(Self->GenerationSeed)) % 7 == 0) {
+        if ((aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(GenerationSeed)) % 7 == 0) {
             {
-                std::int32_t cpp_left = Self->CalculateEquipmentShopTargetCount();
-                if (cpp_left <= pas::list_count(Self->EquipmentShop)) {
-                    if (aMyFunction::SeededRandomUnitFloat(aMyFunction::StepRandomSeed(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(Self->GenerationSeed) + 17)) < 0.5L || Self->IsMainPiratePlanet) {
-                        Index = aMyFunction::SeededRandomIntRange(0, pas::list_count(Self->EquipmentShop) - 1, aGalaxy::Galaxy->CurrentTurn * Self->GenerationSeed);
-                        Item = pas::list_at<aItem::TEquipment>(Self->EquipmentShop, Index);
+                std::int32_t cpp_left = CalculateEquipmentShopTargetCount();
+                if (cpp_left <= pas::list_count(EquipmentShop)) {
+                    if (aMyFunction::SeededRandomUnitFloat(aMyFunction::StepRandomSeed(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(GenerationSeed) + 17)) < 0.5L || IsMainPiratePlanet) {
+                        Index = aMyFunction::SeededRandomIntRange(0, pas::list_count(EquipmentShop) - 1, aGalaxy::Galaxy->CurrentTurn * GenerationSeed);
+                        Item = pas::list_at<aItem::TEquipment>(EquipmentShop, Index);
                         if (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->Name == u"") {
-                            pas::list_delete(Self->EquipmentShop, Index);
+                            pas::list_delete(EquipmentShop, Index);
                             pas::free(Item);
                         }
                     }
                 }
             }
             if (([&] {
-                std::int32_t cpp_left_2 = Self->CalculateEquipmentShopTargetCount();
-                return cpp_left_2 >= pas::list_count(Self->EquipmentShop);
-            }()) && aMyFunction::SeededRandomUnitFloat(aMyFunction::StepRandomSeed(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(Self->GenerationSeed))) < 0.5L || aMyFunction::NextRandomIntRange(1, 100, Self->RandomState) < 30 || Self->IsMainPiratePlanet) {
+                std::int32_t cpp_left_2 = CalculateEquipmentShopTargetCount();
+                return cpp_left_2 >= pas::list_count(EquipmentShop);
+            }()) && aMyFunction::SeededRandomUnitFloat(aMyFunction::StepRandomSeed(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(GenerationSeed))) < 0.5L || aMyFunction::NextRandomIntRange(1, 100, RandomState) < 30 || IsMainPiratePlanet) {
                 Attempts = 0;
                 do {
                     ++Attempts;
-                    ItemType = aMyFunction::SeededRandomIntRange(42, 52, aGalaxy::Galaxy->CurrentTurn * Self->GenerationSeed * 175 + Attempts);
-                } while (!(Attempts > 30 || Self->CountEquipmentShopItemsInBucket(ItemType) < aConst::PlanetEquipmentOfferQuotas[Self->RaceId][ItemType - aConst::t_Hull]));
-                Item = aPlanet::TPlanet_GenerateEquipmentOffer(Self, aPlayer::GetPlayer(), ItemType);
+                    ItemType = aMyFunction::SeededRandomIntRange(42, 52, aGalaxy::Galaxy->CurrentTurn * GenerationSeed * 175 + Attempts);
+                } while (!(Attempts > 30 || CountEquipmentShopItemsInBucket(ItemType) < aConst::PlanetEquipmentOfferQuotas[RaceId][ItemType - aConst::t_Hull]));
+                Item = aPlanet::TPlanet_GenerateEquipmentOffer(this, aPlayer::GetPlayer(), ItemType);
                 if (Item != nullptr) {
-                    pas::list_add(Self->EquipmentShop, reinterpret_cast<void*>(Item));
-                    Self->RemoveSimilarEquipmentShopItem(Item);
+                    pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
+                    RemoveSimilarEquipmentShopItem(Item);
                 }
             }
         }

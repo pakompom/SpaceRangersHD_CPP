@@ -1,5 +1,4 @@
 #pragma once
-#include "types/aConst.hpp"
 #include "types/aTranclucator.hpp"
 
 namespace aGalaxy {
@@ -35,22 +34,13 @@ namespace aTranclucator {
     // Zero-byte pointer additions retain the native evaluation order of IndexOf.
     void TTranclucator_NextDayLogic(TTranclucator* Self);
 
-    void TTranclucator_RepairBrokenEquipmentAtLocation(TTranclucator* Self);
-
     std::uint8_t TTranclucator_CanQueueReachablePlanet(TTranclucator* Self, aPlanet::TPlanet* Planet);
-
-    // Returns whether a move order is active; nearby pickups can be queued even when the result is false.
-    std::uint8_t TTranclucator_TryCollectPreferredFloatingLoot(TTranclucator* Self, std::int32_t MaxTravelDays);
-
-    void TTranclucator_AssignWeaponTargetsInStar(TTranclucator* Self);
 
     std::uint8_t TTranclucator_RecomputeFearState(TTranclucator* Self);
 
     std::uint8_t TTranclucator_AcceptsRansomDemandFrom(TTranclucator* Self, aShip::TShip* Ship);
 
     std::uint8_t TTranclucator_TrustsAttackRequester(TTranclucator* Self, aShip::TShip* Ship);
-
-    std::uint8_t TTranclucator_EvaluateAllyRelationAndStrength(TTranclucator* Self, aShip::TShip* Ship);
 
     std::uint8_t TTranclucator_BuildMoneyExtortionResponse(TTranclucator* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
 
@@ -63,7 +53,5 @@ namespace aTranclucator {
     std::uint8_t TTranclucator_BuildPartnershipOfferResponse(TTranclucator* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
 
     void TTranclucator_RefreshCurrentStanding(TTranclucator* Self);
-
-    float TTranclucator_EvaluateStatBonus(TTranclucator* Self, aConst::TEquipmentBonusKind BonusKind, std::int32_t Value);
 
 } // namespace aTranclucator

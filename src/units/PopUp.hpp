@@ -17,7 +17,4 @@ namespace PopUp {
 
     GI_MessageLoop::TObjectGI* TfPopUpController_CreatePopup(TfPopUpController* Self, pas::WideString Text, pas::WideString ImagePath);
 
-    // Drains queued notifications, advances their vertical animation, and retires off-screen controls.
-    void TfPopUpController_AdvancePopups(TfPopUpController* Self, std::uint32_t Tick);
-
 } // namespace PopUp

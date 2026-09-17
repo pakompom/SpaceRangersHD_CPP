@@ -233,11 +233,11 @@ namespace fEquipmentShop {
         if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr && pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator)) && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(3)) {
             Owner = Item->OwnerId;
             Item->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
-            Result = Item->virtual_TItem_GetBitmapResourceName();
+            Result = Item->GetBitmapResourceName();
             Item->OwnerId = Owner;
             return Result;
         }
-        return Item->virtual_TItem_GetBitmapResourceName();
+        return Item->GetBitmapResourceName();
     }
 
     // Owns Item while the location's shop list is detached, and frees remaining controls.
@@ -398,7 +398,7 @@ namespace fEquipmentShop {
             GR_Main::MusicManager->RequestFadeOut();
         }
         MainPanel->OnOpen();
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
             fPanelPlanet::TfPanelPlanet::OnOpen();
             PlanetPanel->Show();
@@ -645,9 +645,9 @@ namespace fEquipmentShop {
                     if (Slot->Item == nullptr) {
                         cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"SlotBorderN"}));
                     } else {
-                        Cost = aItem::TItem_GetConditionAdjustedCost(Slot->Item);
+                        Cost = Slot->Item->GetConditionAdjustedCost();
                         if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr) {
-                            Cost = std::max<std::int32_t>(1, Cost - aItem::TItem_CalculateResaleValue(aPlayer::GetPlayer()->GetHull(), aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                            Cost = std::max<std::int32_t>(1, Cost - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                         }
                         if (aPlayer::GetPlayer()->Money < Cost || Slot->Item->ItemType != aConst::t_Hull && aPlayer::GetPlayer()->GetCargoFreeSpace() < Slot->Item->Weight) {
                             cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"SlotBorderH"}));
@@ -1016,10 +1016,10 @@ namespace fEquipmentShop {
         Slot = reinterpret_cast<TShopSlot*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         if (Slot != nullptr && Slot->Item != nullptr) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(198);
-            aGalaxy::Galaxy->PendingEquipmentPurchasePrice = aItem::TItem_GetConditionAdjustedCost(Slot->Item);
+            aGalaxy::Galaxy->PendingEquipmentPurchasePrice = Slot->Item->GetConditionAdjustedCost();
             aPlayer::GetPlayer()->GetCargoFreeSpace();
             if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr && aPlayer::GetPlayer()->Money < aGalaxy::Galaxy->PendingEquipmentPurchasePrice && aPlayer::GetPlayer()->GetHull()->ScriptItem == nullptr && aPlayer::GetPlayer()->GetHull()->NoDropFlag == 0) {
-                aGalaxy::Galaxy->PendingEquipmentPurchasePrice = std::max<std::int32_t>(1, aGalaxy::Galaxy->PendingEquipmentPurchasePrice - aItem::TItem_CalculateResaleValue(aPlayer::GetPlayer()->GetHull(), aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                aGalaxy::Galaxy->PendingEquipmentPurchasePrice = std::max<std::int32_t>(1, aGalaxy::Galaxy->PendingEquipmentPurchasePrice - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum(199);
             if (aPlayer::GetPlayer()->Money < aGalaxy::Galaxy->PendingEquipmentPurchasePrice) {
@@ -1043,7 +1043,7 @@ namespace fEquipmentShop {
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(305);
             } else {
                 if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr) {
-                    if (aItem::TItem_GetConditionAdjustedCost(Slot->Item) <= aPlayer::GetPlayer()->Money) {
+                    if (Slot->Item->GetConditionAdjustedCost() <= aPlayer::GetPlayer()->Money) {
                         if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                             pas::WideString intToWideString_2 = EC_Str::IntToWideString(aGalaxy::Galaxy->PendingEquipmentPurchasePrice);
                             pas::WideString paramByPathOrMarker_2 = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormShop.BuyHull"_wref.get());
@@ -1071,7 +1071,7 @@ namespace fEquipmentShop {
                 PurchasedItem = Slot->Item;
                 Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerBuysEquipment"_w, nullptr);
                 Event->AddData(Slot->Item->ItemType);
-                Event->AddData(aItem::TItem_GetConditionAdjustedCost(Slot->Item));
+                Event->AddData(Slot->Item->GetConditionAdjustedCost());
                 Event->AddData(Slot->Item->Weight);
                 Event->AddData(Slot->Item->Id);
                 if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
@@ -1087,10 +1087,10 @@ namespace fEquipmentShop {
                 Event->AddTextData(Slot->Item->GetDisplayName());
                 Event->AddTextData(Slot->Item->GetCategoryConfigName());
                 if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr) {
-                    if (aItem::TItem_GetConditionAdjustedCost(Slot->Item) > aPlayer::GetPlayer()->Money) {
+                    if (Slot->Item->GetConditionAdjustedCost() > aPlayer::GetPlayer()->Money) {
                         Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
                         Event->AddData(aPlayer::GetPlayer()->GetHull()->ItemType);
-                        Event->AddData(aItem::TItem_CalculateResaleValue(aPlayer::GetPlayer()->GetHull(), aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                        Event->AddData(aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                         Event->AddData(aPlayer::GetPlayer()->GetHull()->Weight);
                         Event->AddData(aPlayer::GetPlayer()->GetHull()->Id);
                         if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
@@ -1126,7 +1126,7 @@ namespace fEquipmentShop {
                         }
                         Destination = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(aPlayer::GetPlayer()));
                     } else {
-                        aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aItem::TItem_GetConditionAdjustedCost(Slot->Item));
+                        aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Slot->Item->GetConditionAdjustedCost());
                         if (aPlayer::GetPlayer()->IsOnPlanet()) {
                             aPlayer::GetPlayer()->AddItemToPlayerStorage(Slot->Item, aPlayer::GetPlayer()->CurrentPlanet, -1);
                         } else {
@@ -1195,9 +1195,9 @@ namespace fEquipmentShop {
                             if (Slot->Item == nullptr) {
                                 cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"SlotBorderN"}));
                             } else {
-                                Cost = aItem::TItem_GetConditionAdjustedCost(Slot->Item);
+                                Cost = Slot->Item->GetConditionAdjustedCost();
                                 if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr) {
-                                    Cost = std::max<std::int32_t>(1, Cost - aItem::TItem_CalculateResaleValue(aPlayer::GetPlayer()->GetHull(), aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                                    Cost = std::max<std::int32_t>(1, Cost - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                                 }
                                 if (aPlayer::GetPlayer()->Money < Cost || Slot->Item->ItemType != aConst::t_Hull && aPlayer::GetPlayer()->CargoFreeSpace < Slot->Item->Weight) {
                                     cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"SlotBorderH"}));
@@ -1358,8 +1358,8 @@ namespace fEquipmentShop {
                     GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"_wref.get()));
                     cpp_arg_4->SetText(intToWideString);
                 }
-                Price = EC_Str::IntToWideString(aItem::TItem_GetConditionAdjustedCost(Equipment));
-                if (aItem::TItem_GetConditionAdjustedCost(Equipment) < Equipment->Cost) {
+                Price = EC_Str::IntToWideString(Equipment->GetConditionAdjustedCost());
+                if (Equipment->GetConditionAdjustedCost() < Equipment->Cost) {
                     Price = aMyFunction::WrapTextInColor(Price, u"<color=255,0,0>"_w);
                 }
                 pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"_wref.get()))->SetText(Price);
@@ -1679,7 +1679,7 @@ namespace fEquipmentShop {
             cpp_arg_17->SetText(intToWideString);
         }
         {
-            const pas::WideString& intToWideString_2 = EC_Str::IntToWideString(aItem::TItem_GetConditionAdjustedCost(Hull));
+            const pas::WideString& intToWideString_2 = EC_Str::IntToWideString(Hull->GetConditionAdjustedCost());
             GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullPrice"_wref.get()));
             cpp_arg_18->SetText(intToWideString_2);
         }

@@ -171,6 +171,8 @@ namespace aPlanet {
         std::int32_t SelectHullOfferSpecialMicroModule(aItem::THull* Hull);
         // Returns a zero-based module index or -1; advances planet RNG.
         std::int32_t SelectWeaponOfferSpecialMicroModule(aItem::TWeapon* Weapon);
+        // Weekly replacement/generation gate; disabled by sumDisabled and sumGoodsOnly.
+        void RefreshEquipmentShopInventory();
         aItem::THull* GenerateHullOffer(void* Ship);
         // New item or nil; does not add it to EquipmentShop.
         aItem::TWeapon* GenerateWeaponOffer(void* Ship);

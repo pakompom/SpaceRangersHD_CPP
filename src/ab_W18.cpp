@@ -39,32 +39,32 @@ namespace ab_W18 {
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
-    void TabW18_Advance(TabW18* Self) {
+    void TabW18::Advance() {
         ab_Object::TabObject* Collision{};
         ab_Object::TabObject* NextNeighbor{};
         ab_Object::TabObject* Obj{};
         float PositiveDelta{};
         float NegativeDelta{};
         float Delta{};
-        ab_Object::TabObject_Advance(Self);
-        if (!Self->Exploding) {
-            if (Self->SourceObject != nullptr) {
-                if (Self->OrbitRadius < 1.5E+2L) {
-                    Self->OrbitRadius = Self->OrbitRadius + 0.5L;
+        ab_Object::TabObject::Advance();
+        if (!Exploding) {
+            if (SourceObject != nullptr) {
+                if (OrbitRadius < 1.5E+2L) {
+                    OrbitRadius = OrbitRadius + 0.5L;
                 }
-                if (Self->OrbitRadius < 1.0E+2L) {
-                    Self->OrbitRadius = Self->OrbitRadius + 0.5L;
+                if (OrbitRadius < 1.0E+2L) {
+                    OrbitRadius = OrbitRadius + 0.5L;
                 }
-                if (Self->OrbitRadius < 5.0E+1L) {
-                    Self->OrbitRadius = Self->OrbitRadius + 0.5L;
+                if (OrbitRadius < 5.0E+1L) {
+                    OrbitRadius = OrbitRadius + 0.5L;
                 }
                 if (ab_Global::ArcadeTickCount % 3 == 1) {
-                    Self->OrbitAngle = aMyFunction::WrapHeadingDegrees(Self->OrbitAngle + 3.75L + Self->AngleCorrection);
-                    Self->AngleCorrection = 0.0f;
+                    OrbitAngle = aMyFunction::WrapHeadingDegrees(OrbitAngle + 3.75L + AngleCorrection);
+                    AngleCorrection = 0.0f;
                 } else {
-                    Self->OrbitAngle = aMyFunction::WrapHeadingDegrees(Self->OrbitAngle + 3.75L);
+                    OrbitAngle = aMyFunction::WrapHeadingDegrees(OrbitAngle + 3.75L);
                 }
-                Self->State = ab_Global::AdvanceSphericalStateOnCurrentSphere(ab_Global::MakeSphericalBearingState(Self->SourceObject->State.LongitudeDegrees, Self->SourceObject->State.PolarAngleDegrees, Self->OrbitAngle), Self->OrbitRadius);
+                State = ab_Global::AdvanceSphericalStateOnCurrentSphere(ab_Global::MakeSphericalBearingState(SourceObject->State.LongitudeDegrees, SourceObject->State.PolarAngleDegrees, OrbitAngle), OrbitRadius);
                 if (ab_Global::ArcadeTickCount % 3 == 0) {
                     Collision = nullptr;
                     NextNeighbor = nullptr;
@@ -72,8 +72,8 @@ namespace ab_W18 {
                     NegativeDelta = 0.0f;
                     Obj = ab_Object::FirstArcadeObject;
                     while (Obj != nullptr) {
-                        if (pas::class_cast_if<TabW18*>(Obj) != nullptr && Obj != Self && static_cast<TabW18*>(Obj)->SourceObject == Self->SourceObject) {
-                            Delta = aMyFunction::WrapSignedHeadingDegrees(static_cast<long double>(pas::checked_cast<TabW18*>(Obj)->OrbitAngle) - Self->OrbitAngle);
+                        if (pas::class_cast_if<TabW18*>(Obj) != nullptr && Obj != this && static_cast<TabW18*>(Obj)->SourceObject == SourceObject) {
+                            Delta = aMyFunction::WrapSignedHeadingDegrees(static_cast<long double>(pas::checked_cast<TabW18*>(Obj)->OrbitAngle) - OrbitAngle);
                             if (Delta < 0.0L && (Collision == nullptr || NegativeDelta < Delta)) {
                                 NegativeDelta = Delta;
                                 Collision = Obj;
@@ -95,27 +95,27 @@ namespace ab_W18 {
                     }
                 }
             }
-            Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-            ab_WorldImage::ab_WorldImage_SetPosition(Self->Image, Self->GetWorldPosition());
+            Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+            ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
         }
         Collision = nullptr;
-        if (!Self->Exploding) {
-            Collision = Self->FindCollision();
-            if (Collision == Self->SourceObject) {
+        if (!Exploding) {
+            Collision = FindCollision();
+            if (Collision == SourceObject) {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > Self->ExpireTick || Collision != nullptr || Self->SourceObject == nullptr) && static_cast<std::uint8_t>(Self->Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr || SourceObject == nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
             if (Collision != nullptr) {
-                Collision->ApplyDamage(Self->Damage, Self->SourceObject, false);
+                Collision->ApplyDamage(Damage, SourceObject, false);
                 Collision->State.BearingDegrees = Collision->State.BearingDegrees - 3.0E+1L;
             }
-            Self->Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Self->Image, Self->GetWorldPosition(), u"GAI,Bm.AB.w18a_f"_wref.get(), u"GAI,Bm.AB.w18a_s"_wref.get());
-            ab_WorldImage::ab_WorldImage_SetDepth(Self->Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
-            ab_WorldImage::ab_WorldImage_SetLooping(Self->Image, false);
-        } else if (Self->Exploding) {
-            Self->DeletionPending = Self->Image->Finished;
+            Exploding = true;
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w18a_f"_wref.get(), u"GAI,Bm.AB.w18a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
+            ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
+        } else if (Exploding) {
+            DeletionPending = Image->Finished;
         }
     }
 
@@ -125,10 +125,6 @@ namespace ab_W18 {
 
     void TabW18::p_destroy() {
         ab_W18::TabW18_Destroy(this);
-    }
-
-    void TabW18::virtual_TabObject_Advance() {
-        ab_W18::TabW18_Advance(this);
     }
 
 } // namespace ab_W18

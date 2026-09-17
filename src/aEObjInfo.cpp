@@ -116,7 +116,7 @@ namespace aEObjInfo {
                 Ships[Index].HullCapacity = Ship->GetHull()->Weight;
                 Ships[Index].HullPoints = Ship->GetHull()->HullPoints;
                 Ships[Index].HullFragility = Ship->GetHull()->GetFragilityFactor(static_cast<aGalaxyStruct::TDamageFlagSet>(NoDamageFlags));
-                if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship) {
+                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship) {
                     Ships[Index].ScannerResolved = true;
                 } else {
                     Ships[Index].ScannerResolved = false;
@@ -124,17 +124,17 @@ namespace aEObjInfo {
                 Stage = 24;
                 Ships[Index].RepairPoints = -1;
                 Ships[Index].DamageText = aMyFunction::WrapTextInColor(u"???"_w, pas::WideString());
-                Ships[Index].DefenseText = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(Ship) & 0x0000007f), "%"}));
-                if (aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+                Ships[Index].DefenseText = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Ship->GetDefensePercent() & 0x0000007f), "%"}));
+                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
                     Stage = 25;
-                    Ships[Index].DefenseText = pas::concat_wide({Ships[Index].DefenseText, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(Ship)), pas::WideString())});
+                    Ships[Index].DefenseText = pas::concat_wide({Ships[Index].DefenseText, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->GetArmor()), pas::WideString())});
                     if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                         if (Ship->GetRepairRobot() != nullptr) {
                             Ships[Index].RepairPoints = aShip::TShip_CalculateRepairPoints(Ship, Ship->GetRepairRobot());
                         } else {
                             Ships[Index].RepairPoints = 0;
                         }
-                        Ships[Index].DamageText = aMyFunction::WrapTextInColor(Ship->GetWeaponDamageSummary(), pas::WideString());
+                        Ships[Index].DamageText = aMyFunction::WrapTextInColor(aShip::TShip_GetWeaponDamageSummary(Ship), pas::WideString());
                         Ships[Index].DefenseText = pas::concat_wide({Ship->GetManeuverabilitySummary(), Ships[Index].DefenseText});
                     }
                 }
@@ -157,7 +157,7 @@ namespace aEObjInfo {
                     }
                 }
                 Stage = 27;
-                if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aShip::TShip_CanResolveObjectWithScanner(aPlayer::GetPlayer(), Ship)) {
+                if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship)) {
                     Ships[Index].WinChance = aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), Ship) & 0x0000007f;
                 } else {
                     Ships[Index].WinChance = -1;
@@ -197,7 +197,7 @@ namespace aEObjInfo {
                     Items[Index].OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
                 } else {
                     Stage = 32;
-                    Items[Index].ImagePath = pas::concat_wide({u"GI,", Item->virtual_TItem_GetBitmapResourceName(), u"s"});
+                    Items[Index].ImagePath = pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"s"});
                     Items[Index].Name = ([&] {
                         pas::WideString displayName = Item->GetDisplayName();
                         pas::WideString infoNameColorTag_3 = aMyFunction::InfoNameColorTag;

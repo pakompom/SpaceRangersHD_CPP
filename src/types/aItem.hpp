@@ -96,6 +96,10 @@ namespace aItem {
         virtual void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy);
         // Generic Items.SmallInfo label used outside radar range.
         static pas::WideString GetSmallInfoText();
+        // Applies the trading-skill percentage to Cost minus repair cost; equipment has a minimum value of 1. Goods use Cost directly.
+        std::int32_t CalculateResaleValue(std::uint8_t TradingSkill);
+        // Equipment deducts repair cost, with a minimum result of 1; goods return Cost unchanged.
+        std::int32_t GetConditionAdjustedCost();
         // Groups weapon types under Weapon and built-in artefacts under Artefact; otherwise returns the item-type configuration name.
         pas::WideString GetCategoryConfigName();
         virtual pas::WideString GetShortName();
@@ -106,7 +110,7 @@ namespace aItem {
         // Native TItem VMT slots $18, $24 and $28 point to the RTL abstract-method handler.
         virtual pas::WideString GetDisplayName() = 0;
         virtual pas::WideString GetDescriptionText() = 0;
-        virtual pas::WideString virtual_TItem_GetBitmapResourceName() = 0;
+        virtual pas::WideString GetBitmapResourceName() = 0;
         // Retained scene reference; released on destruction.
         SE_Space::TObjectSE* GraphObject;
         std::int32_t Id;
@@ -157,6 +161,8 @@ namespace aItem {
         virtual void Repair();
         // Tests hull damage or supported equipment below 90 percent condition.
         std::uint8_t NeedsRepair();
+        // Includes player technology restrictions as well as wear and breakage.
+        pas::WideString GetConditionText(std::uint8_t PrefixNewLine);
         pas::WideString GetBrokenInBattleText();
         pas::WideString GetBrokenInUseText();
         pas::WideString GetBrokenByForceText();
@@ -178,13 +184,12 @@ namespace aItem {
         virtual std::int32_t CalculateImprovementCost(TImprovementKind Kind);
         // Tests expected generated statistics after accounting for installed bonuses; this is not a stored upgraded flag. The base implementation returns True.
         virtual std::uint8_t HasStandardStats();
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         virtual float GetFragilityFactor(aGalaxyStruct::TDamageFlagSet DamageFlags);
         virtual void ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship);
         std::int32_t GetStatBonus(aConst::TEquipmentBonusKind BonusKind);
         // Aggregate used by the bonus description, with SeparatedNumbers effects handled separately.
         std::int32_t GetDescriptionStatBonus(aConst::TEquipmentBonusKind BonusKind);
-        pas::WideString GetBonusDescription(pas::WideString ColorTag);
         // Requires HasStandardStats and no special module that blocks the special slot; does not check technology access.
         std::uint8_t CanImprove();
         pas::WideString ConfigBlockName;
@@ -247,7 +252,7 @@ namespace aItem {
         pas::WideString GetShortName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         void ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         // Returns the special module KindGraph, or the literal 1 as fallback.
         pas::WideString GetSpecialKindGraph();
         std::int32_t GetSlotCount(aConst::TShipSlotKind Kind);
@@ -502,7 +507,7 @@ namespace aItem {
         void ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
         double GetShotDelayFactor();
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         std::uint8_t NeedsAmmo();
         std::int32_t CalculateAmmoRefillCost();
         std::int32_t GetShotPalette();
@@ -546,7 +551,7 @@ namespace aItem {
         pas::WideString GetBrokenInUseText_2();
         pas::WideString GetIdleInfoText();
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         std::uint8_t SatelliteTypeId;
         std::uint8_t cpp_padding[3];
         void* TargetPlanet;
@@ -585,7 +590,7 @@ namespace aItem {
         void p_destroy() override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         virtual void Init(std::uint8_t Owner, aConst::TItemType ItemType);
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
@@ -655,7 +660,7 @@ namespace aItem {
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         // Owner is Dominator and ConfigBlockName starts with Remains_.
         std::uint8_t IsDominatorRemains();
         void CheckIfWeDisplayAsArtefact();
@@ -683,7 +688,7 @@ namespace aItem {
         pas::WideString GetPlainName();
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         // Node refund at the current ranger center, using priority and docked station ID. Priorities 31..69 are capped by half LowPriorityOfferCost; 70..100 by half MediumPriorityOfferCost. Minimum 5 nodes.
         std::int32_t CalculateNodeExchangeValue(std::int32_t LowPriorityOfferCost, std::int32_t MediumPriorityOfferCost);
         // Template name wrapped in the standard yellow highlight color.
@@ -708,7 +713,7 @@ namespace aItem {
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         std::int32_t Fuel;
         std::uint8_t Capacity;
         std::uint8_t cpp_padding[3];
@@ -728,7 +733,7 @@ namespace aItem {
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         std::int32_t Quantity;
         std::uint8_t NaturalFlag;
         std::uint8_t cpp_padding[3];
@@ -748,7 +753,7 @@ namespace aItem {
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         // Defaults to 1 when UnitSize is not configured.
         std::int32_t GetUnitSize();
         // Allocates a new stack and removes up to Count units from Self; preserves the nodes subtype and may create a script wrapper. Self must be nonempty and Count positive.
@@ -770,7 +775,7 @@ namespace aItem {
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
@@ -828,7 +833,7 @@ namespace aItem {
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
         pas::WideString GetDescriptionText() override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         pas::WideString GetTargetPlanetName();
         // PageIndex is 1 or 2; Planet must be assigned.
         static pas::WideString BuildPreviewTable(std::int32_t PageIndex, void* Planet);
@@ -853,7 +858,7 @@ namespace aItem {
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
         void virtual_TItem_LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
-        pas::WideString virtual_TItem_GetBitmapResourceName() override;
+        pas::WideString GetBitmapResourceName() override;
         aConst::PWeaponInfo GetWeaponInfo() override;
         pas::WideString GetConfigName() override;
         aConst::PWeaponInfo CustomInfo;

@@ -560,56 +560,56 @@ namespace ab_Ship {
         }
     }
 
-    void TabShip_Advance(TabShip* Self) {
+    void TabShip::Advance() {
         std::int32_t Index{};
         ab_Zone::PabZone Zone{};
-        ab_Hit::TabHit_Advance(Self);
-        if (Self->Health == 0) {
-            Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-            Self->Thrust = 0.0;
+        ab_Hit::TabHit::Advance();
+        if (Health == 0) {
+            Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+            Thrust = 0.0;
         } else {
             for (Index = 0; Index <= 7; ++Index) {
-                if (Self->BonusTicks[Index] > 0) {
-                    --Self->BonusTicks[Index];
+                if (BonusTicks[Index] > 0) {
+                    --BonusTicks[Index];
                 }
             }
-            if (Self->BonusTicks[ab_Global::abkRegeneration] > 0) {
-                Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + ab_Global::RegenerationHealthPerTick);
+            if (BonusTicks[ab_Global::abkRegeneration] > 0) {
+                Health = std::min<std::int32_t>(MaxHealth, Health + ab_Global::RegenerationHealthPerTick);
             }
-            if (0.01L <= Self->RegenerationRate) {
-                if (Self->RegenerationRate < 1.0E+1L) {
-                    if (pas::imod(Self->TickCounter, System::Round(pas::real_divide(1.0E+1L, Self->RegenerationRate))) == 0) {
-                        Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + ab_Global::RegenerationHealthPerTick);
+            if (0.01L <= RegenerationRate) {
+                if (RegenerationRate < 1.0E+1L) {
+                    if (pas::imod(TickCounter, System::Round(pas::real_divide(1.0E+1L, RegenerationRate))) == 0) {
+                        Health = std::min<std::int32_t>(MaxHealth, Health + ab_Global::RegenerationHealthPerTick);
                     }
                 }
-                if (Self->RegenerationRate >= 1.0E+1L) {
-                    Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + System::Round(pas::real_divide(static_cast<long double>(ab_Global::RegenerationHealthPerTick) * Self->RegenerationRate, 1.0E+1L)));
+                if (RegenerationRate >= 1.0E+1L) {
+                    Health = std::min<std::int32_t>(MaxHealth, Health + System::Round(pas::real_divide(static_cast<long double>(ab_Global::RegenerationHealthPerTick) * RegenerationRate, 1.0E+1L)));
                 }
             }
-            if (Self == PlayerArcadeShip && Self->TickCounter % 10 == 0) {
+            if (this == PlayerArcadeShip && TickCounter % 10 == 0) {
                 if (aPlayer::GetPlayer() != nullptr) {
                     if (aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactDroid) > 0) {
-                        Self->Health = std::min<std::int32_t>(Self->MaxHealth, Self->Health + ab_Global::RegenerationHealthPerTick * aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactDroid));
+                        Health = std::min<std::int32_t>(MaxHealth, Health + ab_Global::RegenerationHealthPerTick * aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactDroid));
                     }
                 }
             }
-            if (Self->BonusTicks[ab_Global::abkInvisibility] > 0 && Self->RevealTicks > 0) {
-                --Self->RevealTicks;
+            if (BonusTicks[ab_Global::abkInvisibility] > 0 && RevealTicks > 0) {
+                --RevealTicks;
             }
         }
-        Self->UpdateObstacleSensors();
+        UpdateObstacleSensors();
         if ((ab_Global::ArcadeTickCount & 0x00000040) == 0) {
-            if (ab_Zone::ab_Zone_IsInsideKind10(Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees)) {
-                if (Self->WallCollisionEnabled) {
-                    Zone = ab_Zone::ab_Zone_FindNearestOutside(Self->State.LongitudeDegrees, Self->State.PolarAngleDegrees);
+            if (ab_Zone::ab_Zone_IsInsideKind10(State.LongitudeDegrees, State.PolarAngleDegrees)) {
+                if (WallCollisionEnabled) {
+                    Zone = ab_Zone::ab_Zone_FindNearestOutside(State.LongitudeDegrees, State.PolarAngleDegrees);
                     if (Zone != nullptr) {
-                        Self->State.LongitudeDegrees = Zone->Longitude;
-                        Self->State.PolarAngleDegrees = Zone->PolarAngle;
+                        State.LongitudeDegrees = Zone->Longitude;
+                        State.PolarAngleDegrees = Zone->PolarAngle;
                     }
                 }
             }
         }
-        Self->TickCounter = (Self->TickCounter + 1) % 10000;
+        TickCounter = (TickCounter + 1) % 10000;
     }
 
     void TabShip::UpdateVisuals() {
@@ -781,10 +781,6 @@ namespace ab_Ship {
 
     void TabShip::p_destroy() {
         ab_Ship::TabShip_Destroy(this);
-    }
-
-    void TabShip::virtual_TabObject_Advance() {
-        ab_Ship::TabShip_Advance(this);
     }
 
 } // namespace ab_Ship

@@ -14,7 +14,7 @@ namespace ab_W16 {
         void p_destroy() override;
         void Launch(ab_Object::TabObject* Owner, std::int32_t Amount);
         void LaunchChild(TabW16* Parent, float Angle);
-        void virtual_TabObject_Advance() override;
+        void Advance() override;
         void UpdateVisuals() override;
         std::int32_t Damage;
         ab_WorldImage::PabWorldImage Image;

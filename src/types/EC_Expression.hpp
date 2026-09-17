@@ -184,8 +184,6 @@ namespace EC_Expression {
         void CompileBlock(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* Token, TCodeUnitEC* BeforeUnit, PCodeAnalyzerUnitEC NextToken, PCodeAnalyzerUnitEC StatementEnd, TCodeUnitEC* BreakTarget, TCodeUnitEC* ContinueTarget, pas::WideString& ErrorText);
         void LinkAll(TVarArrayEC* Scope, std::uint8_t OnlyUnlinked);
         void LinkLocalScopes();
-        void Run(TCodeProcessEC* Process);
-        void RunDebug(TCodeProcessEC* Process, TScriptDebugState* DebugContext);
         TCodeEC* Parent;
         std::uint8_t IsClassDefinition;
         std::uint8_t cpp_padding[3];

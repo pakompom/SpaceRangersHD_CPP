@@ -259,7 +259,7 @@ namespace ab_MainForm {
         if (!GlobalsV::MusicInHyperEnabled) {
             GR_Main::MusicManager->RequestFadeOut();
         }
-        fPanelLoad::TfPanelLoad_OnOpen(LoadPanel);
+        LoadPanel->OnOpen();
         if (pas::list_count(aScript::QueuedArcadeBattles) > 0) {
             ActiveArcadeRequest = pas::list_at<aScript::TScriptABRequest>(aScript::QueuedArcadeBattles, 0);
         } else {
@@ -1134,7 +1134,7 @@ namespace ab_MainForm {
                     GI_Image::TImageGI* cpp_with = WeaponIcons[Value - 1];
                     if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1) != nullptr) {
                         WeaponIcons[Value - 1]->SetActive(true);
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1)->virtual_TItem_GetBitmapResourceName(), u"s"}));
+                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1)->GetBitmapResourceName(), u"s"}));
                     } else if (Button->UserIndex >= 0) {
                         WeaponIcons[Value - 1]->SetActive(true);
                         cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ab_Ship::PlayerArcadeShip->Weapons[Button->UserIndex].ItemType], u"s"}));
@@ -2724,7 +2724,7 @@ namespace ab_MainForm {
                 Stage = 22;
                 Obj = ab_Object::FirstArcadeObject;
                 while (Obj != nullptr) {
-                    Obj->virtual_TabObject_Advance();
+                    Obj->Advance();
                     if (Obj->DeletionPending) {
                         Stage = 23;
                         NextObject = Obj;
@@ -2812,7 +2812,7 @@ namespace ab_MainForm {
                     Stage = 29;
                     Globals::ScriptDialogIndex = -1;
                     reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->Script->PublishShipContext(pas::checked_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip));
-                    aScript::TScript_CallDialogByVariable(aScript::CurrentScript, reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->State->AuxiliaryText);
+                    aScript::CurrentScript->CallDialogByVariable(reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->State->AuxiliaryText);
                     if (Globals::ScriptDialogIndex < 0) {
                         GR_Main::RaiseWideMessage(u"Not found dialog"_wref.get());
                     }
@@ -3232,7 +3232,7 @@ namespace ab_MainForm {
                                     Item = nullptr;
                                 }
                                 if (Item != nullptr) {
-                                    cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Item->virtual_TItem_GetBitmapResourceName(), u"ab"}));
+                                    cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"ab"}));
                                     cpp_with_4->SetSize(cpp_with_4->GetContentSize());
                                     cpp_with_4->SetOrigin(EC_Struct::HalfPoint(cpp_with_4->ClientSize));
                                     pas::free(Item);
@@ -3329,7 +3329,7 @@ namespace ab_MainForm {
                                     Item = nullptr;
                                 }
                                 if (Item != nullptr) {
-                                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,", Item->virtual_TItem_GetBitmapResourceName(), u"ab"}));
+                                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"ab"}));
                                     cpp_with_7->SetSize(cpp_with_7->GetContentSize());
                                     cpp_with_7->SetOrigin(EC_Struct::HalfPoint(cpp_with_7->ClientSize));
                                     pas::free(Item);
@@ -4026,7 +4026,7 @@ namespace ab_MainForm {
                 if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
                     InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(Instance->ItemType)}));
                 } else {
-                    InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", Instance->virtual_TItem_GetBitmapResourceName(), u"s"}));
+                    InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", Instance->GetBitmapResourceName(), u"s"}));
                 }
                 InfoItemImage->SetImageKindX(GI_Main::ikxCenter);
                 InfoItemImage->SetImageKindY(GI_Main::ikyCenter);

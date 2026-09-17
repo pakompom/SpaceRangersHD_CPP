@@ -7,6 +7,7 @@
 #include "types/ThreadCalc.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aNormalShip.hpp"
+#include "types/aShip.hpp"
 #include "types/aTranclucator.hpp"
 #include "types/ab_Hit.hpp"
 #include "types/ab_Object.hpp"
@@ -49,7 +50,6 @@
 #include "units/aRanger.hpp"
 #include "units/aRuins.hpp"
 #include "units/aScript.hpp"
-#include "units/aShip.hpp"
 #include "units/ab_Global.hpp"
 #include "units/ab_Ship.hpp"
 #include "units/fEquipmentShop.hpp"
@@ -782,7 +782,7 @@ namespace CheatCode {
                         ++I;
                         if (I == Choice) {
                             Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                            aRuins::TRuins_Init(Station, static_cast<aGalaxyStruct::TStationType>(Kind), aPlayer::GetPlayer()->CurrentStar, pas::WideString());
+                            Station->Init(static_cast<aGalaxyStruct::TStationType>(Kind), aPlayer::GetPlayer()->CurrentStar, pas::WideString());
                             break;
                         }
                     }
@@ -857,7 +857,7 @@ namespace CheatCode {
             aPlayer::GetPlayer()->GetHull()->Weight = std::min<std::int64_t>(static_cast<std::int64_t>(2000), System::Round(aPlayer::GetPlayer()->GetHull()->Weight * 1.3L));
             aPlayer::GetPlayer()->GetHull()->HullPoints = aPlayer::GetPlayer()->GetHull()->Weight;
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
-            aShip::TShip_RefreshGraphicSize(aPlayer::GetPlayer());
+            aPlayer::GetPlayer()->RefreshGraphicSize();
             Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
             CheatCode::ReportCheat(250, EC_Str::DecodeTextW(u"SRUNPRESROHLUALELS"_w));
         }

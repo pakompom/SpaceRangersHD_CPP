@@ -6,6 +6,4 @@ namespace ab_W18 {
 
     void TabW18_Destroy(TabW18* Self);
 
-    void TabW18_Advance(TabW18* Self);
-
 } // namespace ab_W18

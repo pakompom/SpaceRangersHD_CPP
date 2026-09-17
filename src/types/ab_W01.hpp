@@ -14,7 +14,7 @@ namespace ab_W01 {
         PAS_CLASS_META(TabW01, ab_Object::TabObject, "TabW01", 236)
         void p_destroy() override;
         void Launch(ab_Object::TabObject* Owner, std::int32_t Amount, float Offset);
-        void virtual_TabObject_Advance() override;
+        void Advance() override;
         void UpdateVisuals() override;
         // Constructor sets 500; no consumer in this family.
         float ValueB0;

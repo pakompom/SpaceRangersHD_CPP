@@ -18,7 +18,7 @@ namespace ab_Hit {
         void p_destroy() override;
         void ApplyDamage(std::int32_t Amount, ab_Object::TabObject* Source, std::uint8_t Disrupt) override;
         void UpdateState() override;
-        void virtual_TabObject_Advance() override;
+        void Advance() override;
         void UpdateVisuals() override;
         void ExplosionComplete(GI_MessageLoop::TObjectGI* Sender);
         void KellerDeathComplete(GI_MessageLoop::TObjectGI* Sender);

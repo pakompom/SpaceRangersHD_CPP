@@ -169,16 +169,16 @@ namespace abWall {
         ab_Hit::TabHit::UpdateState();
     }
 
-    void TabWall_Advance(TabWall* Self) {
-        if (Self->Health == 0) {
-            Self->Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-            Self->Thrust = 0.0;
-            if (Self->WorldImage != nullptr) {
-                ab_WorldImage::ab_WorldImage_Delete(Self->WorldImage);
-                Self->WorldImage = nullptr;
+    void TabWall::Advance() {
+        if (Health == 0) {
+            Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
+            Thrust = 0.0;
+            if (WorldImage != nullptr) {
+                ab_WorldImage::ab_WorldImage_Delete(WorldImage);
+                WorldImage = nullptr;
             }
-        } else if (Self->WorldImage != nullptr) {
-            ab_WorldImage::ab_WorldImage_SetPosition(Self->WorldImage, Self->GetWorldPosition());
+        } else if (WorldImage != nullptr) {
+            ab_WorldImage::ab_WorldImage_SetPosition(WorldImage, GetWorldPosition());
         }
     }
 
@@ -203,10 +203,6 @@ namespace abWall {
 
     void TabWall::p_destroy() {
         abWall::TabWall_Destroy(this);
-    }
-
-    void TabWall::virtual_TabObject_Advance() {
-        abWall::TabWall_Advance(this);
     }
 
 } // namespace abWall

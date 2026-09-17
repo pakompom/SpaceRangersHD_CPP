@@ -2032,8 +2032,8 @@ namespace fShip2 {
                 LifeRight->SetActive(false);
             }
         }
-        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetDefensePercent(PlayerHoldShip) & 0x0000007f), "%"}));
-        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aShip::TShip_GetArmor(PlayerHoldShip)), pas::WideString())});
+        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(PlayerHoldShip->GetDefensePercent() & 0x0000007f), "%"}));
+        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(PlayerHoldShip->GetArmor()), pas::WideString())});
         pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IDef"_wref.get()))->SetText(Text);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(PlayerHoldShip->CalculateMass());
@@ -2547,7 +2547,7 @@ namespace fShip2 {
                     }()));
                 } else {
                     SC_Slot2_Text->SetText(([&] {
-                        pas::WideString intToStr_3 = pas::wide_int_to_str(aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                        pas::WideString intToStr_3 = pas::wide_int_to_str(Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                         pas::WideString localizedText_3 = aConst::LocalizedText(u"FormShip.Sell"_wref.get());
                         return aMyFunction::FormatText1(std::move(localizedText_3), pas::WideString(), u"<Money>"_w, std::move(intToStr_3));
                     }()));
@@ -3800,7 +3800,7 @@ namespace fShip2 {
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                         Ship = pas::list_at<aShip::TShip>(PlayerHoldShip->CurrentStar->Ships, I);
                         if (Ship != PlayerHoldShip && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasScriptControl() ^ 1) && pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr && Ship->TypeId != aGalaxyStruct::stPirate) {
-                            Ship->virtual_TShip_AssignWeaponTargetsInStar();
+                            Ship->AssignWeaponTargetsInStar();
                         }
                     }
                 } else {
@@ -5269,10 +5269,10 @@ namespace fShip2 {
                 if (([&] {
                     std::int32_t stackCount = pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount;
                     std::int32_t stackCount_2 = pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount;
-                    pas::Extended cpp_left = aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                    pas::Extended cpp_left = SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     float round = System::Round(pas::real_divide(cpp_left, pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount));
                     std::int32_t count = Count;
-                    std::int32_t calculateResaleValue = aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                    std::int32_t calculateResaleValue = SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     const pas::WideString& formatText1_4 = ([&] {
                         pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aItem::GetStackableItemName(SelectedHoldItem));
                         pas::WideString localizedText = aConst::LocalizedText(u"FormShip.SellItem"_wref.get());
@@ -5285,11 +5285,11 @@ namespace fShip2 {
                     return;
                 }
                 Item = pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->Split(Count);
-                Price = aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                Price = Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
                 pas::free(Item);
             } else {
-                Price = aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                Price = SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
                 if (pas::class_cast_if<aItem::TCountableItem*>(SelectedHoldItem) != nullptr) {
                     pas::checked_cast<aItem::TCountableItem*>(SelectedHoldItem)->StackCount = 0;
@@ -5301,7 +5301,7 @@ namespace fShip2 {
             if (!(pas::class_cast_if<aItem::TCountableItem*>(SelectedHoldItem) != nullptr)) {
                 Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
                 Event->AddData(SelectedHoldItem->ItemType);
-                Event->AddData(aItem::TItem_CalculateResaleValue(SelectedHoldItem, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                Event->AddData(SelectedHoldItem->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                 Event->AddData(SelectedHoldItem->Weight);
                 Event->AddData(SelectedHoldItem->Id);
                 if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
@@ -7192,7 +7192,7 @@ namespace fShip2 {
                 {
                     GI_Image::TImageGI* cpp_with_2 = StorageImages[I];
                     if (pas::class_cast_if<aItem::TGoods*>(Entry->Item) != nullptr) {
-                        cpp_with_2->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->virtual_TItem_GetBitmapResourceName()}));
+                        cpp_with_2->SetImagePath(pas::concat_wide({u"GI,", Entry->Item->GetBitmapResourceName()}));
                     } else {
                         cpp_with_2->SetImagePath(pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(Entry->Item), u"s"}));
                         if (Entry->Item == Globals::ScriptUseItem) {
@@ -7876,7 +7876,7 @@ namespace fShip2 {
                                             return reinterpret_cast<aItem::TGoods*>(Item)->Quantity * cpp_right;
                                         }());
                                     } else if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                                        Value += aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                                        Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                                     }
                                 }
                             }
@@ -7958,13 +7958,13 @@ namespace fShip2 {
                 for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(PlayerHoldShip->Inventory) - 1); cpp_range.next(I); ) {
                     Item = pas::list_at<aItem::TEquipment>(PlayerHoldShip->Inventory, I);
                     if (Item->EquippedFlag == 0 && Item->NoDropFlag <= 0 && Item->ScriptItem == nullptr && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessStoredItem(Item)) && Item->NoDropFlag <= 0 && (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->CanSell) && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessStoredItem(Item))) {
-                        Value += aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                        Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     }
                 }
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->Artefacts) - 1); cpp_range_2.next(I); ) {
                     Item = pas::list_at<aItem::TEquipment>(PlayerHoldShip->Artefacts, I);
                     if (Item->EquippedFlag == 0 && Item->NoDropFlag <= 0 && (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->CanSell) && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessStoredItem(Item))) {
-                        Value += aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                        Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                     }
                 }
                 if (Value > 0) {
@@ -8086,13 +8086,13 @@ namespace fShip2 {
                 if (!(pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr)) {
                     Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
                     Event->AddData(Item->ItemType);
-                    Event->AddData(aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                    Event->AddData(Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
                     Event->AddData(Item->Weight);
                     Event->AddData(Item->Id);
                     Event->AddTextData(Item->GetDisplayName());
                     Event->AddTextData(Item->GetCategoryConfigName());
                 }
-                Price = aItem::TItem_CalculateResaleValue(Item, aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
+                Price = Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false));
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Price);
                 if (Price != 0) {
                     PlaySaleSound = true;

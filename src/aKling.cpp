@@ -611,7 +611,7 @@ namespace aKling {
             }
         }
         GetHull()->HullPoints = GetHull()->Weight;
-        aShip::TShip_RefreshGraphicSize(this);
+        RefreshGraphicSize();
         RefreshDerivedStats(true);
         if (GetScanner() != nullptr && aKling::RandomInteger(1, 100, this) > ControlPercent) {
             GetScanner()->Improve(aItem::ikAny);
@@ -704,28 +704,28 @@ namespace aKling {
             Self->AuraEffectShownThisTurn = false;
             aShip::TShip_NextDay(Self);
             if (Self->ScriptShip != nullptr && Self->HasScriptControl()) {
-                aShip::TShip_ScriptNextDay(Self);
+                Self->ScriptNextDay();
                 if (Self->ScriptShip != nullptr && Self->KlingType != aGalaxyStruct::ktBoss) {
                     return;
                 }
             }
             if (Self->KlingType == aGalaxyStruct::ktBoss) {
                 if (Self == BlazerShip) {
-                    aKling::TKling_BlazerNextDayLogic(Self);
+                    Self->BlazerNextDayLogic();
                 } else if (Self == KellerShip) {
-                    aKling::TKling_KellerNextDayLogic(Self);
+                    Self->KellerNextDayLogic();
                 } else if (Self == TerronShip) {
-                    aKling::TKling_TerronNextDayLogic(Self);
+                    Self->TerronNextDayLogic();
                 } else {
                     Self->virtual_TShip_NextDayLogic();
                 }
             } else if (Self->KlingType == aGalaxyStruct::ktBertor) {
-                aKling::TKling_MiniBossNextDayLogic(Self);
+                Self->MiniBossNextDayLogic();
             } else {
                 Self->virtual_TShip_NextDayLogic();
             }
             if (Self->ScriptShip != nullptr && static_cast<std::uint8_t>(Self->HasScriptControl() ^ 1)) {
-                aShip::TShip_ScriptNextDay(Self);
+                Self->ScriptNextDay();
             }
         } catch (...) {
             auto cpp_exception = pas::caught_object();
@@ -759,7 +759,7 @@ namespace aKling {
         try {
             if (Self->CurrentPlanet != nullptr) {
                 Stage = 1;
-                Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
+                Self->RepairBrokenEquipmentAtLocation();
                 Self->RefuelAtLocation();
                 Self->RefreshDerivedStats(true);
                 Self->OrderTakeoff();
@@ -772,7 +772,7 @@ namespace aKling {
                 if (Self->IsProgramActive(aGalaxyStruct::prgDisconnection)) {
                     return;
                 }
-                Self->virtual_TShip_AssignWeaponTargetsInStar();
+                Self->AssignWeaponTargetsInStar();
                 if (Self->IsProgramActive(aGalaxyStruct::prgInsanity)) {
                     Self->MoveToRandomPatrolPoint();
                     return;
@@ -837,65 +837,65 @@ namespace aKling {
         }
     }
 
-    void TKling_MiniBossNextDayLogic(TKling* Self) {
+    void TKling::MiniBossNextDayLogic() {
         std::int32_t Stage = 0;
         try {
-            if (Self->CurrentPlanet != nullptr) {
+            if (CurrentPlanet != nullptr) {
                 Stage = 1;
-                Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
-                Self->RefuelAtLocation();
-                Self->RefreshDerivedStats(true);
-                Self->OrderTakeoff();
+                RepairBrokenEquipmentAtLocation();
+                RefuelAtLocation();
+                RefreshDerivedStats(true);
+                OrderTakeoff();
                 return;
-            } else if (TerronShip != nullptr && Self->DockedTo == TerronShip) {
-                Self->DestroyQueued = true;
+            } else if (TerronShip != nullptr && DockedTo == TerronShip) {
+                DestroyQueued = true;
                 return;
-            } else if (Self->DockedTo != nullptr) {
-                Self->OrderTakeoff();
+            } else if (DockedTo != nullptr) {
+                OrderTakeoff();
                 return;
             } else {
-                if (!Self->InNormalSpace()) {
+                if (!InNormalSpace()) {
                     return;
                 }
                 Stage = 2;
-                Self->virtual_TShip_AssignWeaponTargetsInStar();
-                if (Self->DominatorSeries == aGalaxyStruct::dsTerron && TerronShip != nullptr && aGalaxy::Galaxy->TerronToStarTurn >= 0x40000000) {
-                    if (Self->CurrentStar != TerronShip->CurrentStar) {
-                        Self->OrderJump(TerronShip->CurrentStar, false);
+                AssignWeaponTargetsInStar();
+                if (DominatorSeries == aGalaxyStruct::dsTerron && TerronShip != nullptr && aGalaxy::Galaxy->TerronToStarTurn >= 0x40000000) {
+                    if (CurrentStar != TerronShip->CurrentStar) {
+                        OrderJump(TerronShip->CurrentStar, false);
                     } else {
-                        Self->OrderLanding(TerronShip, false);
+                        OrderLanding(TerronShip, false);
                     }
                     return;
                 } else {
                     Stage = 3;
-                    if (Self->OrderAbsolute && pas::class_cast_if<aShip::TShip*>(Self->OrderTarget) != nullptr || pas::class_cast_if<aGalaxy::TStar*>(Self->OrderTarget) != nullptr && Self->EstimateOrderTravelTurns() < 3) {
+                    if (OrderAbsolute && pas::class_cast_if<aShip::TShip*>(OrderTarget) != nullptr || pas::class_cast_if<aGalaxy::TStar*>(OrderTarget) != nullptr && EstimateOrderTravelTurns() < 3) {
                         return;
                     }
                     Stage = 4;
-                    Self->SelectEnemyShipInStar();
-                    Self->EngageEnemyShip();
-                    if (Self->Order == aShip::soNone && Self->HasHullDamageOrBrokenEquippedItems()) {
-                        Self->LandOnRandomFriendlyPlanet(false);
+                    SelectEnemyShipInStar();
+                    EngageEnemyShip();
+                    if (Order == aShip::soNone && HasHullDamageOrBrokenEquippedItems()) {
+                        LandOnRandomFriendlyPlanet(false);
                     }
-                    if (Self->Order == aShip::soNone && Self->CurrentStar->Id == aGalaxy::Galaxy->KellerResearchTargetStarId && KellerShip != nullptr && aMyFunction::NextRandomIntRange(0, 99, Self->RandomState) < 20) {
-                        Self->LandOnRandomFriendlyPlanet(false);
+                    if (Order == aShip::soNone && CurrentStar->Id == aGalaxy::Galaxy->KellerResearchTargetStarId && KellerShip != nullptr && aMyFunction::NextRandomIntRange(0, 99, RandomState) < 20) {
+                        LandOnRandomFriendlyPlanet(false);
                     }
-                    if (Self->Order == aShip::soNone && KellerShip != nullptr && Self->CurrentStar == KellerShip->CurrentStar && KellerShip->InNormalSpace() && aMyFunction::NextRandomIntRange(0, 99, Self->RandomState) < 20) {
-                        Self->OrderMove(KellerShip->Position, false);
+                    if (Order == aShip::soNone && KellerShip != nullptr && CurrentStar == KellerShip->CurrentStar && KellerShip->InNormalSpace() && aMyFunction::NextRandomIntRange(0, 99, RandomState) < 20) {
+                        OrderMove(KellerShip->Position, false);
                     }
                     Stage = 5;
-                    if (pas::in_range(Self->Order, static_cast<std::int32_t>(aShip::soNone), static_cast<std::int32_t>(aShip::soMove)) && (Self->CurrentStar->Id != aGalaxy::Galaxy->KellerResearchTargetStarId || KellerShip == nullptr)) {
-                        if (pas::imod(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(Self->Seed), 200 - 20 * System::Round(pas::real_divide(aGalaxy::Galaxy->GetEffectiveDifficultyLevel(), 8.0L))) == 0) {
-                            Self->RelocateBertorWithinConstellation();
+                    if (pas::in_range(Order, static_cast<std::int32_t>(aShip::soNone), static_cast<std::int32_t>(aShip::soMove)) && (CurrentStar->Id != aGalaxy::Galaxy->KellerResearchTargetStarId || KellerShip == nullptr)) {
+                        if (pas::imod(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(Seed), 200 - 20 * System::Round(pas::real_divide(aGalaxy::Galaxy->GetEffectiveDifficultyLevel(), 8.0L))) == 0) {
+                            RelocateBertorWithinConstellation();
                         }
                     }
-                    if (Self->Order == aShip::soNone) {
-                        Self->MoveToRandomPatrolPoint();
+                    if (Order == aShip::soNone) {
+                        MoveToRandomPatrolPoint();
                     }
                     Stage = 6;
-                    if (Self->Order != aShip::soJump) {
-                        if (Self->SpawnEscortShips(aGalaxyStruct::ktKlig, 5) > 0) {
-                            Self->OrderNone(false);
+                    if (Order != aShip::soJump) {
+                        if (SpawnEscortShips(aGalaxyStruct::ktKlig, 5) > 0) {
+                            OrderNone(false);
                         }
                     }
                 }
@@ -904,52 +904,52 @@ namespace aKling {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.MiniBossNextDayLogic ", Self->GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.MiniBossNextDayLogic ", GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
             } else {
                 throw;
             }
         }
     }
 
-    void TKling_BlazerNextDayLogic(TKling* Self) {
+    void TKling::BlazerNextDayLogic() {
         std::int32_t Stage = 0;
         try {
-            if (Self->CurrentStar->ShipTypeCounts[aGalaxyStruct::stKling] == pas::list_count(Self->CurrentStar->Ships)) {
+            if (CurrentStar->ShipTypeCounts[aGalaxyStruct::stKling] == pas::list_count(CurrentStar->Ships)) {
                 Stage = 1;
-                Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
-                Self->GetHull()->HullPoints = Self->GetHull()->Weight;
-                Self->RefuelAtLocation();
-                Self->RefreshDerivedStats(true);
-            } else if (aPlayer::GetPlayer()->CurrentStar != Self->CurrentStar) {
+                RepairBrokenEquipmentAtLocation();
+                GetHull()->HullPoints = GetHull()->Weight;
+                RefuelAtLocation();
+                RefreshDerivedStats(true);
+            } else if (aPlayer::GetPlayer()->CurrentStar != CurrentStar) {
                 Stage = 2;
-                Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
-                Self->GetHull()->HullPoints = std::max<std::int32_t>(Self->GetHull()->HullPoints, Self->GetHull()->Weight / 4);
-                Self->RefuelAtLocation();
+                RepairBrokenEquipmentAtLocation();
+                GetHull()->HullPoints = std::max<std::int32_t>(GetHull()->HullPoints, GetHull()->Weight / 4);
+                RefuelAtLocation();
             }
-            if (Self->InNormalSpace()) {
+            if (InNormalSpace()) {
                 Stage = 3;
                 if (aGalaxy::Galaxy->BlazerLandingPlanetId > 0) {
                     Stage = 4;
-                    Self->OrderLanding(static_cast<pas::Object*>(aGalaxy::Galaxy->IdToPlanet(aGalaxy::Galaxy->BlazerLandingPlanetId, true)), false);
+                    OrderLanding(static_cast<pas::Object*>(aGalaxy::Galaxy->IdToPlanet(aGalaxy::Galaxy->BlazerLandingPlanetId, true)), false);
                 } else {
                     Stage = 5;
-                    Self->CoordinateSeriesInvasions(aGalaxyStruct::dsBlazer);
-                    if (!Self->OrderAbsolute) {
+                    CoordinateSeriesInvasions(aGalaxyStruct::dsBlazer);
+                    if (!OrderAbsolute) {
                         Stage = 6;
-                        if (Self->DaysSincePlayerSeen > 3) {
-                            if (pas::imod(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(Self->Seed), 10 - System::Round(pas::real_divide(aGalaxy::Galaxy->GetEffectiveDifficultyLevel(), 8.0L))) == 0 && Self->CurrentStar->ShipTypeCounts[aGalaxyStruct::stKling] >= 1) {
-                                Self->RetreatToReinforcedStar();
+                        if (DaysSincePlayerSeen > 3) {
+                            if (pas::imod(aGalaxy::Galaxy->CurrentTurn + static_cast<std::int32_t>(Seed), 10 - System::Round(pas::real_divide(aGalaxy::Galaxy->GetEffectiveDifficultyLevel(), 8.0L))) == 0 && CurrentStar->ShipTypeCounts[aGalaxyStruct::stKling] >= 1) {
+                                RetreatToReinforcedStar();
                             }
                         }
-                        if (Self->Order == aShip::soNone) {
-                            Self->MoveToRandomPatrolPoint();
+                        if (Order == aShip::soNone) {
+                            MoveToRandomPatrolPoint();
                         }
                     }
                     Stage = 7;
-                    Self->virtual_TShip_AssignWeaponTargetsInStar();
-                    if (static_cast<std::uint8_t>(Self->RetreatIfHullCritical() ^ 1) && aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar) {
-                        Self->SelectEnemyShipInStar();
-                        Self->EngageEnemyShip();
+                    AssignWeaponTargetsInStar();
+                    if (static_cast<std::uint8_t>(RetreatIfHullCritical() ^ 1) && aPlayer::GetPlayer()->CurrentStar == CurrentStar) {
+                        SelectEnemyShipInStar();
+                        EngageEnemyShip();
                     }
                 }
             }
@@ -957,81 +957,81 @@ namespace aKling {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.BlazerNextDayLogic ", Self->GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.BlazerNextDayLogic ", GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
             } else {
                 throw;
             }
         }
     }
 
-    void TKling_KellerNextDayLogic(TKling* Self) {
+    void TKling::KellerNextDayLogic() {
         std::int32_t IntervalBonus{};
         aGalaxy::THole* Hole{};
         std::int32_t Stage = 0;
         try {
-            Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
-            Self->RefuelAtLocation();
-            if (aPlayer::GetPlayer()->CurrentStar != Self->CurrentStar) {
-                Self->GetHull()->HullPoints = std::max<std::int32_t>(Self->GetHull()->HullPoints, Self->GetHull()->Weight / 2);
+            RepairBrokenEquipmentAtLocation();
+            RefuelAtLocation();
+            if (aPlayer::GetPlayer()->CurrentStar != CurrentStar) {
+                GetHull()->HullPoints = std::max<std::int32_t>(GetHull()->HullPoints, GetHull()->Weight / 2);
             }
             Stage = 1;
-            Self->SelectKellerMission();
-            Self->SelectKellerReinforcementMission();
-            if (Self->InNormalSpace()) {
-                Self->CoordinateSeriesInvasions(aGalaxyStruct::dsKeller);
-                if (aGalaxy::Galaxy->CountFactionStars(aGalaxyStruct::sfDominators) < 2 && aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->IsOutsideStarSpace() || aPlayer::GetPlayer()->CurrentStar != Self->CurrentStar)) {
+            SelectKellerMission();
+            SelectKellerReinforcementMission();
+            if (InNormalSpace()) {
+                CoordinateSeriesInvasions(aGalaxyStruct::dsKeller);
+                if (aGalaxy::Galaxy->CountFactionStars(aGalaxyStruct::sfDominators) < 2 && aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->IsOutsideStarSpace() || aPlayer::GetPlayer()->CurrentStar != CurrentStar)) {
                     IntervalBonus = 30;
                 } else {
                     IntervalBonus = 1;
                 }
-                if (aGalaxy::Galaxy->KellerResearchTargetStarId != 0 && aGalaxy::Galaxy->KellerResearchTargetStarId != Self->CurrentStar->Id || pas::imod(aGalaxy::Galaxy->CurrentTurn, aGalaxy::Galaxy->ScaleIntByTechLevel(5, IntervalBonus + 30)) == 0 || Self->GetHull()->HullPoints < 1300 || aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar || aPlayer::GetPlayer()->OrderTarget == Self->CurrentStar) && aGalaxy::Galaxy->TechLevel < 7 && aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) < 70) {
+                if (aGalaxy::Galaxy->KellerResearchTargetStarId != 0 && aGalaxy::Galaxy->KellerResearchTargetStarId != CurrentStar->Id || pas::imod(aGalaxy::Galaxy->CurrentTurn, aGalaxy::Galaxy->ScaleIntByTechLevel(5, IntervalBonus + 30)) == 0 || GetHull()->HullPoints < 1300 || aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->CurrentStar == CurrentStar || aPlayer::GetPlayer()->OrderTarget == CurrentStar) && aGalaxy::Galaxy->TechLevel < 7 && aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) < 70) {
                     Stage = 2;
-                    Hole = aGalaxy::Galaxy->FindHoleInStarByKind(Self->CurrentStar, 4);
+                    Hole = aGalaxy::Galaxy->FindHoleInStarByKind(CurrentStar, 4);
                     if (Hole != nullptr) {
-                        if (Hole->CreatedTurn + 3 <= aGalaxy::Galaxy->CurrentTurn && (aGalaxy::Galaxy->KellerResearchTargetStarId == 0 || Self->GetHull()->HullPoints < 700) || aGalaxy::Galaxy->KellerResearchTargetStarId != 0 && aGalaxy::Galaxy->KellerResearchTargetStarId != Self->CurrentStar->Id) {
-                            Self->OrderJumpHole(Hole, false);
+                        if (Hole->CreatedTurn + 3 <= aGalaxy::Galaxy->CurrentTurn && (aGalaxy::Galaxy->KellerResearchTargetStarId == 0 || GetHull()->HullPoints < 700) || aGalaxy::Galaxy->KellerResearchTargetStarId != 0 && aGalaxy::Galaxy->KellerResearchTargetStarId != CurrentStar->Id) {
+                            OrderJumpHole(Hole, false);
                             aGalaxy::Galaxy->KellerMissionState = 4;
                         }
                     }
                 }
                 Stage = 3;
-                if (Self->Order == aShip::soNone) {
-                    Self->MoveNearKellerMissionHole();
+                if (Order == aShip::soNone) {
+                    MoveNearKellerMissionHole();
                 }
-                Self->virtual_TShip_AssignWeaponTargetsInStar();
+                AssignWeaponTargetsInStar();
             }
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.KellerNextDayLogic ", Self->GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.KellerNextDayLogic ", GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
             } else {
                 throw;
             }
         }
     }
 
-    void TKling_TerronNextDayLogic(TKling* Self) {
+    void TKling::TerronNextDayLogic() {
         std::int32_t Stage = 0;
         try {
-            Self->virtual_TShip_RepairBrokenEquipmentAtLocation();
-            Self->RefuelAtLocation();
-            if (aPlayer::GetPlayer()->CurrentStar != Self->CurrentStar) {
-                Self->GetHull()->HullPoints = std::max<std::int32_t>(Self->GetHull()->HullPoints, Self->GetHull()->Weight / 4);
+            RepairBrokenEquipmentAtLocation();
+            RefuelAtLocation();
+            if (aPlayer::GetPlayer()->CurrentStar != CurrentStar) {
+                GetHull()->HullPoints = std::max<std::int32_t>(GetHull()->HullPoints, GetHull()->Weight / 4);
             }
-            if (Self->InNormalSpace()) {
+            if (InNormalSpace()) {
                 if (aGalaxy::Galaxy->TerronToStarTurn > 0) {
-                    Self->OrderMove(EC_Struct::MakePointF(-1.0E+2f, -1.0E+2f), false);
+                    OrderMove(EC_Struct::MakePointF(-1.0E+2f, -1.0E+2f), false);
                 } else {
                     Stage = 1;
-                    Self->CoordinateSeriesInvasions(aGalaxyStruct::dsTerron);
-                    Self->OrderMove(EC_Struct::MakePointF(0.0f, 0.0f), false);
+                    CoordinateSeriesInvasions(aGalaxyStruct::dsTerron);
+                    OrderMove(EC_Struct::MakePointF(0.0f, 0.0f), false);
                     Stage = 2;
                     if (aGalaxy::Galaxy->TerronWeaponLockTurn == 0) {
-                        Self->virtual_TShip_AssignWeaponTargetsInStar();
+                        AssignWeaponTargetsInStar();
                     }
-                    if (aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar) {
-                        Self->SelectEnemyShipInStar();
+                    if (aPlayer::GetPlayer()->CurrentStar == CurrentStar) {
+                        SelectEnemyShipInStar();
                     }
                 }
             }
@@ -1039,7 +1039,7 @@ namespace aKling {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.TerronNextDayLogic ", Self->GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in procedure TKling.TerronNextDayLogic ", GetFullName(u" "_wref.get()), u" label = ", pas::wide_int_to_str(Stage)}))));
             } else {
                 throw;
             }
@@ -1742,14 +1742,14 @@ namespace aKling {
         }
     }
 
-    void TKling_RepairBrokenEquipmentAtLocation(TKling* Self) {
+    void TKling::RepairBrokenEquipmentAtLocation() {
         std::int32_t I{};
         aItem::TEquipment* Equipment{};
-        if (Self->CurrentPlanet != nullptr) {
-            Self->GetHull()->HullPoints = Self->GetHull()->Weight;
+        if (CurrentPlanet != nullptr) {
+            GetHull()->HullPoints = GetHull()->Weight;
         }
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range.next(I); ) {
-            Equipment = pas::list_at<aItem::TEquipment>(Self->Inventory, I);
+        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Inventory) - 1); cpp_range.next(I); ) {
+            Equipment = pas::list_at<aItem::TEquipment>(Inventory, I);
             if (Equipment->BrokenFlag != 0 || Equipment->ConditionPercent < 1.0E+1L) {
                 Equipment->Repair();
             }
@@ -1917,11 +1917,11 @@ namespace aKling {
         return false;
     }
 
-    std::uint8_t TKling_EvaluateAllyRelationAndStrength(TKling* Self, aShip::TShip* Ship) {
-        return Ship->OwnerId == Self->OwnerId;
+    std::uint8_t TKling::EvaluateAllyRelationAndStrength(aShip::TShip* Ship) {
+        return Ship->OwnerId == OwnerId;
     }
 
-    void TKling_AssignWeaponTargetsInStar(TKling* Self) {
+    void TKling::AssignWeaponTargetsInStar() {
         std::int32_t I{};
         std::int32_t J{};
         aShip::TShip* Ship{};
@@ -1931,26 +1931,26 @@ namespace aKling {
         float Distance{};
         aMissile::TMissile* Missile{};
         {
-            const std::int32_t cpp_last = static_cast<std::int32_t>(Self->WeaponCount);
+            const std::int32_t cpp_last = static_cast<std::int32_t>(WeaponCount);
             if (1 <= cpp_last) {
                 for (I = 1; I <= cpp_last; ++I) {
-                    Weapon = Self->Weapons[I];
+                    Weapon = Weapons[I];
                     Weapon->Target = nullptr;
                 }
             }
         }
         std::int32_t Assigned = 0;
-        if (Self->EnemyShip != nullptr && Self->EnemyShip->CurrentStar == Self->CurrentStar && Self->EnemyShip->InNormalSpace()) {
-            const std::int32_t cpp_last_2 = static_cast<std::int32_t>(Self->WeaponCount);
+        if (EnemyShip != nullptr && EnemyShip->CurrentStar == CurrentStar && EnemyShip->InNormalSpace()) {
+            const std::int32_t cpp_last_2 = static_cast<std::int32_t>(WeaponCount);
             if (1 <= cpp_last_2) {
                 for (J = 1; J <= cpp_last_2; ++J) {
-                    Weapon = Self->Weapons[J];
-                    if (Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(Self, Weapon)) {
-                        pas::Extended cpp_right = pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon));
-                        if (aMyFunction::PointDistanceSquared(Self->Position, Self->EnemyShip->Position) <= cpp_right) {
-                            Weapon->Target = Self->EnemyShip;
+                    Weapon = Weapons[J];
+                    if (Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(this, Weapon)) {
+                        pas::Extended cpp_right = pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon));
+                        if (aMyFunction::PointDistanceSquared(Position, EnemyShip->Position) <= cpp_right) {
+                            Weapon->Target = EnemyShip;
                             ++Assigned;
-                            if (Assigned == Self->WeaponCount && static_cast<std::uint8_t>(pas::in_set<aGalaxyStruct::ktBoss, aGalaxyStruct::ktUrgant, aGalaxyStruct::ktBertor, aGalaxyStruct::ktBertor>(Self->KlingType) ^ 1)) {
+                            if (Assigned == WeaponCount && static_cast<std::uint8_t>(pas::in_set<aGalaxyStruct::ktBoss, aGalaxyStruct::ktUrgant, aGalaxyStruct::ktBertor, aGalaxyStruct::ktBertor>(KlingType) ^ 1)) {
                                 return;
                             }
                         }
@@ -1958,20 +1958,20 @@ namespace aKling {
                 }
             }
         }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
-            if (Ship->InNormalSpace() && Ship != Self && (aShip::TShip_RelationToShip(Self, Ship) <= 50 || Self->IsProgramActive(aGalaxyStruct::prgInsanity)) && static_cast<std::uint8_t>(Self->IsPlayerCamouflageEffective(Ship) ^ 1)) {
-                const std::int32_t cpp_last_3 = static_cast<std::int32_t>(Self->WeaponCount);
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
+            Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
+            if (Ship->InNormalSpace() && Ship != this && (aShip::TShip_RelationToShip(this, Ship) <= 50 || IsProgramActive(aGalaxyStruct::prgInsanity)) && static_cast<std::uint8_t>(IsPlayerCamouflageEffective(Ship) ^ 1)) {
+                const std::int32_t cpp_last_3 = static_cast<std::int32_t>(WeaponCount);
                 if (1 <= cpp_last_3) {
                     for (J = 1; J <= cpp_last_3; ++J) {
-                        Weapon = Self->Weapons[J];
-                        if ((Weapon->Target == nullptr || Weapon->GetWeaponInfo()->ShotType == aGalaxyStruct::wstAreaDamage) && aShip::TShip_IsEquipmentUsable(Self, Weapon)) {
-                            pas::Extended cpp_right_2 = pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon));
-                            if (aMyFunction::PointDistanceSquared(Self->Position, Ship->Position) <= cpp_right_2) {
+                        Weapon = Weapons[J];
+                        if ((Weapon->Target == nullptr || Weapon->GetWeaponInfo()->ShotType == aGalaxyStruct::wstAreaDamage) && aShip::TShip_IsEquipmentUsable(this, Weapon)) {
+                            pas::Extended cpp_right_2 = pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon));
+                            if (aMyFunction::PointDistanceSquared(Position, Ship->Position) <= cpp_right_2) {
                                 if (Weapon->Target == nullptr) {
                                     Weapon->Target = Ship;
                                     ++Assigned;
-                                    if (Assigned == Self->WeaponCount && static_cast<std::uint8_t>(pas::in_set<aGalaxyStruct::ktBoss, aGalaxyStruct::ktUrgant, aGalaxyStruct::ktBertor, aGalaxyStruct::ktBertor>(Self->KlingType) ^ 1)) {
+                                    if (Assigned == WeaponCount && static_cast<std::uint8_t>(pas::in_set<aGalaxyStruct::ktBoss, aGalaxyStruct::ktUrgant, aGalaxyStruct::ktBertor, aGalaxyStruct::ktBertor>(KlingType) ^ 1)) {
                                         return;
                                     }
                                 } else if (reinterpret_cast<aShip::TShip*>(Weapon->Target)->GetHull()->HullPoints < Ship->GetHull()->HullPoints) {
@@ -1983,22 +1983,22 @@ namespace aKling {
                 }
             }
         }
-        if (Assigned >= Self->WeaponCount) {
+        if (Assigned >= WeaponCount) {
             return;
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Missiles) - 1); cpp_range_2.next(I); ) {
-            Missile = pas::list_at<aMissile::TMissile>(Self->CurrentStar->Missiles, I);
-            if (Missile->Target == Self && Missile->OwnerShip != Self) {
-                const std::int32_t cpp_last_4 = static_cast<std::int32_t>(Self->WeaponCount);
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Missiles) - 1); cpp_range_2.next(I); ) {
+            Missile = pas::list_at<aMissile::TMissile>(CurrentStar->Missiles, I);
+            if (Missile->Target == this && Missile->OwnerShip != this) {
+                const std::int32_t cpp_last_4 = static_cast<std::int32_t>(WeaponCount);
                 if (1 <= cpp_last_4) {
                     for (J = 1; J <= cpp_last_4; ++J) {
-                        Weapon = Self->Weapons[J];
-                        if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(Self, Weapon)) {
-                            pas::Extended cpp_right_3 = pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon));
-                            if (aMyFunction::PointDistanceSquared(Self->Position, Missile->Position) <= cpp_right_3) {
+                        Weapon = Weapons[J];
+                        if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(this, Weapon)) {
+                            pas::Extended cpp_right_3 = pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon));
+                            if (aMyFunction::PointDistanceSquared(Position, Missile->Position) <= cpp_right_3) {
                                 Weapon->Target = Missile;
                                 ++Assigned;
-                                if (Assigned == Self->WeaponCount) {
+                                if (Assigned == WeaponCount) {
                                     return;
                                 }
                                 break;
@@ -2008,19 +2008,19 @@ namespace aKling {
                 }
             }
         }
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Items) - 1); cpp_range_3.next(I); ) {
-            Item = pas::list_at<aItem::TItem>(Self->CurrentStar->Items, I);
-            if ((Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->Name == u"") && Self->CanSafelyDetonateItem(Item)) {
-                const std::int32_t cpp_last_5 = static_cast<std::int32_t>(Self->WeaponCount);
+        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Items) - 1); cpp_range_3.next(I); ) {
+            Item = pas::list_at<aItem::TItem>(CurrentStar->Items, I);
+            if ((Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->Name == u"") && CanSafelyDetonateItem(Item)) {
+                const std::int32_t cpp_last_5 = static_cast<std::int32_t>(WeaponCount);
                 if (1 <= cpp_last_5) {
                     for (J = 1; J <= cpp_last_5; ++J) {
-                        Weapon = Self->Weapons[J];
-                        if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(Self, Weapon)) {
-                            pas::Extended cpp_right_4 = pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon));
-                            if (aMyFunction::PointDistanceSquared(Self->Position, Item->Position) <= cpp_right_4) {
+                        Weapon = Weapons[J];
+                        if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && Weapon->Target == nullptr && aShip::TShip_IsEquipmentUsable(this, Weapon)) {
+                            pas::Extended cpp_right_4 = pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon));
+                            if (aMyFunction::PointDistanceSquared(Position, Item->Position) <= cpp_right_4) {
                                 Weapon->Target = Item;
                                 ++Assigned;
-                                if (Assigned == Self->WeaponCount) {
+                                if (Assigned == WeaponCount) {
                                     return;
                                 }
                                 break;
@@ -2030,21 +2030,21 @@ namespace aKling {
                 }
             }
         }
-        if (aPlayer::GetPlayer()->CurrentStar == Self->CurrentStar) {
-            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Asteroids) - 1); cpp_range_4.next(I); ) {
-                Asteroid = pas::list_at<aAsteroid::TAsteroid>(Self->CurrentStar->Asteroids, I);
-                Distance = aMyFunction::PointDistanceSquared(Self->Position, Asteroid->Position);
+        if (aPlayer::GetPlayer()->CurrentStar == CurrentStar) {
+            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Asteroids) - 1); cpp_range_4.next(I); ) {
+                Asteroid = pas::list_at<aAsteroid::TAsteroid>(CurrentStar->Asteroids, I);
+                Distance = aMyFunction::PointDistanceSquared(Position, Asteroid->Position);
                 if (Distance <= 1.0E+6L) {
-                    const std::int32_t cpp_last_6 = static_cast<std::int32_t>(Self->WeaponCount);
+                    const std::int32_t cpp_last_6 = static_cast<std::int32_t>(WeaponCount);
                     if (1 <= cpp_last_6) {
                         for (J = 1; J <= cpp_last_6; ++J) {
-                            Weapon = Self->Weapons[J];
+                            Weapon = Weapons[J];
                             // Native asteroid targeting can overwrite an existing assignment.
-                            if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstAreaDamage), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && aShip::TShip_IsEquipmentUsable(Self, Weapon)) {
-                                if (static_cast<long double>(pas::sqr(aShip::TShip_GetWeaponRange(Self, Weapon))) >= Distance) {
+                            if (static_cast<std::uint8_t>(pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstAreaDamage), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) ^ 1) && aShip::TShip_IsEquipmentUsable(this, Weapon)) {
+                                if (static_cast<long double>(pas::sqr(aShip::TShip_GetWeaponRange(this, Weapon))) >= Distance) {
                                     Weapon->Target = Asteroid;
                                     ++Assigned;
-                                    if (Assigned == Self->WeaponCount) {
+                                    if (Assigned == WeaponCount) {
                                         return;
                                     }
                                     break;
@@ -2281,10 +2281,6 @@ namespace aKling {
         return aKling::TKling_CanQueueReachablePlanet(this, Planet);
     }
 
-    void TKling::virtual_TShip_RepairBrokenEquipmentAtLocation() {
-        aKling::TKling_RepairBrokenEquipmentAtLocation(this);
-    }
-
     std::uint8_t TKling::virtual_TShip_RecomputeFearState() {
         return aKling::TKling_RecomputeFearState(this);
     }
@@ -2295,14 +2291,6 @@ namespace aKling {
 
     std::uint8_t TKling::virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) {
         return aKling::TKling_TrustsAttackRequester(this, Ship);
-    }
-
-    std::uint8_t TKling::virtual_TShip_EvaluateAllyRelationAndStrength(aShip::TShip* Ship) {
-        return aKling::TKling_EvaluateAllyRelationAndStrength(this, Ship);
-    }
-
-    void TKling::virtual_TShip_AssignWeaponTargetsInStar() {
-        aKling::TKling_AssignWeaponTargetsInStar(this);
     }
 
     std::uint8_t TKling::virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) {

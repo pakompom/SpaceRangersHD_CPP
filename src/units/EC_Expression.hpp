@@ -291,6 +291,10 @@ namespace EC_Expression {
 
     void TCodeEC_Destroy(TCodeEC* Self);
 
+    void TCodeEC_Run(TCodeEC* Self, TCodeProcessEC* Process);
+
+    void TCodeEC_RunDebug(TCodeEC* Self, TCodeProcessEC* Process, TScriptDebugState* DebugContext);
+
 } // namespace EC_Expression
 
 #include "inline/EC_Expression.hpp"

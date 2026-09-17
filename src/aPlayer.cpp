@@ -864,257 +864,257 @@ namespace aPlayer {
     }
 
     // Twenty-five race/preset loadouts, stored cargo and initial planet relations. Planet is unused.
-    void TPlayer_ApplyCharacterPreset(TPlayer* Self, aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset) {
+    void TPlayer::ApplyCharacterPreset(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset) {
         std::int32_t I{};
         std::int32_t Quantity{};
         std::uint8_t Kind{};
         pas::Object* Item{};
         PStorageEntry Entry{};
         {
-            const std::int32_t cpp_first = pas::list_count(Self->Inventory) - 1;
+            const std::int32_t cpp_first = pas::list_count(Inventory) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
-                    Item = pas::list_at<pas::Object>(Self->Inventory, I);
-                    pas::list_delete(Self->Inventory, I);
+                    Item = pas::list_at<pas::Object>(Inventory, I);
+                    pas::list_delete(Inventory, I);
                     pas::free(Item);
                 }
             }
         }
         for (Kind = static_cast<std::uint8_t>(42); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
-            pas::store_unaligned<aItem::TEquipment*>(pas::byte_offset(&reinterpret_cast<aShip::PShipEquipmentCacheView>(Self)->Slots, (Kind - 42) * sizeof(aItem::TEquipment*)), nullptr);
+            pas::store_unaligned<aItem::TEquipment*>(pas::byte_offset(&reinterpret_cast<aShip::PShipEquipmentCacheView>(this)->Slots, (Kind - 42) * sizeof(aItem::TEquipment*)), nullptr);
         }
         for (I = 1; I <= 5; ++I) {
-            Self->Weapons[I] = nullptr;
+            Weapons[I] = nullptr;
         }
-        Self->WeaponCount = 0;
-        switch (Self->OwnerId * 5 + CharacterPreset) {
+        WeaponCount = 0;
+        switch (OwnerId * 5 + CharacterPreset) {
             case 1: {
                 {
                     std::int32_t roundAndTruncateToTens = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.2, 0.3)) * InitialMoney);
-                    aShip::TShip* self = Self;
+                    aShip::TShip* self = this;
                     self->SetMoney(roundAndTruncateToTens);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
                 {
-                    std::uint8_t ownerId = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange = aMyFunction::NextRandomIntRange(250, 270, Self->RandomState);
-                    aShip::TShip* self_2 = Self;
+                    std::uint8_t ownerId = OwnerId;
+                    std::uint16_t nextRandomIntRange = aMyFunction::NextRandomIntRange(250, 270, RandomState);
+                    aShip::TShip* self_2 = this;
                     aShip::TShip_CreateAndEquipHull(self_2, nextRandomIntRange, 2, ownerId, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[1]), 3, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[1]), 3, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
                 break;
             }
             case 2: {
                 {
                     std::int32_t roundAndTruncateToTens_2 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.5, 0.9)) * InitialMoney);
-                    aShip::TShip* self_3 = Self;
+                    aShip::TShip* self_3 = this;
                     self_3->SetMoney(roundAndTruncateToTens_2);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 1, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmIncrease, 40, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 1, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmIncrease, 40, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}}));
                 {
-                    std::uint8_t ownerId_2 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(240, 270, Self->RandomState);
-                    aShip::TShip* self_4 = Self;
+                    std::uint8_t ownerId_2 = OwnerId;
+                    std::uint16_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(240, 270, RandomState);
+                    aShip::TShip* self_4 = this;
                     aShip::TShip_CreateAndEquipHull(self_4, nextRandomIntRange_2, 1, ownerId_2, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 3, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 3, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
                 break;
             }
             case 3: {
                 {
                     std::int32_t roundAndTruncateToTens_3 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.2, 1.4)) * InitialMoney);
-                    aShip::TShip* self_5 = Self;
+                    aShip::TShip* self_5 = this;
                     self_5->SetMoney(roundAndTruncateToTens_3);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
                 {
-                    std::uint8_t ownerId_3 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(290, 320, Self->RandomState);
-                    aShip::TShip* self_6 = Self;
+                    std::uint8_t ownerId_3 = OwnerId;
+                    std::uint16_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(290, 320, RandomState);
+                    aShip::TShip* self_6 = this;
                     aShip::TShip_CreateAndEquipHull(self_6, nextRandomIntRange_3, 1, ownerId_3, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
                 {
-                    auto& cpp_target = Self->GetFuelTanks()->ConditionPercent;
-                    cpp_target = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target = GetFuelTanks()->ConditionPercent;
+                    cpp_target = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 {
-                    auto& cpp_target_2 = Self->GetEngine()->ConditionPercent;
-                    cpp_target_2 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_2 = GetEngine()->ConditionPercent;
+                    cpp_target_2 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]), 1, Self->OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]), 1, OwnerId);
                 {
-                    auto& cpp_target_3 = Self->GetRadar()->ConditionPercent;
-                    cpp_target_3 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_3 = GetRadar()->ConditionPercent;
+                    cpp_target_3 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, Self->OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, OwnerId);
                 {
-                    auto& cpp_target_4 = Self->GetCargoHook()->ConditionPercent;
-                    cpp_target_4 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_4 = GetCargoHook()->ConditionPercent;
+                    cpp_target_4 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
                 {
-                    auto& cpp_target_5 = Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_5 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_5 = CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_5 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
                 break;
             }
             case 4: {
                 {
                     std::int32_t roundAndTruncateToTens_4 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.9, 1.1)) * InitialMoney);
-                    aShip::TShip* self_7 = Self;
+                    aShip::TShip* self_7 = this;
                     self_7->SetMoney(roundAndTruncateToTens_4);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
                 {
-                    std::uint8_t ownerId_4 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(230, 250, Self->RandomState);
-                    aShip::TShip* self_8 = Self;
+                    std::uint8_t ownerId_4 = OwnerId;
+                    std::uint16_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
+                    aShip::TShip* self_8 = this;
                     aShip::TShip_CreateAndEquipHull(self_8, nextRandomIntRange_4, 2, ownerId_4, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
                 break;
             }
             case 5: {
                 {
                     std::int32_t roundAndTruncateToTens_5 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.9, 2.1)) * InitialMoney);
-                    aShip::TShip* self_9 = Self;
+                    aShip::TShip* self_9 = this;
                     self_9->SetMoney(roundAndTruncateToTens_5);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {3}}));
                 {
-                    std::uint8_t ownerId_5 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(210, 230, Self->RandomState);
-                    aShip::TShip* self_10 = Self;
+                    std::uint8_t ownerId_5 = OwnerId;
+                    std::uint16_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(210, 230, RandomState);
+                    aShip::TShip* self_10 = this;
                     aShip::TShip_CreateAndEquipHull(self_10, nextRandomIntRange_5, 1, ownerId_5, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[4]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 3, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[4]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 3, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
                 break;
             }
             case 6: {
                 {
                     std::int32_t roundAndTruncateToTens_6 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 2.3, 2.5)) * InitialMoney);
-                    aShip::TShip* self_11 = Self;
+                    aShip::TShip* self_11 = this;
                     self_11->SetMoney(roundAndTruncateToTens_6);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {3}}));
                 {
-                    std::uint8_t ownerId_6 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(210, 230, Self->RandomState);
-                    aShip::TShip* self_12 = Self;
+                    std::uint8_t ownerId_6 = OwnerId;
+                    std::uint16_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(210, 230, RandomState);
+                    aShip::TShip* self_12 = this;
                     aShip::TShip_CreateAndEquipHull(self_12, nextRandomIntRange_6, 1, ownerId_6, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[4]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 3, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[4]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 3, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
                 break;
             }
             case 7: {
                 {
                     std::int32_t roundAndTruncateToTens_7 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.4, 2.0)) * InitialMoney);
-                    aShip::TShip* self_13 = Self;
+                    aShip::TShip* self_13 = this;
                     self_13->SetMoney(roundAndTruncateToTens_7);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
                 {
-                    std::uint8_t ownerId_7 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(230, 260, Self->RandomState);
-                    aShip::TShip* self_14 = Self;
+                    std::uint8_t ownerId_7 = OwnerId;
+                    std::uint16_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(230, 260, RandomState);
+                    aShip::TShip* self_14 = this;
                     aShip::TShip_CreateAndEquipHull(self_14, nextRandomIntRange_7, 1, ownerId_7, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 2, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 2, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
                 break;
             }
             case 8: {
                 {
                     std::int32_t roundAndTruncateToTens_8 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.9, 1.1)) * InitialMoney);
-                    aShip::TShip* self_15 = Self;
+                    aShip::TShip* self_15 = this;
                     self_15->SetMoney(roundAndTruncateToTens_8);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmRaiseTo, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}}));
                 {
-                    std::uint8_t ownerId_8 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(280, 320, Self->RandomState);
-                    aShip::TShip* self_16 = Self;
+                    std::uint8_t ownerId_8 = OwnerId;
+                    std::uint16_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(280, 320, RandomState);
+                    aShip::TShip* self_16 = this;
                     aShip::TShip_CreateAndEquipHull(self_16, nextRandomIntRange_8, 1, ownerId_8, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
                 {
-                    auto& cpp_target_6 = Self->GetFuelTanks()->ConditionPercent;
-                    cpp_target_6 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_6 = GetFuelTanks()->ConditionPercent;
+                    cpp_target_6 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 {
-                    auto& cpp_target_7 = Self->GetEngine()->ConditionPercent;
-                    cpp_target_7 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_7 = GetEngine()->ConditionPercent;
+                    cpp_target_7 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
                 {
-                    auto& cpp_target_8 = Self->GetRadar()->ConditionPercent;
-                    cpp_target_8 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_8 = GetRadar()->ConditionPercent;
+                    cpp_target_8 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, Self->OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, OwnerId);
                 {
-                    auto& cpp_target_9 = Self->GetCargoHook()->ConditionPercent;
-                    cpp_target_9 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_9 = GetCargoHook()->ConditionPercent;
+                    cpp_target_9 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
                 {
-                    auto& cpp_target_10 = Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 3, Self->OwnerId)->ConditionPercent;
-                    cpp_target_10 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_10 = CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 3, OwnerId)->ConditionPercent;
+                    cpp_target_10 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
                 break;
             }
             case 9: {
                 {
                     std::int32_t roundAndTruncateToTens_9 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.9, 2.0)) * InitialMoney);
-                    aShip::TShip* self_17 = Self;
+                    aShip::TShip* self_17 = this;
                     self_17->SetMoney(roundAndTruncateToTens_9);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}}));
                 {
-                    std::uint8_t ownerId_9 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_9 = aMyFunction::NextRandomIntRange(250, 270, Self->RandomState);
-                    aShip::TShip* self_18 = Self;
+                    std::uint8_t ownerId_9 = OwnerId;
+                    std::uint16_t nextRandomIntRange_9 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
+                    aShip::TShip* self_18 = this;
                     aShip::TShip_CreateAndEquipHull(self_18, nextRandomIntRange_9, 1, ownerId_9, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 2, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 2, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
                 pas::new_value(Entry);
                 pas::list_add(aPlayer::GetPlayer()->StorageEntries, static_cast<void*>(Entry));
                 Entry->Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                Quantity = aMyFunction::NextRandomIntRange(7, 17, Self->RandomState);
+                Quantity = aMyFunction::NextRandomIntRange(7, 17, RandomState);
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Init(aConst::t_Luxury, Quantity);
                 Entry->Item->Cost = Quantity * (aConst::GoodsMarket[3].AveragePrice / 4);
                 if (aPlayer::GetPlayer()->DockedTo != nullptr) {
@@ -1128,58 +1128,58 @@ namespace aPlayer {
             case 10: {
                 {
                     std::int32_t roundAndTruncateToTens_10 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.9, 1.1)) * InitialMoney);
-                    aShip::TShip* self_19 = Self;
+                    aShip::TShip* self_19 = this;
                     self_19->SetMoney(roundAndTruncateToTens_10);
                 }
                 {
-                    std::uint8_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(10, 35, Self->RandomState);
-                    aRanger::TRanger* self_20 = Self;
+                    std::uint8_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
+                    aRanger::TRanger* self_20 = this;
                     aRanger::TRanger_ChangePlanetRelations(self_20, nullptr, aRanger::rcmCapAt, nextRandomIntRange_10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}}));
                 }
                 {
-                    std::uint8_t nextRandomIntRange_11 = aMyFunction::NextRandomIntRange(10, 35, Self->RandomState);
-                    aRanger::TRanger* self_21 = Self;
+                    std::uint8_t nextRandomIntRange_11 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
+                    aRanger::TRanger* self_21 = this;
                     aRanger::TRanger_ChangePlanetRelations(self_21, nullptr, aRanger::rcmCapAt, nextRandomIntRange_11, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}}));
                 }
                 {
-                    std::uint8_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(10, 35, Self->RandomState);
-                    aRanger::TRanger* self_22 = Self;
+                    std::uint8_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
+                    aRanger::TRanger* self_22 = this;
                     aRanger::TRanger_ChangePlanetRelations(self_22, nullptr, aRanger::rcmCapAt, nextRandomIntRange_12, pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}}));
                 }
                 {
-                    std::uint8_t ownerId_10 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_13 = aMyFunction::NextRandomIntRange(250, 270, Self->RandomState);
-                    aShip::TShip* self_23 = Self;
+                    std::uint8_t ownerId_10 = OwnerId;
+                    std::uint16_t nextRandomIntRange_13 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
+                    aShip::TShip* self_23 = this;
                     aShip::TShip_CreateAndEquipHull(self_23, nextRandomIntRange_13, 1, ownerId_10, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
                 {
-                    auto& cpp_target_11 = Self->GetFuelTanks()->ConditionPercent;
-                    cpp_target_11 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_11 = GetFuelTanks()->ConditionPercent;
+                    cpp_target_11 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 {
-                    auto& cpp_target_12 = Self->GetEngine()->ConditionPercent;
-                    cpp_target_12 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_12 = GetEngine()->ConditionPercent;
+                    cpp_target_12 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
                 {
-                    auto& cpp_target_13 = Self->GetRadar()->ConditionPercent;
-                    cpp_target_13 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_13 = GetRadar()->ConditionPercent;
+                    cpp_target_13 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, Self->OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, OwnerId);
                 {
-                    auto& cpp_target_14 = Self->GetCargoHook()->ConditionPercent;
-                    cpp_target_14 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_14 = GetCargoHook()->ConditionPercent;
+                    cpp_target_14 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
                 {
-                    auto& cpp_target_15 = Self->CreateAndEquipWeapon(aConst::t_Weapon4, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_15 = aMyFunction::NextRandomIntRange(60, 90, Self->RandomState);
+                    auto& cpp_target_15 = CreateAndEquipWeapon(aConst::t_Weapon4, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_15 = aMyFunction::NextRandomIntRange(60, 90, RandomState);
                 }
                 pas::new_value(Entry);
                 pas::list_add(aPlayer::GetPlayer()->StorageEntries, static_cast<void*>(Entry));
                 Entry->Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                Quantity = aMyFunction::NextRandomIntRange(4, 10, Self->RandomState);
+                Quantity = aMyFunction::NextRandomIntRange(4, 10, RandomState);
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Init(aConst::t_Narcotics, Quantity);
                 Entry->Item->Cost = Quantity * (aConst::GoodsMarket[7].AveragePrice / 2);
                 if (aPlayer::GetPlayer()->DockedTo != nullptr) {
@@ -1193,66 +1193,66 @@ namespace aPlayer {
             case 11: {
                 {
                     std::int32_t roundAndTruncateToTens_11 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.3, 0.5)) * InitialMoney);
-                    aShip::TShip* self_24 = Self;
+                    aShip::TShip* self_24 = this;
                     self_24->SetMoney(roundAndTruncateToTens_11);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
                 {
-                    std::uint8_t ownerId_11 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(210, 230, Self->RandomState);
-                    aShip::TShip* self_25 = Self;
+                    std::uint8_t ownerId_11 = OwnerId;
+                    std::uint16_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(210, 230, RandomState);
+                    aShip::TShip* self_25 = this;
                     aShip::TShip_CreateAndEquipHull(self_25, nextRandomIntRange_14, 2, ownerId_11, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipDefGenerator(System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[2]), 3, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipDefGenerator(System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[2]), 3, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
                 break;
             }
             case 12: {
                 {
                     std::int32_t roundAndTruncateToTens_12 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.5, 2.0)) * InitialMoney);
-                    aShip::TShip* self_26 = Self;
+                    aShip::TShip* self_26 = this;
                     self_26->SetMoney(roundAndTruncateToTens_12);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmRaiseTo, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}}));
                 {
-                    std::uint8_t ownerId_12 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_15 = aMyFunction::NextRandomIntRange(250, 270, Self->RandomState);
-                    aShip::TShip* self_27 = Self;
+                    std::uint8_t ownerId_12 = OwnerId;
+                    std::uint16_t nextRandomIntRange_15 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
+                    aShip::TShip* self_27 = this;
                     aShip::TShip_CreateAndEquipHull(self_27, nextRandomIntRange_15, 2, ownerId_12, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
                 {
-                    auto& cpp_target_16 = Self->GetFuelTanks()->ConditionPercent;
-                    cpp_target_16 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_16 = GetFuelTanks()->ConditionPercent;
+                    cpp_target_16 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 {
-                    auto& cpp_target_17 = Self->GetEngine()->ConditionPercent;
-                    cpp_target_17 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_17 = GetEngine()->ConditionPercent;
+                    cpp_target_17 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]), 1, Self->OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]), 1, OwnerId);
                 {
-                    auto& cpp_target_18 = Self->GetRadar()->ConditionPercent;
-                    cpp_target_18 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_18 = GetRadar()->ConditionPercent;
+                    cpp_target_18 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 {
-                    auto& cpp_target_19 = Self->GetCargoHook()->ConditionPercent;
-                    cpp_target_19 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_19 = GetCargoHook()->ConditionPercent;
+                    cpp_target_19 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
                 {
-                    auto& cpp_target_20 = Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_20 = aMyFunction::NextRandomIntRange(20, 80, Self->RandomState);
+                    auto& cpp_target_20 = CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_20 = aMyFunction::NextRandomIntRange(20, 80, RandomState);
                 }
                 pas::new_value(Entry);
                 pas::list_add(aPlayer::GetPlayer()->StorageEntries, static_cast<void*>(Entry));
                 Entry->Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                Quantity = aMyFunction::NextRandomIntRange(100, 200, Self->RandomState);
+                Quantity = aMyFunction::NextRandomIntRange(100, 200, RandomState);
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Init(aConst::t_Minerals, Quantity);
                 Entry->Item->Cost = Quantity * (aConst::GoodsMarket[4].AveragePrice / 2);
                 if (aPlayer::GetPlayer()->DockedTo != nullptr) {
@@ -1266,205 +1266,205 @@ namespace aPlayer {
             case 13: {
                 {
                     std::int32_t roundAndTruncateToTens_13 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.3, 1.5)) * InitialMoney);
-                    aShip::TShip* self_28 = Self;
+                    aShip::TShip* self_28 = this;
                     self_28->SetMoney(roundAndTruncateToTens_13);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {3}, {4}}));
                 {
-                    std::uint8_t ownerId_13 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(280, 310, Self->RandomState);
-                    aShip::TShip* self_29 = Self;
+                    std::uint8_t ownerId_13 = OwnerId;
+                    std::uint16_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(280, 310, RandomState);
+                    aShip::TShip* self_29 = this;
                     aShip::TShip_CreateAndEquipHull(self_29, nextRandomIntRange_16, 1, ownerId_13, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
                 break;
             }
             case 14: {
                 {
                     std::int32_t roundAndTruncateToTens_14 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.1, 1.3)) * InitialMoney);
-                    aShip::TShip* self_30 = Self;
+                    aShip::TShip* self_30 = this;
                     self_30->SetMoney(roundAndTruncateToTens_14);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {4}}));
                 {
-                    std::uint8_t ownerId_14 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_17 = aMyFunction::NextRandomIntRange(240, 260, Self->RandomState);
-                    aShip::TShip* self_31 = Self;
+                    std::uint8_t ownerId_14 = OwnerId;
+                    std::uint16_t nextRandomIntRange_17 = aMyFunction::NextRandomIntRange(240, 260, RandomState);
+                    aShip::TShip* self_31 = this;
                     aShip::TShip_CreateAndEquipHull(self_31, nextRandomIntRange_17, 1, ownerId_14, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 3, Self->OwnerId);
-                Self->CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[4]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 3, OwnerId);
+                CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[4]), 2, OwnerId);
                 break;
             }
             case 15: {
                 {
                     std::int32_t roundAndTruncateToTens_15 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.2, 0.3)) * InitialMoney);
-                    aShip::TShip* self_32 = Self;
+                    aShip::TShip* self_32 = this;
                     self_32->SetMoney(roundAndTruncateToTens_15);
                 }
                 {
-                    std::uint8_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(10, 35, Self->RandomState);
-                    aRanger::TRanger* self_33 = Self;
+                    std::uint8_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
+                    aRanger::TRanger* self_33 = this;
                     aRanger::TRanger_ChangePlanetRelations(self_33, nullptr, aRanger::rcmCapAt, nextRandomIntRange_18, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
                 }
                 {
-                    std::uint8_t nextRandomIntRange_19 = aMyFunction::NextRandomIntRange(10, 35, Self->RandomState);
-                    aRanger::TRanger* self_34 = Self;
+                    std::uint8_t nextRandomIntRange_19 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
+                    aRanger::TRanger* self_34 = this;
                     aRanger::TRanger_ChangePlanetRelations(self_34, nullptr, aRanger::rcmCapAt, nextRandomIntRange_19, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}}));
                 }
                 {
-                    std::uint8_t nextRandomIntRange_20 = aMyFunction::NextRandomIntRange(10, 35, Self->RandomState);
-                    aRanger::TRanger* self_35 = Self;
+                    std::uint8_t nextRandomIntRange_20 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
+                    aRanger::TRanger* self_35 = this;
                     aRanger::TRanger_ChangePlanetRelations(self_35, nullptr, aRanger::rcmCapAt, nextRandomIntRange_20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}}));
                 }
                 {
-                    std::uint8_t ownerId_15 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_21 = aMyFunction::NextRandomIntRange(250, 270, Self->RandomState);
-                    aShip::TShip* self_36 = Self;
+                    std::uint8_t ownerId_15 = OwnerId;
+                    std::uint16_t nextRandomIntRange_21 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
+                    aShip::TShip* self_36 = this;
                     aShip::TShip_CreateAndEquipHull(self_36, nextRandomIntRange_21, 1, ownerId_15, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[4]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 3, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[4]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 3, OwnerId);
                 break;
             }
             case 16: {
                 {
                     std::int32_t roundAndTruncateToTens_16 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.2, 0.3)) * InitialMoney);
-                    aShip::TShip* self_37 = Self;
+                    aShip::TShip* self_37 = this;
                     self_37->SetMoney(roundAndTruncateToTens_16);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
                 {
-                    std::uint8_t ownerId_16 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_22 = aMyFunction::NextRandomIntRange(250, 270, Self->RandomState);
-                    aShip::TShip* self_38 = Self;
+                    std::uint8_t ownerId_16 = OwnerId;
+                    std::uint16_t nextRandomIntRange_22 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
+                    aShip::TShip* self_38 = this;
                     aShip::TShip_CreateAndEquipHull(self_38, nextRandomIntRange_22, 1, ownerId_16, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 3, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 3, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
                 break;
             }
             case 17: {
                 {
                     std::int32_t roundAndTruncateToTens_17 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.2, 0.3)) * InitialMoney);
-                    aShip::TShip* self_39 = Self;
+                    aShip::TShip* self_39 = this;
                     self_39->SetMoney(roundAndTruncateToTens_17);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}}));
                 {
-                    std::uint8_t ownerId_17 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_23 = aMyFunction::NextRandomIntRange(230, 250, Self->RandomState);
-                    aShip::TShip* self_40 = Self;
+                    std::uint8_t ownerId_17 = OwnerId;
+                    std::uint16_t nextRandomIntRange_23 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
+                    aShip::TShip* self_40 = this;
                     aShip::TShip_CreateAndEquipHull(self_40, nextRandomIntRange_23, 1, ownerId_17, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon4, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon4, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
                 break;
             }
             case 18: {
                 {
                     std::int32_t roundAndTruncateToTens_18 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.8, 1.3)) * InitialMoney);
-                    aShip::TShip* self_41 = Self;
+                    aShip::TShip* self_41 = this;
                     self_41->SetMoney(roundAndTruncateToTens_18);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
                 ([&] {
-                    std::uint8_t ownerId_18 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_24 = aMyFunction::NextRandomIntRange(290, 320, Self->RandomState);
-                    aShip::TShip* self_42 = Self;
+                    std::uint8_t ownerId_18 = OwnerId;
+                    std::uint16_t nextRandomIntRange_24 = aMyFunction::NextRandomIntRange(290, 320, RandomState);
+                    aShip::TShip* self_42 = this;
                     return aShip::TShip_CreateAndEquipHull(self_42, nextRandomIntRange_24, 1, ownerId_18, -1, false);
-                }())->HullPoints = aMyFunction::NextRandomIntRange(50, 150, Self->RandomState);
+                }())->HullPoints = aMyFunction::NextRandomIntRange(50, 150, RandomState);
                 {
-                    auto& cpp_target_21 = Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_21 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_21 = CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_21 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
                 {
-                    auto& cpp_target_22 = Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_22 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_22 = CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_22 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
                 {
-                    auto& cpp_target_23 = Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_23 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_23 = CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_23 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
                 {
-                    auto& cpp_target_24 = Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_24 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_24 = CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_24 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
                 {
-                    auto& cpp_target_25 = Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[4]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_25 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_25 = CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[4]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_25 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
                 break;
             }
             case 19: {
                 {
                     std::int32_t roundAndTruncateToTens_19 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.2, 0.3)) * InitialMoney);
-                    aShip::TShip* self_43 = Self;
+                    aShip::TShip* self_43 = this;
                     self_43->SetMoney(roundAndTruncateToTens_19);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}}));
                 {
-                    std::uint8_t ownerId_19 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_25 = aMyFunction::NextRandomIntRange(270, 290, Self->RandomState);
-                    aShip::TShip* self_44 = Self;
+                    std::uint8_t ownerId_19 = OwnerId;
+                    std::uint16_t nextRandomIntRange_25 = aMyFunction::NextRandomIntRange(270, 290, RandomState);
+                    aShip::TShip* self_44 = this;
                     aShip::TShip_CreateAndEquipHull(self_44, nextRandomIntRange_25, 1, ownerId_19, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 2, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 3, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 2, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[2]), 3, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon3, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
                 break;
             }
             case 20: {
                 {
                     std::int32_t roundAndTruncateToTens_20 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.2, 0.3)) * InitialMoney);
-                    aShip::TShip* self_45 = Self;
+                    aShip::TShip* self_45 = this;
                     self_45->SetMoney(roundAndTruncateToTens_20);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}}));
                 {
-                    std::uint8_t ownerId_20 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_26 = aMyFunction::NextRandomIntRange(230, 250, Self->RandomState);
-                    aShip::TShip* self_46 = Self;
+                    std::uint8_t ownerId_20 = OwnerId;
+                    std::uint16_t nextRandomIntRange_26 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
+                    aShip::TShip* self_46 = this;
                     aShip::TShip_CreateAndEquipHull(self_46, nextRandomIntRange_26, 1, ownerId_20, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 pas::new_value(Entry);
                 pas::list_add(aPlayer::GetPlayer()->StorageEntries, static_cast<void*>(Entry));
                 Entry->Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                Quantity = aMyFunction::NextRandomIntRange(14, 20, Self->RandomState);
+                Quantity = aMyFunction::NextRandomIntRange(14, 20, RandomState);
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Init(aConst::t_Narcotics, Quantity);
                 Entry->Item->Cost = Quantity * (aConst::GoodsMarket[7].AveragePrice / 2);
                 if (aPlayer::GetPlayer()->DockedTo != nullptr) {
@@ -1478,68 +1478,68 @@ namespace aPlayer {
             case 21: {
                 {
                     std::int32_t roundAndTruncateToTens_21 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.2, 0.3)) * InitialMoney);
-                    aShip::TShip* self_47 = Self;
+                    aShip::TShip* self_47 = this;
                     self_47->SetMoney(roundAndTruncateToTens_21);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
                 {
-                    std::uint8_t ownerId_21 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_27 = aMyFunction::NextRandomIntRange(230, 250, Self->RandomState);
-                    aShip::TShip* self_48 = Self;
+                    std::uint8_t ownerId_21 = OwnerId;
+                    std::uint16_t nextRandomIntRange_27 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
+                    aShip::TShip* self_48 = this;
                     aShip::TShip_CreateAndEquipHull(self_48, nextRandomIntRange_27, 2, ownerId_21, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 3, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 3, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon2, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
                 break;
             }
             case 22: {
                 {
                     std::int32_t roundAndTruncateToTens_22 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 1.2, 1.3)) * InitialMoney);
-                    aShip::TShip* self_49 = Self;
+                    aShip::TShip* self_49 = this;
                     self_49->SetMoney(roundAndTruncateToTens_22);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmRaiseTo, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
                 {
-                    std::uint8_t ownerId_22 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_28 = aMyFunction::NextRandomIntRange(220, 230, Self->RandomState);
-                    aShip::TShip* self_50 = Self;
+                    std::uint8_t ownerId_22 = OwnerId;
+                    std::uint16_t nextRandomIntRange_28 = aMyFunction::NextRandomIntRange(220, 230, RandomState);
+                    aShip::TShip* self_50 = this;
                     aShip::TShip_CreateAndEquipHull(self_50, nextRandomIntRange_28, 1, ownerId_22, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[4]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[4]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
                 break;
             }
             case 23: {
                 {
                     std::int32_t roundAndTruncateToTens_23 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.8, 1.2)) * InitialMoney);
-                    aShip::TShip* self_51 = Self;
+                    aShip::TShip* self_51 = this;
                     self_51->SetMoney(roundAndTruncateToTens_23);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
                 {
-                    std::uint8_t ownerId_23 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_29 = aMyFunction::NextRandomIntRange(280, 310, Self->RandomState);
-                    aShip::TShip* self_52 = Self;
+                    std::uint8_t ownerId_23 = OwnerId;
+                    std::uint16_t nextRandomIntRange_29 = aMyFunction::NextRandomIntRange(280, 310, RandomState);
+                    aShip::TShip* self_52 = this;
                     aShip::TShip_CreateAndEquipHull(self_52, nextRandomIntRange_29, 1, ownerId_23, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 pas::new_value(Entry);
                 pas::list_add(aPlayer::GetPlayer()->StorageEntries, static_cast<void*>(Entry));
                 Entry->Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                Quantity = aMyFunction::NextRandomIntRange(15, 30, Self->RandomState);
+                Quantity = aMyFunction::NextRandomIntRange(15, 30, RandomState);
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Init(aConst::t_Luxury, Quantity);
                 Entry->Item->Cost = Quantity * (aConst::GoodsMarket[3].AveragePrice / 2);
                 if (aPlayer::GetPlayer()->DockedTo != nullptr) {
@@ -1553,27 +1553,27 @@ namespace aPlayer {
             case 24: {
                 {
                     std::int32_t roundAndTruncateToTens_24 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.9, 1.2)) * InitialMoney);
-                    aShip::TShip* self_53 = Self;
+                    aShip::TShip* self_53 = this;
                     self_53->SetMoney(roundAndTruncateToTens_24);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 35, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 35, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}}));
                 {
-                    std::uint8_t ownerId_24 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_30 = aMyFunction::NextRandomIntRange(250, 260, Self->RandomState);
-                    aShip::TShip* self_54 = Self;
+                    std::uint8_t ownerId_24 = OwnerId;
+                    std::uint16_t nextRandomIntRange_30 = aMyFunction::NextRandomIntRange(250, 260, RandomState);
+                    aShip::TShip* self_54 = this;
                     aShip::TShip_CreateAndEquipHull(self_54, nextRandomIntRange_30, 1, ownerId_24, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, Self->OwnerId);
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 1, Self->OwnerId);
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
-                Self->CreateAndEquipRepairRobot(System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[3]), 2, Self->OwnerId);
-                Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 1, OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipScanner(System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
+                CreateAndEquipRepairRobot(System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[3]), 2, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
                 pas::new_value(Entry);
                 pas::list_add(aPlayer::GetPlayer()->StorageEntries, static_cast<void*>(Entry));
                 Entry->Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                Quantity = aMyFunction::NextRandomIntRange(10, 20, Self->RandomState);
+                Quantity = aMyFunction::NextRandomIntRange(10, 20, RandomState);
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Init(aConst::t_Alcohol, Quantity);
                 Entry->Item->Cost = Quantity * (aConst::GoodsMarket[5].AveragePrice / 2);
                 if (aPlayer::GetPlayer()->DockedTo != nullptr) {
@@ -1587,61 +1587,61 @@ namespace aPlayer {
             case 25: {
                 {
                     std::int32_t roundAndTruncateToTens_25 = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->GenerationSeed, 0.9, 1.2)) * InitialMoney);
-                    aShip::TShip* self_55 = Self;
+                    aShip::TShip* self_55 = this;
                     self_55->SetMoney(roundAndTruncateToTens_25);
                 }
-                aRanger::TRanger_ChangePlanetRelations(Self, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {3}}));
                 {
-                    std::uint8_t ownerId_25 = Self->OwnerId;
-                    std::uint16_t nextRandomIntRange_31 = aMyFunction::NextRandomIntRange(280, 300, Self->RandomState);
-                    aShip::TShip* self_56 = Self;
+                    std::uint8_t ownerId_25 = OwnerId;
+                    std::uint16_t nextRandomIntRange_31 = aMyFunction::NextRandomIntRange(280, 300, RandomState);
+                    aShip::TShip* self_56 = this;
                     aShip::TShip_CreateAndEquipHull(self_56, nextRandomIntRange_31, 1, ownerId_25, -1, false);
                 }
-                Self->CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[3]), 1, Self->OwnerId);
+                CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[3]), 1, OwnerId);
                 {
-                    auto& cpp_target_26 = Self->GetFuelTanks()->ConditionPercent;
-                    cpp_target_26 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_26 = GetFuelTanks()->ConditionPercent;
+                    cpp_target_26 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
-                Self->CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 2, Self->OwnerId);
+                CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 2, OwnerId);
                 {
-                    auto& cpp_target_27 = Self->GetEngine()->ConditionPercent;
-                    cpp_target_27 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_27 = GetEngine()->ConditionPercent;
+                    cpp_target_27 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
-                Self->CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipRadar(System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 {
-                    auto& cpp_target_28 = Self->GetRadar()->ConditionPercent;
-                    cpp_target_28 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_28 = GetRadar()->ConditionPercent;
+                    cpp_target_28 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
-                Self->CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId);
+                CreateAndEquipCargoHook(System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId);
                 {
-                    auto& cpp_target_29 = Self->GetCargoHook()->ConditionPercent;
-                    cpp_target_29 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_29 = GetCargoHook()->ConditionPercent;
+                    cpp_target_29 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
                 {
-                    auto& cpp_target_30 = Self->CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, Self->OwnerId)->ConditionPercent;
-                    cpp_target_30 = aMyFunction::NextRandomIntRange(10, 50, Self->RandomState);
+                    auto& cpp_target_30 = CreateAndEquipWeapon(aConst::t_Weapon1, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[2]), 1, OwnerId)->ConditionPercent;
+                    cpp_target_30 = aMyFunction::NextRandomIntRange(10, 50, RandomState);
                 }
                 break;
             }
         }
-        Self->GetHull()->Weight = aMyFunction::RoundAndTruncateToTens(pas::real_divide(static_cast<long double>(Self->GetHull()->Weight) * aConst::HullCapacityScale, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestTimeAndExperienceFactor));
-        Self->RefreshDerivedStats(true);
-        while (Self->CargoFreeSpace < pas::real_divide(15.0L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor)) {
-            Self->GetHull()->Weight += 5;
-            Self->RefreshDerivedStats(true);
+        GetHull()->Weight = aMyFunction::RoundAndTruncateToTens(pas::real_divide(static_cast<long double>(GetHull()->Weight) * aConst::HullCapacityScale, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestTimeAndExperienceFactor));
+        RefreshDerivedStats(true);
+        while (CargoFreeSpace < pas::real_divide(15.0L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor)) {
+            GetHull()->Weight += 5;
+            RefreshDerivedStats(true);
         }
         switch (aGalaxy::Galaxy->DifficultyLevels[7]) {
-            case 0: Self->GetHull()->Weight += 30; break;
-            case 1: Self->GetHull()->Weight += 10; break;
-            case 2: Self->GetHull()->Weight += 5; break;
+            case 0: GetHull()->Weight += 30; break;
+            case 1: GetHull()->Weight += 10; break;
+            case 2: GetHull()->Weight += 5; break;
         }
-        Self->GetHull()->HullPoints = Self->GetHull()->Weight;
-        Self->RefreshDerivedStats(true);
-        aShip::TShip_RefreshGraphicSize(Self);
-        Self->RefreshAssignedItemSlots();
-        Self->HomePlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
+        GetHull()->HullPoints = GetHull()->Weight;
+        RefreshDerivedStats(true);
+        RefreshGraphicSize();
+        RefreshAssignedItemSlots();
+        HomePlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
         for (I = 1; I <= 24; ++I) {
-            Self->StatusEffectSourceNames[I] = pas::WideString();
+            StatusEffectSourceNames[I] = pas::WideString();
         }
     }
 
@@ -3024,7 +3024,7 @@ namespace aPlayer {
                 }
                 PreviousLocation = Entry->LocationOwner;
                 if (pas::class_cast_if<aItem::TEquipment*>(Entry->Item) != nullptr) {
-                    ConditionText = pas::concat_wide({u" ", aItem::TEquipment_GetConditionText(pas::checked_cast<aItem::TEquipment*>(Entry->Item), false)});
+                    ConditionText = pas::concat_wide({u" ", pas::checked_cast<aItem::TEquipment*>(Entry->Item)->GetConditionText(false)});
                 } else {
                     ConditionText = pas::WideString();
                 }
@@ -3698,7 +3698,7 @@ namespace aPlayer {
     // Creates a military-base proxy and removes it from the ordinary system ship list.
     void TPlayer::CreateRuinsProxy() {
         RuinsProxy = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-        aRuins::TRuins_Init(pas::checked_cast<aRuins::TRuins*>(RuinsProxy), aGalaxyStruct::rstMilitaryBase, aPlayer::GetPlayer()->CurrentStar, pas::WideString());
+        pas::checked_cast<aRuins::TRuins*>(RuinsProxy)->Init(aGalaxyStruct::rstMilitaryBase, aPlayer::GetPlayer()->CurrentStar, pas::WideString());
         pas::list_delete(CurrentStar->Ships, pas::list_indexof(CurrentStar->Ships, reinterpret_cast<void*>(RuinsProxy)));
     }
 

@@ -1,20 +1,13 @@
 #pragma once
-#include "types/EC_Struct.hpp"
-#include "types/aConst.hpp"
-#include "types/aGalaxyStruct.hpp"
 #include "types/aRuins.hpp"
 
 namespace aGalaxy {
     struct TGalaxy;
 
-    struct TStar;
-
 } // namespace aGalaxy
 
 namespace aItem {
     struct TEquipment;
-
-    struct TWeapon;
 
 } // namespace aItem
 
@@ -62,31 +55,14 @@ namespace aRuins {
 
     void TRuins_Destroy(TRuins* Self);
 
-    // Also registers the station in Star. Type 13 inherits ranger-center defaults.
-    void TRuins_Init(TRuins* Self, aGalaxyStruct::TStationType StationType, aGalaxy::TStar* Star, pas::WideString TypeNameOverride);
-
     void TRuins_ResolveLoadedReferences(TRuins* Self, aGalaxy::TGalaxy* Galaxy);
 
     void TRuins_NextDay(TRuins* Self);
 
     void TRuins_NextDayLogic(TRuins* Self);
 
-    // Sponsored stations restore equipment condition without a repair transaction.
-    void TRuins_RepairBrokenEquipmentAtLocation(TRuins* Self);
-
-    // Disabled in modes 1 and 3; otherwise follows the station's weekly schedule after initial setup.
-    void TRuins_RefreshShopInventory(TRuins* Self);
-
     // Always false.
     std::uint8_t TRuins_CanQueueReachablePlanet(TRuins* Self, aPlanet::TPlanet* Planet);
-
-    // Targets hostile ships, incoming missiles and nearby asteroids.
-    void TRuins_AssignWeaponTargetsInStar(TRuins* Self);
-
-    // Posts the native Pirate Clan success/failure message after the station reappears.
-    void TRuins_ReportAbductionOutcome(TRuins* Self);
-
-    float TRuins_EvaluateRelocationPosition(TRuins* Self, EC_Struct::TPointF Point);
 
     // Returns false without changing InFear.
     std::uint8_t TRuins_RecomputeFearState(TRuins* Self);
@@ -94,8 +70,6 @@ namespace aRuins {
     std::uint8_t TRuins_AcceptsRansomDemandFrom(TRuins* Self, aShip::TShip* Ship);
 
     std::uint8_t TRuins_TrustsAttackRequester(TRuins* Self, aShip::TShip* Ship);
-
-    std::uint8_t TRuins_EvaluateAllyRelationAndStrength(TRuins* Self, aShip::TShip* Ship);
 
     std::uint8_t TRuins_BuildMoneyExtortionResponse(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
 
@@ -106,10 +80,6 @@ namespace aRuins {
     std::uint8_t TRuins_AcceptPartnershipOffer(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
 
     std::uint8_t TRuins_BuildPartnershipOfferResponse(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
-
-    float TRuins_EvaluateStatBonus(TRuins* Self, aConst::TEquipmentBonusKind BonusKind, std::int32_t Value);
-
-    float TRuins_EvaluateWeaponDamage(TRuins* Self, aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage);
 
     // Script state can force standing 9 or preserve the current value; type 13 has no default assignment.
     void TRuins_RefreshCurrentStanding(TRuins* Self);

@@ -11,6 +11,8 @@ namespace PopUp {
     struct TfPopUpController : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TfPopUpController, GI_MessageLoop::TObjectGI, "TfPopUpController", 316)
         void p_destroy() override;
+        // Drains queued notifications, advances their vertical animation, and retires off-screen controls.
+        void AdvancePopups(std::uint32_t Tick);
         // Enqueues parallel managed-string cells under QueueLock.
         void QueueNotification(pas::WideString Text, pas::WideString ImagePath);
         std::uint32_t LastTick;
