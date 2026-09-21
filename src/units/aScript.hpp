@@ -1,5 +1,4 @@
 #pragma once
-#include "types/aGalaxy.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aScript.hpp"
 #include "types/aShip.hpp"
@@ -17,6 +16,11 @@ namespace EC_Expression {
     struct TVarArrayEC;
 
 } // namespace EC_Expression
+
+namespace aGalaxy {
+    struct TStar;
+
+} // namespace aGalaxy
 
 namespace aItem {
     struct TItem;
@@ -136,7 +140,7 @@ namespace aScript {
 
     void RunGlobalScriptsForContext(aGalaxy::TStar* Star, std::int32_t RunFrom);
 
-    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, pas::WideString Name);
+    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, const std::u16string_view& Name);
 
     std::uint8_t TryStartScriptInstanceFromTemplate(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, std::int32_t TemplateIndex);
 
@@ -154,22 +158,22 @@ namespace aScript {
     // Bit 9 also selects the player's current owner ID.
     aGalaxyStruct::TOwnerMask DecodeScriptOwnerMask(std::uint32_t Value);
 
-    TScriptEconomyMask DecodeScriptEconomyMask(std::uint32_t Value);
+    aGalaxyStruct::TPlanetEconomies DecodeScriptEconomyMask(std::uint32_t Value);
 
-    TScriptGovernmentMask DecodeScriptGovernmentMask(std::uint32_t Value);
+    aGalaxyStruct::TPlanetGovernments DecodeScriptGovernmentMask(std::uint32_t Value);
 
     TScriptShipTypeMask DecodeScriptShipTypeMask(std::uint32_t Value);
 
-    aGalaxy::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, std::uint8_t KlingType);
+    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, std::uint8_t KlingType);
 
     // Values outside 0..7 become owner 6.
-    std::uint8_t DecodeScriptItemOwner(std::int32_t Value);
+    aGalaxyStruct::TOwnerId DecodeScriptItemOwner(std::int32_t Value);
 
     // Values outside 0..4 become hostile.
     aGalaxyStruct::TRelationLevel DecodeScriptRelationLevel(std::int32_t Value);
 
     // DominatorMasks requires eight entries indexed by TKlingType. StationNames is a comma-separated filter when ship-type bit 8 is set.
-    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask, pas::WideString StationNames, pas::OpenArray<aGalaxy::TDominatorSeriesMask> DominatorMasks);
+    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask, const std::u16string_view& StationNames, pas::OpenArray<aGalaxyStruct::TDominatorSeriesMask> DominatorMasks);
 
     // Caller owns the list; ship references are borrowed.
     pas::List* CollectScriptCandidateShips(aGalaxy::TStar* Star);
@@ -264,7 +268,7 @@ namespace aScript {
 
     void TScript_RunTurnCode(TScript* Self);
 
-    void TScript_RunAuxiliaryCode(TScript* Self);
+    void TScript_RunDialogCode(TScript* Self);
 
     void TScript_CallDialog(TScript* Self, std::int32_t Index);
 

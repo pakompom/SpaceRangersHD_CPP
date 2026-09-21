@@ -205,7 +205,7 @@ namespace CPDiapClass {
         std::int32_t Count = Text.length();
         if (Text != u";") {
             // Native parsing retains the original Count after this shortening replacement.
-            Normalized = EC_Str::ReplaceAllWideString(Text, u".."_wref.get(), u"h"_wref.get());
+            Normalized = EC_Str::ReplaceAllWideString(Text, u".."_wref.get(), u"h"sv);
             i = 1;
             NumberText = pas::WideString();
             Minimum = 200000000;
@@ -218,7 +218,7 @@ namespace CPDiapClass {
                 } else if (Normalized.read(i) == u'h' || Normalized.read(i) == u';' || Normalized.read(i) == u']') {
                     Value = 0;
                     try {
-                        Value = EC_Str::ExtractSignedDigitsToIntW(NumberText);
+                        Value = EC_Str::ExtractSignedDigitsToIntW(pas::view(NumberText));
                     } catch (...) {
                         auto cpp_exception = pas::caught_object();
                         if (pas::class_cast_if<pas::MathError*>(cpp_exception)) {

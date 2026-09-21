@@ -94,11 +94,11 @@ namespace GI_MessageLoop {
         virtual void OnMouseEnter();
         virtual void OnMouseLeave();
         virtual void OnActivate();
-        // Purpose unresolved; the base hook visits children whose Active flag equals True.
-        virtual void NativeHook48();
+        // Called on the parent UI after closing a modal child and restoring the cursor; propagates to active children.
+        virtual void OnModalResume();
         virtual void OnDeactivate();
-        // Purpose unresolved; the base hook visits children whose Active flag equals True.
-        virtual void NativeHook50();
+        // Called on the parent UI before opening a modal child and capturing the cursor; propagates to active children.
+        virtual void OnModalSuspend();
         virtual void ProcessLeftButtonDown(std::uint32_t KeyState, WindowsSdk::TPoint Point);
         virtual void ProcessLeftButtonUp(std::uint32_t KeyState, WindowsSdk::TPoint Point);
         virtual void ProcessRightButtonDown(std::uint32_t KeyState, WindowsSdk::TPoint Point);
@@ -119,7 +119,7 @@ namespace GI_MessageLoop {
         std::uint8_t ContainsPoint(WindowsSdk::TPoint Point);
         std::uint8_t HitTestCursor();
         // Case-sensitive; includes Self. Duplicate names resolve in child-list order.
-        TObjectGI* FindByNameRecursive(const pas::WideString& Name);
+        TObjectGI* FindByNameRecursive(const std::u16string_view& Name);
         virtual WindowsSdk::TPoint ToLocalPoint(WindowsSdk::TPoint Point);
         virtual WindowsSdk::TPoint ToAbsolutePoint(WindowsSdk::TPoint Point);
         void DispatchNamedEvent(std::int32_t EventKind, std::int32_t Param1, std::int32_t Param2);
@@ -260,7 +260,7 @@ namespace GI_MessageLoop {
         void RequestClose(std::int32_t ResultCode);
         void SetHelpCallback(TObjectHelpEventGI Callback);
         // Search is limited to ContentPanel; raises when absent.
-        TObjectGI* GetByName(const pas::WideString& Name);
+        TObjectGI* GetByName(const std::u16string_view& Name);
         // Each component may match a descendant, not just a direct child. Returns nil when absent.
         TObjectGI* FindControlByPath(const pas::WideString& Path);
         void SetFocusedControl(TObjectGI* Control);
@@ -282,7 +282,7 @@ namespace GI_MessageLoop {
         void SetCursorImage(const pas::WideString& ImagePath, WindowsSdk::TPoint HotSpot);
         void SetCursorByName(const pas::WideString& Name);
         // Ignores cursor activity; registered names with the same image path compare equal.
-        std::uint8_t IsCursorImageSelected(const pas::WideString& RegisteredName);
+        std::uint8_t IsCursorImageSelected(const std::u16string_view& RegisteredName);
         std::uint8_t IsCursorActive();
         void SetCursorActive(std::uint8_t Enabled);
         // Writes caller-owned state; its WideString must be initialized. Pointer form is required by native record-copy evaluation order.
@@ -429,7 +429,6 @@ namespace GI_MessageLoop {
     #endif
 
     // // Native RTTI includes three trailing padding bytes.
-    #pragma pack(push, 1)
     struct TCursorStateGI {
         pas::WideString ImagePath;
         std::uint8_t Active;
@@ -437,6 +436,5 @@ namespace GI_MessageLoop {
         WindowsSdk::TPoint Position;
         std::uint8_t cpp_padding[3];
     };
-    #pragma pack(pop)
 
 } // namespace GI_MessageLoop

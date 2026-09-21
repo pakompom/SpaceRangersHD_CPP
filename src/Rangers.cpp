@@ -229,6 +229,7 @@ namespace Rangers {
                 // Native initializer saves and replaces the RTL raise hook.
                 ExceptionInfo::UnitInitialize();
                 // Compiler unit entry registers the native command order.
+                // 'INFOS'
                 CheatCode::UnitInitialize();
                 // Compiler unit entry calls the virtual destructor directly.
                 {
@@ -258,8 +259,8 @@ namespace Rangers {
                             ExecutableFileName.set_length(WindowsImports::MAX_PATH);
                             if (WindowsImports::GetModuleFileNameA(0u, ExecutableFileName.pchar(), WindowsImports::MAX_PATH) != 0) {
                                 ExecutableFileName.set_length(static_cast<std::int32_t>(SysUtilsImports::StrLen(ExecutableFileName.pchar())));
-                                Rangers::ClearReadOnlyAttributesRecursive(EC_Str::ExtractFileDirW(static_cast<pas::WideString>(ExecutableFileName)));
-                                SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(EC_Str::ExtractFileDirW(static_cast<pas::WideString>(ExecutableFileName))));
+                                Rangers::ClearReadOnlyAttributesRecursive(EC_Str::ExtractFileDirW(pas::view(static_cast<pas::WideString>(ExecutableFileName))));
+                                SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(EC_Str::ExtractFileDirW(pas::view(static_cast<pas::WideString>(ExecutableFileName)))));
                             }
                             EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE, u"SOFTWARE\\CLASSES\\avifile\\Extensions\\VDO"_w, pas::WideString(), u"{00020000-0000-0000-C000-000000000046}"_w);
                             SystemImports::Randomize();
@@ -310,9 +311,9 @@ namespace Rangers {
                                                 while (!pas::text_eof(LanguageFile, false)) {
                                                     pas::text_readln(LanguageFile, LanguageLine, false);
                                                     StartupText = static_cast<pas::WideString>(LanguageLine);
-                                                    if (EC_Str::CountDelimitedPartsW(StartupText, u"="_wref.get()) > 1) {
-                                                        if (EC_Str::ExtractDelimitedPartW(StartupText, 0, u"="_wref.get()) == u"Lang") {
-                                                            GR_Main::SelectedLanguage = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(StartupText, 1, u"="_wref.get()));
+                                                    if (EC_Str::CountDelimitedPartsW(pas::view(StartupText), u"="sv) > 1) {
+                                                        if (EC_Str::ExtractDelimitedPartW(pas::view(StartupText), 0, u"="sv) == u"Lang") {
+                                                            GR_Main::SelectedLanguage = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(StartupText), 1, u"="sv));
                                                         }
                                                     }
                                                 }

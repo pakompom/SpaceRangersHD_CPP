@@ -69,7 +69,7 @@ namespace CalcParseClass {
         pas::WideString NormalizeRangeLiteral(pas::WideString Text);
         static pas::WideString InsertImplicitMultiplication(pas::WideString Text);
         // One-based; zero when absent. Rightmost ties give left associativity. Delimiter balance is unchecked.
-        std::int32_t FindTopLevelOperator(const pas::WideString& Text, std::int32_t TextLength);
+        std::int32_t FindTopLevelOperator(const std::u16string_view& Text, std::int32_t TextLength);
         // Caller owns the result. Evaluates right before left without short-circuiting. EvaluationError blocks evaluation; HasError alone does not. Native recursive intermediates leak.
         CPVarClass::TCPVariant* EvaluateExpression(pas::WideString Text);
         // Existing HasError preserves ResultValue; flags are not reset. Native scratch and returned variants leak.
@@ -78,12 +78,12 @@ namespace CalcParseClass {
         void Prepare(pas::WideString Text, std::int32_t DefaultParameterIndex);
         void Reset();
         // One-based inclusive bounds, unchecked. Empty slices pass; square brackets are ignored.
-        static std::uint8_t HasBalancedParenthesesInSlice(const pas::WideString& Text, std::int32_t FirstIndex, std::int32_t LastIndex);
+        static std::uint8_t HasBalancedParenthesesInSlice(const std::u16string_view& Text, std::int32_t FirstIndex, std::int32_t LastIndex);
         // Parameters: borrowed, non-nil TList of TParameter; [pN] is one-based.
         // Unmatched references remain unchanged; negative values are parenthesized.
         pas::WideString SubstituteParameters(pas::List* Parameters);
         // Empty text passes.
-        std::uint8_t HasBalancedParentheses(const pas::WideString& Text);
+        std::uint8_t HasBalancedParentheses(const std::u16string_view& Text);
         // Nonzero limits: 0.0001..999999999. The lower clamp emits a dot-decimal literal that evaluation rejects. Drops trailing numbers; conversion errors set flags and leave the caller's result storage unchanged.
         pas::WideString ClampNumericLiterals(pas::WideString Text);
         pas::WideString SourceText;

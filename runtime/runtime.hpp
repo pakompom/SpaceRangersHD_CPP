@@ -333,6 +333,7 @@ public:
       : WideString(p, terminated_length(p)) {}
   WideString(char16_t c) : WideString(&c, 1) {}
   WideString(const WideString &s);
+  explicit WideString(std::u16string_view s) : WideString(s.data(), Integer(s.size())) {}
   WideString(WideString &&s) noexcept
       : data_(std::exchange(s.data_, nullptr)) {}
   WideString &operator=(WideString s) noexcept {
@@ -350,6 +351,7 @@ public:
     return data_ ? data_.get() : empty;
   }
   const char16_t *c_str() const { return data_ ? data_.get() : u""; }
+  operator std::u16string_view() const { return {c_str(), std::size_t(length())}; }
   char16_t read(Integer i) const { return data_[i - 1]; }
   char16_t &write(Integer i) { return data_[i - 1]; }
   char16_t &operator[](Integer i) { return data_[i - 1]; }
@@ -863,6 +865,8 @@ inline AnsiString operator""_a(const char* text, std::size_t length) {
 // Borrow string operands without allocating, including embedded-null literals.
 inline std::u16string_view view(const WideString &s) { return {s.c_str(), std::size_t(s.length())}; }
 inline std::string_view view(const AnsiString &s) { return {s.c_str(), std::size_t(s.length())}; }
+template<class Char>
+std::basic_string_view<Char> view(std::basic_string_view<Char> s) { return s; }
 template<class Char, std::size_t N>
 std::basic_string_view<Char> view(const Char (&literal)[N]) { return {literal, N-1}; }
 template<std::size_t N>
@@ -914,6 +918,7 @@ template <class String, class Char> struct StringPart {
   StringPart(Char value) : data(nullptr), size(1), character(value) {}
   StringPart(const String &value)
       : data(reinterpret_cast<const Char *>(value.data())), size(value.length()) {}
+  StringPart(std::basic_string_view<Char> value) : data(value.data()), size(Integer(value.size())) {}
   template <std::size_t N> StringPart(const Char (&value)[N])
       : data(value), size(Integer(N - 1)) {}
 };

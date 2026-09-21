@@ -200,7 +200,7 @@ namespace aGalaxy {
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxy::TMovingDropItemEntry, Destination) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxy::TMovingDropItemEntry, SourceShipId) == 12);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxy::TMovingDropItemEntry, InsertedIntoStar) == 16);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxy::TMovingDropItemEntry, UseFlag) == 17);
+    static_assert(sizeof(void*) != 4 || offsetof(aGalaxy::TMovingDropItemEntry, DeployTranclucator) == 17);
     static_assert(sizeof(void*) != 4 || sizeof(aGalaxy::TInterfaceStateOverride) == 16);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxy::TInterfaceStateOverride, FormName) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxy::TInterfaceStateOverride, ControlPath) == 8);

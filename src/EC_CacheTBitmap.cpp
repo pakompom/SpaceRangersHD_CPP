@@ -22,7 +22,7 @@ namespace EC_CacheTBitmap {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, pas::class_ref<TCTBitmapEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCTBitmapEC>()) == nullptr) {
             Control = pas::construct_call<TCTBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);

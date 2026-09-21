@@ -36,47 +36,47 @@ namespace fPanelLoad {
         this->Screen = Screen;
         GR_Main::AppendLogTextThreadSafe("fPanelLoad... "_a);
         if (!LayoutAdjusted) {
-            Panel = this->Screen->GetByName(u"PanelLoad"_wref.get());
+            Panel = this->Screen->GetByName(u"PanelLoad"sv);
             Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* BGImage = Panel->FindByNameRecursive(u"BGImage"_wref.get());
+                GI_MessageLoop::TObjectGI* BGImage = Panel->FindByNameRecursive(u"BGImage"sv);
                 BGImage->SetPosition(ClassesImports::Point(BGImage->LocalPosition.X, BGImage->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
                 BGImage->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, BGImage->ClientSize.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* ShipPanelImage = Panel->FindByNameRecursive(u"ShipPanelImage"_wref.get());
+                GI_MessageLoop::TObjectGI* ShipPanelImage = Panel->FindByNameRecursive(u"ShipPanelImage"sv);
                 ShipPanelImage->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_GAI::TgaiGI* LoadAnim = pas::checked_cast<GI_GAI::TgaiGI*>(Panel->FindByNameRecursive(u"LoadAnim"_wref.get()));
+                GI_GAI::TgaiGI* LoadAnim = pas::checked_cast<GI_GAI::TgaiGI*>(Panel->FindByNameRecursive(u"LoadAnim"sv));
                 LoadAnim->SetPosition(ClassesImports::Point(LoadAnim->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, LoadAnim->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
                 LoadAnim->StopAutoPlayback();
             }
             {
-                GI_MessageLoop::TObjectGI* LoadAnimText = Panel->FindByNameRecursive(u"LoadAnimText"_wref.get());
+                GI_MessageLoop::TObjectGI* LoadAnimText = Panel->FindByNameRecursive(u"LoadAnimText"sv);
                 LoadAnimText->SetPosition(ClassesImports::Point(LoadAnimText->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, LoadAnimText->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* PLProgress = Panel->FindByNameRecursive(u"PLProgress"_wref.get());
+                GI_MessageLoop::TObjectGI* PLProgress = Panel->FindByNameRecursive(u"PLProgress"sv);
                 PLProgress->SetPosition(ClassesImports::Point(PLProgress->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PLProgress->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* PLBar = Panel->FindByNameRecursive(u"PLBar"_wref.get());
+                GI_MessageLoop::TObjectGI* PLBar = Panel->FindByNameRecursive(u"PLBar"sv);
                 PLBar->SetActive(false);
             }
             LayoutAdjusted = true;
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, TfPanelLoad::GetProgressSegmentCount() - 1); cpp_range.next(I); ) {
-            ProgressSegments[I] = pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(static_cast<pas::WideString>(pas::concat_ansi({"PLB", SysUtils::IntToStr(I + 1)}))));
+            ProgressSegments[I] = pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"PLB", SysUtils::IntToStr(I + 1)})))));
             ProgressSegments[I]->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         }
-        BackgroundImage = this->Screen->GetByName(u"BGImage"_wref.get());
-        this->ShipPanelImage = this->Screen->GetByName(u"ShipPanelImage"_wref.get());
-        LoadAnimation = this->Screen->GetByName(u"LoadAnim"_wref.get());
-        AnimationText = this->Screen->GetByName(u"LoadAnimText"_wref.get());
-        ProgressLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PLProgress"_wref.get()));
-        ProgressBar = this->Screen->GetByName(u"PLBar"_wref.get());
+        BackgroundImage = this->Screen->GetByName(u"BGImage"sv);
+        this->ShipPanelImage = this->Screen->GetByName(u"ShipPanelImage"sv);
+        LoadAnimation = this->Screen->GetByName(u"LoadAnim"sv);
+        AnimationText = this->Screen->GetByName(u"LoadAnimText"sv);
+        ProgressLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PLProgress"sv));
+        ProgressBar = this->Screen->GetByName(u"PLBar"sv);
         BackgroundRestTop = BackgroundImage->LocalPosition.Y;
         ShipPanelRestTop = this->ShipPanelImage->LocalPosition.Y;
         AnimationRestTop = LoadAnimation->LocalPosition.Y;
@@ -93,10 +93,10 @@ namespace fPanelLoad {
             LeftShutter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             TopShutter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             BottomShutter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLRightImage"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLLeftImage"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLTopImage"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLBottomImage"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLRightImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLLeftImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLTopImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLBottomImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         }
     }
 
@@ -131,11 +131,11 @@ namespace fPanelLoad {
     }
 
     void TfPanelLoad::Show() {
-        Screen->GetByName(u"PanelLoad"_wref.get())->SetActive(true);
+        Screen->GetByName(u"PanelLoad"sv)->SetActive(true);
     }
 
     void TfPanelLoad::Hide() {
-        Screen->GetByName(u"PanelLoad"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PanelLoad"sv)->SetActive(false);
     }
 
     // Accepts groups 0..3; selects a style for shutter or legacy artwork. Other values preserve the current style.
@@ -174,22 +174,22 @@ namespace fPanelLoad {
                 Style = pas::wide_int_to_str(Globals::LoadScreen->BackgroundStyle);
             }
             {
-                GI_Image::TImageGI* cpp_arg_3 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLRightImage"_wref.get()));
+                GI_Image::TImageGI* cpp_arg_3 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLRightImage"sv));
                 pas::WideString cpp_arg_4 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterRight", Style});
                 cpp_arg_3->SetImagePath(std::move(cpp_arg_4));
             }
             {
-                GI_Image::TImageGI* cpp_arg_5 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLLeftImage"_wref.get()));
+                GI_Image::TImageGI* cpp_arg_5 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLLeftImage"sv));
                 pas::WideString cpp_arg_6 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterLeft", Style});
                 cpp_arg_5->SetImagePath(std::move(cpp_arg_6));
             }
             {
-                GI_Image::TImageGI* cpp_arg_7 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLTopImage"_wref.get()));
+                GI_Image::TImageGI* cpp_arg_7 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLTopImage"sv));
                 pas::WideString cpp_arg_8 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterTop", Style});
                 cpp_arg_7->SetImagePath(std::move(cpp_arg_8));
             }
             {
-                GI_Image::TImageGI* cpp_arg_9 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLBottomImage"_wref.get()));
+                GI_Image::TImageGI* cpp_arg_9 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLBottomImage"sv));
                 pas::WideString cpp_arg_10 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterBottom", Style});
                 cpp_arg_9->SetImagePath(std::move(cpp_arg_10));
             }
@@ -208,7 +208,7 @@ namespace fPanelLoad {
         }
         ProgressLabel->SetText(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(System::Round(Fraction * 1.0E+2L + 0.5L)), "%"})));
         {
-            GI_GAI::TgaiGI* LoadAnim = pas::checked_cast<GI_GAI::TgaiGI*>(Screen->GetByName(u"LoadAnim"_wref.get()));
+            GI_GAI::TgaiGI* LoadAnim = pas::checked_cast<GI_GAI::TgaiGI*>(Screen->GetByName(u"LoadAnim"sv));
             LoadAnim->SetSequenceFrame(pas::imod(System::Round(static_cast<long double>(LoadAnim->SequenceFrameCount - 1) * Fraction * 2.0L + 3.0L), LoadAnim->SequenceFrameCount - 1));
         }
     }

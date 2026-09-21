@@ -163,7 +163,7 @@ namespace GI_StarField {
 
     void TStarFieldGI::LoadStarFieldProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            SetBackgroundImage(Block->GetParam(u"Image"_wref.get()));
+            SetBackgroundImage(Block->GetParam(u"Image"sv));
         }
     }
 

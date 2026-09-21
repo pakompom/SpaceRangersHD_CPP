@@ -72,22 +72,22 @@ namespace SE_Anim {
 
     void TAnimSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
         if (Block->CountParams(u"LoopAnim"_wref.get()) > 0) {
-            LoopAnimation = GI_Main::ParseEnabledNameGI(Block->GetParam(u"LoopAnim"_wref.get()));
+            LoopAnimation = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"LoopAnim"sv)));
         }
         if (Block->CountParams(u"SmeImage"_wref.get()) > 0) {
-            ImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImage"_wref.get()));
+            ImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImage"sv)));
         }
     }
 
     void TAnimSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::ApplyConfig(Block);
         if (Block->CountParams(u"LoopAnim"_wref.get()) > 0) {
-            LoopAnimation = GI_Main::ParseEnabledNameGI(Block->GetParam(u"LoopAnim"_wref.get()));
+            LoopAnimation = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"LoopAnim"sv)));
         }
         if (Block->CountParams(u"SmeImage"_wref.get()) > 0) {
-            ImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImage"_wref.get()));
+            ImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImage"sv)));
         }
     }
 

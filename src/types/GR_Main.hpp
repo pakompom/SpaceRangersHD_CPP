@@ -13,11 +13,11 @@ namespace GR_Main {
 
     struct TMemoryStatusEx;
 
-    struct TDisplayModeGR;
-
     struct TCursorUnit;
 
     struct TCCInterface;
+
+    struct TDisplayModeGR;
 
     // VMT and methods share the native GR_Main contribution.
     using PCCSnapshot = TCCSnapshot*;

@@ -22,79 +22,79 @@ namespace fAbout {
         GR_Main::AppendLogTextThreadSafe("fAbout... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* BGImage = MainPanel->FindByNameRecursive(u"BGImage"_wref.get());
+                GI_MessageLoop::TObjectGI* BGImage = MainPanel->FindByNameRecursive(u"BGImage"sv);
                 BGImage->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* LogoPanel = MainPanel->FindByNameRecursive(u"LogoPanel"_wref.get());
+                GI_MessageLoop::TObjectGI* LogoPanel = MainPanel->FindByNameRecursive(u"LogoPanel"sv);
                 LogoPanel->SetPosition(ClassesImports::Point(LogoPanel->LocalPosition.X, LogoPanel->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* ShadeBottom = MainPanel->FindByNameRecursive(u"ShadeBottom"_wref.get());
+                GI_MessageLoop::TObjectGI* ShadeBottom = MainPanel->FindByNameRecursive(u"ShadeBottom"sv);
                 ShadeBottom->SetPosition(ClassesImports::Point(ShadeBottom->LocalPosition.X, ShadeBottom->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* PanelImage = MainPanel->FindByNameRecursive(u"PanelImage"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelImage = MainPanel->FindByNameRecursive(u"PanelImage"sv);
                 PanelImage->SetPosition(ClassesImports::Point(PanelImage->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelImage->LocalPosition.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* Caption = MainPanel->FindByNameRecursive(u"Caption"_wref.get());
+                GI_MessageLoop::TObjectGI* Caption = MainPanel->FindByNameRecursive(u"Caption"sv);
                 Caption->SetPosition(ClassesImports::Point(Caption->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Caption->LocalPosition.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* SubCaption = MainPanel->FindByNameRecursive(u"SubCaption"_wref.get());
+                GI_MessageLoop::TObjectGI* SubCaption = MainPanel->FindByNameRecursive(u"SubCaption"sv);
                 SubCaption->SetPosition(ClassesImports::Point(SubCaption->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, SubCaption->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* LogoElemental = MainPanel->FindByNameRecursive(u"LogoElemental"_wref.get());
+                GI_MessageLoop::TObjectGI* LogoElemental = MainPanel->FindByNameRecursive(u"LogoElemental"sv);
                 Shift = LogoElemental->LocalPosition.X * GR_Main::GameScreenWidth / 1024 - LogoElemental->LocalPosition.X;
                 LogoElemental->SetPosition(ClassesImports::Point(LogoElemental->LocalPosition.X + Shift, LogoElemental->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* LabelElemental = MainPanel->FindByNameRecursive(u"LabelElemental"_wref.get());
+                GI_MessageLoop::TObjectGI* LabelElemental = MainPanel->FindByNameRecursive(u"LabelElemental"sv);
                 LabelElemental->SetPosition(ClassesImports::Point(LabelElemental->LocalPosition.X + Shift, LabelElemental->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* Logo1C = MainPanel->FindByNameRecursive(u"Logo1C"_wref.get());
+                GI_MessageLoop::TObjectGI* Logo1C = MainPanel->FindByNameRecursive(u"Logo1C"sv);
                 Shift = Logo1C->LocalPosition.X * GR_Main::GameScreenWidth / 1024 - Logo1C->LocalPosition.X;
                 Logo1C->SetPosition(ClassesImports::Point(Logo1C->LocalPosition.X + Shift, Logo1C->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* Label1C = MainPanel->FindByNameRecursive(u"Label1C"_wref.get());
+                GI_MessageLoop::TObjectGI* Label1C = MainPanel->FindByNameRecursive(u"Label1C"sv);
                 Label1C->SetPosition(ClassesImports::Point(Label1C->LocalPosition.X + Shift, Label1C->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* LogoKatauri = MainPanel->FindByNameRecursive(u"LogoKatauri"_wref.get());
+                GI_MessageLoop::TObjectGI* LogoKatauri = MainPanel->FindByNameRecursive(u"LogoKatauri"sv);
                 Shift = LogoKatauri->LocalPosition.X * GR_Main::GameScreenWidth / 1024 - LogoKatauri->LocalPosition.X;
                 LogoKatauri->SetPosition(ClassesImports::Point(LogoKatauri->LocalPosition.X + Shift, LogoKatauri->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* LabelKatauri = MainPanel->FindByNameRecursive(u"LabelKatauri"_wref.get());
+                GI_MessageLoop::TObjectGI* LabelKatauri = MainPanel->FindByNameRecursive(u"LabelKatauri"sv);
                 LabelKatauri->SetPosition(ClassesImports::Point(LabelKatauri->LocalPosition.X + Shift, LabelKatauri->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* LogoSnk = MainPanel->FindByNameRecursive(u"LogoSnk"_wref.get());
+                GI_MessageLoop::TObjectGI* LogoSnk = MainPanel->FindByNameRecursive(u"LogoSnk"sv);
                 Shift = LogoSnk->LocalPosition.X * GR_Main::GameScreenWidth / 1024 - LogoSnk->LocalPosition.X;
                 LogoSnk->SetPosition(ClassesImports::Point(LogoSnk->LocalPosition.X + Shift, LogoSnk->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* LabelSnk = MainPanel->FindByNameRecursive(u"LabelSnk"_wref.get());
+                GI_MessageLoop::TObjectGI* LabelSnk = MainPanel->FindByNameRecursive(u"LabelSnk"sv);
                 LabelSnk->SetPosition(ClassesImports::Point(LabelSnk->LocalPosition.X + Shift, LabelSnk->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* PAbout = MainPanel->FindByNameRecursive(u"PAbout"_wref.get());
+                GI_MessageLoop::TObjectGI* PAbout = MainPanel->FindByNameRecursive(u"PAbout"sv);
                 PAbout->SetPosition(ClassesImports::Point(PAbout->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PAbout->LocalPosition.Y));
                 PAbout->SetSize(ClassesImports::Point(PAbout->ClientSize.X, PAbout->ClientSize.Y + GR_Main::ExtraScreenHeight));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        ViewportPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PAbout"_wref.get()));
-        CreditsPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PAboutI"_wref.get()));
+        ViewportPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PAbout"sv));
+        CreditsPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PAboutI"sv));
         {
-            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"sv);
             MainPanel_2->KeyDownCallback = pas::bind_method<&TfAbout::CloseKeyDown>(this);
             MainPanel_2->LeftButtonUpCallback = pas::bind_method<&TfAbout::CloseMouseDown>(this);
             MainPanel_2->RightButtonUpCallback = pas::bind_method<&TfAbout::CloseMouseDown>(this);
@@ -113,7 +113,7 @@ namespace fAbout {
         ScrollTimer = ScheduleCallbackTimer(20, 20, pas::bind_method<&TfAbout::ScrollCredits>(this), 0);
         CreditsPanel->SetPosition(ClassesImports::Point(0, ViewportPanel->ClientSize.Y));
         ClearCredits();
-        EC_BlockPar::TBlockParEC* Block = GR_Main::LanguageDataConfig->GetBlock(u"FormAbout"_wref.get());
+        EC_BlockPar::TBlockParEC* Block = GR_Main::LanguageDataConfig->GetBlock(u"FormAbout"sv);
         std::int32_t Count = Block->GetParamCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Kind = Block->GetParamName(I);
@@ -125,7 +125,7 @@ namespace fAbout {
                 }
             } else if (Kind == u"S") {
                 Kind = Block->GetParamValue(I);
-                AddCreditSpacing(GR_Main::GiScalePixels(EC_Str::ExtractDigitsToIntW(Kind)));
+                AddCreditSpacing(GR_Main::GiScalePixels(EC_Str::ExtractDigitsToIntW(pas::view(Kind))));
             } else if (Kind == u"L") {
                 AddCreditSeparator();
             }

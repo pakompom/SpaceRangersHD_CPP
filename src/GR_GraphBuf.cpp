@@ -146,7 +146,7 @@ namespace GR_GraphBuf {
         Self->BytesPerPixel = 0;
         Self->UseTexture = AUseTexture;
         Self->UsesTextureStorage = false;
-        Self->TextureFlag22 = false;
+        Self->KeepTextureUntilReplacement = false;
         Self->Texture = nullptr;
         Self->TextureLocked = false;
         Self->TextureLockedReadOnly = false;
@@ -167,7 +167,7 @@ namespace GR_GraphBuf {
         }
         Texture = nullptr;
         UsesTextureStorage = false;
-        TextureFlag22 = false;
+        KeepTextureUntilReplacement = false;
         Width = 0;
         Height = 0;
         PitchBytes = 0;
@@ -739,7 +739,8 @@ namespace GR_GraphBuf {
         std::int32_t Columns = Rect.Right - Rect.Left;
         std::int32_t Rows = Rect.Bottom - Rect.Top;
         std::int32_t RowSkip = Self->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
-        void* Data = Rect.Top * Self->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)) + 3 + static_cast<std::uint8_t*>(Self->Pixels);
+        // Form the relative field address before adding Pixels to retain native load order.
+        void* Data = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Rect.Top * Self->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)) + static_cast<std::uint8_t*>(Self->Pixels);
         void* Table = static_cast<std::uint8_t*>(GR_Main::Ex_OKGF_MulTable256x256()) + pas::shl(static_cast<std::int32_t>(Alpha), 8);
         // Native precondition: Columns and Rows must be positive. Neither is checked
         // before writing; zero wraps on DEC and the loop writes beyond the rectangle.
@@ -914,20 +915,20 @@ namespace GR_GraphBuf {
         std::int32_t i{};
         pas::WideString Part{};
         pas::WideString Value{};
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Operations, u"&"_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Operations), u"&"sv);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            Part = EC_Str::ExtractDelimitedPartW(Operations, i, u"&"_wref.get());
-            if (EC_Str::CountDelimitedPartsW(Part, u"="_wref.get()) <= 1) {
+            Part = EC_Str::ExtractDelimitedPartW(pas::view(Operations), i, u"&"sv);
+            if (EC_Str::CountDelimitedPartsW(pas::view(Part), u"="sv) <= 1) {
                 if (Part == u"270") {
                     RotateLeft16();
                 }
             } else {
-                Value = EC_Str::ExtractDelimitedPartW(Part, 0, u"="_wref.get());
+                Value = EC_Str::ExtractDelimitedPartW(pas::view(Part), 0, u"="sv);
                 if (Value == u"Stretch") {
-                    Value = EC_Str::ExtractDelimitedPartW(Part, 1, u"="_wref.get());
-                    if (EC_Str::CountDelimitedPartsW(Value, u","_wref.get()) > 1) {
-                        std::uint32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Value, 1, u","_wref.get())));
-                        std::uint32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Value, 0, u","_wref.get())));
+                    Value = EC_Str::ExtractDelimitedPartW(pas::view(Part), 1, u"="sv);
+                    if (EC_Str::CountDelimitedPartsW(pas::view(Value), u","sv) > 1) {
+                        std::uint32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Value), 1, u","sv)));
+                        std::uint32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Value), 0, u","sv)));
                         Stretch16(strToInt_2, strToInt);
                     }
                 }
@@ -1399,7 +1400,7 @@ namespace GR_GraphBuf {
         }
         GR_Main::Ex_OKGF_Rescale(Dest, Width, Height, DestPitch, EC_Mem::AddPointerOffset(Source, Top * SourcePitch + Left * BytesPerPixel), CropWidth, CropHeight, SourcePitch, BytesPerPixel, Filter);
         if (UseTexture && BitsPerPixel == 32) {
-            if (!TextureFlag22) {
+            if (!KeepTextureUntilReplacement) {
                 Texture = nullptr;
             }
             Direct3D9::IDirect3DTexture9_UnlockRect(NewTexture, 0u);
@@ -1528,7 +1529,7 @@ namespace GR_GraphBuf {
         SourceSurface = nullptr;
         TargetSurface = nullptr;
         if (UseTexture) {
-            if (!TextureFlag22) {
+            if (!KeepTextureUntilReplacement) {
                 Texture = nullptr;
             }
             Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
@@ -1595,7 +1596,7 @@ namespace GR_GraphBuf {
         UnlockTexture();
         if (UseTexture) {
             Direct3D9::IDirect3DTexture9_UnlockRect(NewTexture, 0u);
-            if (!TextureFlag22) {
+            if (!KeepTextureUntilReplacement) {
                 Texture = nullptr;
             }
             Texture = NewTexture;
@@ -1725,8 +1726,8 @@ namespace GR_GraphBuf {
             while (Y < Height) {
                 X = 0;
                 while (X < Width) {
-                    Windows::CopyMemory(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGBA))), EC_Mem::AddPointerOffset(Source, X * 3), 3u);
-                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGBA)) + 3)) = 255;
+                    Windows::CopyMemory(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGBA))), EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorRGB))), static_cast<std::int32_t>(sizeof(TColorRGB)));
+                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = 255;
                     ++X;
                 }
                 Dest = EC_Mem::AddPointerOffset(Dest, DestPitch);
@@ -1774,7 +1775,7 @@ namespace GR_GraphBuf {
             std::int32_t X{};
             Alpha &= 0x000000ff;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(X); ) {
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Pixels, X * static_cast<std::int32_t>(sizeof(TColorRGBA)) + 3)) = Alpha;
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Pixels, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = Alpha;
             }
         };
         try {
@@ -1896,7 +1897,7 @@ namespace GR_GraphBuf {
             return;
         }
         LockTexture(true);
-        std::int32_t NewPitch = Width * 3;
+        std::int32_t NewPitch = Width * static_cast<std::int32_t>(sizeof(TColorRGB));
         void* NewPixels = EC_Mem::AllocEC(NewPitch * Height);
         void* Dest = NewPixels;
         void* Source = Pixels;
@@ -1904,9 +1905,9 @@ namespace GR_GraphBuf {
         while (Y < static_cast<std::uint32_t>(Height)) {
             X = 0u;
             while (X < static_cast<std::uint32_t>(Width)) {
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, X * 3)) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorRGBA)) + 2));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, X * 3 + 1)) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorRGBA)) + 1));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, X * 3 + 2)) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorRGBA))));
+                static_cast<PColorRGB>(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGB))))->R = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorBGRA)))))->R))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGB)))))->G)))) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorBGRA)))))->G))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGB)))))->B)))) = static_cast<PColorBGRA>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorBGRA))))->B;
                 ++X;
             }
             Dest = EC_Mem::AddPointerOffset(Dest, NewPitch);

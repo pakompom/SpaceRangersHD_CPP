@@ -138,11 +138,11 @@ namespace SE_Star {
 
     void TStarSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        StaticImagePath = Block->GetParam(u"Image"_wref.get());
-        AnimationPath = Block->GetParam(u"Anim"_wref.get());
-        MapImagePath = Block->GetParam(u"ImageMap"_wref.get());
-        ImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImage"_wref.get()));
-        MapImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImageMap"_wref.get()));
+        StaticImagePath = Block->GetParam(u"Image"sv);
+        AnimationPath = Block->GetParam(u"Anim"sv);
+        MapImagePath = Block->GetParam(u"ImageMap"sv);
+        ImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImage"sv)));
+        MapImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImageMap"sv)));
     }
 
     void TStarSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {

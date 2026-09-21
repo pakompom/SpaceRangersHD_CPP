@@ -10,7 +10,7 @@ namespace SE_Space {
 
 namespace SE_Process {
     // Film-tag factory; copies the eight-byte point and forwards it to the selected constructor. Returns nil for an unknown case-sensitive tag.
-    SE_Space::TObjectSE* CreateSpaceObjectByName(const pas::WideString& ClassName, const pas::WideString& GraphKey, WindowsSdk::TPoint UnusedPosition);
+    SE_Space::TObjectSE* CreateSpaceObjectByName(const std::u16string_view& ClassName, const pas::WideString& GraphKey, WindowsSdk::TPoint UnusedPosition);
 
     // Returns the film type tag; raises for an unsupported scene class.
     pas::WideString ClassSEtoName(SE_Space::TObjectSE* Obj);

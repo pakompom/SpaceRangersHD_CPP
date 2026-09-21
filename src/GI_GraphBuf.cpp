@@ -420,12 +420,12 @@ namespace GI_GraphBuf {
 
     void TGraphBufGI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"HalfAlpha"_wref.get()) > 0) {
-            SetHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"HalfAlpha"_wref.get())));
+            SetHalfAlpha(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"HalfAlpha"sv))));
         }
         if (Block->CountParams(u"CacheRGBA"_wref.get()) > 0) {
-            LoadScaledBitmapPathAsRgba(Block->GetParam(u"CacheRGBA"_wref.get()));
+            LoadScaledBitmapPathAsRgba(Block->GetParam(u"CacheRGBA"sv));
         } else if (Block->CountParams(u"CacheGI"_wref.get()) > 0) {
-            LoadScaledGiPath(Block->GetParam(u"CacheGI"_wref.get()));
+            LoadScaledGiPath(Block->GetParam(u"CacheGI"sv));
         }
     }
 

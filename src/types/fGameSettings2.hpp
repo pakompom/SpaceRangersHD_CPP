@@ -82,9 +82,9 @@ namespace fGameSettings2 {
         // Invokes Callback immediately with the new slider.
         void AddExtendedOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TNewGameSliderEvent Callback);
         // Searches only the active extended group; raises when no value is found.
-        std::int32_t GetExtendedOptionValue(pas::WideString OptionName);
+        std::int32_t GetExtendedOptionValue(const std::u16string_view& OptionName);
         // Searches only the active extended group; missing options are ignored.
-        void SetExtendedOptionValue(pas::WideString OptionName, std::int32_t Value);
+        void SetExtendedOptionValue(const std::u16string_view& OptionName, std::int32_t Value);
         static void FormatExtendedInteger(GI_MessageLoop::TObjectGI* Sender);
         static void FormatExtendedAutoPercent(GI_MessageLoop::TObjectGI* Sender);
         static void FormatExtendedDifficultyPercent(GI_MessageLoop::TObjectGI* Sender);
@@ -97,12 +97,12 @@ namespace fGameSettings2 {
         std::int32_t CollapsedLevelPanelTop;
         std::int32_t LevelPanelTop;
         GI_MessageLoop::PCallbackTimerGI LevelPanelTimer;
-        std::uint8_t PlayerRace;
+        aGalaxyStruct::TOwnerId PlayerRace;
         std::uint8_t cpp_padding[3];
         std::int32_t CharacterPreset;
         std::int32_t CaptainPortraitIndex;
         pas::Array<std::int32_t, 0, 4> LastPortraitByRace;
-        pas::Array<std::uint8_t, 0, 1> StartingSkills;
+        pas::Array<aGalaxyStruct::TPilotSkill, 0, 1> StartingSkills;
         std::uint8_t cpp_padding_2[2];
         std::int32_t SelectedSkillSlot;
         // // Choice values are 1..12; ItemTypeByChoice is zero-based.

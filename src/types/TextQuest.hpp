@@ -36,6 +36,10 @@ namespace TextFieldClass {
 namespace TextQuest {
     struct TTextQuest;
 
+    using TQuestRaceSet = pas::Set<0, 6>;
+
+    using TQuestPlayerCareerSet = pas::Set<0, 2>;
+
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -88,12 +92,11 @@ namespace TextQuest {
         std::int32_t EditorGridHeight;
         std::int32_t Difficulty;
         std::uint8_t CompleteOnFinish;
-        std::uint8_t IssuerRaceMask;
-        // // Empty requires matching issuer and target owners; bit 6 selects owner 6.
-        std::uint8_t TargetOwnerMask;
-        // // Bits 0..2 follow TRangerCareer.
-        std::uint8_t PlayerCareerMask;
-        std::uint8_t PlayerRaceMask;
+        TQuestRaceSet IssuerRaces;
+        // Empty inherits IssuerRaces for placement; offers require matching owners.
+        TQuestRaceSet TargetRaces;
+        TQuestPlayerCareerSet PlayerCareers;
+        TQuestRaceSet PlayerRaces;
         std::uint8_t cpp_padding[3];
         std::int32_t SuccessRelationDelta;
         // // Serialized editor default; not applied by this runtime.
@@ -120,5 +123,21 @@ namespace TextQuest {
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
     #endif
+
+    // Quest-header race bits; the destination also supports uninhabited planets.
+    enum TQuestRace : std::uint8_t {
+        qrMaloc = 0,
+        qrPeleng = 1,
+        qrHuman = 2,
+        qrFeyan = 3,
+        qrGaal = 4,
+        qrUninhabited = 6,
+    };
+
+    enum TQuestPlayerCareer : std::uint8_t {
+        qpcTrader = 0,
+        qpcPirate = 1,
+        qpcWarrior = 2,
+    };
 
 } // namespace TextQuest

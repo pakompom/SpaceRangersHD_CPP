@@ -139,8 +139,8 @@ namespace Globals {
     struct TScriptTemplUnit : EC_Struct::TObjectEx {
         PAS_CLASS_META(TScriptTemplUnit, EC_Struct::TObjectEx, "TScriptTemplUnit", 32)
         void p_destroy() override;
-        // First comma-delimited Script template configuration value; original meaning unresolved.
-        std::int32_t ConfigValue;
+        // First comma-delimited Script template value; copied to TScript.ClassId on creation/restart.
+        std::int32_t ClassId;
         pas::WideString Name;
         pas::WideString FileName;
         // Returned by SF_GCntRun.
@@ -154,8 +154,6 @@ namespace Globals {
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
     #endif
-
-    using TRobotMapPlayerStatuses = pas::Set<0, 2>;
 
     // Native record RTTI.
     struct TRobotMap {
@@ -173,7 +171,7 @@ namespace Globals {
         // Empty mask means Any.
         aGalaxyStruct::TOwnerMask PlayerRace;
         // Empty mask means Any.
-        TRobotMapPlayerStatuses PlayerStatus;
+        aGalaxyStruct::TRangerCareerSet PlayerStatus;
         std::uint8_t cpp_padding[1];
         std::int32_t MinWins;
         std::int32_t MaxWins;
@@ -206,10 +204,11 @@ namespace Globals {
         std::uint8_t cpp_padding[2];
     };
 
-    // Native record RTTI.
+    // Native RTTI names TPlanetAdvtList: a weighted advert sequence.
+    // Field-only object preserves anonymous numbering; original record/object syntax is uncertain.
     struct TPlanetAdvtList {
-        // Numeric List parameter name; interpretation by callers remains unresolved.
-        std::int32_t Key;
+        // Numeric PlanetAdvt.List parameter name; weighted selection in TPlanetSE.StartRandomSurfaceAnimation.
+        std::int32_t Weight;
         pas::DynArray<std::int32_t> Indices;
     };
 
@@ -230,19 +229,19 @@ namespace Globals {
         pas::WideString Name;
         std::int32_t Priority;
         aGalaxyStruct::TOwnerMask PlayerRace;
-        TGreetingMask PlayerStatus;
+        aGalaxyStruct::TRangerCareerSet PlayerStatus;
         TGreetingMask PlayerRating;
         TGreetingMask PlayerRank;
         std::uint8_t Goods;
         aGalaxyStruct::TOwnerMask CurPlanetRace;
         std::uint8_t CurPlanetRaceIsPlayerRace;
-        TGreetingMask CurPlanetRelations;
+        aGalaxyStruct::TRelationLevels CurPlanetRelations;
         std::uint8_t CurPlanetGoodsPermit;
         TGreetingMask CurPlanetGoodsCnt;
         TGreetingMask CurPlanetGoodsSale;
         TGreetingMask CurPlanetGoodsBuy;
-        TGreetingMask CurPlanetEconomy;
-        TGreetingMask CurPlanetGovernment;
+        aGalaxyStruct::TPlanetEconomies CurPlanetEconomy;
+        aGalaxyStruct::TPlanetGovernments CurPlanetGovernment;
         aGalaxyStruct::TGreetingCountMask RangerInCurStar;
         aGalaxyStruct::TGreetingCountMask PirateInCurStar;
         aGalaxyStruct::TGreetingCountMask KlingInCurStar;
@@ -252,13 +251,13 @@ namespace Globals {
         aGalaxyStruct::TOwnerMask ToPlanetRace;
         std::uint8_t ToPlanetRaceIsPlayerRace;
         std::uint8_t ToPlanetRaceIsCurPlanetRace;
-        TGreetingMask ToPlanetRelations;
+        aGalaxyStruct::TRelationLevels ToPlanetRelations;
         std::uint8_t ToPlanetGoodsPermit;
         TGreetingMask ToPlanetGoodsCnt;
         TGreetingMask ToPlanetGoodsSale;
         TGreetingMask ToPlanetGoodsBuy;
-        TGreetingMask ToPlanetEconomy;
-        TGreetingMask ToPlanetGovernment;
+        aGalaxyStruct::TPlanetEconomies ToPlanetEconomy;
+        aGalaxyStruct::TPlanetGovernments ToPlanetGovernment;
         std::uint8_t ToPlanetInCurStar;
         aGalaxyStruct::TGreetingCountMask RangerInToStar;
         aGalaxyStruct::TGreetingCountMask PirateInToStar;
@@ -285,7 +284,7 @@ namespace Globals {
         std::uint8_t AutoTalk;
         std::uint8_t FlyType;
         TGreetingMask ShipType;
-        TGreetingMask Relations;
+        aGalaxyStruct::TRelationLevels Relations;
         aGalaxyStruct::TOwnerMask ShipRace;
         aGalaxyStruct::TOwnerMask PlayerRace;
         std::uint8_t ShipRaceIsPlayerRace;
@@ -300,8 +299,8 @@ namespace Globals {
         aGalaxyStruct::TGreetingCountMask ShipTurnBeforeEndOrder;
         aGalaxyStruct::TGreetingCountMask PlayerTurnBeforeEndOrder;
         aGalaxyStruct::TGreetingCountMask ShipBadTurnBeforeEndOrder;
-        TGreetingMask ShipStatus;
-        TGreetingMask PlayerStatus;
+        aGalaxyStruct::TRangerCareerSet ShipStatus;
+        aGalaxyStruct::TRangerCareerSet PlayerStatus;
         TGreetingMask ShipStrength;
         TGreetingMask PlayerStrength;
         TGreetingMask ShipStructure;
@@ -327,15 +326,15 @@ namespace Globals {
         aGalaxyStruct::TGreetingCountMask WarriorInCurStar;
         aGalaxyStruct::TGreetingCountMask TransportInCurStar;
         aGalaxyStruct::TOwnerMask LastPlanetRace;
-        TGreetingMask LastPlanetRelations;
+        aGalaxyStruct::TRelationLevels LastPlanetRelations;
         TGreetingMask LastPlanetGoodsCnt;
         TGreetingMask LastPlanetGoodsSale;
         TGreetingMask LastPlanetGoodsBuy;
         std::uint8_t LastPlanetIsHomePlanet;
         std::uint8_t LastPlanetRaceIsShipRace;
         std::uint8_t LastPlanetRaceIsPlayerRace;
-        TGreetingMask LastPlanetEconomy;
-        TGreetingMask LastPlanetGovernment;
+        aGalaxyStruct::TPlanetEconomies LastPlanetEconomy;
+        aGalaxyStruct::TPlanetGovernments LastPlanetGovernment;
         std::uint8_t LastPlanetInCurStar;
         aGalaxyStruct::TGreetingCountMask LastPlanetDistToShipInTurn;
         aGalaxyStruct::TGreetingCountMask RangerInLastPlanetStar;
@@ -344,15 +343,15 @@ namespace Globals {
         aGalaxyStruct::TGreetingCountMask WarriorInLastPlanetStar;
         aGalaxyStruct::TGreetingCountMask TransportInLastPlanetStar;
         aGalaxyStruct::TOwnerMask ToPlanetRace;
-        TGreetingMask ToPlanetRelations;
+        aGalaxyStruct::TRelationLevels ToPlanetRelations;
         TGreetingMask ToPlanetGoodsCnt;
         TGreetingMask ToPlanetGoodsSale;
         TGreetingMask ToPlanetGoodsBuy;
         std::uint8_t ToPlanetIsHomePlanet;
         std::uint8_t ToPlanetRaceIsShipRace;
         std::uint8_t ToPlanetRaceIsPlayerRace;
-        TGreetingMask ToPlanetEconomy;
-        TGreetingMask ToPlanetGovernment;
+        aGalaxyStruct::TPlanetEconomies ToPlanetEconomy;
+        aGalaxyStruct::TPlanetGovernments ToPlanetGovernment;
         std::uint8_t ToPlanetIsLastPlanet;
         std::uint8_t ToPlanetRaceIsLastPlanetRace;
         std::uint8_t HomePlanetInToStar;
@@ -371,7 +370,7 @@ namespace Globals {
         aGalaxyStruct::TOwnerMask ToShipRace;
         std::uint8_t ToShipInPlanet;
         std::uint8_t ToShipBad;
-        TGreetingMask ToShipRelations;
+        aGalaxyStruct::TRelationLevels ToShipRelations;
         // Second field loaded from RankShipWithPlayer; the normal-ship consumer compares PirateRank.
         TGreetingMask RankShipWithPlayerExtra;
         TGreetingMask PlayerPirateRank;

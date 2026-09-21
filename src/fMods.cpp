@@ -58,7 +58,7 @@ namespace fMods {
             GI_MessageBox::ShowMessageBoxGI(Parent, aConst::LocalizedText(u"FormMods.NoMods"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
             return 0;
         }
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&State);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -80,7 +80,7 @@ namespace fMods {
         }
         Parent->RestoreCursorState(&State);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         return Result;
     }
 
@@ -153,7 +153,7 @@ namespace fMods {
         };
         auto ConfigureModTab = [&](pas::WideString Text, std::int32_t Tab) -> void {
             GI_GraphButton::TGraphButtonGI* cpp_with = this->TabButtons[Tab];
-            cpp_with->HelpText = Text;
+            cpp_with->HelpText = std::move(Text);
             cpp_with->UpCallback = pas::bind_method<&TfModsManager::TabClick>(this);
             cpp_with->DownCallback = pas::bind_method<&TfModsManager::TabClick>(this);
             cpp_with->SetActive(true);
@@ -166,12 +166,12 @@ namespace fMods {
         ModErrorColor = GR_Main::GetStyleColorGI(u"Mods.ColorCriticalProblems"_w, 255, 0, 0);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(MainPanel->FindByNameRecursive(u"PanelSet"_wref.get()));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(MainPanel->FindByNameRecursive(u"PanelSet"sv));
             {
-                std::int32_t cpp_arg = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(MainPanel->FindByNameRecursive(u"ButGroup0"_wref.get()))->CaptionLabel->GetLineHeight() * 2;
+                std::int32_t cpp_arg = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(MainPanel->FindByNameRecursive(u"ButGroup0"sv))->CaptionLabel->GetLineHeight() * 2;
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = ScrollPanel->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(cpp_arg);
             }
@@ -182,12 +182,12 @@ namespace fMods {
             GI_MessageLoop::TObjectGI* cpp_with_2 = ScrollPanel->Parent;
             cpp_with_2->SetPosition(ClassesImports::Point(cpp_with_2->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, cpp_with_2->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"_wref.get()))->UpCallback = pas::bind_method<&TfModsManager::CloseClick>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Confirm"_wref.get()))->UpCallback = pas::bind_method<&TfModsManager::ApplyClick>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButReset"_wref.get()))->UpCallback = pas::bind_method<&TfModsManager::ClearSelectionClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"sv))->UpCallback = pas::bind_method<&TfModsManager::CloseClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Confirm"sv))->UpCallback = pas::bind_method<&TfModsManager::ApplyClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButReset"sv))->UpCallback = pas::bind_method<&TfModsManager::ClearSelectionClick>(this);
         TabButtons.set_length(1);
         TabCount = 0;
-        GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
         do {
             TabButtons[TabCount] = Button;
             ++TabCount;
@@ -231,7 +231,7 @@ namespace fMods {
             } else if (Info->Section == u"") {
                 pas::list_add(NoSection, reinterpret_cast<void*>(Info));
             } else if (GroupIndices->CountParams(Info->Section) > 0) {
-                pas::list_add(pas::list_at<pas::List>(Groups, EC_Str::ExtractDigitsToIntW(GroupIndices->GetParam(Info->Section))), reinterpret_cast<void*>(Info));
+                pas::list_add(pas::list_at<pas::List>(Groups, EC_Str::ExtractDigitsToIntW(pas::view(GroupIndices->GetParam(pas::view(Info->Section))))), reinterpret_cast<void*>(Info));
             } else {
                 Group = pas::make_object<pas::List>();
                 pas::list_add(Group, reinterpret_cast<void*>(Info));
@@ -247,7 +247,7 @@ namespace fMods {
                     Dependency = Info->Dependencies[J];
                     if (Dependency != nullptr) {
                         if (Dependents->CountBlocks(Dependency->Name) > 0) {
-                            Block = Dependents->GetBlock(Dependency->Name);
+                            Block = Dependents->GetBlock(pas::view(Dependency->Name));
                         } else {
                             Block = Dependents->AddChildBlock(Dependency->Name);
                         }
@@ -257,7 +257,7 @@ namespace fMods {
                             SectionName = u"{"_w;
                         }
                         if (Block->CountParams(SectionName) > 0) {
-                            Block->SetOrAddParam(SectionName, EC_Str::IntToWideString(EC_Str::ExtractDigitsToIntW(Block->GetParam(SectionName)) + 1));
+                            Block->SetOrAddParam(SectionName, EC_Str::IntToWideString(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(pas::view(SectionName)))) + 1));
                         } else {
                             Block->AddParam(SectionName, u"1"_wref.get());
                         }
@@ -279,13 +279,13 @@ namespace fMods {
                     Weight = 0;
                     for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Block->GetParamCount() - 1); cpp_range_7.next(J); ) {
                         if (Block->GetParamName(J) != Info->Section) {
-                            Weight += EC_Str::ExtractDigitsToIntW(Block->GetParamValue(J));
+                            Weight += EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamValue(J)));
                         }
                     }
-                    J = EC_Str::ExtractDigitsToIntW(GroupIndices->GetParam(Info->Section));
+                    J = EC_Str::ExtractDigitsToIntW(pas::view(GroupIndices->GetParam(pas::view(Info->Section))));
                     pas::list_put(Weights, J, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, J))) + Weight))));
                 }
-                Dependents->DeleteChildBlock(Info->Name);
+                Dependents->DeleteChildBlock(pas::view(Info->Name));
             } else {
                 Block = Dependents->GetBlockByPath(Info->Name);
                 if (Info->Section != u"") {
@@ -294,9 +294,9 @@ namespace fMods {
                     GroupName = u"{"_w;
                 }
                 if (Block->CountParams(GroupName) > 0) {
-                    Block->DeleteParam(GroupName);
+                    Block->DeleteParam(pas::view(GroupName));
                     if (Block->GetParamCount() <= 0) {
-                        Dependents->DeleteChildBlock(Info->Name);
+                        Dependents->DeleteChildBlock(pas::view(Info->Name));
                     }
                 } else if (Block->CountBlocks(GroupName) <= 0) {
                     Block->AddBlockByPath(GroupName);
@@ -308,13 +308,13 @@ namespace fMods {
             if (Block->GetBlockCount() > 0) {
                 Weight = 0;
                 for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Block->GetParamCount() - 1); cpp_range_9.next(J); ) {
-                    Weight += EC_Str::ExtractDigitsToIntW(Block->GetParamValue(J));
+                    Weight += EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamValue(J)));
                 }
                 Weight = pas::idiv(Weight - 1, Block->GetBlockCount()) + 1;
                 for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, Block->GetBlockCount() - 1); cpp_range_10.next(J); ) {
                     GroupName = Block->GetBlockNameByIndex(J);
                     if (GroupName != u"{") {
-                        GroupIndex = EC_Str::ExtractDigitsToIntW(GroupIndices->GetParam(GroupName));
+                        GroupIndex = EC_Str::ExtractDigitsToIntW(pas::view(GroupIndices->GetParam(pas::view(GroupName))));
                         pas::list_put(Weights, GroupIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, GroupIndex))) + Weight))));
                     }
                 }
@@ -369,14 +369,14 @@ namespace fMods {
             BestWeight = 0;
             BestIndex = -1;
             for (auto cpp_range_16 = pas::for_to<std::int32_t>(0, pas::list_count(Groups) - 1); cpp_range_16.next(I); ) {
-                GroupIndex = EC_Str::ExtractDigitsToIntW(GroupIndices->GetParamValue(I));
+                GroupIndex = EC_Str::ExtractDigitsToIntW(pas::view(GroupIndices->GetParamValue(I)));
                 CandidateWeight = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, GroupIndex)));
                 if (CandidateWeight > BestWeight) {
                     BestWeight = CandidateWeight;
                     BestIndex = I;
                 }
             }
-            GroupIndex = EC_Str::ExtractDigitsToIntW(GroupIndices->GetParamValue(BestIndex));
+            GroupIndex = EC_Str::ExtractDigitsToIntW(pas::view(GroupIndices->GetParamValue(BestIndex)));
             pas::list_put(Weights, GroupIndex, nullptr);
             Group = pas::list_at<pas::List>(Groups, GroupIndex);
             GroupName = GroupIndices->GetParamName(BestIndex);
@@ -392,14 +392,14 @@ namespace fMods {
                 BestWeight = 0;
                 BestIndex = -1;
                 for (auto cpp_range_18 = pas::for_to<std::int32_t>(0, pas::list_count(Groups) - 1); cpp_range_18.next(I); ) {
-                    GroupIndex = EC_Str::ExtractDigitsToIntW(GroupIndices->GetParamValue(I));
+                    GroupIndex = EC_Str::ExtractDigitsToIntW(pas::view(GroupIndices->GetParamValue(I)));
                     CandidateWeight = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, GroupIndex)));
                     if (CandidateWeight > BestWeight) {
                         BestWeight = CandidateWeight;
                         BestIndex = I;
                     }
                 }
-                GroupIndex = EC_Str::ExtractDigitsToIntW(GroupIndices->GetParamValue(BestIndex));
+                GroupIndex = EC_Str::ExtractDigitsToIntW(pas::view(GroupIndices->GetParamValue(BestIndex)));
                 pas::list_put(Weights, GroupIndex, nullptr);
                 Group = pas::list_at<pas::List>(Groups, GroupIndex);
                 GroupName = GroupIndices->GetParamName(BestIndex);
@@ -415,7 +415,7 @@ namespace fMods {
             GI_Panel::TPanelGI* cpp_with_4 = TabPanels[I];
             cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, TabHeights[I]));
         }
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfModsManager::KeyDown>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfModsManager::KeyDown>(this);
         pas::free(Missing);
         pas::free(Anonymous);
         pas::free(NoSection);
@@ -527,7 +527,7 @@ namespace fMods {
         if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, TabCount - 1); cpp_range.next(I); ) {
             SelectedCounts[I] = 0;
             WarningCounts[I] = 0;
@@ -557,7 +557,7 @@ namespace fMods {
         ValidateSelection();
         SelectedTab = -1;
         TabClick(TabButtons[0]);
-        if (GR_Main::UserSettingsConfig->CountParams(u"WeWarnedUserAboutMods"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"WeWarnedUserAboutMods"_wref.get()))) ^ 1)) {
+        if (GR_Main::UserSettingsConfig->CountParams(u"WeWarnedUserAboutMods"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"WeWarnedUserAboutMods"_wref.get())))) ^ 1)) {
             GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedColorText(u"FormMods.WarningAchievements"_wref.get()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
             if (GR_Main::UserSettingsConfig->CountParams(u"WeWarnedUserAboutMods"_wref.get()) == 0) {
                 GR_Main::UserSettingsConfig->AddParam(u"WeWarnedUserAboutMods"_wref.get(), u"True"_wref.get());
@@ -570,14 +570,14 @@ namespace fMods {
     }
 
     void TfModsManager::TabClick(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t Index = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
+        std::int32_t Index = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
         if (SelectedTab == Index) {
             UpdateTabDisplay();
         } else {
             SelectedTab = Index;
             UpdateTabDisplay();
             {
-                GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+                GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
                 PanelSet->SetScrollOffset(ClassesImports::Point(0, 0));
                 PanelSet->UpdateScrollRanges();
                 PanelSet->SetVerticalScrollbarEnabled(TabHeights[SelectedTab] > PanelSet->ClientSize.Y);
@@ -971,7 +971,7 @@ namespace fMods {
     }
 
     void TfModsManager::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             PanelSet->VerticalScrollBar->SetPosition_2(PanelSet->VerticalScrollBar->Position - PanelSet->VerticalScrollBar->SmallChange);
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
@@ -1081,7 +1081,7 @@ namespace fMods {
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, DisableIndices->GetParamCount() - 1); cpp_range_3.next(I); ) {
                         Text = DisableIndices->GetParamName(I);
                         if (Text != Info->IndexText) {
-                            Index = EC_Str::ExtractDigitsToIntW(Text);
+                            Index = EC_Str::ExtractDigitsToIntW(pas::view(Text));
                             if (Value == u"") {
                                 Value = pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, Index)->Name;
                             } else {
@@ -1097,7 +1097,7 @@ namespace fMods {
                         goto cpp_cleanup;
                     }
                     for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, DisableIndices->GetParamCount() - 1); cpp_range_4.next(I); ) {
-                        Index = EC_Str::ExtractDigitsToIntW(DisableIndices->GetParamName(I));
+                        Index = EC_Str::ExtractDigitsToIntW(pas::view(DisableIndices->GetParamName(I)));
                         SetModSelected(pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, Index)->SwitchImage, false);
                     }
                     Changed = true;
@@ -1118,7 +1118,7 @@ namespace fMods {
                         goto cpp_cleanup;
                     }
                     for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, EnableIndices->GetParamCount() - 1); cpp_range_5.next(I); ) {
-                        Related = pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, EC_Str::ExtractDigitsToIntW(EnableIndices->GetParamName(I)));
+                        Related = pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, EC_Str::ExtractDigitsToIntW(pas::view(EnableIndices->GetParamName(I))));
                         for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Related->ConflictCount - 1); cpp_range_6.next(J); ) {
                             Dependency = Related->Conflicts[J];
                             if (Dependency != nullptr && DisableNames->CountParams(Dependency->Name) <= 0) {
@@ -1225,7 +1225,7 @@ namespace fMods {
                     }
                     Value = pas::WideString();
                     for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, DisableIndices->GetParamCount() - 1); cpp_range_11.next(I); ) {
-                        Index = EC_Str::ExtractDigitsToIntW(DisableIndices->GetParamName(I));
+                        Index = EC_Str::ExtractDigitsToIntW(pas::view(DisableIndices->GetParamName(I)));
                         if (Value == u"") {
                             Value = pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, Index)->Name;
                         } else {
@@ -1236,7 +1236,7 @@ namespace fMods {
                     for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, EnableIndices->GetParamCount() - 1); cpp_range_12.next(I); ) {
                         Temp = EnableIndices->GetParamName(I);
                         if (Temp != Info->IndexText) {
-                            Index = EC_Str::ExtractDigitsToIntW(Temp);
+                            Index = EC_Str::ExtractDigitsToIntW(pas::view(Temp));
                             if (Text == u"") {
                                 Text = pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, Index)->Name;
                             } else {
@@ -1268,11 +1268,11 @@ namespace fMods {
                     }
                     Changed = true;
                     for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, DisableIndices->GetParamCount() - 1); cpp_range_13.next(I); ) {
-                        Index = EC_Str::ExtractDigitsToIntW(DisableIndices->GetParamName(I));
+                        Index = EC_Str::ExtractDigitsToIntW(pas::view(DisableIndices->GetParamName(I)));
                         SetModSelected(pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, Index)->SwitchImage, false);
                     }
                     for (auto cpp_range_14 = pas::for_to<std::int32_t>(0, EnableIndices->GetParamCount() - 1); cpp_range_14.next(I); ) {
-                        Index = EC_Str::ExtractDigitsToIntW(EnableIndices->GetParamName(I));
+                        Index = EC_Str::ExtractDigitsToIntW(pas::view(EnableIndices->GetParamName(I)));
                         SetModSelected(pas::list_at<aModsInfo::TModInfo>(aModsInfo::ModInfos, Index)->SwitchImage, true);
                     }
                 }
@@ -1323,7 +1323,7 @@ namespace fMods {
             Related = Info->Dependencies[PartIndex];
             if (Related == nullptr) {
                 Name = aConst::LocalizedText(u"FormMods.ErrorNoDependency"_wref.get());
-                aMyFunction::ReplaceTextToken(Name, u"<ModName>"_w, pas::concat_wide({u"<color=255,240,100>", EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Info->DependencyNames, PartIndex, u","_wref.get())), u"</color>"}), pas::WideString());
+                aMyFunction::ReplaceTextToken(Name, u"<ModName>"_w, pas::concat_wide({u"<color=255,240,100>", EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), PartIndex, u","sv)), u"</color>"}), pas::WideString());
                 GI_MessageBox::ShowMessageBoxGI(Self, Name, GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
                 return Result;
             }
@@ -1460,7 +1460,7 @@ namespace fMods {
         Body = pas::concat_wide({Body, u"\r\n", u" ", u"\r\n"});
         if (Info->Author == u"") {
             Text = aConst::LocalizedText(u"FormMods.InfoAuthorUnknown"_wref.get());
-        } else if (EC_Str::CountDelimitedPartsW(Info->Author, u","_wref.get()) > 1) {
+        } else if (EC_Str::CountDelimitedPartsW(pas::view(Info->Author), u","sv) > 1) {
             Text = aConst::LocalizedText(u"FormMods.InfoAuthors"_wref.get());
         } else {
             Text = aConst::LocalizedText(u"FormMods.InfoAuthor"_wref.get());
@@ -1569,7 +1569,7 @@ namespace fMods {
                     Related = Info->Dependencies[J];
                     if (Related == nullptr) {
                         Value = aConst::LocalizedText(u"FormMods.ProblemsInfoDependencies2"_wref.get());
-                        aMyFunction::ReplaceTextToken(Value, u"<Mod>"_w, pas::concat_wide({u"<color=255,240,100>", EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Info->DependencyNames, J, u","_wref.get())), u"</color>"}), pas::WideString());
+                        aMyFunction::ReplaceTextToken(Value, u"<Mod>"_w, pas::concat_wide({u"<color=255,240,100>", EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), J, u","sv)), u"</color>"}), pas::WideString());
                         Body = pas::concat_wide({Body, Value, u"\r\n", u" ", u"\r\n"});
                         Critical = Selected;
                     } else if (Selected) {

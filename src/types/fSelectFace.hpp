@@ -3,6 +3,7 @@
 #include "types/GI_MessageLoop.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aGalaxyStruct.hpp"
 
 namespace fSelectFace {
     struct TfSelectFace;
@@ -29,7 +30,7 @@ namespace fSelectFace {
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void SelectMusic() override;
         void ProcessCallbackTimers() override;
-        std::uint8_t PlayerRace;
+        aGalaxyStruct::TOwnerId PlayerRace;
         std::uint8_t cpp_padding[3];
         std::int32_t CaptainPortraitIndex;
         pas::Array<std::int32_t, 0, 4> LastPortraitByRace;

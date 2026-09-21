@@ -318,12 +318,12 @@ namespace aPlayer {
         Buffer->AddIntegerValue(PlanetBattleHistory.length() - 1 + 1);
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, PlanetBattleHistory.length() - 1); cpp_range_4.next(I); ) {
             Buffer->AddIntegerValue(PlanetBattleHistory[I].MapId);
-            Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 0 * sizeof(std::int32_t))));
-            Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 1 * sizeof(std::int32_t))));
-            Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 2 * sizeof(std::int32_t))));
-            Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 3 * sizeof(std::int32_t))));
-            Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 4 * sizeof(std::int32_t))));
-            Buffer->AddIntegerValue(pas::load_unaligned<std::int32_t>(pas::byte_offset(&PlanetBattleHistory[I].Statistics, 5 * sizeof(std::int32_t))));
+            Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics.SignedTimeMs);
+            Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics.RobotsBuilt);
+            Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics.RobotsDestroyed);
+            Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics.TurretsBuilt);
+            Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics.TurretsDestroyed);
+            Buffer->AddIntegerValue(PlanetBattleHistory[I].Statistics.BuildingsDestroyed);
             Buffer->AddIntegerValue(PlanetBattleHistory[I].ResultCode);
             Buffer->AddIntegerValue(PlanetBattleHistory[I].CompletionMode);
             Buffer->AddIntegerValue(PlanetBattleHistory[I].DateTurn);
@@ -517,36 +517,12 @@ namespace aPlayer {
         PlanetBattleHistory.set_length(Count);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(I); ) {
             PlanetBattleHistory[I].MapId = EC_Buf::TBufEC_GetInt32(Buffer);
-            {
-                std::int32_t cpp_value = EC_Buf::TBufEC_GetInt32(Buffer);
-                auto cpp_target = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 0 * sizeof(std::int32_t));
-                pas::store_unaligned<std::int32_t>(cpp_target, cpp_value);
-            }
-            {
-                std::int32_t cpp_value_2 = EC_Buf::TBufEC_GetInt32(Buffer);
-                auto cpp_target_2 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 1 * sizeof(std::int32_t));
-                pas::store_unaligned<std::int32_t>(cpp_target_2, cpp_value_2);
-            }
-            {
-                std::int32_t cpp_value_3 = EC_Buf::TBufEC_GetInt32(Buffer);
-                auto cpp_target_3 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 2 * sizeof(std::int32_t));
-                pas::store_unaligned<std::int32_t>(cpp_target_3, cpp_value_3);
-            }
-            {
-                std::int32_t cpp_value_4 = EC_Buf::TBufEC_GetInt32(Buffer);
-                auto cpp_target_4 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 3 * sizeof(std::int32_t));
-                pas::store_unaligned<std::int32_t>(cpp_target_4, cpp_value_4);
-            }
-            {
-                std::int32_t cpp_value_5 = EC_Buf::TBufEC_GetInt32(Buffer);
-                auto cpp_target_5 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 4 * sizeof(std::int32_t));
-                pas::store_unaligned<std::int32_t>(cpp_target_5, cpp_value_5);
-            }
-            {
-                std::int32_t cpp_value_6 = EC_Buf::TBufEC_GetInt32(Buffer);
-                auto cpp_target_6 = pas::byte_offset(&PlanetBattleHistory[I].Statistics, 5 * sizeof(std::int32_t));
-                pas::store_unaligned<std::int32_t>(cpp_target_6, cpp_value_6);
-            }
+            PlanetBattleHistory[I].Statistics.SignedTimeMs = EC_Buf::TBufEC_GetInt32(Buffer);
+            PlanetBattleHistory[I].Statistics.RobotsBuilt = EC_Buf::TBufEC_GetInt32(Buffer);
+            PlanetBattleHistory[I].Statistics.RobotsDestroyed = EC_Buf::TBufEC_GetInt32(Buffer);
+            PlanetBattleHistory[I].Statistics.TurretsBuilt = EC_Buf::TBufEC_GetInt32(Buffer);
+            PlanetBattleHistory[I].Statistics.TurretsDestroyed = EC_Buf::TBufEC_GetInt32(Buffer);
+            PlanetBattleHistory[I].Statistics.BuildingsDestroyed = EC_Buf::TBufEC_GetInt32(Buffer);
             PlanetBattleHistory[I].ResultCode = EC_Buf::TBufEC_GetInt32(Buffer);
             PlanetBattleHistory[I].CompletionMode = EC_Buf::TBufEC_GetInt32(Buffer);
             PlanetBattleHistory[I].DateTurn = EC_Buf::TBufEC_GetInt32(Buffer);
@@ -669,7 +645,7 @@ namespace aPlayer {
                     }
                     if (!Data->Achieved) {
                         if (AwardedAchievementKeys->CountBlocks(static_cast<pas::WideString>(Achievements::AchievementDefinitionTable[AchievementIndex].Key)) > 0) {
-                            AwardedAchievementKeys->DeleteChildBlock(static_cast<pas::WideString>(Achievements::AchievementDefinitionTable[AchievementIndex].Key));
+                            AwardedAchievementKeys->DeleteChildBlock(pas::view(static_cast<pas::WideString>(Achievements::AchievementDefinitionTable[AchievementIndex].Key)));
                         }
                     }
                     Achievements::FreeAchievementData(Data);
@@ -723,7 +699,7 @@ namespace aPlayer {
             Found = false;
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range_3.next(I); ) {
                 Item = pas::list_at<aItem::TItem>(Self->Inventory, I);
-                if (pas::class_cast_if<aItem::TEngine*>(Item) != nullptr && reinterpret_cast<aItem::TEngine*>(Item)->TechLevel <= 7) {
+                if (aItem::TEngine* engine = pas::class_cast_if<aItem::TEngine*>(Item); engine != nullptr && engine->TechLevel <= 7) {
                     Found = true;
                     break;
                 }
@@ -737,7 +713,7 @@ namespace aPlayer {
             Found = false;
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(1, pas::list_count(Self->Inventory) - 1); cpp_range_4.next(I); ) {
                 Item = pas::list_at<aItem::TItem>(Self->Inventory, I);
-                if (pas::class_cast_if<aItem::TFuelTanks*>(Item) != nullptr && reinterpret_cast<aItem::TFuelTanks*>(Item)->TechLevel <= 7) {
+                if (aItem::TFuelTanks* fuelTanks = pas::class_cast_if<aItem::TFuelTanks*>(Item); fuelTanks != nullptr && fuelTanks->TechLevel <= 7) {
                     Found = true;
                     break;
                 }
@@ -827,21 +803,21 @@ namespace aPlayer {
     void TPlayer::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         std::uint8_t I{};
         aNormalShip::TNormalShip::LoadFromBlock(Block);
-        DebtAmount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"D5eyb7tn"_w))));
-        DebtDueTurn = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"DDe3bgt5Dha6t7ej"_w))));
-        DebtDefaultCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Dbe5bht6C7njt8"_w))));
-        DepositAmount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"D0ehp7ojsgi4td"_w))));
-        DepositStartTurn = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Dbe5p7ojsriet4Dga6t7ek"_w))));
-        DepositDayCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"D0ebp5o3sfi3t5Dha7y8"_w))));
-        DepositInterestRate = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"Dpeupto5seiwtfPye6rucieon9t"_w)));
-        MedicalPolicyTicks = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Mmejd6Ptoel4i6c7yi"_w))));
+        DebtAmount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"D5eyb7tn"_w)))));
+        DebtDueTurn = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"DDe3bgt5Dha6t7ej"_w)))));
+        DebtDefaultCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Dbe5bht6C7njt8"_w)))));
+        DepositAmount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"D0ehp7ojsgi4td"_w)))));
+        DepositStartTurn = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Dbe5p7ojsriet4Dga6t7ek"_w)))));
+        DepositDayCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"D0ebp5o3sfi3t5Dha7y8"_w)))));
+        DepositInterestRate = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Dpeupto5seiwtfPye6rucieon9t"_w))));
+        MedicalPolicyTicks = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Mmejd6Ptoel4i6c7yi"_w)))));
         for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range.next(I); ) {
-            ProgramCounts[I] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(aConst::ProgramNames[I])));
+            ProgramCounts[I] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(aConst::ProgramNames[I]))));
         }
-        ExperienceByDominators = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Emxjp7D8o5m"_w))));
-        ExperienceByPirates = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"E3xrp5P6i7r"_w))));
-        ExperienceByNormals = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Emx8p7C4oga6"_w))));
-        ExperienceByTraderCareer = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Ekx7peTwr3af"_w))));
+        ExperienceByDominators = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Emxjp7D8o5m"_w)))));
+        ExperienceByPirates = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"E3xrp5P6i7r"_w)))));
+        ExperienceByNormals = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Emx8p7C4oga6"_w)))));
+        ExperienceByTraderCareer = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Ekx7peTwr3af"_w)))));
     }
 
     // Inherited ranger registration followed by player career/skill defaults; CharacterPreset is unused here.
@@ -855,19 +831,19 @@ namespace aPlayer {
         EminentProgress[aGalaxyStruct::rcTrader] = 0;
         EminentProgress[aGalaxyStruct::rcPirate] = 0;
         EminentProgress[aGalaxyStruct::rcWarrior] = 0;
-        BaseSkills[0] = 0;
-        BaseSkills[1] = 0;
-        BaseSkills[2] = 0;
-        BaseSkills[3] = 0;
-        BaseSkills[4] = 0;
-        BaseSkills[5] = 0;
+        BaseSkills[aGalaxyStruct::psAccuracy] = 0;
+        BaseSkills[aGalaxyStruct::psManeuverability] = 0;
+        BaseSkills[aGalaxyStruct::psTechnical] = 0;
+        BaseSkills[aGalaxyStruct::psTrading] = 0;
+        BaseSkills[aGalaxyStruct::psCharisma] = 0;
+        BaseSkills[aGalaxyStruct::psLeadership] = 0;
     }
 
     // Twenty-five race/preset loadouts, stored cargo and initial planet relations. Planet is unused.
     void TPlayer::ApplyCharacterPreset(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset) {
         std::int32_t I{};
         std::int32_t Quantity{};
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         pas::Object* Item{};
         PStorageEntry Entry{};
         {
@@ -880,7 +856,7 @@ namespace aPlayer {
                 }
             }
         }
-        for (Kind = static_cast<std::uint8_t>(42); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
+        for (auto cpp_range = pas::for_to<aConst::TItemType>(static_cast<aConst::TItemType>(42), static_cast<aConst::TItemType>(49)); cpp_range.next(Kind); ) {
             pas::store_unaligned<aItem::TEquipment*>(pas::byte_offset(&reinterpret_cast<aShip::PShipEquipmentCacheView>(this)->Slots, (Kind - 42) * sizeof(aItem::TEquipment*)), nullptr);
         }
         for (I = 1; I <= 5; ++I) {
@@ -894,9 +870,9 @@ namespace aPlayer {
                     aShip::TShip* self = this;
                     self->SetMoney(roundAndTruncateToTens);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId = OwnerId;
                     std::uint16_t nextRandomIntRange = aMyFunction::NextRandomIntRange(250, 270, RandomState);
                     aShip::TShip* self_2 = this;
                     aShip::TShip_CreateAndEquipHull(self_2, nextRandomIntRange, 2, ownerId, -1, false);
@@ -915,10 +891,10 @@ namespace aPlayer {
                     aShip::TShip* self_3 = this;
                     self_3->SetMoney(roundAndTruncateToTens_2);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 1, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmIncrease, 40, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 1, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmIncrease, 40, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}}));
                 {
-                    std::uint8_t ownerId_2 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_2 = OwnerId;
                     std::uint16_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(240, 270, RandomState);
                     aShip::TShip* self_4 = this;
                     aShip::TShip_CreateAndEquipHull(self_4, nextRandomIntRange_2, 1, ownerId_2, -1, false);
@@ -937,9 +913,9 @@ namespace aPlayer {
                     aShip::TShip* self_5 = this;
                     self_5->SetMoney(roundAndTruncateToTens_3);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_3 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_3 = OwnerId;
                     std::uint16_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(290, 320, RandomState);
                     aShip::TShip* self_6 = this;
                     aShip::TShip_CreateAndEquipHull(self_6, nextRandomIntRange_3, 1, ownerId_3, -1, false);
@@ -976,9 +952,9 @@ namespace aPlayer {
                     aShip::TShip* self_7 = this;
                     self_7->SetMoney(roundAndTruncateToTens_4);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_4 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_4 = OwnerId;
                     std::uint16_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
                     aShip::TShip* self_8 = this;
                     aShip::TShip_CreateAndEquipHull(self_8, nextRandomIntRange_4, 2, ownerId_4, -1, false);
@@ -997,9 +973,9 @@ namespace aPlayer {
                     aShip::TShip* self_9 = this;
                     self_9->SetMoney(roundAndTruncateToTens_5);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiFeyan}}));
                 {
-                    std::uint8_t ownerId_5 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_5 = OwnerId;
                     std::uint16_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(210, 230, RandomState);
                     aShip::TShip* self_10 = this;
                     aShip::TShip_CreateAndEquipHull(self_10, nextRandomIntRange_5, 1, ownerId_5, -1, false);
@@ -1017,9 +993,9 @@ namespace aPlayer {
                     aShip::TShip* self_11 = this;
                     self_11->SetMoney(roundAndTruncateToTens_6);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiFeyan}}));
                 {
-                    std::uint8_t ownerId_6 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_6 = OwnerId;
                     std::uint16_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(210, 230, RandomState);
                     aShip::TShip* self_12 = this;
                     aShip::TShip_CreateAndEquipHull(self_12, nextRandomIntRange_6, 1, ownerId_6, -1, false);
@@ -1037,10 +1013,10 @@ namespace aPlayer {
                     aShip::TShip* self_13 = this;
                     self_13->SetMoney(roundAndTruncateToTens_7);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}}));
                 {
-                    std::uint8_t ownerId_7 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_7 = OwnerId;
                     std::uint16_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(230, 260, RandomState);
                     aShip::TShip* self_14 = this;
                     aShip::TShip_CreateAndEquipHull(self_14, nextRandomIntRange_7, 1, ownerId_7, -1, false);
@@ -1060,9 +1036,9 @@ namespace aPlayer {
                     aShip::TShip* self_15 = this;
                     self_15->SetMoney(roundAndTruncateToTens_8);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_8 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_8 = OwnerId;
                     std::uint16_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(280, 320, RandomState);
                     aShip::TShip* self_16 = this;
                     aShip::TShip_CreateAndEquipHull(self_16, nextRandomIntRange_8, 1, ownerId_8, -1, false);
@@ -1099,9 +1075,9 @@ namespace aPlayer {
                     aShip::TShip* self_17 = this;
                     self_17->SetMoney(roundAndTruncateToTens_9);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}}));
                 {
-                    std::uint8_t ownerId_9 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_9 = OwnerId;
                     std::uint16_t nextRandomIntRange_9 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
                     aShip::TShip* self_18 = this;
                     aShip::TShip_CreateAndEquipHull(self_18, nextRandomIntRange_9, 1, ownerId_9, -1, false);
@@ -1134,20 +1110,20 @@ namespace aPlayer {
                 {
                     std::uint8_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
                     aRanger::TRanger* self_20 = this;
-                    aRanger::TRanger_ChangePlanetRelations(self_20, nullptr, aRanger::rcmCapAt, nextRandomIntRange_10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}}));
+                    aRanger::TRanger_ChangePlanetRelations(self_20, nullptr, aRanger::rcmCapAt, nextRandomIntRange_10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiHuman}}));
                 }
                 {
                     std::uint8_t nextRandomIntRange_11 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
                     aRanger::TRanger* self_21 = this;
-                    aRanger::TRanger_ChangePlanetRelations(self_21, nullptr, aRanger::rcmCapAt, nextRandomIntRange_11, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}}));
+                    aRanger::TRanger_ChangePlanetRelations(self_21, nullptr, aRanger::rcmCapAt, nextRandomIntRange_11, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}}));
                 }
                 {
                     std::uint8_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
                     aRanger::TRanger* self_22 = this;
-                    aRanger::TRanger_ChangePlanetRelations(self_22, nullptr, aRanger::rcmCapAt, nextRandomIntRange_12, pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}}));
+                    aRanger::TRanger_ChangePlanetRelations(self_22, nullptr, aRanger::rcmCapAt, nextRandomIntRange_12, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiGaal}}));
                 }
                 {
-                    std::uint8_t ownerId_10 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_10 = OwnerId;
                     std::uint16_t nextRandomIntRange_13 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
                     aShip::TShip* self_23 = this;
                     aShip::TShip_CreateAndEquipHull(self_23, nextRandomIntRange_13, 1, ownerId_10, -1, false);
@@ -1196,9 +1172,9 @@ namespace aPlayer {
                     aShip::TShip* self_24 = this;
                     self_24->SetMoney(roundAndTruncateToTens_11);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}}));
                 {
-                    std::uint8_t ownerId_11 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_11 = OwnerId;
                     std::uint16_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(210, 230, RandomState);
                     aShip::TShip* self_25 = this;
                     aShip::TShip_CreateAndEquipHull(self_25, nextRandomIntRange_14, 2, ownerId_11, -1, false);
@@ -1218,9 +1194,9 @@ namespace aPlayer {
                     aShip::TShip* self_26 = this;
                     self_26->SetMoney(roundAndTruncateToTens_12);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}}));
                 {
-                    std::uint8_t ownerId_12 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_12 = OwnerId;
                     std::uint16_t nextRandomIntRange_15 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
                     aShip::TShip* self_27 = this;
                     aShip::TShip_CreateAndEquipHull(self_27, nextRandomIntRange_15, 2, ownerId_12, -1, false);
@@ -1269,10 +1245,10 @@ namespace aPlayer {
                     aShip::TShip* self_28 = this;
                     self_28->SetMoney(roundAndTruncateToTens_13);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_13 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_13 = OwnerId;
                     std::uint16_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(280, 310, RandomState);
                     aShip::TShip* self_29 = this;
                     aShip::TShip_CreateAndEquipHull(self_29, nextRandomIntRange_16, 1, ownerId_13, -1, false);
@@ -1291,9 +1267,9 @@ namespace aPlayer {
                     aShip::TShip* self_30 = this;
                     self_30->SetMoney(roundAndTruncateToTens_14);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_14 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_14 = OwnerId;
                     std::uint16_t nextRandomIntRange_17 = aMyFunction::NextRandomIntRange(240, 260, RandomState);
                     aShip::TShip* self_31 = this;
                     aShip::TShip_CreateAndEquipHull(self_31, nextRandomIntRange_17, 1, ownerId_14, -1, false);
@@ -1316,20 +1292,20 @@ namespace aPlayer {
                 {
                     std::uint8_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
                     aRanger::TRanger* self_33 = this;
-                    aRanger::TRanger_ChangePlanetRelations(self_33, nullptr, aRanger::rcmCapAt, nextRandomIntRange_18, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
+                    aRanger::TRanger_ChangePlanetRelations(self_33, nullptr, aRanger::rcmCapAt, nextRandomIntRange_18, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}}));
                 }
                 {
                     std::uint8_t nextRandomIntRange_19 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
                     aRanger::TRanger* self_34 = this;
-                    aRanger::TRanger_ChangePlanetRelations(self_34, nullptr, aRanger::rcmCapAt, nextRandomIntRange_19, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}}));
+                    aRanger::TRanger_ChangePlanetRelations(self_34, nullptr, aRanger::rcmCapAt, nextRandomIntRange_19, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}}));
                 }
                 {
                     std::uint8_t nextRandomIntRange_20 = aMyFunction::NextRandomIntRange(10, 35, RandomState);
                     aRanger::TRanger* self_35 = this;
-                    aRanger::TRanger_ChangePlanetRelations(self_35, nullptr, aRanger::rcmCapAt, nextRandomIntRange_20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}}));
+                    aRanger::TRanger_ChangePlanetRelations(self_35, nullptr, aRanger::rcmCapAt, nextRandomIntRange_20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiGaal}}));
                 }
                 {
-                    std::uint8_t ownerId_15 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_15 = OwnerId;
                     std::uint16_t nextRandomIntRange_21 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
                     aShip::TShip* self_36 = this;
                     aShip::TShip_CreateAndEquipHull(self_36, nextRandomIntRange_21, 1, ownerId_15, -1, false);
@@ -1348,9 +1324,9 @@ namespace aPlayer {
                     aShip::TShip* self_37 = this;
                     self_37->SetMoney(roundAndTruncateToTens_16);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_16 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_16 = OwnerId;
                     std::uint16_t nextRandomIntRange_22 = aMyFunction::NextRandomIntRange(250, 270, RandomState);
                     aShip::TShip* self_38 = this;
                     aShip::TShip_CreateAndEquipHull(self_38, nextRandomIntRange_22, 1, ownerId_16, -1, false);
@@ -1370,9 +1346,9 @@ namespace aPlayer {
                     aShip::TShip* self_39 = this;
                     self_39->SetMoney(roundAndTruncateToTens_17);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}}));
                 {
-                    std::uint8_t ownerId_17 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_17 = OwnerId;
                     std::uint16_t nextRandomIntRange_23 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
                     aShip::TShip* self_40 = this;
                     aShip::TShip_CreateAndEquipHull(self_40, nextRandomIntRange_23, 1, ownerId_17, -1, false);
@@ -1390,10 +1366,10 @@ namespace aPlayer {
                     aShip::TShip* self_41 = this;
                     self_41->SetMoney(roundAndTruncateToTens_18);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}}));
                 ([&] {
-                    std::uint8_t ownerId_18 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_18 = OwnerId;
                     std::uint16_t nextRandomIntRange_24 = aMyFunction::NextRandomIntRange(290, 320, RandomState);
                     aShip::TShip* self_42 = this;
                     return aShip::TShip_CreateAndEquipHull(self_42, nextRandomIntRange_24, 1, ownerId_18, -1, false);
@@ -1426,9 +1402,9 @@ namespace aPlayer {
                     aShip::TShip* self_43 = this;
                     self_43->SetMoney(roundAndTruncateToTens_19);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_19 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_19 = OwnerId;
                     std::uint16_t nextRandomIntRange_25 = aMyFunction::NextRandomIntRange(270, 290, RandomState);
                     aShip::TShip* self_44 = this;
                     aShip::TShip_CreateAndEquipHull(self_44, nextRandomIntRange_25, 1, ownerId_19, -1, false);
@@ -1447,11 +1423,11 @@ namespace aPlayer {
                     aShip::TShip* self_45 = this;
                     self_45->SetMoney(roundAndTruncateToTens_20);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiGaal}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 90, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}}));
                 {
-                    std::uint8_t ownerId_20 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_20 = OwnerId;
                     std::uint16_t nextRandomIntRange_26 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
                     aShip::TShip* self_46 = this;
                     aShip::TShip_CreateAndEquipHull(self_46, nextRandomIntRange_26, 1, ownerId_20, -1, false);
@@ -1481,9 +1457,9 @@ namespace aPlayer {
                     aShip::TShip* self_47 = this;
                     self_47->SetMoney(roundAndTruncateToTens_21);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 70, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_21 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_21 = OwnerId;
                     std::uint16_t nextRandomIntRange_27 = aMyFunction::NextRandomIntRange(230, 250, RandomState);
                     aShip::TShip* self_48 = this;
                     aShip::TShip_CreateAndEquipHull(self_48, nextRandomIntRange_27, 2, ownerId_21, -1, false);
@@ -1502,9 +1478,9 @@ namespace aPlayer {
                     aShip::TShip* self_49 = this;
                     self_49->SetMoney(roundAndTruncateToTens_22);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmRaiseTo, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 {
-                    std::uint8_t ownerId_22 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_22 = OwnerId;
                     std::uint16_t nextRandomIntRange_28 = aMyFunction::NextRandomIntRange(220, 230, RandomState);
                     aShip::TShip* self_50 = this;
                     aShip::TShip_CreateAndEquipHull(self_50, nextRandomIntRange_28, 1, ownerId_22, -1, false);
@@ -1523,9 +1499,9 @@ namespace aPlayer {
                     aShip::TShip* self_51 = this;
                     self_51->SetMoney(roundAndTruncateToTens_23);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}}));
                 {
-                    std::uint8_t ownerId_23 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_23 = OwnerId;
                     std::uint16_t nextRandomIntRange_29 = aMyFunction::NextRandomIntRange(280, 310, RandomState);
                     aShip::TShip* self_52 = this;
                     aShip::TShip_CreateAndEquipHull(self_52, nextRandomIntRange_29, 1, ownerId_23, -1, false);
@@ -1556,9 +1532,9 @@ namespace aPlayer {
                     aShip::TShip* self_53 = this;
                     self_53->SetMoney(roundAndTruncateToTens_24);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 35, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 35, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}}));
                 {
-                    std::uint8_t ownerId_24 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_24 = OwnerId;
                     std::uint16_t nextRandomIntRange_30 = aMyFunction::NextRandomIntRange(250, 260, RandomState);
                     aShip::TShip* self_54 = this;
                     aShip::TShip_CreateAndEquipHull(self_54, nextRandomIntRange_30, 1, ownerId_24, -1, false);
@@ -1590,9 +1566,9 @@ namespace aPlayer {
                     aShip::TShip* self_55 = this;
                     self_55->SetMoney(roundAndTruncateToTens_25);
                 }
-                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {3}}));
+                aRanger::TRanger_ChangePlanetRelations(this, nullptr, aRanger::rcmCapAt, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiFeyan}}));
                 {
-                    std::uint8_t ownerId_25 = OwnerId;
+                    aGalaxyStruct::TOwnerId ownerId_25 = OwnerId;
                     std::uint16_t nextRandomIntRange_31 = aMyFunction::NextRandomIntRange(280, 300, RandomState);
                     aShip::TShip* self_56 = this;
                     aShip::TShip_CreateAndEquipHull(self_56, nextRandomIntRange_31, 1, ownerId_25, -1, false);
@@ -1772,9 +1748,9 @@ namespace aPlayer {
                 Item = pas::list_at<aItem::TEquipment>(Self->Inventory, I);
                 if (Item->ItemType == aConst::t_Engine && Item->EquippedFlag == 0) {
                     if (pas::checked_cast<aItem::TEngine*>(Item)->OutputPercent + 10 > 100) {
-                        pas::checked_cast<aItem::TEngine*>(Item)->OutputPercent = 100;
+                        static_cast<aItem::TEngine*>(Item)->OutputPercent = 100;
                     } else {
-                        pas::checked_cast<aItem::TEngine*>(Item)->OutputPercent += 10;
+                        static_cast<aItem::TEngine*>(Item)->OutputPercent += 10;
                     }
                 }
             }
@@ -1804,19 +1780,19 @@ namespace aPlayer {
                             continue;
                         }
                         if (Self->InNormalSpace() && pas::contains(aConst::CaptainHealthDefinitions[I].Locations, 3)) {
-                            if (Self->EnemyShip == nullptr || static_cast<std::uint8_t>(Self->EnemyShip->IsAttackingShip(Self) ^ 1) || Self->GetHullIntegrityPercent() > 50 || I == 3 && Self->EnemyShip->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+                            if (Self->EnemyShip == nullptr || static_cast<std::uint8_t>(Self->EnemyShip->IsAttackingShip(Self) ^ 1) || Self->GetHullIntegrityPercent() > 50 || I == 3 && Self->EnemyShip->OwnerId != aGalaxyStruct::oiDominator) {
                                 continue;
                             }
                         }
                         if (Self->CurrentPlanet != nullptr && static_cast<std::uint8_t>(pas::contains(aConst::CaptainHealthDefinitions[I].AllowedLocationOwners, Self->CurrentPlanet->OwnerId) ^ 1)) {
-                            if (Self->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) || static_cast<std::uint8_t>(pas::contains(aConst::CaptainHealthDefinitions[I].AllowedLocationOwners, aConst::RaceToOwner(Self->CurrentPlanet->RaceId)) ^ 1)) {
+                            if (Self->CurrentPlanet->OwnerId == aGalaxyStruct::oiUninhabited || static_cast<std::uint8_t>(pas::contains(aConst::CaptainHealthDefinitions[I].AllowedLocationOwners, aConst::RaceToOwner(Self->CurrentPlanet->RaceId)) ^ 1)) {
                                 continue;
                             }
                         }
                         if (Self->DockedTo != nullptr && static_cast<std::uint8_t>(pas::contains(aConst::CaptainHealthDefinitions[I].AllowedLocationOwners, aConst::RaceToOwner(Self->DockedTo->PilotRace)) ^ 1) && static_cast<std::uint8_t>(pas::contains(aConst::CaptainHealthDefinitions[I].AllowedLocationOwners, Self->DockedTo->OwnerId) ^ 1)) {
                             continue;
                         }
-                        if (pas::contains(cpp_with.AllowedOwners, aConst::RaceToOwner(Self->PilotRace)) && pas::contains(cpp_with.AllowedRatingBands, Self->GetRangerRatingBand()) && pas::contains(cpp_with.AllowedRanks, Self->Rank) && pas::contains(cpp_with.AllowedCareers, static_cast<std::uint8_t>(Self->GetDominantCareer())) && Self->CaptainHealth[I].Progress <= 0.0L && Self->CaptainHealth[I].ExpireTurn + 365 <= aGalaxy::Galaxy->CurrentTurn) {
+                        if (pas::contains(cpp_with.AllowedOwners, aConst::RaceToOwner(Self->PilotRace)) && pas::contains(cpp_with.AllowedRatingBands, Self->GetRangerRatingBand()) && pas::contains(cpp_with.AllowedRanks, Self->Rank) && pas::contains(cpp_with.AllowedCareers, Self->GetDominantCareer()) && Self->CaptainHealth[I].Progress <= 0.0L && Self->CaptainHealth[I].ExpireTurn + 365 <= aGalaxy::Galaxy->CurrentTurn) {
                             if (Self->IsHealthEffectActive(4)) {
                                 ResistanceFactor = 0.1f;
                             } else {
@@ -1963,7 +1939,7 @@ namespace aPlayer {
                     {
                         pas::Extended cpp_right_3 = aMyFunction::NextRandomFloatRange(0.0, 1.0E+3, LocalSeed);
                         if (pas::sqr(std::max<std::int32_t>(0, StimulantExcess - Self->CountActiveArtefacts(aConst::t_ArtBio))) * 0.4L > cpp_right_3) {
-                            if (pas::contains(aConst::CaptainHealthDefinitions[I].AllowedOwners, aConst::RaceToOwner(Self->PilotRace)) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedRatingBands, Self->GetRangerRatingBand()) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedRanks, Self->Rank) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedCareers, static_cast<std::uint8_t>(Self->GetDominantCareer()))) {
+                            if (pas::contains(aConst::CaptainHealthDefinitions[I].AllowedOwners, aConst::RaceToOwner(Self->PilotRace)) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedRatingBands, Self->GetRangerRatingBand()) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedRanks, Self->Rank) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedCareers, Self->GetDominantCareer())) {
                                 Self->CaptainHealth[I].Progress = 1.0E+2;
                                 Self->CaptainHealth[I].ExpireTurn = ([&] {
                                     std::int64_t cpp_right_4 = System::Round(([&] {
@@ -1996,8 +1972,8 @@ namespace aPlayer {
             if (Self->IsHealthEffectActive(5) && aGalaxy::Galaxy->CurrentTurn > Self->CaptainHealth[5].AppliedTurn + 15 && aGalaxy::Galaxy->CurrentTurn % 14 == 0) {
                 if (aMyFunction::SeededRandomUnitFloat(static_cast<std::int32_t>(aGalaxy::Galaxy->GenerationSeed) + 1736605 + aGalaxy::Galaxy->CurrentTurn) > 0.8L) {
                     {
-                        std::int32_t computeScaledAverageMoney = aGalaxy::Galaxy->ComputeScaledAverageMoney(2);
-                        std::int32_t computeScaledSmallMoney = aGalaxy::Galaxy->ComputeScaledSmallMoney(2);
+                        std::int32_t computeScaledAverageMoney = aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman);
+                        std::int32_t computeScaledSmallMoney = aGalaxy::Galaxy->ComputeScaledSmallMoney(aGalaxyStruct::oiHuman);
                         TargetValue = aMyFunction::NextRandomIntRange(computeScaledSmallMoney, computeScaledAverageMoney, Self->RandomState);
                     }
                     Self->SetMoney(TargetValue + Self->Money);
@@ -2025,8 +2001,8 @@ namespace aPlayer {
             Stage = 12;
             if (Self->IsHealthEffectActive(11) && Self->InNormalSpace() && Self->HasCargoGoods() && aMyFunction::SeededRandomUnitFloat(static_cast<std::int32_t>(aGalaxy::Galaxy->GenerationSeed) + 135432 + aGalaxy::Galaxy->CurrentTurn) > 0.8L && aGalaxy::Galaxy->CurrentTurn % 21 == 0) {
                 {
-                    std::int32_t computeScaledBigMoney = aGalaxy::Galaxy->ComputeScaledBigMoney(2);
-                    std::int32_t computeScaledMiniMoney = aGalaxy::Galaxy->ComputeScaledMiniMoney(2);
+                    std::int32_t computeScaledBigMoney = aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman);
+                    std::int32_t computeScaledMiniMoney = aGalaxy::Galaxy->ComputeScaledMiniMoney(aGalaxyStruct::oiHuman);
                     TargetValue = aMyFunction::NextRandomIntRange(computeScaledMiniMoney, computeScaledBigMoney, Self->RandomState);
                 }
                 Self->JettisonCargoGoodsTowardTargetValue(TargetValue);
@@ -2136,7 +2112,7 @@ namespace aPlayer {
     }
 
     // Rounded pirate career status / 1.3, plus one percentage point.
-    std::uint8_t TPlayer::GetPirateServiceDiscount() {
+    aGalaxyStruct::TPercent TPlayer::GetPirateServiceDiscount() {
         return System::Round(pas::real_divide(CareerStatus[aGalaxyStruct::rcPirate], 1.3L)) + 1;
     }
 
@@ -2198,7 +2174,7 @@ namespace aPlayer {
             if (!BuyPlanet->CurrentStar->IsConstellationVisible()) {
                 continue;
             }
-            if (!pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), BuyPlanet->OwnerId)) {
+            if (!pas::contains(aConst::PlanetOwnerMasks.Coalition, BuyPlanet->OwnerId)) {
                 continue;
             }
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_2.next(J); ) {
@@ -2206,7 +2182,7 @@ namespace aPlayer {
                 if (!SellPlanet->CurrentStar->IsConstellationVisible()) {
                     continue;
                 }
-                if (!pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), SellPlanet->OwnerId)) {
+                if (!pas::contains(aConst::PlanetOwnerMasks.Coalition, SellPlanet->OwnerId)) {
                     continue;
                 }
                 if (pas::load_unaligned<aPlanet::TPlanet*>(PurchasePlanet.address) == BuyPlanet || pas::load_unaligned<aPlanet::TPlanet*>(SalePlanet.address) == SellPlanet || SellPlanet == BuyPlanet) {
@@ -2309,7 +2285,7 @@ namespace aPlayer {
     }
 
     pas::WideString TPlayer::GetStorageDividerText() {
-        return aMyFunction::WrapTextInColor(static_cast<pas::WideString>(SystemImports::StringOfChar('-', StorageDividerLengths[GR_Main::GiResourceVariant()])), u"<color=127,127,127>"_w);
+        return aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(SystemImports::StringOfChar('-', StorageDividerLengths[GR_Main::GiResourceVariant()]))), u"<color=127,127,127>"sv);
     }
 
     pas::WideString TPlayer::BuildDeployedSatelliteSummary(std::int32_t& LineCount) {
@@ -2342,7 +2318,7 @@ namespace aPlayer {
                             pas::WideString localizedText = aConst::LocalizedText(u"FormShip.StorageInfo.Star"_wref.get());
                             return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Star>"_w, name.get());
                         }());
-                        TempText = pas::concat_wide_reverse({aMyFunction::WrapTextInColor(pas::concat_wide({pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Satellite->TargetPlanet))->GetFullName(u" "_w), u"."}), u"<color=255,240,100>"_w), aMyFunction::WrapTextInColor(pas::concat_wide({TempText, u". "}), u"<color=255,240,100>"_w)});
+                        TempText = pas::concat_wide_reverse({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Satellite->TargetPlanet))->GetFullName(u" "_w), u"."})), u"<color=255,240,100>"sv), aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({TempText, u". "})), u"<color=255,240,100>"sv)});
                         RemainingText = pas::concat_wide({u" ", aConst::LocalizedText(u"FormShip.StorageInfo.PlanetNO"_wref.get())});
                         if (Planet->WaterTiles - Planet->WaterExplored > 0) {
                             aMyFunction::ReplaceTextToken(RemainingText, u"<Water>"_w, pas::wide_int_to_str(Planet->WaterTiles - Planet->WaterExplored), u"<color=0,128,255>"_w);
@@ -2364,24 +2340,24 @@ namespace aPlayer {
                         ++HeaderCount;
                         ++LineCount;
                     }
-                    SizeText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(Satellite->Weight), u"<color=0,255,0>"_w);
+                    SizeText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Satellite->Weight)), u"<color=0,255,0>"sv);
                     TempText = pas::WideString();
                     if (Satellite->WaterExplorationRate > 0) {
-                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(static_cast<std::int32_t>(Satellite->WaterExplorationRate)), u"<color=0,128,255>"_w)});
+                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Satellite->WaterExplorationRate))), u"<color=0,128,255>"sv)});
                     } else {
-                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
                     }
                     TempText = pas::concat_wide({TempText, u"/"});
                     if (Satellite->LandExplorationRate > 0) {
-                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(static_cast<std::int32_t>(Satellite->LandExplorationRate)), u"<color=0,255,0>"_w)});
+                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Satellite->LandExplorationRate))), u"<color=0,255,0>"sv)});
                     } else {
-                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
                     }
                     TempText = pas::concat_wide({TempText, u"/"});
                     if (Satellite->HillExplorationRate > 0) {
-                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(static_cast<std::int32_t>(Satellite->HillExplorationRate)), u"<color=254,217,7>"_w)});
+                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Satellite->HillExplorationRate))), u"<color=254,217,7>"sv)});
                     } else {
-                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                        TempText = pas::concat_wide({TempText, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
                     }
                     ExplorationText = TempText;
                     Condition = System::Trunc(Satellite->ConditionPercent);
@@ -2391,19 +2367,19 @@ namespace aPlayer {
                         TempText = u"0.0%"_w;
                     }
                     if (Condition > 75) {
-                        TempText = aMyFunction::WrapTextInColor(TempText, u"<color=0,255,0>"_w);
+                        TempText = aMyFunction::WrapTextInColor(pas::view(TempText), u"<color=0,255,0>"sv);
                     } else if (Condition > 50) {
-                        TempText = aMyFunction::WrapTextInColor(TempText, u"<color=255,240,100>"_w);
+                        TempText = aMyFunction::WrapTextInColor(pas::view(TempText), u"<color=255,240,100>"sv);
                     } else if (Condition > 25) {
-                        TempText = aMyFunction::WrapTextInColor(TempText, u"<color=254,217,7>"_w);
+                        TempText = aMyFunction::WrapTextInColor(pas::view(TempText), u"<color=254,217,7>"sv);
                     } else {
-                        TempText = aMyFunction::WrapTextInColor(TempText, u"<color=255,0,0>"_w);
+                        TempText = aMyFunction::WrapTextInColor(pas::view(TempText), u"<color=255,0,0>"sv);
                     }
                     ConditionText = TempText;
                     StatusText = pas::WideString();
                     ExplorationTurns = TPlayer::GetSatelliteExplorationTurns(Satellite);
                     if (ExplorationTurns == 0) {
-                        StatusText = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(aConst::LocalizedText(u"Items.Satellite.WorkEnd"_wref.get()), u"<color=255,0,0>"_w)});
+                        StatusText = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(u"Items.Satellite.WorkEnd"_wref.get())), u"<color=255,0,0>"sv)});
                     }
                     Text = pas::concat_wide({Text, u"- ", Satellite->GetDisplayName()});
                     Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(ProbeSummaryColumns[GR_Main::GiResourceVariant()].Size), u"><align=right>", SizeText, u"</align>"});
@@ -2527,18 +2503,18 @@ namespace aPlayer {
     }
 
     // Location=nil includes all storage locations. Goods and item types 69/75 count by weight; other matching items count individually.
-    std::int32_t TPlayer::CountStoredItemUnits(pas::Object* Location, std::uint8_t ItemType) {
+    std::int32_t TPlayer::CountStoredItemUnits(pas::Object* Location, aConst::TItemType ItemType) {
         std::int32_t I{};
         PStorageEntry Entry{};
         std::int32_t Result = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(StorageEntries) - 1); cpp_range.next(I); ) {
             Entry = pas::list_at<TStorageEntry>(StorageEntries, I);
             if (TPlayer::CanAccessStoredItem(Entry->Item) && (Location == nullptr || Entry->LocationOwner == Location)) {
-                if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics)) || pas::in_set<69, 69, 75, 75>(ItemType)) {
-                    if (static_cast<std::uint8_t>(Entry->Item->ItemType) == ItemType) {
+                if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics)) || pas::is_one_of<aConst::t_Protoplasm, aConst::t_UselessCountableItem>(ItemType)) {
+                    if (Entry->Item->ItemType == ItemType) {
                         Result += Entry->Item->Weight;
                     }
-                } else if (static_cast<std::uint8_t>(Entry->Item->ItemType) == ItemType) {
+                } else if (Entry->Item->ItemType == ItemType) {
                     ++Result;
                 }
             }
@@ -2733,8 +2709,8 @@ namespace aPlayer {
     std::uint8_t TPlayer::GetShipRankComparison(aShip::TShip* Ship) {
         aNormalShip::TNormalShip* Normal{};
         std::uint8_t Result = 0;
-        if (pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr) {
-            Normal = pas::checked_cast<aNormalShip::TNormalShip*>(Ship);
+        if (aNormalShip::TNormalShip* normalShip = pas::class_cast_if<aNormalShip::TNormalShip*>(Ship)) {
+            Normal = normalShip;
             {
                 std::int32_t cpp_case = Normal->Rank - aPlayer::GetPlayer()->Rank;
                 if (cpp_case >= -7 && cpp_case <= -2) {
@@ -2760,8 +2736,8 @@ namespace aPlayer {
     std::uint8_t TPlayer::GetShipPirateRankComparison(aShip::TShip* Ship) {
         aNormalShip::TNormalShip* Normal{};
         std::uint8_t Result = 0;
-        if (pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr) {
-            Normal = pas::checked_cast<aNormalShip::TNormalShip*>(Ship);
+        if (aNormalShip::TNormalShip* normalShip = pas::class_cast_if<aNormalShip::TNormalShip*>(Ship)) {
+            Normal = normalShip;
             {
                 std::int32_t cpp_case = Normal->PirateRank - aPlayer::GetPlayer()->PirateRank;
                 if (cpp_case >= -8 && cpp_case <= -2) {
@@ -2824,11 +2800,11 @@ namespace aPlayer {
                 if (Ship->TypeId == aGalaxyStruct::stTranclucator) {
                     if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer() && static_cast<std::uint8_t>(Ship->IsHullDestroyed() ^ 1)) {
                         if (HeaderCount == 0) {
-                            Heading = aMyFunction::WrapTextInColor(([&] {
+                            Heading = aMyFunction::WrapTextInColor(pas::view(([&] {
                                 auto name = pas::borrow(Star->Name);
                                 pas::WideString localizedText = aConst::LocalizedText(u"FormShip.StorageInfo.Star"_wref.get());
                                 return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Star>"_w, name.get());
-                            }()), u"<color=255,240,100>"_w);
+                            }())), u"<color=255,240,100>"sv);
                             Text = pas::concat_wide({Text, u"\r\n", Divider, u"\r\n", u"<td=", pas::wide_int_to_str(TranclucatorSummaryWidths[GR_Main::GiResourceVariant()]), u"><align=center>", Heading, u"</align>", u"\r\n", Divider, u"\r\n"});
                             ++HeaderCount;
                             ++LineCount;
@@ -2979,7 +2955,7 @@ namespace aPlayer {
         if (pas::list_count(StorageEntries) <= 0) {
             Heading = BuildTranclucatorStorageSummary(AddedLines);
             if (HasDeployedSatellites() || Heading.length() > 0) {
-                Text = pas::concat_wide({aMyFunction::WrapTextInColor(aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u"<color=0,255,0>"_w), u"\r\n"});
+                Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get())), u"<color=0,255,0>"sv), u"\r\n"});
                 Text = pas::concat_wide_reverse({BuildDeployedSatelliteSummary(AddedLines), Text});
                 Text = pas::concat_wide({Text, Heading});
                 Globals::AddOrUpdatePlayerBubble(9, aGalaxy::Galaxy->CurrentTurn, Text, u"sys_storage1"_wref.get());
@@ -2989,17 +2965,17 @@ namespace aPlayer {
         } else {
             PreviousLocation = nullptr;
             LineCount = 0;
-            Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u"onepage", TPlayer::GetStorageColumnHeaderText()}), u"<color=0,255,0>"_w), u"\r\n"});
+            Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u"onepage", TPlayer::GetStorageColumnHeaderText()})), u"<color=0,255,0>"sv), u"\r\n"});
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(StorageEntries) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TStorageEntry>(StorageEntries, I);
                 if (PreviousLocation != Entry->LocationOwner || LineCount > 40) {
                     if (LineCount > 40) {
                         if (Page == 1) {
-                            aMyFunction::ReplaceTextToken(Text, u"onepage"_w, pas::concat_wide({u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Page), u"<color=255,0,255>"_w), u")"}), pas::WideString());
+                            aMyFunction::ReplaceTextToken(Text, u"onepage"_w, pas::concat_wide({u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Page)), u"<color=255,0,255>"sv), u")"}), pas::WideString());
                         }
                         Globals::AddOrUpdatePlayerBubble(9, aGalaxy::Galaxy->CurrentTurn, Text, static_cast<pas::WideString>(pas::concat_ansi({"sys_storage", SysUtils::IntToStr(Page)})));
                         ++Page;
-                        Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Page), u"<color=255,0,255>"_w), u")"}), u"<color=0,255,0>"_w), TPlayer::GetStorageColumnHeaderText(), u"\r\n"});
+                        Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Page)), u"<color=255,0,255>"sv), u")"})), u"<color=0,255,0>"sv), TPlayer::GetStorageColumnHeaderText(), u"\r\n"});
                         LineCount = 0;
                     }
                     if (pas::class_cast_if<aPlanet::TPlanet*>(Entry->LocationOwner) != nullptr) {
@@ -3008,7 +2984,7 @@ namespace aPlayer {
                             pas::WideString localizedText = aConst::LocalizedText(u"FormShip.StorageInfo.Star"_wref.get());
                             return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Star>"_w, name.get());
                         }());
-                        Heading = pas::concat_wide_reverse({aMyFunction::WrapTextInColor(pas::concat_wide({pas::checked_cast<aPlanet::TPlanet*>(Entry->LocationOwner)->GetFullName(u" "_w), u"."}), u"<color=255,240,100>"_w), aMyFunction::WrapTextInColor(pas::concat_wide({Heading, u". "}), u"<color=255,240,100>"_w)});
+                        Heading = pas::concat_wide_reverse({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({pas::checked_cast<aPlanet::TPlanet*>(Entry->LocationOwner)->GetFullName(u" "_w), u"."})), u"<color=255,240,100>"sv), aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Heading, u". "})), u"<color=255,240,100>"sv)});
                         Text = pas::concat_wide({Text, Divider, u"\r\n", u"<td=", pas::wide_int_to_str(StorageItemColumns[GR_Main::GiResourceVariant()].Heading), u"><align=center>", Heading, u"</align>", u"\r\n", Divider, u"\r\n"});
                         LineCount += 3;
                     } else if (pas::class_cast_if<aShip::TShip*>(Entry->LocationOwner) != nullptr) {
@@ -3017,7 +2993,7 @@ namespace aPlayer {
                             pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.StorageInfo.Star"_wref.get());
                             return aMyFunction::FormatText1(std::move(localizedText_2), pas::WideString(), u"<Star>"_w, name_2.get());
                         }());
-                        Heading = pas::concat_wide_reverse({aMyFunction::WrapTextInColor(pas::concat_wide({pas::checked_cast<aShip::TShip*>(Entry->LocationOwner)->GetFullName(u" "_wref.get()), u"."}), u"<color=255,240,100>"_w), aMyFunction::WrapTextInColor(pas::concat_wide({Heading, u". "}), u"<color=255,240,100>"_w)});
+                        Heading = pas::concat_wide_reverse({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({pas::checked_cast<aShip::TShip*>(Entry->LocationOwner)->GetFullName(u" "_wref.get()), u"."})), u"<color=255,240,100>"sv), aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Heading, u". "})), u"<color=255,240,100>"sv)});
                         Text = pas::concat_wide({Text, Divider, u"\r\n", u"<td=", pas::wide_int_to_str(StorageItemColumns[GR_Main::GiResourceVariant()].Heading), u"><align=center>", Heading, u"</align>", u"\r\n", Divider, u"\r\n"});
                         LineCount += 3;
                     }
@@ -3029,8 +3005,8 @@ namespace aPlayer {
                     ConditionText = pas::WideString();
                 }
                 Text = pas::concat_wide({Text, u"- ", Entry->Item->GetDisplayName(), ConditionText});
-                Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(StorageItemColumns[GR_Main::GiResourceVariant()].Size), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Entry->Item->Weight), u"<color=0,255,0>"_w), u"</align>"});
-                Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(StorageItemColumns[GR_Main::GiResourceVariant()].Cost), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Entry->Item->Cost), u"<color=0,255,255>"_w), u"</align>"});
+                Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(StorageItemColumns[GR_Main::GiResourceVariant()].Size), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Entry->Item->Weight)), u"<color=0,255,0>"sv), u"</align>"});
+                Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(StorageItemColumns[GR_Main::GiResourceVariant()].Cost), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Entry->Item->Cost)), u"<color=0,255,255>"sv), u"</align>"});
                 Text = pas::concat_wide({Text, u"\r\n"});
                 ++LineCount;
             }
@@ -3039,11 +3015,11 @@ namespace aPlayer {
                 BuildDeployedSatelliteSummary(AddedLines);
                 if (AddedLines + LineCount > 45) {
                     if (Page == 1) {
-                        aMyFunction::ReplaceTextToken(Text, u"onepage"_w, pas::concat_wide({u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Page), u"<color=255,0,255>"_w), u")"}), pas::WideString());
+                        aMyFunction::ReplaceTextToken(Text, u"onepage"_w, pas::concat_wide({u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Page)), u"<color=255,0,255>"sv), u")"}), pas::WideString());
                     }
                     Globals::AddOrUpdatePlayerBubble(9, aGalaxy::Galaxy->CurrentTurn, Text, static_cast<pas::WideString>(pas::concat_ansi({"sys_storage", SysUtils::IntToStr(Page)})));
                     ++Page;
-                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Page), u"<color=255,0,255>"_w), u")"}), u"<color=0,255,0>"_w), u"\r\n"});
+                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Page)), u"<color=255,0,255>"sv), u")"})), u"<color=0,255,0>"sv), u"\r\n"});
                 }
                 if (HasDeployedSatellites()) {
                     Text = pas::concat_wide_reverse({BuildDeployedSatelliteSummary(AddedLines), Text});
@@ -3053,11 +3029,11 @@ namespace aPlayer {
             if (Heading.length() > 0) {
                 if (AddedLines + LineCount > 45) {
                     if (Page == 1) {
-                        aMyFunction::ReplaceTextToken(Text, u"onepage"_w, pas::concat_wide({u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Page), u"<color=255,0,255>"_w), u")"}), pas::WideString());
+                        aMyFunction::ReplaceTextToken(Text, u"onepage"_w, pas::concat_wide({u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Page)), u"<color=255,0,255>"sv), u")"}), pas::WideString());
                     }
                     Globals::AddOrUpdatePlayerBubble(9, aGalaxy::Galaxy->CurrentTurn, Text, static_cast<pas::WideString>(pas::concat_ansi({"sys_storage", SysUtils::IntToStr(Page)})));
                     ++Page;
-                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Page), u"<color=255,0,255>"_w), u")"}), u"<color=0,255,0>"_w), u"\r\n"});
+                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aConst::LocalizedText(u"FormShip.StorageInfo.Main"_wref.get()), u" (", aConst::LocalizedText(u"FormShip.StorageInfo.Page"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Page)), u"<color=255,0,255>"sv), u")"})), u"<color=0,255,0>"sv), u"\r\n"});
                 }
                 Text = pas::concat_wide({Text, Heading});
             }
@@ -3111,7 +3087,7 @@ namespace aPlayer {
                                 if (Globals::RobotMapDefinitions[I].PlayerRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Globals::RobotMapDefinitions[I].PlayerRace, PilotRace) ^ 1)) {
                                     continue;
                                 }
-                                if (Globals::RobotMapDefinitions[I].PlayerStatus != pas::constant_set<Globals::TRobotMapPlayerStatuses>({}) && static_cast<std::uint8_t>(pas::contains(Globals::RobotMapDefinitions[I].PlayerStatus, static_cast<std::uint8_t>(GetDominantCareer())) ^ 1)) {
+                                if (Globals::RobotMapDefinitions[I].PlayerStatus != pas::constant_set<aGalaxyStruct::TRangerCareerSet>({}) && static_cast<std::uint8_t>(pas::contains(Globals::RobotMapDefinitions[I].PlayerStatus, GetDominantCareer()) ^ 1)) {
                                     continue;
                                 }
                                 if (PlanetBattleHistory.length() - 1 == -1) {
@@ -3182,7 +3158,7 @@ namespace aPlayer {
             NextSlot = 5;
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Inventory) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(Inventory, I);
-                if (!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) && Item->EquippedFlag != 0 && aConst::ItemTypeToSlotKind(static_cast<std::uint8_t>(Item->ItemType)) != aConst::sskUnsupported) {
+                if (!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) && Item->EquippedFlag != 0 && aConst::ItemTypeToSlotKind(Item->ItemType) != aConst::sskUnsupported) {
                     pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.EquipmentIds, NextSlot * sizeof(std::int32_t)), Item->Id);
                     ++NextSlot;
                     if (NextSlot > 11) {
@@ -3196,7 +3172,7 @@ namespace aPlayer {
                     continue;
                 }
                 Slot = Artefact->AssignedSlotData & aItem::EquipmentSlotIndexMask;
-                if (Slot >= 0 && aConst::DefaultHullSlotCounts[8] > Slot) {
+                if (Slot >= 0 && aConst::DefaultHullSlotCounts[aConst::sskArtefact] > Slot) {
                     pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.ArtefactIds, Slot * sizeof(std::int32_t)), Artefact->Id);
                 }
             }
@@ -3231,7 +3207,7 @@ namespace aPlayer {
             aItem::TArtefact* Artefact{};
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(this->Inventory) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(this->Inventory, I);
-                if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                     Item->Unequip();
                 }
             }
@@ -3332,15 +3308,15 @@ namespace aPlayer {
         std::int32_t Result = -1;
         if (aPlayer::SupportsItem(Item)) {
             TEquipmentConfiguration& cpp_with = Self->EquipmentConfigurations[Index];
-            if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
+            if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(Item)) {
                 for (I = 0; I <= 31; ++I) {
-                    if (pas::checked_cast<aItem::TArtefact*>(Item)->Id == pas::load_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.ArtefactIds, I * sizeof(std::int32_t)))) {
+                    if (artefact->Id == pas::load_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.ArtefactIds, I * sizeof(std::int32_t)))) {
                         return I;
                     }
                 }
-            } else if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
+            } else if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
                 for (I = 0; I <= 11; ++I) {
-                    if (pas::checked_cast<aItem::TEquipment*>(Item)->Id == pas::load_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.EquipmentIds, I * sizeof(std::int32_t)))) {
+                    if (equipment->Id == pas::load_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.EquipmentIds, I * sizeof(std::int32_t)))) {
                         return I;
                     }
                 }
@@ -3683,7 +3659,7 @@ namespace aPlayer {
     // Updates eligible docked players after turn 300 and retains the newest 100 entries.
     void TPlayer_RefreshNewsAtLocation(TPlayer* Self) {
         if (aGalaxy::Galaxy->CurrentTurn > 300 && (Self->IsOnPlanet() || Self->IsDockedToShip())) {
-            if (Self->CurrentPlanet == nullptr || pas::in_set<0, 4, 7, 7>(Self->CurrentPlanet->OwnerId) && Self->CurrentPlanet->GetRelationLevelToShip(Self) > aGalaxyStruct::rlBad) {
+            if (Self->CurrentPlanet == nullptr || pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Self->CurrentPlanet->OwnerId) && Self->CurrentPlanet->GetRelationLevelToShip(Self) > aGalaxyStruct::rlBad) {
                 Self->MergeGalaxyNews();
                 Self->SortNewsEntries();
                 Self->TrimNewsEntries(100);
@@ -3750,7 +3726,7 @@ namespace aPlayer {
         } else {
             if (RuinsSavedDockedTo != nullptr) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenRuinsTalk;
-            } else if (RuinsSavedPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+            } else if (RuinsSavedPlanet->OwnerId != aGalaxyStruct::oiUninhabited) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenPlanet;
             } else {
                 GlobalsV::RequestedScreenId = GlobalsV::screenPlanetNO;
@@ -3781,7 +3757,7 @@ namespace aPlayer {
     void TPlayer_RefreshCurrentStanding(TPlayer* Self) {
         if (aShip::TShip_IsInPrison(Self)) {
             Self->CurrentStanding = aGalaxyStruct::ssNeutral;
-        } else if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        } else if (Self->OwnerId != aGalaxyStruct::oiPirate) {
             if (Self->CurrentSystemKills.Pirate > 0 || Self->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfCoalition) {
                 Self->CurrentStanding = aGalaxyStruct::ssCoalitionActive;
             } else {
@@ -3799,17 +3775,17 @@ namespace aPlayer {
 
     // Honors scripted targeting restrictions, chameleon logic and friendly station standing masks.
     std::uint8_t TPlayer::CanSelectShipTarget(aShip::TShip* Ship) {
-        std::uint8_t Faction{};
+        aGalaxyStruct::TStarFaction Faction{};
         std::uint8_t Result = false;
         if (Ship->TargetingRestriction == 1 && Ship->EnemyShip != this && EnemyShip != Ship) {
             return Result;
         }
-        if (pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && ChameleonLogic[reinterpret_cast<aKling::TKling*>(Ship)->DominatorSeries] >= 2 && Ship->EnemyShip != this && EnemyShip != Ship) {
+        if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && ChameleonLogic[kling->DominatorSeries] >= 2 && Ship->EnemyShip != this && EnemyShip != Ship) {
             return Result;
         }
         if (pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
-            for (Faction = static_cast<std::uint8_t>(0); Faction <= static_cast<std::uint8_t>(2); ++Faction) {
-                if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(pas::byte_offset(&aConst::PlanetOwnerMasks, Faction * sizeof(aGalaxyStruct::TOwnerMask))), OwnerId) && pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::NonTargetableStationStandingMasks[Faction]), Ship->CurrentStanding) && (Ship->ScriptShip == nullptr || pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(pas::byte_offset(&aConst::PlanetOwnerMasks, Faction * sizeof(aGalaxyStruct::TOwnerMask))), Ship->OwnerId))) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TStarFaction>(aGalaxyStruct::sfCoalition, aGalaxyStruct::sfPirates); cpp_range.next(Faction); ) {
+                if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(pas::byte_offset(&aConst::PlanetOwnerMasks, Faction * sizeof(aGalaxyStruct::TOwnerMask))), OwnerId) && pas::contains(aConst::NonTargetableStationStandingMasks[Faction], Ship->CurrentStanding) && (Ship->ScriptShip == nullptr || pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(pas::byte_offset(&aConst::PlanetOwnerMasks, Faction * sizeof(aGalaxyStruct::TOwnerMask))), Ship->OwnerId))) {
                     return Result;
                 }
             }
@@ -3823,8 +3799,8 @@ namespace aPlayer {
         if (aGalaxy::Galaxy->UltraScanModEnabled == 0) {
             if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) {
                 Result = false;
-            } else if (pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
-                if (aPlayer::GetPlayer()->GetScanner() == nullptr || aPlayer::GetPlayer()->GetScanner()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || aPlayer::GetPlayer()->GetScanner()->DominatorSeries != reinterpret_cast<aKling::TKling*>(Ship)->DominatorSeries) {
+            } else if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
+                if (aPlayer::GetPlayer()->GetScanner() == nullptr || aPlayer::GetPlayer()->GetScanner()->OwnerId != aGalaxyStruct::oiDominator || aPlayer::GetPlayer()->GetScanner()->DominatorSeries != kling->DominatorSeries) {
                     Result = false;
                 }
             }

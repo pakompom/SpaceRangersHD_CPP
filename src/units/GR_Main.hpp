@@ -200,15 +200,18 @@ namespace GR_Main {
 
     extern std::uint32_t LastRecordingFrameTick;
 
-    // Keep these zero-filled globals consecutive and in this order. Native
-    // VerifyStartupModuleChecksum subtracts 8 from StartupChecksumAnchor's address;
-    // other routines access each variable directly. DCC32 preserves this storage order.
+    // Native VerifyStartupModuleChecksum subtracts a local byte offset of 8 from
+    // StartupChecksumAnchor's address for each marker access ().
+    // The subtraction is emitted at runtime, not inferred from adjacent addresses.
+    // Keep these initialized globals consecutive and in this order; direct access
+    // to StartupIntegrityMarker would remove those native subtraction instructions.
+    // Other routines access StartupIntegrityMarker and LastMouseMessageTick directly.
     // Signed integrity marker: positive after a failed startup module checksum, negative after a clean check; reset by TMessageLoopGI.Present.
-    extern std::int32_t UnknownPresentState;
+    extern std::int32_t StartupIntegrityMarker;
 
     extern std::uint32_t LastMouseMessageTick;
 
-    // Checksum helper accesses UnknownPresentState at byte offset -8; original anchor meaning unresolved.
+    // Checksum helper accesses StartupIntegrityMarker at byte offset -8; original anchor meaning unresolved.
     extern std::int32_t StartupChecksumAnchor;
 
     // Set across MatrixGame Run, including its exception handler.
@@ -335,7 +338,7 @@ namespace GR_Main {
     void RemoveCursorUnit(TCursorUnit* Cursor);
 
     // Case-sensitive lookup; raises when absent.
-    TCursorUnit* FindCursorByName(const pas::WideString& Name);
+    TCursorUnit* FindCursorByName(const std::u16string_view& Name);
 
     // Uses a zero key/button state.
     void PostMouseMoveMessage();
@@ -653,7 +656,7 @@ namespace GR_Main {
 
     void Ex_OKGR_F6_DrawRGBA(void* Dest, std::int32_t Pitch, void* Source);
 
-    // Decoded: 'libogg-0', 'libvorbis-0', 'libvorbisfile', 'matrixgame',
+    // 'libogg-0', 'libvorbis-0', 'libvorbisfile', 'matrixgame',
     // 'okgf', 'steam_ach', 'steam_api', 'xvidcore', 'zlib'.
     // Differences from the 1024x768 UI baseline; may be negative.
     // Identity function in this binary.

@@ -42,7 +42,7 @@ namespace GI_PSEyes {
         if (Block != nullptr) {
             BlockCount = Block->GetBlockCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, BlockCount - 1); cpp_range.next(Index); ) {
-                Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index)) + 1);
+                Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
             }
         }
         if (Block == nullptr || Count == 0) {
@@ -74,34 +74,34 @@ namespace GI_PSEyes {
                 if (Block->CountBlocks(Text) != 0) {
                     PaletteBlock = Block->GetBlockByPath(Text);
                     if (PaletteBlock->CountParams(u"Color"_wref.get()) > 0) {
-                        Text = PaletteBlock->GetParam(u"Color"_wref.get());
+                        Text = PaletteBlock->GetParam(u"Color"sv);
                         EyesPalettes[Index][0] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
                             return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
                         }());
                     }
                     if (PaletteBlock->CountParams(u"ColorDark"_wref.get()) > 0) {
-                        Text = PaletteBlock->GetParam(u"ColorDark"_wref.get());
+                        Text = PaletteBlock->GetParam(u"ColorDark"sv);
                         EyesPalettes[Index][1] = ([&] {
-                            double extractDecimalToSingleW_4 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                            double extractDecimalToSingleW_5 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
-                            double extractDecimalToSingleW_6 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+                            double extractDecimalToSingleW_4 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                            double extractDecimalToSingleW_5 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                            double extractDecimalToSingleW_6 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
                             return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW_4, extractDecimalToSingleW_5, extractDecimalToSingleW_6);
                         }());
                     }
                     if (PaletteBlock->CountParams(u"Width"_wref.get()) > 0) {
-                        EyesWidths[Index] = EC_Str::ExtractDigitsToIntW(PaletteBlock->GetParam(u"Width"_wref.get()));
+                        EyesWidths[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Width"sv)));
                     }
                     if (PaletteBlock->CountParams(u"SegmentLength"_wref.get()) > 0) {
-                        EyesSegmentLengths[Index] = EC_Str::ExtractDigitsToIntW(PaletteBlock->GetParam(u"SegmentLength"_wref.get()));
+                        EyesSegmentLengths[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"SegmentLength"sv)));
                     }
                     if (PaletteBlock->CountParams(u"Dispersion"_wref.get()) > 0) {
-                        EyesDispersions[Index] = EC_Str::ExtractDigitsToIntW(PaletteBlock->GetParam(u"Dispersion"_wref.get()));
+                        EyesDispersions[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Dispersion"sv)));
                     }
                     if (PaletteBlock->CountParams(u"StartingAlpha"_wref.get()) > 0) {
-                        EyesStartingAlphas[Index] = EC_Str::ExtractDigitsToIntW(PaletteBlock->GetParam(u"StartingAlpha"_wref.get()));
+                        EyesStartingAlphas[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"StartingAlpha"sv)));
                     }
                 }
             }

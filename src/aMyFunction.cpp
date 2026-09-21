@@ -205,21 +205,21 @@ namespace aMyFunction {
         if (ColorTag != u"") {
             Replacement = pas::concat_wide({ColorTag, Replacement, u"</color>"});
         }
-        Text = EC_Str::ReplaceAllWideString(Text, Token, Replacement);
+        Text = EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
 
     pas::WideString ReplaceColoredToken(pas::WideString Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag) {
         if (ColorTag != u"") {
             Replacement = pas::concat_wide({ColorTag, Replacement, u"</color>"});
         }
-        return EC_Str::ReplaceAllWideString(Text, Token, Replacement);
+        return EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
 
     pas::WideString FormatText1(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token, pas::WideString Replacement) {
         if (ColorTag != u"") {
             Replacement = pas::concat_wide({ColorTag, Replacement, u"</color>"});
         }
-        return EC_Str::ReplaceAllWideString(Text, Token, Replacement);
+        return EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
 
     // Multiple replacements run in order, including matches in text inserted earlier.
@@ -228,7 +228,7 @@ namespace aMyFunction {
             Replacement1 = pas::concat_wide({ColorTag, Replacement1, u"</color>"});
             Replacement2 = pas::concat_wide({ColorTag, Replacement2, u"</color>"});
         }
-        return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, Replacement1), Token2, Replacement2);
+        return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2, pas::view(Replacement2));
     }
 
     pas::WideString FormatText3(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2, pas::WideString Token3, pas::WideString Replacement3) {
@@ -237,15 +237,15 @@ namespace aMyFunction {
             Replacement2 = pas::concat_wide({ColorTag, Replacement2, u"</color>"});
             Replacement3 = pas::concat_wide({ColorTag, Replacement3, u"</color>"});
         }
-        return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, Replacement1), Token2, Replacement2), Token3, Replacement3);
+        return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2, pas::view(Replacement2)), Token3, pas::view(Replacement3));
     }
 
     // Returns Text unchanged when either argument is empty.
-    pas::WideString WrapTextInColor(pas::WideString Text, pas::WideString ColorTag) {
-        if (ColorTag != u"" && Text != u"") {
+    pas::WideString WrapTextInColor(const std::u16string_view& Text, const std::u16string_view& ColorTag) {
+        if (ColorTag != u""sv && Text != u""sv) {
             return pas::concat_wide({ColorTag, Text, u"</color>"});
         }
-        return Text;
+        return pas::WideString(Text);
     }
 
     // Normalizes the ray direction, rejects tangencies, and returns whether the selected intersection is ahead of StartPoint. No segment-length bound.

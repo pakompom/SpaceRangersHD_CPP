@@ -146,21 +146,21 @@ namespace GI_StatusBar {
 
     void TStatusBarGI::LoadStatusProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"ImageLeft"_wref.get()) > 0) {
-            LeftImage->SetImagePath(Block->GetParam(u"ImageLeft"_wref.get()));
+            LeftImage->SetImagePath(Block->GetParam(u"ImageLeft"sv));
         }
         if (Block->CountParams(u"ImageMiddle"_wref.get()) > 0) {
-            CenterImage->SetImagePath(Block->GetParam(u"ImageMiddle"_wref.get()));
+            CenterImage->SetImagePath(Block->GetParam(u"ImageMiddle"sv));
         }
         if (Block->CountParams(u"ImageRight"_wref.get()) > 0) {
-            RightImage->SetImagePath(Block->GetParam(u"ImageRight"_wref.get()));
+            RightImage->SetImagePath(Block->GetParam(u"ImageRight"sv));
         }
         if (Block->CountParams(u"Min"_wref.get()) > 0 && Block->CountParams(u"Max"_wref.get()) > 0) {
-            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Min"_wref.get()));
-            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Max"_wref.get()));
+            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Min"sv));
+            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Max"sv));
             SetRange(extractDecimalToSingleW, extractDecimalToSingleW_2);
         }
         if (Block->CountParams(u"Cur"_wref.get()) > 0) {
-            SetValue(EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Cur"_wref.get())));
+            SetValue(EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Cur"sv)));
         }
         UpdateImageLayout();
     }

@@ -136,7 +136,7 @@ namespace GI_AImage {
         std::uint8_t HaveFrame = false;
         std::int32_t Count = Block->GetParamCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            if (EC_Str::IsIntegerTextW(Block->GetParamName(Index))) {
+            if (EC_Str::IsIntegerTextW(pas::view(Block->GetParamName(Index)))) {
                 if (!HaveFrame) {
                     Self->FreeOwnedChildren();
                 }
@@ -164,7 +164,7 @@ namespace GI_AImage {
             Self->CurrentFrame = First;
         }
         if (Block->CountParams(u"HalfAlpha"_wref.get()) > 0) {
-            Self->SetHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"HalfAlpha"_wref.get())));
+            Self->SetHalfAlpha(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"HalfAlpha"sv))));
         }
     }
 

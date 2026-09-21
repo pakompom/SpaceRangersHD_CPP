@@ -96,7 +96,7 @@ namespace aConst {
         pas::Array<float, 0, 6> CombatStatusHullFactors;
         pas::Array<float, 0, 6> CombatStatusAccumulationFactors;
         pas::Array<pas::WideString, 0, 42> EquipmentBonusNames;
-        pas::Array<std::uint8_t, 0, 5> EquipmentBonusSkills;
+        pas::Array<aGalaxyStruct::TPilotSkill, 0, 5> EquipmentBonusSkills;
         aConst::TEquipmentSizeFactorTable EquipmentSizeFactors;
         aConst::TWeaponRangeLevelFactors WeaponRangeLevelFactors;
         pas::Array<aConst::tInventionInfo, 0, 19> PlanetInventionInfo;
@@ -112,21 +112,21 @@ namespace aConst {
     };
 
     CppGlobalRegion0 cpp_global_region_0 = CppGlobalRegion0{.IntegrityDataBegin = 0u, .CurrentSaveVersion = 167, .MinimumLoadableSaveVersion = 44, .LocalizedTextLinePrefix = u"    "_w, .GalaxyStarCount = 73, .GalaxySizeY = 100, .GalaxySizeX = 145, .MaximumNewGameDifficulty = 9, .GalaxyDifficultyTuning = aGalaxyStruct::TGalaxyDifficultyTuningTable{{
-        {.GoodsEventDurationFactor = 0.7f, .QuestTimeAndExperienceFactor = 0.85f, .EquipmentWearFactor = 0.75f, .InventionProgressScale = 1.1f, .ArcadeRewardScale = 1.3f, .QuestMoneyFactor = 1.2f, .DifficultyValue18 = 4000, .DifficultyValue1C = static_cast<std::uint8_t>(8), .MarketPriceBandSqueeze = -0.2f, .RandomHoleSpawnRollMaximum = 80, .MaximumDominatorResearchRate = 0.05f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(2), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(4), .ArcadeDamageTakenScale = 0.9f, .DifficultyFactor34 = 1.0E+1f},
-        {.GoodsEventDurationFactor = 1.0f, .QuestTimeAndExperienceFactor = 1.0f, .EquipmentWearFactor = 1.0f, .InventionProgressScale = 1.0f, .ArcadeRewardScale = 1.0f, .QuestMoneyFactor = 1.0f, .DifficultyValue18 = 1300, .DifficultyValue1C = static_cast<std::uint8_t>(12), .MarketPriceBandSqueeze = 0.0f, .RandomHoleSpawnRollMaximum = 100, .MaximumDominatorResearchRate = 0.04f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(4), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(3), .ArcadeDamageTakenScale = 1.0f, .DifficultyFactor34 = 5.0f},
-        {.GoodsEventDurationFactor = 1.2f, .QuestTimeAndExperienceFactor = 1.15f, .EquipmentWearFactor = 1.3f, .InventionProgressScale = 0.9f, .ArcadeRewardScale = 0.6f, .QuestMoneyFactor = 0.7f, .DifficultyValue18 = 800, .DifficultyValue1C = static_cast<std::uint8_t>(16), .MarketPriceBandSqueeze = 0.1f, .RandomHoleSpawnRollMaximum = 130, .MaximumDominatorResearchRate = 0.03f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(5), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(2), .ArcadeDamageTakenScale = 1.7f, .DifficultyFactor34 = 2.5f},
-        {.GoodsEventDurationFactor = 1.5f, .QuestTimeAndExperienceFactor = 1.3f, .EquipmentWearFactor = 1.6f, .InventionProgressScale = 0.8f, .ArcadeRewardScale = 0.3f, .QuestMoneyFactor = 0.5f, .DifficultyValue18 = 400, .DifficultyValue1C = static_cast<std::uint8_t>(20), .MarketPriceBandSqueeze = 0.15f, .RandomHoleSpawnRollMaximum = 170, .MaximumDominatorResearchRate = 0.02f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(6), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(2), .ArcadeDamageTakenScale = 2.3f, .DifficultyFactor34 = 1.8f},
-        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .DifficultyValue1C = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .DifficultyFactor34 = 0.0f},
-        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .DifficultyValue1C = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .DifficultyFactor34 = 0.0f},
-        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .DifficultyValue1C = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .DifficultyFactor34 = 0.0f},
-        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .DifficultyValue1C = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .DifficultyFactor34 = 0.0f},
-        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .DifficultyValue1C = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .DifficultyFactor34 = 0.0f},
-        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .DifficultyValue1C = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .DifficultyFactor34 = 0.0f},
+        {.GoodsEventDurationFactor = 0.7f, .QuestTimeAndExperienceFactor = 0.85f, .EquipmentWearFactor = 0.75f, .InventionProgressScale = 1.1f, .ArcadeRewardScale = 1.3f, .QuestMoneyFactor = 1.2f, .StartingPlayerMoney = 4000, .InitialPirateControlPercent = static_cast<std::uint8_t>(8), .MarketPriceBandSqueeze = -0.2f, .RandomHoleSpawnRollMaximum = 80, .MaximumDominatorResearchRate = 0.05f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(2), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(4), .ArcadeDamageTakenScale = 0.9f, .CoalitionToPirateBalanceRatio = 1.0E+1f},
+        {.GoodsEventDurationFactor = 1.0f, .QuestTimeAndExperienceFactor = 1.0f, .EquipmentWearFactor = 1.0f, .InventionProgressScale = 1.0f, .ArcadeRewardScale = 1.0f, .QuestMoneyFactor = 1.0f, .StartingPlayerMoney = 1300, .InitialPirateControlPercent = static_cast<std::uint8_t>(12), .MarketPriceBandSqueeze = 0.0f, .RandomHoleSpawnRollMaximum = 100, .MaximumDominatorResearchRate = 0.04f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(4), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(3), .ArcadeDamageTakenScale = 1.0f, .CoalitionToPirateBalanceRatio = 5.0f},
+        {.GoodsEventDurationFactor = 1.2f, .QuestTimeAndExperienceFactor = 1.15f, .EquipmentWearFactor = 1.3f, .InventionProgressScale = 0.9f, .ArcadeRewardScale = 0.6f, .QuestMoneyFactor = 0.7f, .StartingPlayerMoney = 800, .InitialPirateControlPercent = static_cast<std::uint8_t>(16), .MarketPriceBandSqueeze = 0.1f, .RandomHoleSpawnRollMaximum = 130, .MaximumDominatorResearchRate = 0.03f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(5), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(2), .ArcadeDamageTakenScale = 1.7f, .CoalitionToPirateBalanceRatio = 2.5f},
+        {.GoodsEventDurationFactor = 1.5f, .QuestTimeAndExperienceFactor = 1.3f, .EquipmentWearFactor = 1.6f, .InventionProgressScale = 0.8f, .ArcadeRewardScale = 0.3f, .QuestMoneyFactor = 0.5f, .StartingPlayerMoney = 400, .InitialPirateControlPercent = static_cast<std::uint8_t>(20), .MarketPriceBandSqueeze = 0.15f, .RandomHoleSpawnRollMaximum = 170, .MaximumDominatorResearchRate = 0.02f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(6), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(2), .ArcadeDamageTakenScale = 2.3f, .CoalitionToPirateBalanceRatio = 1.8f},
+        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .InitialPirateControlPercent = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .CoalitionToPirateBalanceRatio = 0.0f},
+        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .InitialPirateControlPercent = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .CoalitionToPirateBalanceRatio = 0.0f},
+        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .InitialPirateControlPercent = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .CoalitionToPirateBalanceRatio = 0.0f},
+        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .InitialPirateControlPercent = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .CoalitionToPirateBalanceRatio = 0.0f},
+        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .InitialPirateControlPercent = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .CoalitionToPirateBalanceRatio = 0.0f},
+        {.GoodsEventDurationFactor = 0.0f, .QuestTimeAndExperienceFactor = 0.0f, .EquipmentWearFactor = 0.0f, .InventionProgressScale = 0.0f, .ArcadeRewardScale = 0.0f, .QuestMoneyFactor = 0.0f, .InitialPirateControlPercent = static_cast<std::uint8_t>(0), .MarketPriceBandSqueeze = 0.0f, .MaximumDominatorResearchRate = 0.0f, .MaximumResearchMaterialConsumption = static_cast<std::uint8_t>(0), .MaximumQuestProgramRewardCount = static_cast<std::uint8_t>(0), .ArcadeDamageTakenScale = 0.0f, .CoalitionToPirateBalanceRatio = 0.0f},
     }}, .RelationInfo = pas::Array<aConst::TRelationTypeInfo, 0, 4>{{{.InternalName = u"War"_w}, {.InternalName = u"Bad"_w, .MinimumValue = 10}, {.InternalName = u"Normal"_w, .MinimumValue = 30}, {.InternalName = u"Good"_w, .MinimumValue = 60}, {.InternalName = u"Best"_w, .MinimumValue = 80}}}, .PlanetEconomyInfo = pas::Array<aConst::TEconomyInfo, 0, 2>{{{.InternalName = u"Agriculture"_w, .InventionProgressScale = 0.7f}, {.InternalName = u"Mixed"_w, .InventionProgressScale = 1.0f}, {.InternalName = u"Industrial"_w, .InventionProgressScale = 1.4f}}}, .ShipTypeNames = pas::Array<aConst::TShipTypeInfo, 0, 13>{{
         {.Name = u"Kling"_w}, {.Name = u"Ranger"_w}, {.Name = u"Transport"_w}, {.Name = u"Pirate"_w},
         {.Name = u"Warrior"_w}, {.Name = u"Tranclucator"_w}, {.Name = u"RC"_w}, {.Name = u"PB"_w}, {.Name = u"WB"_w},
         {.Name = u"SB"_w}, {.Name = u"BK"_w}, {.Name = u"MC"_w}, {.Name = u"CB"_w}, {.Name = u"UB"_w},
-    }}, .StationDefaultStandings = pas::Array<std::uint8_t, 6, 13>{{static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionMilitary), static_cast<std::uint8_t>(aGalaxyStruct::ssPiratePassive), static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionMilitary), static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionActive), static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionActive), static_cast<std::uint8_t>(aGalaxyStruct::ssNeutral), static_cast<std::uint8_t>(aGalaxyStruct::ssPirateMilitary), static_cast<std::uint8_t>(aGalaxyStruct::ssUnaligned)}}, .NonTargetableStationStandingMasks = aGalaxyStruct::TFactionStandingMasks{{static_cast<std::uint16_t>(0x0000003c), static_cast<std::uint16_t>(0x00000001), static_cast<std::uint16_t>(0x000001c0)}}, .FactionStandingMasks = aGalaxyStruct::TFactionStandingMasks{{static_cast<std::uint16_t>(0x0000007c), static_cast<std::uint16_t>(0x00000001), static_cast<std::uint16_t>(0x000001f0)}}, .CareerTuning = pas::Array<aConst::TStatusInfo, 0, 2>{{{.Name = u"Trader"_w, .MinimumWealthToAverageRatio = 1.5, .MinimumWealthToBestRatio = 0.4, .MinimumStrengthToAverageRatio = 0.9, .MinimumStrengthToBestRatio = 0.3}, {.Name = u"Pirate"_w, .MinimumWealthToAverageRatio = 0.9, .MinimumWealthToBestRatio = 0.35, .MinimumStrengthToAverageRatio = 1.1, .MinimumStrengthToBestRatio = 0.5}, {.Name = u"Warrior"_w, .MinimumWealthToAverageRatio = 0.8, .MinimumWealthToBestRatio = 0.25, .MinimumStrengthToAverageRatio = 1.2, .MinimumStrengthToBestRatio = 0.6}}}, .TransportTypeNames = pas::Array<pas::WideString, 0, 2>{{u"Transport"_w, u"Liner"_w, u"Diplomat"_w}}, .DominatorDisplayOrder = pas::Array<aGalaxyStruct::TKlingType, 0, 7>{{aGalaxyStruct::ktBoss, aGalaxyStruct::ktBertor, aGalaxyStruct::ktEquentor, aGalaxyStruct::ktUrgant, aGalaxyStruct::ktSmersh, aGalaxyStruct::ktMenok, aGalaxyStruct::ktShtip, aGalaxyStruct::ktKlig}}, .DominatorShipTypeNames = pas::Array<pas::WideString, 0, 7>{{u"K0"_w, u"K1"_w, u"K2"_w, u"K3"_w, u"K4"_w, u"K5"_w, u"K6"_w, u"K7"_w}}, .DominatorShipDefinitions = pas::Array<aConst::TKlingTypeInfo, 0, 7>{{{.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .InitialWealthScale = 1.0E+1, .BaseNodeReserve = static_cast<std::uint16_t>(500), .KillExperience = static_cast<std::uint16_t>(5000), .RankPoints = static_cast<std::uint16_t>(250), .PirateRankPoints = static_cast<std::uint16_t>(0), .RankImageIndex = 7, .FactionStrengthWeight = 1.0E+1}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 900, .MaximumHullSize = 1400, .InitialWealthScale = 0.7, .BaseNodeReserve = static_cast<std::uint16_t>(100), .KillExperience = static_cast<std::uint16_t>(1000), .RankPoints = static_cast<std::uint16_t>(48), .PirateRankPoints = static_cast<std::uint16_t>(16), .RankImageIndex = 5, .FactionStrengthWeight = 5.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 700, .MaximumHullSize = 900, .InitialWealthScale = 0.6, .BaseNodeReserve = static_cast<std::uint16_t>(50), .KillExperience = static_cast<std::uint16_t>(500), .RankPoints = static_cast<std::uint16_t>(24), .PirateRankPoints = static_cast<std::uint16_t>(8), .RankImageIndex = 4, .FactionStrengthWeight = 3.5}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 500, .MaximumHullSize = 700, .InitialWealthScale = 0.5, .BaseNodeReserve = static_cast<std::uint16_t>(30), .KillExperience = static_cast<std::uint16_t>(300), .RankPoints = static_cast<std::uint16_t>(12), .PirateRankPoints = static_cast<std::uint16_t>(4), .RankImageIndex = 3, .FactionStrengthWeight = 2.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 350, .MaximumHullSize = 500, .InitialWealthScale = 0.3, .BaseNodeReserve = static_cast<std::uint16_t>(15), .KillExperience = static_cast<std::uint16_t>(150), .RankPoints = static_cast<std::uint16_t>(6), .PirateRankPoints = static_cast<std::uint16_t>(2), .RankImageIndex = 2, .FactionStrengthWeight = 1.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 250, .MaximumHullSize = 350, .InitialWealthScale = 0.2, .BaseNodeReserve = static_cast<std::uint16_t>(10), .KillExperience = static_cast<std::uint16_t>(100), .RankPoints = static_cast<std::uint16_t>(3), .PirateRankPoints = static_cast<std::uint16_t>(1), .RankImageIndex = 1, .FactionStrengthWeight = 1.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 1250, .MaximumHullSize = 2000, .InitialWealthScale = 2.0, .BaseNodeReserve = static_cast<std::uint16_t>(200), .KillExperience = static_cast<std::uint16_t>(2000), .RankPoints = static_cast<std::uint16_t>(60), .PirateRankPoints = static_cast<std::uint16_t>(24), .RankImageIndex = 7, .FactionStrengthWeight = 7.5}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 150, .MaximumHullSize = 250, .InitialWealthScale = 0.15, .BaseNodeReserve = static_cast<std::uint16_t>(5), .KillExperience = static_cast<std::uint16_t>(50), .RankPoints = static_cast<std::uint16_t>(1), .PirateRankPoints = static_cast<std::uint16_t>(1), .RankImageIndex = 1, .FactionStrengthWeight = 0.0}}}, .DominatorRetreatStrengthByTier = pas::Array<double, 0, 3>{{2.0, 2.2, 2.6, 3.0}}, .DominatorSeriesNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .DominatorResearchRateMultipliers = pas::Array<double, 0, 2>{{1.0, 1.2, 0.8}}, .ResearchProgramCostFactors = pas::Array<double, 0, 2>{{1.0, 1.4, 1.8}}, .ScriptActionTypeNames = pas::Array<pas::WideString, 0, 61>{{
+    }}, .StationDefaultStandings = pas::Array<std::uint8_t, 6, 13>{{static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionMilitary), static_cast<std::uint8_t>(aGalaxyStruct::ssPiratePassive), static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionMilitary), static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionActive), static_cast<std::uint8_t>(aGalaxyStruct::ssCoalitionActive), static_cast<std::uint8_t>(aGalaxyStruct::ssNeutral), static_cast<std::uint8_t>(aGalaxyStruct::ssPirateMilitary), static_cast<std::uint8_t>(aGalaxyStruct::ssUnaligned)}}, .NonTargetableStationStandingMasks = aGalaxyStruct::TFactionStandingMasks{{pas::constant_set<aGalaxyStruct::TStationStandingMask>({{aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssNeutral}}), pas::constant_set<aGalaxyStruct::TStationStandingMask>({{aGalaxyStruct::ssDominator}}), pas::constant_set<aGalaxyStruct::TStationStandingMask>({{aGalaxyStruct::ssPiratePassive, aGalaxyStruct::ssPirateMilitary}})}}, .FactionStandingMasks = aGalaxyStruct::TFactionStandingMasks{{pas::constant_set<aGalaxyStruct::TStationStandingMask>({{aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssPiratePassive}}), pas::constant_set<aGalaxyStruct::TStationStandingMask>({{aGalaxyStruct::ssDominator}}), pas::constant_set<aGalaxyStruct::TStationStandingMask>({{aGalaxyStruct::ssCoalitionPassive, aGalaxyStruct::ssPirateMilitary}})}}, .CareerTuning = pas::Array<aConst::TStatusInfo, 0, 2>{{{.Name = u"Trader"_w, .MinimumWealthToAverageRatio = 1.5, .MinimumWealthToBestRatio = 0.4, .MinimumStrengthToAverageRatio = 0.9, .MinimumStrengthToBestRatio = 0.3}, {.Name = u"Pirate"_w, .MinimumWealthToAverageRatio = 0.9, .MinimumWealthToBestRatio = 0.35, .MinimumStrengthToAverageRatio = 1.1, .MinimumStrengthToBestRatio = 0.5}, {.Name = u"Warrior"_w, .MinimumWealthToAverageRatio = 0.8, .MinimumWealthToBestRatio = 0.25, .MinimumStrengthToAverageRatio = 1.2, .MinimumStrengthToBestRatio = 0.6}}}, .TransportTypeNames = pas::Array<pas::WideString, 0, 2>{{u"Transport"_w, u"Liner"_w, u"Diplomat"_w}}, .DominatorDisplayOrder = pas::Array<aGalaxyStruct::TKlingType, 0, 7>{{aGalaxyStruct::ktBoss, aGalaxyStruct::ktBertor, aGalaxyStruct::ktEquentor, aGalaxyStruct::ktUrgant, aGalaxyStruct::ktSmersh, aGalaxyStruct::ktMenok, aGalaxyStruct::ktShtip, aGalaxyStruct::ktKlig}}, .DominatorShipTypeNames = pas::Array<pas::WideString, 0, 7>{{u"K0"_w, u"K1"_w, u"K2"_w, u"K3"_w, u"K4"_w, u"K5"_w, u"K6"_w, u"K7"_w}}, .DominatorShipDefinitions = pas::Array<aConst::TKlingTypeInfo, 0, 7>{{{.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .InitialWealthScale = 1.0E+1, .BaseNodeReserve = static_cast<std::uint16_t>(500), .KillExperience = static_cast<std::uint16_t>(5000), .RankPoints = static_cast<std::uint16_t>(250), .PirateRankPoints = static_cast<std::uint16_t>(0), .RankImageIndex = 7, .FactionStrengthWeight = 1.0E+1}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 900, .MaximumHullSize = 1400, .InitialWealthScale = 0.7, .BaseNodeReserve = static_cast<std::uint16_t>(100), .KillExperience = static_cast<std::uint16_t>(1000), .RankPoints = static_cast<std::uint16_t>(48), .PirateRankPoints = static_cast<std::uint16_t>(16), .RankImageIndex = 5, .FactionStrengthWeight = 5.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 700, .MaximumHullSize = 900, .InitialWealthScale = 0.6, .BaseNodeReserve = static_cast<std::uint16_t>(50), .KillExperience = static_cast<std::uint16_t>(500), .RankPoints = static_cast<std::uint16_t>(24), .PirateRankPoints = static_cast<std::uint16_t>(8), .RankImageIndex = 4, .FactionStrengthWeight = 3.5}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 500, .MaximumHullSize = 700, .InitialWealthScale = 0.5, .BaseNodeReserve = static_cast<std::uint16_t>(30), .KillExperience = static_cast<std::uint16_t>(300), .RankPoints = static_cast<std::uint16_t>(12), .PirateRankPoints = static_cast<std::uint16_t>(4), .RankImageIndex = 3, .FactionStrengthWeight = 2.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 350, .MaximumHullSize = 500, .InitialWealthScale = 0.3, .BaseNodeReserve = static_cast<std::uint16_t>(15), .KillExperience = static_cast<std::uint16_t>(150), .RankPoints = static_cast<std::uint16_t>(6), .PirateRankPoints = static_cast<std::uint16_t>(2), .RankImageIndex = 2, .FactionStrengthWeight = 1.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 250, .MaximumHullSize = 350, .InitialWealthScale = 0.2, .BaseNodeReserve = static_cast<std::uint16_t>(10), .KillExperience = static_cast<std::uint16_t>(100), .RankPoints = static_cast<std::uint16_t>(3), .PirateRankPoints = static_cast<std::uint16_t>(1), .RankImageIndex = 1, .FactionStrengthWeight = 1.0}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 1250, .MaximumHullSize = 2000, .InitialWealthScale = 2.0, .BaseNodeReserve = static_cast<std::uint16_t>(200), .KillExperience = static_cast<std::uint16_t>(2000), .RankPoints = static_cast<std::uint16_t>(60), .PirateRankPoints = static_cast<std::uint16_t>(24), .RankImageIndex = 7, .FactionStrengthWeight = 7.5}, {.DisplayNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .MinimumHullSize = 150, .MaximumHullSize = 250, .InitialWealthScale = 0.15, .BaseNodeReserve = static_cast<std::uint16_t>(5), .KillExperience = static_cast<std::uint16_t>(50), .RankPoints = static_cast<std::uint16_t>(1), .PirateRankPoints = static_cast<std::uint16_t>(1), .RankImageIndex = 1, .FactionStrengthWeight = 0.0}}}, .DominatorRetreatStrengthByTier = pas::Array<double, 0, 3>{{2.0, 2.2, 2.6, 3.0}}, .DominatorSeriesNames = pas::Array<pas::WideString, 0, 2>{{u"Blazer"_w, u"Keller"_w, u"Terron"_w}}, .DominatorResearchRateMultipliers = pas::Array<double, 0, 2>{{1.0, 1.2, 0.8}}, .ResearchProgramCostFactors = pas::Array<double, 0, 2>{{1.0, 1.4, 1.8}}, .ScriptActionTypeNames = pas::Array<pas::WideString, 0, 61>{{
         u"t_OnStep"_w, u"t_OnWeaponShot"_w, u"t_OnMissileShot"_w, u"t_OnDealingDamage"_w, u"t_OnDealingFatalDamage"_w,
         u"t_OnDealingKamikazeDamage"_w, u"t_OnTakingDamage"_w, u"t_OnTakingDamageEn"_w, u"t_OnTakingDamageSp"_w,
         u"t_OnTakingDamageMi"_w, u"t_OnWeaponShot2"_w, u"t_OnMissileShot2"_w, u"t_OnGettingWeaponHit"_w,
@@ -156,7 +156,7 @@ namespace aConst {
         u"W09"_w, u"W10"_w, u"W11"_w, u"W12"_w, u"W13"_w, u"W14"_w, u"W15"_w, u"W16"_w,
         u"W17"_w, u"W18"_w, u"CustomWeapon"_w, u"Protoplasm"_w, u"UselessItem"_w, u"Nod"_w, u"Cistern"_w, u"Satellite"_w,
         u"TreasureMap"_w, u"UselessCountableItem"_w,
-    }}, .GoodsMarket = pas::Array<aConst::TGoodsInfo, 0, 7>{{{.InternalName = u"Food"_w, .BaseStock = 300, .MinPrice = 17, .AveragePrice = 30, .MaxPrice = 43, .TradeExperienceFactor = 1.654f, .EconomyFactors = pas::Array<float, 0, 2>{{1.15f, 1.0f, 0.85f}}, .PirateEconomyFactor = 0.9f}, {.InternalName = u"Medicine"_w, .BaseStock = 160, .MinPrice = 27, .AveragePrice = 40, .MaxPrice = 53, .TradeExperienceFactor = 2.038f, .EconomyFactors = pas::Array<float, 0, 2>{{1.1f, 1.0f, 0.9f}}, .PirateEconomyFactor = 0.7f}, {.InternalName = u"Technics"_w, .BaseStock = 100, .MinPrice = 62, .AveragePrice = 80, .MaxPrice = 98, .TradeExperienceFactor = 2.722f, .EconomyFactors = pas::Array<float, 0, 2>{{0.85f, 1.0f, 1.15f}}, .PirateEconomyFactor = 0.8f}, {.InternalName = u"Luxury"_w, .BaseStock = 60, .MinPrice = 160, .AveragePrice = 200, .MaxPrice = 240, .TradeExperienceFactor = 3.0f, .EconomyFactors = pas::Array<float, 0, 2>{{1.0f, 1.1f, 1.05f}}, .PirateEconomyFactor = 0.8f}, {.InternalName = u"Minerals"_w, .BaseStock = 250, .MinPrice = 8, .AveragePrice = 12, .MaxPrice = 16, .TradeExperienceFactor = 2.0f, .EconomyFactors = pas::Array<float, 0, 2>{{1.15f, 1.0f, 0.85f}}, .PirateEconomyFactor = 2.5f}, {.InternalName = u"Alcohol"_w, .BaseStock = 120, .MinPrice = 25, .AveragePrice = 40, .MaxPrice = 55, .TradeExperienceFactor = 1.833f, .EconomyFactors = pas::Array<float, 0, 2>{{1.2f, 1.0f, 0.8f}}, .PirateEconomyFactor = 1.3f}, {.InternalName = u"Arms"_w, .BaseStock = 70, .MinPrice = 75, .AveragePrice = 100, .MaxPrice = 125, .TradeExperienceFactor = 2.5f, .EconomyFactors = pas::Array<float, 0, 2>{{0.85f, 1.0f, 1.15f}}, .PirateEconomyFactor = 1.5f}, {.InternalName = u"Narcotics"_w, .BaseStock = 30, .MinPrice = 250, .AveragePrice = 400, .MaxPrice = 550, .TradeExperienceFactor = 1.833f, .EconomyFactors = pas::Array<float, 0, 2>{{1.1f, 1.0f, 0.9f}}, .PirateEconomyFactor = 2.0f}}}, .GoodsTextOrder = aGalaxyStruct::TGoodsTextOrder{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(5), static_cast<std::uint8_t>(4), static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(2), static_cast<std::uint8_t>(6), static_cast<std::uint8_t>(7)}}, .MissionTypeNames = pas::Array<pas::WideString, 0, 4>{{u"SendLetter"_w, u"KillShip"_w, u"PlanetQuest"_w, u"DefSystem"_w, u"DefShip"_w}}, .OwnerInfo = pas::Array<aConst::TOwnerInfo, 0, 7>{{{.InternalName = u"Maloc"_w, .FuelPriceFactor = 0.7f, .EquipmentDurabilityFactor = 0.7f, .MinimumAfterburnerWear = 18, .MaximumAfterburnerWear = 22, .FearThresholdScale = 0.8f, .ColorTag = u"<color=255,000,000>"_w}, {.InternalName = u"Peleng"_w, .FuelPriceFactor = 0.9f, .EquipmentDurabilityFactor = 0.9f, .MinimumAfterburnerWear = 17, .MaximumAfterburnerWear = 21, .FearThresholdScale = 0.9f, .ColorTag = u"<color=000,255,000>"_w}, {.InternalName = u"People"_w, .FuelPriceFactor = 1.0f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 16, .MaximumAfterburnerWear = 20, .FearThresholdScale = 1.0f, .ColorTag = u"<color=000,148,255>"_w}, {.InternalName = u"Fei"_w, .FuelPriceFactor = 1.15f, .EquipmentDurabilityFactor = 1.15f, .MinimumAfterburnerWear = 14, .MaximumAfterburnerWear = 17, .FearThresholdScale = 1.3f, .ColorTag = u"<color=255,147,241>"_w}, {.InternalName = u"Gaal"_w, .FuelPriceFactor = 1.3f, .EquipmentDurabilityFactor = 1.3f, .MinimumAfterburnerWear = 14, .MaximumAfterburnerWear = 16, .FearThresholdScale = 1.2f, .ColorTag = u"<color=237,247,062>"_w}, {.InternalName = u"Kling"_w, .FuelPriceFactor = 1.0f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 10, .MaximumAfterburnerWear = 20, .FearThresholdScale = 1.0f, .ColorTag = u"<color=097,167,190>"_w}, {.InternalName = u"None"_w, .FuelPriceFactor = 1.0f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 14, .MaximumAfterburnerWear = 20, .FearThresholdScale = 1.0f, .ColorTag = u"<color=255,000,255>"_w}, {.InternalName = u"PirateClan"_w, .FuelPriceFactor = 0.8f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 16, .MaximumAfterburnerWear = 20, .FearThresholdScale = 0.5f, .ColorTag = u"<color=255,255,255>"_w}}}, .PlanetOwnerMasks = aGalaxyStruct::TPlanetOwnerMasks{.Coalition = static_cast<std::uint8_t>(0x0000001f), .Dominators = static_cast<std::uint8_t>(0x00000020), .PirateClan = static_cast<std::uint8_t>(0x00000080)}, .OwnerRelations = aGalaxyStruct::TOwnerRelationTable{{aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(80), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(60), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(90), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(80), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(80), static_cast<std::uint8_t>(90), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(0)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(100)}}}}, .PlanetRaceMarket = aGalaxyStruct::TPlanetRaceMarketTable{{{.InventionProgressScale = 0.85f, .InitialInventionBoostCount = 5, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 0.85, .StockFactor = 1.1}, {.PriceFactor = 1.1, .StockFactor = 1.1}, {.PriceFactor = 1.15, .StockFactor = 0.5}, {.PriceFactor = 0.85, .StockFactor = 0.4}, {.PriceFactor = 0.87, .StockFactor = 0.7}, {.PriceFactor = 1.1, .StockFactor = 0.1}, {.PriceFactor = 1.2, .StockFactor = 0.5}, {.PriceFactor = 0.8, .StockFactor = 0.2}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(90), static_cast<std::uint8_t>(95)}}, .RevolutionChance = 0.002f, .FriendlyRelationScale = 0.7f, .PirateRelationFactor = 1.1f, .UnknownFactor9C = 1.5f, .PirateRelationCeiling = static_cast<std::uint8_t>(60)}, {.InventionProgressScale = 0.95f, .InitialInventionBoostCount = 6, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 0.95, .StockFactor = 1.2}, {.PriceFactor = 1.05, .StockFactor = 1.0}, {.PriceFactor = 1.07, .StockFactor = 0.9}, {.PriceFactor = 1.15, .StockFactor = 1.2}, {.PriceFactor = 0.95, .StockFactor = 0.8}, {.PriceFactor = 1.05, .StockFactor = 1.1}, {.PriceFactor = 1.1, .StockFactor = 0.8}, {.PriceFactor = 0.95, .StockFactor = 0.6}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(20), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(85), static_cast<std::uint8_t>(90)}}, .RevolutionChance = 0.006f, .FriendlyRelationScale = 1.1f, .PirateRelationFactor = 1.5f, .UnknownFactor9C = 0.8f, .PirateRelationCeiling = static_cast<std::uint8_t>(80)}, {.InventionProgressScale = 1.0f, .InitialInventionBoostCount = 7, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.5}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 0.8}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.0}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(60), static_cast<std::uint8_t>(80)}}, .RevolutionChance = 0.004f, .FriendlyRelationScale = 1.0f, .PirateRelationFactor = 0.9f, .UnknownFactor9C = 1.2f, .PirateRelationCeiling = static_cast<std::uint8_t>(45)}, {.InventionProgressScale = 1.1f, .InitialInventionBoostCount = 8, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 1.05, .StockFactor = 0.7}, {.PriceFactor = 0.85, .StockFactor = 0.9}, {.PriceFactor = 0.87, .StockFactor = 1.4}, {.PriceFactor = 1.0, .StockFactor = 0.8}, {.PriceFactor = 1.15, .StockFactor = 0.5}, {.PriceFactor = 1.15, .StockFactor = 0.4}, {.PriceFactor = 0.9, .StockFactor = 0.4}, {.PriceFactor = 1.1, .StockFactor = 0.5}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(5), static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(15), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(70)}}, .RevolutionChance = 0.003f, .FriendlyRelationScale = 1.1f, .PirateRelationFactor = 0.7f, .UnknownFactor9C = 1.0f, .PirateRelationCeiling = static_cast<std::uint8_t>(35)}, {.InventionProgressScale = 1.15f, .InitialInventionBoostCount = 9, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 1.1, .StockFactor = 0.5}, {.PriceFactor = 0.8, .StockFactor = 0.5}, {.PriceFactor = 0.8, .StockFactor = 0.8}, {.PriceFactor = 0.85, .StockFactor = 0.5}, {.PriceFactor = 1.1, .StockFactor = 0.3}, {.PriceFactor = 0.9, .StockFactor = 0.3}, {.PriceFactor = 0.84, .StockFactor = 0.1}, {.PriceFactor = 1.15, .StockFactor = 0.4}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(5), static_cast<std::uint8_t>(8), static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(60)}}, .RevolutionChance = 0.002f, .FriendlyRelationScale = 1.3f, .PirateRelationFactor = 0.6f, .UnknownFactor9C = 0.9f, .PirateRelationCeiling = static_cast<std::uint8_t>(35)}}}, .PlanetEquipmentOfferQuotas = aGalaxyStruct::TPlanetEquipmentOfferQuotaTable{{aGalaxyStruct::TPlanetEquipmentOfferQuotaRow{{
+    }}, .GoodsMarket = pas::Array<aConst::TGoodsInfo, 0, 7>{{{.InternalName = u"Food"_w, .BaseStock = 300, .MinPrice = 17, .AveragePrice = 30, .MaxPrice = 43, .TradeExperienceFactor = 1.654f, .EconomyFactors = pas::Array<float, 0, 2>{{1.15f, 1.0f, 0.85f}}, .PirateEconomyFactor = 0.9f}, {.InternalName = u"Medicine"_w, .BaseStock = 160, .MinPrice = 27, .AveragePrice = 40, .MaxPrice = 53, .TradeExperienceFactor = 2.038f, .EconomyFactors = pas::Array<float, 0, 2>{{1.1f, 1.0f, 0.9f}}, .PirateEconomyFactor = 0.7f}, {.InternalName = u"Technics"_w, .BaseStock = 100, .MinPrice = 62, .AveragePrice = 80, .MaxPrice = 98, .TradeExperienceFactor = 2.722f, .EconomyFactors = pas::Array<float, 0, 2>{{0.85f, 1.0f, 1.15f}}, .PirateEconomyFactor = 0.8f}, {.InternalName = u"Luxury"_w, .BaseStock = 60, .MinPrice = 160, .AveragePrice = 200, .MaxPrice = 240, .TradeExperienceFactor = 3.0f, .EconomyFactors = pas::Array<float, 0, 2>{{1.0f, 1.1f, 1.05f}}, .PirateEconomyFactor = 0.8f}, {.InternalName = u"Minerals"_w, .BaseStock = 250, .MinPrice = 8, .AveragePrice = 12, .MaxPrice = 16, .TradeExperienceFactor = 2.0f, .EconomyFactors = pas::Array<float, 0, 2>{{1.15f, 1.0f, 0.85f}}, .PirateEconomyFactor = 2.5f}, {.InternalName = u"Alcohol"_w, .BaseStock = 120, .MinPrice = 25, .AveragePrice = 40, .MaxPrice = 55, .TradeExperienceFactor = 1.833f, .EconomyFactors = pas::Array<float, 0, 2>{{1.2f, 1.0f, 0.8f}}, .PirateEconomyFactor = 1.3f}, {.InternalName = u"Arms"_w, .BaseStock = 70, .MinPrice = 75, .AveragePrice = 100, .MaxPrice = 125, .TradeExperienceFactor = 2.5f, .EconomyFactors = pas::Array<float, 0, 2>{{0.85f, 1.0f, 1.15f}}, .PirateEconomyFactor = 1.5f}, {.InternalName = u"Narcotics"_w, .BaseStock = 30, .MinPrice = 250, .AveragePrice = 400, .MaxPrice = 550, .TradeExperienceFactor = 1.833f, .EconomyFactors = pas::Array<float, 0, 2>{{1.1f, 1.0f, 0.9f}}, .PirateEconomyFactor = 2.0f}}}, .GoodsTextOrder = aGalaxyStruct::TGoodsTextOrder{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(5), static_cast<std::uint8_t>(4), static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(2), static_cast<std::uint8_t>(6), static_cast<std::uint8_t>(7)}}, .MissionTypeNames = pas::Array<pas::WideString, 0, 4>{{u"SendLetter"_w, u"KillShip"_w, u"PlanetQuest"_w, u"DefSystem"_w, u"DefShip"_w}}, .OwnerInfo = pas::Array<aConst::TOwnerInfo, 0, 7>{{{.InternalName = u"Maloc"_w, .FuelPriceFactor = 0.7f, .EquipmentDurabilityFactor = 0.7f, .MinimumAfterburnerWear = 18, .MaximumAfterburnerWear = 22, .FearThresholdScale = 0.8f, .ColorTag = u"<color=255,000,000>"_w}, {.InternalName = u"Peleng"_w, .FuelPriceFactor = 0.9f, .EquipmentDurabilityFactor = 0.9f, .MinimumAfterburnerWear = 17, .MaximumAfterburnerWear = 21, .FearThresholdScale = 0.9f, .ColorTag = u"<color=000,255,000>"_w}, {.InternalName = u"People"_w, .FuelPriceFactor = 1.0f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 16, .MaximumAfterburnerWear = 20, .FearThresholdScale = 1.0f, .ColorTag = u"<color=000,148,255>"_w}, {.InternalName = u"Fei"_w, .FuelPriceFactor = 1.15f, .EquipmentDurabilityFactor = 1.15f, .MinimumAfterburnerWear = 14, .MaximumAfterburnerWear = 17, .FearThresholdScale = 1.3f, .ColorTag = u"<color=255,147,241>"_w}, {.InternalName = u"Gaal"_w, .FuelPriceFactor = 1.3f, .EquipmentDurabilityFactor = 1.3f, .MinimumAfterburnerWear = 14, .MaximumAfterburnerWear = 16, .FearThresholdScale = 1.2f, .ColorTag = u"<color=237,247,062>"_w}, {.InternalName = u"Kling"_w, .FuelPriceFactor = 1.0f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 10, .MaximumAfterburnerWear = 20, .FearThresholdScale = 1.0f, .ColorTag = u"<color=097,167,190>"_w}, {.InternalName = u"None"_w, .FuelPriceFactor = 1.0f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 14, .MaximumAfterburnerWear = 20, .FearThresholdScale = 1.0f, .ColorTag = u"<color=255,000,255>"_w}, {.InternalName = u"PirateClan"_w, .FuelPriceFactor = 0.8f, .EquipmentDurabilityFactor = 1.0f, .MinimumAfterburnerWear = 16, .MaximumAfterburnerWear = 20, .FearThresholdScale = 0.5f, .ColorTag = u"<color=255,255,255>"_w}}}, .PlanetOwnerMasks = aGalaxyStruct::TPlanetOwnerMasks{.Coalition = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}}), .Dominators = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiDominator}}), .PirateClan = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPirate}})}, .OwnerRelations = aGalaxyStruct::TOwnerRelationTable{{aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(80), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(60), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(90), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(80), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(80), static_cast<std::uint8_t>(90), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(30)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(100), static_cast<std::uint8_t>(0)}}, aGalaxyStruct::TOwnerRelationRow{{static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(100)}}}}, .PlanetRaceMarket = aGalaxyStruct::TPlanetRaceMarketTable{{{.InventionProgressScale = 0.85f, .InitialInventionBoostCount = 5, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 0.85, .StockFactor = 1.1}, {.PriceFactor = 1.1, .StockFactor = 1.1}, {.PriceFactor = 1.15, .StockFactor = 0.5}, {.PriceFactor = 0.85, .StockFactor = 0.4}, {.PriceFactor = 0.87, .StockFactor = 0.7}, {.PriceFactor = 1.1, .StockFactor = 0.1}, {.PriceFactor = 1.2, .StockFactor = 0.5}, {.PriceFactor = 0.8, .StockFactor = 0.2}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(50), static_cast<std::uint8_t>(90), static_cast<std::uint8_t>(95)}}, .RevolutionChance = 0.002f, .FriendlyRelationScale = 0.7f, .PirateRelationFactor = 1.1f, .UnknownFactor9C = 1.5f, .PirateRelationCeiling = static_cast<std::uint8_t>(60)}, {.InventionProgressScale = 0.95f, .InitialInventionBoostCount = 6, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 0.95, .StockFactor = 1.2}, {.PriceFactor = 1.05, .StockFactor = 1.0}, {.PriceFactor = 1.07, .StockFactor = 0.9}, {.PriceFactor = 1.15, .StockFactor = 1.2}, {.PriceFactor = 0.95, .StockFactor = 0.8}, {.PriceFactor = 1.05, .StockFactor = 1.1}, {.PriceFactor = 1.1, .StockFactor = 0.8}, {.PriceFactor = 0.95, .StockFactor = 0.6}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(20), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(70), static_cast<std::uint8_t>(85), static_cast<std::uint8_t>(90)}}, .RevolutionChance = 0.006f, .FriendlyRelationScale = 1.1f, .PirateRelationFactor = 1.5f, .UnknownFactor9C = 0.8f, .PirateRelationCeiling = static_cast<std::uint8_t>(80)}, {.InventionProgressScale = 1.0f, .InitialInventionBoostCount = 7, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.5}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 0.8}, {.PriceFactor = 1.0, .StockFactor = 1.0}, {.PriceFactor = 1.0, .StockFactor = 1.0}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(40), static_cast<std::uint8_t>(60), static_cast<std::uint8_t>(80)}}, .RevolutionChance = 0.004f, .FriendlyRelationScale = 1.0f, .PirateRelationFactor = 0.9f, .UnknownFactor9C = 1.2f, .PirateRelationCeiling = static_cast<std::uint8_t>(45)}, {.InventionProgressScale = 1.1f, .InitialInventionBoostCount = 8, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 1.05, .StockFactor = 0.7}, {.PriceFactor = 0.85, .StockFactor = 0.9}, {.PriceFactor = 0.87, .StockFactor = 1.4}, {.PriceFactor = 1.0, .StockFactor = 0.8}, {.PriceFactor = 1.15, .StockFactor = 0.5}, {.PriceFactor = 1.15, .StockFactor = 0.4}, {.PriceFactor = 0.9, .StockFactor = 0.4}, {.PriceFactor = 1.1, .StockFactor = 0.5}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(5), static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(15), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(70)}}, .RevolutionChance = 0.003f, .FriendlyRelationScale = 1.1f, .PirateRelationFactor = 0.7f, .UnknownFactor9C = 1.0f, .PirateRelationCeiling = static_cast<std::uint8_t>(35)}, {.InventionProgressScale = 1.15f, .InitialInventionBoostCount = 9, .GoodsFactors = pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7>{{{.PriceFactor = 1.1, .StockFactor = 0.5}, {.PriceFactor = 0.8, .StockFactor = 0.5}, {.PriceFactor = 0.8, .StockFactor = 0.8}, {.PriceFactor = 0.85, .StockFactor = 0.5}, {.PriceFactor = 1.1, .StockFactor = 0.3}, {.PriceFactor = 0.9, .StockFactor = 0.3}, {.PriceFactor = 0.84, .StockFactor = 0.1}, {.PriceFactor = 1.15, .StockFactor = 0.4}}}, .GovernmentRollThresholds = pas::Array<std::uint8_t, 0, 4>{{static_cast<std::uint8_t>(5), static_cast<std::uint8_t>(8), static_cast<std::uint8_t>(10), static_cast<std::uint8_t>(30), static_cast<std::uint8_t>(60)}}, .RevolutionChance = 0.002f, .FriendlyRelationScale = 1.3f, .PirateRelationFactor = 0.6f, .UnknownFactor9C = 0.9f, .PirateRelationCeiling = static_cast<std::uint8_t>(35)}}}, .PlanetEquipmentOfferQuotas = aGalaxyStruct::TPlanetEquipmentOfferQuotaTable{{aGalaxyStruct::TPlanetEquipmentOfferQuotaRow{{
         3, 2, 2, 2, 1, 2, 2, 2,
         6,
     }}, aGalaxyStruct::TPlanetEquipmentOfferQuotaRow{{
@@ -395,7 +395,7 @@ namespace aConst {
         u"bonSkill4"_w, u"bonSkill5"_w, u"bonSkill6"_w, u"bonMass"_w, u"bonExtraAkrinEff"_w, u"bonExtraAkrinPenalty"_w,
         u"bonAmmo"_w, u"bonShots"_w, u"bonMissileSpeed"_w, u"bonShotSpeed"_w, u"bonHookMaxSpeed"_w, u"bonHookMinSpeed"_w,
         u"bonStimCapacity"_w, u"bonZonds"_w, u"bonAttacks"_w, u"bonResistAsteroid"_w, u"bonAIValue"_w, u"bonNull"_w,
-    }}, .EquipmentBonusSkills = pas::Array<std::uint8_t, 0, 5>{{static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(2), static_cast<std::uint8_t>(3), static_cast<std::uint8_t>(4), static_cast<std::uint8_t>(5)}}, .EquipmentSizeFactors = aConst::TEquipmentSizeFactorTable{{2.0f, 1.5f, 1.0f, 0.7f, 0.5f}}, .WeaponRangeLevelFactors = aConst::TWeaponRangeLevelFactors{{0.9f, 0.95f, 0.95f, 1.0f, 1.0f, 1.05f, 1.05f, 1.1f}}, .PlanetInventionInfo = pas::Array<aConst::tInventionInfo, 0, 19>{{
+    }}, .EquipmentBonusSkills = pas::Array<aGalaxyStruct::TPilotSkill, 0, 5>{{aGalaxyStruct::psAccuracy, aGalaxyStruct::psManeuverability, aGalaxyStruct::psTechnical, aGalaxyStruct::psTrading, aGalaxyStruct::psCharisma, aGalaxyStruct::psLeadership}}, .EquipmentSizeFactors = aConst::TEquipmentSizeFactorTable{{2.0f, 1.5f, 1.0f, 0.7f, 0.5f}}, .WeaponRangeLevelFactors = aConst::TWeaponRangeLevelFactors{{0.9f, 0.95f, 0.95f, 1.0f, 1.0f, 1.05f, 1.05f, 1.1f}}, .PlanetInventionInfo = pas::Array<aConst::tInventionInfo, 0, 19>{{
         {.Name = u"Hull level"_w, .InitialLevel = static_cast<std::uint8_t>(1), .RequiredMainTechLevel = static_cast<std::uint8_t>(1)},
         {.Name = u"FuelTanks level"_w, .InitialLevel = static_cast<std::uint8_t>(1), .RequiredMainTechLevel = static_cast<std::uint8_t>(1)},
         {.Name = u"Engine level"_w, .InitialLevel = static_cast<std::uint8_t>(1), .RequiredMainTechLevel = static_cast<std::uint8_t>(1)},
@@ -628,7 +628,7 @@ namespace aConst {
     pas::Array<pas::WideString, 0, 42>& EquipmentBonusNames = cpp_global_region_0.EquipmentBonusNames;
 
     // Maps bonSkill1..bonSkill6 to native pilot skills.
-    pas::Array<std::uint8_t, 0, 5>& EquipmentBonusSkills = cpp_global_region_0.EquipmentBonusSkills;
+    pas::Array<aGalaxyStruct::TPilotSkill, 0, 5>& EquipmentBonusSkills = cpp_global_region_0.EquipmentBonusSkills;
 
     aConst::TEquipmentSizeFactorTable& EquipmentSizeFactors = cpp_global_region_0.EquipmentSizeFactors;
 
@@ -901,7 +901,7 @@ namespace aConst {
     // Loaded by the native equipment configuration initializer.
     aGalaxyStruct::TEngineLevelStatsTable EngineLevelStats{};
 
-    // Native per-technology armor table; remaining fields unresolved.
+    // Per-technology armor and energy/splinter/missile fragility, used by THull getters.
     aConst::THullLevelStatsTable HullLevelStats{};
 
     // Loaded from mRepair.
@@ -982,7 +982,7 @@ namespace aConst {
         }
     }
 
-    pas::WideString OwnerToSys(std::uint8_t OwnerId) {
+    pas::WideString OwnerToSys(aGalaxyStruct::TOwnerId OwnerId) {
         switch (OwnerId) {
             case aGalaxyStruct::oiMaloc: return u"Maloc"_w;
             case aGalaxyStruct::oiPeleng: return u"Peleng"_w;
@@ -995,43 +995,43 @@ namespace aConst {
         }
     }
 
-    std::uint8_t IsKnownOwnerName(const pas::WideString& Name) {
+    std::uint8_t IsKnownOwnerName(const std::u16string_view& Name) {
         std::uint8_t Result = false;
         if (!Result) {
-            Result = Name == u"Maloc";
+            Result = Name == u"Maloc"sv;
         }
         if (!Result) {
-            Result = Name == u"Peleng";
+            Result = Name == u"Peleng"sv;
         }
         if (!Result) {
-            Result = Name == u"People";
+            Result = Name == u"People"sv;
         }
         if (!Result) {
-            Result = Name == u"Fei";
+            Result = Name == u"Fei"sv;
         }
         if (!Result) {
-            Result = Name == u"Gaal";
+            Result = Name == u"Gaal"sv;
         }
         if (!Result) {
-            Result = Name == u"Kling";
+            Result = Name == u"Kling"sv;
         }
         if (!Result) {
-            Result = Name == u"None";
+            Result = Name == u"None"sv;
         }
         if (!Result) {
-            return Name == u"PirateClan";
+            return Name == u"PirateClan"sv;
         }
         return Result;
     }
 
     // Unrecognized names act as a wildcard.
-    std::uint8_t MatchesOwnerName(std::uint8_t OwnerId, const pas::WideString& Name) {
-        return static_cast<std::uint8_t>(aConst::IsKnownOwnerName(Name) ^ 1) || Name == aConst::OwnerToSys(OwnerId);
+    std::uint8_t MatchesOwnerName(aGalaxyStruct::TOwnerId OwnerId, const std::u16string_view& Name) {
+        return static_cast<std::uint8_t>(aConst::IsKnownOwnerName(Name) ^ 1) || Name == pas::view(aConst::OwnerToSys(OwnerId));
     }
 
     // Case-sensitive substring, Any, or empty string.
-    std::uint8_t MatchesCareerName(std::uint8_t Career, const pas::WideString& Names) {
-        return pas::pos(CareerTuning[Career].Name, Names) > 0 || Names == u"Any" || Names == u"";
+    std::uint8_t MatchesCareerName(aGalaxyStruct::TRangerCareer Career, const std::u16string_view& Names) {
+        return pas::pos(CareerTuning[Career].Name, Names) > 0 || Names == u"Any"sv || Names == u""sv;
     }
 
     void LoadArtefactConfiguration() {
@@ -1045,76 +1045,76 @@ namespace aConst {
         std::uint8_t CanBeTreasure{};
         std::uint8_t CanBeReward{};
         Config = GR_Main::LanguageDataConfig->GetBlockByPath(u"Artefacts.NumericValues"_wref.get());
-        HullArtefactArmor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHull"_wref.get())));
+        HullArtefactArmor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHull"sv)));
         HullArtefactStatusDecayFactor = 1.5f;
-        FuelArtefactBase = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactFuel"_wref.get())));
-        SpeedArtefactFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactSpeed"_wref.get()));
-        EngineArtefactBase = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactPower"_wref.get())));
-        RadarArtefactRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactRadar"_wref.get())));
-        ScannerArtefactPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactScaner"_wref.get())));
-        DroidArtefactRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactDroid"_wref.get())));
-        DroidArtefactWear = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDroidWear"_wref.get()));
+        FuelArtefactBase = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactFuel"sv)));
+        SpeedArtefactFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactSpeed"sv));
+        EngineArtefactBase = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactPower"sv)));
+        RadarArtefactRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactRadar"sv)));
+        ScannerArtefactPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactScaner"sv)));
+        DroidArtefactRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactDroid"sv)));
+        DroidArtefactWear = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDroidWear"sv));
         DroidArtefactStatusDecayFactor = 1.5f;
-        NanoArtefactRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactNano"_wref.get())));
-        DefenseArtefactBonus = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDef"_wref.get()));
-        AntigravityArtefactMassFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactAntigrav"_wref.get()));
-        CargoHookArtefactPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHook"_wref.get())));
-        CargoHookArtefactRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookRaduis"_wref.get())));
-        CargoHookArtefactSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookSpeed"_wref.get())));
-        WeaponToSpeedArtefactBonus = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtWeaponToSpeed"_wref.get())));
-        DefenseToEnergyUpperFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyUp"_wref.get()));
-        DefenseToEnergyMinimumFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyMin"_wref.get()));
-        DefenseToEnergyPenalty = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyPenalty"_wref.get()));
-        DefenseToWeaponPenalty = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToArms1Penalty"_wref.get()));
-        EnergyPulseArtefactFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtEnergyPulse"_wref.get()));
-        EnergyPulseArtefactChance = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtEnergyPulseChance"_wref.get()));
-        SplinterArtefactFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtSplinter"_wref.get()));
-        HyperJumpArtefactRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtGiperJump"_wref.get())));
-        StarHeatArtefactReduction = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtPowerSunProtection"_wref.get()));
-        ExtraMissileChance = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtFastRacksChance"_wref.get()));
-        AfterburnerArtefactWearFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtForsage"_wref.get()));
-        PointDefensePassCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kPDTurretCountShots"_wref.get())));
-        PointDefenseBaseRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kPDTurretRange"_wref.get())));
-        HullArtefactBoostArmor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHullEx"_wref.get())));
+        NanoArtefactRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactNano"sv)));
+        DefenseArtefactBonus = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDef"sv));
+        AntigravityArtefactMassFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactAntigrav"sv));
+        CargoHookArtefactPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHook"sv)));
+        CargoHookArtefactRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookRaduis"sv)));
+        CargoHookArtefactSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookSpeed"sv)));
+        WeaponToSpeedArtefactBonus = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtWeaponToSpeed"sv)));
+        DefenseToEnergyUpperFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyUp"sv));
+        DefenseToEnergyMinimumFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyMin"sv));
+        DefenseToEnergyPenalty = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyPenalty"sv));
+        DefenseToWeaponPenalty = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToArms1Penalty"sv));
+        EnergyPulseArtefactFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtEnergyPulse"sv));
+        EnergyPulseArtefactChance = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtEnergyPulseChance"sv));
+        SplinterArtefactFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtSplinter"sv));
+        HyperJumpArtefactRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtGiperJump"sv)));
+        StarHeatArtefactReduction = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtPowerSunProtection"sv));
+        ExtraMissileChance = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtFastRacksChance"sv));
+        AfterburnerArtefactWearFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtForsage"sv));
+        PointDefensePassCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kPDTurretCountShots"sv)));
+        PointDefenseBaseRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kPDTurretRange"sv)));
+        HullArtefactBoostArmor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHullEx"sv)));
         HullArtefactBoostStatusDecay = 0.5f;
-        FuelArtefactBoost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactFuelEx"_wref.get())));
-        SpeedArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactSpeedEx"_wref.get()));
-        EngineArtefactBoost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactPowerEx"_wref.get())));
-        RadarArtefactBoostRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactRadarEx"_wref.get())));
-        ScannerArtefactBoostPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactScanerEx"_wref.get())));
-        DroidArtefactBoostRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactDroidEx"_wref.get())));
-        DroidArtefactBoostWear = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDroidWearEx"_wref.get()));
+        FuelArtefactBoost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactFuelEx"sv)));
+        SpeedArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactSpeedEx"sv));
+        EngineArtefactBoost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactPowerEx"sv)));
+        RadarArtefactBoostRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactRadarEx"sv)));
+        ScannerArtefactBoostPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactScanerEx"sv)));
+        DroidArtefactBoostRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactDroidEx"sv)));
+        DroidArtefactBoostWear = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDroidWearEx"sv));
         DroidArtefactBoostStatusDecay = 0.5f;
-        NanoArtefactBoostRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactNanoEx"_wref.get())));
-        DefenseArtefactBoost = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDefEx"_wref.get()));
-        AntigravityArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactAntigravEx"_wref.get()));
-        CargoHookArtefactBoostPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookEx"_wref.get())));
-        CargoHookArtefactBoostRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookRaduisEx"_wref.get())));
-        CargoHookArtefactBoostSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookSpeedEx"_wref.get())));
-        WeaponToSpeedArtefactBoost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtWeaponToSpeedEx"_wref.get())));
-        DefenseToEnergyUpperBoost = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyUpEx"_wref.get()));
-        DefenseToEnergyMinimumBoost = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyMinEx"_wref.get()));
-        DefenseToEnergyBoostPenalty = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyPenaltyEx"_wref.get()));
-        EnergyPulseArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtEnergyPulseEx"_wref.get()));
-        SplinterArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtSplinterEx"_wref.get()));
-        HyperJumpArtefactBoostRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtGiperJumpEx"_wref.get())));
-        StarHeatArtefactBoostReduction = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtPowerSunProtectionEx"_wref.get()));
-        ExtraMissileBoostChance = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtFastRacksChanceEx"_wref.get()));
-        AfterburnerArtefactBoostWearFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtForsageEx"_wref.get()));
-        PointDefenseBonusRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kPDTurretRangeEx"_wref.get())));
-        MinTransmitterPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"MinTransmitterPower"_wref.get())));
-        AverageTransmitterPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"AverageTransmitterPower"_wref.get())));
-        MaxTransmitterPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"MaxTransmitterPower"_wref.get())));
-        TransmitterSameSystemPenalty = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltySameSystem"_wref.get())));
-        TransmitterAnySystemPenalty = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltyAnySystem"_wref.get())));
-        TransmitterSameSystemPenaltyTurns = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltySameSystemDuration"_wref.get())));
-        TransmitterAnySystemPenaltyTurns = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltyAnySystemDuration"_wref.get())));
-        SubportalRewardPenalty = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kSubportalPenalty"_wref.get())));
-        SubportalRewardPenaltyTurns = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kSubportalPenaltyDuration"_wref.get())));
-        ItemExplosionBonusDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombPower"_wref.get())));
-        BombMinimumDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombPowerMin"_wref.get())));
-        BombMaximumDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombPowerMax"_wref.get())));
-        BombDamageRadius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombRadius"_wref.get())));
+        NanoArtefactBoostRepair = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactNanoEx"sv)));
+        DefenseArtefactBoost = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactDefEx"sv));
+        AntigravityArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtefactAntigravEx"sv));
+        CargoHookArtefactBoostPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookEx"sv)));
+        CargoHookArtefactBoostRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookRaduisEx"sv)));
+        CargoHookArtefactBoostSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtefactHookSpeedEx"sv)));
+        WeaponToSpeedArtefactBoost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtWeaponToSpeedEx"sv)));
+        DefenseToEnergyUpperBoost = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyUpEx"sv));
+        DefenseToEnergyMinimumBoost = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyMinEx"sv));
+        DefenseToEnergyBoostPenalty = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtDefToEnergyPenaltyEx"sv));
+        EnergyPulseArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtEnergyPulseEx"sv));
+        SplinterArtefactBoostFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtSplinterEx"sv));
+        HyperJumpArtefactBoostRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kArtGiperJumpEx"sv)));
+        StarHeatArtefactBoostReduction = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtPowerSunProtectionEx"sv));
+        ExtraMissileBoostChance = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtFastRacksChanceEx"sv));
+        AfterburnerArtefactBoostWearFactor = EC_Str::ExtractDecimalToSingleW(Config->GetParam(u"kArtForsageEx"sv));
+        PointDefenseBonusRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kPDTurretRangeEx"sv)));
+        MinTransmitterPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"MinTransmitterPower"sv)));
+        AverageTransmitterPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"AverageTransmitterPower"sv)));
+        MaxTransmitterPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"MaxTransmitterPower"sv)));
+        TransmitterSameSystemPenalty = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltySameSystem"sv)));
+        TransmitterAnySystemPenalty = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltyAnySystem"sv)));
+        TransmitterSameSystemPenaltyTurns = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltySameSystemDuration"sv)));
+        TransmitterAnySystemPenaltyTurns = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kTransmitterPenaltyAnySystemDuration"sv)));
+        SubportalRewardPenalty = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kSubportalPenalty"sv)));
+        SubportalRewardPenaltyTurns = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"kSubportalPenaltyDuration"sv)));
+        ItemExplosionBonusDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombPower"sv)));
+        BombMinimumDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombPowerMin"sv)));
+        BombMaximumDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombPowerMax"sv)));
+        BombDamageRadius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Config->GetParam(u"BombRadius"sv)));
         ItemExplosionRadiusSquared = BombDamageRadius * BombDamageRadius;
         std::int32_t ABDropCount = 0;
         std::int32_t TreasureCount = 0;
@@ -1123,10 +1123,10 @@ namespace aConst {
         Config = GR_Main::LanguageDataConfig->GetBlockByPath(u"Artefacts"_wref.get());
         for (auto cpp_range = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(static_cast<TItemTypeSelection>(ArtefactTypes))); cpp_range.next(Index); ) {
             Kind = static_cast<TItemType>(aConst::GetItemTypeFromMask(static_cast<TItemTypeSelection>(pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 9}}) - pas::constant_set<pas::Set<0, 255>>({{42, 79}})), Index));
-            Block = Config->GetBlock(ItemTypeNames[Kind]);
-            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeABDrop"_wref.get())) > 0;
-            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeTreasure"_wref.get())) > 0;
-            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeReward"_wref.get())) > 0;
+            Block = Config->GetBlock(pas::view(ItemTypeNames[Kind]));
+            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeABDrop"sv))) > 0;
+            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeTreasure"sv))) > 0;
+            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeReward"sv))) > 0;
             if (CanBeABDrop || CanBeTreasure || CanBeReward) {
                 if (CanBeABDrop) {
                     ++ABDropCount;
@@ -1150,10 +1150,10 @@ namespace aConst {
         AnyCount = 0;
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(static_cast<TItemTypeSelection>(ArtefactTypes))); cpp_range_2.next(Index); ) {
             Kind = static_cast<TItemType>(aConst::GetItemTypeFromMask(static_cast<TItemTypeSelection>(pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 9}}) - pas::constant_set<pas::Set<0, 255>>({{42, 79}})), Index));
-            Block = Config->GetBlock(ItemTypeNames[Kind]);
-            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeABDrop"_wref.get())) > 0;
-            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeTreasure"_wref.get())) > 0;
-            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeReward"_wref.get())) > 0;
+            Block = Config->GetBlock(pas::view(ItemTypeNames[Kind]));
+            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeABDrop"sv))) > 0;
+            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeTreasure"sv))) > 0;
+            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) <= 0 || EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeReward"sv))) > 0;
             if (CanBeABDrop || CanBeTreasure || CanBeReward) {
                 if (CanBeABDrop) {
                     ArtefactLootPools[0][ABDropCount] = Kind;
@@ -1178,9 +1178,9 @@ namespace aConst {
         Config = GR_Main::LanguageDataConfig->GetBlockByPath(u"Artefacts.CustomArtefacts"_wref.get());
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Config->GetBlockCount() - 1); cpp_range_3.next(Index); ) {
             Block = Config->GetBlockByIndex(Index);
-            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeABDrop"_wref.get())) > 0;
-            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeTreasure"_wref.get())) > 0;
-            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeReward"_wref.get())) > 0;
+            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeABDrop"sv))) > 0;
+            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeTreasure"sv))) > 0;
+            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeReward"sv))) > 0;
             if (CanBeABDrop || CanBeTreasure || CanBeReward) {
                 if (CanBeABDrop) {
                     ++ABDropCount;
@@ -1204,9 +1204,9 @@ namespace aConst {
         AnyCount = 0;
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Config->GetBlockCount() - 1); cpp_range_4.next(Index); ) {
             Block = Config->GetBlockByIndex(Index);
-            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeABDrop"_wref.get())) > 0;
-            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeTreasure"_wref.get())) > 0;
-            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeReward"_wref.get())) > 0;
+            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeABDrop"sv))) > 0;
+            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeTreasure"sv))) > 0;
+            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeReward"sv))) > 0;
             if (CanBeABDrop || CanBeTreasure || CanBeReward) {
                 ItemName = Config->GetBlockNameByIndex(Index);
                 if (CanBeABDrop) {
@@ -1232,9 +1232,9 @@ namespace aConst {
         Config = GR_Main::LanguageDataConfig->GetBlockByPath(u"UselessItems"_wref.get());
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Config->GetBlockCount() - 1); cpp_range_5.next(Index); ) {
             Block = Config->GetBlockByIndex(Index);
-            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeABDrop"_wref.get())) > 0;
-            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeTreasure"_wref.get())) > 0;
-            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeReward"_wref.get())) > 0;
+            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeABDrop"sv))) > 0;
+            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeTreasure"sv))) > 0;
+            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeReward"sv))) > 0;
             if (CanBeABDrop || CanBeTreasure || CanBeReward) {
                 if (CanBeABDrop) {
                     ++ABDropCount;
@@ -1258,9 +1258,9 @@ namespace aConst {
         AnyCount = 0;
         for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Config->GetBlockCount() - 1); cpp_range_6.next(Index); ) {
             Block = Config->GetBlockByIndex(Index);
-            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeABDrop"_wref.get())) > 0;
-            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeTreasure"_wref.get())) > 0;
-            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CanBeReward"_wref.get())) > 0;
+            CanBeABDrop = Block->CountParams(u"CanBeABDrop"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeABDrop"sv))) > 0;
+            CanBeTreasure = Block->CountParams(u"CanBeTreasure"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeTreasure"sv))) > 0;
+            CanBeReward = Block->CountParams(u"CanBeReward"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CanBeReward"sv))) > 0;
             if (CanBeABDrop || CanBeTreasure || CanBeReward) {
                 ItemName = Config->GetBlockNameByIndex(Index);
                 if (CanBeABDrop) {
@@ -1286,51 +1286,51 @@ namespace aConst {
         std::int32_t Cost{};
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString Values{};
-        std::uint8_t QuestKind{};
-        std::uint8_t Skill{};
+        aGalaxyStruct::TQuestType QuestKind{};
+        aGalaxyStruct::TPilotSkill Skill{};
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Asteroid"_wref.get());
-        AsteroidMinDamageFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMinDamagePercent"_wref.get()))) * 0.01L;
-        AsteroidMaxDamageFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMaxDamagePercent"_wref.get()))) * 0.01L;
-        AsteroidMinDamageFactorWithDefGenerator = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMinDamagePercentDef"_wref.get()))) * 0.01L;
-        AsteroidMaxDamageFactorWithDefGenerator = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMaxDamagePercentDef"_wref.get()))) * 0.01L;
+        AsteroidMinDamageFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMinDamagePercent"sv))) * 0.01L;
+        AsteroidMaxDamageFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMaxDamagePercent"sv))) * 0.01L;
+        AsteroidMinDamageFactorWithDefGenerator = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMinDamagePercentDef"sv))) * 0.01L;
+        AsteroidMaxDamageFactorWithDefGenerator = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"kAsteroidMaxDamagePercentDef"sv))) * 0.01L;
         TotalSkillTrainingCost = 0;
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(5)); cpp_range.next(Skill); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
             SkillTrainingCosts[0][Skill] = 0;
-            Values = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Skills.", SkillConfigNames[Skill]}))->GetParam(u"Points"_wref.get());
+            Values = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Skills.", SkillConfigNames[Skill]}))->GetParam(u"Points"sv);
             for (Level = 1; Level <= 6; ++Level) {
-                Cost = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+                Cost = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
                 SkillTrainingCosts[Level][Skill] = Cost;
                 TotalSkillTrainingCost += Cost;
             }
         }
-        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestPoints"_wref.get());
-        for (QuestKind = static_cast<std::uint8_t>(0); QuestKind <= static_cast<std::uint8_t>(4); ++QuestKind) {
-            QuestExperience[QuestKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, QuestKind - 0, u","_wref.get())));
+        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestPoints"sv);
+        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TQuestType>(aGalaxyStruct::qtSendLetter, aGalaxyStruct::qtDefendShip); cpp_range_2.next(QuestKind); ) {
+            QuestExperience[QuestKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), QuestKind - aGalaxyStruct::qtSendLetter, u","sv)));
         }
-        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestTurns"_wref.get());
-        for (QuestKind = static_cast<std::uint8_t>(0); QuestKind <= static_cast<std::uint8_t>(4); ++QuestKind) {
-            QuestTuning[QuestKind].BaseDuration = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, QuestKind - 0, u","_wref.get())));
+        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestTurns"sv);
+        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TQuestType>(aGalaxyStruct::qtSendLetter, aGalaxyStruct::qtDefendShip); cpp_range_3.next(QuestKind); ) {
+            QuestTuning[QuestKind].BaseDuration = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), QuestKind - aGalaxyStruct::qtSendLetter, u","sv)));
         }
-        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestMoneyBase"_wref.get());
-        for (QuestKind = static_cast<std::uint8_t>(0); QuestKind <= static_cast<std::uint8_t>(4); ++QuestKind) {
-            QuestTuning[QuestKind].BaseRewardMoney = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, QuestKind - 0, u","_wref.get())));
+        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestMoneyBase"sv);
+        for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TQuestType>(aGalaxyStruct::qtSendLetter, aGalaxyStruct::qtDefendShip); cpp_range_4.next(QuestKind); ) {
+            QuestTuning[QuestKind].BaseRewardMoney = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), QuestKind - aGalaxyStruct::qtSendLetter, u","sv)));
         }
-        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestMoneyPerc"_wref.get());
-        for (QuestKind = static_cast<std::uint8_t>(0); QuestKind <= static_cast<std::uint8_t>(4); ++QuestKind) {
-            QuestTuning[QuestKind].RewardCapitalPercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, QuestKind - 0, u","_wref.get())));
+        Values = GR_Main::LanguageDataConfig->GetBlockByPath(u"Quest"_wref.get())->GetParam(u"QuestMoneyPerc"sv);
+        for (auto cpp_range_5 = pas::for_to<aGalaxyStruct::TQuestType>(aGalaxyStruct::qtSendLetter, aGalaxyStruct::qtDefendShip); cpp_range_5.next(QuestKind); ) {
+            QuestTuning[QuestKind].RewardCapitalPercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), QuestKind - aGalaxyStruct::qtSendLetter, u","sv)));
         }
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.Goods"_wref.get());
-        GoodsInflationMin = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kInflationMin"_wref.get()));
-        GoodsInflationMax = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kInflationMax"_wref.get()));
-        GoodsStockMin = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kStockMin"_wref.get()));
-        GoodsStockMax = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kStockMax"_wref.get()));
+        GoodsInflationMin = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kInflationMin"sv));
+        GoodsInflationMax = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kInflationMax"sv));
+        GoodsStockMin = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kStockMin"sv));
+        GoodsStockMax = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kStockMax"sv));
         if (Block->CountParams(u"InflationStartTurn"_wref.get()) > 0) {
-            GoodsInflationStartTurn = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"InflationStartTurn"_wref.get()));
+            GoodsInflationStartTurn = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"InflationStartTurn"sv)));
         } else {
             GoodsInflationStartTurn = 1000;
         }
         if (Block->CountParams(u"InflationEndTurn"_wref.get()) > 0) {
-            GoodsInflationEndTurn = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"InflationEndTurn"_wref.get()));
+            GoodsInflationEndTurn = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"InflationEndTurn"sv)));
         } else {
             GoodsInflationEndTurn = 10000;
         }
@@ -1340,84 +1340,84 @@ namespace aConst {
         std::uint8_t Level{};
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString Values{};
-        std::uint8_t DamageKind{};
-        std::uint8_t Owner{};
+        TWeaponDamageClass DamageKind{};
+        aGalaxyStruct::TOwnerId Owner{};
         std::uint8_t HullKind{};
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.Hull"_wref.get());
-        HullBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
+        HullBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
         HullCapacityScale = pas::real_divide(HullBaseSize, 5.0E+2L);
-        Values = Block->GetParam(u"mAlloy"_wref.get());
+        Values = Block->GetParam(u"mAlloy"sv);
         for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range.next(Level); ) {
-            HullLevelStats[Level].Armor = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            HullLevelStats[Level].Armor = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
-        for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range_2.next(DamageKind); ) {
-            Values = Block->GetParam(pas::concat_wide({u"mFragilityByLevel", WeaponDamageClasses[DamageKind].Name}));
+        for (auto cpp_range_2 = pas::for_to<TWeaponDamageClass>(wdcEnergy, wdcMissile); cpp_range_2.next(DamageKind); ) {
+            Values = Block->GetParam(pas::view(pas::concat_wide({u"mFragilityByLevel", WeaponDamageClasses[DamageKind].Name})));
             for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_3.next(Level); ) {
-                pas::store_unaligned<float>(pas::byte_offset(&HullLevelStats[Level].Fragility, DamageKind * sizeof(float)), EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+                pas::store_unaligned<float>(pas::byte_offset(&HullLevelStats[Level].Fragility, DamageKind * sizeof(float)), EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
             }
-            Values = Block->GetParam(pas::concat_wide({u"mFragilityByOwner", WeaponDamageClasses[DamageKind].Name}));
-            for (auto cpp_range_4 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_4.next(Owner); ) {
-                HullFragilityByOwner[DamageKind][Owner] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Owner - 0, u","_wref.get()));
+            Values = Block->GetParam(pas::view(pas::concat_wide({u"mFragilityByOwner", WeaponDamageClasses[DamageKind].Name})));
+            for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_4.next(Owner); ) {
+                HullFragilityByOwner[DamageKind][Owner] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Values), Owner - 0, u","sv));
             }
         }
-        Values = Block->GetParam(u"mFragilityByShipType"_wref.get());
+        Values = Block->GetParam(u"mFragilityByShipType"sv);
         for (auto cpp_range_5 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(10)); cpp_range_5.next(HullKind); ) {
-            HullFragilityByType[HullKind] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, HullKind - 0, u","_wref.get()));
+            HullFragilityByType[HullKind] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Values), HullKind - 0, u","sv));
         }
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.FuelTanks"_wref.get());
-        FuelTanksBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
-        Values = Block->GetParam(u"mCapacity"_wref.get());
+        FuelTanksBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
+        Values = Block->GetParam(u"mCapacity"sv);
         for (auto cpp_range_6 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_6.next(Level); ) {
-            FuelCapacityByLevel[Level] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            FuelCapacityByLevel[Level] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.Engine"_wref.get());
-        EngineBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
-        Values = Block->GetParam(u"mSpeed"_wref.get());
+        EngineBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
+        Values = Block->GetParam(u"mSpeed"sv);
         for (auto cpp_range_7 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_7.next(Level); ) {
-            EngineLevelStats[Level].Speed = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            EngineLevelStats[Level].Speed = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
-        Values = Block->GetParam(u"mJump"_wref.get());
+        Values = Block->GetParam(u"mJump"sv);
         for (auto cpp_range_8 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_8.next(Level); ) {
-            EngineLevelStats[Level].JumpRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            EngineLevelStats[Level].JumpRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
-        AfterburnerSpeedFactor = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"ForsageCoef"_wref.get()));
+        AfterburnerSpeedFactor = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"ForsageCoef"sv));
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.RepairRobot"_wref.get());
-        RepairRobotBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
-        Values = Block->GetParam(u"mRepair"_wref.get());
+        RepairRobotBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
+        Values = Block->GetParam(u"mRepair"sv);
         for (auto cpp_range_9 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_9.next(Level); ) {
-            RepairRobotLevelPoints[Level] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            RepairRobotLevelPoints[Level] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.DefGenerator"_wref.get());
-        DefGeneratorBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
-        Values = Block->GetParam(u"mDef"_wref.get());
+        DefGeneratorBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
+        Values = Block->GetParam(u"mDef"sv);
         for (auto cpp_range_10 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_10.next(Level); ) {
-            DefGeneratorLevelFactors[Level] = 1.0L - EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get()));
+            DefGeneratorLevelFactors[Level] = 1.0L - EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv));
         }
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.Radar"_wref.get());
-        RadarBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
-        Values = Block->GetParam(u"mRadius"_wref.get());
+        RadarBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
+        Values = Block->GetParam(u"mRadius"sv);
         for (auto cpp_range_11 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_11.next(Level); ) {
-            RadarLevelRanges[Level] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            RadarLevelRanges[Level] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.Scaner"_wref.get());
-        ScannerBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
+        ScannerBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(u"Items.CargoHook"_wref.get());
-        CargoHookBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
-        Values = Block->GetParam(u"mMass"_wref.get());
+        CargoHookBaseSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
+        Values = Block->GetParam(u"mMass"sv);
         for (auto cpp_range_12 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_12.next(Level); ) {
-            CargoHookLevelStats[Level].PickupPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            CargoHookLevelStats[Level].PickupPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
-        Values = Block->GetParam(u"mRadius"_wref.get());
+        Values = Block->GetParam(u"mRadius"sv);
         for (auto cpp_range_13 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_13.next(Level); ) {
-            CargoHookLevelStats[Level].Range = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+            CargoHookLevelStats[Level].Range = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv)));
         }
-        Values = Block->GetParam(u"mSpeedFar"_wref.get());
+        Values = Block->GetParam(u"mSpeedFar"sv);
         for (auto cpp_range_14 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_14.next(Level); ) {
-            CargoHookLevelStats[Level].MinPullSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get()));
+            CargoHookLevelStats[Level].MinPullSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv));
         }
-        Values = Block->GetParam(u"mSpeedClose"_wref.get());
+        Values = Block->GetParam(u"mSpeedClose"sv);
         for (auto cpp_range_15 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(1), static_cast<std::uint8_t>(8)); cpp_range_15.next(Level); ) {
-            CargoHookLevelStats[Level].MaxPullSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get()));
+            CargoHookLevelStats[Level].MaxPullSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv));
         }
     }
 
@@ -1433,34 +1433,34 @@ namespace aConst {
             Kind = aConst::GetItemTypeFromMask(static_cast<TItemTypeSelection>(WeaponTypes), Index);
             Block = GR_Main::LanguageDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Items.Weapon.Stats.", SysUtils::IntToStr(Kind + 1 - 50)})));
             {
-                TWeaponInfo& cpp_with = WeaponInfos[Kind];
+                TWeaponInfo& cpp_with = WeaponInfos[static_cast<TItemType>(Kind)];
                 cpp_with.ItemType = static_cast<TItemType>(Kind);
-                cpp_with.ConfigName = ItemTypeNames[Kind];
-                cpp_with.TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"TechLevel"_wref.get())));
-                cpp_with.CostFactor = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kCost"_wref.get()));
-                cpp_with.MinDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MinDamage"_wref.get())));
-                cpp_with.MaxDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxDamage"_wref.get())));
-                cpp_with.AverageSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"_wref.get())));
-                cpp_with.AverageRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageRadius"_wref.get())));
-                cpp_with.ShotSpeedPercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Speed"_wref.get())));
+                cpp_with.ConfigName = ItemTypeNames[static_cast<TItemType>(Kind)];
+                cpp_with.TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"TechLevel"sv)));
+                cpp_with.CostFactor = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"kCost"sv));
+                cpp_with.MinDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MinDamage"sv)));
+                cpp_with.MaxDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxDamage"sv)));
+                cpp_with.AverageSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageSize"sv)));
+                cpp_with.AverageRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AverageRadius"sv)));
+                cpp_with.ShotSpeedPercent = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Speed"sv)));
                 if (Block->CountParams(u"SecondaryDamageRadius"_wref.get()) > 0) {
-                    cpp_with.SecondaryDamageRadius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SecondaryDamageRadius"_wref.get())));
+                    cpp_with.SecondaryDamageRadius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SecondaryDamageRadius"sv)));
                 } else {
                     cpp_with.SecondaryDamageRadius = 0.0f;
                 }
-                cpp_with.MiningFactor = pas::str_to_float(static_cast<pas::AnsiString>(Block->GetParam(u"MiningFactor"_wref.get())), SysUtils::DecimalSeparator);
+                cpp_with.MiningFactor = pas::str_to_float(static_cast<pas::AnsiString>(Block->GetParam(u"MiningFactor"sv)), SysUtils::DecimalSeparator);
                 cpp_with.ArcadeWeaponType = Kind;
                 cpp_with.Availability = aGalaxyStruct::waFree;
-                pas::store_unaligned<aGalaxyStruct::TDamageFlagSet>(&cpp_with.DamageFlags, pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}));
-                Values = Block->GetParam(u"DamageSet"_wref.get());
+                cpp_with.DamageFlags = pas::constant_set<aGalaxyStruct::TDamageFlagSet>({});
+                Values = Block->GetParam(u"DamageSet"sv);
                 for (DamageKind = static_cast<std::uint8_t>(0); DamageKind <= static_cast<std::uint8_t>(20); ++DamageKind) {
                     if (static_cast<std::uint8_t>(pas::in_set<9, 10, 12, 12>(DamageKind) ^ 1) && pas::pos(WeaponDamageFlagNames[DamageKind], Values) > 0) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TDamageFlagSet*>(&cpp_with.DamageFlags), static_cast<aGalaxyStruct::TDamageKind>(DamageKind));
+                        pas::include_at(&cpp_with.DamageFlags, static_cast<aGalaxyStruct::TDamageKind>(DamageKind));
                     }
                 }
                 cpp_with.ShotType = aGalaxyStruct::wstNormal;
                 cpp_with.ShotCount = 1;
-                Values = Block->GetParam(u"ShotType"_wref.get());
+                Values = Block->GetParam(u"ShotType"sv);
                 if (!(pas::pos(u"Normal", Values) > 0)) {
                     if (pas::pos(u"Splash", Values) > 0) {
                         cpp_with.ShotType = aGalaxyStruct::wstSplash;
@@ -1479,45 +1479,45 @@ namespace aConst {
                     }
                 }
                 if (pas::is_one_of<aGalaxyStruct::wstChain, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(cpp_with.ShotType)) {
-                    cpp_with.ShotCount = EC_Str::ExtractDigitsToIntW(Values);
+                    cpp_with.ShotCount = EC_Str::ExtractDigitsToIntW(pas::view(Values));
                 }
                 cpp_with.AttackCount = 1;
                 if (Block->CountParams(u"AttackCount"_wref.get()) > 0) {
-                    cpp_with.AttackCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AttackCount"_wref.get())));
+                    cpp_with.AttackCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AttackCount"sv)));
                 }
                 cpp_with.MissileRange = 0;
                 cpp_with.MissileMaxSpeed = 0;
                 cpp_with.MissileMinSpeed = 0;
                 cpp_with.MissileChanceToBeHit = 0;
                 if (Block->CountParams(u"MissileRadius"_wref.get()) > 0) {
-                    cpp_with.MissileRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileRadius"_wref.get())));
+                    cpp_with.MissileRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileRadius"sv)));
                 }
                 if (Block->CountParams(u"MissileMaxSpeed"_wref.get()) > 0) {
-                    cpp_with.MissileMaxSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileMaxSpeed"_wref.get())));
+                    cpp_with.MissileMaxSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileMaxSpeed"sv)));
                 }
                 if (Block->CountParams(u"MissileMinSpeed"_wref.get()) > 0) {
-                    cpp_with.MissileMinSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileMinSpeed"_wref.get())));
+                    cpp_with.MissileMinSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileMinSpeed"sv)));
                 }
                 if (Block->CountParams(u"MissileChanceToBeHit"_wref.get()) > 0) {
-                    cpp_with.MissileChanceToBeHit = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileChanceToBeHit"_wref.get())));
+                    cpp_with.MissileChanceToBeHit = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MissileChanceToBeHit"sv)));
                 }
-                Values = Block->GetParam(u"mWeaponDamage"_wref.get());
+                Values = Block->GetParam(u"mWeaponDamage"sv);
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, 8); cpp_range_2.next(Level); ) {
-                    pas::store_unaligned<float>(pas::byte_offset(&cpp_with.DamageScaleByLevel, (Level - 1) * sizeof(float)), EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Values, Level - 1, u","_wref.get())));
+                    cpp_with.DamageScaleByLevel[Level] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Values), Level - 1, u","sv));
                 }
             }
         }
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(static_cast<TItemTypeSelection>(WeaponTypes))); cpp_range_3.next(Level); ) {
             Kind = aConst::GetItemTypeFromMask(static_cast<TItemTypeSelection>(WeaponTypes), Level);
-            WeaponInfos[Kind].PrimarySE = static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(Kind - 50)}));
-            WeaponInfos[Kind].SecondarySE = u"Weapon.NoGraph"_w;
-            if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(WeaponInfos[Kind].ShotType)) {
-                WeaponInfos[Kind].AreaSE = u"Weapon.MissileHit"_w;
+            WeaponInfos[static_cast<TItemType>(Kind)].PrimarySE = static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(Kind - 50)}));
+            WeaponInfos[static_cast<TItemType>(Kind)].SecondarySE = u"Weapon.NoGraph"_w;
+            if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(WeaponInfos[static_cast<TItemType>(Kind)].ShotType)) {
+                WeaponInfos[static_cast<TItemType>(Kind)].AreaSE = u"Weapon.MissileHit"_w;
             } else {
-                WeaponInfos[Kind].AreaSE = pas::WideString();
+                WeaponInfos[static_cast<TItemType>(Kind)].AreaSE = pas::WideString();
             }
-            WeaponInfos[Kind].DefaultPalette = 0;
-            WeaponInfos[Kind].TypeHash = Kind * 171;
+            WeaponInfos[static_cast<TItemType>(Kind)].DefaultPalette = 0;
+            WeaponInfos[static_cast<TItemType>(Kind)].TypeHash = Kind * 171;
         }
         WeaponInfos[t_Weapon9].SecondarySE = u"Weapon.Nine"_w;
         WeaponInfos[t_Weapon13].SecondarySE = u"Weapon.12"_w;
@@ -1559,8 +1559,8 @@ namespace aConst {
         pas::WideString CustomName{};
         std::uint8_t Kind{};
         std::uint8_t DamageKind{};
-        std::uint8_t BonusKind{};
-        std::uint8_t DamageClass{};
+        TEquipmentBonusKind BonusKind{};
+        TWeaponDamageClass DamageClass{};
         std::uint8_t StationKind{};
         pas::DynArray<std::int32_t> BlockIndices{};
         pas::DynArray<std::int32_t> SortKeys{};
@@ -1577,8 +1577,8 @@ namespace aConst {
                 Result = pas::concat_wide_reverse({Block->GetParamByPath(pas::concat_wide({ParamName, u":", pas::wide_int_to_str(I)})), Result});
             }
             if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
-                Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
-                return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+                Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"sv);
+                return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             }
             return Result;
         };
@@ -1587,12 +1587,12 @@ namespace aConst {
             std::uint8_t Result{};
             if (pas::pos(Token, Tokens) > 0) {
                 Result = true;
-                Tokens = EC_Str::ReplaceAllWideString(Tokens, Token, u""_wref.get());
+                Tokens = EC_Str::ReplaceAllWideString(Tokens, Token, u""sv);
                 return Result;
             }
             return false;
         };
-        Block = GR_Main::LanguageDataConfig->GetBlock(u"MicroModuls"_wref.get());
+        Block = GR_Main::LanguageDataConfig->GetBlock(u"MicroModuls"sv);
         MicroModuleTemplateCount = Block->GetBlockCount();
         MicroModuleTemplates.set_length(MicroModuleTemplateCount);
         MicroModuleCandidateIndices.set_length(MicroModuleTemplateCount);
@@ -1600,7 +1600,7 @@ namespace aConst {
         SortKeys.set_length(MicroModuleTemplateCount);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, MicroModuleTemplateCount - 1); cpp_range.next(Index); ) {
             BlockIndices[Index] = Index;
-            SortKeys[Index] = EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index));
+            SortKeys[Index] = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index)));
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, MicroModuleTemplateCount - 2); cpp_range_2.next(Index); ) {
             for (auto cpp_range_3 = pas::for_downto<std::int32_t>(MicroModuleTemplateCount - 1, Index + 1); cpp_range_3.next(Position); ) {
@@ -1615,7 +1615,7 @@ namespace aConst {
             }
         }
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, MicroModuleTemplateCount - 1); cpp_range_4.next(Index); ) {
-            Block = GR_Main::LanguageDataConfig->GetBlock(u"MicroModuls"_wref.get());
+            Block = GR_Main::LanguageDataConfig->GetBlock(u"MicroModuls"sv);
             {
                 TMicroModuleInfo& cpp_with = MicroModuleTemplates[Index];
                 cpp_with.ConfigNumber = SortKeys[Index];
@@ -1624,23 +1624,23 @@ namespace aConst {
                 cpp_with.ConfigNameHash = CrcUnit::UpdateCrc32(cpp_with.ConfigNameHash, cpp_with.ConfigName.pchar(), cpp_with.ConfigName.length() * 2);
                 cpp_with.ConfigNameHash = CrcUnit::FinishCrc32(cpp_with.ConfigNameHash);
                 Block = Block->GetBlockByIndex(BlockIndices[Index]);
-                cpp_with.SpecialOnly = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"Special"_w)) != 0;
-                cpp_with.BlocksMicroModuleSlot = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"BlockMM"_w)) != 0;
-                cpp_with.BlocksSpecialSlot = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"BlockImp"_w)) != 0;
-                cpp_with.RacialRestriction = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"RacialRestriction"_w)) != 0;
-                cpp_with.SeparatedNumbers = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"SeparatedNumbers"_w)) != 0;
+                cpp_with.SpecialOnly = EC_Str::ExtractDigitsToIntW(pas::view(ReadMicroModuleParam(u"Special"_w))) != 0;
+                cpp_with.BlocksMicroModuleSlot = EC_Str::ExtractDigitsToIntW(pas::view(ReadMicroModuleParam(u"BlockMM"_w))) != 0;
+                cpp_with.BlocksSpecialSlot = EC_Str::ExtractDigitsToIntW(pas::view(ReadMicroModuleParam(u"BlockImp"_w))) != 0;
+                cpp_with.RacialRestriction = EC_Str::ExtractDigitsToIntW(pas::view(ReadMicroModuleParam(u"RacialRestriction"_w))) != 0;
+                cpp_with.SeparatedNumbers = EC_Str::ExtractDigitsToIntW(pas::view(ReadMicroModuleParam(u"SeparatedNumbers"_w))) != 0;
                 cpp_with.Name = ReadMicroModuleParam(u"Name"_w);
                 cpp_with.NamePrefix = ReadMicroModuleParam(u"NamePrefix"_w);
                 cpp_with.Color = ReadMicroModuleParam(u"Color"_w);
                 cpp_with.TextReplace = ReadMicroModuleParam(u"TextReplace"_w);
-                for (BonusKind = static_cast<std::uint8_t>(0); BonusKind <= static_cast<std::uint8_t>(42); ++BonusKind) {
+                for (auto cpp_range_5 = pas::for_to<TEquipmentBonusKind>(static_cast<TEquipmentBonusKind>(0), static_cast<TEquipmentBonusKind>(42)); cpp_range_5.next(BonusKind); ) {
                     Value = ReadMicroModuleParam(EquipmentBonusNames[BonusKind]);
                     if (Value == u"") {
-                        pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.StatBonuses, BonusKind * sizeof(std::int32_t)), 0);
-                    } else if (pas::in_set<29, 30>(BonusKind)) {
-                        pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.StatBonuses, BonusKind * sizeof(std::int32_t)), static_cast<std::int32_t>(System::Round(EC_Str::ExtractDecimalToSingleW(Value) * 1.0E+2L)));
+                        cpp_with.StatBonuses[BonusKind] = 0;
+                    } else if (pas::is_one_of<bonExtraAkrinEff, bonExtraAkrinPenalty>(BonusKind)) {
+                        cpp_with.StatBonuses[BonusKind] = System::Round(EC_Str::ExtractDecimalToSingleW(Value) * 1.0E+2L);
                     } else {
-                        pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.StatBonuses, BonusKind * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                        cpp_with.StatBonuses[BonusKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                     }
                 }
                 Value = ReadMicroModuleParam(u"Cost"_w);
@@ -1661,84 +1661,84 @@ namespace aConst {
                 } else {
                     cpp_with.FragilityFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                 }
-                for (DamageClass = static_cast<std::uint8_t>(0); DamageClass <= static_cast<std::uint8_t>(2); ++DamageClass) {
+                for (auto cpp_range_6 = pas::for_to<TWeaponDamageClass>(wdcEnergy, wdcMissile); cpp_range_6.next(DamageClass); ) {
                     Value = ReadMicroModuleParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageClass].Name}));
                     if (Value == u"") {
-                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityFactorByDamageClass, DamageClass * sizeof(float)), cpp_with.FragilityFactor);
+                        cpp_with.FragilityFactorByDamageClass[DamageClass] = cpp_with.FragilityFactor;
                     } else {
-                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityFactorByDamageClass, DamageClass * sizeof(float)), static_cast<float>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L));
+                        cpp_with.FragilityFactorByDamageClass[DamageClass] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                     }
                 }
                 Value = ReadMicroModuleParam(u"Owner"_w);
                 if (Value == u"" || Value == u"Any") {
                     if (cpp_with.SpecialOnly) {
-                        pas::store_unaligned<aGalaxyStruct::TOwnerMask>(&cpp_with.AllowedHullOwnerMask, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 4}, {7}}));
+                        cpp_with.AllowedHullOwnerMask = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}, {aGalaxyStruct::oiPirate}});
                     } else {
-                        pas::store_unaligned<aGalaxyStruct::TOwnerMask>(&cpp_with.AllowedHullOwnerMask, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 5}, {7}}));
+                        cpp_with.AllowedHullOwnerMask = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiDominator}, {aGalaxyStruct::oiPirate}});
                     }
-                    pas::store_unaligned<aGalaxy::TDominatorSeriesMask>(&cpp_with.AllowedDominatorSeriesMask, pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0, 2}}));
+                    cpp_with.AllowedDominatorSeriesMask = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0, 2}});
                     cpp_with.AllowedCustomHullFactions = pas::WideString();
                 } else {
-                    pas::store_unaligned<aGalaxyStruct::TOwnerMask>(&cpp_with.AllowedHullOwnerMask, pas::constant_set<aGalaxyStruct::TOwnerMask>({}));
-                    pas::store_unaligned<aGalaxy::TDominatorSeriesMask>(&cpp_with.AllowedDominatorSeriesMask, pas::constant_set<aGalaxy::TDominatorSeriesMask>({}));
-                    Tokens = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""_wref.get());
-                    Tokens = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(Tokens, u","_wref.get(), u">,<"_wref.get()), u">"});
+                    cpp_with.AllowedHullOwnerMask = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
+                    cpp_with.AllowedDominatorSeriesMask = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({});
+                    Tokens = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""sv);
+                    Tokens = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(Tokens, u","_wref.get(), u">,<"sv), u">"});
                     if (ConsumeMicroModuleToken(u"<Maloc>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiMaloc);
+                        pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiMaloc);
                     }
                     if (ConsumeMicroModuleToken(u"<Peleng>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiPeleng);
+                        pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiPeleng);
                     }
                     if (ConsumeMicroModuleToken(u"<People>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiHuman);
+                        pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiHuman);
                     }
                     if (ConsumeMicroModuleToken(u"<Fei>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiFeyan);
+                        pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiFeyan);
                     }
                     if (ConsumeMicroModuleToken(u"<Gaal>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiGaal);
+                        pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiGaal);
                     }
                     if (ConsumeMicroModuleToken(u"<PirateClan>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiPirate);
+                        pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiPirate);
                     }
                     if (ConsumeMicroModuleToken(u"<None>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiUninhabited);
+                        pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiUninhabited);
                     }
                     if (cpp_with.SpecialOnly) {
                         if (ConsumeMicroModuleToken(u"<Kling>"_w)) {
-                            pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
+                            pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiDominator);
                         }
                         ConsumeMicroModuleToken(u"<NonKling>"_w);
                     } else {
                         if (!ConsumeMicroModuleToken(u"<NonKling>"_w)) {
-                            pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
+                            pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiDominator);
                         }
                         ConsumeMicroModuleToken(u"<Kling>"_w);
                     }
                     if (ConsumeMicroModuleToken(u"<Blazer>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxy::TDominatorSeriesMask*>(&cpp_with.AllowedDominatorSeriesMask), aGalaxyStruct::dsBlazer);
+                        pas::include_at(&cpp_with.AllowedDominatorSeriesMask, aGalaxyStruct::dsBlazer);
                         if (cpp_with.SpecialOnly) {
-                            pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
+                            pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiDominator);
                         }
                     }
                     if (ConsumeMicroModuleToken(u"<Terron>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxy::TDominatorSeriesMask*>(&cpp_with.AllowedDominatorSeriesMask), aGalaxyStruct::dsTerron);
+                        pas::include_at(&cpp_with.AllowedDominatorSeriesMask, aGalaxyStruct::dsTerron);
                         if (cpp_with.SpecialOnly) {
-                            pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
+                            pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiDominator);
                         }
                     }
                     if (ConsumeMicroModuleToken(u"<Keller>"_w)) {
-                        pas::include_at(reinterpret_cast<aGalaxy::TDominatorSeriesMask*>(&cpp_with.AllowedDominatorSeriesMask), aGalaxyStruct::dsKeller);
+                        pas::include_at(&cpp_with.AllowedDominatorSeriesMask, aGalaxyStruct::dsKeller);
                         if (cpp_with.SpecialOnly) {
-                            pas::include_at(reinterpret_cast<aGalaxyStruct::TOwnerMask*>(&cpp_with.AllowedHullOwnerMask), aGalaxyStruct::oiDominator);
+                            pas::include_at(&cpp_with.AllowedHullOwnerMask, aGalaxyStruct::oiDominator);
                         }
                     }
-                    if (pas::load_unaligned<aGalaxy::TDominatorSeriesMask>(&cpp_with.AllowedDominatorSeriesMask) == pas::constant_set<aGalaxy::TDominatorSeriesMask>({})) {
-                        pas::store_unaligned<aGalaxy::TDominatorSeriesMask>(&cpp_with.AllowedDominatorSeriesMask, pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0, 2}}));
+                    if (cpp_with.AllowedDominatorSeriesMask == pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({})) {
+                        cpp_with.AllowedDominatorSeriesMask = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0, 2}});
                     }
                     cpp_with.AllowedCustomHullFactions = pas::WideString();
-                    for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Tokens, u","_wref.get()) - 1); cpp_range_5.next(Part); ) {
-                        CustomName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Tokens, Part, u","_wref.get()));
+                    for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Tokens), u","sv) - 1); cpp_range_7.next(Part); ) {
+                        CustomName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Tokens), Part, u","sv));
                         if (CustomName != u"") {
                             if (cpp_with.AllowedCustomHullFactions != u"") {
                                 cpp_with.AllowedCustomHullFactions = pas::concat_wide({cpp_with.AllowedCustomHullFactions, u",", CustomName});
@@ -1757,51 +1757,51 @@ namespace aConst {
                 }
                 Value = ReadMicroModuleParam(u"Equipments"_w);
                 if (Value == u"" || Value == u"Any") {
-                    pas::store_unaligned<TItemTypeSelection>(&cpp_with.AllowedItemTypes, pas::constant_set<TItemTypeSelection>({{42, 68}}));
+                    cpp_with.AllowedItemTypes = pas::constant_set<TItemTypeSelection>({{42, 68}});
                     cpp_with.AllowedCustomWeaponTypes = u"Any"_w;
                 } else {
-                    pas::store_unaligned<TItemTypeSelection>(&cpp_with.AllowedItemTypes, pas::constant_set<TItemTypeSelection>({}));
+                    cpp_with.AllowedItemTypes = pas::constant_set<TItemTypeSelection>({});
                     cpp_with.AllowedCustomWeaponTypes = pas::WideString();
-                    Tokens = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""_wref.get());
-                    Tokens = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(Tokens, u","_wref.get(), u">,<"_wref.get()), u">"});
+                    Tokens = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""sv);
+                    Tokens = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(Tokens, u","_wref.get(), u">,<"sv), u">"});
                     if (ConsumeMicroModuleToken(u"<Hull>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Hull);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_Hull);
                     }
                     if (ConsumeMicroModuleToken(u"<FuelTank>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_FuelTanks);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_FuelTanks);
                     }
                     if (ConsumeMicroModuleToken(u"<Engine>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Engine);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_Engine);
                     }
                     if (ConsumeMicroModuleToken(u"<Radar>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Radar);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_Radar);
                     }
                     if (ConsumeMicroModuleToken(u"<Scaner>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_Scaner);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_Scaner);
                     }
                     if (ConsumeMicroModuleToken(u"<Droid>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_RepairRobot);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_RepairRobot);
                     }
                     if (ConsumeMicroModuleToken(u"<Hook>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_CargoHook);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_CargoHook);
                     }
                     if (ConsumeMicroModuleToken(u"<DefGenerator>"_w)) {
-                        pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), t_DefGenerator);
+                        pas::include_at(&cpp_with.AllowedItemTypes, t_DefGenerator);
                     }
-                    for (auto cpp_range_6 = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(static_cast<TItemTypeSelection>(WeaponTypes))); cpp_range_6.next(Part); ) {
+                    for (auto cpp_range_8 = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(static_cast<TItemTypeSelection>(WeaponTypes))); cpp_range_8.next(Part); ) {
                         Kind = aConst::GetItemTypeFromMask(static_cast<TItemTypeSelection>(pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 49}}) - pas::constant_set<pas::Set<0, 255>>({{68, 79}})), Part);
-                        if (ConsumeMicroModuleToken(pas::concat_wide({u"<", ItemTypeNames[Kind], u">"}))) {
-                            pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), Kind);
-                        } else if (pas::pos(u"<WMissile>", Tokens) > 0 && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&WeaponInfos[Kind].DamageFlags), aGalaxyStruct::dkMissile)) {
-                            pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), Kind);
-                        } else if (pas::pos(u"<WSplinter>", Tokens) > 0 && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&WeaponInfos[Kind].DamageFlags), aGalaxyStruct::dkSplinter)) {
-                            pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), Kind);
-                        } else if (pas::pos(u"<WEnergy>", Tokens) > 0 && pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&WeaponInfos[Kind].DamageFlags), aGalaxyStruct::dkEnergy)) {
-                            pas::include_at(reinterpret_cast<TItemTypeSelection*>(&cpp_with.AllowedItemTypes), Kind);
+                        if (ConsumeMicroModuleToken(pas::concat_wide({u"<", ItemTypeNames[static_cast<TItemType>(Kind)], u">"}))) {
+                            pas::include_at(&cpp_with.AllowedItemTypes, Kind);
+                        } else if (pas::pos(u"<WMissile>", Tokens) > 0 && pas::contains(WeaponInfos[static_cast<TItemType>(Kind)].DamageFlags, aGalaxyStruct::dkMissile)) {
+                            pas::include_at(&cpp_with.AllowedItemTypes, Kind);
+                        } else if (pas::pos(u"<WSplinter>", Tokens) > 0 && pas::contains(WeaponInfos[static_cast<TItemType>(Kind)].DamageFlags, aGalaxyStruct::dkSplinter)) {
+                            pas::include_at(&cpp_with.AllowedItemTypes, Kind);
+                        } else if (pas::pos(u"<WEnergy>", Tokens) > 0 && pas::contains(WeaponInfos[static_cast<TItemType>(Kind)].DamageFlags, aGalaxyStruct::dkEnergy)) {
+                            pas::include_at(&cpp_with.AllowedItemTypes, Kind);
                         }
                     }
-                    for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Tokens, u","_wref.get()) - 1); cpp_range_7.next(Part); ) {
-                        CustomName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Tokens, Part, u","_wref.get()));
+                    for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Tokens), u","sv) - 1); cpp_range_9.next(Part); ) {
+                        CustomName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Tokens), Part, u","sv));
                         if (CustomName != u"") {
                             if (cpp_with.AllowedCustomWeaponTypes != u"") {
                                 cpp_with.AllowedCustomWeaponTypes = pas::concat_wide({cpp_with.AllowedCustomWeaponTypes, u",", CustomName});
@@ -1812,25 +1812,25 @@ namespace aConst {
                     }
                 }
                 Value = ReadMicroModuleParam(u"Ruins"_w);
-                pas::store_unaligned<aGalaxyStruct::TShipTypeMask>(&cpp_with.OfferStationTypes, pas::constant_set<aGalaxyStruct::TShipTypeMask>({}));
-                cpp_with.OfferStationNames = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""_wref.get());
-                cpp_with.OfferStationNames = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(cpp_with.OfferStationNames, u","_wref.get(), u">,<"_wref.get()), u">"});
+                cpp_with.OfferStationTypes = pas::constant_set<aGalaxyStruct::TShipTypeMask>({});
+                cpp_with.OfferStationNames = EC_Str::ReplaceAllWideString(Value, u" "_wref.get(), u""sv);
+                cpp_with.OfferStationNames = pas::concat_wide({u"<", EC_Str::ReplaceAllWideString(cpp_with.OfferStationNames, u","_wref.get(), u">,<"sv), u">"});
                 if (Value == u"Any") {
-                    pas::store_unaligned<aGalaxyStruct::TShipTypeMask>(&cpp_with.OfferStationTypes, pas::constant_set<aGalaxyStruct::TShipTypeMask>({{6, 12}}));
+                    cpp_with.OfferStationTypes = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{6, 12}});
                 } else if (Value != u"") {
                     for (StationKind = aGalaxyStruct::rstRangerCenter; StationKind <= aGalaxyStruct::rstDominion; ++StationKind) {
                         if (pas::pos(ShipTypeNames[StationKind].Name, Value) > 0) {
-                            pas::include_at(reinterpret_cast<aGalaxyStruct::TShipTypeMask*>(&cpp_with.OfferStationTypes), StationKind);
+                            pas::include_at(&cpp_with.OfferStationTypes, StationKind);
                         }
                     }
                 }
-                cpp_with.OnPlanets = EC_Str::ExtractDigitsToIntW(ReadMicroModuleParam(u"OnPlanets"_w)) != 0;
+                cpp_with.OnPlanets = EC_Str::ExtractDigitsToIntW(pas::view(ReadMicroModuleParam(u"OnPlanets"_w))) != 0;
                 Value = ReadMicroModuleParam(u"WeaponMods"_w);
-                pas::store_unaligned<aGalaxyStruct::TDamageFlagSet>(&cpp_with.WeaponDamageFlags, pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}));
+                cpp_with.WeaponDamageFlags = pas::constant_set<aGalaxyStruct::TDamageFlagSet>({});
                 if (Value != u"") {
                     for (DamageKind = static_cast<std::uint8_t>(0); DamageKind <= static_cast<std::uint8_t>(20); ++DamageKind) {
                         if (static_cast<std::uint8_t>(pas::in_range(DamageKind, static_cast<std::int32_t>(aGalaxyStruct::dkEnergy), static_cast<std::int32_t>(aGalaxyStruct::dkMissile)) ^ 1) && static_cast<std::uint8_t>(pas::in_set<9, 10, 12, 12>(DamageKind) ^ 1) && pas::pos(WeaponDamageFlagNames[DamageKind], Value) > 0) {
-                            pas::include_at(reinterpret_cast<aGalaxyStruct::TDamageFlagSet*>(&cpp_with.WeaponDamageFlags), static_cast<aGalaxyStruct::TDamageKind>(DamageKind));
+                            pas::include_at(&cpp_with.WeaponDamageFlags, static_cast<aGalaxyStruct::TDamageKind>(DamageKind));
                         }
                     }
                 }
@@ -1859,241 +1859,241 @@ namespace aConst {
         std::int32_t I{};
         pas::WideString Path{};
         pas::WideString Value{};
-        CaptainHealthDefinitions[1].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[1].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[1].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[1].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[1].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[1].EffectClass0D = 2;
+        CaptainHealthDefinitions[1].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[1].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[1].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[1].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[1].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[1].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[1].DevelopmentRate = 1.0E+2;
         CaptainHealthDefinitions[1].InfectionChance = 1.0;
-        CaptainHealthDefinitions[1].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}});
+        CaptainHealthDefinitions[1].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{3}});
         CaptainHealthDefinitions[1].Duration = 150;
-        CaptainHealthDefinitions[2].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}});
-        CaptainHealthDefinitions[2].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[2].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[2].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}, {5}});
-        CaptainHealthDefinitions[2].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[2].EffectClass0D = 4;
+        CaptainHealthDefinitions[2].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}});
+        CaptainHealthDefinitions[2].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[2].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[2].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{3}, {4}, {5}});
+        CaptainHealthDefinitions[2].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[2].MedicalPriceSizeLevel = 4;
         CaptainHealthDefinitions[2].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[2].InfectionChance = 1.0;
-        CaptainHealthDefinitions[2].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}});
+        CaptainHealthDefinitions[2].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{0}});
         CaptainHealthDefinitions[2].Duration = 555;
-        CaptainHealthDefinitions[3].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[3].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[3].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}, {5}});
-        CaptainHealthDefinitions[3].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[3].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[3].EffectClass0D = 3;
+        CaptainHealthDefinitions[3].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[3].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}});
+        CaptainHealthDefinitions[3].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{3}, {4}, {5}});
+        CaptainHealthDefinitions[3].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[3].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[3].MedicalPriceSizeLevel = 3;
         CaptainHealthDefinitions[3].DevelopmentRate = 1.0E+2;
         CaptainHealthDefinitions[3].InfectionChance = 1.0;
-        CaptainHealthDefinitions[3].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}});
+        CaptainHealthDefinitions[3].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{3}});
         CaptainHealthDefinitions[3].Duration = 200;
-        CaptainHealthDefinitions[4].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[4].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[4].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[4].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[4].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[4].EffectClass0D = 5;
+        CaptainHealthDefinitions[4].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[4].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[4].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[4].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[4].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[4].MedicalPriceSizeLevel = 5;
         CaptainHealthDefinitions[4].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[4].InfectionChance = 1.0;
-        CaptainHealthDefinitions[4].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}});
+        CaptainHealthDefinitions[4].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{2}});
         CaptainHealthDefinitions[4].Duration = 1000;
-        CaptainHealthDefinitions[5].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}});
-        CaptainHealthDefinitions[5].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[5].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[5].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[5].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[5].EffectClass0D = 1;
+        CaptainHealthDefinitions[5].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[5].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[5].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[5].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[5].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[5].MedicalPriceSizeLevel = 1;
         CaptainHealthDefinitions[5].DevelopmentRate = 1.0E+1;
         CaptainHealthDefinitions[5].InfectionChance = 1.0;
-        CaptainHealthDefinitions[5].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}});
+        CaptainHealthDefinitions[5].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}});
         CaptainHealthDefinitions[5].Duration = 170;
-        CaptainHealthDefinitions[6].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[6].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[6].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[6].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[6].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[6].EffectClass0D = 4;
+        CaptainHealthDefinitions[6].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[6].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[6].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[6].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[6].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[6].MedicalPriceSizeLevel = 4;
         CaptainHealthDefinitions[6].DevelopmentRate = 1.0E+2;
         CaptainHealthDefinitions[6].InfectionChance = 1.0;
-        CaptainHealthDefinitions[6].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
+        CaptainHealthDefinitions[6].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({});
         CaptainHealthDefinitions[6].Duration = 1000;
-        CaptainHealthDefinitions[7].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[7].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[7].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[7].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[7].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[7].EffectClass0D = 2;
+        CaptainHealthDefinitions[7].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[7].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[7].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[7].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[7].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[7].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[7].DevelopmentRate = 1.0E+2;
         CaptainHealthDefinitions[7].InfectionChance = 1.0;
-        CaptainHealthDefinitions[7].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}});
+        CaptainHealthDefinitions[7].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{3}});
         CaptainHealthDefinitions[7].Duration = 130;
-        CaptainHealthDefinitions[8].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[8].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[8].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[8].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[8].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[8].EffectClass0D = 1;
+        CaptainHealthDefinitions[8].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[8].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[8].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[8].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[8].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[8].MedicalPriceSizeLevel = 1;
         CaptainHealthDefinitions[8].DevelopmentRate = 1.0E+2;
         CaptainHealthDefinitions[8].InfectionChance = 1.0;
-        CaptainHealthDefinitions[8].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}});
+        CaptainHealthDefinitions[8].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{3}});
         CaptainHealthDefinitions[8].Duration = 100;
-        CaptainHealthDefinitions[9].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}});
-        CaptainHealthDefinitions[9].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}});
-        CaptainHealthDefinitions[9].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[9].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[9].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[9].EffectClass0D = 2;
+        CaptainHealthDefinitions[9].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}});
+        CaptainHealthDefinitions[9].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}});
+        CaptainHealthDefinitions[9].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[9].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[9].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[9].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[9].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[9].InfectionChance = 1.0;
-        CaptainHealthDefinitions[9].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
+        CaptainHealthDefinitions[9].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}});
         CaptainHealthDefinitions[9].Duration = 180;
-        CaptainHealthDefinitions[10].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[10].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}});
-        CaptainHealthDefinitions[10].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[10].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[10].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[10].EffectClass0D = 2;
+        CaptainHealthDefinitions[10].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[10].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}});
+        CaptainHealthDefinitions[10].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[10].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[10].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[10].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[10].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[10].InfectionChance = 1.0;
-        CaptainHealthDefinitions[10].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
+        CaptainHealthDefinitions[10].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}});
         CaptainHealthDefinitions[10].Duration = 122;
-        CaptainHealthDefinitions[11].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[11].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}});
-        CaptainHealthDefinitions[11].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[11].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[11].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[11].EffectClass0D = 4;
+        CaptainHealthDefinitions[11].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[11].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}});
+        CaptainHealthDefinitions[11].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[11].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[11].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[11].MedicalPriceSizeLevel = 4;
         CaptainHealthDefinitions[11].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[11].InfectionChance = 1.0;
-        CaptainHealthDefinitions[11].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}});
+        CaptainHealthDefinitions[11].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}});
         CaptainHealthDefinitions[11].Duration = 164;
-        CaptainHealthDefinitions[12].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[12].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}});
-        CaptainHealthDefinitions[12].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[12].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[12].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[12].EffectClass0D = 2;
+        CaptainHealthDefinitions[12].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[12].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[12].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[12].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[12].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[12].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[12].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[12].InfectionChance = 0.5;
-        CaptainHealthDefinitions[12].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
+        CaptainHealthDefinitions[12].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}});
         CaptainHealthDefinitions[12].Duration = 88;
-        RadiationHealthDefinitions[1].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        RadiationHealthDefinitions[1].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        RadiationHealthDefinitions[1].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        RadiationHealthDefinitions[1].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        RadiationHealthDefinitions[1].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        RadiationHealthDefinitions[1].EffectClass0D = 4;
+        RadiationHealthDefinitions[1].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        RadiationHealthDefinitions[1].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        RadiationHealthDefinitions[1].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        RadiationHealthDefinitions[1].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        RadiationHealthDefinitions[1].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        RadiationHealthDefinitions[1].MedicalPriceSizeLevel = 4;
         RadiationHealthDefinitions[1].DevelopmentRate = 1.0E+2;
         RadiationHealthDefinitions[1].InfectionChance = 0.0;
-        RadiationHealthDefinitions[1].Locations = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
+        RadiationHealthDefinitions[1].Locations = pas::constant_set<aGalaxyStruct::TByteMask>({});
         RadiationHealthDefinitions[1].Duration = 30;
-        CaptainHealthDefinitions[13].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[13].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[13].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[13].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[13].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[13].EffectClass0D = 2;
+        CaptainHealthDefinitions[13].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[13].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[13].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[13].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[13].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[13].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[13].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[13].InfectionChance = 0.9;
         CaptainHealthDefinitions[13].Duration = 140;
-        CaptainHealthDefinitions[14].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[14].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[14].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[14].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[14].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[14].EffectClass0D = 2;
+        CaptainHealthDefinitions[14].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[14].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[14].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[14].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[14].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[14].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[14].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[14].InfectionChance = 0.9;
         CaptainHealthDefinitions[14].Duration = 130;
-        CaptainHealthDefinitions[15].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[15].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[15].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[15].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[15].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[15].EffectClass0D = 2;
+        CaptainHealthDefinitions[15].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[15].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[15].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[15].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[15].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[15].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[15].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[15].InfectionChance = 0.8;
         CaptainHealthDefinitions[15].Duration = 140;
-        CaptainHealthDefinitions[16].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[16].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[16].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[16].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[16].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[16].EffectClass0D = 2;
+        CaptainHealthDefinitions[16].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[16].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[16].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[16].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[16].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[16].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[16].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[16].InfectionChance = 0.4;
         CaptainHealthDefinitions[16].Duration = 120;
-        CaptainHealthDefinitions[17].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[17].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[17].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[17].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[17].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[17].EffectClass0D = 2;
+        CaptainHealthDefinitions[17].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[17].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[17].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[17].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[17].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[17].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[17].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[17].InfectionChance = 0.9;
         CaptainHealthDefinitions[17].Duration = 90;
-        CaptainHealthDefinitions[18].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[18].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[18].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[18].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[18].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[18].EffectClass0D = 2;
+        CaptainHealthDefinitions[18].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[18].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[18].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[18].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[18].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[18].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[18].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[18].InfectionChance = 0.8;
         CaptainHealthDefinitions[18].Duration = 300;
-        CaptainHealthDefinitions[19].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[19].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[19].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[19].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[19].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[19].EffectClass0D = 2;
+        CaptainHealthDefinitions[19].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[19].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[19].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[19].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[19].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[19].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[19].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[19].InfectionChance = 0.9;
         CaptainHealthDefinitions[19].Duration = 140;
-        CaptainHealthDefinitions[20].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[20].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[20].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[20].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[20].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[20].EffectClass0D = 2;
+        CaptainHealthDefinitions[20].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[20].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[20].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[20].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[20].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[20].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[20].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[20].InfectionChance = 0.9;
         CaptainHealthDefinitions[20].Duration = 200;
-        CaptainHealthDefinitions[21].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[21].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[21].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[21].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[21].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[21].EffectClass0D = 2;
+        CaptainHealthDefinitions[21].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[21].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[21].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[21].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[21].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[21].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[21].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[21].InfectionChance = 0.9;
         CaptainHealthDefinitions[21].Duration = 200;
-        CaptainHealthDefinitions[22].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[22].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[22].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[22].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[22].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[22].EffectClass0D = 2;
+        CaptainHealthDefinitions[22].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[22].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[22].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[22].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[22].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[22].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[22].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[22].InfectionChance = 0.25;
         CaptainHealthDefinitions[22].Duration = 150;
-        CaptainHealthDefinitions[23].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[23].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[23].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[23].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[23].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[23].EffectClass0D = 2;
+        CaptainHealthDefinitions[23].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[23].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[23].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[23].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[23].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[23].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[23].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[23].InfectionChance = 0.15;
         CaptainHealthDefinitions[23].Duration = 90;
-        CaptainHealthDefinitions[24].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[24].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}});
-        CaptainHealthDefinitions[24].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}, {2}, {3}, {4}, {5}});
-        CaptainHealthDefinitions[24].AllowedRanks = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
-        CaptainHealthDefinitions[24].AllowedCareers = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {1}, {2}});
-        CaptainHealthDefinitions[24].EffectClass0D = 2;
+        CaptainHealthDefinitions[24].AllowedLocationOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[24].AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+        CaptainHealthDefinitions[24].AllowedRatingBands = pas::constant_set<aGalaxyStruct::TByteMask>({{1}, {2}, {3}, {4}, {5}});
+        CaptainHealthDefinitions[24].AllowedRanks = pas::constant_set<aGalaxyStruct::TByteMask>({{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}});
+        CaptainHealthDefinitions[24].AllowedCareers = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({{aGalaxyStruct::rcTrader}, {aGalaxyStruct::rcPirate}, {aGalaxyStruct::rcWarrior}});
+        CaptainHealthDefinitions[24].MedicalPriceSizeLevel = 2;
         CaptainHealthDefinitions[24].DevelopmentRate = 1.0;
         CaptainHealthDefinitions[24].InfectionChance = 0.2;
         CaptainHealthDefinitions[24].Duration = 120;
@@ -2137,7 +2137,7 @@ namespace aConst {
         std::int32_t Index{};
         std::int32_t Temp{};
         pas::WideString Value{};
-        std::uint8_t DamageKind{};
+        TWeaponDamageClass DamageKind{};
         pas::DynArray<std::int32_t> BlockIndices{};
         pas::DynArray<std::int32_t> SortKeys{};
         // Nested in LoadHullSeriesConfiguration; reads its current Block through the caller-popped static link.
@@ -2153,12 +2153,12 @@ namespace aConst {
                 Result = pas::concat_wide_reverse({Block->GetParamByPath(pas::concat_wide({ParamName, u":", pas::wide_int_to_str(I)})), Result});
             }
             if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
-                Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
-                return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+                Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"sv);
+                return EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             }
             return Result;
         };
-        Block = GR_Main::LanguageDataConfig->GetBlock(u"HullType"_wref.get());
+        Block = GR_Main::LanguageDataConfig->GetBlock(u"HullType"sv);
         HullSeriesCount = Block->GetBlockCount();
         BlockIndices.set_length(HullSeriesCount);
         SortKeys.set_length(HullSeriesCount);
@@ -2166,7 +2166,7 @@ namespace aConst {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, HullSeriesCount - 1); cpp_range.next(Index); ) {
             if (Block->GetBlockNameByIndex(Index) != u"HullOldfag") {
                 BlockIndices[Position] = Index;
-                SortKeys[Position] = EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index));
+                SortKeys[Position] = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index)));
                 ++Position;
             }
         }
@@ -2187,7 +2187,7 @@ namespace aConst {
             }
         }
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, HullSeriesCount - 1); cpp_range_4.next(Index); ) {
-            Block = GR_Main::LanguageDataConfig->GetBlock(u"HullType"_wref.get());
+            Block = GR_Main::LanguageDataConfig->GetBlock(u"HullType"sv);
             {
                 THullTypeInfo& cpp_with = HullSeriesDefinitions[Index];
                 cpp_with.SortKey = SortKeys[Index];
@@ -2201,22 +2201,22 @@ namespace aConst {
                 Value = ReadHullSeriesParam(u"Race"_w);
                 cpp_with.AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
                 if (Value == u"" || Value == u"Any") {
-                    cpp_with.AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 4}});
+                    cpp_with.AllowedOwners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
                 } else {
                     if (pas::pos(u"Maloc", Value) > 0) {
-                        pas::include_at(&cpp_with.AllowedOwners, 0);
+                        pas::include_at(&cpp_with.AllowedOwners, aGalaxyStruct::oiMaloc);
                     }
                     if (pas::pos(u"Peleng", Value) > 0) {
-                        pas::include_at(&cpp_with.AllowedOwners, 1);
+                        pas::include_at(&cpp_with.AllowedOwners, aGalaxyStruct::oiPeleng);
                     }
                     if (pas::pos(u"People", Value) > 0) {
-                        pas::include_at(&cpp_with.AllowedOwners, 2);
+                        pas::include_at(&cpp_with.AllowedOwners, aGalaxyStruct::oiHuman);
                     }
                     if (pas::pos(u"Fei", Value) > 0) {
-                        pas::include_at(&cpp_with.AllowedOwners, 3);
+                        pas::include_at(&cpp_with.AllowedOwners, aGalaxyStruct::oiFeyan);
                     }
                     if (pas::pos(u"Gaal", Value) > 0) {
-                        pas::include_at(&cpp_with.AllowedOwners, 4);
+                        pas::include_at(&cpp_with.AllowedOwners, aGalaxyStruct::oiGaal);
                     }
                 }
                 Value = ReadHullSeriesParam(u"ShipType"_w);
@@ -2246,56 +2246,56 @@ namespace aConst {
                         pas::include_at(&cpp_with.AllowedShipTypes, aGalaxyStruct::htFlagship);
                     }
                 }
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 0 * sizeof(std::int32_t)), 0);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 1 * sizeof(std::int32_t)), 0);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 10 * sizeof(std::int32_t)), 0);
+                cpp_with.SlotBonuses[sskFuelTanks] = 0;
+                cpp_with.SlotBonuses[sskEngine] = 0;
+                cpp_with.SlotBonuses[sskUnsupported] = 0;
                 Value = ReadHullSeriesParam(u"Radar"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 2 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskRadar] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 2 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskRadar] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Scaner"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 3 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskScanner] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 3 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskScanner] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Droid"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 4 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskRepairRobot] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 4 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskRepairRobot] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Hook"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 5 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskCargoHook] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 5 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskCargoHook] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Def"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 6 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskDefGenerator] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 6 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskDefGenerator] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Weapon"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 7 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskWeapon] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 7 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskWeapon] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Artefact"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 8 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskArtefact] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 8 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskArtefact] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Forsage"_w);
                 if (Value == u"") {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 9 * sizeof(std::int32_t)), 0);
+                    cpp_with.SlotBonuses[sskAfterburner] = 0;
                 } else {
-                    pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.SlotBonuses, 9 * sizeof(std::int32_t)), SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)));
+                    cpp_with.SlotBonuses[sskAfterburner] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value));
                 }
                 Value = ReadHullSeriesParam(u"Size"_w);
                 if (Value == u"") {
@@ -2315,12 +2315,12 @@ namespace aConst {
                 } else {
                     cpp_with.FragilityFactor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                 }
-                for (DamageKind = static_cast<std::uint8_t>(0); DamageKind <= static_cast<std::uint8_t>(2); ++DamageKind) {
+                for (auto cpp_range_5 = pas::for_to<TWeaponDamageClass>(wdcEnergy, wdcMissile); cpp_range_5.next(DamageKind); ) {
                     Value = ReadHullSeriesParam(pas::concat_wide({u"Fragility", WeaponDamageClasses[DamageKind].Name}));
                     if (Value == u"") {
-                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityByDamageClass, DamageKind * sizeof(float)), cpp_with.FragilityFactor);
+                        cpp_with.FragilityByDamageClass[DamageKind] = cpp_with.FragilityFactor;
                     } else {
-                        pas::store_unaligned<float>(pas::byte_offset(&cpp_with.FragilityByDamageClass, DamageKind * sizeof(float)), static_cast<float>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L));
+                        cpp_with.FragilityByDamageClass[DamageKind] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Value)) * 0.01L;
                     }
                 }
                 Value = ReadHullSeriesParam(u"Year"_w);
@@ -2342,12 +2342,12 @@ namespace aConst {
     void InitializeGameplayConfig() {
         std::uint8_t Level{};
         std::uint8_t GoodsIndex{};
-        std::uint8_t Government{};
-        std::uint8_t Relation{};
+        aGalaxyStruct::TPlanetGovernment Government{};
+        aGalaxyStruct::TRelationLevel Relation{};
         std::uint8_t KlingKind{};
         std::uint8_t Series{};
-        std::uint8_t Owner{};
-        std::uint8_t Economy{};
+        aGalaxyStruct::TOwnerId Owner{};
+        aGalaxyStruct::TPlanetEconomy Economy{};
         aGalaxyStruct::TGalaxyDifficultyTuning* Difficulty{};
         // Nested in InitializeGameplayConfig; unused caller-popped static link.
         auto ExtrapolateLinearDifficulty = [&](std::uint8_t Level, float Level2, float Level3) -> float {
@@ -2360,22 +2360,22 @@ namespace aConst {
             return Level3 * System::Exp(System::Ln(pas::real_divide(Level3, Level2)) * Delta);
         };
         if (GR_Main::LanguageDataConfig->CountParamsByPath(u"Constellations.GalaxyCountStars"_wref.get()) > 0) {
-            GalaxyStarCount = EC_Str::ExtractDigitsToIntW(GR_Main::LanguageDataConfig->GetParamByPath(u"Constellations.GalaxyCountStars"_wref.get()));
+            GalaxyStarCount = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::LanguageDataConfig->GetParamByPath(u"Constellations.GalaxyCountStars"_wref.get())));
         } else {
             GalaxyStarCount = 73;
         }
         if (GR_Main::LanguageDataConfig->CountParamsByPath(u"Constellations.GalaxySizeY"_wref.get()) > 0) {
-            GalaxySizeY = EC_Str::ExtractDigitsToIntW(GR_Main::LanguageDataConfig->GetParamByPath(u"Constellations.GalaxySizeY"_wref.get()));
+            GalaxySizeY = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::LanguageDataConfig->GetParamByPath(u"Constellations.GalaxySizeY"_wref.get())));
         } else {
             GalaxySizeY = 100;
         }
         if (GR_Main::LanguageDataConfig->CountParamsByPath(u"Constellations.GalaxySizeX"_wref.get()) > 0) {
-            GalaxySizeX = EC_Str::ExtractDigitsToIntW(GR_Main::LanguageDataConfig->GetParamByPath(u"Constellations.GalaxySizeX"_wref.get()));
+            GalaxySizeX = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::LanguageDataConfig->GetParamByPath(u"Constellations.GalaxySizeX"_wref.get())));
         } else {
             GalaxySizeX = 145;
         }
         if (GR_Main::LanguageDataConfig->CountParamsByPath(u"GalaxyNews.MaxCntPlanetNews"_wref.get()) > 0) {
-            MaxPlanetNews = EC_Str::ExtractDigitsToIntW(GR_Main::LanguageDataConfig->GetParamByPath(u"GalaxyNews.MaxCntPlanetNews"_wref.get()));
+            MaxPlanetNews = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::LanguageDataConfig->GetParamByPath(u"GalaxyNews.MaxCntPlanetNews"_wref.get())));
         } else {
             MaxPlanetNews = 9;
         }
@@ -2385,7 +2385,7 @@ namespace aConst {
             Difficulty->GoodsEventDurationFactor = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].GoodsEventDurationFactor, GalaxyDifficultyTuning[3].GoodsEventDurationFactor);
             Difficulty->QuestTimeAndExperienceFactor = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].QuestTimeAndExperienceFactor, GalaxyDifficultyTuning[3].QuestTimeAndExperienceFactor);
             Difficulty->EquipmentWearFactor = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].EquipmentWearFactor, GalaxyDifficultyTuning[3].EquipmentWearFactor);
-            Difficulty->DifficultyValue1C = System::Round(ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyValue1C, GalaxyDifficultyTuning[3].DifficultyValue1C));
+            Difficulty->InitialPirateControlPercent = System::Round(ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].InitialPirateControlPercent, GalaxyDifficultyTuning[3].InitialPirateControlPercent));
             Difficulty->MarketPriceBandSqueeze = ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].MarketPriceBandSqueeze, GalaxyDifficultyTuning[3].MarketPriceBandSqueeze);
             Difficulty->RandomHoleSpawnRollMaximum = System::Round(ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].RandomHoleSpawnRollMaximum, GalaxyDifficultyTuning[3].RandomHoleSpawnRollMaximum));
             Difficulty->MaximumResearchMaterialConsumption = System::Round(ExtrapolateLinearDifficulty(Level, GalaxyDifficultyTuning[2].MaximumResearchMaterialConsumption, GalaxyDifficultyTuning[3].MaximumResearchMaterialConsumption));
@@ -2393,9 +2393,9 @@ namespace aConst {
             Difficulty->InventionProgressScale = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].InventionProgressScale, GalaxyDifficultyTuning[3].InventionProgressScale);
             Difficulty->ArcadeRewardScale = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].ArcadeRewardScale, GalaxyDifficultyTuning[3].ArcadeRewardScale);
             Difficulty->QuestMoneyFactor = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].QuestMoneyFactor, GalaxyDifficultyTuning[3].QuestMoneyFactor);
-            Difficulty->DifficultyValue18 = System::Round(ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyValue18, GalaxyDifficultyTuning[3].DifficultyValue18));
+            Difficulty->StartingPlayerMoney = System::Round(ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].StartingPlayerMoney, GalaxyDifficultyTuning[3].StartingPlayerMoney));
             Difficulty->MaximumDominatorResearchRate = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].MaximumDominatorResearchRate, GalaxyDifficultyTuning[3].MaximumDominatorResearchRate);
-            Difficulty->DifficultyFactor34 = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].DifficultyFactor34, GalaxyDifficultyTuning[3].DifficultyFactor34);
+            Difficulty->CoalitionToPirateBalanceRatio = ExtrapolateGeometricDifficulty(Level, GalaxyDifficultyTuning[2].CoalitionToPirateBalanceRatio, GalaxyDifficultyTuning[3].CoalitionToPirateBalanceRatio);
         }
         for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_2.next(GoodsIndex); ) {
             GoodsMarket[GoodsIndex].DisplayName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Name.", SysUtils::IntToStr(GoodsIndex + 1)})));
@@ -2403,10 +2403,10 @@ namespace aConst {
         for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_3.next(GoodsIndex); ) {
             GoodsMarket[GoodsIndex].TradeName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.NameBuy.", SysUtils::IntToStr(GoodsIndex + 1)})));
         }
-        for (auto cpp_range_4 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(4)); cpp_range_4.next(Government); ) {
+        for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TPlanetGovernment>(aGalaxyStruct::pgAnarchy, aGalaxyStruct::pgDemocracy); cpp_range_4.next(Government); ) {
             PlanetGovernmentMarket[Government].DisplayName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Goverment.Type.", SysUtils::IntToStr(Government)})));
         }
-        for (auto cpp_range_5 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(4)); cpp_range_5.next(Relation); ) {
+        for (auto cpp_range_5 = pas::for_to<aGalaxyStruct::TRelationLevel>(aGalaxyStruct::rlHostile, aGalaxyStruct::rlExcellent); cpp_range_5.next(Relation); ) {
             RelationInfo[Relation].DisplayName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Relations.Type.", SysUtils::IntToStr(Relation)})));
         }
         for (auto cpp_range_6 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_6.next(KlingKind); ) {
@@ -2414,14 +2414,14 @@ namespace aConst {
                 DominatorShipDefinitions[KlingKind].DisplayNames[Series] = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", DominatorSeriesNames[Series], u".", pas::wide_int_to_str(static_cast<std::int32_t>(KlingKind))}));
             }
         }
-        for (auto cpp_range_8 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_8.next(Owner); ) {
+        for (auto cpp_range_8 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_8.next(Owner); ) {
             OwnerInfo[Owner].DisplayName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"Race.Name.", OwnerInfo[Owner].InternalName}));
         }
         // Both identical localization passes are present in the native initializer.
-        for (auto cpp_range_9 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_9.next(Owner); ) {
+        for (auto cpp_range_9 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_9.next(Owner); ) {
             OwnerInfo[Owner].DisplayName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"Race.Name.", OwnerInfo[Owner].InternalName}));
         }
-        for (auto cpp_range_10 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range_10.next(Economy); ) {
+        for (auto cpp_range_10 = pas::for_to<aGalaxyStruct::TPlanetEconomy>(aGalaxyStruct::peAgricultural, aGalaxyStruct::peIndustrial); cpp_range_10.next(Economy); ) {
             PlanetEconomyInfo[Economy].DisplayName = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Economy.Name.", SysUtils::IntToStr(Economy)})));
             PlanetEconomyInfo[Economy].ShortDisplayName = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Economy.ShortName.", SysUtils::IntToStr(Economy)})));
         }
@@ -2440,9 +2440,9 @@ namespace aConst {
         aConst::InitializeCaptainHealthDefinitions();
         aConst::LoadHullSeriesConfiguration();
         if (GR_Main::LanguageDataConfig->CountParamsByPath(u"Artefacts.NumericValues.MaxSlots"_wref.get()) > 0) {
-            DefaultHullSlotCounts[8] = std::max<std::int32_t>(4, std::min<std::int32_t>(32, EC_Str::ExtractDigitsToIntW(GR_Main::LanguageDataConfig->GetParamByPath(u"Artefacts.NumericValues.MaxSlots"_wref.get()))));
+            DefaultHullSlotCounts[sskArtefact] = std::max<std::int32_t>(4, std::min<std::int32_t>(32, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::LanguageDataConfig->GetParamByPath(u"Artefacts.NumericValues.MaxSlots"_wref.get())))));
         } else {
-            DefaultHullSlotCounts[8] = 4;
+            DefaultHullSlotCounts[sskArtefact] = 4;
         }
         HullMassEvaluationStart = System::Round(static_cast<long double>(HullBaseSize) * EquipmentSizeFactors[5] * 2.0L);
         HullMassEvaluationEnd = System::Round(static_cast<long double>(HullBaseSize) * EquipmentSizeFactors[1] * 2.0L);
@@ -2450,7 +2450,7 @@ namespace aConst {
         WearMassMax = System::Round(static_cast<long double>(HullBaseSize) * EquipmentSizeFactors[1] * 5.0E+1L);
     }
 
-    TShipSlotKind ItemTypeToSlotKind(std::uint8_t ItemType) {
+    TShipSlotKind ItemTypeToSlotKind(TItemType ItemType) {
         switch (ItemType) {
             case t_FuelTanks: return sskFuelTanks;
             case t_Engine: return sskEngine;
@@ -2472,10 +2472,10 @@ namespace aConst {
     }
 
     // Missile bit takes precedence over splinter; otherwise energy.
-    TWeaponDamageClass ClassifyWeaponDamageFlags(std::uint32_t Flags) {
-        if ((Flags & 4) != 0) {
+    TWeaponDamageClass ClassifyWeaponDamageFlags(aGalaxyStruct::TDamageFlagSet Flags) {
+        if (pas::contains(Flags, aGalaxyStruct::dkMissile)) {
             return wdcMissile;
-        } else if ((Flags & 2) != 0) {
+        } else if (pas::contains(Flags, aGalaxyStruct::dkSplinter)) {
             return wdcSplinter;
         } else {
             return wdcEnergy;
@@ -2491,10 +2491,10 @@ namespace aConst {
             return aGalaxyStruct::htWarrior;
         } else if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr) {
             return aGalaxyStruct::htPirate;
-        } else if (pas::class_cast_if<aTransport::TTransport*>(Ship) != nullptr) {
-            if (reinterpret_cast<aTransport::TTransport*>(Ship)->TransportType == aTransport::ttTransport) {
+        } else if (aTransport::TTransport* transport = pas::class_cast_if<aTransport::TTransport*>(Ship)) {
+            if (transport->TransportType == aTransport::ttTransport) {
                 return aGalaxyStruct::htTransport;
-            } else if (reinterpret_cast<aTransport::TTransport*>(Ship)->TransportType == aTransport::ttLiner) {
+            } else if (transport->TransportType == aTransport::ttLiner) {
                 return aGalaxyStruct::htLiner;
             } else {
                 return aGalaxyStruct::htDiplomat;
@@ -2512,58 +2512,58 @@ namespace aConst {
     }
 
     // Identity conversion for Coalition races 0..4; raises for all other values.
-    std::uint8_t RaceToOwner(std::uint8_t RaceId) {
+    aGalaxyStruct::TOwnerId RaceToOwner(aGalaxyStruct::TOwnerId RaceId) {
         switch (RaceId) {
-            case aGalaxyStruct::oiMaloc: return static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
-            case aGalaxyStruct::oiPeleng: return static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
-            case aGalaxyStruct::oiHuman: return static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
-            case aGalaxyStruct::oiFeyan: return static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
-            case aGalaxyStruct::oiGaal: return static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
+            case aGalaxyStruct::oiMaloc: return aGalaxyStruct::oiMaloc;
+            case aGalaxyStruct::oiPeleng: return aGalaxyStruct::oiPeleng;
+            case aGalaxyStruct::oiHuman: return aGalaxyStruct::oiHuman;
+            case aGalaxyStruct::oiFeyan: return aGalaxyStruct::oiFeyan;
+            case aGalaxyStruct::oiGaal: return aGalaxyStruct::oiGaal;
             default: {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in RaceToOwner ", EC_Str::IntToWideString(RaceId)}))));
             }
         }
     }
 
-    std::uint8_t OwnerFromInternalName(const pas::WideString& Name) {
-        if (Name == u"Maloc") {
-            return static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
+    aGalaxyStruct::TOwnerId OwnerFromInternalName(const std::u16string_view& Name) {
+        if (Name == u"Maloc"sv) {
+            return aGalaxyStruct::oiMaloc;
         }
-        if (Name == u"Peleng") {
-            return static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
+        if (Name == u"Peleng"sv) {
+            return aGalaxyStruct::oiPeleng;
         }
-        if (Name == u"People") {
-            return static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
+        if (Name == u"People"sv) {
+            return aGalaxyStruct::oiHuman;
         }
-        if (Name == u"Fei") {
-            return static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
+        if (Name == u"Fei"sv) {
+            return aGalaxyStruct::oiFeyan;
         }
-        if (Name == u"Gaal") {
-            return static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
+        if (Name == u"Gaal"sv) {
+            return aGalaxyStruct::oiGaal;
         }
-        if (Name == u"Kling") {
-            return static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
+        if (Name == u"Kling"sv) {
+            return aGalaxyStruct::oiDominator;
         }
-        if (Name == u"PirateClan") {
-            return static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+        if (Name == u"PirateClan"sv) {
+            return aGalaxyStruct::oiPirate;
         }
-        return static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+        return aGalaxyStruct::oiUninhabited;
     }
 
     // Identity conversion for Coalition owners 0..4; raises for all other values.
-    std::uint8_t OwnerToRace(std::uint8_t OwnerId) {
+    aGalaxyStruct::TOwnerId OwnerToRace(aGalaxyStruct::TOwnerId OwnerId) {
         switch (OwnerId) {
-            case aGalaxyStruct::oiMaloc: return static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
-            case aGalaxyStruct::oiPeleng: return static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
-            case aGalaxyStruct::oiHuman: return static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
-            case aGalaxyStruct::oiFeyan: return static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
-            case aGalaxyStruct::oiGaal: return static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
+            case aGalaxyStruct::oiMaloc: return aGalaxyStruct::oiMaloc;
+            case aGalaxyStruct::oiPeleng: return aGalaxyStruct::oiPeleng;
+            case aGalaxyStruct::oiHuman: return aGalaxyStruct::oiHuman;
+            case aGalaxyStruct::oiFeyan: return aGalaxyStruct::oiFeyan;
+            case aGalaxyStruct::oiGaal: return aGalaxyStruct::oiGaal;
             default: pas::raise(pas::make_exception<pas::Exception>("Error in OwnerToRace"_a));
         }
     }
 
     // Raises outside Coalition races 0..4.
-    pas::WideString RaceToSys(std::uint8_t RaceId) {
+    pas::WideString RaceToSys(aGalaxyStruct::TOwnerId RaceId) {
         switch (RaceId) {
             case aGalaxyStruct::oiMaloc: return u"Maloc"_w;
             case aGalaxyStruct::oiPeleng: return u"Peleng"_w;
@@ -2575,30 +2575,30 @@ namespace aConst {
     }
 
     // Accepts 0..4; raises otherwise.
-    std::uint8_t NumberToRace(std::int32_t Value) {
+    aGalaxyStruct::TOwnerId NumberToRace(std::int32_t Value) {
         switch (Value) {
-            case 0: return static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
-            case 1: return static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
-            case 2: return static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
-            case 3: return static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
-            case 4: return static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
+            case 0: return aGalaxyStruct::oiMaloc;
+            case 1: return aGalaxyStruct::oiPeleng;
+            case 2: return aGalaxyStruct::oiHuman;
+            case 3: return aGalaxyStruct::oiFeyan;
+            case 4: return aGalaxyStruct::oiGaal;
             default: pas::raise(pas::make_exception<pas::Exception>("Error in NumberToRace"_a));
         }
     }
 
     // Case-sensitive lookup; raises for an unknown name.
-    std::uint8_t SysToReward(const pas::WideString& Name) {
-        if (Name == u"ForLiberationSystem") {
+    std::uint8_t SysToReward(const std::u16string_view& Name) {
+        if (Name == u"ForLiberationSystem"sv) {
             return aGalaxyStruct::atLiberation;
-        } else if (Name == u"ForAccomplishment") {
+        } else if (Name == u"ForAccomplishment"sv) {
             return aGalaxyStruct::atAccomplishment;
-        } else if (Name == u"ForSecretMission") {
+        } else if (Name == u"ForSecretMission"sv) {
             return aGalaxyStruct::atSecretMission;
-        } else if (Name == u"ForCowardice") {
+        } else if (Name == u"ForCowardice"sv) {
             return aGalaxyStruct::atCowardice;
-        } else if (Name == u"ForPerfidy") {
+        } else if (Name == u"ForPerfidy"sv) {
             return aGalaxyStruct::atPerfidy;
-        } else if (Name == u"ForPlanetBattle") {
+        } else if (Name == u"ForPlanetBattle"sv) {
             return aGalaxyStruct::atPlanetBattle;
         } else {
             GR_Main::RaiseWideMessage(u"Error in SysToReward"_wref.get());
@@ -2607,10 +2607,10 @@ namespace aConst {
     }
 
     // Case-sensitive lookup among 14 ship types; raises for an unknown name.
-    std::uint8_t SysToShipType(const pas::WideString& Name) {
+    std::uint8_t SysToShipType(const std::u16string_view& Name) {
         std::uint8_t Kind{};
         for (Kind = static_cast<std::uint8_t>(0); Kind <= static_cast<std::uint8_t>(13); ++Kind) {
-            if (ShipTypeNames[Kind].Name == Name) {
+            if (pas::view(ShipTypeNames[Kind].Name) == Name) {
                 return Kind;
             }
         }
@@ -2619,8 +2619,8 @@ namespace aConst {
     }
 
     // Maps owner IDs 0..5 and 7 to fixed RGB colors through CurrentPixelFormat; other values use magenta.
-    std::uint32_t OwnerToFilmColor(std::int8_t OwnerId) {
-        switch (static_cast<std::uint8_t>(OwnerId)) {
+    std::uint32_t OwnerToFilmColor(aGalaxyStruct::TOwnerId OwnerId) {
+        switch (OwnerId) {
             case aGalaxyStruct::oiMaloc: return GR_Main::CurrentPixelFormat->PackRgbBytes(255, 0, 0);
             case aGalaxyStruct::oiPeleng: return GR_Main::CurrentPixelFormat->PackRgbBytes(0, 255, 0);
             case aGalaxyStruct::oiHuman: return GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0x00000047, 0x000000ea);
@@ -2638,14 +2638,14 @@ namespace aConst {
 
     std::uint32_t CustomFactionToFilmColor(pas::WideString Faction) {
         pas::WideString Text{};
-        EC_BlockPar::TBlockParEC* Block = GR_Main::GameDataConfig->GetBlock(u"Race"_wref.get())->FindBlock(u"Color"_wref.get());
+        EC_BlockPar::TBlockParEC* Block = GR_Main::GameDataConfig->GetBlock(u"Race"sv)->FindBlock(u"Color"sv);
         if (Block != nullptr) {
             if (Block->CountParamsByPath(Faction) > 0) {
                 Text = Block->GetParamByPathOrMarker(Faction);
-                if (EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) >= 3) {
-                    std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
-                    std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
-                    std::int32_t extractDigitsToIntW_3 = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
+                if (EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) >= 3) {
+                    std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+                    std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+                    std::int32_t extractDigitsToIntW_3 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
                     return GR_Main::CurrentPixelFormat->PackRgb(extractDigitsToIntW_3, extractDigitsToIntW_2, extractDigitsToIntW);
                 }
             }
@@ -2656,26 +2656,26 @@ namespace aConst {
     // Race.PlanetIconNum lookup; returns -1 for an absent entry. Film owner codes offset a nonnegative result by eight.
     std::int32_t GetCustomFactionPlanetIconNumber(pas::WideString Faction) {
         EC_BlockPar::TBlockParEC* Block{};
-        Block = GR_Main::GameDataConfig->GetBlock(u"Race"_wref.get())->FindBlock(u"PlanetIconNum"_wref.get());
+        Block = GR_Main::GameDataConfig->GetBlock(u"Race"sv)->FindBlock(u"PlanetIconNum"sv);
         if (Block != nullptr && Block->CountParamsByPath(Faction) > 0) {
-            return EC_Str::ExtractDigitsToIntW(Block->GetParamByPathOrMarker(Faction));
+            return EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamByPathOrMarker(Faction)));
         }
         return -1;
     }
 
     // Zero, Mini, Small, Average, Big, Huge map to 0..5; unknown tags map to zero.
-    std::uint8_t SizeTagToLevel(const pas::WideString& Tag) {
-        if (Tag == u"Zero") {
+    std::uint8_t SizeTagToLevel(const std::u16string_view& Tag) {
+        if (Tag == u"Zero"sv) {
             return 0;
-        } else if (Tag == u"Mini") {
+        } else if (Tag == u"Mini"sv) {
             return 1;
-        } else if (Tag == u"Small") {
+        } else if (Tag == u"Small"sv) {
             return 2;
-        } else if (Tag == u"Average") {
+        } else if (Tag == u"Average"sv) {
             return 3;
-        } else if (Tag == u"Big") {
+        } else if (Tag == u"Big"sv) {
             return 4;
-        } else if (Tag == u"Huge") {
+        } else if (Tag == u"Huge"sv) {
             return 5;
         } else {
             return 0;
@@ -2703,7 +2703,7 @@ namespace aConst {
         return aMyFunction::SeededRandomIntRange(Bound, Center, Seed);
     }
 
-    std::int32_t GetAverageItemSize(std::uint8_t ItemType) {
+    std::int32_t GetAverageItemSize(TItemType ItemType) {
         switch (ItemType) {
             case t_ArtefactHull: return 12;
             case t_ArtefactFuel: return 4;
@@ -2825,17 +2825,17 @@ namespace aConst {
     }
 
     // Only Coalition manufacturers are eligible.
-    std::uint8_t PickRandomEquipmentOwner(std::uint32_t RandomValue) {
-        return aMyFunction::SeededRandomIntRange(0, 4, RandomValue);
+    aGalaxyStruct::TOwnerId PickRandomEquipmentOwner(std::uint32_t RandomValue) {
+        return static_cast<aGalaxyStruct::TOwnerId>(aMyFunction::SeededRandomIntRange(0, 4, RandomValue));
     }
 
     pas::WideString LookupNamedColorTag(pas::WideString Name) {
         pas::WideString Text{};
-        EC_BlockPar::TBlockParEC* Block = GR_Main::GameDataConfig->GetBlock(u"Race"_wref.get())->FindBlock(u"Color"_wref.get());
+        EC_BlockPar::TBlockParEC* Block = GR_Main::GameDataConfig->GetBlock(u"Race"sv)->FindBlock(u"Color"sv);
         if (Block != nullptr) {
             if (Block->CountParamsByPath(Name) > 0) {
-                Text = Block->GetParam(Name);
-                if (EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) >= 3) {
+                Text = Block->GetParam(pas::view(Name));
+                if (EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) >= 3) {
                     return pas::concat_wide({u"<color=", Text, u">"});
                 }
             }
@@ -2859,10 +2859,10 @@ namespace aConst {
             Result = pas::concat_wide_reverse({GR_Main::LanguageDataConfig->GetParamByPath(pas::concat_wide({Path, u":", pas::wide_int_to_str(I)})), Result});
         }
         if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
-            Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
-            Result = EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"sv);
+            Result = EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             if (aPlayer::GetPlayer() != nullptr) {
-                return EC_Str::ReplaceAllWideString(Result, u"<Player>"_wref.get(), pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"}));
+                return EC_Str::ReplaceAllWideString(Result, u"<Player>"_wref.get(), pas::view(pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"})));
             }
         }
         return Result;
@@ -2881,13 +2881,13 @@ namespace aConst {
             Result = pas::concat_wide_reverse({GR_Main::LanguageDataConfig->GetParamByPath(pas::concat_wide({Path, u":", pas::wide_int_to_str(I)})), Result});
         }
         if (EC_Str::FindTextPosW(u"<"_wref.get(), Result) > 0) {
-            Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"_wref.get());
-            Result = EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            Result = EC_Str::ReplaceAllWideString(Result, u"<br>"_wref.get(), u"\r\n"sv);
+            Result = EC_Str::ReplaceAllWideString(Result, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             if (aPlayer::GetPlayer() != nullptr) {
-                Result = EC_Str::ReplaceAllWideString(Result, u"<Player>"_wref.get(), pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"}));
+                Result = EC_Str::ReplaceAllWideString(Result, u"<Player>"_wref.get(), pas::view(pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"})));
             }
-            Result = EC_Str::ReplaceAllWideString(Result, u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get());
-            return EC_Str::ReplaceAllWideString(Result, u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+            Result = EC_Str::ReplaceAllWideString(Result, u"<clr>"_wref.get(), u"<color=255,240,100>"sv);
+            return EC_Str::ReplaceAllWideString(Result, u"<clrEnd>"_wref.get(), u"</color>"sv);
         }
         return Result;
     }
@@ -2895,29 +2895,29 @@ namespace aConst {
     // Expands <br>, <ll>, <Player>, <clr> and <clrEnd>; leaves <Player> intact when no player exists.
     void ExpandLocalizedTextMarkup(pas::WideString& Text) {
         if (EC_Str::FindTextPosW(u"<"_wref.get(), Text) > 0) {
-            Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"sv);
+            Text = EC_Str::ReplaceAllWideString(Text, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             if (aPlayer::GetPlayer() != nullptr) {
-                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"}));
+                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::view(pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"})));
             }
-            Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+            Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), u"<color=255,240,100>"sv);
+            Text = EC_Str::ReplaceAllWideString(Text, u"<clrEnd>"_wref.get(), u"</color>"sv);
         }
     }
 
     // Expands markup, trims outer whitespace, then applies LocalizedTextLinePrefix to the first line and after each CRLF.
     void ExpandLocalizedTextMarkupAndPrefixLines(pas::WideString& Text) {
         if (EC_Str::FindTextPosW(u"<"_wref.get(), Text) > 0) {
-            Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"sv);
+            Text = EC_Str::ReplaceAllWideString(Text, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             if (aPlayer::GetPlayer() != nullptr) {
-                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"}));
+                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::view(pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"})));
             }
-            Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+            Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), u"<color=255,240,100>"sv);
+            Text = EC_Str::ReplaceAllWideString(Text, u"<clrEnd>"_wref.get(), u"</color>"sv);
         }
         Text = pas::concat_wide_reverse({EC_Str::TrimWideString(Text), LocalizedTextLinePrefix});
-        Text = EC_Str::ReplaceAllWideString(Text, u"\r\n"_wref.get(), pas::concat_wide({u"\r\n", LocalizedTextLinePrefix}));
+        Text = EC_Str::ReplaceAllWideString(Text, u"\r\n"_wref.get(), pas::view(pas::concat_wide({u"\r\n", LocalizedTextLinePrefix})));
     }
 
     // Collects at most ten nonempty variants: Path, then contiguous numeric suffixes
@@ -2940,7 +2940,7 @@ namespace aConst {
             ++I;
         } while (!(I > 9));
         if (Count == 0) {
-            return pas::concat_wide({u"String: ", aMyFunction::WrapTextInColor(Path, u"<color=255,240,100>"_w), u" is unavailable"});
+            return pas::concat_wide({u"String: ", aMyFunction::WrapTextInColor(pas::view(Path), u"<color=255,240,100>"sv), u" is unavailable"});
         } else if (Count == 1) {
             return Variants[0];
         } else {
@@ -2972,13 +2972,13 @@ namespace aConst {
     }
 
     // First matching template; -1 when absent.
-    std::int32_t FindMicroModuleTemplateByCustomTag(pas::WideString CustomTag) {
+    std::int32_t FindMicroModuleTemplateByCustomTag(const std::u16string_view& CustomTag) {
         std::int32_t I{};
         {
             const std::int32_t cpp_last = MicroModuleTemplates.length() - 1;
             if (0 <= cpp_last) {
                 for (I = 0; I <= cpp_last; ++I) {
-                    if (MicroModuleTemplates[I].CustomTag == CustomTag) {
+                    if (pas::view(MicroModuleTemplates[I].CustomTag) == CustomTag) {
                         return I;
                     }
                 }

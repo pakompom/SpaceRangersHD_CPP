@@ -45,11 +45,11 @@ namespace fCfgSettings {
         // Invokes Callback immediately with the new slider.
         void AddOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TOptionSliderEvent Callback);
         // Searches only the active group.
-        std::uint8_t HasOptionValue(pas::WideString OptionName);
+        std::uint8_t HasOptionValue(const std::u16string_view& OptionName);
         // Searches only the active group; raises when no selected choice or slider exists.
-        std::int32_t GetOptionValue(pas::WideString OptionName);
+        std::int32_t GetOptionValue(const std::u16string_view& OptionName);
         // Searches only the active group; missing options are ignored.
-        void SetOptionValue(pas::WideString OptionName, std::int32_t Value);
+        void SetOptionValue(const std::u16string_view& OptionName, std::int32_t Value);
         static void FormatResolution(GI_MessageLoop::TObjectGI* Sender);
         static void FormatRobotResolution(GI_MessageLoop::TObjectGI* Sender);
         static void FormatRobotFsaaSamples(GI_MessageLoop::TObjectGI* Sender);

@@ -44,7 +44,7 @@ namespace aAsteroid {
     void TAsteroid::Init(aGalaxy::TStar* Star, const pas::WideString& GraphKey) {
         CurrentStar = Star;
         {
-            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Asteroid"_wref.get(), GraphKey, ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Asteroid"sv, GraphKey, ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> graphObject = pas::Var<SE_Space::TObjectSE*>(&GraphObject);
             SE_Space::RetainSpaceObject(graphObject, createSpaceObjectByName);
         }
@@ -151,18 +151,18 @@ namespace aAsteroid {
             Text = ([&] {
                 const pas::WideString& cpp_arg = pas::concat_wide({u"0", EC_Str::IntToWideString(CurrentStar->BackgroundImage)});
                 EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"StyleAsteroid"_wref.get());
-                return blockByPath->GetParam(cpp_arg);
+                return blockByPath->GetParam(pas::view(cpp_arg));
             }());
         } else {
             Text = ([&] {
                 const pas::WideString& intToWideString = EC_Str::IntToWideString(CurrentStar->BackgroundImage);
                 EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(u"StyleAsteroid"_wref.get());
-                return blockByPath_2->GetParam(intToWideString);
+                return blockByPath_2->GetParam(pas::view(intToWideString));
             }());
         }
-        Index = aMyFunction::NextRandomIntRange(0, EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) / 2 - 1, CurrentStar->RandomState) * 2;
-        std::int32_t VariantCount = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, Index + 1, u","_wref.get()));
-        Text = EC_Str::ExtractDelimitedPartW(Text, Index, u","_wref.get());
+        Index = aMyFunction::NextRandomIntRange(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) / 2 - 1, CurrentStar->RandomState) * 2;
+        std::int32_t VariantCount = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), Index + 1, u","sv)));
+        Text = EC_Str::ExtractDelimitedPartW(pas::view(Text), Index, u","sv);
         Variant = aMyFunction::NextRandomIntRange(0, VariantCount - 1, CurrentStar->RandomState);
         TAsteroid* Asteroid = pas::construct_call<TAsteroid>(TAsteroid_Create);
         if (Variant < 10) {

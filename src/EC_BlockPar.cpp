@@ -417,10 +417,10 @@ namespace EC_BlockPar {
         std::int32_t Count{};
         pas::WideString Part{};
         TBlockParEC* Block{};
-        Count = EC_Str::CountDelimitedPartsW(Path, u"./\\"_wref.get());
+        Count = EC_Str::CountDelimitedPartsW(pas::view(Path), u"./\\"sv);
         if (Count > 1) {
-            Block = GetOrAddBlockByPath(EC_Str::ExtractDelimitedRangeW(Path, 0, Count - 2, u"./\\"_wref.get()));
-            Part = EC_Str::ExtractDelimitedPartW(Path, Count - 1, u"./\\"_wref.get());
+            Block = GetOrAddBlockByPath(EC_Str::ExtractDelimitedRangeW(pas::view(Path), 0, Count - 2, u"./\\"sv));
+            Part = EC_Str::ExtractDelimitedPartW(pas::view(Path), Count - 1, u"./\\"sv);
         } else {
             Part = Path;
             Block = this;
@@ -441,10 +441,10 @@ namespace EC_BlockPar {
     }
 
     // Only the first match is affected; raises when absent.
-    void TBlockParEC::SetParam(const pas::WideString& ParamName, const pas::WideString& ParamValue) {
+    void TBlockParEC::SetParam(const std::u16string_view& ParamName, const pas::WideString& ParamValue) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
-            if (Entry->Name == ParamName && Entry->ItemType == bpkString) {
+            if (pas::view(Entry->Name) == ParamName && Entry->ItemType == bpkString) {
                 Entry->StringValue = ParamValue;
                 return;
             }
@@ -466,10 +466,10 @@ namespace EC_BlockPar {
     }
 
     // Only the first match is affected; raises when absent.
-    void TBlockParEC::DeleteParam(const pas::WideString& ParamName) {
+    void TBlockParEC::DeleteParam(const std::u16string_view& ParamName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
-            if (Entry->Name == ParamName && Entry->ItemType == bpkString) {
+            if (pas::view(Entry->Name) == ParamName && Entry->ItemType == bpkString) {
                 if (UseSortedIndex) {
                     RemoveFromSortedIndex(Entry);
                 }
@@ -482,10 +482,10 @@ namespace EC_BlockPar {
     }
 
     // Only the first match is affected; raises when absent.
-    void TBlockParEC::DeleteChildBlock(const pas::WideString& BlockName) {
+    void TBlockParEC::DeleteChildBlock(const std::u16string_view& BlockName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
-            if (Entry->Name == BlockName && Entry->ItemType == bpkBlock) {
+            if (pas::view(Entry->Name) == BlockName && Entry->ItemType == bpkBlock) {
                 if (UseSortedIndex) {
                     RemoveFromSortedIndex(Entry);
                 }
@@ -497,10 +497,10 @@ namespace EC_BlockPar {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Block_Delete. name=", BlockName}))));
     }
 
-    pas::WideString TBlockParEC::GetParam(const pas::WideString& ParamName) {
+    pas::WideString TBlockParEC::GetParam(const std::u16string_view& ParamName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
-            if (Entry->Name == ParamName && Entry->ItemType == bpkString) {
+            if (pas::view(Entry->Name) == ParamName && Entry->ItemType == bpkString) {
                 return Entry->StringValue;
             }
             Entry = Entry->Next;
@@ -508,10 +508,10 @@ namespace EC_BlockPar {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Par_Get. name=", ParamName}))));
     }
 
-    pas::WideString TBlockParEC::GetParamOrMarker(const pas::WideString& ParamName) {
+    pas::WideString TBlockParEC::GetParamOrMarker(const std::u16string_view& ParamName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
-            if (Entry->Name == ParamName && Entry->ItemType == bpkString) {
+            if (pas::view(Entry->Name) == ParamName && Entry->ItemType == bpkString) {
                 return Entry->StringValue;
             }
             Entry = Entry->Next;
@@ -595,10 +595,10 @@ namespace EC_BlockPar {
         std::int32_t Count{};
         pas::WideString Part{};
         TBlockParEC* Block{};
-        Count = EC_Str::CountDelimitedPartsW(Path, u"./\\"_wref.get());
+        Count = EC_Str::CountDelimitedPartsW(pas::view(Path), u"./\\"sv);
         if (Count > 1) {
-            Block = GetOrAddBlockByPath(EC_Str::ExtractDelimitedRangeW(Path, 0, Count - 2, u"./\\"_wref.get()));
-            Part = EC_Str::ExtractDelimitedPartW(Path, Count - 1, u"./\\"_wref.get());
+            Block = GetOrAddBlockByPath(EC_Str::ExtractDelimitedRangeW(pas::view(Path), 0, Count - 2, u"./\\"sv));
+            Part = EC_Str::ExtractDelimitedPartW(pas::view(Path), Count - 1, u"./\\"sv);
         } else {
             Part = Path;
             Block = this;
@@ -650,10 +650,10 @@ namespace EC_BlockPar {
     }
 
     // Raises when absent.
-    TBlockParEC* TBlockParEC::GetBlock(const pas::WideString& BlockName) {
+    TBlockParEC* TBlockParEC::GetBlock(const std::u16string_view& BlockName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
-            if (Entry->Name == BlockName && Entry->ItemType == bpkBlock) {
+            if (pas::view(Entry->Name) == BlockName && Entry->ItemType == bpkBlock) {
                 return Entry->ChildBlock;
             }
             Entry = Entry->Next;
@@ -661,10 +661,10 @@ namespace EC_BlockPar {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Block_Get. name=", BlockName}))));
     }
 
-    TBlockParEC* TBlockParEC::FindBlock(const pas::WideString& BlockName) {
+    TBlockParEC* TBlockParEC::FindBlock(const std::u16string_view& BlockName) {
         TBlockParElEC* Entry = FirstEntry;
         while (Entry != nullptr) {
-            if (Entry->Name == BlockName && Entry->ItemType == bpkBlock) {
+            if (pas::view(Entry->Name) == BlockName && Entry->ItemType == bpkBlock) {
                 return Entry->ChildBlock;
             }
             Entry = Entry->Next;
@@ -1011,11 +1011,11 @@ namespace EC_BlockPar {
                     Text = EC_Str::TrimWideString(Buf->ReadWideTextLine());
                 }
             }
-            Comment = EC_Str::ExtractLineCommentW(Text);
-            Text = EC_Str::TrimWideString(EC_Str::RemoveLineCommentW(Text));
-            PartCount = EC_Str::CountDelimitedPartsW(Text, u"{"_wref.get());
+            Comment = EC_Str::ExtractLineCommentW(pas::view(Text));
+            Text = EC_Str::TrimWideString(EC_Str::RemoveLineCommentW(pas::view(Text)));
+            PartCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u"{"sv);
             if (PartCount > 1) {
-                Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, 0, u"{"_wref.get()));
+                Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"{"sv));
                 if (Name == u"") {
                     pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.LoadFromBuf_r. tstr=", Text}))));
                 }
@@ -1031,25 +1031,25 @@ namespace EC_BlockPar {
                     }
                 }
                 IncludeFile = pas::WideString();
-                if (EC_Str::CountDelimitedPartsW(Name, u"="_wref.get()) == 2) {
-                    IncludeFile = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Name, 1, u"="_wref.get()));
-                    Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Name, 0, u"="_wref.get()));
+                if (EC_Str::CountDelimitedPartsW(pas::view(Name), u"="sv) == 2) {
+                    IncludeFile = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Name), 1, u"="sv));
+                    Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Name), 0, u"="sv));
                 }
                 Child = AddChildBlock(Name);
                 Child->UseSortedIndex = ChildSorted;
-                Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(Text, 1, PartCount - 1, u"{"_wref.get()));
+                Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, PartCount - 1, u"{"sv));
                 Child->ParseTextBuffer(Buf, Name, AnsiText, PreserveComments);
                 if (IncludeFile != u"") {
                     Child->LoadFromTextFileWithEncodingProbe(IncludeFile.pchar(), false);
                 }
             } else {
-                if (EC_Str::CountDelimitedPartsW(Text, u"}"_wref.get()) > 1) {
+                if (EC_Str::CountDelimitedPartsW(pas::view(Text), u"}"sv) > 1) {
                     break;
                 }
-                PartCount = EC_Str::CountDelimitedPartsW(Text, u"="_wref.get());
+                PartCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u"="sv);
                 if (PartCount > 1) {
-                    Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, 0, u"="_wref.get()));
-                    IncludeFile = EC_Str::ExtractDelimitedRangeW(Text, 1, PartCount - 1, u"="_wref.get());
+                    Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"="sv));
+                    IncludeFile = EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, PartCount - 1, u"="sv);
                     if (PreserveComments) {
                         AddParam(Name, IncludeFile)->Comment = Comment;
                     } else {

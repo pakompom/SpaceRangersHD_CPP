@@ -297,12 +297,12 @@ namespace GI_GAI {
         std::int32_t Last{};
         std::int32_t TimerDelay{};
         ClearFrameSequence();
-        std::int32_t Count = (EC_Str::CountDelimitedPartsW(FrameSpec, u"[]"_wref.get()) - 1) / 2;
+        std::int32_t Count = (EC_Str::CountDelimitedPartsW(pas::view(FrameSpec), u"[]"sv) - 1) / 2;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            Part = EC_Str::ExtractDelimitedPartW(FrameSpec, Index * 2 + 1, u"[]"_wref.get());
-            Delay = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Part, 0, u",-"_wref.get()));
-            First = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Part, 1, u",-"_wref.get()));
-            Last = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Part, 2, u",-"_wref.get()));
+            Part = EC_Str::ExtractDelimitedPartW(pas::view(FrameSpec), Index * 2 + 1, u"[]"sv);
+            Delay = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Part), 0, u",-"sv)));
+            First = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Part), 1, u",-"sv)));
+            Last = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Part), 2, u",-"sv)));
             RangeCount = pas::abs(First - Last) + 1;
             SequenceFrameCount += RangeCount;
             SequenceFrameIndexTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap, SequenceFrameIndexTable, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
@@ -566,49 +566,49 @@ namespace GI_GAI {
 
     void TgaiGI::LoadAnimationProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            MainImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            MainImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"ImageFirst"_wref.get()) > 0) {
-            SetFirstFrameImagePath(Block->GetParam(u"ImageFirst"_wref.get()));
+            SetFirstFrameImagePath(Block->GetParam(u"ImageFirst"sv));
         }
         if (Block->CountParams(u"KindX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"KindX"sv))));
         }
         if (Block->CountParams(u"KindY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"KindY"sv))));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"AlignX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"AlignX"sv))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"AlignY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"AlignY"sv))));
         }
         if (Block->CountParams(u"PBuf"_wref.get()) > 0) {
-            UsesPlaybackBuffer = GI_Main::ParseEnabledNameGI(Block->GetParam(u"PBuf"_wref.get()));
+            UsesPlaybackBuffer = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"PBuf"sv)));
         }
         if (Block->CountParams(u"Stop"_wref.get()) > 0) {
-            StopPlaybackRequested = GI_Main::ParseEnabledNameGI(Block->GetParam(u"Stop"_wref.get()));
+            StopPlaybackRequested = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Stop"sv)));
         }
         if (Block->CountParams(u"Frame"_wref.get()) > 0) {
-            LoadFrameSequenceFromText(Block->GetParam(u"Frame"_wref.get()));
+            LoadFrameSequenceFromText(Block->GetParam(u"Frame"sv));
         }
         if (Block->CountParams(u"FrameLoad"_wref.get()) > 0) {
-            SequenceIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"FrameLoad"_wref.get())));
+            SequenceIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"FrameLoad"sv)));
         }
         if (Block->CountParams(u"Auto"_wref.get()) > 0) {
-            AutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"_wref.get()));
+            AutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"sv));
         }
         if (Block->CountParams(u"TransColor"_wref.get()) > 0) {
-            TransparentColor = GI_Main::GetColorGI(Block->GetParam(u"TransColor"_wref.get()));
+            TransparentColor = GI_Main::GetColorGI(pas::view(Block->GetParam(u"TransColor"sv)));
         }
         if (Block->CountParams(u"SkipImageUpdateRect"_wref.get()) > 0) {
-            SkipImageUpdateRect = GI_Main::ParseEnabledNameGI(Block->GetParam(u"SkipImageUpdateRect"_wref.get()));
+            SkipImageUpdateRect = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"SkipImageUpdateRect"sv)));
         }
         if (Block->CountParams(u"StopAfterOneCycle"_wref.get()) > 0) {
-            StopAfterOneCycle = GI_Main::ParseEnabledNameGI(Block->GetParam(u"StopAfterOneCycle"_wref.get()));
+            StopAfterOneCycle = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"StopAfterOneCycle"sv)));
         }
         if (Block->CountParams(u"SoundStart"_wref.get()) > 0) {
-            StartSoundName = Block->GetParam(u"SoundStart"_wref.get());
+            StartSoundName = Block->GetParam(u"SoundStart"sv);
             if (AutoFrameTimer != nullptr) {
                 MessageLoop->CancelCallbackTimer(AutoFrameTimer);
                 AutoFrameTimer = nullptr;

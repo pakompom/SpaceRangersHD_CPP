@@ -68,8 +68,8 @@ namespace EC_Cache {
         std::int32_t i{};
         EC_Data::TDataEC* Data{};
         Data = GR_Main::CacheDataRoot;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(BlockPath, u"."_wref.get()) - 1); cpp_range.next(i); ) {
-            Data = Data->GetData(EC_Str::ExtractDelimitedPartW(BlockPath, i, u"."_wref.get()));
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(BlockPath), u"."sv) - 1); cpp_range.next(i); ) {
+            Data = Data->GetData(EC_Str::ExtractDelimitedPartW(pas::view(BlockPath), i, u"."sv));
         }
         TCacheControlEC* Control = pas::construct_call<TCacheControlEC>(TCacheControlEC_Create);
         TCacheEC::ResetControl(Control);
@@ -146,7 +146,7 @@ namespace EC_Cache {
         } else {
             pas::critical_enter(GR_Main::GlobalCache->CacheLock);
             if (BoundData == nullptr) {
-                BoundData = GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, CacheDataClass);
+                BoundData = GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), CacheDataClass);
                 if (BoundData == nullptr) {
                     Data = CreateData();
                     Data->CacheKey = CacheKey;
@@ -159,13 +159,13 @@ namespace EC_Cache {
                     RetainCount = 1;
                     GR_Main::GlobalCache->AddDataToLruHead(Data);
                     pas::critical_leave(GR_Main::GlobalCache->CacheLock);
-                    PartCount = EC_Str::CountDelimitedPartsW(CacheKey, u"?"_wref.get());
+                    PartCount = EC_Str::CountDelimitedPartsW(pas::view(CacheKey), u"?"sv);
                     if (PartCount < 2) {
                         Path = CacheKey;
                         LoadOption = pas::WideString();
                     } else {
-                        Path = EC_Str::ExtractDelimitedPartW(CacheKey, 0, u"?"_wref.get());
-                        LoadOption = EC_Str::ExtractDelimitedRangeW(CacheKey, 1, PartCount - 1, u"?"_wref.get());
+                        Path = EC_Str::ExtractDelimitedPartW(pas::view(CacheKey), 0, u"?"sv);
+                        LoadOption = EC_Str::ExtractDelimitedRangeW(pas::view(CacheKey), 1, PartCount - 1, u"?"sv);
                     }
                     Buffer = GR_Main::GlobalCache->OpenDataBuffer(Path);
                     {
@@ -217,7 +217,7 @@ namespace EC_Cache {
         } else {
             pas::critical_enter(GR_Main::GlobalCache->CacheLock);
             if (BoundData == nullptr) {
-                BoundData = GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, CacheDataClass);
+                BoundData = GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), CacheDataClass);
                 if (BoundData == nullptr) {
                     Data = CreateData();
                     Data->CacheKey = CacheKey;
@@ -288,7 +288,7 @@ namespace EC_Cache {
         }
         pas::critical_enter(GR_Main::GlobalCache->CacheLock);
         if (BoundData == nullptr) {
-            BoundData = GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, CacheDataClass);
+            BoundData = GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), CacheDataClass);
         }
         if (BoundData != nullptr) {
             GR_Main::GlobalCache->ResidentBytes -= BoundData->ResidentBytes;
@@ -411,11 +411,11 @@ namespace EC_Cache {
     }
 
     // Case-sensitive key and exact class match; returns nil when absent.
-    TCacheDataEC* TCacheEC::FindDataByKeyAndClass(const pas::WideString& Key, TCacheDataClass CacheDataClass) {
+    TCacheDataEC* TCacheEC::FindDataByKeyAndClass(const std::u16string_view& Key, TCacheDataClass CacheDataClass) {
         TCacheDataEC* Data = MostRecentData;
         while (Data != nullptr) {
             if (pas::class_type(Data) == CacheDataClass) {
-                if (Data->CacheKey == Key) {
+                if (pas::view(Data->CacheKey) == Key) {
                     return Data;
                 }
             }
@@ -483,7 +483,7 @@ namespace EC_Cache {
     }
 
     // PendingLoads owns added controls; duplicate pending entries are possible.
-    void TCacheEC::QueueNamedLoadIfMissing(pas::List* PendingLoads, const pas::WideString& CacheKind, const pas::WideString& Key) {
+    void TCacheEC::QueueNamedLoadIfMissing(pas::List* PendingLoads, const std::u16string_view& CacheKind, const pas::WideString& Key) {
         EC_CacheAlphaBitmap::TCAlphaBitmapControlEC* AlphaBitmap{};
         EC_CacheBitmap::TCBitmapControlEC* Bitmap{};
         EC_CacheTBitmap::TCTBitmapControlEC* TBitmap{};
@@ -491,50 +491,50 @@ namespace EC_Cache {
         EC_CacheGAI::TCGaiControlEC* Gai{};
         EC_CacheGI::TCGiControlEC* Gi{};
         EC_CachePlanetTempl::TCPlanetTemplControlEC* PlanetTempl{};
-        if (CacheKind == u"Alpha") {
-            if (FindDataByKeyAndClass(Key, pas::class_ref<EC_CacheAlphaBitmap::TCAlphaBitmapEC>()) == nullptr) {
+        if (CacheKind == u"Alpha"sv) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheAlphaBitmap::TCAlphaBitmapEC>()) == nullptr) {
                 AlphaBitmap = pas::construct_call<EC_CacheAlphaBitmap::TCAlphaBitmapControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(AlphaBitmap);
                 AlphaBitmap->SetCacheKey(Key);
                 pas::list_add(PendingLoads, reinterpret_cast<void*>(AlphaBitmap));
             }
-        } else if (CacheKind == u"Bitmap") {
-            if (FindDataByKeyAndClass(Key, pas::class_ref<EC_CacheBitmap::TCBitmapEC>()) == nullptr) {
+        } else if (CacheKind == u"Bitmap"sv) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheBitmap::TCBitmapEC>()) == nullptr) {
                 Bitmap = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(Bitmap);
                 Bitmap->SetCacheKey(Key);
                 pas::list_add(PendingLoads, reinterpret_cast<void*>(Bitmap));
             }
-        } else if (CacheKind == u"Trans") {
-            if (FindDataByKeyAndClass(Key, pas::class_ref<EC_CacheTBitmap::TCTBitmapEC>()) == nullptr) {
+        } else if (CacheKind == u"Trans"sv) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheTBitmap::TCTBitmapEC>()) == nullptr) {
                 TBitmap = pas::construct_call<EC_CacheTBitmap::TCTBitmapControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(TBitmap);
                 TBitmap->SetCacheKey(Key);
                 pas::list_add(PendingLoads, reinterpret_cast<void*>(TBitmap));
             }
-        } else if (CacheKind == u"GI") {
-            if (FindDataByKeyAndClass(Key, pas::class_ref<EC_CacheGI::TCGiEC>()) == nullptr) {
+        } else if (CacheKind == u"GI"sv) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheGI::TCGiEC>()) == nullptr) {
                 Gi = pas::construct_call<EC_CacheGI::TCGiControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(Gi);
                 Gi->SetCacheKey(Key);
                 pas::list_add(PendingLoads, reinterpret_cast<void*>(Gi));
             }
-        } else if (CacheKind == u"GAI") {
-            if (FindDataByKeyAndClass(Key, pas::class_ref<EC_CacheGAI::TCGaiEC>()) == nullptr) {
+        } else if (CacheKind == u"GAI"sv) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheGAI::TCGaiEC>()) == nullptr) {
                 Gai = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(Gai);
                 Gai->SetCacheKey(Key);
                 pas::list_add(PendingLoads, reinterpret_cast<void*>(Gai));
             }
-        } else if (CacheKind == u"Sound") {
-            if (FindDataByKeyAndClass(Key, pas::class_ref<EC_CacheSound::TCSoundEC>()) == nullptr) {
+        } else if (CacheKind == u"Sound"sv) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheSound::TCSoundEC>()) == nullptr) {
                 Sound = pas::construct_call<EC_CacheSound::TCSoundControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(Sound);
                 Sound->SetCacheKey(Key);
                 pas::list_add(PendingLoads, reinterpret_cast<void*>(Sound));
             }
-        } else if (CacheKind == u"PlanetTempl") {
-            if (FindDataByKeyAndClass(Key, pas::class_ref<EC_CachePlanetTempl::TCPlanetTemplEC>()) == nullptr) {
+        } else if (CacheKind == u"PlanetTempl"sv) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CachePlanetTempl::TCPlanetTemplEC>()) == nullptr) {
                 PlanetTempl = pas::construct_call<EC_CachePlanetTempl::TCPlanetTemplControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(PlanetTempl);
                 PlanetTempl->SetCacheKey(Key);

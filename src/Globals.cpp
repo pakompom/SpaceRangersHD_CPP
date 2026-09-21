@@ -365,13 +365,13 @@ namespace Globals {
     }};
 
     // Case-sensitive; returns -1 when absent. Requires the template list. Native callers include UI loading and script builtins.
-    std::int32_t FindScriptTemplateIndex(const pas::WideString& Name) {
+    std::int32_t FindScriptTemplateIndex(const std::u16string_view& Name) {
         TScriptTemplUnit* Item{};
         std::int32_t Index{};
         std::int32_t Count = pas::list_count(ScriptTemplates);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Item = pas::list_at<TScriptTemplUnit>(ScriptTemplates, Index);
-            if (Item->Name == Name) {
+            if (pas::view(Item->Name) == Name) {
                 return Index;
             }
         }
@@ -524,7 +524,7 @@ namespace Globals {
     }
 
     void FinalizeScriptHostRuntime() {
-        std::uint8_t Race{};
+        aGalaxyStruct::TOwnerId Race{};
         std::uint8_t Kind{};
         std::uint8_t Series{};
         pas::Object* Item{};
@@ -566,7 +566,7 @@ namespace Globals {
             WindowsImports::CloseHandle(ScriptUiAbortEvent);
             ScriptUiAbortEvent = 0u;
         }
-        for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_2.next(Race); ) {
+        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_2.next(Race); ) {
             for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(5)); cpp_range_3.next(Kind); ) {
                 if (RaceShipTemplates[Race][Kind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][Kind]));
@@ -611,19 +611,19 @@ namespace Globals {
         if (Text != u"" && Text != u"Any") {
             Names = static_cast<pas::AnsiString>(Text);
             if (pas::pos("Maloc", Names) > 0) {
-                pas::include_at(&Result, 0);
+                pas::include_at(&Result, aGalaxyStruct::oiMaloc);
             }
             if (pas::pos("Peleng", Names) > 0) {
-                pas::include_at(&Result, 1);
+                pas::include_at(&Result, aGalaxyStruct::oiPeleng);
             }
             if (pas::pos("People", Names) > 0) {
-                pas::include_at(&Result, 2);
+                pas::include_at(&Result, aGalaxyStruct::oiHuman);
             }
             if (pas::pos("Fei", Names) > 0) {
-                pas::include_at(&Result, 3);
+                pas::include_at(&Result, aGalaxyStruct::oiFeyan);
             }
             if (pas::pos("Gaal", Names) > 0) {
-                pas::include_at(&Result, 4);
+                pas::include_at(&Result, aGalaxyStruct::oiGaal);
             }
         }
         return Result;
@@ -664,11 +664,11 @@ namespace Globals {
             }
             return Result;
         };
-        Root = GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"_wref.get());
+        Root = GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"sv);
         std::int32_t Count = Root->GetBlockCount();
         RobotMapDefinitions.set_length(Count);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            RobotMapDefinitions[Index].Id = EC_Str::ExtractDigitsToIntW(Root->GetBlockNameByIndex(Index));
+            RobotMapDefinitions[Index].Id = EC_Str::ExtractDigitsToIntW(pas::view(Root->GetBlockNameByIndex(Index)));
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Index - 1); cpp_range_2.next(Previous); ) {
                 if (RobotMapDefinitions[Index].Id == RobotMapDefinitions[Previous].Id) {
                     GR_Main::RaiseWideMessage(u"RobotMap.Id"_wref.get());
@@ -679,11 +679,11 @@ namespace Globals {
             RobotMapDefinitions[Index].Map = ReadMapText(u"Map"_wref.get());
             Text = ReadMapText(u"Group"_wref.get());
             if (Text != u"") {
-                RobotMapDefinitions[Index].Group = EC_Str::ExtractSignedDigitsToIntW(ReadMapText(u"Group"_wref.get()));
+                RobotMapDefinitions[Index].Group = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Group"_wref.get())));
             } else {
                 RobotMapDefinitions[Index].Group = -1;
             }
-            RobotMapDefinitions[Index].Access = EC_Str::ExtractSignedDigitsToIntW(ReadMapText(u"Access"_wref.get()));
+            RobotMapDefinitions[Index].Access = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Access"_wref.get())));
             Text = ReadMapText(u"Side"_wref.get());
             RobotMapDefinitions[Index].Side = 0;
             if (pas::pos("Red", static_cast<pas::AnsiString>(Text)) > 0) {
@@ -695,31 +695,31 @@ namespace Globals {
             if (pas::pos("Blue", static_cast<pas::AnsiString>(Text)) > 0) {
                 RobotMapDefinitions[Index].Side = RobotMapDefinitions[Index].Side | 4;
             }
-            RobotMapDefinitions[Index].Length = EC_Str::ExtractSignedDigitsToIntW(ReadMapText(u"Length"_wref.get()));
+            RobotMapDefinitions[Index].Length = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Length"_wref.get())));
             Text = ReadMapText(u"PlanetRace"_wref.get());
             RobotMapDefinitions[Index].PlanetRace = Globals::ParseRobotMapRaceMask(Text);
             Text = ReadMapText(u"PlayerRace"_wref.get());
             RobotMapDefinitions[Index].PlayerRace = Globals::ParseRobotMapRaceMask(Text);
             Text = ReadMapText(u"PlayerStatus"_wref.get());
-            RobotMapDefinitions[Index].PlayerStatus = pas::constant_set<TRobotMapPlayerStatuses>({});
+            RobotMapDefinitions[Index].PlayerStatus = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({});
             if (Text != u"" && Text != u"Any") {
                 if (pas::pos("Trader", static_cast<pas::AnsiString>(Text)) > 0) {
-                    pas::include_at(&RobotMapDefinitions[Index].PlayerStatus, 0);
+                    pas::include_at(&RobotMapDefinitions[Index].PlayerStatus, aGalaxyStruct::rcTrader);
                 }
                 if (pas::pos("Pirate", static_cast<pas::AnsiString>(Text)) > 0) {
-                    pas::include_at(&RobotMapDefinitions[Index].PlayerStatus, 1);
+                    pas::include_at(&RobotMapDefinitions[Index].PlayerStatus, aGalaxyStruct::rcPirate);
                 }
                 if (pas::pos("Warrior", static_cast<pas::AnsiString>(Text)) > 0) {
-                    pas::include_at(&RobotMapDefinitions[Index].PlayerStatus, 2);
+                    pas::include_at(&RobotMapDefinitions[Index].PlayerStatus, aGalaxyStruct::rcWarrior);
                 }
             }
-            RobotMapDefinitions[Index].MinWins = EC_Str::ExtractSignedDigitsToIntW(ReadMapText(u"MinWins"_wref.get()));
-            RobotMapDefinitions[Index].MaxWins = EC_Str::ExtractSignedDigitsToIntW(ReadMapText(u"MaxWins"_wref.get()));
-            RobotMapDefinitions[Index].Reiteration = EC_Str::ExtractDigitsToIntW(ReadMapText(u"Reiteration"_wref.get()));
-            RobotMapDefinitions[Index].ReinforcementsDisabled = GI_Main::ParseEnabledNameGI(ReadMapText(u"ReinforcementsDisabled"_wref.get()));
-            RobotMapDefinitions[Index].Terron = GI_Main::ParseEnabledNameGI(ReadMapText(u"Terron"_wref.get()));
-            RobotMapDefinitions[Index].Demo = GI_Main::ParseEnabledNameGI(ReadMapText(u"Demo"_wref.get()));
-            RobotMapDefinitions[Index].AfterLiberation = GI_Main::ParseEnabledNameGI(ReadMapText(u"AfterLiberation"_wref.get()));
+            RobotMapDefinitions[Index].MinWins = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"MinWins"_wref.get())));
+            RobotMapDefinitions[Index].MaxWins = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"MaxWins"_wref.get())));
+            RobotMapDefinitions[Index].Reiteration = EC_Str::ExtractDigitsToIntW(pas::view(ReadMapText(u"Reiteration"_wref.get())));
+            RobotMapDefinitions[Index].ReinforcementsDisabled = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"ReinforcementsDisabled"_wref.get())));
+            RobotMapDefinitions[Index].Terron = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"Terron"_wref.get())));
+            RobotMapDefinitions[Index].Demo = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"Demo"_wref.get())));
+            RobotMapDefinitions[Index].AfterLiberation = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"AfterLiberation"_wref.get())));
             RobotMapDefinitions[Index].GovTextStart = ReadMapText(u"GovTextStart"_wref.get());
             RobotMapDefinitions[Index].GovTextWin = ReadMapText(u"GovTextWin"_wref.get());
             RobotMapDefinitions[Index].GovTextLoss = ReadMapText(u"GovTextLoss"_wref.get());
@@ -738,7 +738,7 @@ namespace Globals {
         pas::WideString Text{};
         auto ReadShipGreetingField = [&](const pas::WideString& FieldName) -> pas::WideString {
             if (Block->CountParams(FieldName) > 0) {
-                return Block->GetParam(FieldName);
+                return Block->GetParam(pas::view(FieldName));
             }
             return pas::WideString();
         };
@@ -747,7 +747,7 @@ namespace Globals {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             if (([&] {
                 const pas::WideString& intToStr = pas::wide_int_to_str(Index);
-                EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"ShipGreetings"_wref.get());
+                EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"ShipGreetings"sv);
                 return block->CountBlocks(intToStr);
             }()) > 0) {
                 ++ShipGreetingCount;
@@ -758,7 +758,7 @@ namespace Globals {
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
             if (([&] {
                 const pas::WideString& intToStr_2 = pas::wide_int_to_str(Index);
-                EC_BlockPar::TBlockParEC* block_2 = GR_Main::LanguageDataConfig->GetBlock(u"ShipGreetings"_wref.get());
+                EC_BlockPar::TBlockParEC* block_2 = GR_Main::LanguageDataConfig->GetBlock(u"ShipGreetings"sv);
                 return block_2->CountBlocks(intToStr_2);
             }()) != 0) {
                 ++ShipGreetingCount;
@@ -824,22 +824,22 @@ namespace Globals {
                         }
                     }
                     Text = ReadShipGreetingField(u"Relations"_wref.get());
-                    cpp_with.Relations = pas::constant_set<TGreetingMask>({});
+                    cpp_with.Relations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("War", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.Relations, 0);
+                            pas::include_at(&cpp_with.Relations, aGalaxyStruct::rlHostile);
                         }
                         if (pas::pos("Bad", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.Relations, 1);
+                            pas::include_at(&cpp_with.Relations, aGalaxyStruct::rlBad);
                         }
                         if (pas::pos("Normal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.Relations, 2);
+                            pas::include_at(&cpp_with.Relations, aGalaxyStruct::rlNormal);
                         }
                         if (pas::pos("Good", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.Relations, 3);
+                            pas::include_at(&cpp_with.Relations, aGalaxyStruct::rlGood);
                         }
                         if (pas::pos("Best", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.Relations, 4);
+                            pas::include_at(&cpp_with.Relations, aGalaxyStruct::rlExcellent);
                         }
                     }
                     Text = ReadShipGreetingField(u"ShipRace"_wref.get());
@@ -981,29 +981,29 @@ namespace Globals {
                         }
                     }
                     Text = ReadShipGreetingField(u"ShipStatus"_wref.get());
-                    cpp_with.ShipStatus = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ShipStatus = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Trader", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ShipStatus, 0);
+                            pas::include_at(&cpp_with.ShipStatus, aGalaxyStruct::rcTrader);
                         }
                         if (pas::pos("Pirate", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ShipStatus, 1);
+                            pas::include_at(&cpp_with.ShipStatus, aGalaxyStruct::rcPirate);
                         }
                         if (pas::pos("Warrior", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ShipStatus, 2);
+                            pas::include_at(&cpp_with.ShipStatus, aGalaxyStruct::rcWarrior);
                         }
                     }
                     Text = ReadShipGreetingField(u"PlayerStatus"_wref.get());
-                    cpp_with.PlayerStatus = pas::constant_set<TGreetingMask>({});
+                    cpp_with.PlayerStatus = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Trader", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.PlayerStatus, 0);
+                            pas::include_at(&cpp_with.PlayerStatus, aGalaxyStruct::rcTrader);
                         }
                         if (pas::pos("Pirate", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.PlayerStatus, 1);
+                            pas::include_at(&cpp_with.PlayerStatus, aGalaxyStruct::rcPirate);
                         }
                         if (pas::pos("Warrior", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.PlayerStatus, 2);
+                            pas::include_at(&cpp_with.PlayerStatus, aGalaxyStruct::rcWarrior);
                         }
                     }
                     Text = ReadShipGreetingField(u"ShipStrength"_wref.get());
@@ -1432,27 +1432,27 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"LastPlanetRace"_wref.get());
                     if (Text == u"Any") {
-                        cpp_with.LastPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 4}});
+                        cpp_with.LastPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
                     } else {
                         cpp_with.LastPlanetRace = Globals::ParseRobotMapRaceMask(Text);
                     }
                     Text = ReadShipGreetingField(u"LastPlanetRelations"_wref.get());
-                    cpp_with.LastPlanetRelations = pas::constant_set<TGreetingMask>({});
+                    cpp_with.LastPlanetRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("War", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetRelations, 0);
+                            pas::include_at(&cpp_with.LastPlanetRelations, aGalaxyStruct::rlHostile);
                         }
                         if (pas::pos("Bad", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetRelations, 1);
+                            pas::include_at(&cpp_with.LastPlanetRelations, aGalaxyStruct::rlBad);
                         }
                         if (pas::pos("Normal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetRelations, 2);
+                            pas::include_at(&cpp_with.LastPlanetRelations, aGalaxyStruct::rlNormal);
                         }
                         if (pas::pos("Good", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetRelations, 3);
+                            pas::include_at(&cpp_with.LastPlanetRelations, aGalaxyStruct::rlGood);
                         }
                         if (pas::pos("Best", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetRelations, 4);
+                            pas::include_at(&cpp_with.LastPlanetRelations, aGalaxyStruct::rlExcellent);
                         }
                     }
                     Text = ReadShipGreetingField(u"LastPlanetGoodsCnt"_wref.get());
@@ -1540,35 +1540,35 @@ namespace Globals {
                         cpp_with.LastPlanetRaceIsPlayerRace = 2;
                     }
                     Text = ReadShipGreetingField(u"LastPlanetEconomy"_wref.get());
-                    cpp_with.LastPlanetEconomy = pas::constant_set<TGreetingMask>({});
+                    cpp_with.LastPlanetEconomy = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Agriculture", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetEconomy, 0);
+                            pas::include_at(&cpp_with.LastPlanetEconomy, aGalaxyStruct::peAgricultural);
                         }
                         if (pas::pos("Mixed", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetEconomy, 1);
+                            pas::include_at(&cpp_with.LastPlanetEconomy, aGalaxyStruct::peMixed);
                         }
                         if (pas::pos("Industrial", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetEconomy, 2);
+                            pas::include_at(&cpp_with.LastPlanetEconomy, aGalaxyStruct::peIndustrial);
                         }
                     }
                     Text = ReadShipGreetingField(u"LastPlanetGoverment"_wref.get());
-                    cpp_with.LastPlanetGovernment = pas::constant_set<TGreetingMask>({});
+                    cpp_with.LastPlanetGovernment = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Anarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetGovernment, 0);
+                            pas::include_at(&cpp_with.LastPlanetGovernment, aGalaxyStruct::pgAnarchy);
                         }
                         if (pas::pos("Dictatorship", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetGovernment, 1);
+                            pas::include_at(&cpp_with.LastPlanetGovernment, aGalaxyStruct::pgDictatorship);
                         }
                         if (pas::pos("Monarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetGovernment, 2);
+                            pas::include_at(&cpp_with.LastPlanetGovernment, aGalaxyStruct::pgMonarchy);
                         }
                         if (pas::pos("Republic", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetGovernment, 3);
+                            pas::include_at(&cpp_with.LastPlanetGovernment, aGalaxyStruct::pgRepublic);
                         }
                         if (pas::pos("Democracy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.LastPlanetGovernment, 4);
+                            pas::include_at(&cpp_with.LastPlanetGovernment, aGalaxyStruct::pgDemocracy);
                         }
                     }
                     Text = ReadShipGreetingField(u"LastPlanetInCurStar"_wref.get());
@@ -1678,22 +1678,22 @@ namespace Globals {
                     Text = ReadShipGreetingField(u"ToPlanetRace"_wref.get());
                     cpp_with.ToPlanetRace = Globals::ParseRobotMapRaceMask(Text);
                     Text = ReadShipGreetingField(u"ToPlanetRelations"_wref.get());
-                    cpp_with.ToPlanetRelations = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToPlanetRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("War", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 0);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlHostile);
                         }
                         if (pas::pos("Bad", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 1);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlBad);
                         }
                         if (pas::pos("Normal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 2);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlNormal);
                         }
                         if (pas::pos("Good", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 3);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlGood);
                         }
                         if (pas::pos("Best", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 4);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlExcellent);
                         }
                     }
                     Text = ReadShipGreetingField(u"ToPlanetGoodsCnt"_wref.get());
@@ -1781,35 +1781,35 @@ namespace Globals {
                         cpp_with.ToPlanetRaceIsPlayerRace = 2;
                     }
                     Text = ReadShipGreetingField(u"ToPlanetEconomy"_wref.get());
-                    cpp_with.ToPlanetEconomy = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToPlanetEconomy = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Agriculture", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetEconomy, 0);
+                            pas::include_at(&cpp_with.ToPlanetEconomy, aGalaxyStruct::peAgricultural);
                         }
                         if (pas::pos("Mixed", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetEconomy, 1);
+                            pas::include_at(&cpp_with.ToPlanetEconomy, aGalaxyStruct::peMixed);
                         }
                         if (pas::pos("Industrial", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetEconomy, 2);
+                            pas::include_at(&cpp_with.ToPlanetEconomy, aGalaxyStruct::peIndustrial);
                         }
                     }
                     Text = ReadShipGreetingField(u"ToPlanetGoverment"_wref.get());
-                    cpp_with.ToPlanetGovernment = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToPlanetGovernment = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Anarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 0);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgAnarchy);
                         }
                         if (pas::pos("Dictatorship", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 1);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgDictatorship);
                         }
                         if (pas::pos("Monarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 2);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgMonarchy);
                         }
                         if (pas::pos("Republic", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 3);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgRepublic);
                         }
                         if (pas::pos("Democracy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 4);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgDemocracy);
                         }
                     }
                     Text = ReadShipGreetingField(u"ToPlanetIsLastPlanet"_wref.get());
@@ -1943,22 +1943,22 @@ namespace Globals {
                     cpp_with.ItemType = ReadShipGreetingField(u"ItemType"_wref.get());
                     // Native repeats this assignment; preserve both reads.
                     Text = ReadShipGreetingField(u"ToPlanetGoverment"_wref.get());
-                    cpp_with.ToPlanetGovernment = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToPlanetGovernment = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Anarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 0);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgAnarchy);
                         }
                         if (pas::pos("Dictatorship", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 1);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgDictatorship);
                         }
                         if (pas::pos("Monarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 2);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgMonarchy);
                         }
                         if (pas::pos("Republic", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 3);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgRepublic);
                         }
                         if (pas::pos("Democracy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 4);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgDemocracy);
                         }
                     }
                     Text = ReadShipGreetingField(u"ShipNeedInItem"_wref.get());
@@ -2013,22 +2013,22 @@ namespace Globals {
                         cpp_with.ToShipBad = 2;
                     }
                     Text = ReadShipGreetingField(u"ToShipRelations"_wref.get());
-                    cpp_with.ToShipRelations = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToShipRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("War", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToShipRelations, 0);
+                            pas::include_at(&cpp_with.ToShipRelations, aGalaxyStruct::rlHostile);
                         }
                         if (pas::pos("Bad", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToShipRelations, 1);
+                            pas::include_at(&cpp_with.ToShipRelations, aGalaxyStruct::rlBad);
                         }
                         if (pas::pos("Normal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToShipRelations, 2);
+                            pas::include_at(&cpp_with.ToShipRelations, aGalaxyStruct::rlNormal);
                         }
                         if (pas::pos("Good", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToShipRelations, 3);
+                            pas::include_at(&cpp_with.ToShipRelations, aGalaxyStruct::rlGood);
                         }
                         if (pas::pos("Best", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToShipRelations, 4);
+                            pas::include_at(&cpp_with.ToShipRelations, aGalaxyStruct::rlExcellent);
                         }
                     }
                     Text = ReadShipGreetingField(u"PlayerPirateRank"_wref.get());
@@ -2170,7 +2170,7 @@ namespace Globals {
         pas::WideString Text{};
         auto ReadGovernmentGreetingField = [&](pas::WideString FieldName) -> pas::WideString {
             if (Block->CountParams(FieldName) > 0) {
-                return Block->GetParam(FieldName);
+                return Block->GetParam(pas::view(FieldName));
             }
             return pas::WideString();
         };
@@ -2179,7 +2179,7 @@ namespace Globals {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             if (([&] {
                 const pas::WideString& intToStr = pas::wide_int_to_str(Index);
-                EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"GovGreetings"_wref.get());
+                EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"GovGreetings"sv);
                 return block->CountBlocks(intToStr);
             }()) > 0) {
                 ++GovernmentGreetingCount;
@@ -2190,7 +2190,7 @@ namespace Globals {
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
             if (([&] {
                 const pas::WideString& intToStr_2 = pas::wide_int_to_str(Index);
-                EC_BlockPar::TBlockParEC* block_2 = GR_Main::LanguageDataConfig->GetBlock(u"GovGreetings"_wref.get());
+                EC_BlockPar::TBlockParEC* block_2 = GR_Main::LanguageDataConfig->GetBlock(u"GovGreetings"sv);
                 return block_2->CountBlocks(intToStr_2);
             }()) != 0) {
                 ++GovernmentGreetingCount;
@@ -2208,16 +2208,16 @@ namespace Globals {
                     Text = ReadGovernmentGreetingField(u"PlayerRace"_w);
                     cpp_with.PlayerRace = Globals::ParseRobotMapRaceMask(Text);
                     Text = ReadGovernmentGreetingField(u"PlayerStatus"_w);
-                    cpp_with.PlayerStatus = pas::constant_set<TGreetingMask>({});
+                    cpp_with.PlayerStatus = pas::constant_set<aGalaxyStruct::TRangerCareerSet>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Trader", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.PlayerStatus, 0);
+                            pas::include_at(&cpp_with.PlayerStatus, aGalaxyStruct::rcTrader);
                         }
                         if (pas::pos("Pirate", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.PlayerStatus, 1);
+                            pas::include_at(&cpp_with.PlayerStatus, aGalaxyStruct::rcPirate);
                         }
                         if (pas::pos("Warrior", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.PlayerStatus, 2);
+                            pas::include_at(&cpp_with.PlayerStatus, aGalaxyStruct::rcWarrior);
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"PlayerRating"_w);
@@ -2300,22 +2300,22 @@ namespace Globals {
                         cpp_with.CurPlanetRaceIsPlayerRace = 2;
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetRelations"_w);
-                    cpp_with.CurPlanetRelations = pas::constant_set<TGreetingMask>({});
+                    cpp_with.CurPlanetRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("War", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetRelations, 0);
+                            pas::include_at(&cpp_with.CurPlanetRelations, aGalaxyStruct::rlHostile);
                         }
                         if (pas::pos("Bad", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetRelations, 1);
+                            pas::include_at(&cpp_with.CurPlanetRelations, aGalaxyStruct::rlBad);
                         }
                         if (pas::pos("Normal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetRelations, 2);
+                            pas::include_at(&cpp_with.CurPlanetRelations, aGalaxyStruct::rlNormal);
                         }
                         if (pas::pos("Good", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetRelations, 3);
+                            pas::include_at(&cpp_with.CurPlanetRelations, aGalaxyStruct::rlGood);
                         }
                         if (pas::pos("Best", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetRelations, 4);
+                            pas::include_at(&cpp_with.CurPlanetRelations, aGalaxyStruct::rlExcellent);
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetGoodsPermit"_w);
@@ -2387,35 +2387,35 @@ namespace Globals {
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetEconomy"_w);
-                    cpp_with.CurPlanetEconomy = pas::constant_set<TGreetingMask>({});
+                    cpp_with.CurPlanetEconomy = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Agriculture", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetEconomy, 0);
+                            pas::include_at(&cpp_with.CurPlanetEconomy, aGalaxyStruct::peAgricultural);
                         }
                         if (pas::pos("Mixed", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetEconomy, 1);
+                            pas::include_at(&cpp_with.CurPlanetEconomy, aGalaxyStruct::peMixed);
                         }
                         if (pas::pos("Industrial", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetEconomy, 2);
+                            pas::include_at(&cpp_with.CurPlanetEconomy, aGalaxyStruct::peIndustrial);
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetGoverment"_w);
-                    cpp_with.CurPlanetGovernment = pas::constant_set<TGreetingMask>({});
+                    cpp_with.CurPlanetGovernment = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Anarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetGovernment, 0);
+                            pas::include_at(&cpp_with.CurPlanetGovernment, aGalaxyStruct::pgAnarchy);
                         }
                         if (pas::pos("Dictatorship", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetGovernment, 1);
+                            pas::include_at(&cpp_with.CurPlanetGovernment, aGalaxyStruct::pgDictatorship);
                         }
                         if (pas::pos("Monarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetGovernment, 2);
+                            pas::include_at(&cpp_with.CurPlanetGovernment, aGalaxyStruct::pgMonarchy);
                         }
                         if (pas::pos("Republic", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetGovernment, 3);
+                            pas::include_at(&cpp_with.CurPlanetGovernment, aGalaxyStruct::pgRepublic);
                         }
                         if (pas::pos("Democracy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.CurPlanetGovernment, 4);
+                            pas::include_at(&cpp_with.CurPlanetGovernment, aGalaxyStruct::pgDemocracy);
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"RangerInCurStar"_w);
@@ -2508,7 +2508,7 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetRace"_w);
                     if (Text == u"Any") {
-                        cpp_with.ToPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 4}});
+                        cpp_with.ToPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
                     } else {
                         cpp_with.ToPlanetRace = Globals::ParseRobotMapRaceMask(Text);
                     }
@@ -2529,22 +2529,22 @@ namespace Globals {
                         cpp_with.ToPlanetRaceIsCurPlanetRace = 2;
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetRelations"_w);
-                    cpp_with.ToPlanetRelations = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToPlanetRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("War", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 0);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlHostile);
                         }
                         if (pas::pos("Bad", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 1);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlBad);
                         }
                         if (pas::pos("Normal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 2);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlNormal);
                         }
                         if (pas::pos("Good", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 3);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlGood);
                         }
                         if (pas::pos("Best", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetRelations, 4);
+                            pas::include_at(&cpp_with.ToPlanetRelations, aGalaxyStruct::rlExcellent);
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetGoodsPermit"_w);
@@ -2616,35 +2616,35 @@ namespace Globals {
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetEconomy"_w);
-                    cpp_with.ToPlanetEconomy = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToPlanetEconomy = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Agriculture", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetEconomy, 0);
+                            pas::include_at(&cpp_with.ToPlanetEconomy, aGalaxyStruct::peAgricultural);
                         }
                         if (pas::pos("Mixed", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetEconomy, 1);
+                            pas::include_at(&cpp_with.ToPlanetEconomy, aGalaxyStruct::peMixed);
                         }
                         if (pas::pos("Industrial", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetEconomy, 2);
+                            pas::include_at(&cpp_with.ToPlanetEconomy, aGalaxyStruct::peIndustrial);
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetGoverment"_w);
-                    cpp_with.ToPlanetGovernment = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToPlanetGovernment = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Anarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 0);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgAnarchy);
                         }
                         if (pas::pos("Dictatorship", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 1);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgDictatorship);
                         }
                         if (pas::pos("Monarchy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 2);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgMonarchy);
                         }
                         if (pas::pos("Republic", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 3);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgRepublic);
                         }
                         if (pas::pos("Democracy", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&cpp_with.ToPlanetGovernment, 4);
+                            pas::include_at(&cpp_with.ToPlanetGovernment, aGalaxyStruct::pgDemocracy);
                         }
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetInCurStar"_w);
@@ -2871,14 +2871,14 @@ namespace Globals {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, PlanetAdvertDefinitions.length() - 1); cpp_range.next(GroupIndex); ) {
             GroupBlock = Root->GetBlockByIndex(GroupIndex);
             {
-                WindowsSdk::TPoint cpp_value = GI_Main::GetPointGI(GroupBlock->GetParamByPathOrMarker(u"Info.Pos"_wref.get()));
+                WindowsSdk::TPoint cpp_value = GI_Main::GetPointGI(pas::view(GroupBlock->GetParamByPathOrMarker(u"Info.Pos"_wref.get())));
                 auto cpp_target = &PlanetAdvertDefinitions[GroupIndex].Position;
                 pas::store_unaligned<WindowsSdk::TPoint>(cpp_target, cpp_value);
             }
-            if (GroupBlock->GetBlock(u"Info"_wref.get())->CountParams(u"Image1"_wref.get()) > 0) {
+            if (GroupBlock->GetBlock(u"Info"sv)->CountParams(u"Image1"_wref.get()) > 0) {
                 PlanetAdvertDefinitions[GroupIndex].Image1 = GroupBlock->GetParamByPathOrMarker(u"Info.Image1"_wref.get());
             }
-            if (GroupBlock->GetBlock(u"Info"_wref.get())->CountParams(u"Image2"_wref.get()) > 0) {
+            if (GroupBlock->GetBlock(u"Info"sv)->CountParams(u"Image2"_wref.get()) > 0) {
                 PlanetAdvertDefinitions[GroupIndex].Image2 = GroupBlock->GetParamByPathOrMarker(u"Info.Image2"_wref.get());
             }
             Count = GroupBlock->GetBlockCount();
@@ -2890,14 +2890,14 @@ namespace Globals {
                     Block = GroupBlock->GetBlockByIndex(BlockIndex);
                     PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Name = Text;
                     if (Block->CountParams(u"Image1"_wref.get()) > 0) {
-                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Image1 = Block->GetParam(u"Image1"_wref.get());
+                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Image1 = Block->GetParam(u"Image1"sv);
                     }
                     if (Block->CountParams(u"Image2"_wref.get()) > 0) {
-                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Image2 = Block->GetParam(u"Image2"_wref.get());
+                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Image2 = Block->GetParam(u"Image2"sv);
                     }
                     PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = 0;
                     if (Block->CountParams(u"War"_wref.get()) > 0) {
-                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = EC_Str::ExtractSignedDigitsToIntW(Block->GetParam(u"War"_wref.get()));
+                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = EC_Str::ExtractSignedDigitsToIntW(pas::view(Block->GetParam(u"War"sv)));
                         if (PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War < -1) {
                             PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = -1;
                         } else if (PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War > 1) {
@@ -2906,7 +2906,7 @@ namespace Globals {
                     }
                     PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = 42;
                     if (Block->CountParams(u"Goods"_wref.get()) > 0) {
-                        Text = Block->GetParam(u"Goods"_wref.get());
+                        Text = Block->GetParam(u"Goods"sv);
                         if (Text == u"Food") {
                             PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = 0;
                         } else if (Text == u"Medicine") {
@@ -2929,21 +2929,21 @@ namespace Globals {
                     }
                     PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
                     if (Block->CountParams(u"Owner"_wref.get()) > 0) {
-                        Text = Block->GetParam(u"Owner"_wref.get());
+                        Text = Block->GetParam(u"Owner"sv);
                         if (pas::pos("Maloc", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, 0);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiMaloc);
                         }
                         if (pas::pos("Peleng", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, 1);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiPeleng);
                         }
                         if (pas::pos("People", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, 2);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiHuman);
                         }
                         if (pas::pos("Fei", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, 3);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiFeyan);
                         }
                         if (pas::pos("Gaal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, 4);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiGaal);
                         }
                     }
                     ++AdvertIndex;
@@ -2952,15 +2952,15 @@ namespace Globals {
                     }
                 }
             }
-            Block = GroupBlock->GetBlock(u"List"_wref.get());
+            Block = GroupBlock->GetBlock(u"List"sv);
             PlanetAdvertDefinitions[GroupIndex].Lists.set_length(Block->GetParamCount());
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, PlanetAdvertDefinitions[GroupIndex].Lists.length() - 1); cpp_range_3.next(BlockIndex); ) {
-                PlanetAdvertDefinitions[GroupIndex].Lists[BlockIndex].Key = EC_Str::ExtractDigitsToIntW(Block->GetParamName(BlockIndex));
+                PlanetAdvertDefinitions[GroupIndex].Lists[BlockIndex].Weight = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(BlockIndex)));
                 Text = Block->GetParamValue(BlockIndex);
-                Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+                Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
                 PlanetAdvertDefinitions[GroupIndex].Lists[BlockIndex].Indices.set_length(Count);
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_4.next(AdvertIndex); ) {
-                    Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, AdvertIndex, u","_wref.get()));
+                    Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Text), AdvertIndex, u","sv));
                     FoundIndex = 0;
                     // Native stops before comparing the last entry, and retains it as fallback.
                     while (FoundIndex < PlanetAdvertDefinitions[GroupIndex].Adverts.length() - 1) {
@@ -2979,7 +2979,7 @@ namespace Globals {
     }
 
     void InitializeGlobalUiRuntime() {
-        std::uint8_t Race{};
+        aGalaxyStruct::TOwnerId Race{};
         std::int32_t Index{};
         std::int32_t TemplateIndex{};
         std::int32_t Count{};
@@ -3013,119 +3013,119 @@ namespace Globals {
         GlobalsV::SmoothHugeFontName = u"Font.Verdana12"_w;
         GlobalsV::SmoothIntroFontName = u"Font.Verdana13"_w;
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ChangeAutoPilot"_wref.get()) > 0) {
-            GlobalsV::ChangeAutoPilot = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ChangeAutoPilot"_wref.get()));
+            GlobalsV::ChangeAutoPilot = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ChangeAutoPilot"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParams(u"AltResolutionSwitch"_wref.get()) > 0) {
-            GR_Main::AltResolutionSwitch = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AltResolutionSwitch"_wref.get()));
+            GR_Main::AltResolutionSwitch = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AltResolutionSwitch"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DisableAutoPilot"_wref.get()) > 0) {
-            GlobalsV::DisableAutoPilot = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DisableAutoPilot"_wref.get()));
+            GlobalsV::DisableAutoPilot = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DisableAutoPilot"_wref.get())));
         }
-        GlobalsV::UiRuntimeFlag = true;
+        GlobalsV::AwardDialogsEnabled = true;
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PQuestStyle"_wref.get()) > 0) {
-            GlobalsV::QuestStyleIndex = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestStyle"_wref.get()));
+            GlobalsV::QuestStyleIndex = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestStyle"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PQuestAnim"_wref.get()) > 0) {
-            GlobalsV::QuestPageAnimationEnabled = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestAnim"_wref.get()));
+            GlobalsV::QuestPageAnimationEnabled = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestAnim"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DefaultOrder"_wref.get()) > 0) {
-            GlobalsV::DefaultOrder = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DefaultOrder"_wref.get()));
+            GlobalsV::DefaultOrder = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DefaultOrder"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RightClickOnShip"_wref.get()) > 0) {
-            GlobalsV::RightClickOnShip = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RightClickOnShip"_wref.get()));
+            GlobalsV::RightClickOnShip = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RightClickOnShip"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DoNotChangeMusicInBattle"_wref.get()) > 0) {
-            GlobalsV::DoNotChangeMusicInBattle = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DoNotChangeMusicInBattle"_wref.get()));
+            GlobalsV::DoNotChangeMusicInBattle = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DoNotChangeMusicInBattle"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ViewFollowShip"_wref.get()) > 0) {
-            GlobalsV::ViewFollowShip = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewFollowShip"_wref.get()));
+            GlobalsV::ViewFollowShip = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewFollowShip"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ViewPathLength"_wref.get()) > 0) {
-            GlobalsV::ViewPathLength = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewPathLength"_wref.get()));
+            GlobalsV::ViewPathLength = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewPathLength"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"TurnSaveStep"_wref.get()) > 0) {
-            GlobalsV::TurnSaveStep = std::min<std::int32_t>(365, EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TurnSaveStep"_wref.get())));
+            GlobalsV::TurnSaveStep = std::min<std::int32_t>(365, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TurnSaveStep"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"QuickSaveExtraSlots"_wref.get()) > 0) {
-            GlobalsV::QuickSaveExtraSlots = std::min<std::int32_t>(9, EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"QuickSaveExtraSlots"_wref.get())));
+            GlobalsV::QuickSaveExtraSlots = std::min<std::int32_t>(9, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"QuickSaveExtraSlots"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"MaxPlayerNews"_wref.get()) > 0) {
-            GlobalsV::MaxPlayerNews = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxPlayerNews"_wref.get())));
+            GlobalsV::MaxPlayerNews = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxPlayerNews"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ForsageDeactivatePercent"_wref.get()) > 0) {
-            GlobalsV::AfterburnerStopCondition = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ForsageDeactivatePercent"_wref.get())));
+            GlobalsV::AfterburnerStopCondition = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ForsageDeactivatePercent"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"MaxSearchResult"_wref.get()) > 0) {
-            GlobalsV::MaxSearchResult = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxSearchResult"_wref.get())));
+            GlobalsV::MaxSearchResult = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxSearchResult"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ClickAutoCloseForm"_wref.get()) > 0) {
-            GlobalsV::ClickAutoCloseForm = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ClickAutoCloseForm"_wref.get()));
+            GlobalsV::ClickAutoCloseForm = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ClickAutoCloseForm"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ActionDoubleClick"_wref.get()) > 0) {
-            GlobalsV::ActionDoubleClick = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ActionDoubleClick"_wref.get()));
+            GlobalsV::ActionDoubleClick = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ActionDoubleClick"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SkipGiper"_wref.get()) > 0) {
-            GlobalsV::SkipGiper = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipGiper"_wref.get()));
+            GlobalsV::SkipGiper = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipGiper"_wref.get())));
         }
         Text = u"e"_w;
         Text = pas::concat_wide({Text, u"s"});
         Text = pas::concat_wide({Text, u"t"});
         if (GR_Main::UserSettingsConfig->CountParamsByPath(Text) > 0) {
-            GlobalsV::EstOptionEnabled = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(Text));
+            GlobalsV::EstOptionEnabled = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(Text)));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SendRecordOff"_wref.get()) > 0) {
-            GlobalsV::SendRecordOff = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SendRecordOff"_wref.get()));
+            GlobalsV::SendRecordOff = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SendRecordOff"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"Wind"_wref.get()) > 0) {
-            GlobalsV::Wind = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Wind"_wref.get()));
+            GlobalsV::Wind = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Wind"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"Skip1C"_wref.get()) > 0) {
-            Skip1C = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Skip1C"_wref.get()));
+            Skip1C = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Skip1C"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SkipVideo"_wref.get()) > 0) {
-            SkipVideo = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipVideo"_wref.get()));
+            SkipVideo = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipVideo"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SkipIntro"_wref.get()) > 0) {
-            SkipIntro = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipIntro"_wref.get()));
+            SkipIntro = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipIntro"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ShipTail"_wref.get()) > 0) {
-            GlobalsV::ShipTail = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShipTail"_wref.get()));
+            GlobalsV::ShipTail = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShipTail"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimCaptain"_wref.get()) > 0) {
-            GlobalsV::AnimCaptain = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCaptain"_wref.get()));
+            GlobalsV::AnimCaptain = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCaptain"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimItem"_wref.get()) > 0) {
-            GlobalsV::AnimItem = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimItem"_wref.get()));
+            GlobalsV::AnimItem = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimItem"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BGImage"_wref.get()) > 0) {
-            GlobalsV::BGImage = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGImage"_wref.get()));
+            GlobalsV::BGImage = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGImage"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"Comet"_wref.get()) > 0) {
-            GlobalsV::Comet = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Comet"_wref.get()));
+            GlobalsV::Comet = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Comet"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimShipFull"_wref.get()) > 0) {
-            GlobalsV::AnimShipFull = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimShipFull"_wref.get()));
+            GlobalsV::AnimShipFull = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimShipFull"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimCity"_wref.get()) > 0) {
-            GlobalsV::AnimCity = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCity"_wref.get()));
+            GlobalsV::AnimCity = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCity"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimGov"_wref.get()) > 0) {
-            GlobalsV::AnimGov = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimGov"_wref.get()));
+            GlobalsV::AnimGov = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimGov"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimMenuShip"_wref.get()) > 0) {
-            GlobalsV::AnimMenuShip = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMenuShip"_wref.get()));
+            GlobalsV::AnimMenuShip = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMenuShip"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimStar"_wref.get()) > 0) {
-            GlobalsV::AnimStar = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimStar"_wref.get()));
+            GlobalsV::AnimStar = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimStar"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimHangar"_wref.get()) > 0) {
-            GlobalsV::AnimHangar = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimHangar"_wref.get()));
+            GlobalsV::AnimHangar = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimHangar"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"CircleAction"_wref.get()) > 0) {
-            GlobalsV::CircleAction = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"CircleAction"_wref.get()));
+            GlobalsV::CircleAction = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"CircleAction"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"StaticBackground"_wref.get()) > 0) {
-            GlobalsV::StaticBackground = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"StaticBackground"_wref.get()));
+            GlobalsV::StaticBackground = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"StaticBackground"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScrollTime"_wref.get()) > 0) {
             GlobalsV::ScrollTime = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScrollTime"_wref.get())));
@@ -3163,58 +3163,58 @@ namespace Globals {
             GlobalsV::FilmHistoryLimit = std::max<std::int32_t>(1, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SputnikShow"_wref.get()) > 0) {
-            GlobalsV::SputnikShow = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SputnikShow"_wref.get()));
+            GlobalsV::SputnikShow = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SputnikShow"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SpaceImage"_wref.get()) > 0) {
-            GlobalsV::SpaceImage = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SpaceImage"_wref.get()));
+            GlobalsV::SpaceImage = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SpaceImage"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ShowFPS"_wref.get()) > 0) {
-            GR_Main::ShowFrameRate = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShowFPS"_wref.get()));
+            GR_Main::ShowFrameRate = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShowFPS"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontGalaxy"_wref.get()) > 0) {
-            GlobalsV::GalaxyMapFontChoice = static_cast<GlobalsV::TGalaxyMapFontChoice>(EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontGalaxy"_wref.get())));
+            GlobalsV::GalaxyMapFontChoice = static_cast<GlobalsV::TGalaxyMapFontChoice>(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontGalaxy"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontDialog"_wref.get()) > 0) {
-            GlobalsV::FontDialog = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontDialog"_wref.get()));
+            GlobalsV::FontDialog = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontDialog"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontQuest"_wref.get()) > 0) {
-            GlobalsV::FontQuest = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontQuest"_wref.get()));
+            GlobalsV::FontQuest = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontQuest"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontSmooth"_wref.get()) > 0) {
-            GlobalsV::FontSmoothingEnabled = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontSmooth"_wref.get()));
+            GlobalsV::FontSmoothingEnabled = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontSmooth"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScreenShotType"_wref.get()) > 0) {
-            GlobalsV::ScreenshotFormat = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotType"_wref.get()));
+            GlobalsV::ScreenshotFormat = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotType"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScreenShotQuality"_wref.get()) > 0) {
-            GlobalsV::ScreenshotJpegQuality = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotQuality"_wref.get()));
+            GlobalsV::ScreenshotJpegQuality = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotQuality"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DynamicTipsPos"_wref.get()) > 0) {
-            GlobalsV::DynamicTipsPos = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DynamicTipsPos"_wref.get()));
+            GlobalsV::DynamicTipsPos = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DynamicTipsPos"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BackgroundShade"_wref.get()) > 0) {
-            GlobalsV::BackgroundShade = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundShade"_wref.get()));
+            GlobalsV::BackgroundShade = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundShade"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BackgroundBlur"_wref.get()) > 0) {
-            GlobalsV::BackgroundBlur = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundBlur"_wref.get()));
+            GlobalsV::BackgroundBlur = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundBlur"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BackgroundGrayscale"_wref.get()) > 0) {
-            GlobalsV::BackgroundGrayscale = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundGrayscale"_wref.get()));
+            GlobalsV::BackgroundGrayscale = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundGrayscale"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PlanetClouds"_wref.get()) > 0) {
-            GlobalsV::PlanetClouds = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetClouds"_wref.get()));
+            GlobalsV::PlanetClouds = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetClouds"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PlanetAtm"_wref.get()) > 0) {
-            GlobalsV::PlanetAtm = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetAtm"_wref.get()));
+            GlobalsV::PlanetAtm = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetAtm"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimChangeForm"_wref.get()) > 0) {
-            GlobalsV::AnimChangeForm = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimChangeForm"_wref.get()));
+            GlobalsV::AnimChangeForm = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimChangeForm"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimMainFon"_wref.get()) > 0) {
-            GlobalsV::AnimMainFon = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMainFon"_wref.get()));
+            GlobalsV::AnimMainFon = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMainFon"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BeginCalcNextTurn"_wref.get()) > 0) {
-            GlobalsV::BeginCalcNextTurn = pas::real_divide(EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BeginCalcNextTurn"_wref.get())), 1.0E+2L);
+            GlobalsV::BeginCalcNextTurn = pas::real_divide(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BeginCalcNextTurn"_wref.get()))), 1.0E+2L);
         }
         if (GlobalsV::BeginCalcNextTurn < 0.0L) {
             GlobalsV::BeginCalcNextTurn = 0.0f;
@@ -3222,65 +3222,65 @@ namespace Globals {
             GlobalsV::BeginCalcNextTurn = 1.0f;
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"HalfGovAnim"_wref.get()) > 0) {
-            GlobalsV::HalfGovAnim = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"HalfGovAnim"_wref.get()));
+            GlobalsV::HalfGovAnim = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"HalfGovAnim"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"UseTablesForGov"_wref.get()) > 0) {
-            GlobalsV::UseTablesForGov = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UseTablesForGov"_wref.get()));
+            GlobalsV::UseTablesForGov = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UseTablesForGov"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotShowStencilShadows"_wref.get()) > 0) {
-            Robot::RobotSettings.ShowStencilShadows = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowStencilShadows"_wref.get()));
+            Robot::RobotSettings.ShowStencilShadows = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowStencilShadows"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotShowProjShadows"_wref.get()) > 0) {
-            Robot::RobotSettings.ShowProjShadows = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowProjShadows"_wref.get()));
+            Robot::RobotSettings.ShowProjShadows = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowProjShadows"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSelectEx"_wref.get()) > 0) {
-            Robot::RobotSettings.SelectEx = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSelectEx"_wref.get()));
+            Robot::RobotSettings.SelectEx = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSelectEx"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotLandTexturesGloss"_wref.get()) > 0) {
-            Robot::RobotSettings.LandTexturesGloss = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotLandTexturesGloss"_wref.get()));
+            Robot::RobotSettings.LandTexturesGloss = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotLandTexturesGloss"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotObjTexturesGloss"_wref.get()) > 0) {
-            Robot::RobotSettings.ObjTexturesGloss = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotObjTexturesGloss"_wref.get()));
+            Robot::RobotSettings.ObjTexturesGloss = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotObjTexturesGloss"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSoftwareCursor"_wref.get()) > 0) {
-            Robot::RobotSettings.SoftwareCursor = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSoftwareCursor"_wref.get()));
+            Robot::RobotSettings.SoftwareCursor = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSoftwareCursor"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSky"_wref.get()) > 0) {
-            Robot::RobotSettings.Sky = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSky"_wref.get()));
+            Robot::RobotSettings.Sky = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSky"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotRobotShadow"_wref.get()) > 0) {
-            Robot::RobotSettings.RobotShadow = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotRobotShadow"_wref.get()));
+            Robot::RobotSettings.RobotShadow = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotRobotShadow"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSound"_wref.get()) > 0) {
-            Robot::RobotSound = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSound"_wref.get()));
+            Robot::RobotSound = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSound"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotMusic"_wref.get()) > 0) {
-            Robot::RobotMusic = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMusic"_wref.get()));
+            Robot::RobotMusic = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMusic"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotVSync"_wref.get()) > 0) {
-            Robot::RobotVSync = GI_Main::ParseEnabledNameGI(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotVSync"_wref.get()));
+            Robot::RobotVSync = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotVSync"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotFSAASamples"_wref.get()) > 0) {
-            Robot::RobotFSAASamples = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotFSAASamples"_wref.get()));
+            Robot::RobotFSAASamples = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotFSAASamples"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotAnisotropy"_wref.get()) > 0) {
-            Robot::RobotAnisotropy = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotAnisotropy"_wref.get()));
+            Robot::RobotAnisotropy = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotAnisotropy"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotMaxDistance"_wref.get()) > 0) {
-            Robot::RobotMaxDistance = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMaxDistance"_wref.get()));
+            Robot::RobotMaxDistance = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMaxDistance"_wref.get())));
         }
         if (ReloadScriptTemplates) {
             Section = GR_Main::GameDataConfig->GetBlockByPath(u"Script"_wref.get());
             Count = Section->GetParamCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-                if (Globals::FindScriptTemplateIndex(Section->GetParamName(Index)) >= 0) {
+                if (Globals::FindScriptTemplateIndex(pas::view(Section->GetParamName(Index))) >= 0) {
                     pas::raise(pas::make_exception<pas::Exception>("Script name not unique"_a));
                 }
                 ScriptTemplate = pas::construct_call<TScriptTemplUnit>(TScriptTemplUnit_Create);
                 ScriptTemplate->Name = Section->GetParamName(Index);
                 Text = Section->GetParamValue(Index);
-                ScriptTemplate->ConfigValue = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                ScriptTemplate->FileName = EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get());
+                ScriptTemplate->ClassId = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                ScriptTemplate->FileName = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
                 pas::list_add(ScriptTemplates, reinterpret_cast<void*>(ScriptTemplate));
                 aScript::CompileScriptTemplateCondition(pas::list_count(ScriptTemplates) - 1);
             }
@@ -3289,12 +3289,12 @@ namespace Globals {
                 Other = EC_Expression::TVarArrayEC_GetItemByNameOrder(GlobalScriptVariables, Index + 1);
                 if (Variable->Name == Other->Name) {
                     if (EC_Expression::TVarEC_RealVType(Variable) != EC_Expression::TVarEC_RealVType(Other)) {
-                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <", Variable->Name, u"> found! Types are ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Variable)) & 0x0000007f], u" and ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Other)) & 0x0000007f]});
+                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <", Variable->Name, u"> found! Types are ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Variable)], u" and ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Other)]});
                         if (EC_Expression::TVarEC_RealVType(Variable) == EC_Expression::vkEmpty) {
-                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Variable)) & 0x0000007f], u" will be discarded"});
+                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Variable)], u" will be discarded"});
                             GlobalScriptVariables->Remove(Variable);
                         } else {
-                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[static_cast<std::int32_t>(EC_Expression::TVarEC_RealVType(Other)) & 0x0000007f], u" will be discarded"});
+                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Other)], u" will be discarded"});
                             GlobalScriptVariables->Remove(Other);
                         }
                         GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(WarningText));
@@ -3308,11 +3308,11 @@ namespace Globals {
             }
         }
         if (ReloadScriptTemplates) {
-            for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_3.next(Race); ) {
+            for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_3.next(Race); ) {
                 ShipBlock = ([&] {
                     EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Ship"_wref.get());
                     const pas::WideString& internalName = aConst::OwnerInfo[Race].InternalName;
-                    return blockByPath->FindBlock(internalName);
+                    return blockByPath->FindBlock(pas::view(internalName));
                 }());
                 for (Kind = static_cast<std::uint8_t>(0); Kind <= static_cast<std::uint8_t>(5); ++Kind) {
                     RaceShipTemplates[Race][Kind] = nullptr;
@@ -3320,37 +3320,37 @@ namespace Globals {
                 PirateClanShipTemplates[Race] = nullptr;
                 if (ShipBlock != nullptr) {
                     if (ShipBlock->CountBlocks(u"Ranger"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Ranger"}), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Ranger"}), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][0]);
                         SE_Space::RetainSpaceObject(cpp_arg, createSpaceObjectByName);
                     }
                     if (ShipBlock->CountBlocks(u"Warrior"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Warrior"}), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Warrior"}), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_2 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][1]);
                         SE_Space::RetainSpaceObject(cpp_arg_2, createSpaceObjectByName_2);
                     }
                     if (ShipBlock->CountBlocks(u"Pirate"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Pirate"}), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Pirate"}), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_3 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][2]);
                         SE_Space::RetainSpaceObject(cpp_arg_3, createSpaceObjectByName_3);
                     }
                     if (ShipBlock->CountBlocks(u"Transport"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_4 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Transport"}), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_4 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Transport"}), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_4 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][3]);
                         SE_Space::RetainSpaceObject(cpp_arg_4, createSpaceObjectByName_4);
                     }
                     if (ShipBlock->CountBlocks(u"Liner"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_5 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Liner"}), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_5 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Liner"}), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_5 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][4]);
                         SE_Space::RetainSpaceObject(cpp_arg_5, createSpaceObjectByName_5);
                     }
                     if (ShipBlock->CountBlocks(u"Diplomat"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_6 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Diplomat"}), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_6 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Diplomat"}), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_6 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][5]);
                         SE_Space::RetainSpaceObject(cpp_arg_6, createSpaceObjectByName_6);
                     }
                     if (ShipBlock->CountBlocks(u"PirateClan"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_7 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".PirateClan"}), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_7 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".PirateClan"}), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_7 = pas::Var<SE_Space::TObjectSE*>(&PirateClanShipTemplates[Race]);
                         SE_Space::RetainSpaceObject(cpp_arg_7, createSpaceObjectByName_7);
                     }
@@ -3360,17 +3360,17 @@ namespace Globals {
             for (auto cpp_range_4 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_4.next(Series); ) {
                 if (Series != 0) {
                     {
-                        SE_Space::TObjectSE* createSpaceObjectByName_8 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), static_cast<pas::WideString>(pas::concat_ansi({"Ship.Blazer.B", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_8 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Blazer.B", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_8 = pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[Series]);
                         SE_Space::RetainSpaceObject(cpp_arg_8, createSpaceObjectByName_8);
                     }
                     {
-                        SE_Space::TObjectSE* createSpaceObjectByName_9 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), static_cast<pas::WideString>(pas::concat_ansi({"Ship.Keller.K", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_9 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Keller.K", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_9 = pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[Series]);
                         SE_Space::RetainSpaceObject(cpp_arg_9, createSpaceObjectByName_9);
                     }
                     {
-                        SE_Space::TObjectSE* createSpaceObjectByName_10 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), static_cast<pas::WideString>(pas::concat_ansi({"Ship.Terron.T", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
+                        SE_Space::TObjectSE* createSpaceObjectByName_10 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Terron.T", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
                         pas::Var<SE_Space::TObjectSE*> cpp_arg_10 = pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[Series]);
                         SE_Space::RetainSpaceObject(cpp_arg_10, createSpaceObjectByName_10);
                     }
@@ -3400,7 +3400,7 @@ namespace Globals {
             }());
             if (Section->CountParams(u"Image"_wref.get()) > 0) {
                 {
-                    SE_Space::TObjectSE* createSpaceObjectByName_11 = SE_Process::CreateSpaceObjectByName(u"Planet"_wref.get(), pas::concat_wide({u"Planet.", ([&] {
+                    SE_Space::TObjectSE* createSpaceObjectByName_11 = SE_Process::CreateSpaceObjectByName(u"Planet"sv, pas::concat_wide({u"Planet.", ([&] {
                         EC_BlockPar::TBlockParEC* blockByPath_4 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get());
                         std::int32_t index_3 = Index;
                         return blockByPath_4->GetBlockNameByIndex(index_3);
@@ -3408,14 +3408,14 @@ namespace Globals {
                     pas::Var<SE_Space::TObjectSE*> spaceObject = pas::Var<SE_Space::TObjectSE*>(&PlanetSpaceTemplates[TemplateIndex].SpaceObject);
                     SE_Space::RetainSpaceObject(spaceObject, createSpaceObjectByName_11);
                 }
-                PlanetSpaceTemplates[TemplateIndex].Radius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Section->GetParam(u"Radius"_wref.get())));
+                PlanetSpaceTemplates[TemplateIndex].Radius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Section->GetParam(u"Radius"sv)));
                 PlanetSpaceTemplates[TemplateIndex].Style = 0;
                 PlanetSpaceTemplates[TemplateIndex].StyleVariant = 0;
                 if (Section->CountParams(u"Style"_wref.get()) > 0) {
-                    Text = Section->GetParam(u"Style"_wref.get());
-                    PlanetSpaceTemplates[TemplateIndex].Style = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                    if (EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) >= 2) {
-                        PlanetSpaceTemplates[TemplateIndex].StyleVariant = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
+                    Text = Section->GetParam(u"Style"sv);
+                    PlanetSpaceTemplates[TemplateIndex].Style = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                    if (EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) >= 2) {
+                        PlanetSpaceTemplates[TemplateIndex].StyleVariant = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
                     }
                 }
                 ++TemplateIndex;
@@ -3592,26 +3592,26 @@ namespace Globals {
             SatelliteTemplate->Radius = Index;
             ++Index;
         }
-        Section = GR_Main::GameDataConfig->GetBlock(u"SpaceImg"_wref.get());
+        Section = GR_Main::GameDataConfig->GetBlock(u"SpaceImg"sv);
         Count = Section->GetParamCount();
         GlobalsV::SpaceImageTemplates.set_length(Count);
         for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(Index); ) {
             Text = Section->GetParamValue(Index);
-            if (EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) < 2) {
+            if (EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) < 2) {
                 pas::raise(pas::make_exception<pas::Exception>("Error in GlobalsInit"_a));
             }
-            GlobalsV::SpaceImageTemplates[Index].Kind = EC_Str::ExtractDigitsToIntW(Section->GetParamName(Index));
-            GlobalsV::SpaceImageTemplates[Index].Weight = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
+            GlobalsV::SpaceImageTemplates[Index].Kind = EC_Str::ExtractDigitsToIntW(pas::view(Section->GetParamName(Index)));
+            GlobalsV::SpaceImageTemplates[Index].Weight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
             GlobalsV::SpaceImageTemplates[Index].CacheControl = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
             GlobalsV::SpaceImageTemplates[Index].CachedData = nullptr;
             EC_Cache::TCacheEC::ResetControl(reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl));
-            reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl)->SetCacheKey(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
+            reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl)->SetCacheKey(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
         }
-        Section = GR_Main::GameDataConfig->GetBlock(u"StarFieldImg"_wref.get());
+        Section = GR_Main::GameDataConfig->GetBlock(u"StarFieldImg"sv);
         Count = Section->GetParamCount();
         GlobalsV::StarFieldImageTemplates.set_length(Count);
         for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_8.next(Index); ) {
-            GlobalsV::StarFieldImageTemplates[Index].Weight = EC_Str::ExtractDigitsToIntW(Section->GetParamName(Index));
+            GlobalsV::StarFieldImageTemplates[Index].Weight = EC_Str::ExtractDigitsToIntW(pas::view(Section->GetParamName(Index)));
             GlobalsV::StarFieldImageTemplates[Index].CacheControl = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
             GlobalsV::StarFieldImageTemplates[Index].CachedData = nullptr;
             EC_Cache::TCacheEC::ResetControl(reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::StarFieldImageTemplates[Index].CacheControl));
@@ -3624,41 +3624,41 @@ namespace Globals {
         Globals::InitializePlanetAdvertDefinitions();
         Globals::InitializeRobotMapDefinitions();
         UselessItemRemainsCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"UselessItems.CntRemains"_wref.get())));
-        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"_wref.get())->GetBlock(u"Explosion"_wref.get());
+        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"Explosion"sv);
         Count = Section->GetParamCount();
         ArcadeExplosionSounds.set_length(Count);
         for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_9.next(Index); ) {
             ArcadeExplosionSounds[Index] = Section->GetParamValue(Index);
         }
-        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"_wref.get())->GetBlock(u"Hit"_wref.get());
+        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"Hit"sv);
         Count = Section->GetParamCount();
         ArcadeHitSounds.set_length(Count);
         for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_10.next(Index); ) {
             ArcadeHitSounds[Index] = Section->GetParamValue(Index);
         }
-        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"_wref.get())->GetBlock(u"Item"_wref.get());
+        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"Item"sv);
         Count = Section->GetParamCount();
         ArcadeItemSounds.set_length(Count);
         for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_11.next(Index); ) {
             ArcadeItemSounds[Index] = Section->GetParamValue(Index);
         }
-        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"_wref.get())->GetBlock(u"WeaponFirst"_wref.get());
+        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"WeaponFirst"sv);
         for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, 17); cpp_range_12.next(Index); ) {
             if (Section->CountParams(pas::wide_int_to_str(Index)) <= 0) {
                 ArcadeWeaponFirstSounds[Index] = pas::WideString();
             } else {
-                ArcadeWeaponFirstSounds[Index] = Section->GetParam(pas::wide_int_to_str(Index));
+                ArcadeWeaponFirstSounds[Index] = Section->GetParam(pas::view(pas::wide_int_to_str(Index)));
             }
         }
-        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"_wref.get())->GetBlock(u"WeaponLoop"_wref.get());
+        Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"WeaponLoop"sv);
         for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, 17); cpp_range_13.next(Index); ) {
             if (Section->CountParams(pas::wide_int_to_str(Index)) <= 0) {
                 ArcadeWeaponLoopSounds[Index] = pas::WideString();
                 ArcadeWeaponLoopTicks[Index] = -1;
             } else {
-                Text = Section->GetParam(pas::wide_int_to_str(Index));
-                ArcadeWeaponLoopTicks[Index] = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())) / 20;
-                ArcadeWeaponLoopSounds[Index] = EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get());
+                Text = Section->GetParam(pas::view(pas::wide_int_to_str(Index)));
+                ArcadeWeaponLoopTicks[Index] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv))) / 20;
+                ArcadeWeaponLoopSounds[Index] = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
         }
     }
@@ -3667,7 +3667,7 @@ namespace Globals {
         std::int32_t Index{};
         TSputnikTempl* SatelliteTemplate{};
         TPlanetTempl* PlanetTemplate{};
-        std::uint8_t ScreenIndex{};
+        GlobalsV::TGameScreenId ScreenIndex{};
         fEquipmentShop::TShopSlot* Slot{};
         ArcadeHitSounds = nullptr;
         ArcadeExplosionSounds = nullptr;
@@ -3889,7 +3889,7 @@ namespace Globals {
             LoadArcadeScreen = nullptr;
         }
         // Native code omits AchievementsScreen from this cleanup list.
-        for (ScreenIndex = static_cast<std::uint8_t>(0); ScreenIndex <= static_cast<std::uint8_t>(41); ++ScreenIndex) {
+        for (auto cpp_range_6 = pas::for_to<GlobalsV::TGameScreenId>(GlobalsV::screenNone, GlobalsV::screenAchievements); cpp_range_6.next(ScreenIndex); ) {
             GlobalsV::RegisteredScreens[ScreenIndex] = nullptr;
         }
         if (PopUp::PopupController != nullptr) {
@@ -3906,7 +3906,7 @@ namespace Globals {
         }
         if (PlanetSpaceTemplates != nullptr) {
             Count = PlanetSpaceTemplates.length() - 1;
-            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count); cpp_range_6.next(Index); ) {
+            for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count); cpp_range_7.next(Index); ) {
                 if (PlanetSpaceTemplates[Index].SpaceObject != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PlanetSpaceTemplates[Index].SpaceObject));
                 }
@@ -3921,7 +3921,7 @@ namespace Globals {
     }
 
     void ResetScriptHostRuntimeState() {
-        std::uint8_t Race{};
+        aGalaxyStruct::TOwnerId Race{};
         std::uint8_t Kind{};
         std::uint8_t Series{};
         std::int32_t Index{};
@@ -3959,7 +3959,7 @@ namespace Globals {
             pas::free(aScript::ScriptLibraryCache);
             aScript::ScriptLibraryCache = nullptr;
         }
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range.next(Race); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range.next(Race); ) {
             for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(5)); cpp_range_2.next(Kind); ) {
                 if (RaceShipTemplates[Race][Kind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][Kind]));
@@ -3986,11 +3986,11 @@ namespace Globals {
     }
 
     // Case-sensitive; returns nil when absent.
-    GI_MessageLoop::TMessageLoopGI* FindMessageLoop(pas::WideString Name) {
-        std::uint8_t Index{};
+    GI_MessageLoop::TMessageLoopGI* FindMessageLoop(const std::u16string_view& Name) {
+        GlobalsV::TGameScreenId Index{};
         GI_MessageLoop::TMessageLoopGI* Result = nullptr;
-        for (Index = static_cast<std::uint8_t>(0); Index <= static_cast<std::uint8_t>(41); ++Index) {
-            if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr && pas::class_cast_if<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr && pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index])->RegisteredLoopName == Name) {
+        for (auto cpp_range = pas::for_to<GlobalsV::TGameScreenId>(GlobalsV::screenNone, GlobalsV::screenAchievements); cpp_range.next(Index); ) {
+            if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr && pas::class_cast_if<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr && pas::view(pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index])->RegisteredLoopName) == Name) {
                 Result = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]);
                 break;
             }
@@ -4273,7 +4273,7 @@ namespace Globals {
                 if (PrefixLength == 1) {
                     PrefixLength = Prefix.length();
                     Suffix = EC_Str::CopyWideStringUnchecked(Entry->Key, PrefixLength + 1, Entry->Key.length() - PrefixLength);
-                    if (EC_Str::IsIntegerTextW(Suffix) && EC_Str::ExtractDigitsToIntW(Suffix) >= FirstPage) {
+                    if (EC_Str::IsIntegerTextW(pas::view(Suffix)) && EC_Str::ExtractDigitsToIntW(pas::view(Suffix)) >= FirstPage) {
                         if (Entry->Prev != nullptr) {
                             Entry->Prev->Next = Entry->Next;
                         }

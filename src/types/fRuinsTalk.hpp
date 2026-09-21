@@ -4,6 +4,8 @@
 #include "types/GI_MessageLoop.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aConst.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "types/fPanelMain.hpp"
 
 namespace EC_BlockPar {
@@ -260,7 +262,7 @@ namespace fRuinsTalk {
         void RunScriptRestart(std::int32_t Answer);
         void AddScriptRestartChoice(pas::WideString Caption);
         static void CloseRuinsMode(GI_MessageLoop::TObjectGI* Sender);
-        std::int32_t BuildConstructionItemChoices(std::uint8_t Kind);
+        std::int32_t BuildConstructionItemChoices(aConst::TItemType Kind);
         void ShowDominionShipConstructionDialog(std::int32_t Action);
         void ConfirmDominionConstructionLimit(std::int32_t Action);
         void DeclineDominionShipConstruction(std::int32_t Action);
@@ -326,7 +328,7 @@ namespace fRuinsTalk {
         // Set after docked hyperspace travel; OnOpen tests this together with SkipVideo.
         std::uint8_t ShowArrivalVideo;
         // Copied from the docked ship on entry.
-        std::uint8_t StationOwner;
+        aGalaxyStruct::TOwnerId StationOwner;
         // Copied from the docked ship on entry.
         std::uint8_t StationType;
         // timeGetTime timestamp used by the queued-video callback.
@@ -335,8 +337,10 @@ namespace fRuinsTalk {
         pas::DynArray<std::uint8_t> ResearchItemVisited;
         // Negative entries terminate the sorted sale list.
         pas::DynArray<std::int32_t> ResearchItemIndexes;
-        std::uint8_t PortraitFlag100;
-        std::uint8_t PortraitFlag101;
+        // Viewport is at least 1280x960; permits HD portraits or the table layout.
+        std::uint8_t LargePortraitLayout;
+        // Large layout with UseTablesForGov; shows the table and standard portrait animations.
+        std::uint8_t PortraitTableVisible;
         std::uint8_t cpp_padding[2];
         GI_MessageLoop::TObjectGI* StationTransientControl;
         std::int32_t SavedChoiceScroll;

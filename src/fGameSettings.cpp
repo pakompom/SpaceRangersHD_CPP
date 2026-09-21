@@ -28,29 +28,6 @@
 // Ownership by the linked fGameSettings unit is inferred from that boundary and
 // PACKAGEINFO's adjacent fGameSettings2/fGameSettings dependency entries.
 namespace fGameSettings {
-    // Source control for the native Extended temporaries and axis evaluation order.
-    void CalculateSquaredEdgeDistance(aGalaxy::TStar* Star, float& Distance) {
-        pas::Extended XDelta{};
-        pas::Extended XNear{};
-        pas::Extended YDelta{};
-        pas::Extended YNear{};
-        pas::Extended XSquared{};
-        XDelta = static_cast<long double>(aConst::GalaxySizeX) - Star->Position.X;
-        if (XDelta < Star->Position.X) {
-            XNear = XDelta;
-        } else {
-            XNear = Star->Position.X;
-        }
-        XSquared = pas::sqr(XNear);
-        YDelta = static_cast<long double>(aConst::GalaxySizeY) - Star->Position.Y;
-        if (YDelta < Star->Position.Y) {
-            YNear = YDelta;
-        } else {
-            YNear = Star->Position.Y;
-        }
-        Distance = XSquared + pas::sqr(YNear);
-    }
-
     void TThreadCreateNewGame_Execute(TThreadCreateNewGame* Self) {
         static const pas::Set<0, 255> InitialDominatorShipMask = pas::constant_set<pas::Set<0, 255>>({{0}});
         std::uint16_t ControlWord{};
@@ -79,7 +56,7 @@ namespace fGameSettings {
         EC_Struct::TPointF Center{};
         float Score{};
         aGalaxy::TStar* StartStar{};
-        std::uint8_t OwnerId{};
+        aGalaxyStruct::TOwnerId OwnerId{};
         pas::Array<pas::List*, 0, 7> NameLists{};
         Stage = 0;
         try {
@@ -92,9 +69,9 @@ namespace fGameSettings {
             for (Skill = static_cast<std::uint8_t>(0); Skill <= static_cast<std::uint8_t>(7); ++Skill) {
                 aGalaxy::Galaxy->DifficultyLevels[Skill] = Self->DifficultyLevels[Skill];
             }
-            aGalaxy::Galaxy->CustomRules.Enabled = GR_Main::NewGameSettingsConfig->CountParamsByPath(u"UseCustomRules"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"UseCustomRules"_wref.get()));
+            aGalaxy::Galaxy->CustomRules.Enabled = GR_Main::NewGameSettingsConfig->CountParamsByPath(u"UseCustomRules"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"UseCustomRules"_wref.get())));
             if (aGalaxy::Galaxy->CustomRules.Enabled && GR_Main::NewGameSeedText != u"") {
-                aGalaxy::Galaxy->GenerationSeed = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSeedText);
+                aGalaxy::Galaxy->GenerationSeed = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSeedText));
                 aGalaxy::Galaxy->RandomState = aGalaxy::Galaxy->GenerationSeed;
             }
             GR_Main::NewGameSeedText = pas::WideString();
@@ -184,25 +161,25 @@ namespace fGameSettings {
                 aGalaxy::Galaxy->CustomRules.ArcadeHitpointsModifier = SysUtils::StrToInt(static_cast<pas::AnsiString>(CustomRules->GetParamByPath(u"ABHitpointsMod"_wref.get())));
                 aGalaxy::Galaxy->CustomRules.ArcadeDamageModifier = SysUtils::StrToInt(static_cast<pas::AnsiString>(CustomRules->GetParamByPath(u"ABDamageMod"_wref.get())));
                 aGalaxy::Galaxy->CustomRules.AIJunkTolerance = SysUtils::StrToInt(static_cast<pas::AnsiString>(CustomRules->GetParamByPath(u"AITolerateJunk"_wref.get())));
-                aGalaxy::Galaxy->CustomRules.ChaoticRandom = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"RndChaotic"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.UnrestrictedEquipmentKnowledge = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"EqKnowledgeUnRestricted"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.StationsNearStars = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"RuinsNearStars"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.FullStationTargeting = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"RuinsTargettingFull"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.SpecialShips = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"SpecialShipsInGame"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.ZeroStartingExperience = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"ZeroStartExp"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.ArcadeBattleRoyale = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"ABattleRoyale"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.DominatorRacialWeapons = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"KlingRacialWeapons"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.StartInCenter = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"StartCenter"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.MaxRangeMissiles = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"MaxRangeMissiles"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.OldHyperspace = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"OldHyper"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.PirateNodes = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"PirateNodes"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.AIUseShops = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"AIUseShops"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.StationsUseShop = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"RuinsUseShop"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.DuplicateArtefacts = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"DuplicateArts"_wref.get()));
+                aGalaxy::Galaxy->CustomRules.ChaoticRandom = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"RndChaotic"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.UnrestrictedEquipmentKnowledge = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"EqKnowledgeUnRestricted"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.StationsNearStars = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"RuinsNearStars"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.FullStationTargeting = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"RuinsTargettingFull"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.SpecialShips = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"SpecialShipsInGame"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.ZeroStartingExperience = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"ZeroStartExp"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.ArcadeBattleRoyale = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"ABattleRoyale"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.DominatorRacialWeapons = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"KlingRacialWeapons"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.StartInCenter = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"StartCenter"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.MaxRangeMissiles = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"MaxRangeMissiles"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.OldHyperspace = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"OldHyper"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.PirateNodes = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"PirateNodes"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.AIUseShops = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"AIUseShops"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.StationsUseShop = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"RuinsUseShop"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.DuplicateArtefacts = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"DuplicateArts"_wref.get())));
                 aGalaxy::Galaxy->CustomRules.HullGrowth = SysUtils::StrToInt(static_cast<pas::AnsiString>(CustomRules->GetParamByPathOrMarker(u"HullGrowth"_wref.get())));
-                aGalaxy::Galaxy->CustomRules.ArcadeEquipmentChange = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"ABChangeEq"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.OldSpeedCalculation = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"OldSpeedCalc"_wref.get()));
-                aGalaxy::Galaxy->CustomRules.OldMissileBonuses = GI_Main::ParseEnabledNameGI(CustomRules->GetParamByPathOrMarker(u"OldMissileBonuses"_wref.get()));
+                aGalaxy::Galaxy->CustomRules.ArcadeEquipmentChange = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"ABChangeEq"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.OldSpeedCalculation = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"OldSpeedCalc"_wref.get())));
+                aGalaxy::Galaxy->CustomRules.OldMissileBonuses = GI_Main::ParseEnabledNameGI(pas::view(CustomRules->GetParamByPathOrMarker(u"OldMissileBonuses"_wref.get())));
             }
             aGalaxy::Galaxy->GenerationMachineHash = GR_Main::ComputeMachineFingerprintCRC();
             aGalaxy::Galaxy->InitializeCampaignState();
@@ -271,8 +248,14 @@ namespace fGameSettings {
                                     MaximumDistance = Distance;
                                     SpecialStar = OtherStar;
                                 } else if (Distance == MaximumDistance) {
-                                    fGameSettings::CalculateSquaredEdgeDistance(SpecialStar, EdgeDistance);
-                                    fGameSettings::CalculateSquaredEdgeDistance(OtherStar, OtherEdgeDistance);
+                                    {
+                                        pas::Extended cpp_left = pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeX) - SpecialStar->Position.X, static_cast<pas::Extended>(SpecialStar->Position.X)));
+                                        EdgeDistance = cpp_left + pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeY) - SpecialStar->Position.Y, static_cast<pas::Extended>(SpecialStar->Position.Y)));
+                                    }
+                                    {
+                                        pas::Extended cpp_left_2 = pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeX) - OtherStar->Position.X, static_cast<pas::Extended>(OtherStar->Position.X)));
+                                        OtherEdgeDistance = cpp_left_2 + pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeY) - OtherStar->Position.Y, static_cast<pas::Extended>(OtherStar->Position.Y)));
+                                    }
                                     if (OtherEdgeDistance < EdgeDistance) {
                                         SpecialStar = OtherStar;
                                     }
@@ -284,10 +267,10 @@ namespace fGameSettings {
                 }
             }
             pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, pas::list_count(aGalaxy::Galaxy->Stars) - 1)->Name = SpecialStar->Name;
-            for (auto cpp_range_7 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc), static_cast<std::uint8_t>(7)); cpp_range_7.next(OwnerId); ) {
+            for (auto cpp_range_7 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_7.next(OwnerId); ) {
                 NameLists[OwnerId] = pas::make_object<pas::List>();
-                if (GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"_wref.get())->CountBlocks(aConst::OwnerInfo[OwnerId].InternalName) > 0) {
-                    J = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"_wref.get())->GetBlock(aConst::OwnerInfo[OwnerId].InternalName)->GetParamCount();
+                if (GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"sv)->CountBlocks(aConst::OwnerInfo[OwnerId].InternalName) > 0) {
+                    J = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"sv)->GetBlock(pas::view(aConst::OwnerInfo[OwnerId].InternalName))->GetParamCount();
                     for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, J - 1); cpp_range_8.next(K); ) {
                         pas::list_add(NameLists[OwnerId], reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(K))));
                     }
@@ -309,7 +292,7 @@ namespace fGameSettings {
                         if (K >= 0) {
                             Planet->Name = ([&] {
                                 std::int32_t cpp_arg = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(NameLists[OwnerId], K)));
-                                EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"_wref.get())->GetBlock(aConst::OwnerInfo[OwnerId].InternalName);
+                                EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"sv)->GetBlock(pas::view(aConst::OwnerInfo[OwnerId].InternalName));
                                 return block->GetParamValue(cpp_arg);
                             }());
                             pas::list_delete(NameLists[OwnerId], K);
@@ -319,7 +302,7 @@ namespace fGameSettings {
                     }
                 }
             }
-            for (auto cpp_range_11 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc), static_cast<std::uint8_t>(7)); cpp_range_11.next(OwnerId); ) {
+            for (auto cpp_range_11 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_11.next(OwnerId); ) {
                 pas::free(NameLists[OwnerId]);
             }
             if (aGalaxy::Galaxy->CustomRules.StartInCenter) {
@@ -338,8 +321,8 @@ namespace fGameSettings {
                 }
                 if (StartStar != HomePlanet->CurrentStar) {
                     for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, pas::list_count(StartStar->Planets) - 1); cpp_range_13.next(I); ) {
-                        std::int32_t cpp_left = pas::list_at<aPlanet::TPlanet>(StartStar->Planets, I)->OwnerId;
-                        if (cpp_left == aConst::RaceToOwner(Self->PlayerRace)) {
+                        aGalaxyStruct::TOwnerId cpp_left_3 = pas::list_at<aPlanet::TPlanet>(StartStar->Planets, I)->OwnerId;
+                        if (cpp_left_3 == aConst::RaceToOwner(Self->PlayerRace)) {
                             HomePlanet = pas::list_at<aPlanet::TPlanet>(StartStar->Planets, I);
                             break;
                         }
@@ -407,7 +390,7 @@ namespace fGameSettings {
                     break;
                 }
             }
-            Player->InitializePlayerAtPlanet(Planet, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].DifficultyValue18, Self->CharacterPreset);
+            Player->InitializePlayerAtPlanet(Planet, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].StartingPlayerMoney, Self->CharacterPreset);
             switch (Self->CharacterPreset) {
                 case 1: {
                     Player->PreferredCareer = aGalaxyStruct::rcWarrior;
@@ -507,8 +490,8 @@ namespace fGameSettings {
             }
             Stage = 10;
             {
-                pas::Extended cpp_left_2 = aGalaxy::Galaxy->GetInitialDominatorControlPercent();
-                N = System::Round(cpp_left_2 * pas::real_divide(pas::list_count(aGalaxy::Galaxy->Stars), 1.0E+2L));
+                pas::Extended cpp_left_4 = aGalaxy::Galaxy->GetInitialDominatorControlPercent();
+                N = System::Round(cpp_left_4 * pas::real_divide(pas::list_count(aGalaxy::Galaxy->Stars), 1.0E+2L));
             }
             if (N > pas::list_count(aGalaxy::Galaxy->Stars) - 1) {
                 N = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
@@ -525,7 +508,7 @@ namespace fGameSettings {
                 }
             }
             Stage = 11;
-            N = System::Round(pas::real_divide(pas::list_count(aGalaxy::Galaxy->Stars), 1.0E+2L) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[0]].DifficultyValue1C);
+            N = System::Round(pas::real_divide(pas::list_count(aGalaxy::Galaxy->Stars), 1.0E+2L) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[0]].InitialPirateControlPercent);
             for (auto cpp_range_15 = pas::for_to<std::int32_t>(0, N); cpp_range_15.next(I); ) {
                 Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, 70);
                 Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Star->StarDistances[I].Star));
@@ -551,16 +534,16 @@ namespace fGameSettings {
             fIntroduction::NewGameGenerationStage = 4;
             for (auto cpp_range_17 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_17.next(I); ) {
                 Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, I);
-                if ((Planet->IsCoalitionOwned || Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) && Planet->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators) {
-                    Planet->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
+                if ((Planet->IsCoalitionOwned || Planet->OwnerId == aGalaxyStruct::oiPirate) && Planet->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators) {
+                    Planet->OwnerId = aGalaxyStruct::oiDominator;
                     Planet->UpdateOwnerFlags();
                 }
-                if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && Planet->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
-                    Planet->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+                if (Planet->OwnerId != aGalaxyStruct::oiUninhabited && Planet->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
+                    Planet->OwnerId = aGalaxyStruct::oiPirate;
                     Planet->UpdateOwnerFlags();
                 }
                 {
-                    std::uint8_t cpp_case = Planet->OwnerId;
+                    aGalaxyStruct::TOwnerId cpp_case = Planet->OwnerId;
                     if (cpp_case >= aGalaxyStruct::oiMaloc && cpp_case <= aGalaxyStruct::oiGaal) {
                         Planet->SpawnTransport(0, 100);
                         Planet->SpawnTransport(0, 100);
@@ -658,7 +641,7 @@ namespace fGameSettings {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Galaxy create exception, not found rc, seed = ", SysUtils::IntToStr(aGalaxy::Galaxy->GenerationSeed)}));
                 if (aPlayer::GetPlayer()->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfDominators) {
                     for (auto cpp_range_21 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Planets) - 1); cpp_range_21.next(I); ) {
-                        if (pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, I)->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        if (pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, I)->OwnerId != aGalaxyStruct::oiUninhabited) {
                             aPlayer::GetPlayer()->CurrentPlanet = pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, I);
                             break;
                         }
@@ -666,7 +649,7 @@ namespace fGameSettings {
                 }
                 if (aPlayer::GetPlayer()->CurrentPlanet == nullptr) {
                     for (auto cpp_range_22 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Planets) - 1); cpp_range_22.next(I); ) {
-                        if (pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, I)->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        if (pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, I)->OwnerId == aGalaxyStruct::oiUninhabited) {
                             aPlayer::GetPlayer()->CurrentPlanet = pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, I);
                             break;
                         }
@@ -817,7 +800,7 @@ namespace fGameSettings {
             }
             Stage = 19;
             // Native code passes the last planet visited by the population loop above.
-            aPlayer::GetPlayer()->ApplyCharacterPreset(Planet, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].DifficultyValue18, Self->CharacterPreset);
+            aPlayer::GetPlayer()->ApplyCharacterPreset(Planet, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].StartingPlayerMoney, Self->CharacterPreset);
             aPlayer::GetPlayer()->RefreshStorageBubbles();
             aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 0);
             fIntroduction::NewGameGenerationStage = 8;

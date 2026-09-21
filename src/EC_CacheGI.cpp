@@ -29,7 +29,7 @@ namespace EC_CacheGI {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, pas::class_ref<TCGiEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCGiEC>()) == nullptr) {
             Control = pas::construct_call<TCGiControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -441,7 +441,7 @@ namespace EC_CacheGI {
             DestGraph->Clear();
             pas::free(DestGraph);
             LogWideScreenGiRescaleDone();
-        } else if ((GR_Main::ExtraScreenWidth > 0 || ExtraHeight > 0) && (EC_Str::FindTextOffsetW(ResourceKey, u"Bm.FormPQuest2.2S"_wref.get(), 0) == 0 && EC_Str::IsIntegerTextW(EC_Str::CopyWideStringUnchecked(ResourceKey, 18, ResourceKey.length() - 17)) || EC_Str::FindTextOffsetW(ResourceKey, u"Bm.FormPQuest2."_wref.get(), 0) == 0 && EC_Str::FindTextOffsetW(ResourceKey, u"rescale"_wref.get(), 0) > 0)) {
+        } else if ((GR_Main::ExtraScreenWidth > 0 || ExtraHeight > 0) && (EC_Str::FindTextOffsetW(ResourceKey, u"Bm.FormPQuest2.2S"_wref.get(), 0) == 0 && EC_Str::IsIntegerTextW(pas::view(EC_Str::CopyWideStringUnchecked(ResourceKey, 18, ResourceKey.length() - 17))) || EC_Str::FindTextOffsetW(ResourceKey, u"Bm.FormPQuest2."_wref.get(), 0) == 0 && EC_Str::FindTextOffsetW(ResourceKey, u"rescale"_wref.get(), 0) > 0)) {
             LogWideScreenGiRescaleStart();
             SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
             RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);

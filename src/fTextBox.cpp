@@ -20,7 +20,7 @@ namespace fTextBox {
     std::uint32_t ShowTextInputDialog(GI_MessageLoop::TMessageLoopGI* Parent, pas::WideString Caption, pas::WideString& Value, std::int32_t MaximumLength, std::int32_t OffsetX, std::int32_t OffsetY) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&State);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -34,7 +34,7 @@ namespace fTextBox {
                 Dialog->MaximumLength = MaximumLength;
                 Dialog->OffsetX = OffsetX;
                 Dialog->OffsetY = OffsetY;
-                Dialog->Caption = Caption;
+                Dialog->Caption = std::move(Caption);
                 Dialog->Value = Value;
                 Result = Dialog->Run();
                 Value = Dialog->Value;
@@ -49,7 +49,7 @@ namespace fTextBox {
         }
         Parent->RestoreCursorState(&State);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         if (Result == 254) {
             GI_Main::BreakUiMessage();
         }
@@ -123,7 +123,7 @@ namespace fTextBox {
         CaptionLabel->SetTextAlignY(GI_Main::tayCenter);
         CaptionLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         CaptionLabel->SetFontName(GlobalsV::NormalBoldFontName);
-        CaptionLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Caption, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get()), u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"_wref.get()));
+        CaptionLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Caption, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv), u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"sv));
         Edit = pas::construct_call<GI_Edit::TEditGI>(GI_Edit::TEditGI_Create, ContentPanel);
         {
             GI_Edit::TEditGI* cpp_with_2 = Edit;

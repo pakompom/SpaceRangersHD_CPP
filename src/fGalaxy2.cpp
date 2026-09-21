@@ -74,7 +74,7 @@ namespace fGalaxy2 {
     std::uint8_t RunGalaxyMap(GI_MessageLoop::TMessageLoopGI* ParentLoop) {
         std::uint8_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
-        ParentLoop->RootUiObject->NativeHook50();
+        ParentLoop->RootUiObject->OnModalSuspend();
         ParentLoop->CaptureCursorState(&State);
         ParentLoop->SetCursorActive(false);
         ParentLoop->DrawQueuedUpdateRects();
@@ -90,7 +90,7 @@ namespace fGalaxy2 {
         ParentLoop->InvalidateViewport();
         ParentLoop->RestoreCursorState(&State);
         ParentLoop->UpdateCursorPosition();
-        ParentLoop->RootUiObject->NativeHook48();
+        ParentLoop->RootUiObject->OnModalResume();
         GR_Main::PostMouseMoveMessage();
         return Result;
     }
@@ -115,39 +115,39 @@ namespace fGalaxy2 {
         GR_Main::AppendLogTextThreadSafe("fGalaxy2... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* ButExit_Parent = MainPanel->FindByNameRecursive(u"ButExit"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* ButExit_Parent = MainPanel->FindByNameRecursive(u"ButExit"sv)->Parent;
                 ButExit_Parent->SetPosition(ClassesImports::Point(ButExit_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, ButExit_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         {
-            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"sv);
             MainPanel_2->KeyDownCallback = pas::bind_method<&TfGalaxy2::MainPanelKeyDown>(this);
             MainPanel_2->LeftButtonUpCallback = pas::bind_method<&TfGalaxy2::MainPanelMouseUp>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"_wref.get()))->UpCallback = pas::bind_method<&TfGalaxy2::CloseClicked>(this);
-        MapPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"Map"_wref.get()));
-        HideBuffer = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"HideBuf"_wref.get()));
-        JumpButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJump"_wref.get()));
-        JumpDestinationLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelJumpTo"_wref.get()));
-        JumpAnimation = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Anim"_wref.get()));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"sv))->UpCallback = pas::bind_method<&TfGalaxy2::CloseClicked>(this);
+        MapPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"Map"sv));
+        HideBuffer = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"HideBuf"sv));
+        JumpButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJump"sv));
+        JumpDestinationLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelJumpTo"sv));
+        JumpAnimation = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Anim"sv));
         JumpAnimation->StopAutoPlayback();
-        JumpLightImages[0] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Light1"_wref.get()));
-        JumpLightImages[1] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Light2"_wref.get()));
-        JumpLightImages[2] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Light3"_wref.get()));
-        CreateMarkerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCreate"_wref.get()));
+        JumpLightImages[0] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Light1"sv));
+        JumpLightImages[1] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Light2"sv));
+        JumpLightImages[2] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Light3"sv));
+        CreateMarkerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCreate"sv));
         {
             GI_GraphButton::TGraphButtonGI* cpp_with_4 = CreateMarkerButton;
             cpp_with_4->UpCallback = pas::bind_method<&TfGalaxy2::CreateMarkerClicked>(this);
             CreateMarkerImagePath = cpp_with_4->ImageNormal->GetImagePath();
             CreateMarkerActiveImagePath = cpp_with_4->ImageNormalActive->GetImagePath();
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButUndo"_wref.get()))->UpCallback = pas::bind_method<&TfGalaxy2::UndoMarkerClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButDel"_wref.get()))->UpCallback = pas::bind_method<&TfGalaxy2::ClearMarkersClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButUndo"sv))->UpCallback = pas::bind_method<&TfGalaxy2::UndoMarkerClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButDel"sv))->UpCallback = pas::bind_method<&TfGalaxy2::ClearMarkersClicked>(this);
     }
 
     void TfGalaxy2::OnOpen() {
@@ -173,7 +173,7 @@ namespace fGalaxy2 {
         pas::WideString Text{};
         pas::WideString ColoredName{};
         aPlanet::TPlanet* Planet{};
-        std::uint8_t OwnerId{};
+        aGalaxyStruct::TOwnerId OwnerId{};
         GI_Image::TImageGI* HoleImage{};
         WindowsSdk::TPoint BufferOffset{};
         aGalaxy::THole* Hole{};
@@ -200,17 +200,17 @@ namespace fGalaxy2 {
         if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(CapturePreviewOnOpen ^ 1)) {
             aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
         }
         MainPanel->OnOpen();
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"_wref.get()))->SetActive(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->SetActive(true);
         pas::list_clear(RouteStars);
         CreateMarkerMode = false;
         CreateMarkerButton->SetImageNormalPath(CreateMarkerImagePath);
@@ -246,7 +246,7 @@ namespace fGalaxy2 {
         StarLinks = pas::construct_call<GI_PolyLine::TPolyLineGI>(GI_PolyLine::TPolyLineGI_Create, MapPanel);
         StarLinks->SetDepth(1.0E+1);
         if (GR_Main::GameDataConfig->CountBlocks(u"StyleConstellation"_wref.get()) > 0) {
-            Block = GR_Main::GameDataConfig->GetBlock(u"StyleConstellation"_wref.get());
+            Block = GR_Main::GameDataConfig->GetBlock(u"StyleConstellation"sv);
         } else {
             Block = nullptr;
         }
@@ -272,17 +272,17 @@ namespace fGalaxy2 {
                 }
             }
             if (Constellation->Visible) {
-                if (Block == nullptr || Block->CountParams(u"DrawLines"_wref.get()) <= 0 || GI_Main::ParseEnabledNameGI(Block->GetParam(u"DrawLines"_wref.get()))) {
+                if (Block == nullptr || Block->CountParams(u"DrawLines"_wref.get()) <= 0 || GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"DrawLines"sv)))) {
                     for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Constellation->StarLinks) - 1); cpp_range_8.next(J); ) {
                         Segment = pas::list_at<aGalaxy::TMapLineSegment>(Constellation->StarLinks, J);
                         if (Block == nullptr || Block->CountParams(u"LinesColor"_wref.get()) <= 0) {
                             Color = GR_Main::CurrentPixelFormat->PackNormalizedRgb(1.0, 1.0, 0.0);
                         } else {
-                            Text = Block->GetParam(u"LinesColor"_wref.get());
+                            Text = Block->GetParam(u"LinesColor"sv);
                             Color = ([&] {
-                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
-                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
                                 return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
                             }());
                         }
@@ -351,7 +351,7 @@ namespace fGalaxy2 {
         }
         StarLinks->SetPositionModeW(false);
         StarLinks->SetActive(true);
-        Block = GR_Main::GameDataConfig->GetBlock(u"GalaxyStar"_wref.get());
+        Block = GR_Main::GameDataConfig->GetBlock(u"GalaxyStar"sv);
         StarImageCount = Block->GetParamCount();
         for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_12.next(I); ) {
             Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
@@ -389,7 +389,7 @@ namespace fGalaxy2 {
                 Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, 0);
                 for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_13.next(J); ) {
                     Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
-                    if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                         break;
                     }
                 }
@@ -398,23 +398,23 @@ namespace fGalaxy2 {
                     ColoredName = ([&] {
                         pas::WideString lookupNamedColorTag = aConst::LookupNamedColorTag(Star->Status.CustomFaction);
                         pas::WideString text = Text;
-                        return aMyFunction::WrapTextInColor(std::move(text), std::move(lookupNamedColorTag));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(text)), pas::view(std::move(lookupNamedColorTag)));
                     }());
                 } else {
                     ColoredName = pas::WideString();
                     J = 1;
                     K = pas::idiv(Star->Name.length(), Star->CountDistinctInhabitedPlanetOwners());
-                    ColoredName = pas::concat_wide({ColoredName, aMyFunction::WrapTextInColor(pas::copy(Text, 1, K), aConst::OwnerInfo[Planet->OwnerId].ColorTag)});
+                    ColoredName = pas::concat_wide({ColoredName, aMyFunction::WrapTextInColor(pas::view(pas::copy(Text, 1, K)), pas::view(aConst::OwnerInfo[Planet->OwnerId].ColorTag))});
                     Text = pas::copy(Text, K + 1, Text.length());
                     if (Text != u"") {
-                        for (OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc); OwnerId <= static_cast<std::uint8_t>(7); ++OwnerId) {
-                            if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && Star->CountPlanetsByOwner(OwnerId) > 0 && Planet->OwnerId != OwnerId) {
+                        for (auto cpp_range_14 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_14.next(OwnerId); ) {
+                            if (OwnerId != aGalaxyStruct::oiUninhabited && Star->CountPlanetsByOwner(OwnerId) > 0 && Planet->OwnerId != OwnerId) {
                                 K = pas::idiv(Star->Name.length(), Star->CountDistinctInhabitedPlanetOwners());
                                 ++J;
                                 if (J == Star->CountDistinctInhabitedPlanetOwners()) {
                                     K = Text.length();
                                 }
-                                ColoredName = pas::concat_wide({ColoredName, aMyFunction::WrapTextInColor(pas::copy(Text, 1, K), aConst::OwnerInfo[OwnerId].ColorTag)});
+                                ColoredName = pas::concat_wide({ColoredName, aMyFunction::WrapTextInColor(pas::view(pas::copy(Text, 1, K)), pas::view(aConst::OwnerInfo[OwnerId].ColorTag))});
                                 Text = pas::copy(Text, K + 1, Text.length());
                             }
                         }
@@ -446,7 +446,7 @@ namespace fGalaxy2 {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
-                            BossText = pas::concat_wide({BossText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(aConst::LocalizedText(u"FormGalaxy.Boss1"_wref.get()).read(1)), u"<color=255,0,0>"_w)});
+                            BossText = pas::concat_wide({BossText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(aConst::LocalizedText(u"FormGalaxy.Boss1"_wref.get()).read(1))), u"<color=255,0,0>"sv)});
                         } else {
                             ++BlazerCount;
                         }
@@ -456,7 +456,7 @@ namespace fGalaxy2 {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
-                            BossText = pas::concat_wide({BossText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(aConst::LocalizedText(u"FormGalaxy.Boss2"_wref.get()).read(1)), u"<color=0,128,255>"_w)});
+                            BossText = pas::concat_wide({BossText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(aConst::LocalizedText(u"FormGalaxy.Boss2"_wref.get()).read(1))), u"<color=0,128,255>"sv)});
                         } else {
                             ++KellerCount;
                         }
@@ -466,7 +466,7 @@ namespace fGalaxy2 {
                             if (BossText.length() > 0) {
                                 BossText = pas::concat_wide({BossText, u"-"});
                             }
-                            BossText = pas::concat_wide({BossText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(aConst::LocalizedText(u"FormGalaxy.Boss3"_wref.get()).read(1)), u"<color=0,255,0>"_w)});
+                            BossText = pas::concat_wide({BossText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(aConst::LocalizedText(u"FormGalaxy.Boss3"_wref.get()).read(1))), u"<color=0,255,0>"sv)});
                         } else {
                             ++TerronCount;
                         }
@@ -475,31 +475,31 @@ namespace fGalaxy2 {
                         if (ForceText.length() > 0) {
                             ForceText = pas::concat_wide({ForceText, u"-"});
                         }
-                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(CoalitionCount), u"<color=255,240,100>"_w)});
+                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(CoalitionCount)), u"<color=255,240,100>"sv)});
                     }
                     if (BlazerCount > 0) {
                         if (ForceText.length() > 0) {
                             ForceText = pas::concat_wide({ForceText, u"-"});
                         }
-                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(BlazerCount), u"<color=255,0,0>"_w)});
+                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BlazerCount)), u"<color=255,0,0>"sv)});
                     }
                     if (KellerCount > 0) {
                         if (ForceText.length() > 0) {
                             ForceText = pas::concat_wide({ForceText, u"-"});
                         }
-                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(KellerCount), u"<color=0,128,255>"_w)});
+                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(KellerCount)), u"<color=0,128,255>"sv)});
                     }
                     if (TerronCount > 0) {
                         if (ForceText.length() > 0) {
                             ForceText = pas::concat_wide({ForceText, u"-"});
                         }
-                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(TerronCount), u"<color=0,255,0>"_w)});
+                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(TerronCount)), u"<color=0,255,0>"sv)});
                     }
                     if (PirateCount > 0) {
                         if (ForceText.length() > 0) {
                             ForceText = pas::concat_wide({ForceText, u"-"});
                         }
-                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(PirateCount), u"<color=255,255,254>"_w)});
+                        ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(PirateCount)), u"<color=255,255,254>"sv)});
                     }
                     if (CustomCount > 0) {
                         if (ForceText.length() > 0) {
@@ -508,7 +508,7 @@ namespace fGalaxy2 {
                         ForceText = pas::concat_wide_reverse({([&] {
                             pas::WideString lookupNamedColorTag_2 = aConst::LookupNamedColorTag(CustomFaction);
                             pas::WideString intToStr = pas::wide_int_to_str(CustomCount);
-                            return aMyFunction::WrapTextInColor(std::move(intToStr), std::move(lookupNamedColorTag_2));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr)), pas::view(std::move(lookupNamedColorTag_2)));
                         }()), ForceText});
                     }
                     if (OtherCount > 0) {
@@ -519,10 +519,10 @@ namespace fGalaxy2 {
                             ForceText = pas::concat_wide_reverse({([&] {
                                 pas::WideString lookupNamedColorTag_3 = aConst::LookupNamedColorTag(OtherFaction);
                                 pas::WideString intToStr_2 = pas::wide_int_to_str(OtherCount);
-                                return aMyFunction::WrapTextInColor(std::move(intToStr_2), std::move(lookupNamedColorTag_3));
+                                return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_2)), pas::view(std::move(lookupNamedColorTag_3)));
                             }()), ForceText});
                         } else {
-                            ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(OtherCount), u"<color=127,127,127>"_w)});
+                            ForceText = pas::concat_wide({ForceText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(OtherCount)), u"<color=127,127,127>"sv)});
                         }
                     }
                     if (BossText.length() > 0) {
@@ -572,7 +572,7 @@ namespace fGalaxy2 {
                     StarImage->RestartPlayback();
                 }
                 SelectedHole = nullptr;
-                for (auto cpp_range_14 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Holes) - 1); cpp_range_14.next(J); ) {
+                for (auto cpp_range_15 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Holes) - 1); cpp_range_15.next(J); ) {
                     Hole = pas::list_at<aGalaxy::THole>(aGalaxy::Galaxy->Holes, J);
                     if (Hole->ArcadeMapName != u"NoEntry" && Hole->Star1 == Star && (SelectedHole == nullptr || reinterpret_cast<SE_Hole::THoleSE*>(SelectedHole->Graphic)->GalaxyPriority < reinterpret_cast<SE_Hole::THoleSE*>(Hole->Graphic)->GalaxyPriority)) {
                         SelectedHole = Hole;
@@ -590,7 +590,7 @@ namespace fGalaxy2 {
             }
         }
         {
-            GI_GAI::TgaiGI* PathCurPos = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathCurPos"_wref.get()));
+            GI_GAI::TgaiGI* PathCurPos = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathCurPos"sv));
             PathCurPos->SetPosition(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position));
             PathCurPos->SetOrigin(EC_Struct::HalfPoint(PathCurPos->ClientSize));
             PathCurPos->SetActive(true);
@@ -598,7 +598,7 @@ namespace fGalaxy2 {
         }
         Points = nullptr;
         {
-            GI_Circle::TCircleGI* JampMaxShr = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"JampMaxShr"_wref.get()));
+            GI_Circle::TCircleGI* JampMaxShr = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"JampMaxShr"sv));
             JampMaxShr->SetCenter(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position));
             if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr || static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetFuelTanks()) ^ 1)) {
                 JampMaxShr->SetRadius(1);
@@ -610,7 +610,7 @@ namespace fGalaxy2 {
             }
         }
         {
-            GI_Circle::TCircleGI* JampMaxColor = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"JampMaxColor"_wref.get()));
+            GI_Circle::TCircleGI* JampMaxColor = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"JampMaxColor"sv));
             JampMaxColor->SetCenter(JampMaxColor->ToAbsolutePoint(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position)));
             if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr || static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetFuelTanks()) ^ 1)) {
                 JampMaxColor->SetRadius(1);
@@ -622,7 +622,7 @@ namespace fGalaxy2 {
             }
         }
         {
-            GI_Circle::TCircleGI* RadarDetect = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"RadarDetect"_wref.get()));
+            GI_Circle::TCircleGI* RadarDetect = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"RadarDetect"sv));
             if (aPlayer::GetPlayer()->GetRadar() != nullptr && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactRadar) > 0) {
                 RadarDetect->SetActive(true);
                 RadarDetect->SetCenter(RadarDetect->ToAbsolutePoint(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position)));
@@ -645,11 +645,11 @@ namespace fGalaxy2 {
         ShowStarInfo(nullptr);
         if (CapturePreviewOnOpen) {
             {
-                GI_GAI::TgaiGI* PathCurPos_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathCurPos"_wref.get()));
+                GI_GAI::TgaiGI* PathCurPos_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathCurPos"sv));
                 PathCurPos_2->SetSequenceFrame(PathCurPos_2->SequenceFrameCount / 2);
             }
             ClearJumpPath();
-            pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"_wref.get()))->SetActive(false);
+            pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->SetActive(false);
             DrawQueuedUpdateRects();
             First = EC_Struct::SubtractPoints(MapPanel->ToAbsolutePoint(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position)), ClassesImports::Point(pas::shr(GR_Main::SecondarySavePreviewGraph->Width, 1), pas::shr(GR_Main::SecondarySavePreviewGraph->Height, 1)));
             if (First.X < MapPanel->HitTestBounds.Left) {
@@ -717,7 +717,7 @@ namespace fGalaxy2 {
         } else if (ViewMode == 1) {
             ClearReadOnlyMapCallbacks();
         }
-        GetByName(u"InfoStarPanel"_wref.get())->FreeOwnedChildren();
+        GetByName(u"InfoStarPanel"sv)->FreeOwnedChildren();
         MapPanel->FreeOwnedChildren();
         HideBuffer->ClearOwnedBuffer();
         MainPanel->OnClose();
@@ -750,7 +750,7 @@ namespace fGalaxy2 {
 
     void TfGalaxy2::MainPanelMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         if (GlobalsV::ClickAutoCloseForm) {
-            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"_wref.get()))->HitTestPixel(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"HideBuf"_wref.get())->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"_wref.get()))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(JumpButton->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"_wref.get())->ContainsPoint(Point) ^ 1)) {
+            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->HitTestPixel(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"HideBuf"sv)->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"sv))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(JumpButton->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"sv)->ContainsPoint(Point) ^ 1)) {
                 CloseClicked(nullptr);
             }
         }
@@ -817,16 +817,16 @@ namespace fGalaxy2 {
         std::uint8_t Reachable{};
         ClearJumpPath();
         {
-            GI_GAI::TgaiGI* PathCurPos = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathCurPos"_wref.get()));
+            GI_GAI::TgaiGI* PathCurPos = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathCurPos"sv));
             PathCurPos->SetPosition(GalaxyPointToMapPoint(aPlayer::GetPlayer()->CurrentStar->Position));
             PathCurPos->SetOrigin(EC_Struct::HalfPoint(PathCurPos->ClientSize));
             PathCurPos->SetActive(true);
             PathCurPos->RestartPlayback();
         }
-        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"_wref.get()))->SetText(u""_wref.get());
+        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"sv))->SetText(u""_wref.get());
         if (aPlayer::GetPlayer()->CurrentStar != SelectedJumpStar && SelectedJumpStar != nullptr) {
             {
-                GI_GAI::TgaiGI* PathDesPos = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathDesPos"_wref.get()));
+                GI_GAI::TgaiGI* PathDesPos = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PathDesPos"sv));
                 PathDesPos->SetPosition(GalaxyPointToMapPoint(SelectedJumpStar->Position));
                 PathDesPos->SetOrigin(EC_Struct::HalfPoint(PathDesPos->ClientSize));
                 PathDesPos->SetActive(true);
@@ -924,7 +924,7 @@ namespace fGalaxy2 {
                 First = SelectedJumpStar->Position;
                 Second = aPlayer::GetPlayer()->CurrentStar->Position;
                 {
-                    GI_Label::TLabelGI* Distance_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"_wref.get()));
+                    GI_Label::TLabelGI* Distance_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"sv));
                     ImageSize = GalaxyPointToMapPoint(SelectedJumpStar->Position);
                     Distance_2->SetPosition(ClassesImports::Point(ImageSize.X + 15, ImageSize.Y - Distance_2->ClientSize.Y / 2));
                     JumpDistance = System::Round(System::Sqrt(pas::sqr(static_cast<long double>(First.X) - Second.X) + pas::sqr(static_cast<long double>(First.Y) - Second.Y)));
@@ -951,14 +951,14 @@ namespace fGalaxy2 {
                     First = Second;
                 }
                 {
-                    GI_Label::TLabelGI* Distance_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"_wref.get()));
+                    GI_Label::TLabelGI* Distance_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"sv));
                     ImageSize = GalaxyPointToMapPoint(First);
                     Distance_3->SetPosition(ClassesImports::Point(ImageSize.X + 15, ImageSize.Y - Distance_3->ClientSize.Y / 2));
                     Distance_3->SetText(pas::wide_int_to_str(TotalDistance));
                 }
             }
             {
-                GI_Label::TLabelGI* Distance_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"_wref.get()));
+                GI_Label::TLabelGI* Distance_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Distance"sv));
                 if (Reachable) {
                     Distance_4->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 255, 255));
                 } else {
@@ -979,7 +979,7 @@ namespace fGalaxy2 {
                 pas::free(Current);
             }
         }
-        GetByName(u"PathDesPos"_wref.get())->SetActive(false);
+        GetByName(u"PathDesPos"sv)->SetActive(false);
     }
 
     void TfGalaxy2::ConfigureReadOnlyMap() {
@@ -1249,7 +1249,7 @@ namespace fGalaxy2 {
             const pas::WideString& replaceAllWideString = ([&] {
                 const pas::WideString& localizedText = aConst::LocalizedText(u"FormGalaxy.JumpTo"_wref.get());
                 const pas::WideString& name = SelectedJumpStar->Name;
-                return EC_Str::ReplaceAllWideString(localizedText, u"<Name>"_wref.get(), name);
+                return EC_Str::ReplaceAllWideString(localizedText, u"<Name>"_wref.get(), pas::view(name));
             }());
             GI_Label::TLabelGI* jumpDestinationLabel = JumpDestinationLabel;
             jumpDestinationLabel->SetText(replaceAllWideString);
@@ -1282,7 +1282,7 @@ namespace fGalaxy2 {
         std::uint32_t IconInset{};
         std::int32_t SummaryLines{};
         float ObjectDistance{};
-        std::uint8_t OwnerId{};
+        aGalaxyStruct::TOwnerId OwnerId{};
         aPlanet::TPlanet* Planet{};
         aGalaxy::TCustomSystemInfo* CustomInfo{};
         pas::WideString Value{};
@@ -1293,16 +1293,16 @@ namespace fGalaxy2 {
             CancelCallbackTimer(StarInfoHideTimer);
             StarInfoHideTimer = nullptr;
         }
-        GI_Window::TWindowGI* InfoPanel = reinterpret_cast<GI_Window::TWindowGI*>(GetByName(u"InfoStar"_wref.get()));
+        GI_Window::TWindowGI* InfoPanel = reinterpret_cast<GI_Window::TWindowGI*>(GetByName(u"InfoStar"sv));
         if (Star == nullptr) {
             InfoPanel->SetActive(false);
             return;
         }
         InfoPanel->SetActive(true);
         {
-            GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"sv));
             InfoStarImage->SourceHasPerPixelAlpha = true;
-            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath, 1, u","_wref.get()), InfoStarImage->GraphBuf);
+            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath), 1, u","sv), InfoStarImage->GraphBuf);
             if (static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) {
                 InfoStarImage->GraphBuf->RescaleRgba(InfoStarImage->ClientSize.X, System::Round(pas::real_divide(InfoStarImage->ClientSize.X, static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)), 5);
             } else {
@@ -1311,7 +1311,7 @@ namespace fGalaxy2 {
             InfoStarImage->SetImageKindX(GI_Main::ikxCenter);
             InfoStarImage->SetImageKindY(GI_Main::ikyCenter);
         }
-        GI_Panel::TPanelGI* Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"_wref.get()));
+        GI_Panel::TPanelGI* Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"sv));
         Owner->FreeOwnedChildren();
         Owner->SetSize(ClassesImports::Point(InfoPanel->ClientSize.X - InfoPanel->WorkSubRect.Left - InfoPanel->WorkSubRect.Right, Owner->ClientSize.Y));
         Objects = pas::make_object<pas::List>();
@@ -1382,8 +1382,8 @@ namespace fGalaxy2 {
         }
         GI_MessageLoop::TObjectGI* CurrentChild = Owner->FirstChild;
         while (CurrentChild != nullptr) {
-            if (pas::class_cast_if<GI_Label::TLabelGI*>(CurrentChild) != nullptr) {
-                GI_Label::TLabelGI* cpp_with_3 = pas::checked_cast<GI_Label::TLabelGI*>(CurrentChild);
+            if (GI_Label::TLabelGI* labelGI = pas::class_cast_if<GI_Label::TLabelGI*>(CurrentChild)) {
+                GI_Label::TLabelGI* cpp_with_3 = labelGI;
                 cpp_with_3->SetTextAlignX(GI_Main::taxRight);
                 cpp_with_3->SetSize(ClassesImports::Point(NameWidth, RowHeight));
             }
@@ -1418,9 +1418,9 @@ namespace fGalaxy2 {
                     }
                 } else if (pas::class_cast_if<aRuins::TRuins*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                     if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(pas::list_at<aRuins::TRuins>(Objects, I)->Graphic) != nullptr) {
-                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aRuins::TRuins>(Objects, I)->Graphic)->StaticImagePath, 1, u","_wref.get()), cpp_with_4->GraphBuf);
+                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aRuins::TRuins>(Objects, I)->Graphic)->StaticImagePath), 1, u","sv), cpp_with_4->GraphBuf);
                     } else {
-                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aRuins::TRuins>(Objects, I)->Graphic)->AlternateImagePath, 1, u","_wref.get()), cpp_with_4->GraphBuf);
+                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aRuins::TRuins>(Objects, I)->Graphic)->AlternateImagePath), 1, u","sv), cpp_with_4->GraphBuf);
                     }
                     if (static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height)) {
                         cpp_with_4->GraphBuf->RescaleRgba(cpp_with_4->ClientSize.X, System::Round(pas::real_divide(cpp_with_4->ClientSize.X, static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height)), 5);
@@ -1443,7 +1443,7 @@ namespace fGalaxy2 {
             } else if (pas::class_cast_if<aRuins::TRuins*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                 OwnerId = pas::list_at<aRuins::TRuins>(Objects, I)->OwnerId;
             } else {
-                OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                OwnerId = aGalaxyStruct::oiUninhabited;
             }
             if (pas::class_cast_if<aRuins::TRuins*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                 GI_Label::TLabelGI* cpp_with_5 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Owner);
@@ -1462,23 +1462,23 @@ namespace fGalaxy2 {
                 DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_5->ClientSize.X + GR_Main::GiScalePixels(35));
             } else if (pas::class_cast_if<aGalaxy::TCustomSystemInfo*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                 CustomInfo = pas::list_at<aGalaxy::TCustomSystemInfo>(Objects, I);
-                if (EC_Str::CountDelimitedPartsW(CustomInfo->Info, u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 0, u":"_wref.get()) == u"Image") {
-                    Value = EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 1, u":"_wref.get());
+                if (EC_Str::CountDelimitedPartsW(pas::view(CustomInfo->Info), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 0, u":"sv) == u"Image") {
+                    Value = EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 1, u":"sv);
                     IconX = NameWidth + 5 + RowHeight + 5 + 1;
-                    for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Value, u","_wref.get()) - 1); cpp_range_6.next(J); ) {
+                    for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Value), u","sv) - 1); cpp_range_6.next(J); ) {
                         GI_Image::TImageGI* cpp_with_6 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Owner);
-                        cpp_with_6->SetImagePath(pas::concat_wide({u"GI,", EC_Str::ExtractDelimitedPartW(Value, J, u","_wref.get())}));
+                        cpp_with_6->SetImagePath(pas::concat_wide({u"GI,", EC_Str::ExtractDelimitedPartW(pas::view(Value), J, u","sv)}));
                         cpp_with_6->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                         cpp_with_6->SetPosition(ClassesImports::Point(IconX, RowHeight * I + 1));
                         IconX = IconX + RowHeight + 2;
                     }
-                } else if (EC_Str::CountDelimitedPartsW(CustomInfo->Info, u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 0, u":"_wref.get()) == u"RGBA") {
-                    Value = EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 1, u":"_wref.get());
+                } else if (EC_Str::CountDelimitedPartsW(pas::view(CustomInfo->Info), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 0, u":"sv) == u"RGBA") {
+                    Value = EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 1, u":"sv);
                     IconX = NameWidth + 5 + RowHeight + 5 + 1;
-                    for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Value, u","_wref.get()) - 1); cpp_range_7.next(J); ) {
+                    for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Value), u","sv) - 1); cpp_range_7.next(J); ) {
                         GI_GraphBuf::TGraphBufGI* cpp_with_7 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Owner, false);
                         cpp_with_7->SourceHasPerPixelAlpha = true;
-                        cpp_with_7->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(Value, J, u","_wref.get()), u"?RGBA"}));
+                        cpp_with_7->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(Value), J, u","sv), u"?RGBA"}));
                         cpp_with_7->SetPosition(ClassesImports::Point(IconX, RowHeight * I + 1));
                         cpp_with_7->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                         if (cpp_with_7->ClientSize.X < cpp_with_7->GraphBuf->Width || cpp_with_7->ClientSize.Y < cpp_with_7->GraphBuf->Height) {
@@ -1508,11 +1508,11 @@ namespace fGalaxy2 {
                     cpp_with_8->SetText(CustomInfo->Info);
                     DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_8->ClientSize.X + GR_Main::GiScalePixels(35));
                 }
-            } else if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+            } else if (OwnerId != aGalaxyStruct::oiUninhabited) {
                 if (!(pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) || static_cast<std::uint8_t>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->IsMainPiratePlanet ^ 1)) {
                     GI_GraphBuf::TGraphBufGI* cpp_with_9 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Owner, false);
                     cpp_with_9->SourceHasPerPixelAlpha = true;
-                    cpp_with_9->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(aConst::GetFactionEmblemPath(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->GetFactionResourceName()), 1, u","_wref.get()), u"?RGBA"}));
+                    cpp_with_9->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->GetFactionResourceName())), 1, u","sv), u"?RGBA"}));
                     cpp_with_9->SetPosition(ClassesImports::Point(NameWidth + 5 + RowHeight + 5 + 1, RowHeight * I + 1));
                     cpp_with_9->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                     if (static_cast<std::uint32_t>(cpp_with_9->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_9->GraphBuf->Height)) {
@@ -1526,11 +1526,11 @@ namespace fGalaxy2 {
             }
             if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                 Planet = pas::list_at<aPlanet::TPlanet>(Objects, I);
-                if (pas::in_set<0, 4, 7, 7>(Planet->OwnerId) && static_cast<std::uint8_t>(Planet->IsMainPiratePlanet ^ 1) && Planet->CurrentStar->Status.CustomFaction == u"") {
+                if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId) && static_cast<std::uint8_t>(Planet->IsMainPiratePlanet ^ 1) && Planet->CurrentStar->Status.CustomFaction == u"") {
                     IconX = NameWidth + 5 + RowHeight + 5 + 1;
                     {
                         GI_Image::TImageGI* cpp_with_10 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Owner);
-                        switch (static_cast<std::int32_t>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->GetRelationLevelToShip(aPlayer::GetPlayer())) & 0x0000007f) {
+                        switch (pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->GetRelationLevelToShip(aPlayer::GetPlayer())) {
                             case 0: cpp_with_10->SetImagePath(u"GI,Bm.FormGalaxy2.Face4"_w); break;
                             case 1: cpp_with_10->SetImagePath(u"GI,Bm.FormGalaxy2.Face3"_w); break;
                             case 2: cpp_with_10->SetImagePath(u"GI,Bm.FormGalaxy2.Face2"_w); break;
@@ -1572,7 +1572,7 @@ namespace fGalaxy2 {
                     cpp_with_12->SetTextAlignY(GI_Main::tayCenterEx);
                     cpp_with_12->SetText(EC_Str::LowerCaseWideString(aConst::LocalizedText(u"ShipType.TypeName.PB"_wref.get())));
                     DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_12->ClientSize.X + GR_Main::GiScalePixels(35));
-                } else if (Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && Planet->GetUnexploredSurfaceTileCount() == 0) {
+                } else if (Planet->OwnerId == aGalaxyStruct::oiUninhabited && Planet->GetUnexploredSurfaceTileCount() == 0) {
                     GI_Label::TLabelGI* cpp_with_13 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Owner);
                     if (GR_Main::GiResourceVariant() == 2) {
                         cpp_with_13->SetFontName(GlobalsV::MiniFontName);
@@ -1610,8 +1610,8 @@ namespace fGalaxy2 {
         InfoPanel->SetSize(ClassesImports::Point(Owner->ClientSize.X + InfoPanel->WorkSubRect.Left + InfoPanel->WorkSubRect.Right, InfoPanel->WorkSubRect.Top + InfoPanel->WorkSubRect.Bottom + RowCount * RowHeight));
         InfoPanel->UpdateAutoGeometry();
         {
-            GI_Label::TLabelGI* InfoStarName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"_wref.get()));
-            InfoStarName->SetText(aMyFunction::WrapTextInColor(Star->Name, aMyFunction::InfoNameColorTag));
+            GI_Label::TLabelGI* InfoStarName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"sv));
+            InfoStarName->SetText(aMyFunction::WrapTextInColor(pas::view(Star->Name), pas::view(aMyFunction::InfoNameColorTag)));
             InfoStarName->SetSize(ClassesImports::Point(InfoPanel->ClientSize.X - InfoPanel->WorkSubRect.Right - InfoStarName->LocalPosition.X - 15, InfoStarName->ClientSize.Y));
         }
         pas::free(Objects);
@@ -1704,7 +1704,7 @@ namespace fGalaxy2 {
                         ++StarFactionCount;
                     } else {
                         if (OtherFactionCount == 0) {
-                            OtherFaction = Faction;
+                            OtherFaction = std::move(Faction);
                         } else if (OtherFaction != Faction) {
                             OtherFaction = pas::WideString();
                         }
@@ -1718,12 +1718,12 @@ namespace fGalaxy2 {
                 switch (Ship->TypeId) {
                     case aGalaxyStruct::stRanger: {
                         if (reinterpret_cast<aRanger::TRanger*>(Ship)->ExcludedFromRating || Ship->HasScriptStateText()) {
-                            if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                            if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
                                 ++ScriptedPirates;
                             } else {
                                 ++ScriptedCoalition;
                             }
-                        } else if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        } else if ((aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip) && aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
                             ++RoleCounts[11];
                         } else {
                             ++RoleCounts[0];
@@ -1732,12 +1732,12 @@ namespace fGalaxy2 {
                     }
                     case aGalaxyStruct::stPirate: {
                         if (Ship->HasScriptStateText()) {
-                            if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                            if (Ship->OwnerId == aGalaxyStruct::oiPirate) {
                                 ++ScriptedPirates;
                             } else {
                                 ++ScriptedCoalition;
                             }
-                        } else if (Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        } else if (Ship->OwnerId != aGalaxyStruct::oiPirate) {
                             ++RoleCounts[2];
                         } else if (reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
                             ++RoleCounts[12];
@@ -1773,16 +1773,16 @@ namespace fGalaxy2 {
                         if (Ship->HasScriptStateText()) {
                             if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == nullptr) {
                                 ++ScriptedCoalition;
-                            } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                            } else if (pas::contains(aConst::PlanetOwnerMasks.Coalition, static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
                                 ++ScriptedCoalition;
-                            } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                            } else if (pas::contains(aConst::PlanetOwnerMasks.PirateClan, static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
                                 ++ScriptedPirates;
                             }
                         } else if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == nullptr) {
                             ++CoalitionTranclucators;
-                        } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                        } else if (pas::contains(aConst::PlanetOwnerMasks.Coalition, static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
                             ++CoalitionTranclucators;
-                        } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
+                        } else if (pas::contains(aConst::PlanetOwnerMasks.PirateClan, static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip->OwnerId)) {
                             ++PirateTranclucators;
                         }
                         break;
@@ -1858,7 +1858,7 @@ namespace fGalaxy2 {
         }
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
-            if (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+            if (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited) {
                 AccumulateShip();
             }
         }
@@ -1878,35 +1878,35 @@ namespace fGalaxy2 {
             Role = GalaxyMapFriendlyShipOrder[GroupIndex];
             if (RoleCounts[Role] > 0) {
                 if (HasSeparator) {
-                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
                 }
                 HasSeparator = true;
                 LineActive = true;
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.FriendShip", SysUtils::IntToStr(GroupIndex)}))), u"<color=254,217,7>"_w)});
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(RoleCounts[Role]), u"<color=255,255,254>"_w)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.FriendShip", SysUtils::IntToStr(GroupIndex)})))), u"<color=254,217,7>"sv)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(RoleCounts[Role])), u"<color=255,255,254>"sv)});
             }
         }
         if (ScriptedCoalition > 0) {
             if (HasSeparator) {
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
             }
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"?"_w, u"<color=254,217,7>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(ScriptedCoalition), u"<color=255,255,254>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"?"sv, u"<color=254,217,7>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ScriptedCoalition)), u"<color=255,255,254>"sv)});
             LineActive = true;
         }
         if (CoalitionStations > 0 || CoalitionTranclucators > 0) {
             Line = pas::concat_wide({Line, u"     "});
         }
         if (CoalitionStations > 0) {
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("_w, u"<color=127,127,127>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(CoalitionStations), u"<color=255,0,255>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("sv, u"<color=127,127,127>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(CoalitionStations)), u"<color=255,0,255>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"sv, u"<color=127,127,127>"sv)});
             LineActive = true;
         }
         if (CoalitionTranclucators > 0) {
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("_w, u"<color=127,127,127>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(CoalitionTranclucators), u"<color=0,255,255>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("sv, u"<color=127,127,127>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(CoalitionTranclucators)), u"<color=0,255,255>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"sv, u"<color=127,127,127>"sv)});
             LineActive = true;
         }
         AppendLine();
@@ -1916,61 +1916,61 @@ namespace fGalaxy2 {
         for (auto cpp_range_7 = pas::for_to<std::int32_t>(1, 3); cpp_range_7.next(PirateRole); ) {
             if (RoleCounts[PirateRole + 10] > 0) {
                 if (HasSeparator) {
-                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
                 }
                 HasSeparator = true;
                 LineActive = true;
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.PirateClanShip", SysUtils::IntToStr(PirateRole)}))), u"<color=255,255,254>"_w)});
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(RoleCounts[PirateRole + 10]), u"<color=255,255,254>"_w)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.PirateClanShip", SysUtils::IntToStr(PirateRole)})))), u"<color=255,255,254>"sv)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(RoleCounts[PirateRole + 10])), u"<color=255,255,254>"sv)});
             }
         }
         if (ScriptedPirates > 0) {
             if (HasSeparator) {
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
             }
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"?"_w, u"<color=255,255,254>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(ScriptedPirates), u"<color=255,255,254>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"?"sv, u"<color=255,255,254>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ScriptedPirates)), u"<color=255,255,254>"sv)});
             LineActive = true;
         }
         if (PirateStations > 0 || PirateTranclucators > 0) {
             Line = pas::concat_wide({Line, u"     "});
         }
         if (PirateStations > 0) {
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("_w, u"<color=127,127,127>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(PirateStations), u"<color=255,0,255>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("sv, u"<color=127,127,127>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(PirateStations)), u"<color=255,0,255>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"sv, u"<color=127,127,127>"sv)});
             LineActive = true;
         }
         if (PirateTranclucators > 0) {
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("_w, u"<color=127,127,127>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(PirateTranclucators), u"<color=0,255,255>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("sv, u"<color=127,127,127>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(PirateTranclucators)), u"<color=0,255,255>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"sv, u"<color=127,127,127>"sv)});
             LineActive = true;
         }
         AppendLine();
         Line = pas::WideString();
         if (StarFactionCount > 0) {
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("sv, u"<color=127,127,127>"sv)});
             Line = pas::concat_wide({Line, ([&] {
                 pas::WideString lookupNamedColorTag = aConst::LookupNamedColorTag(StarFaction);
                 pas::WideString intToStr = pas::wide_int_to_str(StarFactionCount);
-                return aMyFunction::WrapTextInColor(std::move(intToStr), std::move(lookupNamedColorTag));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr)), pas::view(std::move(lookupNamedColorTag)));
             }())});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"sv, u"<color=127,127,127>"sv)});
             LineActive = true;
         }
         if (OtherFactionCount > 0) {
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"("sv, u"<color=127,127,127>"sv)});
             if (OtherFaction != u"") {
                 Line = pas::concat_wide({Line, ([&] {
                     pas::WideString lookupNamedColorTag_2 = aConst::LookupNamedColorTag(OtherFaction);
                     pas::WideString intToStr_2 = pas::wide_int_to_str(OtherFactionCount);
-                    return aMyFunction::WrapTextInColor(std::move(intToStr_2), std::move(lookupNamedColorTag_2));
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_2)), pas::view(std::move(lookupNamedColorTag_2)));
                 }())});
             } else {
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(OtherFactionCount), u"<color=127,127,127>"_w)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(OtherFactionCount)), u"<color=127,127,127>"sv)});
             }
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"_w, u"<color=127,127,127>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u")"sv, u"<color=127,127,127>"sv)});
             LineActive = true;
         }
         AppendLine();
@@ -1982,12 +1982,12 @@ namespace fGalaxy2 {
             for (auto cpp_range_9 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_9.next(Kind); ) {
                 if (aConst::DominatorDisplayOrder[Kind] != aGalaxyStruct::ktBoss && DominatorCounts[Series][aConst::DominatorDisplayOrder[Kind]] > 0) {
                     if (HasSeparator) {
-                        Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"_w, u"<color=127,127,127>"_w)});
+                        Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u"-"sv, u"<color=127,127,127>"sv)});
                     }
                     HasSeparator = true;
                     LineActive = true;
-                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.DomikShip", SysUtils::IntToStr(aConst::DominatorDisplayOrder[Kind])}))), ColorTag)});
-                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(DominatorCounts[Series][aConst::DominatorDisplayOrder[Kind]]), u"<color=255,255,254>"_w)});
+                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.DomikShip", SysUtils::IntToStr(aConst::DominatorDisplayOrder[Kind])})))), pas::view(ColorTag))});
+                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(DominatorCounts[Series][aConst::DominatorDisplayOrder[Kind]])), u"<color=255,255,254>"sv)});
                 }
             }
             AppendLine();
@@ -1999,9 +1999,9 @@ namespace fGalaxy2 {
             ColorTag = SeriesColor();
             if (DominatorCounts[Series][aGalaxyStruct::ktBoss] > 0) {
                 if (LineActive) {
-                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u", "_w, u"<color=127,127,127>"_w)});
+                    Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(u", "sv, u"<color=127,127,127>"sv)});
                 }
-                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.Boss", SysUtils::IntToStr(GroupIndex)}))), ColorTag)});
+                Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormGalaxy.Boss", SysUtils::IntToStr(GroupIndex)})))), pas::view(ColorTag))});
                 LineActive = true;
             }
             ++GroupIndex;
@@ -2010,8 +2010,8 @@ namespace fGalaxy2 {
         Line = pas::WideString();
         LineActive = false;
         if (UnknownCount > 0) {
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::concat_wide({aConst::LocalizedText(u"FormGalaxy.UnknowShip"_wref.get()), u": "}), u"<color=127,127,127>"_w)});
-            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::wide_int_to_str(UnknownCount), u"<color=255,255,254>"_w)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aConst::LocalizedText(u"FormGalaxy.UnknowShip"_wref.get()), u": "})), u"<color=127,127,127>"sv)});
+            Line = pas::concat_wide({Line, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(UnknownCount)), u"<color=255,255,254>"sv)});
             LineActive = true;
         }
         AppendLine();
@@ -2083,9 +2083,9 @@ namespace fGalaxy2 {
         } else if (aPlayer::GetPlayer()->IsOnPlanet()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
@@ -2096,9 +2096,9 @@ namespace fGalaxy2 {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName, u"Pirate"}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             if (GlobalsV::MusicInSpaceEnabled) {

@@ -2,7 +2,6 @@
 #include "runtime_support.hpp"
 #include "types/EC_Struct.hpp"
 #include "types/EC_Thread.hpp"
-#include "types/aGalaxy.hpp"
 #include "types/aGalaxyStruct.hpp"
 
 namespace EC_BlockPar {
@@ -33,6 +32,15 @@ namespace EC_Str {
     struct TStringsEC;
 
 } // namespace EC_Str
+
+namespace aGalaxy {
+    struct TConstellation;
+
+    struct TGalaxy;
+
+    struct TStar;
+
+} // namespace aGalaxy
 
 namespace aItem {
     struct TItem;
@@ -145,11 +153,11 @@ namespace aScript {
         void PublishShipContext(TScriptShip* Binding);
         void PublishCurrentShip(aShip::TShip* Ship);
         // Raises when absent.
-        TScriptStar* GetStar(pas::WideString Name);
+        TScriptStar* GetStar(const std::u16string_view& Name);
         // Raises when absent.
         PScriptPlanetBinding GetPlanetBinding(pas::WideString Name);
         // Raises when absent.
-        TScriptItem* GetItem(pas::WideString Name);
+        TScriptItem* GetItem(const std::u16string_view& Name);
         void CallDialogByVariable(pas::WideString Name);
         void CallDialogMessage(std::int32_t Index);
         void BuildDialogAnswer(std::int32_t Index);
@@ -200,8 +208,8 @@ namespace aScript {
         pas::List* DialogAnswers;
         EC_Expression::TCodeEC* InitCode;
         EC_Expression::TCodeEC* TurnCode;
-        // Original role remains unresolved.
-        EC_Expression::TCodeEC* AuxiliaryCode;
+        // Owned dialogue-hook code; run while building ship, government and station dialogue choices.
+        EC_Expression::TCodeEC* DialogCode;
         // Owned script-local named integer store; created, cleared and freed with the script.
         EC_Ether::TEther* Ether;
         aShip::TShip* CurrentShip;
@@ -297,7 +305,7 @@ namespace aScript {
         std::int32_t Level;
         // Read from the definition; not consulted by LoadFromBuffer item creation.
         std::int32_t DefinitionValue1C;
-        std::uint8_t OwnerId;
+        aGalaxyStruct::TOwnerId OwnerId;
         std::uint8_t cpp_padding[3];
         // TUselessItem configuration key for definition kind 4.
         pas::WideString ConfigName;
@@ -439,10 +447,10 @@ namespace aScript {
         TScriptItem* PickupItem;
         std::uint8_t PickUpNearbyItems;
         std::uint8_t cpp_padding[3];
-        // Variable name or compiled source; precise role unresolved.
-        pas::WideString AuxiliaryText;
-        // Owned when AuxiliaryText is compiled.
-        EC_Expression::TCodeEC* AuxiliaryCode;
+        // Dialog-index variable name or inline dialogue source, selected by TfTalk.CodeMsgOut.
+        pas::WideString DialogTextOrVariable;
+        // Owned when DialogTextOrVariable is compiled.
+        EC_Expression::TCodeEC* DialogCode;
         pas::WideString OnActionText;
         // Owned.
         EC_Expression::TCodeEC* ActionCode;
@@ -528,29 +536,25 @@ namespace aScript {
     };
     #pragma pack(pop)
 
-    using TScriptEconomyMask = pas::Set<0, 7>;
-
-    using TScriptGovernmentMask = pas::Set<0, 7>;
-
     // Native record RTTI.
     #pragma pack(push, 1)
     struct TScriptPlanet {
         pas::WideString Name;
         aGalaxyStruct::TOwnerMask RaceMask;
         aGalaxyStruct::TOwnerMask OwnerMask;
-        TScriptEconomyMask EconomyMask;
-        TScriptGovernmentMask GovernmentMask;
+        aGalaxyStruct::TPlanetEconomies EconomyMask;
+        aGalaxyStruct::TPlanetGovernments GovernmentMask;
         std::int32_t MinOrbitPercent;
         std::int32_t MaxOrbitPercent;
         // Planet dialog choice text; CollectScriptDialogChoices attaches the owning TScript as its data.
-        pas::WideString DefinitionText;
+        pas::WideString DialogChoiceText;
         aPlanet::TPlanet* Planet;
     };
     #pragma pack(pop)
 
     using TScriptShipTypeMask = pas::Set<0, 15>;
 
-    using TScriptDominatorMasks = pas::Array<aGalaxy::TDominatorSeriesMask, 0, 7>;
+    using TScriptDominatorMasks = pas::Array<aGalaxyStruct::TDominatorSeriesMask, 0, 7>;
 
     // Native record RTTI.
     #pragma pack(push, 1)
@@ -646,8 +650,8 @@ namespace aScript {
         std::int32_t MaxPirateStatus;
         // 10000 disables the distance filter.
         std::int32_t MaxDistanceFromPlanet;
-        // Loaded but its purpose remains unresolved.
-        pas::WideString DefinitionText;
+        // Dialog-index variable used by TfRuinsTalk when docking at a scripted station.
+        pas::WideString StationDialogVariable;
         // Owned container for group creation.
         pas::List* Ships;
     };
@@ -698,7 +702,6 @@ namespace aScript {
     using PScriptShipRequirement = TScriptShipOtb*;
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TDialogBlock {
         pas::WideString Text;
         // Borrowed owner.
@@ -707,12 +710,10 @@ namespace aScript {
         std::uint8_t Mode;
         std::uint8_t cpp_padding[3];
     };
-    #pragma pack(pop)
 
     using PScriptDialogBlock = TDialogBlock*;
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TDialogInject {
         // Borrowed dialogue owner.
         TScript* Script;
@@ -727,7 +728,6 @@ namespace aScript {
         // Borrowed action-code owner.
         TScript* ActionScript;
     };
-    #pragma pack(pop)
 
     using PScriptDialogInjection = TDialogInject*;
 

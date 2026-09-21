@@ -26,3 +26,5 @@ using pas::literals::operator""_a;
 using pas::literals::operator""_w;
 
 using pas::literals::operator""_wref;
+
+using std::literals::string_view_literals::operator""sv;

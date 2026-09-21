@@ -46,7 +46,7 @@ namespace GI_RadialEffect {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index)) + 1);
+            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         RadiationPalettes.set_length(Count);
         RadiationRadii.set_length(Count);
@@ -55,13 +55,13 @@ namespace GI_RadialEffect {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 1); cpp_range_3.next(ColorIndex); ) {
-                    Text = PaletteBlock->GetParam(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)})));
+                    Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
                     for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 2); cpp_range_4.next(PartIndex); ) {
-                        RadiationPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, PartIndex, u","_wref.get()));
+                        RadiationPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
                     }
                 }
                 if (PaletteBlock->CountParams(u"Radius"_wref.get()) > 0) {
-                    RadiationRadii[Index] = EC_Str::ExtractDigitsToIntW(PaletteBlock->GetParam(u"Radius"_wref.get()));
+                    RadiationRadii[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Radius"sv)));
                 } else {
                     RadiationRadii[Index] = 500;
                 }
@@ -81,7 +81,7 @@ namespace GI_RadialEffect {
         ColorIndex = Block->GetBlockCount();
         Count = 0;
         for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range_8.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index)) + 1);
+            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         AuraAnimationPaths.set_length(Count);
         for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_9.next(Index); ) {
@@ -89,7 +89,7 @@ namespace GI_RadialEffect {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 if (PaletteBlock->CountParams(u"GAI"_wref.get()) > 0) {
-                    AuraAnimationPaths[Index] = PaletteBlock->GetParam(u"GAI"_wref.get());
+                    AuraAnimationPaths[Index] = PaletteBlock->GetParam(u"GAI"sv);
                 }
             }
         }

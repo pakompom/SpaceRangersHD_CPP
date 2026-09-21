@@ -17,10 +17,6 @@
 #include "units/TextQuest.hpp"
 
 namespace TextQuest {
-    using LoadFromReader_TFlagBits = pas::Set<0, 7>;
-
-    using Reset_TFlagBits = pas::Set<0, 7>;
-
     // Returns zero counts for start, success, failure, or already grouped locations. Callee pops 8 bytes; caller pops ParentFrame.
     void CountLegacySequenceConnections(LocationClass::TLocation* Location, std::int32_t& IncomingCount, std::int32_t& OutgoingCount, PathClass::TPath*& IncomingPath, PathClass::TPath*& OutgoingPath, TTextQuest* Self);
 
@@ -120,10 +116,10 @@ namespace TextQuest {
         MinorVersion = 0;
         ChangeLogText->ClearText();
         CompleteOnFinish = true;
-        pas::store_unaligned<Reset_TFlagBits>(&IssuerRaceMask, pas::constant_set<Reset_TFlagBits>({{0, 4}}));
-        pas::store_unaligned<Reset_TFlagBits>(&TargetOwnerMask, pas::constant_set<Reset_TFlagBits>({{6}}));
-        pas::store_unaligned<Reset_TFlagBits>(&PlayerRaceMask, pas::constant_set<Reset_TFlagBits>({{0, 4}}));
-        pas::store_unaligned<Reset_TFlagBits>(&PlayerCareerMask, pas::constant_set<Reset_TFlagBits>({{0, 2}}));
+        IssuerRaces = pas::constant_set<TQuestRaceSet>({{qrMaloc, qrGaal}});
+        TargetRaces = pas::constant_set<TQuestRaceSet>({{qrUninhabited}});
+        PlayerRaces = pas::constant_set<TQuestRaceSet>({{qrMaloc, qrGaal}});
+        PlayerCareers = pas::constant_set<TQuestPlayerCareerSet>({{qpcTrader, qpcWarrior}});
         EditorScreenWidth = 0;
         EditorScreenHeight = 0;
         DefaultTraversalLimit = 0;
@@ -222,37 +218,16 @@ namespace TextQuest {
             i = EC_Buf::TBufEC_GetInt32(Reader);
         }
         if (FormatVersion >= 1111111119) {
-            Reader->ReadBytes(&IssuerRaceMask, 1);
+            Reader->ReadBytes(&IssuerRaces, 1);
         } else {
             switch (i) {
-                case -1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&IssuerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{6}}));
-                    break;
-                }
-                case 0: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&IssuerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{0}}));
-                    break;
-                }
-                case 1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&IssuerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{1}}));
-                    break;
-                }
-                case 2: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&IssuerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{2}}));
-                    break;
-                }
-                case 3: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&IssuerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{3}}));
-                    break;
-                }
-                case 4: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&IssuerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{4}}));
-                    break;
-                }
-                default: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&IssuerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({}));
-                    break;
-                }
+                case -1: IssuerRaces = pas::constant_set<TQuestRaceSet>({{qrUninhabited}}); break;
+                case 0: IssuerRaces = pas::constant_set<TQuestRaceSet>({{qrMaloc}}); break;
+                case 1: IssuerRaces = pas::constant_set<TQuestRaceSet>({{qrPeleng}}); break;
+                case 2: IssuerRaces = pas::constant_set<TQuestRaceSet>({{qrHuman}}); break;
+                case 3: IssuerRaces = pas::constant_set<TQuestRaceSet>({{qrFeyan}}); break;
+                case 4: IssuerRaces = pas::constant_set<TQuestRaceSet>({{qrGaal}}); break;
+                default: IssuerRaces = pas::constant_set<TQuestRaceSet>({}); break;
             }
         }
         if (FormatVersion >= 1111111112) {
@@ -262,103 +237,46 @@ namespace TextQuest {
             i = EC_Buf::TBufEC_GetInt32(Reader);
         }
         if (FormatVersion >= 1111111119) {
-            Reader->ReadBytes(&TargetOwnerMask, 1);
+            Reader->ReadBytes(&TargetRaces, 1);
         } else {
             switch (i) {
-                case -1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&TargetOwnerMask, pas::constant_set<LoadFromReader_TFlagBits>({{6}}));
-                    break;
-                }
-                case 0: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&TargetOwnerMask, pas::constant_set<LoadFromReader_TFlagBits>({{0}}));
-                    break;
-                }
-                case 1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&TargetOwnerMask, pas::constant_set<LoadFromReader_TFlagBits>({{1}}));
-                    break;
-                }
-                case 2: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&TargetOwnerMask, pas::constant_set<LoadFromReader_TFlagBits>({{2}}));
-                    break;
-                }
-                case 3: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&TargetOwnerMask, pas::constant_set<LoadFromReader_TFlagBits>({{3}}));
-                    break;
-                }
-                case 4: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&TargetOwnerMask, pas::constant_set<LoadFromReader_TFlagBits>({{4}}));
-                    break;
-                }
-                default: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&TargetOwnerMask, pas::constant_set<LoadFromReader_TFlagBits>({}));
-                    break;
-                }
+                case -1: TargetRaces = pas::constant_set<TQuestRaceSet>({{qrUninhabited}}); break;
+                case 0: TargetRaces = pas::constant_set<TQuestRaceSet>({{qrMaloc}}); break;
+                case 1: TargetRaces = pas::constant_set<TQuestRaceSet>({{qrPeleng}}); break;
+                case 2: TargetRaces = pas::constant_set<TQuestRaceSet>({{qrHuman}}); break;
+                case 3: TargetRaces = pas::constant_set<TQuestRaceSet>({{qrFeyan}}); break;
+                case 4: TargetRaces = pas::constant_set<TQuestRaceSet>({{qrGaal}}); break;
+                default: TargetRaces = pas::constant_set<TQuestRaceSet>({}); break;
             }
         }
         if (FormatVersion < 1111111125) {
             i = EC_Buf::TBufEC_GetInt32(Reader);
         }
         if (FormatVersion >= 1111111120) {
-            Reader->ReadBytes(&PlayerCareerMask, 1);
+            Reader->ReadBytes(&PlayerCareers, 1);
         } else {
             switch (i) {
-                case -1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerCareerMask, pas::constant_set<LoadFromReader_TFlagBits>({{0, 2}}));
-                    break;
-                }
-                case 0: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerCareerMask, pas::constant_set<LoadFromReader_TFlagBits>({{0}}));
-                    break;
-                }
-                case 1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerCareerMask, pas::constant_set<LoadFromReader_TFlagBits>({{1}}));
-                    break;
-                }
-                case 2: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerCareerMask, pas::constant_set<LoadFromReader_TFlagBits>({{2}}));
-                    break;
-                }
-                default: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerCareerMask, pas::constant_set<LoadFromReader_TFlagBits>({}));
-                    break;
-                }
+                case -1: PlayerCareers = pas::constant_set<TQuestPlayerCareerSet>({{qpcTrader, qpcWarrior}}); break;
+                case 0: PlayerCareers = pas::constant_set<TQuestPlayerCareerSet>({{qpcTrader}}); break;
+                case 1: PlayerCareers = pas::constant_set<TQuestPlayerCareerSet>({{qpcPirate}}); break;
+                case 2: PlayerCareers = pas::constant_set<TQuestPlayerCareerSet>({{qpcWarrior}}); break;
+                default: PlayerCareers = pas::constant_set<TQuestPlayerCareerSet>({}); break;
             }
         }
         if (FormatVersion < 1111111125) {
             i = EC_Buf::TBufEC_GetInt32(Reader);
         }
         if (FormatVersion >= 1111111120) {
-            Reader->ReadBytes(&PlayerRaceMask, 1);
+            Reader->ReadBytes(&PlayerRaces, 1);
         } else {
             switch (i) {
-                case -1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{0, 4}}));
-                    break;
-                }
-                case 0: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{0}}));
-                    break;
-                }
-                case 1: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{1}}));
-                    break;
-                }
-                case 2: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{2}}));
-                    break;
-                }
-                case 3: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{3}}));
-                    break;
-                }
-                case 4: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({{4}}));
-                    break;
-                }
-                default: {
-                    pas::store_unaligned<LoadFromReader_TFlagBits>(&PlayerRaceMask, pas::constant_set<LoadFromReader_TFlagBits>({}));
-                    break;
-                }
+                case -1: PlayerRaces = pas::constant_set<TQuestRaceSet>({{qrMaloc, qrGaal}}); break;
+                case 0: PlayerRaces = pas::constant_set<TQuestRaceSet>({{qrMaloc}}); break;
+                case 1: PlayerRaces = pas::constant_set<TQuestRaceSet>({{qrPeleng}}); break;
+                case 2: PlayerRaces = pas::constant_set<TQuestRaceSet>({{qrHuman}}); break;
+                case 3: PlayerRaces = pas::constant_set<TQuestRaceSet>({{qrFeyan}}); break;
+                case 4: PlayerRaces = pas::constant_set<TQuestRaceSet>({{qrGaal}}); break;
+                default: PlayerRaces = pas::constant_set<TQuestRaceSet>({}); break;
             }
         }
         SuccessRelationDelta = EC_Buf::TBufEC_GetInt32(Reader);
@@ -815,13 +733,13 @@ namespace TextQuest {
                 const pas::WideString& cpp_arg = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
                 const pas::WideString& cpp_arg_2 = pas::concat_wide({u"[", EC_Str::TrimWideString(GetParameter(i)->NameText->Text), u"]"});
                 const pas::WideString& text = Text;
-                return EC_Str::ReplaceAllWideString(text, cpp_arg_2, cpp_arg);
+                return EC_Str::ReplaceAllWideString(text, cpp_arg_2, pas::view(cpp_arg));
             }());
             Text = ([&] {
                 const pas::WideString& cpp_arg_3 = pas::concat_wide({u"[d", EC_Str::IntToWideString(i), u":"});
                 const pas::WideString& cpp_arg_4 = pas::concat_wide({u"[", EC_Str::TrimWideString(GetParameter(i)->NameText->Text), u":"});
                 const pas::WideString& text_2 = Text;
-                return EC_Str::ReplaceAllWideString(text_2, cpp_arg_4, cpp_arg_3);
+                return EC_Str::ReplaceAllWideString(text_2, cpp_arg_4, pas::view(cpp_arg_3));
             }());
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, GetParameterCount()); cpp_range_2.next(i); ) {
@@ -855,14 +773,14 @@ namespace TextQuest {
                             Calc->Evaluate(Parameters);
                             if (!Calc->HasError) {
                                 ValueText = GetParameter(i)->GetValueText(Calc->ResultValue);
-                                ValueText = EC_Str::ReplaceAllWideString(ValueText, u"<>"_wref.get(), EC_Str::IntToWideString(Calc->ResultValue));
+                                ValueText = EC_Str::ReplaceAllWideString(ValueText, u"<>"_wref.get(), pas::view(EC_Str::IntToWideString(Calc->ResultValue)));
                                 ValueText = ExpandText(ValueText, true);
                             }
                         }
                     }
                 }
                 Fragment = pas::copy(Text, Position, ContentStart - Position + ContentLength + 1);
-                Text = EC_Str::ReplaceAllWideString(Text, Fragment, pas::concat_wide({ColorStart, ValueText, ColorEnd}));
+                Text = EC_Str::ReplaceAllWideString(Text, Fragment, pas::view(pas::concat_wide({ColorStart, ValueText, ColorEnd})));
                 Position = pas::pos(pas::concat_wide({u"[d", EC_Str::IntToWideString(i), u":"}), Text);
             }
         }
@@ -870,7 +788,7 @@ namespace TextQuest {
             Text = ([&] {
                 const pas::WideString& cpp_arg_5 = pas::concat_wide({ColorStart, EC_Str::IntToWideString(GetParameter(i)->Value), ColorEnd});
                 const pas::WideString& cpp_arg_6 = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
-                return EC_Str::ReplaceAllWideString(Text, cpp_arg_6, cpp_arg_5);
+                return EC_Str::ReplaceAllWideString(Text, cpp_arg_6, pas::view(cpp_arg_5));
             }());
             if (pas::pos(pas::concat_wide({u"[d", EC_Str::IntToWideString(i), u"]"}), Text) > 0) {
                 ValueText = ([&] {
@@ -878,12 +796,12 @@ namespace TextQuest {
                     ParameterClass::TParameter* parameter = GetParameter(i);
                     return parameter->GetValueText(value);
                 }());
-                ValueText = EC_Str::ReplaceAllWideString(ValueText, u"<>"_wref.get(), EC_Str::IntToWideString(GetParameter(i)->Value));
+                ValueText = EC_Str::ReplaceAllWideString(ValueText, u"<>"_wref.get(), pas::view(EC_Str::IntToWideString(GetParameter(i)->Value)));
                 ValueText = ExpandText(ValueText, true);
                 Text = ([&] {
                     const pas::WideString& cpp_arg_7 = pas::concat_wide({u"[d", EC_Str::IntToWideString(i), u"]"});
                     const pas::WideString& cpp_arg_8 = pas::concat_wide({ColorStart, ValueText, ColorEnd});
-                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_7, cpp_arg_8);
+                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_7, pas::view(cpp_arg_8));
                 }());
             }
         }
@@ -1292,7 +1210,7 @@ namespace TextQuest {
                         ParameterClass::TParameter* parameter = GetParameter(i);
                         return parameter->GetValueText(value);
                     }());
-                    ValueText = EC_Str::ReplaceAllWideString(ValueText, u"<>"_wref.get(), EC_Str::IntToWideString(GetParameter(i)->Value));
+                    ValueText = EC_Str::ReplaceAllWideString(ValueText, u"<>"_wref.get(), pas::view(EC_Str::IntToWideString(GetParameter(i)->Value)));
                     Text = pas::concat_wide({Text, ValueText, u"\r\n"});
                 }
             }

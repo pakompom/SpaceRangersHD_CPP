@@ -80,10 +80,10 @@ namespace GI_ShrLight {
     void TShrLightGI::LoadLightProperties(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         if (Block->CountParams(u"ShrLight"_wref.get()) > 0) {
-            SetLightShift(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"ShrLight"_wref.get()))));
+            SetLightShift(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"ShrLight"sv))));
         }
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Kind"_wref.get());
+            Text = Block->GetParam(u"Kind"sv);
             if (Text == u"All") {
                 SetKind(slkAll);
             } else if (Text == u"Buf") {

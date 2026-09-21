@@ -20,7 +20,7 @@ namespace fCount1 {
     std::uint32_t ShowNumberDialog(GI_MessageLoop::TMessageLoopGI* Parent, const pas::WideString& ImagePath, const pas::WideString& KindImagePath, const pas::WideString& Caption, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Limit, pas::List* Items, std::int32_t& Value) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&State);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -53,7 +53,7 @@ namespace fCount1 {
         }
         Parent->RestoreCursorState(&State);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         return Result;
     }
 
@@ -68,11 +68,11 @@ namespace fCount1 {
     void TfCount1::InitializeLayout() {
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* Ok_Parent = MainPanel->FindByNameRecursive(u"Ok"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* Ok_Parent = MainPanel->FindByNameRecursive(u"Ok"sv)->Parent;
                 Ok_Parent->SetPosition(ClassesImports::Point(Ok_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ok_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
@@ -81,48 +81,48 @@ namespace fCount1 {
     void TfCount1::OnOpen() {
         Dragging = false;
         {
-            GI_Image::TImageGI* ItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ItemImage"_wref.get()));
+            GI_Image::TImageGI* ItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ItemImage"sv));
             ItemImage->SetImagePath(ImagePath);
             ItemImage->SetImageKindX(GI_Main::ikxCenter);
             ItemImage->SetImageKindY(GI_Main::ikyCenter);
             ItemImage->SetActive(true);
         }
-        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Caption"_wref.get()))->SetText(Caption);
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Caption"sv))->SetText(Caption);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         {
-            GI_GraphButton::TGraphButtonGI* Add = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Add = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"sv));
             Add->DownCallback = pas::bind_method<&TfCount1::AddPressed>(this);
             Add->UpCallback = pas::bind_method<&TfCount1::AddReleased>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Sub = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Sub = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"sv));
             Sub->DownCallback = pas::bind_method<&TfCount1::SubPressed>(this);
             Sub->UpCallback = pas::bind_method<&TfCount1::SubReleased>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Max"_wref.get()))->UpCallback = pas::bind_method<&TfCount1::MaxClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->UpCallback = pas::bind_method<&TfCount1::AcceptClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"_wref.get()))->UpCallback = pas::bind_method<&TfCount1::CancelClicked>(this);
-        GetByName(u"PanelBar"_wref.get())->LeftButtonDownCallback = pas::bind_method<&TfCount1::BarMouseDown>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Max"sv))->UpCallback = pas::bind_method<&TfCount1::MaxClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->UpCallback = pas::bind_method<&TfCount1::AcceptClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"sv))->UpCallback = pas::bind_method<&TfCount1::CancelClicked>(this);
+        GetByName(u"PanelBar"sv)->LeftButtonDownCallback = pas::bind_method<&TfCount1::BarMouseDown>(this);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->MouseMoveCallback = pas::bind_method<&TfCount1::MainMouseMove>(this);
             MainPanel->LeftButtonUpCallback = pas::bind_method<&TfCount1::MainMouseUp>(this);
             MainPanel->KeyDownCallback = pas::bind_method<&TfCount1::MainKeyDown>(this);
         }
         if (KindImagePath != u"") {
             {
-                GI_Image::TImageGI* Kind0 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Kind0"_wref.get()));
+                GI_Image::TImageGI* Kind0 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Kind0"sv));
                 Kind0->SetImagePath(KindImagePath);
                 Kind0->SetActive(true);
             }
-            GetByName(u"Count"_wref.get())->SetActive(true);
-            GetByName(u"Kind1"_wref.get())->SetActive(false);
-            GetByName(u"Count2"_wref.get())->SetActive(false);
+            GetByName(u"Count"sv)->SetActive(true);
+            GetByName(u"Kind1"sv)->SetActive(false);
+            GetByName(u"Count2"sv)->SetActive(false);
         } else {
-            GetByName(u"Kind1"_wref.get())->SetActive(true);
-            GetByName(u"Count2"_wref.get())->SetActive(true);
-            GetByName(u"Count"_wref.get())->SetActive(false);
-            GetByName(u"Kind0"_wref.get())->SetActive(false);
+            GetByName(u"Kind1"sv)->SetActive(true);
+            GetByName(u"Count2"sv)->SetActive(true);
+            GetByName(u"Count"sv)->SetActive(false);
+            GetByName(u"Kind0"sv)->SetActive(false);
         }
         RefreshValue();
     }
@@ -136,70 +136,70 @@ namespace fCount1 {
 
     void TfCount1::RefreshValue() {
         std::int32_t Position{};
-        std::int32_t Width = GetByName(u"BarRange"_wref.get())->ClientSize.X + 2;
+        std::int32_t Width = GetByName(u"BarRange"sv)->ClientSize.X + 2;
         if (Maximum - Minimum <= 0) {
             Position = Width - 1;
         } else {
             Position = System::Round(pas::real_divide(Value - Minimum, Maximum - Minimum) * (Width - 1));
         }
         {
-            GI_MessageLoop::TObjectGI* Bar = GetByName(u"Bar"_wref.get());
+            GI_MessageLoop::TObjectGI* Bar = GetByName(u"Bar"sv);
             Bar->SetPosition(ClassesImports::Point(Position - 1 - Bar->ClientSize.X / 2, 0));
         }
         {
-            GI_MessageLoop::TObjectGI* BarArrow = GetByName(u"BarArrow"_wref.get());
+            GI_MessageLoop::TObjectGI* BarArrow = GetByName(u"BarArrow"sv);
             BarArrow->SetPosition(ClassesImports::Point(Position + 3, 0));
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->SetDisabled(Value > Limit);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->SetDisabled(Value > Limit);
         if (Value <= Limit) {
             {
                 std::uint32_t packRgbBytes = GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0);
-                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"sv));
                 cpp_arg->SetTextColor(packRgbBytes);
             }
             {
                 std::uint32_t packRgbBytes_2 = GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0);
-                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"sv));
                 cpp_arg_2->SetTextColor(packRgbBytes_2);
             }
         } else {
             {
                 std::uint32_t packRgbBytes_3 = GR_Main::CurrentPixelFormat->PackRgbBytes(255, 0, 0);
-                GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"sv));
                 cpp_arg_3->SetTextColor(packRgbBytes_3);
             }
             {
                 std::uint32_t packRgbBytes_4 = GR_Main::CurrentPixelFormat->PackRgbBytes(255, 0, 0);
-                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"sv));
                 cpp_arg_4->SetTextColor(packRgbBytes_4);
             }
         }
         if (Items != nullptr) {
             {
                 auto cpp_arg_5 = pas::borrow(*pas::list_at<pas::WideString>(Items, Value - Minimum));
-                GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"sv));
                 cpp_arg_6->SetText(cpp_arg_5.get());
             }
             {
                 auto cpp_arg_7 = pas::borrow(*pas::list_at<pas::WideString>(Items, Value - Minimum));
-                GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"sv));
                 cpp_arg_8->SetText(cpp_arg_7.get());
             }
         } else {
             {
                 const pas::WideString& intToStr = pas::wide_int_to_str(Value);
-                GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count"sv));
                 cpp_arg_9->SetText(intToStr);
             }
             {
                 const pas::WideString& intToStr_2 = pas::wide_int_to_str(Value);
-                GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Count2"sv));
                 cpp_arg_10->SetText(intToStr_2);
             }
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"_wref.get()))->SetDisabled(Value == Maximum);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"_wref.get()))->SetDisabled(Value == Minimum);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Max"_wref.get()))->SetDisabled(Value == std::min<std::int32_t>(Limit, Maximum));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"sv))->SetDisabled(Value == Maximum);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"sv))->SetDisabled(Value == Minimum);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Max"sv))->SetDisabled(Value == std::min<std::int32_t>(Limit, Maximum));
     }
 
     void TfCount1::AddPressed(GI_MessageLoop::TObjectGI* Sender) {
@@ -296,8 +296,8 @@ namespace fCount1 {
         std::int32_t X{};
         std::int32_t Width{};
         if (Dragging) {
-            X = GetByName(u"BarRange"_wref.get())->ToLocalPoint(GetCursorPoint()).X;
-            Width = GetByName(u"BarRange"_wref.get())->ClientSize.X + 2;
+            X = GetByName(u"BarRange"sv)->ToLocalPoint(GetCursorPoint()).X;
+            Width = GetByName(u"BarRange"sv)->ClientSize.X + 2;
             Value = System::Round(pas::real_min<pas::Extended>(1.0L, pas::real_max<pas::Extended>(0.0L, pas::real_divide(X - 1, Width - 1))) * (Maximum - Minimum) + Minimum);
             if (Value < Minimum) {
                 Value = Minimum;

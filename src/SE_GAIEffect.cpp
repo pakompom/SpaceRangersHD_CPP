@@ -94,9 +94,9 @@ namespace SE_GAIEffect {
 
     void TGAIEffectSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"GAI"_wref.get());
+        ImagePath = Block->GetParam(u"GAI"sv);
         if (Block->CountParams(u"Sound"_wref.get()) > 0) {
-            SoundPath = Block->GetParam(u"Sound"_wref.get());
+            SoundPath = Block->GetParam(u"Sound"sv);
         }
     }
 

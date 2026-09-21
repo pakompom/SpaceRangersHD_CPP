@@ -86,29 +86,29 @@ namespace aEObjInfo {
                     Ships[Index].FullName = ([&] {
                         pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
                         pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(fullName), std::move(infoNameColorTag));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)), pas::view(std::move(infoNameColorTag)));
                     }());
                     if (Ship != nullptr && aPlayer::GetPlayer() == Ship->PartnerShip) {
-                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", aMyFunction::WrapTextInColor(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get()), u"<color=255,240,100>"_w)});
+                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get())), u"<color=255,240,100>"sv)});
                     }
-                    if (pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && static_cast<aKling::TKling*>(Ship)->ActiveProgramAppliedTurn > 0 && pas::in_range(static_cast<aKling::TKling*>(Ship)->ActiveProgramId, 6, 11)) {
-                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", aMyFunction::WrapTextInColor(aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId], u".AddToShipInfo"})), u"<color=255,0,0>"_w)});
+                    if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId, 6, 11)) {
+                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId], u".AddToShipInfo"}))), u"<color=255,0,0>"sv)});
                     }
                 } else {
                     Stage = 22;
                     Ships[Index].FullName = ([&] {
                         pas::WideString fullName_2 = Ship->GetFullName(u" "_wref.get());
                         pas::WideString infoNameColorTag_2 = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(fullName_2), std::move(infoNameColorTag_2));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(fullName_2)), pas::view(std::move(infoNameColorTag_2)));
                     }());
                 }
                 Stage = 23;
                 Ships[Index].OwnerId = Ship->OwnerId;
-                if (Ships[Index].OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+                if (Ships[Index].OwnerId == aGalaxyStruct::oiDominator) {
                     Ships[Index].DominatorSeries = pas::checked_cast<aKling::TKling*>(Ship)->DominatorSeries;
                 }
-                if (pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
-                    Ships[Index].TypeName = pas::checked_cast<aRanger::TRanger*>(Ship)->GetCharacterName();
+                if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
+                    Ships[Index].TypeName = ranger->GetCharacterName();
                 } else {
                     Ships[Index].TypeName = Ship->GetLocalizedTypeName();
                 }
@@ -123,18 +123,18 @@ namespace aEObjInfo {
                 }
                 Stage = 24;
                 Ships[Index].RepairPoints = -1;
-                Ships[Index].DamageText = aMyFunction::WrapTextInColor(u"???"_w, pas::WideString());
-                Ships[Index].DefenseText = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Ship->GetDefensePercent() & 0x0000007f), "%"}));
+                Ships[Index].DamageText = aMyFunction::WrapTextInColor(u"???"sv, u""sv);
+                Ships[Index].DefenseText = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Ship->GetDefensePercent()), "%"}));
                 if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
                     Stage = 25;
-                    Ships[Index].DefenseText = pas::concat_wide({Ships[Index].DefenseText, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->GetArmor()), pas::WideString())});
+                    Ships[Index].DefenseText = pas::concat_wide({Ships[Index].DefenseText, u" + ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Ship->GetArmor())), u""sv)});
                     if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                         if (Ship->GetRepairRobot() != nullptr) {
                             Ships[Index].RepairPoints = aShip::TShip_CalculateRepairPoints(Ship, Ship->GetRepairRobot());
                         } else {
                             Ships[Index].RepairPoints = 0;
                         }
-                        Ships[Index].DamageText = aMyFunction::WrapTextInColor(aShip::TShip_GetWeaponDamageSummary(Ship), pas::WideString());
+                        Ships[Index].DamageText = aMyFunction::WrapTextInColor(pas::view(aShip::TShip_GetWeaponDamageSummary(Ship)), u""sv);
                         Ships[Index].DefenseText = pas::concat_wide({Ship->GetManeuverabilitySummary(), Ships[Index].DefenseText});
                     }
                 }
@@ -158,7 +158,7 @@ namespace aEObjInfo {
                 }
                 Stage = 27;
                 if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship)) {
-                    Ships[Index].WinChance = aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), Ship) & 0x0000007f;
+                    Ships[Index].WinChance = aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), Ship);
                 } else {
                     Ships[Index].WinChance = -1;
                 }
@@ -192,23 +192,23 @@ namespace aEObjInfo {
                 if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
                     Stage = 31;
                     Items[Index].ImagePath = pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(Item->ItemType)});
-                    Items[Index].Name = aMyFunction::WrapTextInColor(aConst::GoodsMarket[static_cast<std::uint8_t>(Item->ItemType)].DisplayName, aMyFunction::InfoNameColorTag);
+                    Items[Index].Name = aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[static_cast<std::uint8_t>(Item->ItemType)].DisplayName), pas::view(aMyFunction::InfoNameColorTag));
                     Items[Index].InfoText = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text.", SysUtils::IntToStr(static_cast<std::uint8_t>(Item->ItemType) + 1)})));
-                    Items[Index].OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    Items[Index].OwnerId = aGalaxyStruct::oiUninhabited;
                 } else {
                     Stage = 32;
                     Items[Index].ImagePath = pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"s"});
                     Items[Index].Name = ([&] {
                         pas::WideString displayName = Item->GetDisplayName();
                         pas::WideString infoNameColorTag_3 = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(displayName), std::move(infoNameColorTag_3));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag_3)));
                     }());
                     Items[Index].InfoText = Item->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
                     Items[Index].OwnerId = Item->OwnerId;
                 }
-                if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
+                if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
                     Stage = 33;
-                    Items[Index].DominatorSeries = pas::checked_cast<aItem::TEquipment*>(Item)->DominatorSeries;
+                    Items[Index].DominatorSeries = equipment->DominatorSeries;
                 }
                 Items[Index].Faction = aItem::TItem_GetOwnerConfigName(Item);
             }
@@ -312,8 +312,8 @@ namespace aEObjInfo {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Planets.length() - 1); cpp_range.next(Index); ) {
             Buffer->AddDWord(Planets[Index].Id);
             Buffer->AddWideStringZ(Planets[Index].Name);
-            Buffer->AddAnsiChar(Planets[Index].OwnerId);
-            Buffer->AddAnsiChar(Planets[Index].RaceId);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(Planets[Index].OwnerId));
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(Planets[Index].RaceId));
             Buffer->AddIntegerValue(Planets[Index].Population);
             Buffer->AddAnsiChar(static_cast<std::uint8_t>(Planets[Index].Economy));
             Buffer->AddAnsiChar(static_cast<std::uint8_t>(Planets[Index].Government));
@@ -329,7 +329,7 @@ namespace aEObjInfo {
             Buffer->AddDWord(Ships[Index].Id);
             Buffer->AddWideStringZ(Ships[Index].Name);
             Buffer->AddWideStringZ(Ships[Index].FullName);
-            Buffer->AddAnsiChar(Ships[Index].OwnerId);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(Ships[Index].OwnerId));
             Buffer->AddAnsiChar(static_cast<std::uint8_t>(Ships[Index].DominatorSeries));
             Buffer->AddWideStringZ(Ships[Index].TypeName);
             Buffer->AddIntegerValue(Ships[Index].Speed);
@@ -356,7 +356,7 @@ namespace aEObjInfo {
             Buffer->AddWideStringZ(Items[Index].InfoText);
             Buffer->AddIntegerValue(Items[Index].Weight);
             Buffer->AddIntegerValue(Items[Index].Cost);
-            Buffer->AddAnsiChar(Items[Index].OwnerId);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(Items[Index].OwnerId));
             Buffer->AddSingle(Items[Index].ConditionPercent);
             Buffer->AddSingle(Items[Index].Fragility);
             Buffer->AddAnsiChar(static_cast<std::uint8_t>(Items[Index].DominatorSeries));
@@ -397,8 +397,8 @@ namespace aEObjInfo {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Planets[Index].Id = EC_Buf::TBufEC_GetUInt32(Buffer);
             Planets[Index].Name = Buffer->ReadWideString();
-            Planets[Index].OwnerId = EC_Buf::TBufEC_GetByte(Buffer);
-            Planets[Index].RaceId = EC_Buf::TBufEC_GetByte(Buffer);
+            Planets[Index].OwnerId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
+            Planets[Index].RaceId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
             Planets[Index].Population = EC_Buf::TBufEC_GetInt32(Buffer);
             Planets[Index].Economy = static_cast<aGalaxyStruct::TPlanetEconomy>(EC_Buf::TBufEC_GetByte(Buffer));
             Planets[Index].Government = static_cast<aGalaxyStruct::TPlanetGovernment>(EC_Buf::TBufEC_GetByte(Buffer));
@@ -419,7 +419,7 @@ namespace aEObjInfo {
             Ships[Index].Id = EC_Buf::TBufEC_GetUInt32(Buffer);
             Ships[Index].Name = Buffer->ReadWideString();
             Ships[Index].FullName = Buffer->ReadWideString();
-            Ships[Index].OwnerId = EC_Buf::TBufEC_GetByte(Buffer);
+            Ships[Index].OwnerId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
             Ships[Index].DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(EC_Buf::TBufEC_GetByte(Buffer));
             Ships[Index].TypeName = Buffer->ReadWideString();
             Ships[Index].Speed = EC_Buf::TBufEC_GetInt32(Buffer);
@@ -455,7 +455,7 @@ namespace aEObjInfo {
             Items[Index].InfoText = Buffer->ReadWideString();
             Items[Index].Weight = EC_Buf::TBufEC_GetInt32(Buffer);
             Items[Index].Cost = EC_Buf::TBufEC_GetInt32(Buffer);
-            Items[Index].OwnerId = EC_Buf::TBufEC_GetByte(Buffer);
+            Items[Index].OwnerId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
             Items[Index].ConditionPercent = EC_Buf::TBufEC_GetSingle(Buffer);
             Items[Index].Fragility = EC_Buf::TBufEC_GetSingle(Buffer);
             Items[Index].DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(EC_Buf::TBufEC_GetByte(Buffer));

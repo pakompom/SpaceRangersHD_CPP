@@ -3,7 +3,7 @@
 
 namespace fShip2 {
     static_assert(sizeof(void*) != 4 || sizeof(fShip2::TfShip2) == 1416);
-    static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, FlagD4) == 212);
+    static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, ReopenRequested) == 212);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, PlayServiceAnimations) == 213);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, ItemInfoWindow) == 216);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, ItemImage) == 220);
@@ -57,7 +57,7 @@ namespace fShip2 {
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, ItemPriceLabelPosition) == 936);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, ItemRaceImagePosition) == 944);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, DisplayedItemKey) == 952);
-    static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, Flag3BC) == 956);
+    static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, ShipStateChanged) == 956);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, PreserveSpaceMusic) == 957);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, SelectedReward) == 960);
     static_assert(sizeof(void*) != 4 || offsetof(fShip2::TfShip2, MoneyWarningVisible) == 964);

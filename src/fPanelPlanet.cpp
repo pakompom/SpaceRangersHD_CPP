@@ -32,14 +32,14 @@ namespace fPanelPlanet {
     void TfPanelPlanet::InitializeLayout(GI_MessageLoop::TMessageLoopGI* Screen) {
         this->Screen = Screen;
         GR_Main::AppendLogTextThreadSafe("fPanelPlanet... "_a);
-        GI_MessageLoop::TObjectGI* Panel = this->Screen->GetByName(u"PanelPlanet"_wref.get());
+        GI_MessageLoop::TObjectGI* Panel = this->Screen->GetByName(u"PanelPlanet"sv);
         Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth, Panel->LocalPosition.Y + GR_Main::ExtraScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Hangar"_wref.get()))->UpCallback = pas::bind_method<&TfPanelPlanet::HangarClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Shop"_wref.get()))->UpCallback = pas::bind_method<&TfPanelPlanet::EquipmentShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Goods"_wref.get()))->UpCallback = pas::bind_method<&TfPanelPlanet::GoodsShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Gov"_wref.get()))->UpCallback = pas::bind_method<&TfPanelPlanet::GovernmentClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Info"_wref.get()))->UpCallback = pas::bind_method<&TfPanelPlanet::InformationClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Hangar"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::HangarClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Shop"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::EquipmentShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Goods"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::GoodsShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Gov"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::GovernmentClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Info"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::InformationClicked>(this);
     }
 
     // Native no-op lifecycle hook.
@@ -51,11 +51,11 @@ namespace fPanelPlanet {
     }
 
     void TfPanelPlanet::Show() {
-        Screen->GetByName(u"PanelPlanet"_wref.get())->SetActive(true);
+        Screen->GetByName(u"PanelPlanet"sv)->SetActive(true);
     }
 
     void TfPanelPlanet::Hide() {
-        Screen->GetByName(u"PanelPlanet"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PanelPlanet"sv)->SetActive(false);
     }
 
     void TfPanelPlanet::HangarClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -95,7 +95,7 @@ namespace fPanelPlanet {
             return;
         }
         if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
-            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
@@ -135,7 +135,7 @@ namespace fPanelPlanet {
             return;
         }
         if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
-            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
@@ -195,7 +195,7 @@ namespace fPanelPlanet {
             return;
         }
         if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
-            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;

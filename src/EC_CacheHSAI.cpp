@@ -26,7 +26,7 @@ namespace EC_CacheHSAI {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, pas::class_ref<TCHSAIEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCHSAIEC>()) == nullptr) {
             Control = pas::construct_call<TCHSAIControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -75,7 +75,7 @@ namespace EC_CacheHSAI {
     GR_GraphBuf::PColorRGBA TCHSAIEC::GetFramePalette(std::uint32_t FrameIndex) {
         if (FrameIndex >= Header->FrameCount) {
             return nullptr;
-        } else if (Header->PalettePresent == 0) {
+        } else if (Header->PaletteBytes == 0) {
             return nullptr;
         } else {
             return static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AddPointerOffset(BlobData, static_cast<std::int32_t>(sizeof(THSAIHeaderEC)) + FrameIndex * Header->FrameStride + Header->PitchBytes * Header->Height));

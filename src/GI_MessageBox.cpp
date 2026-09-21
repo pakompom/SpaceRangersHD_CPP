@@ -20,7 +20,7 @@ namespace GI_MessageBox {
     std::uint32_t ShowMessageBoxGI(GI_MessageLoop::TMessageLoopGI* Parent, const pas::WideString& Text, std::uint32_t Options, std::int32_t UnusedOption, std::int32_t OffsetX, std::int32_t OffsetY) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI CursorState{};
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&CursorState);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -47,7 +47,7 @@ namespace GI_MessageBox {
         }
         Parent->RestoreCursorState(&CursorState);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         if (Result == 254) {
             GI_Main::BreakUiMessage();
         }
@@ -99,7 +99,7 @@ namespace GI_MessageBox {
         TextLabel->SetDepth(0.0);
         TextLabel->SetFontName(GlobalsV::NormalFontName);
         TextLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
-        TextLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(MessageText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get()), u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"_wref.get()));
+        TextLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(MessageText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv), u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"sv));
         std::int32_t Attempts = 100;
         while (Attempts > 0) {
             TextLabel->SetTextAlignX(GI_Main::taxCenter);

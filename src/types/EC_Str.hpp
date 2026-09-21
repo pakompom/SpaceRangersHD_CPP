@@ -31,7 +31,7 @@ namespace EC_Str {
         // Creates missing entries; Data is borrowed.
         void SetDataAt(std::int32_t Index, void* Data);
         // Case-sensitive comparison; returns -1 when absent.
-        std::int32_t IndexOf(const pas::WideString& Text);
+        std::int32_t IndexOf(const std::u16string_view& Text);
         void Add(const pas::WideString& Text);
         // Nonpositive CharCount still appends an empty element.
         void AddSlice(char16_t* Text, std::int32_t CharCount);

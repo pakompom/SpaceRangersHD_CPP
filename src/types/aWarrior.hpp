@@ -60,7 +60,7 @@ namespace aWarrior {
         std::uint8_t GetGreetingShipCategory() override;
         // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
-        std::uint8_t GetStrengthScaledPirateStatus() override;
+        aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
@@ -72,7 +72,7 @@ namespace aWarrior {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         // Native diagnostic name: TWarrior.ArmsToTarget.
         void AssignWeaponTargetsInStar() override;
         aShip::TShip* FindNearestFriendlyFlagship();
@@ -93,7 +93,7 @@ namespace aWarrior {
         // Requires the home system and (Id + CurrentTurn) mod 100 < 25.
         std::uint8_t IsHomePatrolTurn();
         void ConsumeNodes(std::int32_t Amount);
-        std::uint8_t UnknownVirtualC0(void* Argument) override;
+        std::uint8_t RefusesFactionNegotiation(aShip::TShip* OtherShip) override;
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
         float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
         float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;

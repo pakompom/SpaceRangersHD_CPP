@@ -161,7 +161,7 @@ namespace LocationClass {
                 }
             }
             if (!Different) {
-                Events[EventCount]->Music->Text = Text;
+                Events[EventCount]->Music->Text = std::move(Text);
             }
         }
     }

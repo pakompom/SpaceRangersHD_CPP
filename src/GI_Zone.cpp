@@ -171,7 +171,7 @@ namespace GI_Zone {
     void TZoneGI::LoadZoneProperties(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Value{};
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            Value = Block->GetParam(u"Kind"_wref.get());
+            Value = Block->GetParam(u"Kind"sv);
             if (Value == u"Rect") {
                 SetKind(zkRect);
             } else if (Value == u"Circle") {

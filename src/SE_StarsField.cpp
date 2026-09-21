@@ -52,7 +52,7 @@ namespace SE_StarsField {
 
     void TStarsFieldSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
     }
 
     void TStarsFieldSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {

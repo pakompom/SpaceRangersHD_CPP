@@ -72,8 +72,8 @@ namespace ab_W18 {
                     NegativeDelta = 0.0f;
                     Obj = ab_Object::FirstArcadeObject;
                     while (Obj != nullptr) {
-                        if (pas::class_cast_if<TabW18*>(Obj) != nullptr && Obj != this && static_cast<TabW18*>(Obj)->SourceObject == SourceObject) {
-                            Delta = aMyFunction::WrapSignedHeadingDegrees(static_cast<long double>(pas::checked_cast<TabW18*>(Obj)->OrbitAngle) - OrbitAngle);
+                        if (TabW18* abW18 = pas::class_cast_if<TabW18*>(Obj); abW18 != nullptr && Obj != this && abW18->SourceObject == SourceObject) {
+                            Delta = aMyFunction::WrapSignedHeadingDegrees(static_cast<long double>(abW18->OrbitAngle) - OrbitAngle);
                             if (Delta < 0.0L && (Collision == nullptr || NegativeDelta < Delta)) {
                                 NegativeDelta = Delta;
                                 Collision = Obj;
@@ -86,12 +86,12 @@ namespace ab_W18 {
                         Obj = Obj->Next;
                     }
                     if (Collision != nullptr) {
-                        auto& cpp_target = pas::checked_cast<TabW18*>(Collision)->AngleCorrection;
-                        cpp_target = pas::checked_cast<TabW18*>(Collision)->AngleCorrection - (1.8E+2L + NegativeDelta) * 0.03L;
+                        auto& cpp_target = static_cast<TabW18*>(Collision)->AngleCorrection;
+                        cpp_target = static_cast<TabW18*>(Collision)->AngleCorrection - (1.8E+2L + NegativeDelta) * 0.03L;
                     }
                     if (NextNeighbor != nullptr) {
-                        auto& cpp_target_2 = pas::checked_cast<TabW18*>(NextNeighbor)->AngleCorrection;
-                        cpp_target_2 = pas::checked_cast<TabW18*>(NextNeighbor)->AngleCorrection + (1.8E+2L - PositiveDelta) * 0.03L;
+                        auto& cpp_target_2 = static_cast<TabW18*>(NextNeighbor)->AngleCorrection;
+                        cpp_target_2 = static_cast<TabW18*>(NextNeighbor)->AngleCorrection + (1.8E+2L - PositiveDelta) * 0.03L;
                     }
                 }
             }

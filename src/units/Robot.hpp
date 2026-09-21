@@ -7,14 +7,19 @@ namespace GR_Sound {
 
 } // namespace GR_Sound
 
+namespace aGalaxyStruct {
+    struct TPlanetBattleStatistics;
+
+} // namespace aGalaxyStruct
+
 namespace Robot {
     // Borrowed DLL dispatch table; nil until successful initialization.
     extern Robot::PRobotInterfacePrefix RobotInterface;
 
     extern Robot::TRobotCallbacks RobotCallbacks;
 
-    // Returned planetary-battle statistics; entry 0 is negative elapsed milliseconds.
-    extern pas::Array<std::int32_t, 0, 5> RobotBattleStatistics;
+    // Player-side SRobotGameState returned by MatrixGame.Run.
+    extern aGalaxyStruct::TPlanetBattleStatistics RobotBattleStatistics;
 
     extern pas::DynArray<std::int32_t> SupportedMultiSamples;
 

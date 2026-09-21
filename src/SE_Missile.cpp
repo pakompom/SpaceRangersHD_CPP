@@ -152,7 +152,7 @@ namespace SE_Missile {
         SE_Space::TObjectSE::LoadTemplate(Block);
         SetAngle(0);
         if (Block->CountParams(u"Scale"_wref.get()) > 0) {
-            ImageScale = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Scale"_wref.get()));
+            ImageScale = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Scale"sv));
         } else {
             ImageScale = 1.0f;
         }

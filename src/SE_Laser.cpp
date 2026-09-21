@@ -145,26 +145,26 @@ namespace SE_Laser {
             FrameImages = nullptr;
         }
         FrameImages = pas::construct_call<EC_Str::TStringsEC>(EC_Str::TStringsEC_Create);
-        FrameInterval = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Time"_wref.get()));
+        FrameInterval = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Time"sv)));
         Index = 0;
         while (Block->CountParams(EC_Str::IntToWideString(Index)) > 0) {
             {
-                const pas::WideString& trimWideString = EC_Str::TrimWideString(Block->GetParam(EC_Str::IntToWideString(Index)));
+                const pas::WideString& trimWideString = EC_Str::TrimWideString(Block->GetParam(pas::view(EC_Str::IntToWideString(Index))));
                 EC_Str::TStringsEC* frameImages = FrameImages;
                 frameImages->Add(trimWideString);
             }
             ++Index;
         }
-        SegmentSize = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"RadiusUnit"_wref.get()));
+        SegmentSize = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"RadiusUnit"sv)));
     }
 
     void TLaserSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::ApplyConfig(Block);
         if (Block->CountParams(u"PosDes"_wref.get()) > 0) {
-            TargetPosition = EC_Struct::PointToPointF(GI_Main::GetPointGI(Block->GetParam(u"PosDes"_wref.get())));
+            TargetPosition = EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(u"PosDes"sv))));
         }
         if (Block->CountParams(u"ManualAnim"_wref.get()) > 0) {
-            ManualAnimation = GI_Main::ParseEnabledNameGI(Block->GetParam(u"ManualAnim"_wref.get()));
+            ManualAnimation = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"ManualAnim"sv)));
         }
     }
 

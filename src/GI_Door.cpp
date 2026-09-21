@@ -133,10 +133,10 @@ namespace GI_Door {
     void TDoorGI::LoadDoorProperties(EC_BlockPar::TBlockParEC* Block) {
         FrameStep = 0;
         if (Block->CountParams(u"StepTime"_wref.get()) > 0) {
-            SetStepTime(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StepTime"_wref.get()))));
+            SetStepTime(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StepTime"sv))));
         }
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            Image->SetImagePath(Block->GetParam(u"Image"_wref.get()));
+            Image->SetImagePath(Block->GetParam(u"Image"sv));
             Image->SequenceIndex = 0;
             Image->UpdateAutoGeometry();
         }

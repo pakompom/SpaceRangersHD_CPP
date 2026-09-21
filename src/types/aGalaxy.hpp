@@ -117,9 +117,9 @@ namespace aGalaxy {
 
     using PJumpGateEntry = TJumpGateEntry*;
 
-    using TControlPercent = std::uint8_t;
-
     using TDominatorSeriesSet = pas::Set<0, 2>;
+
+    using TDifficultyTier = std::uint8_t;
 
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
@@ -222,8 +222,8 @@ namespace aGalaxy {
         // Ignores ExcludedFromRating rangers; returns nil if none has positive wealth.
         void* FindWealthiestRanger();
         // Excludes stars with a custom faction.
-        std::int32_t CountFactionStars(std::uint8_t Faction);
-        TControlPercent GetFactionControlPercent(std::uint8_t Faction);
+        std::int32_t CountFactionStars(aGalaxyStruct::TStarFaction Faction);
+        aGalaxyStruct::TPercent GetFactionControlPercent(aGalaxyStruct::TStarFaction Faction);
         // Active Galaxy only. Fraction of Dominator systems in Series, multiplied by the number of unresolved series; not a percentage.
         static float GetDominatorSeriesControlShare(aGalaxyStruct::TDominatorSeries Series);
         std::int32_t CountStarsInBattle();
@@ -252,7 +252,7 @@ namespace aGalaxy {
         TStar* SelectStarForLiberationAttack(TStar* Origin, aGalaxyStruct::TStarFaction FriendlyFaction);
         void ComputeGlobalGoodsPriceBands();
         // Maps the global minimum/maximum price band to 0..100 with clamping.
-        static std::uint8_t GetGoodsPricePercent(std::uint8_t GoodsType, std::int32_t Price);
+        static aGalaxyStruct::TPercent GetGoodsPricePercent(std::uint8_t GoodsType, std::int32_t Price);
         std::int32_t ScaleGoodsPriceByGalaxyAge(std::int32_t BaseValue);
         std::int32_t ScaleGoodsStockByGalaxyAge(std::int32_t BaseValue);
         // Clamps TechLevel to 2..7, linearly interpolates the endpoints, then rounds.
@@ -265,7 +265,7 @@ namespace aGalaxy {
         // Zero-based index. The final attempt-limit fallback can return an incompatible module; callers must check CanInstallMicroModule. Context rejection can bypass the attempt-limit check.
         static std::int32_t SelectMicroModuleForEquipment(std::uint8_t MinimumPriority, std::uint8_t MaximumPriority, std::uint32_t Seed, pas::Object* Context, void* Item);
         // Zero-based series index or -1; advances Self.RandomState.
-        std::int32_t SelectHullSeries(std::uint8_t OwnerId, std::uint8_t HullType, std::uint8_t MinimumRarity, std::uint8_t MaximumRarity);
+        std::int32_t SelectHullSeries(aGalaxyStruct::TOwnerId OwnerId, std::uint8_t HullType, std::uint8_t MinimumRarity, std::uint8_t MaximumRarity);
         // Invalid series values return false.
         std::uint8_t IsDominatorSeriesUnresolved(aGalaxyStruct::TDominatorSeries Series);
         // True if any selected series is unresolved; false for an empty set.
@@ -274,13 +274,13 @@ namespace aGalaxy {
         static void ProcessPlayerSatelliteExploration();
         // Requires a player. Counts deployed/player-storage probes, loose and carried probes in active Galaxy, and Self.StoredItems; excludes shop stock.
         std::int32_t CountExistingSatellites();
-        std::int32_t ComputeScaledMiniMoney(std::uint8_t ScaleIndex);
-        std::int32_t ComputeScaledSmallMoney(std::uint8_t ScaleIndex);
-        std::int32_t ComputeScaledAverageMoney(std::uint8_t ScaleIndex);
-        std::int32_t ComputeScaledBigMoney(std::uint8_t ScaleIndex);
-        std::int32_t ComputeScaledHugeMoney(std::uint8_t ScaleIndex);
+        std::int32_t ComputeScaledMiniMoney(aGalaxyStruct::TOwnerId Owner);
+        std::int32_t ComputeScaledSmallMoney(aGalaxyStruct::TOwnerId Owner);
+        std::int32_t ComputeScaledAverageMoney(aGalaxyStruct::TOwnerId Owner);
+        std::int32_t ComputeScaledBigMoney(aGalaxyStruct::TOwnerId Owner);
+        std::int32_t ComputeScaledHugeMoney(aGalaxyStruct::TOwnerId Owner);
         // Accepts Zero, Mini, Small, Average, Big and Huge; unknown tags raise. Uses active Galaxy for scaling.
-        static std::int32_t ResolveMoneySizeTag(pas::WideString Tag, std::uint8_t ScaleIndex);
+        static std::int32_t ResolveMoneySizeTag(const std::u16string_view& Tag, aGalaxyStruct::TOwnerId Owner);
         static std::int32_t GetMiniGoodsQuantity(std::uint8_t GoodsType);
         static std::int32_t GetSmallGoodsQuantity(std::uint8_t GoodsType);
         static std::int32_t GetAverageGoodsQuantity(std::uint8_t GoodsType);
@@ -307,7 +307,7 @@ namespace aGalaxy {
         // Percentage points per day.
         float GetDominatorResearchRate(aGalaxyStruct::TDominatorSeries Series);
         // Returns 20..100 percent.
-        std::uint8_t GetDominatorResearchEfficiency(aGalaxyStruct::TDominatorSeries Series);
+        aGalaxyStruct::TPercent GetDominatorResearchEfficiency(aGalaxyStruct::TDominatorSeries Series);
         // One-based index over active Galaxy star/ship order. Uses Self's cached type count as an early gate; missing entries return nil.
         void* FindStationByTypeAndIndex(std::int32_t Index, aGalaxyStruct::TStationType StationType);
         // Eligible only at positive multiples of 365 accrued deposit days.
@@ -337,7 +337,7 @@ namespace aGalaxy {
         // With custom rules disabled, reads the active Galaxy difficulty array rather than Self.
         std::int32_t GetEffectiveDifficultyLevel();
         // Returns 0..9; tier boundaries are 6, 14, 22, and subsequent increments of eight.
-        std::uint8_t GetDifficultyTierIndex();
+        TDifficultyTier GetDifficultyTierIndex();
         // A negative Level selects the effective difficulty; values above 24 extrapolate.
         float InterpolateDifficulty(std::int32_t Level, float AtZero, float AtEight, float AtSixteen, float AtTwentyFour);
         // A negative Level selects the effective difficulty.
@@ -601,7 +601,7 @@ namespace aGalaxy {
         void RefreshMovementStepParameters();
         // Uses the final planet-list entry when nonempty; otherwise SystemRadius. Does not update MapDiameter.
         std::int32_t ComputeMapDiameter();
-        std::int32_t CountPlanetsByOwner(std::uint8_t OwnerId);
+        std::int32_t CountPlanetsByOwner(aGalaxyStruct::TOwnerId OwnerId);
         // Counts owners 0..5 and 7; includes Dominators.
         std::int32_t CountDistinctInhabitedPlanetOwners();
         // If every planet is uninhabited, returns the last planet; nil only for an empty list.
@@ -633,7 +633,7 @@ namespace aGalaxy {
         pas::WideString GetRangerNamesByCareerMask(aGalaxyStruct::TRangerCareerSet CareerMask);
         std::uint8_t IsConstellationVisible();
         // Group 0 Coalition, 1 Dominators/custom, 2 pirates. Lazily refreshes all three once per active Galaxy.CurrentTurn.
-        float GetCachedFactionStrength(std::uint8_t FactionGroup);
+        float GetCachedFactionStrength(aGalaxyStruct::TStarFaction FactionGroup);
         // Sums StrengthInBestRanger over Ships, excluding the three bosses; no docking/hyperspace filter.
         float SumBestRangerRelativeStrength(aGalaxyStruct::TShipTypeMask ShipTypeMask);
         void RebuildStarDistances(TGalaxy* Galaxy);
@@ -910,8 +910,8 @@ namespace aGalaxy {
         std::int32_t SourceShipId;
         // Payload is registered in Items or, after transformation, Ships.
         std::uint8_t InsertedIntoStar;
-        // Special payload handling; exact modes remain unresolved.
-        std::uint8_t UseFlag;
+        // Nonzero releases a stored tranclucator ship instead of dropping its artefact; serialized as Boolean.
+        std::uint8_t DeployTranclucator;
         std::uint8_t cpp_padding[2];
     };
     #pragma pack(pop)
@@ -1038,9 +1038,6 @@ namespace aGalaxy {
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
     #endif
-
-    // Preserve the full byte for native membership checks; selected series are 0..2.
-    using TDominatorSeriesMask = pas::Set<0, 7>;
 
     #pragma pack(push, 1)
     struct TStarCombatEvent {

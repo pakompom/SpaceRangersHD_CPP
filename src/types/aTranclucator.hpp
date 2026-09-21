@@ -53,7 +53,7 @@ namespace aTranclucator {
         void SetStoragePermission(TTranclucatorStorageKind Kind, std::uint8_t Enabled);
         // Unknown kinds return false.
         std::uint8_t GetStoragePermission(TTranclucatorStorageKind Kind);
-        void Init(aShip::TShip* AOwnerShip, std::uint8_t Faction, std::uint8_t BasicEquipment);
+        void Init(aShip::TShip* AOwnerShip, aGalaxyStruct::TOwnerId Faction, std::uint8_t BasicEquipment);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
@@ -65,7 +65,7 @@ namespace aTranclucator {
         // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxy::TStar* GetHomeStar() override;
-        std::uint8_t GetStrengthScaledPirateStatus() override;
+        aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Checks FollowOwner, owner presence, shared star and owner hyperspace state; does not require docking.
         std::uint8_t CanFollowOwnerInCurrentStar();
@@ -95,7 +95,7 @@ namespace aTranclucator {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
         std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;

@@ -148,7 +148,7 @@ namespace GI_Circle {
     void TCircleGI::LoadShapeProperties(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Kind"_wref.get());
+            Text = Block->GetParam(u"Kind"sv);
             if (Text == u"Simple") {
                 SetKind(ckSimple);
             } else if (Text == u"Circle") {
@@ -162,22 +162,22 @@ namespace GI_Circle {
             }
         }
         if (Block->CountParams(u"Color"_wref.get()) > 0) {
-            SetColor(GI_Main::GetColorGI(Block->GetParam(u"Color"_wref.get())));
+            SetColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"Color"sv))));
         }
         if (Block->CountParams(u"ColorFill"_wref.get()) > 0) {
-            SetFillColor(GI_Main::GetColorGI(Block->GetParam(u"ColorFill"_wref.get())));
+            SetFillColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"ColorFill"sv))));
         }
         if (Block->CountParams(u"Radius"_wref.get()) > 0) {
-            SetRadius(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Radius"_wref.get()))));
+            SetRadius(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Radius"sv))));
         }
         if (Block->CountParams(u"Center"_wref.get()) > 0) {
-            SetCenter(GI_Main::GetPointGI(Block->GetParam(u"Center"_wref.get())));
+            SetCenter(GI_Main::GetPointGI(pas::view(Block->GetParam(u"Center"sv))));
         }
         if (Block->CountParams(u"ShrLightInner"_wref.get()) > 0) {
-            SetShrLightInner(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"ShrLightInner"_wref.get()))));
+            SetShrLightInner(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"ShrLightInner"sv))));
         }
         if (Block->CountParams(u"ShrLightOuter"_wref.get()) > 0) {
-            SetShrLightOuter(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"ShrLightOuter"_wref.get()))));
+            SetShrLightOuter(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"ShrLightOuter"sv))));
         }
     }
 

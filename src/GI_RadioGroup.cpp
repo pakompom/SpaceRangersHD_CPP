@@ -113,14 +113,14 @@ namespace GI_RadioGroup {
         pas::WideString Text{};
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         if (Block->CountBlocks(u"RadioButton"_wref.get()) > 0) {
-            Items = Block->GetBlock(u"RadioButton"_wref.get());
+            Items = Block->GetBlock(u"RadioButton"sv);
             Count = Items->GetParamCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
                 Text = Items->GetParamValue(Index);
                 {
                     Types::TPoint point = ([&] {
-                        std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-                        std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+                        std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+                        std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
                         return ClassesImports::Point(strToInt_2, strToInt);
                     }());
                     pas::WideString paramName = Items->GetParamName(Index);
@@ -129,7 +129,7 @@ namespace GI_RadioGroup {
             }
         }
         if (Block->CountParams(u"Checked"_wref.get()) > 0) {
-            SelectItem(EC_Str::TrimWideString(Block->GetParam(u"Checked"_wref.get())));
+            SelectItem(EC_Str::TrimWideString(Block->GetParam(u"Checked"sv)));
         }
     }
 

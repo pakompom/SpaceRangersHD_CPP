@@ -93,7 +93,7 @@ namespace GlobalsV {
 
     extern std::int32_t LoadedFilmCount;
 
-    // One selects death; other native ending codes remain unresolved.
+    // ger* ending codes; values 5..18 select the localized WinPirate epilogues. SF_EndGame can supply arbitrary integers.
     extern std::int32_t GameEndReason;
 
     extern std::int32_t ShipTail;
@@ -205,8 +205,8 @@ namespace GlobalsV {
 
     extern std::uint8_t ClickAutoCloseForm;
 
-    // Native purpose remains unresolved.
-    extern std::uint8_t UiRuntimeFlag;
+    // Enables award-window clicks in the ship, scanner and ranger-rating screens; set by settings initialization.
+    extern std::uint8_t AwardDialogsEnabled;
 
     extern std::uint8_t MultiThreadEnabled;
 

@@ -22,7 +22,7 @@ namespace EC_CachePlanetTempl {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, pas::class_ref<TCPlanetTemplEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCPlanetTemplEC>()) == nullptr) {
             Control = pas::construct_call<TCPlanetTemplControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -56,8 +56,8 @@ namespace EC_CachePlanetTempl {
     void TCPlanetTemplEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         GR_GraphBuf::TGraphBufGR* Bitmap = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
         Bitmap->LoadImageRgba(SourceBuffer);
-        std::int32_t TextureWidth = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(LoadOption, 0, u","_wref.get()));
-        std::int32_t TextureHeight = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(LoadOption, 1, u","_wref.get()));
+        std::int32_t TextureWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(LoadOption), 0, u","sv)));
+        std::int32_t TextureHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(LoadOption), 1, u","sv)));
         {
             std::int32_t& residentBytes = ResidentBytes;
             void* pixels = Bitmap->GetPixels();

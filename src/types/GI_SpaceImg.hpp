@@ -73,8 +73,8 @@ namespace GI_SpaceImg {
         WindowsSdk::TPoint PixelPosition;
         // Per 10 ms callback.
         double OrbitStepDegrees;
-        // Zeroed on creation; use unresolved.
-        std::int32_t Unknown70;
+        // Original SpaceBackgroundEntries.ImageIndex, retained across the renderer's template-index modulo for saving.
+        std::int32_t SavedTemplateIndex;
         std::uint8_t cpp_padding_2[4];
         double OrbitAngleRadians;
         double OrbitRadius;

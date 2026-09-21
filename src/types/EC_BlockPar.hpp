@@ -49,14 +49,14 @@ namespace EC_BlockPar {
         std::int32_t CountParamsByPath(const pas::WideString& Path);
         TBlockParElEC* AddParam(const pas::WideString& ParamName, const pas::WideString& ParamValue);
         // Only the first match is affected; raises when absent.
-        void SetParam(const pas::WideString& ParamName, const pas::WideString& ParamValue);
+        void SetParam(const std::u16string_view& ParamName, const pas::WideString& ParamValue);
         void SetOrAddParam(const pas::WideString& ParamName, const pas::WideString& ParamValue);
         // Only the first match is affected; raises when absent.
-        void DeleteParam(const pas::WideString& ParamName);
+        void DeleteParam(const std::u16string_view& ParamName);
         // Only the first match is affected; raises when absent.
-        void DeleteChildBlock(const pas::WideString& BlockName);
-        pas::WideString GetParam(const pas::WideString& ParamName);
-        pas::WideString GetParamOrMarker(const pas::WideString& ParamName);
+        void DeleteChildBlock(const std::u16string_view& BlockName);
+        pas::WideString GetParam(const std::u16string_view& ParamName);
+        pas::WideString GetParamOrMarker(const std::u16string_view& ParamName);
         std::int32_t GetParamCount();
         std::int32_t CountParams(const pas::WideString& ParamName);
         // GetParamValue/GetParamName take zero-based string-entry indexes.
@@ -71,8 +71,8 @@ namespace EC_BlockPar {
         TBlockParEC* GetOrAddBlockByPath(const pas::WideString& Path);
         TBlockParEC* AddChildBlock(const pas::WideString& BlockName);
         // Raises when absent.
-        TBlockParEC* GetBlock(const pas::WideString& BlockName);
-        TBlockParEC* FindBlock(const pas::WideString& BlockName);
+        TBlockParEC* GetBlock(const std::u16string_view& BlockName);
+        TBlockParEC* FindBlock(const std::u16string_view& BlockName);
         std::int32_t GetBlockCount();
         std::int32_t CountBlocks(const pas::WideString& BlockName);
         TBlockParEC* GetBlockByIndex(std::int32_t Index);

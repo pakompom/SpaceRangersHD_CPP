@@ -100,12 +100,12 @@ namespace SE_Weapon {
         std::uint8_t HasDestruction = false;
         ImmediateDestruction = false;
         ProjectileFinished = false;
-        WeaponConfig = GR_Main::GameDataConfig->GetBlock(u"Weapon"_wref.get());
-        Key = EC_Str::ExtractDelimitedPartW(GraphKey, 0, u","_wref.get());
-        I = EC_Str::ExtractDigitsToIntW(Key);
-        if (ShotVisual == 0 && EC_Str::CountDelimitedPartsW(GraphKey, u","_wref.get()) > 1 || pas::in_set<3, 3, 14, 14, 17, 17>(I)) {
-            if (EC_Str::CountDelimitedPartsW(GraphKey, u","_wref.get()) > 1) {
-                ShotVisual = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(GraphKey, 1, u","_wref.get())));
+        WeaponConfig = GR_Main::GameDataConfig->GetBlock(u"Weapon"sv);
+        Key = EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv);
+        I = EC_Str::ExtractDigitsToIntW(pas::view(Key));
+        if (ShotVisual == 0 && EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1 || pas::in_set<3, 3, 14, 14, 17, 17>(I)) {
+            if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1) {
+                ShotVisual = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 1, u","sv)));
             }
             VisualConfig = nullptr;
             if (pas::in_set<3, 3, 14, 14, 17, 17>(I)) {
@@ -307,10 +307,10 @@ namespace SE_Weapon {
             Projectile = pas::construct_call<GI_PSEyes::TPSEyesGI>(GI_PSEyes::TPSEyesGI_Create, Space->MapPanel, ShotVisual);
         }
         if (HitVariant < 0) {
-            if (EC_Str::CountDelimitedPartsW(GraphKey, u","_wref.get()) > 2) {
-                HitVariant = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(GraphKey, 2, u","_wref.get())));
+            if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 2) {
+                HitVariant = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 2, u","sv)));
             } else if (UseRandomHit) {
-                HitVariant = pas::random(EC_Str::ExtractDigitsToIntW(WeaponConfig->GetParam(u"HitCount"_wref.get())), &System::RandSeed) + 1;
+                HitVariant = pas::random(EC_Str::ExtractDigitsToIntW(pas::view(WeaponConfig->GetParam(u"HitCount"sv))), &System::RandSeed) + 1;
             }
         }
         if (HitVariant > 0) {
@@ -641,9 +641,9 @@ namespace SE_Weapon {
         EC_Struct::TPointF Result{};
         if (TargetObject == nullptr) {
             Result = Position;
-        } else if (pas::class_cast_if<SE_Ship2::TShip2SE*>(TargetObject) != nullptr) {
-            std::uint8_t angle = pas::checked_cast<SE_Ship2::TShip2SE*>(TargetObject)->GetAngle();
-            SE_Ship2::TShip2SE* cpp_arg = pas::checked_cast<SE_Ship2::TShip2SE*>(TargetObject);
+        } else if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(TargetObject)) {
+            std::uint8_t angle = ship2SE->GetAngle();
+            SE_Ship2::TShip2SE* cpp_arg = ship2SE;
             Result = cpp_arg->GetTargetPoint(angle, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
         } else {
             Result = TargetObject->Position;
@@ -655,10 +655,10 @@ namespace SE_Weapon {
         EC_Struct::TPointF Result{};
         if (SourceObject == nullptr) {
             Result = Position;
-        } else if (pas::class_cast_if<SE_Ship2::TShip2SE*>(SourceObject) != nullptr) {
-            Result = reinterpret_cast<SE_Ship2::TShip2SE*>(SourceObject)->GetWeaponPortPoint(SourceObject->GetAngle(), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
-        } else if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(SourceObject) != nullptr) {
-            Result = reinterpret_cast<SE_Ruins::TRuinsSE*>(SourceObject)->GetWeaponPortPoint(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
+        } else if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(SourceObject)) {
+            Result = ship2SE->GetWeaponPortPoint(SourceObject->GetAngle(), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
+        } else if (SE_Ruins::TRuinsSE* ruinsSE = pas::class_cast_if<SE_Ruins::TRuinsSE*>(SourceObject)) {
+            Result = ruinsSE->GetWeaponPortPoint(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
         } else {
             Result = SourceObject->Position;
         }
@@ -856,9 +856,9 @@ namespace SE_Weapon {
         EC_BlockPar::TBlockParEC* Palettes{};
         auto GetWeaponTemplateParam = [&](pas::WideString Name) -> pas::WideString {
             if (PaletteBlock != nullptr && PaletteBlock->CountParams(Name) > 0) {
-                return PaletteBlock->GetParam(Name);
+                return PaletteBlock->GetParam(pas::view(Name));
             } else if (Block->CountParams(Name) > 0) {
-                return Block->GetParam(Name);
+                return Block->GetParam(pas::view(Name));
             } else {
                 return pas::WideString();
             }
@@ -866,17 +866,17 @@ namespace SE_Weapon {
         SE_Space::TObjectSE::LoadTemplate(Block);
         PaletteBlock = nullptr;
         if (Block->CountBlocks(u"Palettes"_wref.get()) > 0) {
-            Palettes = Block->GetBlock(u"Palettes"_wref.get());
+            Palettes = Block->GetBlock(u"Palettes"sv);
             if (Palettes->CountBlocks(pas::wide_int_to_str(ShotVisual)) > 0) {
-                PaletteBlock = Palettes->GetBlock(pas::wide_int_to_str(ShotVisual));
+                PaletteBlock = Palettes->GetBlock(pas::view(pas::wide_int_to_str(ShotVisual)));
             }
         }
         ShotSoundPath = GetWeaponTemplateParam(u"SoundShot"_w);
         HitSoundPath = GetWeaponTemplateParam(u"SoundExpl"_w);
         if (PaletteBlock != nullptr && PaletteBlock->CountParams(u"PosZ"_wref.get()) > 0) {
-            DepthExpression = PaletteBlock->GetParam(u"PosZ"_wref.get());
+            DepthExpression = PaletteBlock->GetParam(u"PosZ"sv);
         } else if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
-            DepthExpression = Block->GetParam(u"PosZ"_wref.get());
+            DepthExpression = Block->GetParam(u"PosZ"sv);
         }
     }
 
@@ -890,12 +890,12 @@ namespace SE_Weapon {
         Self->AnimationCountdown = 0;
         Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(Self->EffectIndex)})));
         if (Block->CountParams(u"LeftTime"_wref.get()) > 0) {
-            Self->LeftTime = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"LeftTime"_wref.get()));
+            Self->LeftTime = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"LeftTime"sv)));
         } else {
             Self->LeftTime = 10;
         }
         if (Block->CountParams(u"BeforeEnd"_wref.get()) > 0) {
-            Self->BeforeEnd = GI_Main::ParseEnabledNameGI(Block->GetParam(u"BeforeEnd"_wref.get()));
+            Self->BeforeEnd = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"BeforeEnd"sv)));
         } else {
             Self->BeforeEnd = true;
         }
@@ -959,27 +959,27 @@ namespace SE_Weapon {
         Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(EffectIndex), ".D:", SysUtils::IntToStr(Index)})));
         PWeaponEffectItem Item = AddItem();
         Item->AtTarget = true;
-        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position, EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"_wref.get()))));
-        Item->Angle = pas::real_divide(EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Angle"_wref.get())), 1.8E+2L) * SystemImports::Pi;
-        Item->Speed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Speed"_wref.get()));
-        Item->Acceleration = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Accel"_wref.get()));
+        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position, EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"sv))));
+        Item->Angle = pas::real_divide(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Angle"sv))), 1.8E+2L) * SystemImports::Pi;
+        Item->Speed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Speed"sv));
+        Item->Acceleration = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Accel"sv));
         if (Block->CountParams(u"AutoAnim"_wref.get()) > 0) {
-            Item->AutoAnimation = GI_Main::ParseEnabledNameGI(Block->GetParam(u"AutoAnim"_wref.get()));
+            Item->AutoAnimation = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"AutoAnim"sv)));
         } else {
             Item->AutoAnimation = true;
         }
         if (Block->CountParams(u"LoopAnim"_wref.get()) > 0) {
-            Item->LoopAnimation = GI_Main::ParseEnabledNameGI(Block->GetParam(u"LoopAnim"_wref.get()));
+            Item->LoopAnimation = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"LoopAnim"sv)));
         } else {
             Item->LoopAnimation = true;
         }
         if (Block->CountParams(u"SkipTime"_wref.get()) > 0) {
-            Item->SkipTime = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"SkipTime"_wref.get()));
+            Item->SkipTime = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"SkipTime"sv)));
         } else {
             Item->SkipTime = 0;
         }
         Item->Image = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Owner);
-        Item->Image->SetImagePath(Block->GetParam(u"Image"_wref.get()));
+        Item->Image->SetImagePath(Block->GetParam(u"Image"sv));
         Item->Image->SequenceIndex = 0;
         Item->Image->UpdateAutoGeometry();
         {
@@ -998,7 +998,7 @@ namespace SE_Weapon {
             Item->Image->SetActive(false);
         }
         if (Block->CountParams(u"LifeTime"_wref.get()) > 0) {
-            Item->Lifetime = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"LifeTime"_wref.get()));
+            Item->Lifetime = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"LifeTime"sv)));
         } else {
             Item->Lifetime = Item->Image->SequenceFrameCount * AnimationInterval;
         }
@@ -1013,27 +1013,27 @@ namespace SE_Weapon {
         Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(EffectIndex), ".S:", SysUtils::IntToStr(Index)})));
         PWeaponEffectItem Item = AddItem();
         Item->AtTarget = false;
-        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position, EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"_wref.get()))));
-        Item->Angle = pas::real_divide(EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Angle"_wref.get())), 1.8E+2L) * SystemImports::Pi;
-        Item->Speed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Speed"_wref.get()));
-        Item->Acceleration = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Accel"_wref.get()));
+        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position, EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"sv))));
+        Item->Angle = pas::real_divide(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Angle"sv))), 1.8E+2L) * SystemImports::Pi;
+        Item->Speed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Speed"sv));
+        Item->Acceleration = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Accel"sv));
         if (Block->CountParams(u"AutoAnim"_wref.get()) > 0) {
-            Item->AutoAnimation = GI_Main::ParseEnabledNameGI(Block->GetParam(u"AutoAnim"_wref.get()));
+            Item->AutoAnimation = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"AutoAnim"sv)));
         } else {
             Item->AutoAnimation = true;
         }
         if (Block->CountParams(u"LoopAnim"_wref.get()) > 0) {
-            Item->LoopAnimation = GI_Main::ParseEnabledNameGI(Block->GetParam(u"LoopAnim"_wref.get()));
+            Item->LoopAnimation = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"LoopAnim"sv)));
         } else {
             Item->LoopAnimation = true;
         }
         if (Block->CountParams(u"SkipTime"_wref.get()) > 0) {
-            Item->SkipTime = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"SkipTime"_wref.get()));
+            Item->SkipTime = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"SkipTime"sv)));
         } else {
             Item->SkipTime = 0;
         }
         Item->Image = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Owner);
-        Item->Image->SetImagePath(Block->GetParam(u"Image"_wref.get()));
+        Item->Image->SetImagePath(Block->GetParam(u"Image"sv));
         Item->Image->SequenceIndex = 0;
         Item->Image->UpdateAutoGeometry();
         {
@@ -1052,7 +1052,7 @@ namespace SE_Weapon {
             Item->Image->SetActive(false);
         }
         if (Block->CountParams(u"LifeTime"_wref.get()) > 0) {
-            Item->Lifetime = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"LifeTime"_wref.get()));
+            Item->Lifetime = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"LifeTime"sv)));
         } else {
             Item->Lifetime = Item->Image->SequenceFrameCount * AnimationInterval;
         }
@@ -1067,7 +1067,7 @@ namespace SE_Weapon {
         EC_BlockPar::TBlockParEC* Block{};
         Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(EffectIndex)})));
         if (Block->CountParams(u"AnimTakt"_wref.get()) > 0) {
-            AnimationInterval = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"AnimTakt"_wref.get()));
+            AnimationInterval = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"AnimTakt"sv)));
         } else {
             AnimationInterval = 1;
         }

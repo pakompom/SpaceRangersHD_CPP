@@ -50,7 +50,7 @@ namespace CPVarClass {
             if (TCPVariant::HasIntegerChars(Text, Count)) {
                 ValueKind = cpvkInteger;
                 Range->Clear();
-                IntValue = EC_Str::ExtractDigitsToIntW(Text);
+                IntValue = EC_Str::ExtractDigitsToIntW(pas::view(Text));
                 FloatValue = 0.0L;
                 return true;
             }

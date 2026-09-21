@@ -206,37 +206,37 @@ namespace GI_Window {
 
     void TWindowGI::LoadWindowProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"ImageTopLeft"_wref.get()) > 0) {
-            TopLeftImage->SetImagePath(Block->GetParam(u"ImageTopLeft"_wref.get()));
+            TopLeftImage->SetImagePath(Block->GetParam(u"ImageTopLeft"sv));
         }
         if (Block->CountParams(u"ImageTopRight"_wref.get()) > 0) {
-            TopRightImage->SetImagePath(Block->GetParam(u"ImageTopRight"_wref.get()));
+            TopRightImage->SetImagePath(Block->GetParam(u"ImageTopRight"sv));
         }
         if (Block->CountParams(u"ImageBottomLeft"_wref.get()) > 0) {
-            BottomLeftImage->SetImagePath(Block->GetParam(u"ImageBottomLeft"_wref.get()));
+            BottomLeftImage->SetImagePath(Block->GetParam(u"ImageBottomLeft"sv));
         }
         if (Block->CountParams(u"ImageBottomRight"_wref.get()) > 0) {
-            BottomRightImage->SetImagePath(Block->GetParam(u"ImageBottomRight"_wref.get()));
+            BottomRightImage->SetImagePath(Block->GetParam(u"ImageBottomRight"sv));
         }
         if (Block->CountParams(u"ImageLeft"_wref.get()) > 0) {
-            LeftImage->SetImagePath(Block->GetParam(u"ImageLeft"_wref.get()));
+            LeftImage->SetImagePath(Block->GetParam(u"ImageLeft"sv));
         }
         if (Block->CountParams(u"ImageRight"_wref.get()) > 0) {
-            RightImage->SetImagePath(Block->GetParam(u"ImageRight"_wref.get()));
+            RightImage->SetImagePath(Block->GetParam(u"ImageRight"sv));
         }
         if (Block->CountParams(u"ImageTop"_wref.get()) > 0) {
-            TopImage->SetImagePath(Block->GetParam(u"ImageTop"_wref.get()));
+            TopImage->SetImagePath(Block->GetParam(u"ImageTop"sv));
         }
         if (Block->CountParams(u"ImageBottom"_wref.get()) > 0) {
-            BottomImage->SetImagePath(Block->GetParam(u"ImageBottom"_wref.get()));
+            BottomImage->SetImagePath(Block->GetParam(u"ImageBottom"sv));
         }
         if (Block->CountParams(u"ImageTexture"_wref.get()) > 0) {
-            TextureImage->SetImagePath(Block->GetParam(u"ImageTexture"_wref.get()));
+            TextureImage->SetImagePath(Block->GetParam(u"ImageTexture"sv));
         }
         if (Block->CountParams(u"WorkSubRect"_wref.get()) > 0) {
-            WorkSubRect = GI_Main::GetRectGI(Block->GetParam(u"WorkSubRect"_wref.get()));
+            WorkSubRect = GI_Main::GetRectGI(pas::view(Block->GetParam(u"WorkSubRect"sv)));
         }
         if (Block->CountParams(u"MinSize"_wref.get()) > 0) {
-            MinimumSize = GI_Main::GetPointGI(Block->GetParam(u"MinSize"_wref.get()));
+            MinimumSize = GI_Main::GetPointGI(pas::view(Block->GetParam(u"MinSize"sv)));
         }
     }
 

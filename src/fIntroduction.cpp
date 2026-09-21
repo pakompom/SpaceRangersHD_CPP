@@ -48,48 +48,48 @@ namespace fIntroduction {
         GR_Main::AppendLogTextThreadSafe("fIntroduction... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* ImageFon1 = MainPanel->FindByNameRecursive(u"ImageFon1"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageFon1 = MainPanel->FindByNameRecursive(u"ImageFon1"sv);
                 ImageFon1->SetPosition(ClassesImports::Point(ImageFon1->LocalPosition.X, GR_Main::GameScreenHeight - ImageFon1->ClientSize.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* ImageFon2 = MainPanel->FindByNameRecursive(u"ImageFon2"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageFon2 = MainPanel->FindByNameRecursive(u"ImageFon2"sv);
                 ImageFon2->SetPosition(ClassesImports::Point(ImageFon2->LocalPosition.X, GR_Main::GameScreenHeight - ImageFon2->ClientSize.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* ImageTop = MainPanel->FindByNameRecursive(u"ImageTop"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageTop = MainPanel->FindByNameRecursive(u"ImageTop"sv);
                 ImageTop->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, ImageTop->ClientSize.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* ImageBottom = MainPanel->FindByNameRecursive(u"ImageBottom"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageBottom = MainPanel->FindByNameRecursive(u"ImageBottom"sv);
                 ImageBottom->SetPosition(ClassesImports::Point(ImageBottom->LocalPosition.X, ImageBottom->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 ImageBottom->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, ImageBottom->ClientSize.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* ImageScreen = MainPanel->FindByNameRecursive(u"ImageScreen"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageScreen = MainPanel->FindByNameRecursive(u"ImageScreen"sv);
                 ImageScreen->SetPosition(ClassesImports::Point(ImageScreen->LocalPosition.X, ImageScreen->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* Ok = MainPanel->FindByNameRecursive(u"Ok"_wref.get());
+                GI_MessageLoop::TObjectGI* Ok = MainPanel->FindByNameRecursive(u"Ok"sv);
                 Ok->SetPosition(ClassesImports::Point(Ok->LocalPosition.X + GR_Main::ExtraScreenWidth, Ok->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             for (auto cpp_range = pas::for_to<std::int32_t>(1, 8); cpp_range.next(I); ) {
                 {
-                    GI_MessageLoop::TObjectGI* cpp_with_8 = MainPanel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"ICW", SysUtils::IntToStr(I)})));
+                    GI_MessageLoop::TObjectGI* cpp_with_8 = MainPanel->FindByNameRecursive(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"ICW", SysUtils::IntToStr(I)}))));
                     cpp_with_8->SetPosition(ClassesImports::Point(cpp_with_8->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, cpp_with_8->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* cpp_with_9 = MainPanel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(I)})));
+                    GI_MessageLoop::TObjectGI* cpp_with_9 = MainPanel->FindByNameRecursive(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(I)}))));
                     cpp_with_9->SetPosition(ClassesImports::Point(cpp_with_9->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, cpp_with_9->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
             }
             {
-                GI_MessageLoop::TObjectGI* PanelText = MainPanel->FindByNameRecursive(u"PanelText"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelText = MainPanel->FindByNameRecursive(u"PanelText"sv);
                 PanelText->SetSize(ClassesImports::Point(PanelText->ClientSize.X + GR_Main::ExtraScreenWidth, PanelText->ClientSize.Y + GR_Main::ExtraScreenHeight));
                 {
-                    GI_MessageLoop::TObjectGI* GBText = PanelText->FindByNameRecursive(u"GBText"_wref.get());
+                    GI_MessageLoop::TObjectGI* GBText = PanelText->FindByNameRecursive(u"GBText"sv);
                     GBText->SetSize(ClassesImports::Point(GBText->ClientSize.X + GR_Main::ExtraScreenWidth, GBText->ClientSize.Y));
                 }
             }
@@ -106,17 +106,17 @@ namespace fIntroduction {
         NewGameGenerationStage = 0;
         ProgressPulsePhase = 0.0f;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 8); cpp_range.next(I); ) {
-            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(I)}))))->SetTextColor(IntroductionBlinkColorA);
-            GetByName(static_cast<pas::WideString>(pas::concat_ansi({"ICW", SysUtils::IntToStr(I)})))->SetActive(false);
+            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(I)})))))->SetTextColor(IntroductionBlinkColorA);
+            GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"ICW", SysUtils::IntToStr(I)}))))->SetActive(false);
         }
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfIntroduction::MainPanelKeyDown>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfIntroduction::MainPanelKeyDown>(this);
         {
-            GI_MessageLoop::TObjectGI* PanelText = GetByName(u"PanelText"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelText = GetByName(u"PanelText"sv);
             TextPanelTop = PanelText->LocalPosition.Y;
             TextPanelHeight = PanelText->ClientSize.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* Ok = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Ok = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
             Ok->UpCallback = pas::bind_method<&TfIntroduction::ContinueClicked>(this);
             Ok->MouseEnterCallback = pas::bind_method<&TfIntroduction::ContinueMouseEnter>(this);
             Ok->SetDisabled(true);
@@ -135,7 +135,7 @@ namespace fIntroduction {
             }());
         }
         {
-            GI_GraphBuf::TGraphBufGI* GBText = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GBText"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* GBText = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GBText"sv));
             GBText->SourceHasPerPixelAlpha = true;
             if (GR_Main::ExtraScreenWidth > 127 && GR_Main::ExtraScreenHeight > 127) {
                 GI_Label::RenderLabelTextToBuffer(GBText->GraphBuf, GBText->ClientSize.X, 1, 0, Text, GlobalsV::BigFontName, 0xfffdffd7u, 0xff373737u, 0xffdbda9cu);
@@ -193,7 +193,7 @@ namespace fIntroduction {
             Globals::NewGameGenerationThread = nullptr;
         }
         {
-            GI_GraphBuf::TGraphBufGI* GBText = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GBText"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* GBText = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GBText"sv));
             GBText->GraphBuf->Clear();
         }
     }
@@ -221,10 +221,10 @@ namespace fIntroduction {
             if (DisplayedGenerationStage < NewGameGenerationStage) {
                 ++DisplayedGenerationStage;
                 if (DisplayedGenerationStage + 0 >= 1 && DisplayedGenerationStage + 0 <= 8) {
-                    GetByName(static_cast<pas::WideString>(pas::concat_ansi({"ICW", SysUtils::IntToStr(DisplayedGenerationStage)})))->SetActive(true);
+                    GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"ICW", SysUtils::IntToStr(DisplayedGenerationStage)}))))->SetActive(true);
                 }
                 if (DisplayedGenerationStage + 0 >= 1 && DisplayedGenerationStage + 0 <= 8) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(DisplayedGenerationStage)}))))->SetTextColor(IntroductionBlinkColorA);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(DisplayedGenerationStage)})))))->SetTextColor(IntroductionBlinkColorA);
                 }
             }
         }
@@ -235,7 +235,7 @@ namespace fIntroduction {
         }
         if (DisplayedGenerationStage + 1 >= 1 && DisplayedGenerationStage + 1 <= 8) {
             std::uint32_t interpolateRgb = GR_Main::CurrentPixelFormat->InterpolateRgb(IntroductionBlinkColorA, IntroductionBlinkColorB, Amount);
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(DisplayedGenerationStage + 1)}))));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(DisplayedGenerationStage + 1)})))));
             cpp_arg->SetTextColor(interpolateRgb);
         }
         if (Globals::NewGameGenerationThread == nullptr || static_cast<std::uint8_t>(Globals::NewGameGenerationThread->IsRunning() ^ 1) && DisplayedGenerationStage == 8) {
@@ -244,7 +244,7 @@ namespace fIntroduction {
                 GenerationProgressTimer = nullptr;
             }
             {
-                GI_GraphButton::TGraphButtonGI* Ok = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* Ok = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
                 Ok->SetHovered(false);
                 Ok->SetDisabled(false);
             }
@@ -266,21 +266,21 @@ namespace fIntroduction {
         pas::WideString Enter{};
         pas::WideString Leave{};
         {
-            GI_GraphButton::TGraphButtonGI* Ok = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Ok = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
             Enter = Ok->EnterSound;
             Ok->EnterSound = pas::WideString();
             Leave = Ok->LeaveSound;
             Ok->LeaveSound = pas::WideString();
             Ok->SetHovered(static_cast<std::uint8_t>(Ok->IsHovered() ^ 1));
-            Ok->EnterSound = Enter;
-            Ok->LeaveSound = Leave;
+            Ok->EnterSound = std::move(Enter);
+            Ok->LeaveSound = std::move(Leave);
         }
     }
 
     void TfIntroduction::ScrollIntroductionText(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         float Limit{};
         {
-            GI_GraphBuf::TGraphBufGI* GBText = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GBText"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* GBText = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GBText"sv));
             GBText->SetPosition(EC_Struct::AddPoints(GBText->LocalPosition, ClassesImports::Point(0, -1)));
             Limit = (TextPanelTop + TextPanelHeight) / 2 - GBText->ClientSize.Y / 2;
             if (static_cast<long double>(GBText->LocalPosition.Y) < Limit) {
@@ -296,12 +296,12 @@ namespace fIntroduction {
         std::int32_t Offset{};
         ++BackgroundScrollOffset;
         {
-            GI_MessageLoop::TObjectGI* ImageFon1 = GetByName(u"ImageFon1"_wref.get());
+            GI_MessageLoop::TObjectGI* ImageFon1 = GetByName(u"ImageFon1"sv);
             Offset = pas::imod(BackgroundScrollOffset, ImageFon1->ClientSize.X);
             ImageFon1->SetPosition(ClassesImports::Point(0 - Offset, ImageFon1->LocalPosition.Y));
         }
         {
-            GI_MessageLoop::TObjectGI* ImageFon2 = GetByName(u"ImageFon2"_wref.get());
+            GI_MessageLoop::TObjectGI* ImageFon2 = GetByName(u"ImageFon2"sv);
             ImageFon2->SetPosition(ClassesImports::Point(ImageFon2->ClientSize.X - Offset, ImageFon2->LocalPosition.Y));
         }
     }
@@ -319,7 +319,7 @@ namespace fIntroduction {
             GlobalsV::RequestedScreenId = GlobalsV::screenRuinsTalk;
         } else if (aPlayer::GetPlayer()->CurrentPlanet == nullptr) {
             GR_Main::RaiseWideMessage(u"No player location"_wref.get());
-        } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+        } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiUninhabited) {
             GlobalsV::RequestedScreenId = GlobalsV::screenPlanetNO;
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenPlanet;
@@ -329,7 +329,7 @@ namespace fIntroduction {
 
     void TfIntroduction::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
         if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1) && (Key == WindowsSdk::VK_SPACE || Key == WindowsSdk::VK_RETURN || Key == WindowsSdk::VK_RIGHT)) {
-            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->Disabled) {
+            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->Disabled) {
                 ContinueClicked(nullptr);
             }
         }

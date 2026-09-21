@@ -66,7 +66,7 @@ namespace SE_Space {
     void TObjectSE_Create(TObjectSE* Self, const pas::WideString& AGraphKey, WindowsSdk::TPoint UnusedPosition) {
         EC_Struct::TObjectEx_Create(Self);
         Self->GraphKey = AGraphKey;
-        Self->LoadTemplate(GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", EC_Str::ExtractDelimitedPartW(AGraphKey, 0, u","_wref.get())})));
+        Self->LoadTemplate(GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", EC_Str::ExtractDelimitedPartW(pas::view(AGraphKey), 0, u","sv)})));
     }
 
     void TObjectSE_Destroy(TObjectSE* Self) {
@@ -79,9 +79,9 @@ namespace SE_Space {
                     if (Globals::SpaceProcess->Space != nullptr) {
                         Obj = Globals::SpaceProcess->Space->FirstObject;
                         while (Obj != nullptr) {
-                            if (pas::class_cast_if<SE_Weapon::TWeaponSE*>(Obj) != nullptr) {
+                            if (SE_Weapon::TWeaponSE* weaponSE = pas::class_cast_if<SE_Weapon::TWeaponSE*>(Obj)) {
                                 if (Obj->IsAttachedToSpace()) {
-                                    if (reinterpret_cast<SE_Weapon::TWeaponSE*>(Obj)->SourceObject == Self || reinterpret_cast<SE_Weapon::TWeaponSE*>(Obj)->TargetObject == Self) {
+                                    if (weaponSE->SourceObject == Self || weaponSE->TargetObject == Self) {
                                         Obj->DetachFromSpace();
                                     }
                                 }
@@ -249,15 +249,15 @@ namespace SE_Space {
         std::int32_t Count = Block->GetParamCount();
         if (Count >= 1) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-                Weight += EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+                Weight += EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
             }
             Weight = aMyFunction::RandomIntRange(0, Weight - 1);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
-                Weight -= EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+                Weight -= EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
                 if (Weight < 0) {
                     SoundLoopPath = Block->GetParamValue(Index);
-                    SoundGroup = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(SoundLoopPath, 0, u","_wref.get()));
-                    SoundLoopPath = EC_Str::ExtractDelimitedPartW(SoundLoopPath, 1, u","_wref.get());
+                    SoundGroup = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(SoundLoopPath), 0, u","sv)));
+                    SoundLoopPath = EC_Str::ExtractDelimitedPartW(pas::view(SoundLoopPath), 1, u","sv);
                     return;
                 }
             }
@@ -278,23 +278,23 @@ namespace SE_Space {
 
     void TObjectSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
-            DepthExpression = Block->GetParam(u"PosZ"_wref.get());
+            DepthExpression = Block->GetParam(u"PosZ"sv);
         }
         if (Block->CountParams(u"SoundLoop"_wref.get()) > 0) {
-            SoundLoopPath = Block->GetParam(u"SoundLoop"_wref.get());
+            SoundLoopPath = Block->GetParam(u"SoundLoop"sv);
         }
         if (Block->CountParams(u"SoundGroup"_wref.get()) > 0) {
-            SoundGroup = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"SoundGroup"_wref.get()));
+            SoundGroup = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"SoundGroup"sv)));
         }
     }
 
     void TObjectSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         if (Block->CountParams(u"Pos"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Pos"_wref.get());
+            Text = Block->GetParam(u"Pos"sv);
             SetPosition(([&] {
-                float extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                float extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
+                float extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                float extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
                 return EC_Struct::MakePointF(extractDecimalToSingleW, extractDecimalToSingleW_2);
             }()));
         }

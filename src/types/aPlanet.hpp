@@ -3,6 +3,7 @@
 #include "types/EC_Struct.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aConst.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aMyFunction.hpp"
 
@@ -159,7 +160,7 @@ namespace aPlanet {
         std::int32_t RelationToRanger(std::int32_t RangerIndex);
         void SetRelationLevelToRanger(void* Ranger, aGalaxyStruct::TRelationLevel Level);
         void ChangeRelationToRanger(void* Ranger, std::int32_t Amount);
-        std::uint8_t RelationToShip(void* Ship);
+        aGalaxyStruct::TPercent RelationToShip(void* Ship);
         aGalaxyStruct::TRelationLevel GetRelationLevelToShip(void* Ship);
         pas::WideString GetRelationLevelTextToShip(void* Ship);
         pas::WideString GetCivilInfoText();
@@ -179,7 +180,7 @@ namespace aPlanet {
         // Population, economy and deterministic turn jitter adjust race quotas; clamps to 10..20.
         std::int32_t CalculateEquipmentShopTargetCount();
         // Bucket 50 includes all weapon types 50..68; other buckets require an exact type.
-        std::int32_t CountEquipmentShopItemsInBucket(std::uint8_t ItemType);
+        std::int32_t CountEquipmentShopItemsInBucket(aConst::TItemType ItemType);
         // Frees at most one other stock item of the same type and level, protecting named script items. Does not insert Item.
         std::uint8_t RemoveSimilarEquipmentShopItem(aItem::TEquipment* Item);
         void ForceGoodsScarcity(std::uint8_t StartEvent, aGalaxyStruct::TItemTypeMask GoodsMask);
@@ -223,10 +224,10 @@ namespace aPlanet {
         std::uint8_t cpp_padding_5[3];
         // Population-funded treasury used by ship generation and refitting.
         std::int32_t Money;
-        std::uint8_t OwnerId;
+        aGalaxyStruct::TOwnerId OwnerId;
         // Cached OwnerId membership in the five Coalition races.
         std::uint8_t IsCoalitionOwned;
-        std::uint8_t RaceId;
+        aGalaxyStruct::TOwnerId RaceId;
         aGalaxyStruct::TPlanetGovernment Government;
         pas::Array<aGalaxyStruct::TGoodsTradePriceEntry, 0, 7> Goods;
         pas::Array<std::uint8_t, 0, 7> GoodsScarcityTicks;

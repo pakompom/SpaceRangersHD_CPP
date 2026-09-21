@@ -39,10 +39,10 @@ namespace fGameSettings2 {
         std::int32_t I{};
         std::int32_t J{};
         pas::WideString Text{};
-        std::uint8_t Race{};
+        aGalaxyStruct::TOwnerId Race{};
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         GR_Main::AppendLogTextThreadSafe("fGameSettings2... "_a);
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(4)); cpp_range.next(Race); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal); cpp_range.next(Race); ) {
             I = -1;
             do {
                 ++I;
@@ -51,7 +51,7 @@ namespace fGameSettings2 {
                     Text = pas::concat_wide({u"0", Text});
                 }
             } while (!(([&] {
-                EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"StyleFace", aConst::OwnerInfo[aConst::RaceToOwner(Race) & 0x0000007f].InternalName}));
+                EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"StyleFace", aConst::OwnerInfo[aConst::RaceToOwner(Race)].InternalName}));
                 const pas::WideString& text = Text;
                 return blockByPath->CountParams(text);
             }()) <= 0));
@@ -59,146 +59,146 @@ namespace fGameSettings2 {
         }
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* ImageBG = MainPanel->FindByNameRecursive(u"ImageBG"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageBG = MainPanel->FindByNameRecursive(u"ImageBG"sv);
                 ImageBG->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* PanelChar = MainPanel->FindByNameRecursive(u"PanelChar"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelChar = MainPanel->FindByNameRecursive(u"PanelChar"sv);
                 PanelChar->SetPosition(ClassesImports::Point(PanelChar->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelChar->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* PanelLevels = MainPanel->FindByNameRecursive(u"PanelLevels"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelLevels = MainPanel->FindByNameRecursive(u"PanelLevels"sv);
                 PanelLevels->SetPosition(ClassesImports::Point(PanelLevels->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelLevels->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* PanelSkills = MainPanel->FindByNameRecursive(u"PanelSkills"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelSkills = MainPanel->FindByNameRecursive(u"PanelSkills"sv);
                 PanelSkills->SetPosition(ClassesImports::Point(PanelSkills->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelSkills->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* PanelExtended = MainPanel->FindByNameRecursive(u"PanelExtended"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelExtended = MainPanel->FindByNameRecursive(u"PanelExtended"sv);
                 PanelExtended->SetPosition(ClassesImports::Point(PanelExtended->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelExtended->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* Ok = MainPanel->FindByNameRecursive(u"Ok"_wref.get());
+                GI_MessageLoop::TObjectGI* Ok = MainPanel->FindByNameRecursive(u"Ok"sv);
                 Ok->SetPosition(ClassesImports::Point(Ok->LocalPosition.X + GR_Main::ExtraScreenWidth, Ok->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* Cancel = MainPanel->FindByNameRecursive(u"Cancel"_wref.get());
+                GI_MessageLoop::TObjectGI* Cancel = MainPanel->FindByNameRecursive(u"Cancel"sv);
                 Cancel->SetPosition(ClassesImports::Point(Cancel->LocalPosition.X, Cancel->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* ImageHelp = MainPanel->FindByNameRecursive(u"ImageHelp"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageHelp = MainPanel->FindByNameRecursive(u"ImageHelp"sv);
                 ImageHelp->SetPosition(ClassesImports::Point(ImageHelp->LocalPosition.X + GR_Main::ExtraScreenWidth, ImageHelp->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* ImageFooter = MainPanel->FindByNameRecursive(u"ImageFooter"_wref.get());
+                GI_MessageLoop::TObjectGI* ImageFooter = MainPanel->FindByNameRecursive(u"ImageFooter"sv);
                 ImageFooter->SetPosition(ClassesImports::Point(ImageFooter->LocalPosition.X, ImageFooter->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 ImageFooter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, ImageFooter->ClientSize.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* LabelHelp = MainPanel->FindByNameRecursive(u"LabelHelp"_wref.get());
+                GI_MessageLoop::TObjectGI* LabelHelp = MainPanel->FindByNameRecursive(u"LabelHelp"sv);
                 LabelHelp->SetPosition(ClassesImports::Point(LabelHelp->LocalPosition.X + GR_Main::ExtraScreenWidth, LabelHelp->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfGameSettings2::MainPanelKeyDown>(this);
-        GetByName(u"MainPanel"_wref.get())->LeftButtonDownCallback = pas::bind_method<&TfGameSettings2::PlayerNameMouseDown>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfGameSettings2::MainPanelKeyDown>(this);
+        GetByName(u"MainPanel"sv)->LeftButtonDownCallback = pas::bind_method<&TfGameSettings2::PlayerNameMouseDown>(this);
         SetHelpCallback(pas::bind_method<&TfGameSettings2::ShowControlHelp>(this));
-        CollapsedLevelPanelTop = GetByName(u"PanelLevel"_wref.get())->LocalPosition.Y;
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"_wref.get()))->UpCallback = pas::bind_method<&TfGameSettings2::ToggleLevelPanel>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelClose"_wref.get()))->UpCallback = pas::bind_method<&TfGameSettings2::ToggleLevelPanel>(this);
+        CollapsedLevelPanelTop = GetByName(u"PanelLevel"sv)->LocalPosition.Y;
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"sv))->UpCallback = pas::bind_method<&TfGameSettings2::ToggleLevelPanel>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelClose"sv))->UpCallback = pas::bind_method<&TfGameSettings2::ToggleLevelPanel>(this);
         {
-            GI_GraphButton::TGraphButtonGI* RaceMaloc = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceMaloc"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* RaceMaloc = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceMaloc"sv));
             RaceMaloc->DownCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RaceMaloc->UpCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RaceMaloc->UserValue = 0;
         }
         {
-            GI_GraphButton::TGraphButtonGI* RacePeleng = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeleng"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* RacePeleng = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeleng"sv));
             RacePeleng->DownCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RacePeleng->UpCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RacePeleng->UserValue = 1;
         }
         {
-            GI_GraphButton::TGraphButtonGI* RacePeople = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeople"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* RacePeople = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeople"sv));
             RacePeople->DownCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RacePeople->UpCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RacePeople->UserValue = 2;
         }
         {
-            GI_GraphButton::TGraphButtonGI* RaceFei = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceFei"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* RaceFei = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceFei"sv));
             RaceFei->DownCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RaceFei->UpCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RaceFei->UserValue = 3;
         }
         {
-            GI_GraphButton::TGraphButtonGI* RaceGaal = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceGaal"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* RaceGaal = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceGaal"sv));
             RaceGaal->DownCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RaceGaal->UpCallback = pas::bind_method<&TfGameSettings2::RaceClicked>(this);
             RaceGaal->UserValue = 4;
         }
         {
-            GI_GraphButton::TGraphButtonGI* Char1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Char1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char1"sv));
             Char1->DownCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
             Char1->UpCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Char2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Char2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char2"sv));
             Char2->DownCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
             Char2->UpCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Char3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char3"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Char3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char3"sv));
             Char3->DownCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
             Char3->UpCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Char4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char4"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Char4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char4"sv));
             Char4->DownCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
             Char4->UpCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Char5 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char5"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Char5 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char5"sv));
             Char5->DownCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
             Char5->UpCallback = pas::bind_method<&TfGameSettings2::CharacterPresetClicked>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceLeft"_wref.get()))->DownCallback = pas::bind_method<&TfGameSettings2::PreviousPortraitClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceRight"_wref.get()))->DownCallback = pas::bind_method<&TfGameSettings2::NextPortraitClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceLeft"sv))->DownCallback = pas::bind_method<&TfGameSettings2::PreviousPortraitClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceRight"sv))->DownCallback = pas::bind_method<&TfGameSettings2::NextPortraitClicked>(this);
         {
-            GI_GraphButton::TGraphButtonGI* Skill1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Skill1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill1"sv));
             Skill1->DownCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
             Skill1->UpCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Skill2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Skill2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill2"sv));
             Skill2->DownCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
             Skill2->UpCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Skill3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill3"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Skill3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill3"sv));
             Skill3->DownCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
             Skill3->UpCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Skill4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill4"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Skill4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill4"sv));
             Skill4->DownCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
             Skill4->UpCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Skill5 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill5"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Skill5 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill5"sv));
             Skill5->DownCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
             Skill5->UpCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Skill6 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill6"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Skill6 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Skill6"sv));
             Skill6->DownCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
             Skill6->UpCallback = pas::bind_method<&TfGameSettings2::StartingSkillClicked>(this);
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, 12); cpp_range_2.next(I); ) {
-            GI_GraphButton::TGraphButtonGI* cpp_with_28 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Item", SysUtils::IntToStr(I)}))));
+            GI_GraphButton::TGraphButtonGI* cpp_with_28 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Item", SysUtils::IntToStr(I)})))));
             cpp_with_28->DownCallback = pas::bind_method<&TfGameSettings2::StartingItemClicked>(this);
             cpp_with_28->UpCallback = pas::bind_method<&TfGameSettings2::StartingItemClicked>(this);
         }
@@ -207,18 +207,18 @@ namespace fGameSettings2 {
         }
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 11); cpp_range_4.next(I); ) {
             if (pas::in_range(ItemTypeByChoice[I], static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
-                GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"ItemI", SysUtils::IntToStr(I + 1)}))));
-                pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemTypeByChoice[I]], u"s"});
+                GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"ItemI", SysUtils::IntToStr(I + 1)})))));
+                pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[static_cast<aConst::TItemType>(ItemTypeByChoice[I])], u"s"});
                 cpp_arg->SetImagePath(std::move(cpp_arg_2));
             } else {
-                pas::WideString cpp_arg_3 = pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemTypeByChoice[I]], pas::wide_int_to_str(1), u"s"});
-                GI_Image::TImageGI* cpp_arg_4 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"ItemI", SysUtils::IntToStr(I + 1)}))));
+                pas::WideString cpp_arg_3 = pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[static_cast<aConst::TItemType>(ItemTypeByChoice[I])], pas::wide_int_to_str(1), u"s"});
+                GI_Image::TImageGI* cpp_arg_4 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"ItemI", SysUtils::IntToStr(I + 1)})))));
                 cpp_arg_4->SetImagePath(std::move(cpp_arg_3));
             }
         }
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(1, 4); cpp_range_5.next(I); ) {
             for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, 7); cpp_range_6.next(J); ) {
-                GI_GraphButton::TGraphButtonGI* cpp_with_29 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(I), "_", SysUtils::IntToStr(J)}))));
+                GI_GraphButton::TGraphButtonGI* cpp_with_29 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(I), "_", SysUtils::IntToStr(J)})))));
                 cpp_with_29->UpCallback = pas::bind_method<&TfGameSettings2::DifficultyComponentClicked>(this);
                 cpp_with_29->DownCallback = pas::bind_method<&TfGameSettings2::DifficultyComponentClicked>(this);
                 cpp_with_29->UserValue = J;
@@ -226,70 +226,70 @@ namespace fGameSettings2 {
             }
         }
         {
-            GI_GraphButton::TGraphButtonGI* LevelUser = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelUser"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* LevelUser = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelUser"sv));
             LevelUser->UpCallback = pas::bind_method<&TfGameSettings2::CustomDifficultyClicked>(this);
             LevelUser->DownCallback = pas::bind_method<&TfGameSettings2::CustomDifficultyClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Level1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Level1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level1"sv));
             Level1->UpCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level1->DownCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level1->LeftButtonDoubleClickCallback = pas::bind_method<&TfGameSettings2::CustomDifficultyMouseUp>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Level2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Level2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level2"sv));
             Level2->UpCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level2->DownCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level2->LeftButtonDoubleClickCallback = pas::bind_method<&TfGameSettings2::CustomDifficultyMouseUp>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Level3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level3"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Level3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level3"sv));
             Level3->UpCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level3->DownCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level3->LeftButtonDoubleClickCallback = pas::bind_method<&TfGameSettings2::CustomDifficultyMouseUp>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Level4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level4"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Level4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level4"sv));
             Level4->UpCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level4->DownCallback = pas::bind_method<&TfGameSettings2::DifficultyPresetClicked>(this);
             Level4->LeftButtonDoubleClickCallback = pas::bind_method<&TfGameSettings2::CustomDifficultyMouseUp>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->UpCallback = pas::bind_method<&TfGameSettings2::ApplyClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"_wref.get()))->UpCallback = pas::bind_method<&TfGameSettings2::CancelClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->UpCallback = pas::bind_method<&TfGameSettings2::ApplyClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"sv))->UpCallback = pas::bind_method<&TfGameSettings2::CancelClicked>(this);
         {
-            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             PlayerName->ChangedCallback = pas::bind_method<&TfGameSettings2::PlayerNameChanged>(this);
             PlayerName->MaxLength = 13;
             PlayerName->MouseEnterCallback = pas::bind_method<&TfGameSettings2::HelpMouseEnter>(this);
             PlayerName->MouseLeaveCallback = pas::bind_method<&TfGameSettings2::HelpMouseLeave>(this);
         }
         {
-            GI_MessageLoop::TObjectGI* CaptainI = GetByName(u"CaptainI"_wref.get());
+            GI_MessageLoop::TObjectGI* CaptainI = GetByName(u"CaptainI"sv);
             CaptainI->MouseEnterCallback = pas::bind_method<&TfGameSettings2::HelpMouseEnter>(this);
             CaptainI->MouseLeaveCallback = pas::bind_method<&TfGameSettings2::HelpMouseLeave>(this);
         }
         {
-            GI_MessageLoop::TObjectGI* LevelProc = GetByName(u"LevelProc"_wref.get());
+            GI_MessageLoop::TObjectGI* LevelProc = GetByName(u"LevelProc"sv);
             LevelProc->MouseEnterCallback = pas::bind_method<&TfGameSettings2::HelpMouseEnter>(this);
             LevelProc->MouseLeaveCallback = pas::bind_method<&TfGameSettings2::HelpMouseLeave>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"_wref.get()))->DownCallback = pas::bind_static_method<&TfGameSettings2::ExtendedSettingsPressed>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCloseExt"_wref.get()))->UpCallback = pas::bind_method<&TfGameSettings2::ToggleExtendedSettings>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButReset"_wref.get()))->UpCallback = pas::bind_method<&TfGameSettings2::ResetExtendedSettingsClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"sv))->DownCallback = pas::bind_static_method<&TfGameSettings2::ExtendedSettingsPressed>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCloseExt"sv))->UpCallback = pas::bind_method<&TfGameSettings2::ToggleExtendedSettings>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButReset"sv))->UpCallback = pas::bind_method<&TfGameSettings2::ResetExtendedSettingsClicked>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfGameSettings2::ExtendedGroupClicked>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfGameSettings2::ExtendedGroupClicked>(this);
             ExtendedGroupButtonTops[0] = ButGroup0->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfGameSettings2::ExtendedGroupClicked>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfGameSettings2::ExtendedGroupClicked>(this);
             ExtendedGroupButtonTops[1] = ButGroup1->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
             ButGroup2->UpCallback = pas::bind_method<&TfGameSettings2::ExtendedGroupClicked>(this);
             ButGroup2->DownCallback = pas::bind_method<&TfGameSettings2::ExtendedGroupClicked>(this);
             ExtendedGroupButtonTops[2] = ButGroup2->LocalPosition.Y;
@@ -325,70 +325,70 @@ namespace fGameSettings2 {
         IronWill = false;
         LevelPanelTop = CollapsedLevelPanelTop;
         {
-            WindowsSdk::TPoint point = ClassesImports::Point(GetByName(u"PanelLevel"_wref.get())->LocalPosition.X, LevelPanelTop);
-            GI_MessageLoop::TObjectGI* byName = GetByName(u"PanelLevel"_wref.get());
+            WindowsSdk::TPoint point = ClassesImports::Point(GetByName(u"PanelLevel"sv)->LocalPosition.X, LevelPanelTop);
+            GI_MessageLoop::TObjectGI* byName = GetByName(u"PanelLevel"sv);
             byName->SetPosition(point);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"_wref.get()))->SetActive(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelClose"_wref.get()))->SetActive(false);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"sv))->SetActive(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelClose"sv))->SetActive(false);
         if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Race"_wref.get()) > 0) {
             Text = GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Race"_wref.get());
             if (Text == u"Maloc") {
-                PlayerRace = 0;
-                RaceClicked(GetByName(u"RaceMaloc"_wref.get()));
+                PlayerRace = aGalaxyStruct::oiMaloc;
+                RaceClicked(GetByName(u"RaceMaloc"sv));
             } else if (Text == u"Peleng") {
-                PlayerRace = 1;
-                RaceClicked(GetByName(u"RacePeleng"_wref.get()));
+                PlayerRace = aGalaxyStruct::oiPeleng;
+                RaceClicked(GetByName(u"RacePeleng"sv));
             } else if (Text == u"Fei") {
-                PlayerRace = 3;
-                RaceClicked(GetByName(u"RaceFei"_wref.get()));
+                PlayerRace = aGalaxyStruct::oiFeyan;
+                RaceClicked(GetByName(u"RaceFei"sv));
             } else if (Text == u"Gaal") {
-                PlayerRace = 4;
-                RaceClicked(GetByName(u"RaceGaal"_wref.get()));
+                PlayerRace = aGalaxyStruct::oiGaal;
+                RaceClicked(GetByName(u"RaceGaal"sv));
             } else {
-                PlayerRace = 2;
-                RaceClicked(GetByName(u"RacePeople"_wref.get()));
+                PlayerRace = aGalaxyStruct::oiHuman;
+                RaceClicked(GetByName(u"RacePeople"sv));
             }
         } else {
-            PlayerRace = 2;
-            RaceClicked(GetByName(u"RacePeople"_wref.get()));
+            PlayerRace = aGalaxyStruct::oiHuman;
+            RaceClicked(GetByName(u"RacePeople"sv));
         }
         if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Name"_wref.get()) > 0 && GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Name"_wref.get()) != u"") {
             Text = GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Name"_wref.get());
-            pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->SetText(Text);
+            pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->SetText(Text);
             ValidatePlayerName(Text);
         }
-        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Char"_wref.get()) > 0 && EC_Str::IsIntegerTextW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Char"_wref.get())) && pas::in_range(EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Char"_wref.get())), 1, 5)) {
-            CharacterPreset = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Char"_wref.get()));
+        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Char"_wref.get()) > 0 && EC_Str::IsIntegerTextW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Char"_wref.get()))) && pas::in_range(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Char"_wref.get()))), 1, 5)) {
+            CharacterPreset = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Char"_wref.get())));
         } else {
             CharacterPreset = 3;
         }
-        CharacterPresetClicked(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Char", SysUtils::IntToStr(CharacterPreset)}))));
-        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Face"_wref.get()) > 0 && EC_Str::IsIntegerTextW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Face"_wref.get()))) {
-            CaptainPortraitIndex = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Face"_wref.get()));
+        CharacterPresetClicked(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Char", SysUtils::IntToStr(CharacterPreset)})))));
+        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Face"_wref.get()) > 0 && EC_Str::IsIntegerTextW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Face"_wref.get())))) {
+            CaptainPortraitIndex = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Face"_wref.get())));
         } else {
             CaptainPortraitIndex = 0;
         }
         RefreshPortrait();
         SelectedSkillSlot = 0;
-        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Skill1"_wref.get()) > 0 && EC_Str::IsIntegerTextW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get())) && pas::in_range(EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get())), 0, 5) && GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Skill2"_wref.get()) > 0 && EC_Str::IsIntegerTextW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get())) && pas::in_range(EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get())), 0, 5) && ([&] {
-            std::int32_t cpp_left = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get()));
-            return cpp_left != EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get()));
+        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Skill1"_wref.get()) > 0 && EC_Str::IsIntegerTextW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get()))) && pas::in_range(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get()))), 0, 5) && GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Skill2"_wref.get()) > 0 && EC_Str::IsIntegerTextW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get()))) && pas::in_range(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get()))), 0, 5) && ([&] {
+            std::int32_t cpp_left = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get())));
+            return cpp_left != EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get())));
         }())) {
-            StartingSkills[0] = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get()));
-            StartingSkills[1] = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get()));
+            StartingSkills[0] = static_cast<aGalaxyStruct::TPilotSkill>(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill1"_wref.get()))));
+            StartingSkills[1] = static_cast<aGalaxyStruct::TPilotSkill>(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Skill2"_wref.get()))));
         } else {
-            StartingSkills[0] = 0;
-            StartingSkills[1] = 3;
+            StartingSkills[0] = aGalaxyStruct::psAccuracy;
+            StartingSkills[1] = aGalaxyStruct::psTrading;
         }
         RefreshStartingSkills();
         SelectedItemSlot = 0;
-        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Item1"_wref.get()) > 0 && EC_Str::IsIntegerTextW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get())) && pas::in_range(EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get())), 1, 12) && GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Item2"_wref.get()) > 0 && EC_Str::IsIntegerTextW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get())) && pas::in_range(EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get())), 1, 12) && ([&] {
-            std::int32_t cpp_left_2 = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get()));
-            return cpp_left_2 != EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get()));
+        if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Item1"_wref.get()) > 0 && EC_Str::IsIntegerTextW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get()))) && pas::in_range(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get()))), 1, 12) && GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Item2"_wref.get()) > 0 && EC_Str::IsIntegerTextW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get()))) && pas::in_range(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get()))), 1, 12) && ([&] {
+            std::int32_t cpp_left_2 = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get())));
+            return cpp_left_2 != EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get())));
         }())) {
-            StartingItemChoices[0] = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get()));
-            StartingItemChoices[1] = EC_Str::ExtractDigitsToIntW(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get()));
+            StartingItemChoices[0] = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item1"_wref.get())));
+            StartingItemChoices[1] = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Item2"_wref.get())));
         } else {
             StartingItemChoices[0] = 1;
             StartingItemChoices[1] = 2;
@@ -398,8 +398,8 @@ namespace fGameSettings2 {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 7); cpp_range.next(I); ) {
             if (GR_Main::NewGameSettingsConfig->CountParamsByPath(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(I)}))) > 0) {
                 ValueText = GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(I)})));
-                if (EC_Str::IsIntegerTextW(ValueText)) {
-                    Value = EC_Str::ExtractDigitsToIntW(ValueText);
+                if (EC_Str::IsIntegerTextW(pas::view(ValueText))) {
+                    Value = EC_Str::ExtractDigitsToIntW(pas::view(ValueText));
                     if (pas::contains(pas::make_set<pas::Set<0, 255>>({{0, static_cast<std::int32_t>(aConst::MaximumNewGameDifficulty)}}), Value)) {
                         DifficultyLevels[I] = Value;
                     } else {
@@ -420,19 +420,19 @@ namespace fGameSettings2 {
             self->AddIronWillChoice(0, X, Y, std::move(localizedColorText), std::move(localizedColorText_2), ironWill, false);
         }
         if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"IronWill"_wref.get()) > 0) {
-            if (GI_Main::ParseEnabledNameGI(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"IronWill"_wref.get()))) {
+            if (GI_Main::ParseEnabledNameGI(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"IronWill"_wref.get())))) {
                 IronWillMouseDown(IronWillLabel, 0u, ClassesImports::Point(-1000, -1000));
             }
         }
         {
-            GI_MessageLoop::TObjectGI* PanelExtended = GetByName(u"PanelExtended"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelExtended = GetByName(u"PanelExtended"sv);
             PanelExtended->SetActive(false);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButExtended = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"_wref.get()));
-            ButExtended->SetDown(GR_Main::NewGameSettingsConfig->CountParamsByPath(u"UseCustomRules"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"UseCustomRules"_wref.get())));
+            GI_GraphButton::TGraphButtonGI* ButExtended = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"sv));
+            ButExtended->SetDown(GR_Main::NewGameSettingsConfig->CountParamsByPath(u"UseCustomRules"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(pas::view(GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"UseCustomRules"_wref.get()))));
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Owner = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Owner = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
         Owner->FreeOwnedChildren();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 3); cpp_range_2.next(I); ) {
             ExtendedGroupNextY[I] = 0;
@@ -534,7 +534,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_8 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.ZeroStartExp"_wref.get());
@@ -555,7 +555,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_11 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.KlingRacialWeapons"_wref.get());
@@ -576,7 +576,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_14 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.MaxRangeMissiles"_wref.get());
@@ -685,7 +685,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_26 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.StartCenter"_wref.get());
@@ -707,7 +707,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_29 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.Rnd"_wref.get());
@@ -728,7 +728,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_32 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.RuinsPosition"_wref.get());
@@ -749,7 +749,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_35 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.RuinsTargetting"_wref.get());
@@ -770,7 +770,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_38 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.RuinsUseShop"_wref.get());
@@ -791,7 +791,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_41 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.SpecialShips"_wref.get());
@@ -836,7 +836,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_46 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.EqKnowledge"_wref.get());
@@ -905,7 +905,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_53 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.ABattleRoyale"_wref.get());
@@ -926,7 +926,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_56 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.ABChangeEq"_wref.get());
@@ -959,7 +959,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_60 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.OldHyper"_wref.get());
@@ -980,7 +980,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_63 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.PirateNodes"_wref.get());
@@ -1001,7 +1001,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_66 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.AIUseShops"_wref.get());
@@ -1022,7 +1022,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_69 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.DuplicateArts"_wref.get());
@@ -1043,7 +1043,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_72 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.SpeedCalc"_wref.get());
@@ -1064,7 +1064,7 @@ namespace fGameSettings2 {
         if (Text == u"") {
             Enabled = false;
         } else {
-            Enabled = GI_Main::ParseEnabledNameGI(Text);
+            Enabled = GI_Main::ParseEnabledNameGI(pas::view(Text));
         }
         {
             pas::WideString localizedText_75 = aConst::LocalizedText(u"FormGameSet2.Extended.ParameterNames.MissileBonuses"_wref.get());
@@ -1086,7 +1086,7 @@ namespace fGameSettings2 {
             cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, ExtendedGroupNextY[I]));
         }
         {
-            std::int32_t cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButReset"_wref.get()))->CaptionLabel->GetLineHeight() * 2;
+            std::int32_t cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButReset"sv))->CaptionLabel->GetLineHeight() * 2;
             GI_ScrollBar::TScrollBarGI* verticalScrollBar = Owner->VerticalScrollBar;
             verticalScrollBar->SetSmallChange(cpp_arg_2);
         }
@@ -1106,13 +1106,13 @@ namespace fGameSettings2 {
         pas::free(IronWillLabel);
         IronWillLabel = nullptr;
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
             PanelSet->FreeOwnedChildren();
         }
     }
 
     void TfGameSettings2::AddIronWillChoice(std::int32_t Value, std::int32_t X, std::int32_t Y, pas::WideString Caption, pas::WideString Help, std::uint8_t Selected, std::uint8_t Disabled) {
-        GI_MessageLoop::TObjectGI* Owner = GetByName(u"PanelChar"_wref.get());
+        GI_MessageLoop::TObjectGI* Owner = GetByName(u"PanelChar"sv);
         IronWillImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Owner);
         {
             GI_Image::TImageGI* cpp_with = IronWillImage;
@@ -1146,7 +1146,7 @@ namespace fGameSettings2 {
             cpp_with_2->SetSize(ClassesImports::Point(Width, 1));
             cpp_with_2->SetTextAlignX(GI_Main::taxAuto);
             cpp_with_2->SetTextAlignY(GI_Main::tayAuto);
-            cpp_with_2->HelpText = Help;
+            cpp_with_2->HelpText = std::move(Help);
             cpp_with_2->SetText(Caption);
             if (Disabled) {
                 cpp_with_2->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(127, 127, 127));
@@ -1197,7 +1197,7 @@ namespace fGameSettings2 {
             pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
             return cpp_string == cpp_string_2;
         }())) {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Sender);
+            GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -1212,7 +1212,7 @@ namespace fGameSettings2 {
             pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
             return cpp_string == cpp_string_2;
         }())) {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Sender);
+            GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -1224,19 +1224,19 @@ namespace fGameSettings2 {
         std::int32_t Index{};
         BlockName = aConst::OwnerToSys(aConst::RaceToOwner(PlayerRace));
         do {
-            Index = aMyFunction::RandomIntRange(0, GR_Main::LanguageDataConfig->GetBlock(u"ShipName"_wref.get())->GetBlock(u"Ranger"_wref.get())->GetBlock(BlockName)->GetParamCount() - 1);
-            Name = GR_Main::LanguageDataConfig->GetBlock(u"ShipName"_wref.get())->GetBlock(u"Ranger"_wref.get())->GetBlock(BlockName)->GetParamValue(Index);
-            pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->SetText(Name);
+            Index = aMyFunction::RandomIntRange(0, GR_Main::LanguageDataConfig->GetBlock(u"ShipName"sv)->GetBlock(u"Ranger"sv)->GetBlock(pas::view(BlockName))->GetParamCount() - 1);
+            Name = GR_Main::LanguageDataConfig->GetBlock(u"ShipName"sv)->GetBlock(u"Ranger"sv)->GetBlock(pas::view(BlockName))->GetParamValue(Index);
+            pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->SetText(Name);
             {
-                std::uint8_t cpp_arg = static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text) ^ 1);
-                GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()));
+                std::uint8_t cpp_arg = static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text) ^ 1);
+                GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
                 cpp_arg_2->SetDisabled(cpp_arg);
             }
         } while (!(Name.length() <= 13));
     }
 
     void TfGameSettings2::PlayerNameMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        SetFocusedControl(GetByName(u"PlayerName"_wref.get()));
+        SetFocusedControl(GetByName(u"PlayerName"sv));
     }
 
     void TfGameSettings2::ToggleLevelPanel(GI_MessageLoop::TObjectGI* Sender) {
@@ -1244,13 +1244,13 @@ namespace fGameSettings2 {
             LevelPanelTimer = ScheduleCallbackTimer(10, 10, pas::bind_method<&TfGameSettings2::AnimateLevelPanel>(this), 0);
         }
         {
-            std::uint8_t cpp_arg = static_cast<std::uint8_t>(GetByName(u"LevelOpen"_wref.get())->Active ^ 1);
-            GI_MessageLoop::TObjectGI* byName = GetByName(u"LevelOpen"_wref.get());
+            std::uint8_t cpp_arg = static_cast<std::uint8_t>(GetByName(u"LevelOpen"sv)->Active ^ 1);
+            GI_MessageLoop::TObjectGI* byName = GetByName(u"LevelOpen"sv);
             byName->SetActive(cpp_arg);
         }
         {
-            std::uint8_t cpp_arg_2 = static_cast<std::uint8_t>(GetByName(u"LevelOpen"_wref.get())->Active ^ 1);
-            GI_MessageLoop::TObjectGI* byName_2 = GetByName(u"LevelClose"_wref.get());
+            std::uint8_t cpp_arg_2 = static_cast<std::uint8_t>(GetByName(u"LevelOpen"sv)->Active ^ 1);
+            GI_MessageLoop::TObjectGI* byName_2 = GetByName(u"LevelClose"sv);
             byName_2->SetActive(cpp_arg_2);
         }
         RefreshStartingSkills();
@@ -1261,7 +1261,7 @@ namespace fGameSettings2 {
     void TfGameSettings2::AnimateLevelPanel(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         std::int32_t Level{};
         std::int32_t I{};
-        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"_wref.get()))->Active) {
+        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"sv))->Active) {
             LevelPanelTop -= 10;
             if (LevelPanelTop <= CollapsedLevelPanelTop) {
                 LevelPanelTop = CollapsedLevelPanelTop;
@@ -1281,12 +1281,12 @@ namespace fGameSettings2 {
             }
         }
         {
-            WindowsSdk::TPoint point = ClassesImports::Point(GetByName(u"PanelLevel"_wref.get())->LocalPosition.X, LevelPanelTop);
-            GI_MessageLoop::TObjectGI* byName = GetByName(u"PanelLevel"_wref.get());
+            WindowsSdk::TPoint point = ClassesImports::Point(GetByName(u"PanelLevel"sv)->LocalPosition.X, LevelPanelTop);
+            GI_MessageLoop::TObjectGI* byName = GetByName(u"PanelLevel"sv);
             byName->SetPosition(point);
         }
         {
-            GI_GraphButton::TGraphButtonGI* LevelUser = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelUser"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* LevelUser = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelUser"sv));
             if (!LevelUser->Down) {
                 LevelUser->SetDown(true);
                 LevelUser->SetDown(false);
@@ -1295,7 +1295,7 @@ namespace fGameSettings2 {
         RefreshDifficulty();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 4); cpp_range.next(Level); ) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 7); cpp_range_2.next(I); ) {
-                GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(Level), "_", SysUtils::IntToStr(I)}))));
+                GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(Level), "_", SysUtils::IntToStr(I)})))));
                 if (!cpp_with_2->Down) {
                     cpp_with_2->SetDown(true);
                     cpp_with_2->SetDown(false);
@@ -1306,32 +1306,32 @@ namespace fGameSettings2 {
     }
 
     void TfGameSettings2::RaceClicked(GI_MessageLoop::TObjectGI* Sender) {
-        PlayerRace = Sender->UserValue;
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceMaloc"_wref.get()))->SetDown(PlayerRace == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeleng"_wref.get()))->SetDown(PlayerRace == 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeople"_wref.get()))->SetDown(PlayerRace == 2);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceFei"_wref.get()))->SetDown(PlayerRace == 3);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceGaal"_wref.get()))->SetDown(PlayerRace == 4);
+        PlayerRace = static_cast<aGalaxyStruct::TOwnerId>(Sender->UserValue);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceMaloc"sv))->SetDown(PlayerRace == aGalaxyStruct::oiMaloc);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeleng"sv))->SetDown(PlayerRace == aGalaxyStruct::oiPeleng);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeople"sv))->SetDown(PlayerRace == aGalaxyStruct::oiHuman);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceFei"sv))->SetDown(PlayerRace == aGalaxyStruct::oiFeyan);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceGaal"sv))->SetDown(PlayerRace == aGalaxyStruct::oiGaal);
         CaptainPortraitIndex = 0;
         RefreshPortrait();
         if (!PlayerNameEdited) {
             GeneratePlayerName();
         }
-        SetFocusedControl(GetByName(u"PlayerName"_wref.get()));
+        SetFocusedControl(GetByName(u"PlayerName"sv));
         {
-            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             PlayerName->SetCaretPosition(PlayerName->Text.length());
         }
         PlayerNameChanged(nullptr);
     }
 
     void TfGameSettings2::CharacterPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
-        CharacterPreset = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char1"_wref.get()))->SetDown(CharacterPreset == 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char2"_wref.get()))->SetDown(CharacterPreset == 2);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char3"_wref.get()))->SetDown(CharacterPreset == 3);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char4"_wref.get()))->SetDown(CharacterPreset == 4);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char5"_wref.get()))->SetDown(CharacterPreset == 5);
+        CharacterPreset = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char1"sv))->SetDown(CharacterPreset == 1);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char2"sv))->SetDown(CharacterPreset == 2);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char3"sv))->SetDown(CharacterPreset == 3);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char4"sv))->SetDown(CharacterPreset == 4);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Char5"sv))->SetDown(CharacterPreset == 5);
         PlayerNameChanged(nullptr);
     }
 
@@ -1342,9 +1342,9 @@ namespace fGameSettings2 {
             CaptainPortraitIndex = 0;
         }
         {
-            GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()));
+            GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv));
             if (LastPortraitByRace[PlayerRace] >= 0) {
-                CaptainI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace) & 0x0000007f].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"i"}));
+                CaptainI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace)].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"i"}));
                 CaptainI->SetImageKindX(GI_Main::ikxCenter);
                 CaptainI->SetImageKindY(GI_Main::ikyCenter);
                 CaptainI->SetActive(true);
@@ -1353,10 +1353,10 @@ namespace fGameSettings2 {
             }
         }
         {
-            GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
+            GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"sv));
             CaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
             if (LastPortraitByRace[PlayerRace] >= 0) {
-                CaptainA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace) & 0x0000007f].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"a"}));
+                CaptainA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace)].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"a"}));
                 CaptainA->SequenceIndex = 0;
                 CaptainA->UpdateAutoGeometry();
                 CaptainA->SetImageKindX(GI_Main::ikxCenter);
@@ -1380,16 +1380,16 @@ namespace fGameSettings2 {
     }
 
     void TfGameSettings2::RefreshStartingSkills() {
-        std::uint8_t Skill{};
+        aGalaxyStruct::TPilotSkill Skill{};
         std::int32_t Number{};
         std::int32_t Slot{};
         std::uint8_t Selected{};
         {
-            GI_MessageLoop::TObjectGI* SkillCur = GetByName(u"SkillCur"_wref.get());
+            GI_MessageLoop::TObjectGI* SkillCur = GetByName(u"SkillCur"sv);
             SkillCur->SetPosition(ClassesImports::Point(68 + 55 * StartingSkills[SelectedSkillSlot], 109));
         }
         Number = 1;
-        for (Skill = static_cast<std::uint8_t>(0); Skill <= static_cast<std::uint8_t>(5); ++Skill) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
             Selected = false;
             for (Slot = 0; Slot <= 1; ++Slot) {
                 if (StartingSkills[Slot] == Skill) {
@@ -1397,16 +1397,16 @@ namespace fGameSettings2 {
                     break;
                 }
             }
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Skill", SysUtils::IntToStr(Number)}))))->SetDown(Selected);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Skill", SysUtils::IntToStr(Number)})))))->SetDown(Selected);
             ++Number;
         }
     }
 
     void TfGameSettings2::StartingSkillClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t Slot{};
-        std::uint8_t Skill{};
-        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"_wref.get()))->Active) {
-            Skill = EC_Str::ExtractDigitsToIntW(Sender->ControlName) - 1;
+        aGalaxyStruct::TPilotSkill Skill{};
+        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"sv))->Active) {
+            Skill = static_cast<aGalaxyStruct::TPilotSkill>(EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName)) - 1);
             for (Slot = 0; Slot <= 1; ++Slot) {
                 if (StartingSkills[Slot] == Skill) {
                     SelectedSkillSlot = Slot;
@@ -1423,7 +1423,7 @@ namespace fGameSettings2 {
         std::int32_t Slot{};
         std::uint8_t Selected{};
         {
-            GI_MessageLoop::TObjectGI* ItemCur = GetByName(u"ItemCur"_wref.get());
+            GI_MessageLoop::TObjectGI* ItemCur = GetByName(u"ItemCur"sv);
             ItemCur->SetPosition(ClassesImports::Point(68 + (StartingItemChoices[SelectedItemSlot] - 1) % 6 * 55, 210 + (StartingItemChoices[SelectedItemSlot] - 1) / 6 * 61));
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 12); cpp_range.next(Item); ) {
@@ -1434,15 +1434,15 @@ namespace fGameSettings2 {
                     break;
                 }
             }
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Item", SysUtils::IntToStr(Item)}))))->SetDown(Selected);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Item", SysUtils::IntToStr(Item)})))))->SetDown(Selected);
         }
     }
 
     void TfGameSettings2::StartingItemClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t Slot{};
         std::int32_t Item{};
-        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"_wref.get()))->Active) {
-            Item = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
+        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelOpen"sv))->Active) {
+            Item = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
             for (Slot = 0; Slot <= 1; ++Slot) {
                 if (StartingItemChoices[Slot] == Item) {
                     SelectedItemSlot = Slot;
@@ -1473,11 +1473,11 @@ namespace fGameSettings2 {
         if (Custom == 0) {
             DifficultyPreset = DifficultyLevels[1];
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelUser"_wref.get()))->SetDown(static_cast<std::int32_t>(Custom) != 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level1"_wref.get()))->SetDown(DifficultyPreset == 0 && Custom == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level2"_wref.get()))->SetDown(DifficultyPreset == 1 && Custom == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level3"_wref.get()))->SetDown(DifficultyPreset == 2 && Custom == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level4"_wref.get()))->SetDown(DifficultyPreset == 3 && Custom == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LevelUser"sv))->SetDown(static_cast<std::int32_t>(Custom) != 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level1"sv))->SetDown(DifficultyPreset == 0 && Custom == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level2"sv))->SetDown(DifficultyPreset == 1 && Custom == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level3"sv))->SetDown(DifficultyPreset == 2 && Custom == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Level4"sv))->SetDown(DifficultyPreset == 3 && Custom == 0);
         Average = 0;
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 7); cpp_range_3.next(I); ) {
             Average = Average + 50 + DifficultyLevels[I] * 50;
@@ -1495,8 +1495,8 @@ namespace fGameSettings2 {
             Color = pas::concat_wide({u"<color=255,", EC_Str::IntToWideString(System::Round(aMyFunction::RemapClamped(Average, 2.0E+2, 5.0E+2, 166.0, 0.0))), u",0>"});
         }
         {
-            const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Average), "%"})), Color);
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LevelProc"_wref.get()));
+            const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Average), "%"}))), pas::view(Color));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LevelProc"sv));
             cpp_arg->SetText(wrapTextInColor);
         }
     }
@@ -1509,7 +1509,7 @@ namespace fGameSettings2 {
         if (Sender->ControlName == static_cast<pas::WideString>(pas::concat_ansi({"Level4_", SysUtils::IntToStr(Component)})) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && aConst::MaximumNewGameDifficulty > Value) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, 7); cpp_range.next(I); ) {
                 Saved[I] = DifficultyLevels[I];
-                DifficultyLevels[I] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Level4_", SysUtils::IntToStr(I)}))))->UserIndex;
+                DifficultyLevels[I] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Level4_", SysUtils::IntToStr(I)})))))->UserIndex;
             }
             ++DifficultyLevels[Component];
             RefreshDifficultyHelp();
@@ -1520,7 +1520,7 @@ namespace fGameSettings2 {
         if (Sender->ControlName == static_cast<pas::WideString>(pas::concat_ansi({"Level1_", SysUtils::IntToStr(Component)})) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && Value > 0) {
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 7); cpp_range_3.next(I); ) {
                 Saved[I] = DifficultyLevels[I];
-                DifficultyLevels[I] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Level4_", SysUtils::IntToStr(I)}))))->UserIndex;
+                DifficultyLevels[I] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Level4_", SysUtils::IntToStr(I)})))))->UserIndex;
             }
             --DifficultyLevels[Component];
             RefreshDifficultyHelp();
@@ -1547,7 +1547,7 @@ namespace fGameSettings2 {
         std::int32_t First{};
         std::int32_t J{};
         GI_Label::TLabelGI* CaptionLabel{};
-        DifficultyPreset = EC_Str::ExtractDigitsToIntW(Sender->ControlName) - 1;
+        DifficultyPreset = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName)) - 1;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 7); cpp_range.next(I); ) {
             DifficultyLevels[I] = DifficultyPreset;
         }
@@ -1584,7 +1584,7 @@ namespace fGameSettings2 {
                         }
                     }
                     {
-                        GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(J + 1), "_", SysUtils::IntToStr(I - 1)}))));
+                        GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(J + 1), "_", SysUtils::IntToStr(I - 1)})))));
                         cpp_with->UserValue = I - 1;
                         cpp_with->UserIndex = First + J;
                         switch (First + J) {
@@ -1649,30 +1649,30 @@ namespace fGameSettings2 {
     void TfGameSettings2::ApplyClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t I{};
         pas::WideString FileName{};
-        if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->Disabled) {
-            if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"_wref.get()))->Down && static_cast<std::uint8_t>(GetByName(u"PanelExtended"_wref.get())->Active ^ 1)) {
+        if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->Disabled) {
+            if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"sv))->Down && static_cast<std::uint8_t>(GetByName(u"PanelExtended"sv)->Active ^ 1)) {
                 {
-                    GI_MessageLoop::TObjectGI* PanelChar = GetByName(u"PanelChar"_wref.get());
+                    GI_MessageLoop::TObjectGI* PanelChar = GetByName(u"PanelChar"sv);
                     PanelChar->SetActive(false);
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PanelLevels = GetByName(u"PanelLevels"_wref.get());
+                    GI_MessageLoop::TObjectGI* PanelLevels = GetByName(u"PanelLevels"sv);
                     PanelLevels->SetActive(false);
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PanelSkills = GetByName(u"PanelSkills"_wref.get());
+                    GI_MessageLoop::TObjectGI* PanelSkills = GetByName(u"PanelSkills"sv);
                     PanelSkills->SetActive(false);
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PanelExtended = GetByName(u"PanelExtended"_wref.get());
+                    GI_MessageLoop::TObjectGI* PanelExtended = GetByName(u"PanelExtended"sv);
                     PanelExtended->SetActive(true);
                 }
             } else {
                 if (PlayerNameEdited) {
-                    GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Name"_wref.get(), pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text);
+                    GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Name"_wref.get(), pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text);
                 } else if (GR_Main::NewGameSettingsConfig->CountParamsByPath(u"Name"_wref.get()) <= 0 || ([&] {
                     pas::WideString cpp_string = GR_Main::NewGameSettingsConfig->GetParamByPathOrMarker(u"Name"_wref.get());
-                    const pas::WideString& cpp_string_ref = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text;
+                    const pas::WideString& cpp_string_ref = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text;
                     return cpp_string != cpp_string_ref;
                 }())) {
                     GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Name"_wref.get(), u""_wref.get());
@@ -1682,7 +1682,7 @@ namespace fGameSettings2 {
                 } else {
                     GR_Main::NewGameSettingsConfig->SetOrAddParam(u"IronWill"_wref.get(), u"False"_wref.get());
                 }
-                GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Race"_wref.get(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace) & 0x0000007f].InternalName);
+                GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Race"_wref.get(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace)].InternalName);
                 GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Char"_wref.get(), pas::wide_int_to_str(CharacterPreset));
                 GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Face"_wref.get(), pas::wide_int_to_str(CaptainPortraitIndex));
                 GR_Main::NewGameSettingsConfig->SetOrAddParam(u"Skill1"_wref.get(), pas::wide_int_to_str(static_cast<std::int32_t>(StartingSkills[0])));
@@ -1698,54 +1698,54 @@ namespace fGameSettings2 {
                 if (GR_Main::NewGameSettingsConfig->CountBlocks(u"CustomRules"_wref.get()) == 0) {
                     GR_Main::NewGameSettingsConfig->AddBlockByPath(u"CustomRules"_wref.get());
                 }
-                GR_Main::NewGameSettingsConfig->SetOrAddParam(u"UseCustomRules"_wref.get(), EC_Str::BoolToWideString(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"_wref.get()))->Down));
+                GR_Main::NewGameSettingsConfig->SetOrAddParam(u"UseCustomRules"_wref.get(), EC_Str::BoolToWideString(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExtended"sv))->Down));
                 {
                     EC_BlockPar::TBlockParEC* CustomRules = GR_Main::NewGameSettingsConfig->GetBlockByPath(u"CustomRules"_wref.get());
                     ActiveExtendedGroup = 0;
-                    CustomRules->SetOrAddParam(u"KlingStrength"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"KlingStrength"_w) - 1));
-                    CustomRules->SetOrAddParam(u"KlingAggro"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"KlingAggro"_w) - 1));
-                    CustomRules->SetOrAddParam(u"KlingSpawn"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"KlingSpawn"_w) - 1));
-                    CustomRules->SetOrAddParam(u"PirateAggro"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"PirateAggro"_w) - 1));
-                    CustomRules->SetOrAddParam(u"CoalAggro"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"CoalAggro"_w)));
-                    CustomRules->SetOrAddParam(u"ExtraInventions"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ExtraInventions"_w)));
-                    CustomRules->SetOrAddParam(u"ExtraRangers"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ExtraRangers"_w)));
-                    CustomRules->SetOrAddParam(u"ZeroStartExp"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"ZeroStartExp"_w) == 0));
-                    CustomRules->SetOrAddParam(u"KlingRacialWeapons"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"KlingRacialWeapons"_w) == 0));
-                    CustomRules->SetOrAddParam(u"MaxRangeMissiles"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"MaxRangeMissiles"_w) == 0));
-                    CustomRules->SetOrAddParam(u"HullGrowth"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"HullGrowth"_w)));
+                    CustomRules->SetOrAddParam(u"KlingStrength"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"KlingStrength"sv) - 1));
+                    CustomRules->SetOrAddParam(u"KlingAggro"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"KlingAggro"sv) - 1));
+                    CustomRules->SetOrAddParam(u"KlingSpawn"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"KlingSpawn"sv) - 1));
+                    CustomRules->SetOrAddParam(u"PirateAggro"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"PirateAggro"sv) - 1));
+                    CustomRules->SetOrAddParam(u"CoalAggro"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"CoalAggro"sv)));
+                    CustomRules->SetOrAddParam(u"ExtraInventions"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ExtraInventions"sv)));
+                    CustomRules->SetOrAddParam(u"ExtraRangers"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ExtraRangers"sv)));
+                    CustomRules->SetOrAddParam(u"ZeroStartExp"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"ZeroStartExp"sv) == 0));
+                    CustomRules->SetOrAddParam(u"KlingRacialWeapons"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"KlingRacialWeapons"sv) == 0));
+                    CustomRules->SetOrAddParam(u"MaxRangeMissiles"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"MaxRangeMissiles"sv) == 0));
+                    CustomRules->SetOrAddParam(u"HullGrowth"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"HullGrowth"sv)));
                     ActiveExtendedGroup = 1;
-                    CustomRules->SetOrAddParam(u"AsteroidMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AsteroidMod"_w)));
-                    CustomRules->SetOrAddParam(u"SunDamageMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"SunDamageMod"_w)));
-                    CustomRules->SetOrAddParam(u"AgPlanets"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AgPlanets"_w)));
-                    CustomRules->SetOrAddParam(u"MiPlanets"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"MiPlanets"_w)));
-                    CustomRules->SetOrAddParam(u"InPlanets"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"InPlanets"_w)));
-                    CustomRules->SetOrAddParam(u"StartCenter"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"StartCenter"_w) == 0));
+                    CustomRules->SetOrAddParam(u"AsteroidMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AsteroidMod"sv)));
+                    CustomRules->SetOrAddParam(u"SunDamageMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"SunDamageMod"sv)));
+                    CustomRules->SetOrAddParam(u"AgPlanets"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AgPlanets"sv)));
+                    CustomRules->SetOrAddParam(u"MiPlanets"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"MiPlanets"sv)));
+                    CustomRules->SetOrAddParam(u"InPlanets"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"InPlanets"sv)));
+                    CustomRules->SetOrAddParam(u"StartCenter"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"StartCenter"sv) == 0));
                     ActiveExtendedGroup = 2;
-                    CustomRules->SetOrAddParam(u"RndChaotic"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RndType"_w) == 0));
-                    CustomRules->SetOrAddParam(u"EqKnowledgeUnRestricted"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"EqKnowledgeType"_w) == 0));
-                    CustomRules->SetOrAddParam(u"RuinsNearStars"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RuinsPosition"_w) == 0));
-                    CustomRules->SetOrAddParam(u"RuinsTargettingFull"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RuinsTargetting"_w) == 0));
-                    CustomRules->SetOrAddParam(u"RuinsUseShop"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RuinsUseShop"_w) == 0));
-                    CustomRules->SetOrAddParam(u"SpecialShipsInGame"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"SpecialShipsInGame"_w) == 0));
-                    CustomRules->SetOrAddParam(u"AkrinMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AkrinMod"_w)));
-                    CustomRules->SetOrAddParam(u"NodeDropMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"NodeDropMod"_w)));
-                    CustomRules->SetOrAddParam(u"DropValueMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"DropValueMod"_w)));
-                    CustomRules->SetOrAddParam(u"ABDropValueMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ABDropValueMod"_w)));
-                    CustomRules->SetOrAddParam(u"ABHitpointsMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ABHitpointsMod"_w)));
-                    CustomRules->SetOrAddParam(u"ABDamageMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ABDamageMod"_w)));
-                    CustomRules->SetOrAddParam(u"ABattleRoyale"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"ABattleRoyale"_w) == 0));
-                    CustomRules->SetOrAddParam(u"ABChangeEq"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"ABChangeEq"_w) == 0));
-                    CustomRules->SetOrAddParam(u"AITolerateJunk"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AITolerateJunk"_w)));
-                    CustomRules->SetOrAddParam(u"OldHyper"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"OldHyper"_w) == 0));
-                    CustomRules->SetOrAddParam(u"PirateNodes"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"PirateNodes"_w) == 0));
-                    CustomRules->SetOrAddParam(u"AIUseShops"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"AIUseShops"_w) == 0));
-                    CustomRules->SetOrAddParam(u"DuplicateArts"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"DuplicateArts"_w) == 0));
-                    CustomRules->SetOrAddParam(u"OldSpeedCalc"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"SpeedCalc"_w) == 0));
-                    CustomRules->SetOrAddParam(u"OldMissileBonuses"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"MissileBonuses"_w) == 0));
+                    CustomRules->SetOrAddParam(u"RndChaotic"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RndType"sv) == 0));
+                    CustomRules->SetOrAddParam(u"EqKnowledgeUnRestricted"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"EqKnowledgeType"sv) == 0));
+                    CustomRules->SetOrAddParam(u"RuinsNearStars"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RuinsPosition"sv) == 0));
+                    CustomRules->SetOrAddParam(u"RuinsTargettingFull"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RuinsTargetting"sv) == 0));
+                    CustomRules->SetOrAddParam(u"RuinsUseShop"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"RuinsUseShop"sv) == 0));
+                    CustomRules->SetOrAddParam(u"SpecialShipsInGame"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"SpecialShipsInGame"sv) == 0));
+                    CustomRules->SetOrAddParam(u"AkrinMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AkrinMod"sv)));
+                    CustomRules->SetOrAddParam(u"NodeDropMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"NodeDropMod"sv)));
+                    CustomRules->SetOrAddParam(u"DropValueMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"DropValueMod"sv)));
+                    CustomRules->SetOrAddParam(u"ABDropValueMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ABDropValueMod"sv)));
+                    CustomRules->SetOrAddParam(u"ABHitpointsMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ABHitpointsMod"sv)));
+                    CustomRules->SetOrAddParam(u"ABDamageMod"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"ABDamageMod"sv)));
+                    CustomRules->SetOrAddParam(u"ABattleRoyale"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"ABattleRoyale"sv) == 0));
+                    CustomRules->SetOrAddParam(u"ABChangeEq"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"ABChangeEq"sv) == 0));
+                    CustomRules->SetOrAddParam(u"AITolerateJunk"_wref.get(), pas::wide_int_to_str(GetExtendedOptionValue(u"AITolerateJunk"sv)));
+                    CustomRules->SetOrAddParam(u"OldHyper"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"OldHyper"sv) == 0));
+                    CustomRules->SetOrAddParam(u"PirateNodes"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"PirateNodes"sv) == 0));
+                    CustomRules->SetOrAddParam(u"AIUseShops"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"AIUseShops"sv) == 0));
+                    CustomRules->SetOrAddParam(u"DuplicateArts"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"DuplicateArts"sv) == 0));
+                    CustomRules->SetOrAddParam(u"OldSpeedCalc"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"SpeedCalc"sv) == 0));
+                    CustomRules->SetOrAddParam(u"OldMissileBonuses"_wref.get(), EC_Str::BoolToWideString(GetExtendedOptionValue(u"MissileBonuses"sv) == 0));
                 }
                 ToggleExtendedSettings(nullptr);
                 {
-                    GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+                    GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
                     PanelSet->FreeOwnedChildren();
                 }
                 GR_DX::ReleaseAllTextureSurfaces();
@@ -1755,7 +1755,7 @@ namespace fGameSettings2 {
                     Globals::NewGameGenerationThread = nullptr;
                 }
                 Globals::NewGameGenerationThread = pas::construct_call<fGameSettings::TThreadCreateNewGame>(EC_Thread::TThreadEC_Create);
-                Globals::NewGameGenerationThread->PlayerName = EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text);
+                Globals::NewGameGenerationThread->PlayerName = EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text);
                 StartNewGameGeneration();
                 GlobalsV::RequestedScreenId = GlobalsV::screenIntroduction;
                 RequestClose(1);
@@ -1764,7 +1764,7 @@ namespace fGameSettings2 {
     }
 
     void TfGameSettings2::CancelClicked(GI_MessageLoop::TObjectGI* Sender) {
-        if (GetByName(u"PanelExtended"_wref.get())->Active) {
+        if (GetByName(u"PanelExtended"sv)->Active) {
             ToggleExtendedSettings(nullptr);
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenMainMenu;
@@ -1781,10 +1781,10 @@ namespace fGameSettings2 {
         }
         if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
             if (Key == WindowsSdk::VK_RETURN) {
-                reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->ExecuteOnPressCode();
+                reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->ExecuteOnPressCode();
                 ApplyClicked(nullptr);
             } else if (Key == WindowsSdk::VK_ESCAPE) {
-                reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"_wref.get()))->ExecuteOnPressCode();
+                reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"sv))->ExecuteOnPressCode();
                 CancelClicked(nullptr);
             }
         }
@@ -1796,22 +1796,22 @@ namespace fGameSettings2 {
             PlayerNameEdited = true;
         }
         {
-            std::uint8_t cpp_arg = static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text) ^ 1);
-            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()));
+            std::uint8_t cpp_arg = static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text) ^ 1);
+            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
             cpp_arg_2->SetDisabled(cpp_arg);
         }
-        Text = aConst::LocalizedColorText(pas::concat_wide({u"FormGameSet2.", aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace) & 0x0000007f].InternalName, u".Char", pas::wide_int_to_str(CharacterPreset)}));
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text), u"<color=255,240,100>"_w);
-        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Info"_wref.get()))->SetText(Text);
+        Text = aConst::LocalizedColorText(pas::concat_wide({u"FormGameSet2.", aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace)].InternalName, u".Char", pas::wide_int_to_str(CharacterPreset)}));
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text), u"<color=255,240,100>"_w);
+        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Info"sv))->SetText(Text);
     }
 
     // Also removes <>{} from the edit control and adjusts its caret; rejects empty names and unsupported glyphs.
     std::uint8_t TfGameSettings2::ValidatePlayerName(pas::WideString Name) {
         std::int32_t I{};
         std::uint8_t Result = true;
-        Name = EC_Str::RemoveWideStringChars(Name, u"<>{}"_w);
+        Name = EC_Str::RemoveWideStringChars(pas::view(Name), u"<>{}"_w);
         {
-            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             if (PlayerName->Text != Name) {
                 I = PlayerName->CaretPosition;
                 PlayerName->SetText(Name);
@@ -1827,7 +1827,7 @@ namespace fGameSettings2 {
             Result = false;
         }
         if (Result) {
-            GI_Edit::TEditGI* PlayerName_2 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName_2 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             {
                 const std::int32_t cpp_last = Name.length() - 1;
                 if (0 <= cpp_last) {
@@ -1840,7 +1840,7 @@ namespace fGameSettings2 {
                 }
             }
         }
-        GI_Label::TLabelGI* HelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelHelp"_wref.get()));
+        GI_Label::TLabelGI* HelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelHelp"sv));
         if (PlayerNameValid && static_cast<std::uint8_t>(Result ^ 1)) {
             HelpLabel->SetText(GR_Main::LookupLocalizedTextByKey(u"FormGameSet2.Common.ErrorName"_wref.get()));
             HelpLabel->SetActive(true);
@@ -1855,8 +1855,8 @@ namespace fGameSettings2 {
     void TfGameSettings2::ShowControlHelp(GI_MessageLoop::TObjectGI* Sender, std::uint8_t Show) {
         GI_Label::TLabelGI* HelpLabel{};
         if (PlayerNameValid) {
-            HelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelHelp"_wref.get()));
-            if (!ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text)) {
+            HelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelHelp"sv));
+            if (!ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text)) {
                 HelpLabel->SetText(GR_Main::LookupLocalizedTextByKey(u"FormGameSet2.Common.ErrorName"_wref.get()));
                 HelpLabel->SetActive(true);
             } else {
@@ -1864,7 +1864,7 @@ namespace fGameSettings2 {
                     Show = false;
                 }
                 HelpLabel->SetActive(Show);
-                if (HelpLabel->Active && Sender == GetByName(u"Ok"_wref.get()) && static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text) ^ 1)) {
+                if (HelpLabel->Active && Sender == GetByName(u"Ok"sv) && static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text) ^ 1)) {
                     HelpLabel->SetText(GR_Main::LookupLocalizedTextByKey(u"FormGameSet2.Common.ErrorName"_wref.get()));
                 } else {
                     HelpLabel->SetText(Sender->HelpText);
@@ -1890,19 +1890,19 @@ namespace fGameSettings2 {
 
     void TfGameSettings2::ToggleExtendedSettings(GI_MessageLoop::TObjectGI* Sender) {
         {
-            GI_MessageLoop::TObjectGI* PanelExtended = GetByName(u"PanelExtended"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelExtended = GetByName(u"PanelExtended"sv);
             PanelExtended->SetActive(false);
         }
         {
-            GI_MessageLoop::TObjectGI* PanelChar = GetByName(u"PanelChar"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelChar = GetByName(u"PanelChar"sv);
             PanelChar->SetActive(true);
         }
         {
-            GI_MessageLoop::TObjectGI* PanelLevels = GetByName(u"PanelLevels"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelLevels = GetByName(u"PanelLevels"sv);
             PanelLevels->SetActive(true);
         }
         {
-            GI_MessageLoop::TObjectGI* PanelSkills = GetByName(u"PanelSkills"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelSkills = GetByName(u"PanelSkills"sv);
             PanelSkills->SetActive(true);
         }
     }
@@ -1910,54 +1910,54 @@ namespace fGameSettings2 {
     void TfGameSettings2::ResetExtendedSettingsClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t OldGroup = ActiveExtendedGroup;
         ActiveExtendedGroup = 0;
-        SetExtendedOptionValue(u"KlingStrength"_w, 0);
-        SetExtendedOptionValue(u"KlingAggro"_w, 0);
-        SetExtendedOptionValue(u"KlingSpawn"_w, 0);
-        SetExtendedOptionValue(u"PirateAggro"_w, 0);
-        SetExtendedOptionValue(u"CoalAggro"_w, 8);
-        SetExtendedOptionValue(u"ExtraInventions"_w, 0);
-        SetExtendedOptionValue(u"ExtraRangers"_w, 0);
-        SetExtendedOptionValue(u"ZeroStartExp"_w, 1);
-        SetExtendedOptionValue(u"KlingRacialWeapons"_w, 1);
-        SetExtendedOptionValue(u"MaxRangeMissiles"_w, 1);
-        SetExtendedOptionValue(u"MaxGrowth"_w, 0);
+        SetExtendedOptionValue(u"KlingStrength"sv, 0);
+        SetExtendedOptionValue(u"KlingAggro"sv, 0);
+        SetExtendedOptionValue(u"KlingSpawn"sv, 0);
+        SetExtendedOptionValue(u"PirateAggro"sv, 0);
+        SetExtendedOptionValue(u"CoalAggro"sv, 8);
+        SetExtendedOptionValue(u"ExtraInventions"sv, 0);
+        SetExtendedOptionValue(u"ExtraRangers"sv, 0);
+        SetExtendedOptionValue(u"ZeroStartExp"sv, 1);
+        SetExtendedOptionValue(u"KlingRacialWeapons"sv, 1);
+        SetExtendedOptionValue(u"MaxRangeMissiles"sv, 1);
+        SetExtendedOptionValue(u"MaxGrowth"sv, 0);
         ActiveExtendedGroup = 1;
-        SetExtendedOptionValue(u"AsteroidMod"_w, 8);
-        SetExtendedOptionValue(u"SunDamageMod"_w, 8);
-        SetExtendedOptionValue(u"AgPlanets"_w, 5);
-        SetExtendedOptionValue(u"MiPlanets"_w, 5);
-        SetExtendedOptionValue(u"InPlanets"_w, 5);
-        SetExtendedOptionValue(u"StartCenter"_w, 1);
+        SetExtendedOptionValue(u"AsteroidMod"sv, 8);
+        SetExtendedOptionValue(u"SunDamageMod"sv, 8);
+        SetExtendedOptionValue(u"AgPlanets"sv, 5);
+        SetExtendedOptionValue(u"MiPlanets"sv, 5);
+        SetExtendedOptionValue(u"InPlanets"sv, 5);
+        SetExtendedOptionValue(u"StartCenter"sv, 1);
         ActiveExtendedGroup = 2;
-        SetExtendedOptionValue(u"RndType"_w, 1);
-        SetExtendedOptionValue(u"EqKnowledgeType"_w, 1);
-        SetExtendedOptionValue(u"RuinsPosition"_w, 1);
-        SetExtendedOptionValue(u"RuinsTargetting"_w, 1);
-        SetExtendedOptionValue(u"RuinsUseShop"_w, 1);
-        SetExtendedOptionValue(u"SpecialShipsInGame"_w, 1);
-        SetExtendedOptionValue(u"AkrinMod"_w, 30);
-        SetExtendedOptionValue(u"NodeDropMod"_w, 8);
-        SetExtendedOptionValue(u"DropValueMod"_w, 8);
-        SetExtendedOptionValue(u"ABDropValueMod"_w, 8);
-        SetExtendedOptionValue(u"ABHitpointsMod"_w, 8);
-        SetExtendedOptionValue(u"ABDamageMod"_w, 8);
-        SetExtendedOptionValue(u"ABattleRoyale"_w, 1);
-        SetExtendedOptionValue(u"ABChangeEq"_w, 1);
-        SetExtendedOptionValue(u"AITolerateJunk"_w, 7);
-        SetExtendedOptionValue(u"OldHyper"_w, 1);
-        SetExtendedOptionValue(u"PirateNodes"_w, 1);
-        SetExtendedOptionValue(u"AIUseShops"_w, 1);
-        SetExtendedOptionValue(u"DuplicateArts"_w, 1);
-        SetExtendedOptionValue(u"SpeedCalc"_w, 1);
-        SetExtendedOptionValue(u"MissileBonuses"_w, 1);
+        SetExtendedOptionValue(u"RndType"sv, 1);
+        SetExtendedOptionValue(u"EqKnowledgeType"sv, 1);
+        SetExtendedOptionValue(u"RuinsPosition"sv, 1);
+        SetExtendedOptionValue(u"RuinsTargetting"sv, 1);
+        SetExtendedOptionValue(u"RuinsUseShop"sv, 1);
+        SetExtendedOptionValue(u"SpecialShipsInGame"sv, 1);
+        SetExtendedOptionValue(u"AkrinMod"sv, 30);
+        SetExtendedOptionValue(u"NodeDropMod"sv, 8);
+        SetExtendedOptionValue(u"DropValueMod"sv, 8);
+        SetExtendedOptionValue(u"ABDropValueMod"sv, 8);
+        SetExtendedOptionValue(u"ABHitpointsMod"sv, 8);
+        SetExtendedOptionValue(u"ABDamageMod"sv, 8);
+        SetExtendedOptionValue(u"ABattleRoyale"sv, 1);
+        SetExtendedOptionValue(u"ABChangeEq"sv, 1);
+        SetExtendedOptionValue(u"AITolerateJunk"sv, 7);
+        SetExtendedOptionValue(u"OldHyper"sv, 1);
+        SetExtendedOptionValue(u"PirateNodes"sv, 1);
+        SetExtendedOptionValue(u"AIUseShops"sv, 1);
+        SetExtendedOptionValue(u"DuplicateArts"sv, 1);
+        SetExtendedOptionValue(u"SpeedCalc"sv, 1);
+        SetExtendedOptionValue(u"MissileBonuses"sv, 1);
         ActiveExtendedGroup = OldGroup;
     }
 
     void TfGameSettings2::ExtendedGroupClicked(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t Group = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()))->SetDown(Group == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()))->SetDown(Group == 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()))->SetDown(Group == 2);
+        std::int32_t Group = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->SetDown(Group == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv))->SetDown(Group == 1);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv))->SetDown(Group == 2);
         if (ActiveExtendedGroup != Group) {
             ActiveExtendedGroup = Group;
             RefreshExtendedGroup();
@@ -1967,15 +1967,15 @@ namespace fGameSettings2 {
     void TfGameSettings2::RefreshExtendedGroup() {
         std::int32_t I{};
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->SetDown(ActiveExtendedGroup == 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->SetDown(ActiveExtendedGroup == 1);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
             ButGroup2->SetDown(ActiveExtendedGroup == 2);
         }
         for (I = 0; I <= 3; ++I) {
@@ -1983,7 +1983,7 @@ namespace fGameSettings2 {
             cpp_with_4->SetActive(I == ActiveExtendedGroup);
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
             PanelSet->SetScrollOffset(ClassesImports::Point(0, 0));
             PanelSet->UpdateScrollRanges();
             PanelSet->SetVerticalScrollbarEnabled(ExtendedGroupNextY[ActiveExtendedGroup] > PanelSet->ClientSize.Y);
@@ -2138,17 +2138,17 @@ namespace fGameSettings2 {
     }
 
     // Searches only the active extended group; raises when no value is found.
-    std::int32_t TfGameSettings2::GetExtendedOptionValue(pas::WideString OptionName) {
+    std::int32_t TfGameSettings2::GetExtendedOptionValue(const std::u16string_view& OptionName) {
         std::int32_t Result = 0;
         GI_MessageLoop::TObjectGI* Control = ExtendedGroupPanels[ActiveExtendedGroup]->FirstChild;
         while (Control != nullptr) {
-            if (Control->ControlName == OptionName) {
-                if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr) {
-                    if (pas::checked_cast<GI_Image::TImageGI*>(Control)->GetImagePath() == u"GI,Bm.FormOptions2.2SwitchD") {
+            if (pas::view(Control->ControlName) == OptionName) {
+                if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
+                    if (imageGI->GetImagePath() == u"GI,Bm.FormOptions2.2SwitchD") {
                         return Control->UserValue;
                     }
-                } else if (pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control) != nullptr) {
-                    return pas::checked_cast<GI_CountBar::TCountBarGI*>(Control)->Position;
+                } else if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control)) {
+                    return countBarGI->Position;
                 }
             }
             Control = Control->NextSibling;
@@ -2158,16 +2158,16 @@ namespace fGameSettings2 {
     }
 
     // Searches only the active extended group; missing options are ignored.
-    void TfGameSettings2::SetExtendedOptionValue(pas::WideString OptionName, std::int32_t Value) {
+    void TfGameSettings2::SetExtendedOptionValue(const std::u16string_view& OptionName, std::int32_t Value) {
         GI_MessageLoop::TObjectGI* Control = ExtendedGroupPanels[ActiveExtendedGroup]->FirstChild;
         while (Control != nullptr) {
-            if (Control->ControlName == OptionName) {
+            if (pas::view(Control->ControlName) == OptionName) {
                 if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr && Control->UserValue == Value && pas::assigned(Control->LeftButtonDownCallback)) {
                     ExtendedChoiceMouseDown(Control, 0u, ClassesImports::Point(-1000, -1000));
                     return;
                 }
-                if (pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control) != nullptr) {
-                    pas::checked_cast<GI_CountBar::TCountBarGI*>(Control)->SetPosition_2(Value);
+                if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control)) {
+                    countBarGI->SetPosition_2(Value);
                     return;
                 }
             }
@@ -2218,8 +2218,8 @@ namespace fGameSettings2 {
     }
 
     void TfGameSettings2::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        if (GetByName(u"PanelExtended"_wref.get())->Active) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+        if (GetByName(u"PanelExtended"sv)->Active) {
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
             if (Delta == WindowsSdk::WHEEL_DELTA) {
                 PanelSet->VerticalScrollBar->SetPosition_2(PanelSet->VerticalScrollBar->Position - PanelSet->VerticalScrollBar->SmallChange);
             } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
@@ -2237,7 +2237,7 @@ namespace fGameSettings2 {
         }
         GI_MessageLoop::TObjectGI* Button = FindControlByPath(u"KeyArrowRight"_wref.get());
         if (Button != nullptr && pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Button) != nullptr) {
-            reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Button)->ExecuteOnPressCode();
+            static_cast<GI_GraphButton::TGraphButtonGI*>(Button)->ExecuteOnPressCode();
         }
         RefreshDifficultyHelp();
         RefreshDifficulty();
@@ -2252,7 +2252,7 @@ namespace fGameSettings2 {
         }
         GI_MessageLoop::TObjectGI* Button = FindControlByPath(u"KeyArrowLeft"_wref.get());
         if (Button != nullptr && pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Button) != nullptr) {
-            reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Button)->ExecuteOnPressCode();
+            static_cast<GI_GraphButton::TGraphButtonGI*>(Button)->ExecuteOnPressCode();
         }
         RefreshDifficultyHelp();
         RefreshDifficulty();
@@ -2296,7 +2296,7 @@ namespace fGameSettings2 {
                         }
                     }
                     {
-                        GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(J + 1), "_", SysUtils::IntToStr(I - 1)}))));
+                        GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Level", SysUtils::IntToStr(J + 1), "_", SysUtils::IntToStr(I - 1)})))));
                         cpp_with->UserValue = I - 1;
                         cpp_with->UserIndex = First + J;
                         switch (First + J) {

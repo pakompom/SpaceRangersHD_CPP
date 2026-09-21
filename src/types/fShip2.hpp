@@ -120,7 +120,7 @@ namespace fShip2 {
         // Native empty three-register method; argument purposes unresolved.
         static void UpdateInfoHint(std::int32_t First, std::int32_t Second);
         // Matches the second underscore-delimited component against eight equipment slot names; raises on no match.
-        static std::uint8_t SlotToTip(pas::WideString SlotName);
+        static aConst::TItemType SlotToTip(const std::u16string_view& SlotName);
         static std::uint8_t IsCompatibleSlot(aConst::TItemType ItemType, aConst::TItemType SlotType);
         void RefreshEquipmentSlotControls();
         void RefreshShipView();
@@ -273,8 +273,8 @@ namespace fShip2 {
         void EnterBridgeClicked(GI_MessageLoop::TObjectGI* Sender);
         GI_MessageLoop::TMessageLoopGI* GetActionParentLoop() override;
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
-        // Gates star-map input and selects OnOpen item-script events; full meaning unresolved.
-        std::uint8_t FlagD4;
+        // Requests a background refresh and another ship-screen pass; OnOpen selects the script re-entry events.
+        std::uint8_t ReopenRequested;
         // Restarts active hull/equipment repair animations on the next OnOpen.
         std::uint8_t PlayServiceAnimations;
         std::uint8_t cpp_padding[2];
@@ -349,8 +349,8 @@ namespace fShip2 {
         WindowsSdk::TPoint ItemRaceImagePosition;
         // Zero for no item, Good+1 for hold goods, or an item pointer for equipment/storage.
         std::int32_t DisplayedItemKey;
-        // Accumulated across modal ship-screen reopenings; full meaning unresolved.
-        std::uint8_t Flag3BC;
+        // Accumulates changes across modal reopenings so callers refresh ship information and cargo controls.
+        std::uint8_t ShipStateChanged;
         // Suppresses space-music changes in SelectMusic.
         std::uint8_t PreserveSpaceMusic;
         std::uint8_t cpp_padding_4[2];
@@ -395,7 +395,7 @@ namespace fShip2 {
         // Native OnOpen selects this ship when non-nil.
         aShip::TShip* ShipToInspect;
         std::int32_t SavedShipExperience;
-        // Native constructor initializes False; meaning unresolved.
+        // ToggleRemoteHoldClicked switches between equipment/local cargo and the remote-hold panels.
         std::uint8_t RemoteHoldMode;
         std::uint8_t cpp_padding_9[3];
         pas::Array<GI_Image::TImageGI*, 0, 54> RemoteHoldImages;

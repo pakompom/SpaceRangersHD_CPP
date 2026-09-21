@@ -75,10 +75,10 @@ namespace fPlanetNO {
         GR_Main::AppendLogTextThreadSafe("fPlanetNO... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* PlanetBG = MainPanel->FindByNameRecursive(u"PlanetBG"_wref.get());
+                GI_MessageLoop::TObjectGI* PlanetBG = MainPanel->FindByNameRecursive(u"PlanetBG"sv);
                 LargeBackground = PlanetBG->ClientSize.X > 1024 || PlanetBG->ClientSize.Y > 768;
                 if (LargeBackground) {
                     PlanetBG->SetPosition(ClassesImports::Point(0, 0));
@@ -88,70 +88,70 @@ namespace fPlanetNO {
                 }
             }
             {
-                GI_Image::TImageGI* CockpitImage = pas::checked_cast<GI_Image::TImageGI*>(MainPanel->FindByNameRecursive(u"CockpitImage"_wref.get()));
+                GI_Image::TImageGI* CockpitImage = pas::checked_cast<GI_Image::TImageGI*>(MainPanel->FindByNameRecursive(u"CockpitImage"sv));
                 CockpitImage->SetPosition(ClassesImports::Point(CockpitImage->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, CockpitImage->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
                 CockpitImage->SetImagePath(CockpitImage->GetImagePath());
                 CockpitImage->SetActive(static_cast<std::uint8_t>(LargeBackground ^ 1));
             }
             {
-                GI_MessageLoop::TObjectGI* PanelResearch = MainPanel->FindByNameRecursive(u"PanelResearch"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelResearch = MainPanel->FindByNameRecursive(u"PanelResearch"sv);
                 PanelResearch->SetPosition(ClassesImports::Point(PanelResearch->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelResearch->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* ButResearch_Parent = MainPanel->FindByNameRecursive(u"ButResearch"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* ButResearch_Parent = MainPanel->FindByNameRecursive(u"ButResearch"sv)->Parent;
                 ButResearch_Parent->SetPosition(ClassesImports::Point(ButResearch_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth, ButResearch_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* PanelInfo = MainPanel->FindByNameRecursive(u"PanelInfo"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelInfo = MainPanel->FindByNameRecursive(u"PanelInfo"sv);
                 PanelInfo->SetPosition(ClassesImports::Point(PanelInfo->LocalPosition.X + GR_Main::ExtraScreenWidth, PanelInfo->LocalPosition.Y));
             }
             {
-                GI_MessageLoop::TObjectGI* QuestInfo = MainPanel->FindByNameRecursive(u"QuestInfo"_wref.get());
+                GI_MessageLoop::TObjectGI* QuestInfo = MainPanel->FindByNameRecursive(u"QuestInfo"sv);
                 QuestInfo->SetPosition(ClassesImports::Point(QuestInfo->LocalPosition.X + GR_Main::ExtraScreenWidth, QuestInfo->LocalPosition.Y + GR_Main::ExtraScreenWidth));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         {
-            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"sv);
             MainPanel_2->MouseMoveCallback = pas::bind_method<&TfPlanetNO::MainPanelMouseMove>(this);
             MainPanel_2->RightButtonDownCallback = pas::bind_method<&TfPlanetNO::MainPanelRightButtonDown>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTakeoff"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::TakeoffClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::EndTurnClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::ShipClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::GalaxyClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::QuestClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButResearch"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::ToggleResearchPanel>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::ToggleResearchPanel>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTakeoff"sv))->UpCallback = pas::bind_method<&TfPlanetNO::TakeoffClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfPlanetNO::EndTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfPlanetNO::ShipClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"sv))->UpCallback = pas::bind_method<&TfPlanetNO::GalaxyClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"sv))->UpCallback = pas::bind_method<&TfPlanetNO::QuestClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButResearch"sv))->UpCallback = pas::bind_method<&TfPlanetNO::ToggleResearchPanel>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfPlanetNO::ToggleResearchPanel>(this);
         {
-            GI_MessageLoop::TObjectGI* PanelPath = GetByName(u"PanelPath"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelPath = GetByName(u"PanelPath"sv);
             PanelPath->MouseMoveCallback = pas::bind_method<&TfPlanetNO::ResearchMapMouseMove>(this);
             PanelPath->MouseLeaveCallback = pas::bind_method<&TfPlanetNO::ResearchMapMouseLeave>(this);
             PanelPath->LeftButtonDownCallback = pas::bind_method<&TfPlanetNO::ResearchMapMouseDown>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLeft"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::ScrollSatellitePageLeft>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRight"_wref.get()))->UpCallback = pas::bind_method<&TfPlanetNO::ScrollSatellitePageRight>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLeft"sv))->UpCallback = pas::bind_method<&TfPlanetNO::ScrollSatellitePageLeft>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRight"sv))->UpCallback = pas::bind_method<&TfPlanetNO::ScrollSatellitePageRight>(this);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 5); cpp_range.next(I); ) {
-            SatelliteInventorySlots[I] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot_", SysUtils::IntToStr(I), "i"}))));
+            SatelliteInventorySlots[I] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot_", SysUtils::IntToStr(I), "i"})))));
             SatelliteInventorySlots[I]->UserValue = I;
             SatelliteInventorySlots[I]->LeftButtonDownCallback = pas::bind_method<&TfPlanetNO::SatelliteInventoryMouseDown>(this);
         }
-        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"PII"_wref.get()));
-        ItemInfoImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoImage"_wref.get()));
-        ItemInfoNameLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"_wref.get()));
-        ItemInfoTextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"_wref.get()));
-        ItemInfoSizeLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"_wref.get()));
-        ItemInfoCostLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"_wref.get()));
-        ItemInfoRaceIcon = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"EmRace"_wref.get()));
+        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"PII"sv));
+        ItemInfoImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoImage"sv));
+        ItemInfoNameLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv));
+        ItemInfoTextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv));
+        ItemInfoSizeLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"sv));
+        ItemInfoCostLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"sv));
+        ItemInfoRaceIcon = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"EmRace"sv));
     }
 
     void TfPlanetNO::OnOpen() {
         SelectMusic();
         MainPanel->OnOpen();
         LoadPanel->OnOpen();
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfPlanetNO::MainPanelKeyDown>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfPlanetNO::MainPanelKeyDown>(this);
         {
-            GI_Image::TImageGI* PlanetBG = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PlanetBG"_wref.get()));
+            GI_Image::TImageGI* PlanetBG = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PlanetBG"sv));
             PlanetBG->SetImagePath(pas::concat_wide({u"GI,Bm.PlanetBG.", aPlayer::GetPlayer()->CurrentPlanet->Graphic->BackgroundGraph}));
         }
         SelectedTrajectoryIndex = -1;
@@ -270,9 +270,9 @@ namespace fPlanetNO {
     }
 
     void TfPlanetNO::RefreshPlanetInfo() {
-        GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"PanelInfo"_wref.get()));
+        GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"PanelInfo"sv));
         {
-            GI_Label::TLabelGI* PanelInfo_Name = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Name"_wref.get()));
+            GI_Label::TLabelGI* PanelInfo_Name = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Name"sv));
             PanelInfo_Name->SetText(([&] {
                 auto infoNameColorTag = pas::borrow(aMyFunction::InfoNameColorTag);
                 pas::WideString localizedText = aConst::LocalizedText(u"Planet.Civil.Info.TextNamePlanet"_wref.get());
@@ -281,7 +281,7 @@ namespace fPlanetNO {
             }()));
         }
         {
-            GI_Label::TLabelGI* PanelInfo_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Text"_wref.get()));
+            GI_Label::TLabelGI* PanelInfo_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Text"sv));
             PanelInfo_Text->SetText(aPlayer::GetPlayer()->CurrentPlanet->GetInfoText(false));
             Window->SetSize(ClassesImports::Point(PanelInfo_Text->ClientSize.X + Window->WorkSubRect.Left + Window->WorkSubRect.Right, PanelInfo_Text->ClientSize.Y + Window->WorkSubRect.Top + Window->WorkSubRect.Bottom));
             Window->UpdateAutoGeometry();
@@ -289,7 +289,7 @@ namespace fPlanetNO {
             PanelInfo_Text->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Window->WorkSubRect, 0)));
         }
         {
-            GI_GraphBuf::TGraphBufGI* PanelInfo_Image = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"PanelInfo_Image"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* PanelInfo_Image = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"PanelInfo_Image"sv));
             PanelInfo_Image->SourceHasPerPixelAlpha = true;
             aPlayer::GetPlayer()->CurrentPlanet->Graphic->RenderToBuffer(this, PanelInfo_Image->GraphBuf, false);
             if (static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Width) >= static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Height)) {
@@ -301,12 +301,12 @@ namespace fPlanetNO {
             PanelInfo_Image->SetImageKindY(GI_Main::ikyCenter);
         }
         {
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Text"_wref.get()));
-            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Name"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Text"sv));
+            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Name"sv));
             fShip2::TfShip2::LayoutItemInfo(Window, cpp_arg_2, cpp_arg, true, true, 0);
         }
         {
-            GI_Label::TLabelGI* PanelInfo_Name_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Name"_wref.get()));
+            GI_Label::TLabelGI* PanelInfo_Name_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Name"sv));
             PanelInfo_Name_2->SetSize(ClassesImports::Point(Window->ClientSize.X - PanelInfo_Name_2->LocalPosition.X - Window->WorkSubRect.Right, PanelInfo_Name_2->ClientSize.Y));
         }
         Window->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 10 - Window->ClientSize.X, 10));
@@ -318,7 +318,7 @@ namespace fPlanetNO {
         aRanger::PQuest Quest{};
         pas::WideString Text{};
         QuestId = -1;
-        GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"QuestInfo"_wref.get()));
+        GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"QuestInfo"sv));
         Quest = nullptr;
         Window->SetActive(false);
         if (aPlayer::GetPlayer()->CurrentPlanet->TextQuestId > -1 && pas::list_count(aPlayer::GetPlayer()->Quests) > 0) {
@@ -330,18 +330,18 @@ namespace fPlanetNO {
                     return blockByPath->CountParams(intToStr);
                 }()) > 0) {
                     QuestId = Quest->QuestNumber;
-                    if (Quest->QuestNumber < 10000 || GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"_wref.get())->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
+                    if (Quest->QuestNumber < 10000 || GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
                         pas::WideString cpp_string = ([&] {
                             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(Quest->QuestNumber));
-                            EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"_wref.get())->GetBlock(u"PlanetQuestLic"_wref.get());
-                            return block->GetParamOrMarker(intToStr_2);
+                            EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
+                            return block->GetParamOrMarker(pas::view(intToStr_2));
                         }());
                         pas::WideString cpp_string_2 = fPlanetQuest::TfPlanetQuest::GetQuestContentHash(Quest->QuestNumber);
                         return cpp_string == cpp_string_2;
                     }())) {
-                        Window->FindByNameRecursive(u"QuestInfo_Run"_wref.get())->UserValue = 0;
+                        Window->FindByNameRecursive(u"QuestInfo_Run"sv)->UserValue = 0;
                     } else {
-                        Window->FindByNameRecursive(u"QuestInfo_Run"_wref.get())->UserValue = 1;
+                        Window->FindByNameRecursive(u"QuestInfo_Run"sv)->UserValue = 1;
                     }
                     Window->SetActive(true);
                     break;
@@ -350,11 +350,11 @@ namespace fPlanetNO {
         }
         if (Window->Active) {
             {
-                GI_Label::TLabelGI* QuestInfo_Name = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Name"_wref.get()));
+                GI_Label::TLabelGI* QuestInfo_Name = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Name"sv));
                 QuestInfo_Name->SetText(aConst::LocalizedText(u"PlanetQuest.StartText.QuestCaption"_wref.get()));
             }
             {
-                GI_Label::TLabelGI* QuestInfo_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Text"_wref.get()));
+                GI_Label::TLabelGI* QuestInfo_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Text"sv));
                 Text = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.StartText.", SysUtils::IntToStr(QuestId)})));
                 if (Text == u"") {
                     Text = aConst::LocalizedColorText(u"PlanetQuest.StartText.QuestExtern"_wref.get());
@@ -372,19 +372,19 @@ namespace fPlanetNO {
                 QuestInfo_Text->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Window->WorkSubRect, 0)));
             }
             {
-                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Text"_wref.get()));
-                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Name"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Text"sv));
+                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Name"sv));
                 fShip2::TfShip2::LayoutItemInfo(Window, cpp_arg_2, cpp_arg, true, true, 0);
             }
             {
-                GI_GraphButton::TGraphButtonGI* QuestInfo_Run = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"QuestInfo_Run"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* QuestInfo_Run = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"QuestInfo_Run"sv));
                 QuestInfo_Run->UpCallback = pas::bind_method<&TfPlanetNO::StartTextQuest>(this);
                 Window->SetSize(ClassesImports::Point(Window->ClientSize.X, GR_Main::GiScalePixels(5) + (QuestInfo_Run->ClientSize.Y + Window->ClientSize.Y)));
                 Window->UpdateAutoGeometry();
                 QuestInfo_Run->SetPosition(ClassesImports::Point(Window->ClientSize.X / 2 - QuestInfo_Run->ClientSize.X / 2, Window->ClientSize.Y - GR_Main::GiScalePixels(10) - QuestInfo_Run->ClientSize.Y));
             }
             {
-                GI_Label::TLabelGI* QuestInfo_Name_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Name"_wref.get()));
+                GI_Label::TLabelGI* QuestInfo_Name_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Name"sv));
                 QuestInfo_Name_2->SetSize(ClassesImports::Point(Window->ClientSize.X - QuestInfo_Name_2->LocalPosition.X - Window->WorkSubRect.Right, QuestInfo_Name_2->ClientSize.Y));
             }
             Window->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 10 - Window->ClientSize.X, GR_Main::GameScreenHeight - GR_Main::GiScalePixels(90) - Window->ClientSize.Y));
@@ -450,7 +450,7 @@ namespace fPlanetNO {
     }
 
     void TfPlanetNO::ToggleResearchPanel(GI_MessageLoop::TObjectGI* Sender) {
-        if (GetByName(u"PanelResearch"_wref.get())->Active) {
+        if (GetByName(u"PanelResearch"sv)->Active) {
             CloseResearchPanel();
         } else {
             OpenResearchPanel();
@@ -473,14 +473,14 @@ namespace fPlanetNO {
                 BuildTrajectory(I);
             }
         }
-        GetByName(u"PanelResearch"_wref.get())->SetActive(true);
+        GetByName(u"PanelResearch"sv)->SetActive(true);
         RefreshResearchPanel();
         HoveredItem = nullptr;
         HoveringSurfaceLoot = false;
         {
-            GI_GraphBuf::TGraphBufGI* PlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"PlanetImage"_wref.get()));
-            Parts = EC_Str::CountDelimitedPartsW(aPlayer::GetPlayer()->CurrentPlanet->Graphic->ImagePath, u"."_wref.get());
-            PlanetImage->LoadBitmapPathAsRgb(pas::concat_wide({u"Bm.PUMaps.", EC_Str::ExtractDelimitedPartW(aPlayer::GetPlayer()->CurrentPlanet->Graphic->ImagePath, Parts - 1, u"."_wref.get()), u"?RGB"}));
+            GI_GraphBuf::TGraphBufGI* PlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"PlanetImage"sv));
+            Parts = EC_Str::CountDelimitedPartsW(pas::view(aPlayer::GetPlayer()->CurrentPlanet->Graphic->ImagePath), u"."sv);
+            PlanetImage->LoadBitmapPathAsRgb(pas::concat_wide({u"Bm.PUMaps.", EC_Str::ExtractDelimitedPartW(pas::view(aPlayer::GetPlayer()->CurrentPlanet->Graphic->ImagePath), Parts - 1, u"."sv), u"?RGB"}));
             if (GR_Main::GiResourceVariant() == 1) {
                 std::int32_t round = System::Round(pas::real_divide(static_cast<std::uint32_t>(PlanetImage->GraphBuf->Height) * 800, 1024.0L));
                 std::int32_t round_2 = System::Round(pas::real_divide(static_cast<std::uint32_t>(PlanetImage->GraphBuf->Width) * 800, 1024.0L));
@@ -500,7 +500,7 @@ namespace fPlanetNO {
         }
         ProbeSignalTimer = ScheduleCallbackTimer(20, 20, pas::bind_method<&TfPlanetNO::UpdateProbeSignalSound>(this), 0);
         {
-            GI_GAI::TgaiGI* Scan = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Scan"_wref.get()));
+            GI_GAI::TgaiGI* Scan = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Scan"sv));
             Scan->SetSize(Scan->GetContentSize());
             Scan->SequenceIndex = 0;
             Scan->UpdateAutoGeometry();
@@ -522,10 +522,10 @@ namespace fPlanetNO {
             ProbeSignalTimer = nullptr;
         }
         ReturnHeldSatellite();
-        GetByName(u"PanelResearch"_wref.get())->SetActive(false);
+        GetByName(u"PanelResearch"sv)->SetActive(false);
         ResearchMapMouseLeave(nullptr);
-        GetByName(u"PanelSatellite"_wref.get())->FreeOwnedChildren();
-        GetByName(u"PanelItems"_wref.get())->FreeOwnedChildren();
+        GetByName(u"PanelSatellite"sv)->FreeOwnedChildren();
+        GetByName(u"PanelItems"sv)->FreeOwnedChildren();
         HoveredItem = nullptr;
         HoveringSurfaceLoot = false;
         HideItemInfoPopup(nullptr, 0);
@@ -554,8 +554,8 @@ namespace fPlanetNO {
         GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormUnknown2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(TrajectoryIndex + 1)}), Buffer);
         std::uint8_t* Visited = static_cast<std::uint8_t*>(EC_Mem::AllocClearEC(Buffer->Width * Buffer->Height));
         PProbeMarkerPixel Queue = static_cast<PProbeMarkerPixel>(EC_Mem::AllocClearEC(256 * static_cast<std::int32_t>(sizeof(TProbeMarkerPixel))));
-        std::int32_t OffsetX = GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(TrajectoryIndex)})))->LocalPosition.X;
-        std::int32_t OffsetY = GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(TrajectoryIndex)})))->LocalPosition.Y;
+        std::int32_t OffsetX = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(TrajectoryIndex)}))))->LocalPosition.X;
+        std::int32_t OffsetY = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(TrajectoryIndex)}))))->LocalPosition.Y;
         std::uint8_t* CursorVisited = Visited;
         System::PCardinal Pixel = static_cast<System::PCardinal>(Buffer->GetPixels());
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Buffer->Height - 1); cpp_range.next(Y); ) {
@@ -759,7 +759,7 @@ namespace fPlanetNO {
     std::uint8_t TfPlanetNO::IsCursorOverTrajectory(std::int32_t TrajectoryIndex) {
         std::int32_t I{};
         WindowsSdk::TPoint Point{};
-        Point = GetByName(u"PanelPath"_wref.get())->ToLocalPoint(GetCursorPoint());
+        Point = GetByName(u"PanelPath"sv)->ToLocalPoint(GetCursorPoint());
         float X = Point.X;
         float Y = Point.Y;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, TrajectoryPointCounts[TrajectoryIndex] - 2); cpp_range.next(I); ) {
@@ -775,7 +775,7 @@ namespace fPlanetNO {
         aPlanet::PPlanetSurfaceLootEntry Entry{};
         WindowsSdk::TPoint Cell{};
         if (aPlayer::GetPlayer()->CurrentPlanet->SurfaceLootEntries != nullptr) {
-            Cell = GetByName(u"PanelItems"_wref.get())->ToLocalPoint(Point);
+            Cell = GetByName(u"PanelItems"sv)->ToLocalPoint(Point);
             Cell.X = pas::idiv(Cell.X, GR_Main::GiScalePixelsEx(36, 28));
             Cell.Y = pas::idiv(Cell.Y, GR_Main::GiScalePixelsEx(36, 28));
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentPlanet->SurfaceLootEntries) - 1); cpp_range.next(I); ) {
@@ -783,12 +783,12 @@ namespace fPlanetNO {
                 if (Entry->GridX == Cell.X && Entry->GridY == Cell.Y && (Entry->TerrainKind == aPlanet::ptWater && aPlayer::GetPlayer()->CurrentPlanet->WaterExplored >= Entry->SurfaceTileIndex || Entry->TerrainKind == aPlanet::ptLand && aPlayer::GetPlayer()->CurrentPlanet->LandExplored >= Entry->SurfaceTileIndex || Entry->TerrainKind == aPlanet::ptHill && aPlayer::GetPlayer()->CurrentPlanet->HillExplored >= Entry->SurfaceTileIndex) && static_cast<std::uint8_t>(Entry->Unavailable ^ 1)) {
                     UpdateItemInfoPopup(Entry->Item);
                     HoveringSurfaceLoot = true;
-                    if (HeldSatellite == nullptr && static_cast<std::uint8_t>(IsCursorImageSelected(u"Take"_wref.get()) ^ 1)) {
+                    if (HeldSatellite == nullptr && static_cast<std::uint8_t>(IsCursorImageSelected(u"Take"sv) ^ 1)) {
                         SetCursorByName(u"Take"_wref.get());
                     }
                     if (SelectedTrajectoryIndex >= 0) {
                         {
-                            GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(SelectedTrajectoryIndex)}))));
+                            GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(SelectedTrajectoryIndex)})))));
                             if (TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex) != nullptr && (TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex)->BrokenFlag != 0 || (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSatelliteExplorationTurns(TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex))) == 0)) {
                                 cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormUnknown2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(SelectedTrajectoryIndex + 1), u"B"}));
                             } else {
@@ -811,7 +811,7 @@ namespace fPlanetNO {
                 ResearchMapMouseLeave(Sender);
                 SelectedTrajectoryIndex = I;
                 if (SelectedTrajectoryIndex >= 0) {
-                    GI_Image::TImageGI* cpp_with_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(SelectedTrajectoryIndex)}))));
+                    GI_Image::TImageGI* cpp_with_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(SelectedTrajectoryIndex)})))));
                     cpp_with_2->SetImagePath(pas::concat_wide({u"GI,Bm.FormUnknown2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(SelectedTrajectoryIndex + 1), u"A"}));
                 }
                 UpdateItemInfoPopup(TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex));
@@ -823,7 +823,7 @@ namespace fPlanetNO {
     void TfPlanetNO::ResearchMapMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
         if (SelectedTrajectoryIndex >= 0) {
             {
-                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(SelectedTrajectoryIndex)}))));
+                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(SelectedTrajectoryIndex)})))));
                 if (TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex) != nullptr && (TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex)->BrokenFlag != 0 || (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSatelliteExplorationTurns(TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex))) == 0)) {
                     cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormUnknown2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(SelectedTrajectoryIndex + 1), u"B"}));
                 } else {
@@ -848,7 +848,7 @@ namespace fPlanetNO {
         std::uint8_t Undiscovered{};
         NewSurfaceLootDiscovered = false;
         {
-            GI_GAI::TgaiGI* Scan = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Scan"_wref.get()));
+            GI_GAI::TgaiGI* Scan = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Scan"sv));
             Scan->SetActive(TfPlanetNO::CountDeployedSatellites() > 0);
             if (Scan->Active) {
                 Scan->RestartPlayback();
@@ -860,11 +860,11 @@ namespace fPlanetNO {
                 pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
                 return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Name>"_w, std::move(name), pas::WideString());
             }());
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Caption"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Caption"sv));
             cpp_arg->SetText(replaceColoredToken);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 5); cpp_range.next(I); ) {
-            GI_Image::TImageGI* cpp_with_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(I)}))));
+            GI_Image::TImageGI* cpp_with_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(I)})))));
             cpp_with_2->SetActive(aPlayer::GetPlayer()->CurrentPlanet->ProbeOrbitCount > I);
             if (cpp_with_2->Active) {
                 if (SelectedTrajectoryIndex == I) {
@@ -877,7 +877,7 @@ namespace fPlanetNO {
             }
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum(119);
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelItems"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelItems"sv));
         GI_Image::TImageGI* Child = reinterpret_cast<GI_Image::TImageGI*>(Panel->FirstChild);
         while (Child != nullptr) {
             OldChild = Child;
@@ -935,7 +935,7 @@ namespace fPlanetNO {
             }
         }
         aGalaxy::Galaxy->PrimeIntegrityChecksum(120);
-        Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelSatellite"_wref.get()));
+        Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelSatellite"sv));
         Child = reinterpret_cast<GI_Image::TImageGI*>(Panel->FirstChild);
         while (Child != nullptr) {
             OldChild = Child;
@@ -993,7 +993,7 @@ namespace fPlanetNO {
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 5); cpp_range_4.next(I); ) {
             InventorySatellite = aPlayer::GetPlayer()->FindSatelliteByTrajectoryIndex(SatelliteInventoryPageStart + I);
             {
-                GI_Image::TImageGI* cpp_with_6 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot_", SysUtils::IntToStr(I), "i"}))));
+                GI_Image::TImageGI* cpp_with_6 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot_", SysUtils::IntToStr(I), "i"})))));
                 if (InventorySatellite == nullptr) {
                     cpp_with_6->SetImagePath(pas::WideString());
                 } else {
@@ -1003,9 +1003,9 @@ namespace fPlanetNO {
                 }
             }
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLeft"_wref.get()))->SetDisabled(SatelliteInventoryPageStart <= 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLeft"sv))->SetDisabled(SatelliteInventoryPageStart <= 0);
         {
-            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRight"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRight"sv));
             std::uint8_t cpp_arg_3 = aPlayer::GetPlayer()->GetSatelliteTrajectoryIndexLimit() < SatelliteInventoryPageStart + 6;
             cpp_arg_2->SetDisabled(cpp_arg_3);
         }
@@ -1015,7 +1015,7 @@ namespace fPlanetNO {
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormPlanetNO.Space"_wref.get());
                 return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<val>"_w, std::move(intToStr), u"<color=0,50,200>"_w);
             }());
-            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterSpace"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterSpace"sv));
             cpp_arg_4->SetText(replaceColoredToken_2);
         }
         {
@@ -1024,7 +1024,7 @@ namespace fPlanetNO {
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormPlanetNO.Space"_wref.get());
                 return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_3), u"<val>"_w, std::move(intToStr_2), u"<color=0,50,200>"_w);
             }());
-            GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandSpace"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandSpace"sv));
             cpp_arg_5->SetText(replaceColoredToken_3);
         }
         {
@@ -1033,7 +1033,7 @@ namespace fPlanetNO {
                 pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormPlanetNO.Space"_wref.get());
                 return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_4), u"<val>"_w, std::move(intToStr_3), u"<color=0,50,200>"_w);
             }());
-            GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillSpace"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillSpace"sv));
             cpp_arg_6->SetText(replaceColoredToken_4);
         }
         {
@@ -1042,7 +1042,7 @@ namespace fPlanetNO {
                 pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormPlanetNO.Complate"_wref.get());
                 return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_5), u"<val>"_w, std::move(intToStr_4), u"<color=0,50,200>"_w);
             }());
-            GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterComplate"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterComplate"sv));
             cpp_arg_7->SetText(replaceColoredToken_5);
         }
         {
@@ -1051,7 +1051,7 @@ namespace fPlanetNO {
                 pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormPlanetNO.Complate"_wref.get());
                 return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_6), u"<val>"_w, std::move(intToStr_5), u"<color=0,50,200>"_w);
             }());
-            GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandComplate"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandComplate"sv));
             cpp_arg_8->SetText(replaceColoredToken_6);
         }
         {
@@ -1060,7 +1060,7 @@ namespace fPlanetNO {
                 pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormPlanetNO.Complate"_wref.get());
                 return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_7), u"<val>"_w, std::move(intToStr_6), u"<color=0,50,200>"_w);
             }());
-            GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillComplate"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillComplate"sv));
             cpp_arg_9->SetText(replaceColoredToken_7);
         }
         WaterRate = 0;
@@ -1075,7 +1075,7 @@ namespace fPlanetNO {
             }
         }
         {
-            GI_Label::TLabelGI* WaterTimeLeft = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterTimeLeft"_wref.get()));
+            GI_Label::TLabelGI* WaterTimeLeft = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterTimeLeft"sv));
             WaterTimeLeft->SetActive(WaterRate > 0);
             if (WaterTimeLeft->Active) {
                 WaterRate = std::min<std::int32_t>(999, MathImports::Ceil(pas::real_divide(aPlayer::GetPlayer()->CurrentPlanet->WaterTiles - aPlayer::GetPlayer()->CurrentPlanet->WaterExplored, WaterRate)));
@@ -1087,7 +1087,7 @@ namespace fPlanetNO {
             }
         }
         {
-            GI_Label::TLabelGI* LandTimeLeft = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandTimeLeft"_wref.get()));
+            GI_Label::TLabelGI* LandTimeLeft = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandTimeLeft"sv));
             LandTimeLeft->SetActive(LandRate > 0);
             if (LandTimeLeft->Active) {
                 LandRate = std::min<std::int32_t>(999, MathImports::Ceil(pas::real_divide(aPlayer::GetPlayer()->CurrentPlanet->LandTiles - aPlayer::GetPlayer()->CurrentPlanet->LandExplored, LandRate)));
@@ -1099,7 +1099,7 @@ namespace fPlanetNO {
             }
         }
         {
-            GI_Label::TLabelGI* HillTimeLeft = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillTimeLeft"_wref.get()));
+            GI_Label::TLabelGI* HillTimeLeft = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillTimeLeft"sv));
             HillTimeLeft->SetActive(HillRate > 0);
             if (HillTimeLeft->Active) {
                 HillRate = std::min<std::int32_t>(999, MathImports::Ceil(pas::real_divide(aPlayer::GetPlayer()->CurrentPlanet->HillTiles - aPlayer::GetPlayer()->CurrentPlanet->HillExplored, HillRate)));
@@ -1110,9 +1110,9 @@ namespace fPlanetNO {
                 }()));
             }
         }
-        GetByName(u"Light1"_wref.get())->SetActive(aPlayer::GetPlayer()->CurrentPlanet->WaterExplored >= aPlayer::GetPlayer()->CurrentPlanet->WaterTiles);
-        GetByName(u"Light2"_wref.get())->SetActive(aPlayer::GetPlayer()->CurrentPlanet->LandExplored >= aPlayer::GetPlayer()->CurrentPlanet->LandTiles);
-        GetByName(u"Light3"_wref.get())->SetActive(aPlayer::GetPlayer()->CurrentPlanet->HillExplored >= aPlayer::GetPlayer()->CurrentPlanet->HillTiles);
+        GetByName(u"Light1"sv)->SetActive(aPlayer::GetPlayer()->CurrentPlanet->WaterExplored >= aPlayer::GetPlayer()->CurrentPlanet->WaterTiles);
+        GetByName(u"Light2"sv)->SetActive(aPlayer::GetPlayer()->CurrentPlanet->LandExplored >= aPlayer::GetPlayer()->CurrentPlanet->LandTiles);
+        GetByName(u"Light3"sv)->SetActive(aPlayer::GetPlayer()->CurrentPlanet->HillExplored >= aPlayer::GetPlayer()->CurrentPlanet->HillTiles);
     }
 
     void TfPlanetNO::ScrollSatellitePageLeft(GI_MessageLoop::TObjectGI* Sender) {
@@ -1184,7 +1184,7 @@ namespace fPlanetNO {
             GR_Main::SoundManager->PlaySound(u"Sound.SlotPut"_wref.get());
             pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(HeldSatellite));
             pas::checked_cast<aItem::TSatellite*>(static_cast<pas::Object*>(HeldSatellite))->TrajectoryIndex = SatelliteInventoryPageStart + Sender->UserValue;
-            pas::checked_cast<aItem::TSatellite*>(static_cast<pas::Object*>(HeldSatellite))->TargetPlanet = nullptr;
+            static_cast<aItem::TSatellite*>(static_cast<pas::Object*>(HeldSatellite))->TargetPlanet = nullptr;
             HeldSatellite = nullptr;
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
             aPlayer::GetPlayer()->RemoveEmptySatelliteTrajectoryIndex(SatelliteInventoryPageStart + Sender->UserValue + 1);
@@ -1210,7 +1210,7 @@ namespace fPlanetNO {
                 Entry = pas::list_at<aPlanet::TPlanetSurfaceLootEntry>(aPlayer::GetPlayer()->CurrentPlanet->SurfaceLootEntries, I);
                 if (Entry->TerrainKind == aPlanet::ptWater && aPlayer::GetPlayer()->CurrentPlanet->WaterExplored >= Entry->SurfaceTileIndex || Entry->TerrainKind == aPlanet::ptLand && aPlayer::GetPlayer()->CurrentPlanet->LandExplored >= Entry->SurfaceTileIndex || Entry->TerrainKind == aPlanet::ptHill && aPlayer::GetPlayer()->CurrentPlanet->HillExplored >= Entry->SurfaceTileIndex) {
                     if (!Entry->Unavailable) {
-                        Cell = GetByName(u"PanelItems"_wref.get())->ToLocalPoint(Point);
+                        Cell = GetByName(u"PanelItems"sv)->ToLocalPoint(Point);
                         Cell.X = pas::idiv(Cell.X, GR_Main::GiScalePixelsEx(36, 28));
                         Cell.Y = pas::idiv(Cell.Y, GR_Main::GiScalePixelsEx(36, 28));
                         if (Entry->GridX == Cell.X && Entry->GridY == Cell.Y) {
@@ -1264,7 +1264,7 @@ namespace fPlanetNO {
                     HeldSatelliteOrigin = 0;
                 }
                 pas::checked_cast<aItem::TSatellite*>(static_cast<pas::Object*>(HeldSatellite))->TrajectoryIndex = SelectedTrajectoryIndex;
-                pas::checked_cast<aItem::TSatellite*>(static_cast<pas::Object*>(HeldSatellite))->TargetPlanet = aPlayer::GetPlayer()->CurrentPlanet;
+                static_cast<aItem::TSatellite*>(static_cast<pas::Object*>(HeldSatellite))->TargetPlanet = aPlayer::GetPlayer()->CurrentPlanet;
                 HeldSatellite = nullptr;
             } else if (Item != nullptr) {
                 GR_Main::SoundManager->PlaySound(u"Sound.SlotGet"_wref.get());
@@ -1295,18 +1295,18 @@ namespace fPlanetNO {
             GI_MessageLoop::TMessageLoopGI* self = this;
             self->SetCursorImage(cpp_arg, ClassesImports::Point(16, 16));
         } else if (SelectedTrajectoryIndex >= 0 && TfPlanetNO::FindDeployedSatellite(SelectedTrajectoryIndex) != nullptr) {
-            if (!IsCursorImageSelected(u"Take"_wref.get())) {
+            if (!IsCursorImageSelected(u"Take"sv)) {
                 GR_Main::SoundManager->PlaySound(u"Sound.ProbeEnter"_wref.get());
                 SetCursorByName(u"Take"_wref.get());
             }
         } else if (ForceHand || HoveredItem != nullptr) {
-            if (!IsCursorImageSelected(u"Take"_wref.get())) {
+            if (!IsCursorImageSelected(u"Take"sv)) {
                 SetCursorByName(u"Take"_wref.get());
             }
-        } else if (!IsCursorImageSelected(u"Main"_wref.get())) {
+        } else if (!IsCursorImageSelected(u"Main"sv)) {
             SetCursorByName(u"Main"_wref.get());
         }
-        GetByName(u"Glow"_wref.get())->SetActive(HeldSatellite != nullptr);
+        GetByName(u"Glow"sv)->SetActive(HeldSatellite != nullptr);
     }
 
     void TfPlanetNO::ReturnHeldSatellite() {
@@ -1362,7 +1362,7 @@ namespace fPlanetNO {
 
     void TfPlanetNO::AdvanceSatelliteMarkers(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         aItem::TSatellite* Satellite{};
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelSatellite"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelSatellite"sv));
         GI_MessageLoop::TObjectGI* Control = Panel->FirstChild;
         while (Control != nullptr) {
             Satellite = reinterpret_cast<aItem::TSatellite*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Control->UserValue)));
@@ -1416,8 +1416,8 @@ namespace fPlanetNO {
                     CancelCallbackTimer(ItemInfoHideTimer);
                     ItemInfoHideTimer = nullptr;
                 }
-                if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
-                    ShowGoodsInfoPopup(pas::checked_cast<aItem::TGoods*>(Item));
+                if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
+                    ShowGoodsInfoPopup(goods);
                 } else {
                     if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
                         if (Item->ScriptItem != nullptr) {
@@ -1444,7 +1444,7 @@ namespace fPlanetNO {
                         const pas::WideString& wrapTextInColor = ([&] {
                             pas::WideString displayName = Equipment->GetDisplayName();
                             pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(displayName), std::move(infoNameColorTag));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag)));
                         }());
                         GI_Label::TLabelGI* itemInfoNameLabel = ItemInfoNameLabel;
                         itemInfoNameLabel->SetText(wrapTextInColor);
@@ -1464,7 +1464,7 @@ namespace fPlanetNO {
                     }
                     if (static_cast<std::uint8_t>(pas::contains(DurableTypes, static_cast<std::uint8_t>(Equipment->ItemType)) ^ 1) && Equipment->ItemType != aConst::t_Hull) {
                         {
-                            GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                            GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                             InfoDurable->Parent->Parent->SetActive(false);
                         }
                         MinimumWidth = 0;
@@ -1477,12 +1477,12 @@ namespace fPlanetNO {
                         }
                         BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
                         {
-                            GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"_wref.get()));
+                            GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
                             CapWidth = InfoDurableLeft->GetContentSize().X;
                             MinimumWidth = 2 * CapWidth + BarWidth + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + 2 * InfoDurableLeft->Parent->Parent->LocalPosition.X;
                         }
                         {
-                            GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                            GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                             InfoDurable_2->Parent->Parent->SetActive(true);
                             InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(2 * CapWidth + BarWidth, InfoDurable_2->Parent->Parent->ClientSize.Y));
                             InfoDurable_2->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
@@ -1500,7 +1500,7 @@ namespace fPlanetNO {
                             }
                         }
                         {
-                            GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"_wref.get()));
+                            GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
                             {
                                 std::int32_t cpp_arg_3 = BarWidth + CapWidth - InfoDurableRight->GetContentSize().X;
                                 std::int32_t y_3 = InfoDurableRight->LocalPosition.Y;
@@ -1510,7 +1510,7 @@ namespace fPlanetNO {
                             InfoDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableRight->Parent->ClientSize.Y));
                         }
                         {
-                            GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"_wref.get()));
+                            GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
                             {
                                 std::int32_t cpp_arg_4 = BarWidth + 1 - InfoDurableBack->GetContentSize().X;
                                 std::int32_t y_4 = InfoDurableBack->LocalPosition.Y;
@@ -1529,9 +1529,9 @@ namespace fPlanetNO {
     }
 
     void TfPlanetNO::ShowGoodsInfoPopup(aItem::TGoods* Item) {
-        GetByName(u"PII"_wref.get())->SetActive(true);
+        GetByName(u"PII"sv)->SetActive(true);
         {
-            GI_Image::TImageGI* InfoImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoImage"_wref.get()));
+            GI_Image::TImageGI* InfoImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoImage"sv));
             InfoImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(Item->ItemType)}));
             InfoImage->SetImageKindX(GI_Main::ikxCenter);
             InfoImage->SetImageKindY(GI_Main::ikyCenter);
@@ -1542,32 +1542,32 @@ namespace fPlanetNO {
             }
         }
         {
-            const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(aConst::GoodsMarket[Item->ItemType].DisplayName, aMyFunction::InfoNameColorTag);
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"_wref.get()));
+            const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Item->ItemType].DisplayName), pas::view(aMyFunction::InfoNameColorTag));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv));
             cpp_arg->SetText(wrapTextInColor);
         }
         {
             const pas::WideString& localizedText = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text.", SysUtils::IntToStr(Item->ItemType + 1)})));
-            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv));
             cpp_arg_2->SetText(localizedText);
         }
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(Item->Quantity);
-            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"sv));
             cpp_arg_3->SetText(intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Item->Cost);
-            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"sv));
             cpp_arg_4->SetText(intToStr_2);
         }
         {
-            GI_Image::TImageGI* EmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"EmRace"_wref.get()));
-            EmRace->SetImagePath(aConst::GetFactionEmblemPath(aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace) & 0x0000007f].InternalName));
+            GI_Image::TImageGI* EmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"EmRace"sv));
+            EmRace->SetImagePath(aConst::GetFactionEmblemPath(aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)].InternalName));
             EmRace->SetImageKindX(GI_Main::ikxCenter);
             EmRace->SetImageKindY(GI_Main::ikyCenter);
         }
-        GetByName(u"InfoDurable"_wref.get())->Parent->Parent->SetActive(false);
+        GetByName(u"InfoDurable"sv)->Parent->Parent->SetActive(false);
         fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, ItemInfoNameLabel, ItemInfoTextLabel, true, true, 0);
         ItemInfoSizeLabel->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
         ItemInfoCostLabel->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
@@ -1580,7 +1580,7 @@ namespace fPlanetNO {
             CancelCallbackTimer(ItemInfoHideTimer);
             ItemInfoHideTimer = nullptr;
         }
-        GetByName(u"PII"_wref.get())->SetActive(false);
+        GetByName(u"PII"sv)->SetActive(false);
     }
 
     void TfPlanetNO::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
@@ -1589,7 +1589,7 @@ namespace fPlanetNO {
             return;
         }
         if (Key == WindowsSdk::VK_SPACE) {
-            if (GetByName(u"PM_EndTurn"_wref.get())->Active) {
+            if (GetByName(u"PM_EndTurn"sv)->Active) {
                 EndTurnClicked(nullptr);
             }
         } else if (Key == 'F') {
@@ -1621,7 +1621,7 @@ namespace fPlanetNO {
         } else if (Key == 'R') {
             QuestClicked(nullptr);
         } else if (Key == 'Q') {
-            QuestButton = GetByName(u"QuestInfo_Run"_wref.get());
+            QuestButton = GetByName(u"QuestInfo_Run"sv);
             if (QuestButton->Active) {
                 StartTextQuest(QuestButton);
             }
@@ -1647,9 +1647,9 @@ namespace fPlanetNO {
             return;
         }
         if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
-            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }

@@ -65,7 +65,7 @@ namespace aPirate {
         std::uint8_t GetGreetingShipCategory() override;
         // Always rcPirate.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
-        std::uint8_t GetStrengthScaledPirateStatus() override;
+        aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
@@ -78,7 +78,7 @@ namespace aPirate {
         void TryOfferRansomToPursuer();
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         // True while the current turn is spent in prison.
         std::uint8_t ProcessImprisonment();
         void AssignWeaponTargetsInStar() override;
@@ -95,7 +95,7 @@ namespace aPirate {
         std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         void ReviewPartnership();
         void MoveToRandomPlanetOrbit();
-        std::uint8_t UnknownVirtualC0(void* Argument) override;
+        std::uint8_t RefusesFactionNegotiation(aShip::TShip* OtherShip) override;
         std::uint8_t TryRetreatFromSystem();
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
         float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;

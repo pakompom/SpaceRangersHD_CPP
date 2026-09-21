@@ -63,7 +63,7 @@ namespace aNormalShip {
         pas::WideString AwardRandomMedal();
         void CheckKillCountAwards(aShip::TShip* Victim);
         // Returns 255 when no award qualifies; retries duplicates twice.
-        std::uint8_t SelectAward(std::uint8_t Owner, TAwardTypeMask Kinds, aGalaxyStruct::TShipTypeMask VictimTypes);
+        std::uint8_t SelectAward(aGalaxyStruct::TOwnerId Owner, TAwardTypeMask Kinds, aGalaxyStruct::TShipTypeMask VictimTypes);
         static void GetAwardInfo(std::uint8_t AwardId, aConst::TRewardInfo& Result);
         pas::WideString GetRankName();
         pas::WideString GetRankLongName();

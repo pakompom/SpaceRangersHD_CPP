@@ -77,8 +77,8 @@ namespace aEFilm {
         TEFilmObj* NomToObj(std::int32_t Index);
         std::uint8_t ContainsObject(TEFilmObj* Obj);
         // Matches all three keys; returns a borrowed object or nil.
-        TEFilmObj* FindObject(const pas::WideString& KindName, const pas::WideString& GraphKey, std::uint32_t ObjectId);
-        TEFilmObj* FindObjectById(const pas::WideString& KindName, std::uint32_t ObjectId);
+        TEFilmObj* FindObject(const std::u16string_view& KindName, const std::u16string_view& GraphKey, std::uint32_t ObjectId);
+        TEFilmObj* FindObjectById(const std::u16string_view& KindName, std::uint32_t ObjectId);
         void GrowCommandPool(std::int32_t Count);
         // Moves an inclusive linked range to the free list.
         void RecycleCommands(PEFilmCommand First, PEFilmCommand Last);
@@ -200,7 +200,9 @@ namespace aEFilm {
         std::uint8_t Kind;
         std::uint8_t cpp_padding[3];
         std::int32_t StepIndex;
-        pas::Array<std::uint8_t, 0, 15> Payload;
+        // Unused by commands without an object.
+        TEFilmObj* Obj;
+        pas::Array<std::uint8_t, 0, 11> Payload;
     };
     #pragma pack(pop)
 

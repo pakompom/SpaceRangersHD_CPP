@@ -206,15 +206,18 @@ namespace GR_Main {
 
     std::uint32_t LastRecordingFrameTick = 0u;
 
-    // Keep these zero-filled globals consecutive and in this order. Native
-    // VerifyStartupModuleChecksum subtracts 8 from StartupChecksumAnchor's address;
-    // other routines access each variable directly. DCC32 preserves this storage order.
+    // Native VerifyStartupModuleChecksum subtracts a local byte offset of 8 from
+    // StartupChecksumAnchor's address for each marker access ().
+    // The subtraction is emitted at runtime, not inferred from adjacent addresses.
+    // Keep these initialized globals consecutive and in this order; direct access
+    // to StartupIntegrityMarker would remove those native subtraction instructions.
+    // Other routines access StartupIntegrityMarker and LastMouseMessageTick directly.
     // Signed integrity marker: positive after a failed startup module checksum, negative after a clean check; reset by TMessageLoopGI.Present.
-    std::int32_t UnknownPresentState = 0;
+    std::int32_t StartupIntegrityMarker = 0;
 
     std::uint32_t LastMouseMessageTick = 0u;
 
-    // Checksum helper accesses UnknownPresentState at byte offset -8; original anchor meaning unresolved.
+    // Checksum helper accesses StartupIntegrityMarker at byte offset -8; original anchor meaning unresolved.
     std::int32_t StartupChecksumAnchor = 0;
 
     // Set across MatrixGame Run, including its exception handler.
@@ -367,10 +370,10 @@ namespace GR_Main {
     }
 
     // Case-sensitive lookup; raises when absent.
-    TCursorUnit* FindCursorByName(const pas::WideString& Name) {
+    TCursorUnit* FindCursorByName(const std::u16string_view& Name) {
         TCursorUnit* Cursor = FirstRegisteredCursor;
         while (Cursor != nullptr) {
-            if (Cursor->Name == Name) {
+            if (pas::view(Cursor->Name) == Name) {
                 return Cursor;
             }
             Cursor = Cursor->Next;
@@ -571,13 +574,13 @@ namespace GR_Main {
             WindowsSdk::HKEY key = Key;
             return WindowsSdk::RegQueryValueExA(key, cpp_arg, nullptr, &ValueType, static_cast<std::uint8_t*>(Data), &ByteCount);
         }()) != WindowsSdk::ERROR_SUCCESS) {
-            Result = DefaultValue;
+            Result = std::move(DefaultValue);
             WindowsSdk::RegCloseKey(Key);
             EC_Mem::FreeEC(Data);
             return Result;
         }
         if (ValueType != WindowsSdk::REG_SZ) {
-            Result = DefaultValue;
+            Result = std::move(DefaultValue);
         } else {
             Result = static_cast<pas::WideString>(static_cast<std::uint8_t*>(Data));
         }
@@ -710,7 +713,7 @@ namespace GR_Main {
             Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
             Block->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"Mods\\ModCFG.txt"), false);
             if (Block->CountParams(u"CurrentMod"_wref.get()) > 0) {
-                ModNames = EC_Str::TrimWideString(Block->GetParam(u"CurrentMod"_wref.get()));
+                ModNames = EC_Str::TrimWideString(Block->GetParam(u"CurrentMod"sv));
             }
             SelectedMods = ModNames;
             SelectedModsDisplaySuffix = pas::concat_wide({u", ", SelectedMods, u","});
@@ -729,7 +732,7 @@ namespace GR_Main {
         if (!SkipModsOnReload) {
             Index = 0;
             do {
-                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(ModNames, Index, u","_wref.get()));
+                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(ModNames), Index, u","sv));
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
@@ -752,7 +755,7 @@ namespace GR_Main {
                     }
                 }
                 ++Index;
-            } while (!(Index >= EC_Str::CountDelimitedPartsW(ModNames, u","_wref.get())));
+            } while (!(Index >= EC_Str::CountDelimitedPartsW(pas::view(ModNames), u","sv)));
         }
     }
 
@@ -830,14 +833,14 @@ namespace GR_Main {
             Height = GameScreenHeight;
         }
         if (Direct3DPresentParameters.Windowed) {
-            if (UserSettingsConfig->CountParams(u"ShowCaption"_wref.get()) > 0 && static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"ShowCaption"_wref.get()))) ^ 1)) {
+            if (UserSettingsConfig->CountParams(u"ShowCaption"_wref.get()) > 0 && static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"ShowCaption"_wref.get())))) ^ 1)) {
                 Style = 0x10000000u;
             } else {
                 Style = 0x10ca0000u;
             }
             if (UserSettingsConfig->CountParams(u"OverrideWindowPosition"_wref.get()) > 0) {
-                Bounds.Left = EC_Str::ExtractSignedDigitsToIntW(EC_Str::ExtractDelimitedPartW(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get())), 0, u","_wref.get()));
-                Bounds.Top = EC_Str::ExtractSignedDigitsToIntW(EC_Str::ExtractDelimitedPartW(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get())), 1, u","_wref.get()));
+                Bounds.Left = EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get()))), 0, u","sv)));
+                Bounds.Top = EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get()))), 1, u","sv)));
             } else {
                 Bounds.Left = (DesktopDisplayMode.Width - static_cast<std::uint32_t>(Width)) / 2;
                 Bounds.Top = (DesktopDisplayMode.Height - static_cast<std::uint32_t>(Height)) / 2;
@@ -903,7 +906,7 @@ namespace GR_Main {
         Index = 0;
         if (!SkipModsOnReload) {
             do {
-                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(ModNames, Index, u","_wref.get()));
+                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(ModNames), Index, u","sv));
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
@@ -916,30 +919,30 @@ namespace GR_Main {
                     pas::free(Block);
                 }
                 ++Index;
-            } while (!(Index >= EC_Str::CountDelimitedPartsW(ModNames, u","_wref.get())));
+            } while (!(Index >= EC_Str::CountDelimitedPartsW(pas::view(ModNames), u","sv)));
         }
         if (GlobalsV::DumpLoadedConfig) {
             MainDataConfig->SaveTextFile(pas::literal_pointer(u"Main.txt"), false, true);
         }
         LanguageDataConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-        LoadBlockDatConfig(LanguageDataConfig, pas::concat_wide({u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"}));
+        LoadBlockDatConfig(LanguageDataConfig, pas::concat_wide({u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"}));
         Index = 0;
         if (!SkipModsOnReload) {
             do {
-                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(ModNames, Index, u","_wref.get()));
+                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(ModNames), Index, u","sv));
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
-                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"})))) {
+                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"})))) {
                     HasOverrides = true;
                     Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-                    LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"_wref.get()), u"\\Lang.dat"}));
+                    LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"}));
                     LanguageDataConfig->MergeFrom(Block);
                     Block->Clear();
                     pas::free(Block);
                 }
                 ++Index;
-            } while (!(Index >= EC_Str::CountDelimitedPartsW(ModNames, u","_wref.get())));
+            } while (!(Index >= EC_Str::CountDelimitedPartsW(pas::view(ModNames), u","sv)));
         }
         if (GlobalsV::DumpLoadedConfig) {
             LanguageDataConfig->SaveTextFile(pas::literal_pointer(u"Lang.txt"), false, true);
@@ -949,7 +952,7 @@ namespace GR_Main {
         Index = 0;
         if (!SkipModsOnReload) {
             do {
-                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(ModNames, Index, u","_wref.get()));
+                ModPath = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(ModNames), Index, u","sv));
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
@@ -961,7 +964,7 @@ namespace GR_Main {
                     pas::free(Data);
                 }
                 ++Index;
-            } while (!(Index >= EC_Str::CountDelimitedPartsW(ModNames, u","_wref.get())));
+            } while (!(Index >= EC_Str::CountDelimitedPartsW(pas::view(ModNames), u","sv)));
         }
         if (GlobalsV::DumpLoadedConfig) {
             Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
@@ -996,7 +999,7 @@ namespace GR_Main {
         if (InstallConfig->CountParamsByPath(Path) < 1) {
             return false;
         }
-        return GI_Main::ParseEnabledNameGI(InstallConfig->GetParamByPathOrMarker(Path));
+        return GI_Main::ParseEnabledNameGI(pas::view(InstallConfig->GetParamByPathOrMarker(Path)));
     }
 
     void LoadInformationColorTags() {
@@ -1004,7 +1007,7 @@ namespace GR_Main {
         aMyFunction::InfoNameColorTag = u"<color=57,239,255>"_w;
         aMyFunction::InfoHullSeriesColorTag = u"<color=82,166,255>"_w;
         if (GameDataConfig->CountBlocks(u"StyleColor"_wref.get()) > 0) {
-            Block = GameDataConfig->GetBlock(u"StyleColor"_wref.get());
+            Block = GameDataConfig->GetBlock(u"StyleColor"sv);
             if (Block->CountParamsByPath(u"InfoNameColor"_wref.get()) > 0) {
                 aMyFunction::InfoNameColorTag = pas::concat_wide({u"<color=", Block->GetParamByPath(u"InfoNameColor"_wref.get()), u">"});
             }
@@ -1046,8 +1049,8 @@ namespace GR_Main {
             ExtraText = u" [x86] build "_w;
         }
         ModuleName = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE, u"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"_w, u"CurrentBuild"_w, pas::WideString()));
-        if (EC_Str::ExtractDigitsToIntW(ModuleName) >= 22000) {
-            Text = EC_Str::ReplaceAllWideString(Text, u"Windows 10"_wref.get(), u"Windows 11"_wref.get());
+        if (EC_Str::ExtractDigitsToIntW(pas::view(ModuleName)) >= 22000) {
+            Text = EC_Str::ReplaceAllWideString(Text, u"Windows 10"_wref.get(), u"Windows 11"sv);
         }
         if (GlobalsV::RunningUnderWine) {
             GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Wine compatibility mode is set to '", Text, ExtraText, ModuleName, u"'"})));
@@ -1133,7 +1136,7 @@ namespace GR_Main {
                 GR_Main::AppendLogLineThreadSafe("ok!"_a);
             } else if (UserSettingsConfig->GetParamByPathOrMarker(u"CurrentVersion"_wref.get()) != u"2.1.2500") {
                 GR_Main::AppendLogTextThreadSafe("Updating cfg.txt version ... "_a);
-                if (UserSettingsConfig->GetParam(u"CurrentVersion"_wref.get()) == u"2.1.1800" && UserSettingsConfig->CountParamsByPath(u"CountFilmSave"_wref.get()) > 0 && UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()) == u"30") {
+                if (UserSettingsConfig->GetParam(u"CurrentVersion"sv) == u"2.1.1800" && UserSettingsConfig->CountParamsByPath(u"CountFilmSave"_wref.get()) > 0 && UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()) == u"30") {
                     UserSettingsConfig->SetOrAddParam(u"CountFilmSave"_wref.get(), u"7"_wref.get());
                 }
                 UserSettingsConfig->SetOrAddParam(u"CurrentVersion"_wref.get(), u"2.1.2500"_wref.get());
@@ -1147,7 +1150,7 @@ namespace GR_Main {
                 GR_Main::AppendLogLineThreadSafe("ok!"_a);
             }
             if (GlobalsV::RunningUnderWine) {
-                if (UserSettingsConfig->CountParams(u"RunOnWineWithoutWarning"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RunOnWineWithoutWarning"_wref.get()))) ^ 1)) {
+                if (UserSettingsConfig->CountParams(u"RunOnWineWithoutWarning"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RunOnWineWithoutWarning"_wref.get())))) ^ 1)) {
                     if (UserSettingsConfig->CountParams(u"RunOnWineWithoutWarning"_wref.get()) == 0) {
                         UserSettingsConfig->AddParam(u"RunOnWineWithoutWarning"_wref.get(), u"True"_wref.get());
                     } else {
@@ -1165,16 +1168,16 @@ namespace GR_Main {
             NewGameSettingsConfig->LoadFromTextFileWithEncodingProbe(Text.pchar(), true);
         }
         if (UserSettingsConfig->CountParamsByPath(u"MultiThread"_wref.get()) > 0) {
-            GlobalsV::MultiThreadEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"MultiThread"_wref.get()));
+            GlobalsV::MultiThreadEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MultiThread"_wref.get())));
         }
         GR_Main::ApplyProcessAffinity();
         PathGrowEnabled = true;
         if (UserSettingsConfig->CountParams(u"PathGrow"_wref.get()) > 0) {
-            PathGrowEnabled = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"PathGrow"_wref.get())));
+            PathGrowEnabled = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"PathGrow"_wref.get()))));
         }
         ShowSystemMouse = false;
         if (UserSettingsConfig->CountParams(u"ShowSystemMouse"_wref.get()) > 0) {
-            ShowSystemMouse = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"ShowSystemMouse"_wref.get())));
+            ShowSystemMouse = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"ShowSystemMouse"_wref.get()))));
         }
         if (SysUtilsImports::FileExists("Mods\\ShipName.txt"_a)) {
             ModShipNameConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
@@ -1185,8 +1188,8 @@ namespace GR_Main {
             ModRuinNameConfig->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"Mods\\RuinName.txt"), false);
         }
         if (SysUtilsImports::FileExists("MusicChange.txt"_a)) {
-            MainDataConfig->GetBlock(u"Music"_wref.get())->Clear();
-            MainDataConfig->GetBlock(u"Music"_wref.get())->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"MusicChange.txt"), false);
+            MainDataConfig->GetBlock(u"Music"sv)->Clear();
+            MainDataConfig->GetBlock(u"Music"sv)->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"MusicChange.txt"), false);
         }
         {
             EC_BlockPar::TBlockParEC* blockByPath = LanguageDataConfig->GetBlockByPath(u"PlanetQuest"_wref.get());
@@ -1197,7 +1200,7 @@ namespace GR_Main {
         GlobalCache->SetDataRoot(CacheDataRoot);
         GlobalCache->ResidentByteLimit = 0;
         if (UserSettingsConfig->CountParams(u"CacheSize"_wref.get()) > 0) {
-            GlobalCache->ResidentByteLimit = pas::shl(pas::shl(EC_Str::ExtractDigitsToIntW(UserSettingsConfig->GetParamByPathOrMarker(u"CacheSize"_wref.get())), 10), 10);
+            GlobalCache->ResidentByteLimit = pas::shl(pas::shl(EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"CacheSize"_wref.get()))), 10), 10);
         }
         if (GlobalCache->ResidentByteLimit <= 0x01000000) {
             if (MemoryStatus.AvailVirtual > 0x48000000) {
@@ -1220,28 +1223,28 @@ namespace GR_Main {
             RobotContrast = EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"RobotContrast"_wref.get()));
         }
         if (UserSettingsConfig->CountParams(u"3D"_wref.get()) > 0) {
-            GlobalsV::ThreeDimensionalModeEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"3D"_wref.get()));
+            GlobalsV::ThreeDimensionalModeEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"3D"_wref.get())));
         }
         UiStyleConfig = MainDataConfig->GetBlockByPath(u"ML"_wref.get());
         GameDataConfig = MainDataConfig->GetBlockByPath(u"Data"_wref.get());
         GR_Main::LoadInformationColorTags();
         UiDepthConfig = MainDataConfig->GetBlockByPath(u"ZPos"_wref.get());
-        GlobalsV::PlanetDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"Planet"_wref.get()));
-        GlobalsV::ShipPathDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPathShip"_wref.get()));
-        GlobalsV::ShipPathEndDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPathEndShip"_wref.get()));
-        GlobalsV::UnitPathDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPath"_wref.get()));
-        GlobalsV::UnitPathEndDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPathEnd"_wref.get()));
-        GlobalsV::ActionButtonDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ButtonAction"_wref.get()));
-        GlobalsV::GalaxyStarDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyStar"_wref.get()));
-        GlobalsV::GalaxyStarNameDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyStarName"_wref.get()));
-        GlobalsV::GalaxyWarDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyWar"_wref.get()));
-        GlobalsV::ConstellationLineDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationLine"_wref.get()));
-        GlobalsV::ConstellationColorDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationColor"_wref.get()));
+        GlobalsV::PlanetDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"Planet"sv));
+        GlobalsV::ShipPathDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPathShip"sv));
+        GlobalsV::ShipPathEndDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPathEndShip"sv));
+        GlobalsV::UnitPathDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPath"sv));
+        GlobalsV::UnitPathEndDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"UnitPathEnd"sv));
+        GlobalsV::ActionButtonDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ButtonAction"sv));
+        GlobalsV::GalaxyStarDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyStar"sv));
+        GlobalsV::GalaxyStarNameDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyStarName"sv));
+        GlobalsV::GalaxyWarDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyWar"sv));
+        GlobalsV::ConstellationLineDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationLine"sv));
+        GlobalsV::ConstellationColorDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationColor"sv));
         if (UserSettingsConfig->CountParamsByPath(u"Sound"_wref.get()) > 0) {
-            GlobalsV::SoundEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"Sound"_wref.get()));
+            GlobalsV::SoundEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"Sound"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"SoundInSpace"_wref.get()) > 0) {
-            GlobalsV::SoundInSpaceEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"SoundInSpace"_wref.get()));
+            GlobalsV::SoundInSpaceEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"SoundInSpace"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"SoundVolume"_wref.get()) > 0) {
             GlobalsV::SoundVolume = pas::real_divide(SysUtils::StrToInt(static_cast<pas::AnsiString>(UserSettingsConfig->GetParamByPathOrMarker(u"SoundVolume"_wref.get()))), 1.0E+2L);
@@ -1268,16 +1271,16 @@ namespace GR_Main {
             GlobalsV::SoundInSpaceEnabled = false;
         }
         if (UserSettingsConfig->CountParamsByPath(u"Music"_wref.get()) > 0) {
-            GlobalsV::MusicEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"Music"_wref.get()));
+            GlobalsV::MusicEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"Music"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicInSpace"_wref.get()) > 0) {
-            GlobalsV::MusicInSpaceEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInSpace"_wref.get()));
+            GlobalsV::MusicInSpaceEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInSpace"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicInHyper"_wref.get()) > 0) {
-            GlobalsV::MusicInHyperEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInHyper"_wref.get()));
+            GlobalsV::MusicInHyperEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInHyper"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicInPlanet"_wref.get()) > 0) {
-            GlobalsV::MusicInPlanetEnabled = GI_Main::ParseEnabledNameGI(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInPlanet"_wref.get()));
+            GlobalsV::MusicInPlanetEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInPlanet"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicVolume"_wref.get()) > 0) {
             GlobalsV::MusicVolume = pas::real_divide(SysUtils::StrToInt(static_cast<pas::AnsiString>(UserSettingsConfig->GetParamByPathOrMarker(u"MusicVolume"_wref.get()))), 1.0E+2L);
@@ -1303,7 +1306,7 @@ namespace GR_Main {
         if (!GR_Main::IsInstallFeatureEnabled(u"MusicInSpace"_wref.get())) {
             GlobalsV::MusicInSpaceEnabled = false;
         }
-        EC_BlockPar::TBlockParEC* Block = LanguageDataConfig->GetBlock(u"CaseConv"_wref.get());
+        EC_BlockPar::TBlockParEC* Block = LanguageDataConfig->GetBlock(u"CaseConv"sv);
         Count = Block->GetParamCount();
         WideCaseTable.set_length(Count);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
@@ -1320,7 +1323,7 @@ namespace GR_Main {
         SoundManager = pas::construct_call<GR_Sound::TSoundControl>(GR_Sound::TSoundControl_Create);
         MusicManager = pas::construct_call<GR_Music::TMusicControl>(GR_Music::TMusicControl_Create);
         if (GlobalsV::XonarSoundDevice) {
-            if (UserSettingsConfig->CountParams(u"RunWithXonarWithoutWarning"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RunWithXonarWithoutWarning"_wref.get()))) ^ 1)) {
+            if (UserSettingsConfig->CountParams(u"RunWithXonarWithoutWarning"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RunWithXonarWithoutWarning"_wref.get())))) ^ 1)) {
                 if (UserSettingsConfig->CountParams(u"RunWithXonarWithoutWarning"_wref.get()) == 0) {
                     UserSettingsConfig->AddParam(u"RunWithXonarWithoutWarning"_wref.get(), u"True"_wref.get());
                 } else {
@@ -1359,7 +1362,7 @@ namespace GR_Main {
             RecordingFrameBuffers = nullptr;
         }
         if (UserSettingsConfig->CountParamsByPath(u"FilmBufSize"_wref.get()) > 0) {
-            BufferSize = EC_Str::ExtractDigitsToIntW(UserSettingsConfig->GetParamByPathOrMarker(u"FilmBufSize"_wref.get()));
+            BufferSize = EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"FilmBufSize"_wref.get())));
             if (BufferSize > 0) {
                 RecordingFrameBuffers = pas::make_object<pas::List>();
                 Count = pas::idiv(pas::shl(pas::shl(BufferSize, 10), 10), GameScreenWidth * GameScreenHeight * 2) + 1;
@@ -1371,14 +1374,14 @@ namespace GR_Main {
             }
         }
         if (UserSettingsConfig->CountParamsByPath(u"FilmFPS"_wref.get()) > 0) {
-            RecordingFrameInterval = pas::idiv(1000, EC_Str::ExtractDigitsToIntW(UserSettingsConfig->GetParamByPathOrMarker(u"FilmFPS"_wref.get())));
+            RecordingFrameInterval = pas::idiv(1000, EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"FilmFPS"_wref.get()))));
         }
         Block = MainDataConfig->GetBlockByPath(u"Graph.Cursor"_wref.get());
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Block->GetBlockCount() - 1); cpp_range_5.next(Index); ) {
             Cursor = GR_Main::AddCursorUnit();
             Cursor->Name = Block->GetBlockNameByIndex(Index);
-            Cursor->ImagePath = Block->GetBlockByIndex(Index)->GetParam(u"Image"_wref.get());
-            Cursor->HotSpot = GI_Main::GetPointGI(Block->GetBlockByIndex(Index)->GetParam(u"Sme"_wref.get()));
+            Cursor->ImagePath = Block->GetBlockByIndex(Index)->GetParam(u"Image"sv);
+            Cursor->HotSpot = GI_Main::GetPointGI(pas::view(Block->GetBlockByIndex(Index)->GetParam(u"Sme"sv)));
         }
         if (LanguageDataConfig->GetParamByPathOrMarker(u"BV.BV"_wref.get()) != u"2.1.2500") {
             GR_Main::AppendLogLineThreadSafe("Build version mismatch with Lang.dat!"_a);
@@ -1482,12 +1485,12 @@ namespace GR_Main {
         if (UserSettingsConfig->CountParams(u"VideoMode"_wref.get()) > 0) {
             Resolution = EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"VideoMode"_wref.get()));
         }
-        if (EC_Str::CountDelimitedPartsW(Resolution, u","_wref.get()) > 1) {
-            GameScreenWidth = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Resolution, 0, u","_wref.get()));
-            GameScreenHeight = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Resolution, 1, u","_wref.get()));
+        if (EC_Str::CountDelimitedPartsW(pas::view(Resolution), u","sv) > 1) {
+            GameScreenWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 0, u","sv)));
+            GameScreenHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 1, u","sv)));
             RequestedRefreshRate = 0;
-            if (EC_Str::CountDelimitedPartsW(Resolution, u","_wref.get()) > 2) {
-                RequestedRefreshRate = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Resolution, 2, u","_wref.get()));
+            if (EC_Str::CountDelimitedPartsW(pas::view(Resolution), u","sv) > 2) {
+                RequestedRefreshRate = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 2, u","sv)));
             }
         } else {
             GameScreenWidth = 0;
@@ -1498,9 +1501,9 @@ namespace GR_Main {
         if (UserSettingsConfig->CountParams(u"RobotResolution"_wref.get()) > 0) {
             Resolution = EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RobotResolution"_wref.get()));
         }
-        if (EC_Str::CountDelimitedPartsW(Resolution, u","_wref.get()) > 1) {
-            Robot::RobotSettings.ScreenWidth = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Resolution, 0, u","_wref.get()));
-            Robot::RobotSettings.ScreenHeight = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Resolution, 1, u","_wref.get()));
+        if (EC_Str::CountDelimitedPartsW(pas::view(Resolution), u","sv) > 1) {
+            Robot::RobotSettings.ScreenWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 0, u","sv)));
+            Robot::RobotSettings.ScreenHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 1, u","sv)));
         } else {
             Robot::RobotSettings.ScreenWidth = 0;
             Robot::RobotSettings.ScreenHeight = 0;
@@ -1524,7 +1527,7 @@ namespace GR_Main {
             Direct3D9::IDirect3D9_EnumAdapterModes(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format, Index, &Mode);
             if (Mode.Height >= 720) {
                 ModeKey = static_cast<pas::WideString>(pas::concat_ansi_reverse({pas::int_to_hex(static_cast<std::int64_t>(Mode.Height), 6), pas::int_to_hex(static_cast<std::int64_t>(Mode.Width), 6)}));
-                if (Modes->CountParams(ModeKey) <= 0 || SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Modes->GetParam(ModeKey), 0, u","_wref.get()))) < static_cast<std::int32_t>(Mode.RefreshRate)) {
+                if (Modes->CountParams(ModeKey) <= 0 || SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Modes->GetParam(pas::view(ModeKey))), 0, u","sv))) < static_cast<std::int32_t>(Mode.RefreshRate)) {
                     Modes->SetOrAddParam(ModeKey, static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(Mode.RefreshRate), ",", SysUtils::IntToStr(Index)})));
                 }
             }
@@ -1537,7 +1540,7 @@ namespace GR_Main {
         GR_Main::AppendLogTextThreadSafe("Available Resolutions="_a);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Modes->GetParamCount() - 1); cpp_range_2.next(Index); ) {
             ModeKey = Modes->GetParamValue(Index);
-            Direct3D9::IDirect3D9_EnumAdapterModes(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format, SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ModeKey, 1, u","_wref.get()))), &Mode);
+            Direct3D9::IDirect3D9_EnumAdapterModes(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format, SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ModeKey), 1, u","sv))), &Mode);
             GameDisplayModes[Index] = Mode;
             RobotDisplayModes[Index] = Mode;
             if (SmallestArea < 0 || static_cast<std::int32_t>(Mode.Width * Mode.Height) < SmallestArea) {
@@ -1787,40 +1790,40 @@ namespace GR_Main {
         GR_Main::FreeScreenRenderBuffers();
         WindowedModeRequested = false;
         if (UserSettingsConfig->CountParams(u"Window"_wref.get()) > 0) {
-            WindowedModeRequested = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"Window"_wref.get())));
+            WindowedModeRequested = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"Window"_wref.get()))));
         }
         VSyncEnabled = false;
         if (UserSettingsConfig->CountParams(u"VSync"_wref.get()) > 0) {
-            VSyncEnabled = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"VSync"_wref.get())));
+            VSyncEnabled = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"VSync"_wref.get()))));
         }
         GlobalsV::HardwareRenderingRequested = false;
         if (UserSettingsConfig->CountParams(u"HardwareRender"_wref.get()) > 0) {
-            GlobalsV::HardwareRenderingRequested = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"HardwareRender"_wref.get())));
+            GlobalsV::HardwareRenderingRequested = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"HardwareRender"_wref.get()))));
         }
-        GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested && (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) || UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 && GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"AllowHardwareRenderUnderWine"_wref.get()))));
+        GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested && (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) || UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 && GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"AllowHardwareRenderUnderWine"_wref.get())))));
         GlobalsV::ScaleViewportToWindow = true;
         if (UserSettingsConfig->CountParams(u"RenderModeScale"_wref.get()) > 0) {
-            GlobalsV::ScaleViewportToWindow = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RenderModeScale"_wref.get())));
+            GlobalsV::ScaleViewportToWindow = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RenderModeScale"_wref.get()))));
         }
         GR_DX::TextureManagerDisabled = false;
         if (UserSettingsConfig->CountParams(u"DisableTextureManager"_wref.get()) > 0) {
-            GR_DX::TextureManagerDisabled = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableTextureManager"_wref.get())));
+            GR_DX::TextureManagerDisabled = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableTextureManager"_wref.get()))));
         }
         PresentWithoutLimit = false;
         if (UserSettingsConfig->CountParams(u"DisableFrameLimit"_wref.get()) > 0) {
-            PresentWithoutLimit = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableFrameLimit"_wref.get())));
+            PresentWithoutLimit = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableFrameLimit"_wref.get()))));
         }
         DisableHardwareVertexProcessing = false;
         if (UserSettingsConfig->CountParams(u"DisableHWVertexProcessing"_wref.get()) > 0) {
-            DisableHardwareVertexProcessing = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableHWVertexProcessing"_wref.get())));
+            DisableHardwareVertexProcessing = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableHWVertexProcessing"_wref.get()))));
         }
         DisableMultithreadFlag = false;
         if (UserSettingsConfig->CountParams(u"DisableMultithreadFlag"_wref.get()) > 0) {
-            DisableMultithreadFlag = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableMultithreadFlag"_wref.get())));
+            DisableMultithreadFlag = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableMultithreadFlag"_wref.get()))));
         }
         DisableTripleBuffer = false;
         if (UserSettingsConfig->CountParams(u"DisableTripleBuffer"_wref.get()) > 0) {
-            DisableTripleBuffer = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableTripleBuffer"_wref.get())));
+            DisableTripleBuffer = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableTripleBuffer"_wref.get()))));
         }
         ScreenRenderBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
         RenderScratchBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
@@ -1937,13 +1940,13 @@ namespace GR_Main {
                 GR_Main::AppendLogLineThreadSafe("Re-initializing Direct3D device... ok!"_a);
             }
             GR_DX::AvailableTextureBytes = Direct3D9::IDirect3DDevice9_GetAvailableTextureMem(Direct3DDevice);
-            GR_DX::ReservedTextureBytes = EC_Str::ExtractDigitsToIntW(UserSettingsConfig->GetParamByPathOrMarker(u"VideoMemSizeLimit"_wref.get()));
+            GR_DX::ReservedTextureBytes = EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"VideoMemSizeLimit"_wref.get())));
             GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available Video Memory=", SysUtils::Int64ToStr(GR_DX::AvailableTextureBytes >> 10), " KB"}));
             if (static_cast<std::int32_t>(GR_DX::ReservedTextureBytes) > 0) {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available Video Memory Override=", SysUtils::IntToStr(GR_DX::ReservedTextureBytes << 10), " KB"}));
                 GR_DX::ReservedTextureBytes = GR_DX::AvailableTextureBytes - (GR_DX::ReservedTextureBytes << 10 << 10);
             }
-            UserSettingsConfig->GetParam(u"VideoMemSizeLimit"_wref.get());
+            UserSettingsConfig->GetParam(u"VideoMemSizeLimit"sv);
             for (Index = 0; Index <= 15; ++Index) {
                 GR_DX::DrawVertices[Index].Z = 1.0f;
                 GR_DX::DrawVertices[Index].RHW = 1.0f;
@@ -1989,7 +1992,7 @@ namespace GR_Main {
         LineRasterizer16 = TLineRasterizer16(OKGF_LineIp_16);
         ScreenRenderBuffer->AllocateNativePitch(GameScreenWidth, GameScreenHeight, 2 * GameScreenWidth);
         if (GameDataConfig->CountParams(u"MiniMapBufSize"_wref.get()) > 0) {
-            MiniMapSize = EC_Str::ExtractDigitsToIntW(GameDataConfig->GetParam(u"MiniMapBufSize"_wref.get()));
+            MiniMapSize = EC_Str::ExtractDigitsToIntW(pas::view(GameDataConfig->GetParam(u"MiniMapBufSize"sv)));
         } else {
             MiniMapSize = 156;
         }
@@ -2318,9 +2321,9 @@ namespace GR_Main {
         while (Y < Height) {
             X = 0;
             while (X < Width) {
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, X * 3)) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, X * 4 + 2));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, X * 3 + 1)) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, X * 4 + 1));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, X * 3 + 2)) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, X * 4));
+                static_cast<GR_GraphBuf::PColorRGB>(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB))))->R = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->R))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->G)))) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->G))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->B)))) = static_cast<GR_GraphBuf::PColorBGRA>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->B;
                 ++X;
             }
             Dest = EC_Mem::AddPointerOffset(Dest, DestPitch);
@@ -2368,7 +2371,7 @@ namespace GR_Main {
             // Native code scans without testing for INVALID_HANDLE_VALUE.
             do {
                 if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) != WindowsImports::FILE_ATTRIBUTE_DIRECTORY) {
-                    FirstFrameNumber = std::max<std::int32_t>(FirstFrameNumber, EC_Str::ExtractDigitsToIntW(static_cast<pas::WideString>(pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260))));
+                    FirstFrameNumber = std::max<std::int32_t>(FirstFrameNumber, EC_Str::ExtractDigitsToIntW(pas::view(static_cast<pas::WideString>(pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260)))));
                 }
             } while (WindowsSdk::FindNextFile(SearchHandle, FindData) != 0);
             WindowsImports::FindClose(SearchHandle);
@@ -3258,7 +3261,7 @@ namespace GR_Main {
         }
     }
 
-    // Decoded: 'libogg-0', 'libvorbis-0', 'libvorbisfile', 'matrixgame',
+    // 'libogg-0', 'libvorbis-0', 'libvorbisfile', 'matrixgame',
     // 'okgf', 'steam_ach', 'steam_api', 'xvidcore', 'zlib'.
     // Differences from the 1024x768 UI baseline; may be negative.
     // Identity function in this binary.
@@ -3386,12 +3389,12 @@ namespace GR_Main {
         EC_BlockPar::TBlockParEC* Style{};
         pas::WideString ColorText{};
         if (GameDataConfig->CountBlocks(u"StyleColor"_wref.get()) > 0) {
-            Style = GameDataConfig->GetBlock(u"StyleColor"_wref.get());
+            Style = GameDataConfig->GetBlock(u"StyleColor"sv);
             if (Style->CountParamsByPath(StyleName) > 0) {
                 ColorText = Style->GetParamByPath(StyleName);
-                std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get()));
-                std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get()));
-                std::int32_t extractDigitsToIntW_3 = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get()));
+                std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+                std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+                std::int32_t extractDigitsToIntW_3 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
                 return CurrentPixelFormat->PackRgb(extractDigitsToIntW_3, extractDigitsToIntW_2, extractDigitsToIntW);
             }
         }
@@ -3403,7 +3406,7 @@ namespace GR_Main {
         pas::WideString Result{};
         EC_BlockPar::TBlockParEC* Style{};
         if (GameDataConfig->CountBlocks(u"StyleColor"_wref.get()) > 0) {
-            Style = GameDataConfig->GetBlock(u"StyleColor"_wref.get());
+            Style = GameDataConfig->GetBlock(u"StyleColor"sv);
             if (Style->CountParamsByPath(StyleName) > 0) {
                 Result = Style->GetParamByPath(StyleName);
                 return pas::concat_wide({u"<color=", Style->GetParamByPath(StyleName), u">"});
@@ -3510,7 +3513,7 @@ namespace GR_Main {
     }
 
     void DrawPaletteAlphaBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, GR_GraphBufPal::TGraphBufPalGR* Source, WindowsSdk::TRect Clip) {
-        if (X >= Clip.Right || Y >= Clip.Bottom || X + 0 + Source->Width - 1 < Clip.Left || Y + 0 + Source->Height - 1 < Clip.Top) {
+        if (X >= Clip.Right || Y >= Clip.Bottom || X + Source->Width - 1 < Clip.Left || Y + Source->Height - 1 < Clip.Top) {
             return;
         }
         std::int32_t SourceX = 0;

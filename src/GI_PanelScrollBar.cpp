@@ -246,50 +246,50 @@ namespace GI_PanelScrollBar {
 
     void TPanelScrollBarGI::LoadScrollbarPanelProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"StyleBarX"_wref.get()) > 0) {
-            HorizontalScrollBar->SetConfigPath(Block->GetParam(u"StyleBarX"_wref.get()));
+            HorizontalScrollBar->SetConfigPath(Block->GetParam(u"StyleBarX"sv));
         }
         if (Block->CountParams(u"StyleBarY"_wref.get()) > 0) {
-            VerticalScrollBar->SetConfigPath(Block->GetParam(u"StyleBarY"_wref.get()));
+            VerticalScrollBar->SetConfigPath(Block->GetParam(u"StyleBarY"sv));
         }
         if (Block->CountParams(u"ActiveBarX"_wref.get()) > 0) {
-            if (Block->GetParam(u"ActiveBarX"_wref.get()) == u"True") {
+            if (Block->GetParam(u"ActiveBarX"sv) == u"True") {
                 SetHorizontalScrollbarEnabled(true);
             } else {
                 SetHorizontalScrollbarEnabled(false);
             }
         }
         if (Block->CountParams(u"ActiveBarY"_wref.get()) > 0) {
-            if (Block->GetParam(u"ActiveBarY"_wref.get()) == u"True") {
+            if (Block->GetParam(u"ActiveBarY"sv) == u"True") {
                 SetVerticalScrollbarEnabled(true);
             } else {
                 SetVerticalScrollbarEnabled(false);
             }
         }
         if (Block->CountParams(u"ExternalSB"_wref.get()) > 0) {
-            if (EC_Str::TrimWideString(Block->GetParam(u"ExternalSB"_wref.get())) == u"True") {
+            if (EC_Str::TrimWideString(Block->GetParam(u"ExternalSB"sv)) == u"True") {
                 SetScrollbarsOutside(true);
             } else {
                 SetScrollbarsOutside(false);
             }
         }
         if (Block->CountParams(u"UnlimitedWorld"_wref.get()) > 0) {
-            if (EC_Str::TrimWideString(Block->GetParam(u"UnlimitedWorld"_wref.get())) == u"True") {
+            if (EC_Str::TrimWideString(Block->GetParam(u"UnlimitedWorld"sv)) == u"True") {
                 SetUnlimitedWorldEnabled(true);
             } else {
                 SetUnlimitedWorldEnabled(false);
             }
         }
         if (Block->CountParams(u"PosAutoBarX"_wref.get()) > 0) {
-            AutoHorizontalPlacement = GI_Main::ParseEnabledNameGI(Block->GetParam(u"PosAutoBarX"_wref.get()));
+            AutoHorizontalPlacement = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"PosAutoBarX"sv)));
         }
         if (Block->CountParams(u"PosAutoBarY"_wref.get()) > 0) {
-            AutoVerticalPlacement = GI_Main::ParseEnabledNameGI(Block->GetParam(u"PosAutoBarY"_wref.get()));
+            AutoVerticalPlacement = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"PosAutoBarY"sv)));
         }
         if (Block->CountParams(u"RectBarX"_wref.get()) > 0) {
-            HorizontalScrollBarRect = GI_Main::GetRectGI(Block->GetParam(u"RectBarX"_wref.get()));
+            HorizontalScrollBarRect = GI_Main::GetRectGI(pas::view(Block->GetParam(u"RectBarX"sv)));
         }
         if (Block->CountParams(u"RectBarY"_wref.get()) > 0) {
-            VerticalScrollBarRect = GI_Main::GetRectGI(Block->GetParam(u"RectBarY"_wref.get()));
+            VerticalScrollBarRect = GI_Main::GetRectGI(pas::view(Block->GetParam(u"RectBarY"sv)));
         }
         UpdateScrollbarPlacement();
         UpdateScrollRanges();

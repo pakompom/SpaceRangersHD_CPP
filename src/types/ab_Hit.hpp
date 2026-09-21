@@ -29,8 +29,8 @@ namespace ab_Hit {
         std::int32_t EffectOriginSpread;
         double TurnSpeedScale;
         pas::List* Effects;
-        // Default True; boss transition behavior still under recovery.
-        std::uint8_t StateCC;
+        // Tested by TfAB.DrawShipHealthBars; hidden during Keller breakup/death and on fragments.
+        std::uint8_t HealthBarVisible;
         std::uint8_t cpp_padding[3];
     };
     #if INTPTR_MAX == INT32_MAX

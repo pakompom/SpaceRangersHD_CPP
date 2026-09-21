@@ -49,7 +49,7 @@ namespace fGameLoad {
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         GR_Main::AppendLogTextThreadSafe("fGameLoad... "_a);
         ViewportRect = ClassesImports::Rect(GR_Main::ExtraScreenWidth / 2, GR_Main::ExtraScreenHeight / 2, ViewportRect.Left + GR_Main::ExtraScreenWidth / 2, ViewportRect.Top + GR_Main::ExtraScreenHeight / 2);
-        GetByName(u"PanelLoad"_wref.get())->Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        GetByName(u"PanelLoad"sv)->Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         LoadPanel->InitializeLayout(this);
     }
@@ -95,9 +95,9 @@ namespace fGameLoad {
             if (aPlayer::GetPlayer() == nullptr) {
                 GR_Main::MusicManager->PlayCategory(u"Base"_wref.get());
             } else if (aPlayer::GetPlayer()->IsOnPlanet()) {
-                if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                     if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                     } else {
                         GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                     }
@@ -107,13 +107,13 @@ namespace fGameLoad {
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                 if (pas::in_range(aPlayer::GetPlayer()->DockedTo->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                     Category = aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey;
-                    if (Category != u"" && GR_Main::MainDataConfig->GetBlock(u"Music"_wref.get())->CountBlocks(Category) > 0) {
+                    if (Category != u"" && GR_Main::MainDataConfig->GetBlock(u"Music"sv)->CountBlocks(Category) > 0) {
                         GR_Main::MusicManager->PlayCategory(aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey);
                     } else {
                         GR_Main::MusicManager->PlayCategory(aPlayer::GetPlayer()->DockedTo->GetTypeNameKey());
                     }
-                } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
                 }

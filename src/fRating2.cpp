@@ -50,7 +50,7 @@ namespace fRating2 {
     std::uint8_t ShowRangerRating(GI_MessageLoop::TMessageLoopGI* Parent) {
         std::uint8_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&State);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -66,7 +66,7 @@ namespace fRating2 {
         Parent->InvalidateViewport();
         Parent->RestoreCursorState(&State);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         Parent->Present();
         GR_Main::PostMouseMoveMessage();
         return Result;
@@ -85,20 +85,20 @@ namespace fRating2 {
         MainPanel->InitializeLayout(this);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* ButClose_Parent = MainPanel->FindByNameRecursive(u"ButClose"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* ButClose_Parent = MainPanel->FindByNameRecursive(u"ButClose"sv)->Parent;
                 ButClose_Parent->SetPosition(ClassesImports::Point(ButClose_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, ButClose_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
-        RewardWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"RewardWnd"_wref.get()));
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"_wref.get()))->UpCallback = pas::bind_method<&TfRating2::CloseClicked>(this);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfRating2::KeyDown>(this);
-        GetByName(u"MainPanel"_wref.get())->LeftButtonDownCallback = pas::bind_method<&TfRating2::BackgroundMouseDown>(this);
-        GetByName(u"MainPanel"_wref.get())->LeftButtonUpCallback = pas::bind_method<&TfRating2::BackgroundMouseUp>(this);
-        TablePanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PTable"_wref.get()));
+        RewardWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"RewardWnd"sv));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfRating2::CloseClicked>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfRating2::KeyDown>(this);
+        GetByName(u"MainPanel"sv)->LeftButtonDownCallback = pas::bind_method<&TfRating2::BackgroundMouseDown>(this);
+        GetByName(u"MainPanel"sv)->LeftButtonUpCallback = pas::bind_method<&TfRating2::BackgroundMouseUp>(this);
+        TablePanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PTable"sv));
         TablePanel->VerticalScrollBar->SetPageSize(TablePanel->ClientSize.Y);
         TablePanel->VerticalScrollBar->SetLargeChange(TablePanel->ClientSize.Y);
     }
@@ -108,41 +108,41 @@ namespace fRating2 {
         if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         if (aPlayer::GetPlayer() != nullptr) {
             aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
         }
         MainPanel->OnOpen();
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"_wref.get()))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"sv))->SetHitTestDisabled(true);
         BackgroundClickStarted = true;
         SortColumn = rrscExperience;
         SelectedIndex = -1;
         SelectedRangerId = aPlayer::GetPlayer()->Id;
         {
-            GI_MessageLoop::TObjectGI* SortName = GetByName(u"SortName"_wref.get());
+            GI_MessageLoop::TObjectGI* SortName = GetByName(u"SortName"sv);
             SortName->LeftButtonUpCallback = pas::bind_method<&TfRating2::SortHeaderMouseUp>(this);
             SortName->UserValue = 1;
         }
         {
-            GI_MessageLoop::TObjectGI* SortCharacter = GetByName(u"SortCharacter"_wref.get());
+            GI_MessageLoop::TObjectGI* SortCharacter = GetByName(u"SortCharacter"sv);
             SortCharacter->UserValue = 5;
         }
         {
-            GI_MessageLoop::TObjectGI* SortRace = GetByName(u"SortRace"_wref.get());
+            GI_MessageLoop::TObjectGI* SortRace = GetByName(u"SortRace"sv);
             SortRace->LeftButtonUpCallback = pas::bind_method<&TfRating2::SortHeaderMouseUp>(this);
             SortRace->UserValue = 3;
         }
         {
-            GI_MessageLoop::TObjectGI* SortRank = GetByName(u"SortRank"_wref.get());
+            GI_MessageLoop::TObjectGI* SortRank = GetByName(u"SortRank"sv);
             SortRank->LeftButtonUpCallback = pas::bind_method<&TfRating2::SortHeaderMouseUp>(this);
             SortRank->UserValue = 4;
         }
         {
-            GI_MessageLoop::TObjectGI* SortScore = GetByName(u"SortScore"_wref.get());
+            GI_MessageLoop::TObjectGI* SortScore = GetByName(u"SortScore"sv);
             SortScore->LeftButtonUpCallback = pas::bind_method<&TfRating2::SortHeaderMouseUp>(this);
             SortScore->UserValue = 2;
         }
@@ -200,7 +200,7 @@ namespace fRating2 {
     void TfRating2::BackgroundMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         if (GlobalsV::ClickAutoCloseForm) {
             BackgroundClickStarted = false;
-            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"_wref.get()))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"_wref.get())->ContainsPoint(Point) ^ 1)) {
+            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"sv)->ContainsPoint(Point) ^ 1)) {
                 BackgroundClickStarted = true;
             }
         }
@@ -208,7 +208,7 @@ namespace fRating2 {
 
     void TfRating2::BackgroundMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         if (GlobalsV::ClickAutoCloseForm) {
-            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"_wref.get()))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"_wref.get())->ContainsPoint(Point) ^ 1) && BackgroundClickStarted) {
+            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"sv)->ContainsPoint(Point) ^ 1) && BackgroundClickStarted) {
                 CloseClicked(nullptr);
             }
         }
@@ -223,7 +223,7 @@ namespace fRating2 {
     }
 
     void TfRating2::AwardsMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        if (GlobalsV::UiRuntimeFlag) {
+        if (GlobalsV::AwardDialogsEnabled) {
             RewardWindow->SetActive(false);
             Globals::AwardSubject = static_cast<pas::Object*>(aGalaxy::Galaxy->IdToShip(Sender->UserValue, true));
             if (Globals::AwardSubject != nullptr) {
@@ -312,7 +312,7 @@ namespace fRating2 {
         RewardWindow->SetActive(true);
         if (aPlayer::GetPlayer() == Rows[Sender->UserValue].Ranger) {
             {
-                GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName->SetText(([&] {
                     pas::WideString name = aPlayer::GetPlayer()->GetName();
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
@@ -366,16 +366,16 @@ namespace fRating2 {
             Text = aConst::LocalizedColorText(u"FormRating.PlayerText"_wref.get());
             aMyFunction::ReplaceTextToken(Text, u"<PartnerInfo>"_w, PartnerInfo, pas::WideString());
             {
-                GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+                GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
                 RewardText->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}), RewardImage->GraphBuf);
             }
         } else if (aShip::TShip_IsInPrison(Rows[Sender->UserValue].Ranger)) {
             {
-                GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_2->SetText(([&] {
                     pas::WideString name_6 = Rows[Sender->UserValue].Ranger->GetName();
                     pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormRating.InPrisonName"_wref.get());
@@ -392,16 +392,16 @@ namespace fRating2 {
                 Text = pas::WideString();
             }
             {
-                GI_Label::TLabelGI* RewardText_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+                GI_Label::TLabelGI* RewardText_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
                 RewardText_2->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PrisonB"}), RewardImage_2->GraphBuf);
             }
         } else if (Rows[Sender->UserValue].Ranger->PartnerShip != nullptr) {
             {
-                GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_3->SetText(([&] {
                     pas::WideString name_8 = Rows[Sender->UserValue].Ranger->GetName();
                     pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
@@ -418,16 +418,16 @@ namespace fRating2 {
                 Text = pas::concat_wide({Text, u"\r\n", FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger)});
             }
             {
-                GI_Label::TLabelGI* RewardText_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+                GI_Label::TLabelGI* RewardText_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
                 RewardText_3->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_3->GraphBuf);
             }
         } else if (Rows[Sender->UserValue].Ranger->CountWingmen() > 0) {
             {
-                GI_Label::TLabelGI* RewardName_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_4->SetText(([&] {
                     pas::WideString name_9 = Rows[Sender->UserValue].Ranger->GetName();
                     pas::WideString localizedColorText_9 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
@@ -436,27 +436,27 @@ namespace fRating2 {
             }
             Text = FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger);
             {
-                GI_Label::TLabelGI* RewardText_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+                GI_Label::TLabelGI* RewardText_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
                 RewardText_4->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_4->GraphBuf);
             }
         }
         {
-            GI_GraphBuf::TGraphBufGI* RewardImage_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* RewardImage_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
             RewardImage_5->SourceHasPerPixelAlpha = true;
             RewardImage_5->SetImageKindX(GI_Main::ikxCenter);
             RewardImage_5->SetImageKindY(GI_Main::ikyCenter);
         }
         {
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
-            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
+            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
             fShip2::TfShip2::LayoutItemInfo(RewardWindow, cpp_arg_2, cpp_arg, true, true, 0);
         }
         {
-            GI_Label::TLabelGI* RewardName_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+            GI_Label::TLabelGI* RewardName_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
             RewardName_5->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_5->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_5->ClientSize.Y));
         }
         Cursor = GetCursorPoint();
@@ -464,7 +464,7 @@ namespace fRating2 {
     }
 
     void TfRating2::ShowCareerHint(GI_MessageLoop::TObjectGI* Sender) {
-        std::uint8_t I{};
+        aGalaxyStruct::TRangerCareer Career{};
         WindowsSdk::TPoint Cursor{};
         pas::WideString Text{};
         aRanger::TRanger* Ranger{};
@@ -476,7 +476,7 @@ namespace fRating2 {
         Ranger = Rows[Sender->UserValue].Ranger;
         if (aPlayer::GetPlayer() == Ranger) {
             {
-                GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName->SetText(([&] {
                     pas::WideString name = Ranger->GetName();
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
@@ -484,12 +484,12 @@ namespace fRating2 {
                 }()));
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}), RewardImage->GraphBuf);
             }
         } else {
             {
-                GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_2->SetText(([&] {
                     pas::WideString name_2 = Ranger->GetName();
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
@@ -497,35 +497,35 @@ namespace fRating2 {
                 }()));
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_2->GraphBuf);
             }
         }
         Text = pas::concat_wide({u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(u"FormRating.Rating.Title"_wref.get()), u"</align>", u"\r\n"});
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range.next(I); ) {
-            Text = pas::concat_wide({Text, u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.", aConst::CareerTuning[I].Name})), u"<td=", FormatCareerHintColumn(2), u">:</align><td=", FormatCareerHintColumn(3), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[I])), u"<color=255,240,100>"_w), u"</align>", u"\r\n"});
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TRangerCareer>(aGalaxyStruct::rcTrader, aGalaxyStruct::rcWarrior); cpp_range.next(Career); ) {
+            Text = pas::concat_wide({Text, u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.", aConst::CareerTuning[Career].Name})), u"<td=", FormatCareerHintColumn(2), u">:</align><td=", FormatCareerHintColumn(3), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[Career]))), u"<color=255,240,100>"sv), u"</align>", u"\r\n"});
         }
         {
-            GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+            GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
             RewardText->SetText(Text);
         }
         {
-            GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
             RewardImage_3->SourceHasPerPixelAlpha = true;
             RewardImage_3->SetImageKindX(GI_Main::ikxCenter);
             RewardImage_3->SetImageKindY(GI_Main::ikyCenter);
         }
         {
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
-            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
+            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
             fShip2::TfShip2::LayoutItemInfo(RewardWindow, cpp_arg_2, cpp_arg, true, true, 0);
         }
         {
-            GI_Label::TLabelGI* RewardText_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+            GI_Label::TLabelGI* RewardText_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
             RewardText_2->SetTextAlignX(GI_Main::taxLeft);
         }
         {
-            GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+            GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
             RewardName_3->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_3->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_3->ClientSize.Y));
         }
         Cursor = GetCursorPoint();
@@ -548,7 +548,7 @@ namespace fRating2 {
                 Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(AwardId)});
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 RewardImage->SourceHasPerPixelAlpha = true;
                 GI_GI::LoadGiByPathIntoGraphBuf(Path, RewardImage->GraphBuf);
                 if (static_cast<std::uint32_t>(RewardImage->GraphBuf->Width) >= static_cast<std::uint32_t>(RewardImage->GraphBuf->Height)) {
@@ -560,20 +560,20 @@ namespace fRating2 {
                 RewardImage->SetImageKindY(GI_Main::ikyCenter);
             }
             {
-                GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName->SetText((aNormalShip::TNormalShip::GetAwardInfo(AwardId, cpp_result), cpp_result).Name);
             }
             {
-                GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+                GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
                 RewardText->SetText((aNormalShip::TNormalShip::GetAwardInfo(AwardId, cpp_result_2), cpp_result_2).Text);
             }
             {
-                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
-                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
+                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 fShip2::TfShip2::LayoutItemInfo(RewardWindow, cpp_arg_2, cpp_arg, true, true, 0);
             }
             {
-                GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_2->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_2->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_2->ClientSize.Y));
             }
         }
@@ -656,7 +656,7 @@ namespace fRating2 {
 
     void TfRating2::ClearRows() {
         TablePanel->FreeOwnedChildren();
-        GetByName(u"MainPanel"_wref.get())->Invalidate();
+        GetByName(u"MainPanel"sv)->Invalidate();
         Rows = nullptr;
         SelectedRowRect = ClassesImports::Rect(0, 0, 1, 1);
         TablePanel->VerticalScrollBar->SetSmallChange(TablePanel->VerticalScrollBar->LargeChange);
@@ -678,26 +678,26 @@ namespace fRating2 {
         aRanger::TRanger* B{};
         ClearRows();
         {
-            GI_Image::TImageGI* SortImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"SortImage"_wref.get()));
+            GI_Image::TImageGI* SortImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"SortImage"sv));
             if (SortColumn == rrscName) {
                 SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left = GetByName(u"SortName"_wref.get())->LocalPosition.X;
-                    return cpp_left + GetByName(u"SortName"_wref.get())->ClientSize.X;
+                    std::int32_t cpp_left = GetByName(u"SortName"sv)->LocalPosition.X;
+                    return cpp_left + GetByName(u"SortName"sv)->ClientSize.X;
                 }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             } else if (SortColumn == rrscExperience) {
                 SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left_2 = GetByName(u"SortScore"_wref.get())->LocalPosition.X;
-                    return cpp_left_2 + GetByName(u"SortScore"_wref.get())->ClientSize.X;
+                    std::int32_t cpp_left_2 = GetByName(u"SortScore"sv)->LocalPosition.X;
+                    return cpp_left_2 + GetByName(u"SortScore"sv)->ClientSize.X;
                 }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             } else if (SortColumn == rrscRace) {
                 SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left_3 = GetByName(u"SortRace"_wref.get())->LocalPosition.X;
-                    return cpp_left_3 + GetByName(u"SortRace"_wref.get())->ClientSize.X;
+                    std::int32_t cpp_left_3 = GetByName(u"SortRace"sv)->LocalPosition.X;
+                    return cpp_left_3 + GetByName(u"SortRace"sv)->ClientSize.X;
                 }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             } else if (SortColumn == rrscRank) {
                 SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left_4 = GetByName(u"SortRank"_wref.get())->LocalPosition.X;
-                    return cpp_left_4 + GetByName(u"SortRank"_wref.get())->ClientSize.X;
+                    std::int32_t cpp_left_4 = GetByName(u"SortRank"sv)->LocalPosition.X;
+                    return cpp_left_4 + GetByName(u"SortRank"sv)->ClientSize.X;
                 }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             }
             if (SortAscending) {
@@ -743,10 +743,10 @@ namespace fRating2 {
                     }
                 } else if (SortColumn == rrscRace) {
                     if (SortAscending) {
-                        if (static_cast<std::int8_t>(B->PilotRace + 0) < static_cast<std::int8_t>(A->PilotRace + 0)) {
+                        if (static_cast<std::int8_t>(static_cast<std::int32_t>(B->PilotRace) + 0) < static_cast<std::int8_t>(static_cast<std::int32_t>(A->PilotRace) + 0)) {
                             pas::list_exchange(List, I, J);
                         }
-                    } else if (static_cast<std::int8_t>(B->PilotRace + 0) > static_cast<std::int8_t>(A->PilotRace + 0)) {
+                    } else if (static_cast<std::int8_t>(static_cast<std::int32_t>(B->PilotRace) + 0) > static_cast<std::int8_t>(static_cast<std::int32_t>(A->PilotRace) + 0)) {
                         pas::list_exchange(List, I, J);
                     }
                 } else if (SortColumn == rrscRank) {
@@ -939,7 +939,7 @@ namespace fRating2 {
         if (SelectedIndex == Index) {
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             Image->UserState = Index;
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Open", aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace) & 0x0000007f].InternalName}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Open", aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace)].InternalName}));
             Image->SetSize(Image->GetContentSize());
             Image->SetPosition(ClassesImports::Point(0, 0));
             Image->SetDepth(11.0);
@@ -1198,7 +1198,7 @@ namespace fRating2 {
         } else {
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             Image->UserState = Index;
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal", aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace) & 0x0000007f].InternalName}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal", aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace)].InternalName}));
             Image->SetSize(Image->GetContentSize());
             Image->SetPosition(ClassesImports::Point(0, 0));
             Image->SetDepth(11.0);
@@ -1302,7 +1302,7 @@ namespace fRating2 {
 
     void TfRating2::RowMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
         {
-            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Select", aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace) & 0x0000007f].InternalName});
+            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Select", aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace)].InternalName});
             GI_Image::TImageGI* cpp_arg_2 = pas::checked_cast<GI_Image::TImageGI*>(Sender);
             cpp_arg_2->SetImagePath(std::move(cpp_arg));
         }
@@ -1311,7 +1311,7 @@ namespace fRating2 {
 
     void TfRating2::RowMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
         {
-            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal", aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace) & 0x0000007f].InternalName});
+            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal", aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace)].InternalName});
             GI_Image::TImageGI* cpp_arg_2 = pas::checked_cast<GI_Image::TImageGI*>(Sender);
             cpp_arg_2->SetImagePath(std::move(cpp_arg));
         }
@@ -1321,28 +1321,28 @@ namespace fRating2 {
     void TfRating2::RefreshFeaturedRangers() {
         aShip::TShip* Ship{};
         if (aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcTrader] == nullptr) {
-            GetByName(u"TraderCaptainI"_wref.get())->SetActive(false);
-            GetByName(u"TraderCaptainA"_wref.get())->SetActive(false);
-            GetByName(u"BestTrader"_wref.get())->SetActive(false);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTrader"_wref.get()))->SetDisabled(true);
-            GetByName(u"TraderEmpty"_wref.get())->SetActive(true);
-            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TraderEmpty"_wref.get()))->RestartPlayback();
+            GetByName(u"TraderCaptainI"sv)->SetActive(false);
+            GetByName(u"TraderCaptainA"sv)->SetActive(false);
+            GetByName(u"BestTrader"sv)->SetActive(false);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTrader"sv))->SetDisabled(true);
+            GetByName(u"TraderEmpty"sv)->SetActive(true);
+            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TraderEmpty"sv))->RestartPlayback();
         } else {
             Ship = reinterpret_cast<aShip::TShip*>(aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcTrader]);
             {
-                GI_GraphButton::TGraphButtonGI* ButTrader = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTrader"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButTrader = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTrader"sv));
                 ButTrader->SetDisabled(false);
                 ButTrader->UserValue = Ship->Id;
                 ButTrader->UpCallback = pas::bind_method<&TfRating2::FeaturedRangerClicked>(this);
             }
-            GetByName(u"TraderEmpty"_wref.get())->SetActive(false);
+            GetByName(u"TraderEmpty"sv)->SetActive(false);
             {
-                GI_Label::TLabelGI* BestTrader = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"BestTrader"_wref.get()));
+                GI_Label::TLabelGI* BestTrader = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"BestTrader"sv));
                 BestTrader->SetText(Ship->Name);
                 BestTrader->SetActive(true);
             }
             {
-                GI_Image::TImageGI* TraderCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TraderCaptainI"_wref.get()));
+                GI_Image::TImageGI* TraderCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TraderCaptainI"sv));
                 TraderCaptainI->UserValue = Ship->Id;
                 TraderCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 TraderCaptainI->SetImageKindX(GI_Main::ikxCenter);
@@ -1350,7 +1350,7 @@ namespace fRating2 {
                 TraderCaptainI->SetActive(true);
             }
             {
-                GI_GAI::TgaiGI* TraderCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TraderCaptainA"_wref.get()));
+                GI_GAI::TgaiGI* TraderCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TraderCaptainA"sv));
                 TraderCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
                 TraderCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
                 TraderCaptainA->SequenceIndex = 0;
@@ -1363,28 +1363,28 @@ namespace fRating2 {
             }
         }
         if (aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcWarrior] == nullptr) {
-            GetByName(u"WarriorCaptainI"_wref.get())->SetActive(false);
-            GetByName(u"WarriorCaptainA"_wref.get())->SetActive(false);
-            GetByName(u"BestWarrior"_wref.get())->SetActive(false);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButWarior"_wref.get()))->SetDisabled(true);
-            GetByName(u"WariorEmpty"_wref.get())->SetActive(true);
-            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"WariorEmpty"_wref.get()))->RestartPlayback();
+            GetByName(u"WarriorCaptainI"sv)->SetActive(false);
+            GetByName(u"WarriorCaptainA"sv)->SetActive(false);
+            GetByName(u"BestWarrior"sv)->SetActive(false);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButWarior"sv))->SetDisabled(true);
+            GetByName(u"WariorEmpty"sv)->SetActive(true);
+            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"WariorEmpty"sv))->RestartPlayback();
         } else {
             Ship = reinterpret_cast<aShip::TShip*>(aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcWarrior]);
             {
-                GI_GraphButton::TGraphButtonGI* ButWarior = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButWarior"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButWarior = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButWarior"sv));
                 ButWarior->SetDisabled(false);
                 ButWarior->UserValue = Ship->Id;
                 ButWarior->UpCallback = pas::bind_method<&TfRating2::FeaturedRangerClicked>(this);
             }
-            GetByName(u"WariorEmpty"_wref.get())->SetActive(false);
+            GetByName(u"WariorEmpty"sv)->SetActive(false);
             {
-                GI_Label::TLabelGI* BestWarrior = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"BestWarrior"_wref.get()));
+                GI_Label::TLabelGI* BestWarrior = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"BestWarrior"sv));
                 BestWarrior->SetText(Ship->Name);
                 BestWarrior->SetActive(true);
             }
             {
-                GI_Image::TImageGI* WarriorCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"WarriorCaptainI"_wref.get()));
+                GI_Image::TImageGI* WarriorCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"WarriorCaptainI"sv));
                 WarriorCaptainI->UserValue = Ship->Id;
                 WarriorCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 WarriorCaptainI->SetImageKindX(GI_Main::ikxCenter);
@@ -1392,7 +1392,7 @@ namespace fRating2 {
                 WarriorCaptainI->SetActive(true);
             }
             {
-                GI_GAI::TgaiGI* WarriorCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"WarriorCaptainA"_wref.get()));
+                GI_GAI::TgaiGI* WarriorCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"WarriorCaptainA"sv));
                 WarriorCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
                 WarriorCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
                 WarriorCaptainA->SequenceIndex = 0;
@@ -1405,28 +1405,28 @@ namespace fRating2 {
             }
         }
         if (aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcPirate] == nullptr) {
-            GetByName(u"PirateCaptainI"_wref.get())->SetActive(false);
-            GetByName(u"PirateCaptainA"_wref.get())->SetActive(false);
-            GetByName(u"BestPirate"_wref.get())->SetActive(false);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPirate"_wref.get()))->SetDisabled(true);
-            GetByName(u"PirateEmpty"_wref.get())->SetActive(true);
-            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PirateEmpty"_wref.get()))->RestartPlayback();
+            GetByName(u"PirateCaptainI"sv)->SetActive(false);
+            GetByName(u"PirateCaptainA"sv)->SetActive(false);
+            GetByName(u"BestPirate"sv)->SetActive(false);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPirate"sv))->SetDisabled(true);
+            GetByName(u"PirateEmpty"sv)->SetActive(true);
+            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PirateEmpty"sv))->RestartPlayback();
         } else {
             Ship = reinterpret_cast<aShip::TShip*>(aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcPirate]);
             {
-                GI_GraphButton::TGraphButtonGI* ButPirate = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPirate"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButPirate = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPirate"sv));
                 ButPirate->SetDisabled(false);
                 ButPirate->UserValue = Ship->Id;
                 ButPirate->UpCallback = pas::bind_method<&TfRating2::FeaturedRangerClicked>(this);
             }
-            GetByName(u"PirateEmpty"_wref.get())->SetActive(false);
+            GetByName(u"PirateEmpty"sv)->SetActive(false);
             {
-                GI_Label::TLabelGI* BestPirate = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"BestPirate"_wref.get()));
+                GI_Label::TLabelGI* BestPirate = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"BestPirate"sv));
                 BestPirate->SetText(Ship->Name);
                 BestPirate->SetActive(true);
             }
             {
-                GI_Image::TImageGI* PirateCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PirateCaptainI"_wref.get()));
+                GI_Image::TImageGI* PirateCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PirateCaptainI"sv));
                 PirateCaptainI->UserValue = Ship->Id;
                 PirateCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 PirateCaptainI->SetImageKindX(GI_Main::ikxCenter);
@@ -1434,7 +1434,7 @@ namespace fRating2 {
                 PirateCaptainI->SetActive(true);
             }
             {
-                GI_GAI::TgaiGI* PirateCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PirateCaptainA"_wref.get()));
+                GI_GAI::TgaiGI* PirateCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PirateCaptainA"sv));
                 PirateCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
                 PirateCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
                 PirateCaptainA->SequenceIndex = 0;
@@ -1454,9 +1454,9 @@ namespace fRating2 {
         } else if (aPlayer::GetPlayer()->IsOnPlanet()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
@@ -1467,9 +1467,9 @@ namespace fRating2 {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName, u"Pirate"}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             if (GlobalsV::MusicInSpaceEnabled) {
@@ -1508,7 +1508,7 @@ namespace fRating2 {
             RewardWindow->SetActive(true);
             if (aPlayer::GetPlayer() == Ranger) {
                 {
-                    GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                    GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                     RewardName->SetText(([&] {
                         pas::WideString name = Ranger->GetName();
                         pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
@@ -1516,12 +1516,12 @@ namespace fRating2 {
                     }()));
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                     GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}), RewardImage->GraphBuf);
                 }
             } else {
                 {
-                    GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                    GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                     RewardName_2->SetText(([&] {
                         pas::WideString name_2 = Ranger->GetName();
                         pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
@@ -1529,7 +1529,7 @@ namespace fRating2 {
                     }()));
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                     GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_2->GraphBuf);
                 }
             }
@@ -1537,31 +1537,31 @@ namespace fRating2 {
                 Text = pas::concat_wide({u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedText(u"FormRating.Dominator"_wref.get()), u"</align>", u"\r\n"});
                 for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range.next(I); ) {
                     if (aConst::DominatorDisplayOrder[I] != 0) {
-                        Text = pas::concat_wide({Text, u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"ShipType.Dominator.Blazer.", SysUtils::IntToStr(aConst::DominatorDisplayOrder[I])}))), u"<td=", FormatDominatorKillsHintColumn(2), u">:</align><td=", FormatDominatorKillsHintColumn(3), u"><align=left>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->DominatorKillsByType[aConst::DominatorDisplayOrder[I]]), u"<color=255,240,100>"_w), u"</align>", u"\r\n"});
+                        Text = pas::concat_wide({Text, u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"ShipType.Dominator.Blazer.", SysUtils::IntToStr(aConst::DominatorDisplayOrder[I])}))), u"<td=", FormatDominatorKillsHintColumn(2), u">:</align><td=", FormatDominatorKillsHintColumn(3), u"><align=left>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->DominatorKillsByType[aConst::DominatorDisplayOrder[I]])), u"<color=255,240,100>"sv), u"</align>", u"\r\n"});
                     }
                 }
                 {
-                    GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+                    GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
                     RewardText->SetText(Text);
                 }
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"_wref.get()));
+                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
                 RewardImage_3->SourceHasPerPixelAlpha = true;
                 RewardImage_3->SetImageKindX(GI_Main::ikxCenter);
                 RewardImage_3->SetImageKindY(GI_Main::ikyCenter);
             }
             {
-                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
-                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
+                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 fShip2::TfShip2::LayoutItemInfo(RewardWindow, cpp_arg_2, cpp_arg, true, true, 0);
             }
             {
-                GI_Label::TLabelGI* RewardText_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"_wref.get()));
+                GI_Label::TLabelGI* RewardText_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
                 RewardText_2->SetTextAlignX(GI_Main::taxLeft);
             }
             {
-                GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"_wref.get()));
+                GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_3->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_3->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_3->ClientSize.Y));
             }
             Cursor = GetCursorPoint();

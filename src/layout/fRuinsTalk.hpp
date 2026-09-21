@@ -17,8 +17,8 @@ namespace fRuinsTalk {
     static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, ScriptVideoTimer) == 244);
     static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, ResearchItemVisited) == 248);
     static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, ResearchItemIndexes) == 252);
-    static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, PortraitFlag100) == 256);
-    static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, PortraitFlag101) == 257);
+    static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, LargePortraitLayout) == 256);
+    static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, PortraitTableVisible) == 257);
     static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, StationTransientControl) == 260);
     static_assert(sizeof(void*) != 4 || offsetof(fRuinsTalk::TfRuinsTalk, SavedChoiceScroll) == 264);
     static_assert(sizeof(void*) != 4 || sizeof(fRuinsTalk::TDominionTravelQuote) == 12);

@@ -20,7 +20,6 @@ namespace fLoadQuest {
     struct TfLoadQuest;
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TfLoadQuestSlot {
         pas::WideString Name;
         pas::WideString Title;
@@ -37,7 +36,6 @@ namespace fLoadQuest {
         std::uint8_t cpp_padding[3];
         std::int32_t Difficulty;
     };
-    #pragma pack(pop)
 
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)

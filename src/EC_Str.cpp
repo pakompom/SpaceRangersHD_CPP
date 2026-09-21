@@ -14,18 +14,18 @@ namespace EC_Str {
     }};
 
     // Delimiters is a set of separator characters, not a substring. Counts empty parts; empty Text returns zero.
-    std::int32_t CountDelimitedPartsW(const pas::WideString& Text, const pas::WideString& Delimiters) {
+    std::int32_t CountDelimitedPartsW(const std::u16string_view& Text, const std::u16string_view& Delimiters) {
         std::int32_t i{};
         std::int32_t j{};
         std::int32_t Count = 1;
-        std::int32_t TextLength = Text.length();
-        std::int32_t DelimiterCount = Delimiters.length();
+        std::int32_t TextLength = static_cast<std::int32_t>(Text.length());
+        std::int32_t DelimiterCount = static_cast<std::int32_t>(Delimiters.length());
         if (static_cast<std::uint32_t>(TextLength) < 1) {
             return 0;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, TextLength); cpp_range.next(i); ) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, DelimiterCount); cpp_range_2.next(j); ) {
-                if (Text.read(i) == Delimiters.read(j)) {
+                if (Text[i - 1] == Delimiters[j - 1]) {
                     ++Count;
                     break;
                 }
@@ -35,17 +35,17 @@ namespace EC_Str {
     }
 
     // Zero-based part index, one-based character result. Nonpositive PartIndex returns 1; missing positive indexes raise.
-    std::int32_t GetDelimitedPartStartIndexW(const pas::WideString& Text, std::int32_t PartIndex, const pas::WideString& Delimiters) {
+    std::int32_t GetDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex, const std::u16string_view& Delimiters) {
         std::int32_t TextLength{};
         std::int32_t DelimiterCount{};
         std::int32_t i{};
         std::int32_t j{};
         if (PartIndex > 0) {
-            TextLength = Text.length();
-            DelimiterCount = Delimiters.length();
+            TextLength = static_cast<std::int32_t>(Text.length());
+            DelimiterCount = static_cast<std::int32_t>(Delimiters.length());
             for (auto cpp_range = pas::for_to<std::int32_t>(1, TextLength); cpp_range.next(i); ) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, DelimiterCount); cpp_range_2.next(j); ) {
-                    if (Text.read(i) == Delimiters.read(j)) {
+                    if (Text[i - 1] == Delimiters[j - 1]) {
                         --PartIndex;
                         if (PartIndex == 0) {
                             return i + 1;
@@ -60,13 +60,13 @@ namespace EC_Str {
     }
 
     // One-based character result. Nonpositive PartIndex returns 1; 1 returns the position after the first delimiter or -1. Native early exit makes every PartIndex above 1 return -1.
-    std::int32_t GetCharDelimitedPartStartIndexW(const pas::WideString& Text, std::int32_t PartIndex, char16_t Delimiter) {
+    std::int32_t GetCharDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex, char16_t Delimiter) {
         std::int32_t TextLength{};
         std::int32_t i{};
         if (PartIndex > 0) {
-            TextLength = Text.length();
+            TextLength = static_cast<std::int32_t>(Text.length());
             for (auto cpp_range = pas::for_to<std::int32_t>(1, TextLength); cpp_range.next(i); ) {
-                if (Text.read(i) == Delimiter) {
+                if (Text[i - 1] == Delimiter) {
                     --PartIndex;
                     if (PartIndex == 0) {
                         return i + 1;
@@ -80,14 +80,14 @@ namespace EC_Str {
     }
 
     // StartIndex is a one-based character position, not a part index.
-    std::int32_t GetDelimitedPartLengthW(const pas::WideString& Text, std::int32_t StartIndex, const pas::WideString& Delimiters) {
+    std::int32_t GetDelimitedPartLengthW(const std::u16string_view& Text, std::int32_t StartIndex, const std::u16string_view& Delimiters) {
         std::int32_t i{};
         std::int32_t j{};
-        std::int32_t TextLength = Text.length();
-        std::int32_t DelimiterCount = Delimiters.length();
+        std::int32_t TextLength = static_cast<std::int32_t>(Text.length());
+        std::int32_t DelimiterCount = static_cast<std::int32_t>(Delimiters.length());
         for (auto cpp_range = pas::for_to<std::int32_t>(StartIndex, TextLength); cpp_range.next(i); ) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, DelimiterCount); cpp_range_2.next(j); ) {
-                if (Text.read(i) == Delimiters.read(j)) {
+                if (Text[i - 1] == Delimiters[j - 1]) {
                     return i - StartIndex;
                 }
             }
@@ -95,13 +95,13 @@ namespace EC_Str {
         return TextLength - StartIndex + 1;
     }
 
-    pas::WideString ExtractDelimitedPartW(const pas::WideString& Text, std::int32_t PartIndex, const pas::WideString& Delimiters) {
+    pas::WideString ExtractDelimitedPartW(const std::u16string_view& Text, std::int32_t PartIndex, const std::u16string_view& Delimiters) {
         std::int32_t StartIndex = EC_Str::GetDelimitedPartStartIndexW(Text, PartIndex, Delimiters);
         return pas::copy(Text, StartIndex, EC_Str::GetDelimitedPartLengthW(Text, StartIndex, Delimiters));
     }
 
     // Includes both zero-based part indexes and the separators between them.
-    pas::WideString ExtractDelimitedRangeW(const pas::WideString& Text, std::int32_t FirstPart, std::int32_t LastPart, const pas::WideString& Delimiters) {
+    pas::WideString ExtractDelimitedRangeW(const std::u16string_view& Text, std::int32_t FirstPart, std::int32_t LastPart, const std::u16string_view& Delimiters) {
         std::int32_t StartIndex = EC_Str::GetDelimitedPartStartIndexW(Text, FirstPart, Delimiters);
         std::int32_t EndIndex = EC_Str::GetDelimitedPartStartIndexW(Text, LastPart, Delimiters);
         EndIndex += EC_Str::GetDelimitedPartLengthW(Text, EndIndex, Delimiters);
@@ -112,7 +112,7 @@ namespace EC_Str {
     pas::WideString ExtractNextDelimitedPartW(pas::WideString& Text, char16_t Delimiter) {
         pas::WideString Result{};
         std::int32_t i{};
-        std::int32_t StartIndex = EC_Str::GetCharDelimitedPartStartIndexW(Text, 1, Delimiter);
+        std::int32_t StartIndex = EC_Str::GetCharDelimitedPartStartIndexW(pas::view(Text), 1, Delimiter);
         if (StartIndex < 0) {
             Result = Text;
             Text = pas::WideString();
@@ -132,26 +132,26 @@ namespace EC_Str {
     }
 
     // Returns the first // and following text, including immediately preceding spaces, tabs, CR and LF. Empty when absent; does not recognize quoting.
-    pas::WideString ExtractLineCommentW(const pas::WideString& Text) {
+    pas::WideString ExtractLineCommentW(const std::u16string_view& Text) {
         std::int32_t Position = pas::pos(u"//", Text);
         if (Position < 1) {
             return pas::WideString();
         }
         std::int32_t i = Position - 1;
         while (i >= 1) {
-            if (Text.read(i) != u' ' && Text.read(i) != u'\t' && Text.read(i) != u'\r' && Text.read(i) != u'\n') {
+            if (Text[i - 1] != u' ' && Text[i - 1] != u'\t' && Text[i - 1] != u'\r' && Text[i - 1] != u'\n') {
                 break;
             }
             --i;
         }
-        return pas::copy(Text, i + 1, Text.length() - i);
+        return pas::copy(Text, i + 1, static_cast<std::int32_t>(Text.length()) - i);
     }
 
     // Removes the first // and following text, then trims trailing characters <= #32. Without // returns Text unchanged; does not recognize quoting.
-    pas::WideString RemoveLineCommentW(const pas::WideString& Text) {
+    pas::WideString RemoveLineCommentW(const std::u16string_view& Text) {
         std::int32_t Position = pas::pos(u"//", Text);
         if (Position < 1) {
-            return Text;
+            return pas::WideString(Text);
         }
         if (Position == 1) {
             return pas::WideString();
@@ -160,7 +160,7 @@ namespace EC_Str {
     }
 
     // Case-sensitive, non-overlapping replacement; empty Search returns Text unchanged.
-    pas::WideString ReplaceAllWideString(const pas::WideString& Text, const pas::WideString& Search, const pas::WideString& Replacement) {
+    pas::WideString ReplaceAllWideString(const pas::WideString& Text, const pas::WideString& Search, const std::u16string_view& Replacement) {
         pas::WideString Result{};
         std::int32_t j{};
         std::int32_t TextLength = Text.length();
@@ -227,27 +227,27 @@ namespace EC_Str {
     }
 
     // Ignores signs and other nondigits; unchecked 32-bit arithmetic.
-    std::int32_t ExtractDigitsToIntW(const pas::WideString& Text) {
+    std::int32_t ExtractDigitsToIntW(const std::u16string_view& Text) {
         std::int32_t i{};
         std::int32_t Result = 0;
-        std::int32_t TextLength = Text.length();
+        std::int32_t TextLength = static_cast<std::int32_t>(Text.length());
         for (auto cpp_range = pas::for_to<std::int32_t>(1, TextLength); cpp_range.next(i); ) {
-            if (Text.read(i) >= '0' && Text.read(i) <= '9') {
-                Result = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text.read(i))) + Result * 10;
+            if (Text[i - 1] >= '0' && Text[i - 1] <= '9') {
+                Result = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text[i - 1])) + Result * 10;
             }
         }
         return Result;
     }
 
     // True for any nonempty string containing only digits and minus signs, including '-' and '1--2'; does not validate numeric syntax or range.
-    std::uint8_t IsIntegerTextW(const pas::WideString& Text) {
+    std::uint8_t IsIntegerTextW(const std::u16string_view& Text) {
         std::int32_t i{};
-        std::int32_t TextLength = Text.length();
+        std::int32_t TextLength = static_cast<std::int32_t>(Text.length());
         if (TextLength < 1) {
             return false;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, TextLength); cpp_range.next(i); ) {
-            if ((Text.read(i) < u'0' || Text.read(i) > u'9') && Text.read(i) != u'-') {
+            if ((Text[i - 1] < u'0' || Text[i - 1] > u'9') && Text[i - 1] != u'-') {
                 return false;
             }
         }
@@ -255,15 +255,15 @@ namespace EC_Str {
     }
 
     // Ignores nondigits; a minus sign encountered while the accumulated value is zero makes the result negative. Unchecked 32-bit arithmetic.
-    std::int32_t ExtractSignedDigitsToIntW(const pas::WideString& Text) {
+    std::int32_t ExtractSignedDigitsToIntW(const std::u16string_view& Text) {
         std::int32_t i{};
         std::int32_t Result = 0;
-        std::int32_t TextLength = Text.length();
+        std::int32_t TextLength = static_cast<std::int32_t>(Text.length());
         std::uint8_t Negative = false;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, TextLength); cpp_range.next(i); ) {
-            if (Text.read(i) >= '0' && Text.read(i) <= '9') {
-                Result = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text.read(i))) + Result * 10;
-            } else if (Text.read(i) == '-' && Result == 0) {
+            if (Text[i - 1] >= '0' && Text[i - 1] <= '9') {
+                Result = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text[i - 1])) + Result * 10;
+            } else if (Text[i - 1] == '-' && Result == 0) {
                 Negative = true;
             }
         }
@@ -485,14 +485,14 @@ namespace EC_Str {
     }
 
     // Chars is a set of individual characters, not a substring.
-    pas::WideString RemoveWideStringChars(const pas::WideString& Text, pas::WideString Chars) {
+    pas::WideString RemoveWideStringChars(const std::u16string_view& Text, pas::WideString Chars) {
         pas::WideString Result{};
         std::int32_t i{};
         std::int32_t j{};
         std::uint8_t Found{};
         char16_t Current{};
         std::uint8_t Changed = false;
-        Result = Text;
+        Result = pas::WideString(Text);
         std::int32_t TextLength = Result.length();
         std::int32_t CharsLength = Chars.length();
         std::int32_t Count = 0;
@@ -549,11 +549,11 @@ namespace EC_Str {
     }
 
     // Requires leading < and equal-length patterns. Each character may match either pattern; no closing > or name boundary is required.
-    std::uint8_t MatchTextTagPrefixW(char16_t* Text, std::int32_t CharCount, const pas::WideString& Pattern, const pas::WideString& AlternatePattern) {
+    std::uint8_t MatchTextTagPrefixW(char16_t* Text, std::int32_t CharCount, const std::u16string_view& Pattern, const std::u16string_view& AlternatePattern) {
         std::int32_t i{};
         std::uint8_t Result = false;
-        std::int32_t PatternLength = Pattern.length();
-        if (AlternatePattern.length() != PatternLength) {
+        std::int32_t PatternLength = static_cast<std::int32_t>(Pattern.length());
+        if (static_cast<std::int32_t>(AlternatePattern.length()) != PatternLength) {
             return Result;
         }
         if (PatternLength + 1 > CharCount) {
@@ -563,7 +563,7 @@ namespace EC_Str {
             return Result;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, PatternLength - 1); cpp_range.next(i); ) {
-            if (pas::load_unaligned<char16_t>(Text + (1 + i)) != Pattern.read(1 + i) && pas::load_unaligned<char16_t>(Text + (1 + i)) != AlternatePattern.read(1 + i)) {
+            if (pas::load_unaligned<char16_t>(Text + (1 + i)) != Pattern[1 + i - 1] && pas::load_unaligned<char16_t>(Text + (1 + i)) != AlternatePattern[1 + i - 1]) {
                 return Result;
             }
         }
@@ -588,7 +588,7 @@ namespace EC_Str {
     }
 
     // Uses MatchTextTagPrefixW; opening and closing tags require separate patterns.
-    pas::WideString RemoveMatchingTextTagsW(pas::WideString Text, const pas::WideString& Pattern, const pas::WideString& AlternatePattern) {
+    pas::WideString RemoveMatchingTextTagsW(pas::WideString Text, const std::u16string_view& Pattern, const std::u16string_view& AlternatePattern) {
         pas::WideString Result{};
         std::int32_t TagLength{};
         std::int32_t i = 0;
@@ -613,11 +613,11 @@ namespace EC_Str {
     // Accepts slash and backslash; strips only the final dot and suffix from the last path component.
     pas::WideString ExtractFileNameNoExtW(const pas::WideString& Path) {
         pas::WideString Result{};
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"\\/"_wref.get());
-        Result = EC_Str::ExtractDelimitedPartW(Path, Count - 1, u"\\/"_wref.get());
-        Count = EC_Str::CountDelimitedPartsW(Result, u"."_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Path), u"\\/"sv);
+        Result = EC_Str::ExtractDelimitedPartW(pas::view(Path), Count - 1, u"\\/"sv);
+        Count = EC_Str::CountDelimitedPartsW(pas::view(Result), u"."sv);
         if (Count > 1) {
-            return EC_Str::ExtractDelimitedRangeW(Result, 0, Count - 2, u"."_wref.get());
+            return EC_Str::ExtractDelimitedRangeW(pas::view(Result), 0, Count - 2, u"."sv);
         }
         return Result;
     }
@@ -625,22 +625,22 @@ namespace EC_Str {
     // Accepts slash and backslash; returns text after the last dot in the final component, or empty when absent.
     pas::WideString ExtractFileExtNoDotW(const pas::WideString& Path) {
         pas::WideString Result{};
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"\\/"_wref.get());
-        Result = EC_Str::ExtractDelimitedPartW(Path, Count - 1, u"\\/"_wref.get());
-        Count = EC_Str::CountDelimitedPartsW(Result, u"."_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Path), u"\\/"sv);
+        Result = EC_Str::ExtractDelimitedPartW(pas::view(Path), Count - 1, u"\\/"sv);
+        Count = EC_Str::CountDelimitedPartsW(pas::view(Result), u"."sv);
         if (Count > 1) {
-            return EC_Str::ExtractDelimitedPartW(Result, Count - 1, u"."_wref.get());
+            return EC_Str::ExtractDelimitedPartW(pas::view(Result), Count - 1, u"."sv);
         }
         return pas::WideString();
     }
 
     // Accepts slash and backslash; excludes the final separator and component.
-    pas::WideString ExtractFileDirW(const pas::WideString& Path) {
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"\\/"_wref.get());
+    pas::WideString ExtractFileDirW(const std::u16string_view& Path) {
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"\\/"sv);
         if (Count <= 1) {
             return pas::WideString();
         }
-        return EC_Str::ExtractDelimitedRangeW(Path, 0, Count - 2, u"\\/"_wref.get());
+        return EC_Str::ExtractDelimitedRangeW(Path, 0, Count - 2, u"\\/"sv);
     }
 
     // Game text obfuscation: EncodeTextW inserts a random character after each input
@@ -703,72 +703,72 @@ namespace EC_Str {
     pas::WideString TransliterateCyrillicToLatin(pas::WideString Text) {
         pas::WideString Result{};
         Result = std::move(Text);
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0410"_wref.get(), u"A"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0430"_wref.get(), u"a"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0411"_wref.get(), u"B"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0431"_wref.get(), u"b"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0412"_wref.get(), u"V"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0432"_wref.get(), u"v"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0413"_wref.get(), u"G"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0433"_wref.get(), u"g"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0414"_wref.get(), u"D"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0434"_wref.get(), u"d"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0415"_wref.get(), u"E"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0435"_wref.get(), u"e"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0401"_wref.get(), u"Yo"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0451"_wref.get(), u"yo"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0416"_wref.get(), u"Zh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0436"_wref.get(), u"zh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0417"_wref.get(), u"Z"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0437"_wref.get(), u"z"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0418"_wref.get(), u"I"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0438"_wref.get(), u"i"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0419"_wref.get(), u"J"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0439"_wref.get(), u"j"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u041a"_wref.get(), u"K"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u043a"_wref.get(), u"k"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u041b"_wref.get(), u"L"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u043b"_wref.get(), u"l"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u041c"_wref.get(), u"M"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u043c"_wref.get(), u"m"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u041d"_wref.get(), u"N"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u043d"_wref.get(), u"n"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u041e"_wref.get(), u"O"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u043e"_wref.get(), u"o"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u041f"_wref.get(), u"P"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u043f"_wref.get(), u"p"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0420"_wref.get(), u"R"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0440"_wref.get(), u"r"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0421"_wref.get(), u"S"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0441"_wref.get(), u"s"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0422"_wref.get(), u"T"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0442"_wref.get(), u"t"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0423"_wref.get(), u"U"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0443"_wref.get(), u"u"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0424"_wref.get(), u"F"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0444"_wref.get(), u"f"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0425"_wref.get(), u"Kh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0445"_wref.get(), u"kh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0426"_wref.get(), u"Ts"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0446"_wref.get(), u"ts"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0427"_wref.get(), u"Ch"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0447"_wref.get(), u"ch"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0428"_wref.get(), u"Sh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0448"_wref.get(), u"sh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0429"_wref.get(), u"Shh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u0449"_wref.get(), u"shh"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u042a"_wref.get(), u"\""_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u044a"_wref.get(), u"\""_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u042b"_wref.get(), u"Y"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u044b"_wref.get(), u"y"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u042c"_wref.get(), u"`"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u044c"_wref.get(), u"`"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u042d"_wref.get(), u"E"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u044d"_wref.get(), u"e"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u042e"_wref.get(), u"Yu"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u044e"_wref.get(), u"yu"_wref.get());
-        Result = EC_Str::ReplaceAllWideString(Result, u"\u042f"_wref.get(), u"Ya"_wref.get());
-        return EC_Str::ReplaceAllWideString(Result, u"\u044f"_wref.get(), u"ya"_wref.get());
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0410"_wref.get(), u"A"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0430"_wref.get(), u"a"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0411"_wref.get(), u"B"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0431"_wref.get(), u"b"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0412"_wref.get(), u"V"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0432"_wref.get(), u"v"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0413"_wref.get(), u"G"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0433"_wref.get(), u"g"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0414"_wref.get(), u"D"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0434"_wref.get(), u"d"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0415"_wref.get(), u"E"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0435"_wref.get(), u"e"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0401"_wref.get(), u"Yo"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0451"_wref.get(), u"yo"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0416"_wref.get(), u"Zh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0436"_wref.get(), u"zh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0417"_wref.get(), u"Z"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0437"_wref.get(), u"z"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0418"_wref.get(), u"I"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0438"_wref.get(), u"i"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0419"_wref.get(), u"J"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0439"_wref.get(), u"j"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u041a"_wref.get(), u"K"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u043a"_wref.get(), u"k"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u041b"_wref.get(), u"L"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u043b"_wref.get(), u"l"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u041c"_wref.get(), u"M"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u043c"_wref.get(), u"m"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u041d"_wref.get(), u"N"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u043d"_wref.get(), u"n"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u041e"_wref.get(), u"O"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u043e"_wref.get(), u"o"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u041f"_wref.get(), u"P"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u043f"_wref.get(), u"p"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0420"_wref.get(), u"R"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0440"_wref.get(), u"r"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0421"_wref.get(), u"S"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0441"_wref.get(), u"s"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0422"_wref.get(), u"T"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0442"_wref.get(), u"t"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0423"_wref.get(), u"U"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0443"_wref.get(), u"u"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0424"_wref.get(), u"F"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0444"_wref.get(), u"f"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0425"_wref.get(), u"Kh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0445"_wref.get(), u"kh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0426"_wref.get(), u"Ts"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0446"_wref.get(), u"ts"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0427"_wref.get(), u"Ch"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0447"_wref.get(), u"ch"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0428"_wref.get(), u"Sh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0448"_wref.get(), u"sh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0429"_wref.get(), u"Shh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u0449"_wref.get(), u"shh"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u042a"_wref.get(), u"\""sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u044a"_wref.get(), u"\""sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u042b"_wref.get(), u"Y"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u044b"_wref.get(), u"y"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u042c"_wref.get(), u"`"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u044c"_wref.get(), u"`"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u042d"_wref.get(), u"E"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u044d"_wref.get(), u"e"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u042e"_wref.get(), u"Yu"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u044e"_wref.get(), u"yu"sv);
+        Result = EC_Str::ReplaceAllWideString(Result, u"\u042f"_wref.get(), u"Ya"sv);
+        return EC_Str::ReplaceAllWideString(Result, u"\u044f"_wref.get(), u"ya"sv);
     }
 
     void TStringsEC_Create(TStringsEC* Self) {
@@ -881,11 +881,11 @@ namespace EC_Str {
     }
 
     // Case-sensitive comparison; returns -1 when absent.
-    std::int32_t TStringsEC::IndexOf(const pas::WideString& Text) {
+    std::int32_t TStringsEC::IndexOf(const std::u16string_view& Text) {
         TStringsElEC* Item = FirstElement;
         std::int32_t i = 0;
         while (Item != nullptr) {
-            if (Item->Text == Text) {
+            if (pas::view(Item->Text) == Text) {
                 return i;
             }
             ++i;

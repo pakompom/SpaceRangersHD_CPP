@@ -198,7 +198,7 @@ namespace GI_Panel {
         GI_MessageLoop::TObjectGI::ProcessMouseMove(KeyState, Point);
         if (Dragging == true) {
             if (Point.X != LastDragPoint.X || Point.Y != LastDragPoint.Y) {
-                if (MessageLoop->IsCursorImageSelected(u"Main"_wref.get())) {
+                if (MessageLoop->IsCursorImageSelected(u"Main"sv)) {
                     MessageLoop->SetCursorByName(u"Scroll"_wref.get());
                 }
                 if (ScrollAxis == psaHorizontal || ScrollAxis == psaBoth) {
@@ -228,7 +228,7 @@ namespace GI_Panel {
     void TPanelGI::OnMouseLeave() {
         GI_MessageLoop::TObjectGI::OnMouseLeave();
         Dragging = false;
-        if (MessageLoop->IsCursorImageSelected(u"Scroll"_wref.get())) {
+        if (MessageLoop->IsCursorImageSelected(u"Scroll"sv)) {
             MessageLoop->SetCursorByName(u"Main"_wref.get());
         }
     }
@@ -238,7 +238,7 @@ namespace GI_Panel {
         if (static_cast<std::uint8_t>(IsOccludedAtPoint(Point) ^ 1) && DragScrollingEnabled == true) {
             Dragging = true;
             LastDragPoint = Point;
-            if (MessageLoop->IsCursorImageSelected(u"Main"_wref.get())) {
+            if (MessageLoop->IsCursorImageSelected(u"Main"sv)) {
                 MessageLoop->SetCursorByName(u"Scroll"_wref.get());
             }
         }
@@ -247,7 +247,7 @@ namespace GI_Panel {
     void TPanelGI::ProcessRightButtonUp(std::uint32_t KeyState, Types::TPoint Point) {
         GI_MessageLoop::TObjectGI::ProcessRightButtonUp(KeyState, Point);
         Dragging = false;
-        if (MessageLoop->IsCursorImageSelected(u"Scroll"_wref.get())) {
+        if (MessageLoop->IsCursorImageSelected(u"Scroll"sv)) {
             MessageLoop->SetCursorByName(u"Main"_wref.get());
         }
     }
@@ -257,12 +257,12 @@ namespace GI_Panel {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"CenterWorld"_wref.get()) > 0) {
-            Text = Block->GetParam(u"CenterWorld"_wref.get());
-            Self->ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Self->ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            Text = Block->GetParam(u"CenterWorld"sv);
+            Self->ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Self->ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
         }
         if (Block->CountParams(u"MoveWorld"_wref.get()) > 0) {
-            Self->DragScrollingEnabled = GI_Main::ParseEnabledNameGI(Block->GetParam(u"MoveWorld"_wref.get()));
+            Self->DragScrollingEnabled = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"MoveWorld"sv)));
         }
     }
 
@@ -270,17 +270,17 @@ namespace GI_Panel {
         pas::WideString Text{};
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         if (Block->CountParams(u"CenterWorld"_wref.get()) > 0) {
-            Text = Block->GetParam(u"CenterWorld"_wref.get());
-            ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            Text = Block->GetParam(u"CenterWorld"sv);
+            ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
         }
         if (Block->CountParams(u"MoveWorld"_wref.get()) > 0) {
-            if (EC_Str::TrimWideString(Block->GetParam(u"MoveWorld"_wref.get())) == u"True") {
+            if (EC_Str::TrimWideString(Block->GetParam(u"MoveWorld"sv)) == u"True") {
                 DragScrollingEnabled = true;
             }
         }
         if (Block->CountParams(u"TypeScroll"_wref.get()) > 0) {
-            Text = Block->GetParam(u"TypeScroll"_wref.get());
+            Text = Block->GetParam(u"TypeScroll"sv);
             if (Text == u"Simple") {
                 ScrollType = pstSimple;
             } else if (Text == u"All") {

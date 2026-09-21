@@ -142,47 +142,47 @@ namespace GI_TextButton {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"sv));
         }
         if (Block->CountParams(u"Caption"_wref.get()) > 0) {
-            Self->Caption = Block->GetParam(u"Caption"_wref.get());
+            Self->Caption = Block->GetParam(u"Caption"sv);
             if (GR_Main::LanguageDataConfig->CountParamsByPath(Self->Caption) > 0) {
                 Self->Caption = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(Self->Caption);
             }
         }
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            Self->ImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            Self->ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"CaptionColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"CaptionColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"CaptionColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             Self->CaptionColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CaptionActiveColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"CaptionActiveColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"CaptionActiveColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             Self->CaptionActiveColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"BorderLightColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"BorderLightColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             Self->BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"BorderDarkColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"BorderDarkColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             Self->BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            if (Block->GetParam(u"Kind"_wref.get()) == u"Normal") {
+            if (Block->GetParam(u"Kind"sv) == u"Normal") {
                 Self->Kind = 0;
             } else {
                 Self->Kind = 1;
@@ -197,47 +197,47 @@ namespace GI_TextButton {
         std::uint8_t Blue{};
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+            FontCache->SetCacheKey(Block->GetParam(u"Font"sv));
         }
         if (Block->CountParams(u"Caption"_wref.get()) > 0) {
-            Caption = Block->GetParam(u"Caption"_wref.get());
+            Caption = Block->GetParam(u"Caption"sv);
             if (GR_Main::LanguageDataConfig->CountParamsByPath(Caption) > 0) {
                 Caption = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(Caption);
             }
         }
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            ImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"CaptionColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"CaptionColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"CaptionColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             CaptionColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CaptionActiveColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"CaptionActiveColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"CaptionActiveColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             CaptionActiveColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"BorderLightColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"BorderLightColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
-            Text = Block->GetParam(u"BorderDarkColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
+            Text = Block->GetParam(u"BorderDarkColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            if (Block->GetParam(u"Kind"_wref.get()) == u"Normal") {
+            if (Block->GetParam(u"Kind"sv) == u"Normal") {
                 Kind = 0;
             } else {
                 Kind = 1;

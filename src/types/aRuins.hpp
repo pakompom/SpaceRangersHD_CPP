@@ -80,7 +80,7 @@ namespace aRuins {
         // Always rcTrader.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxy::TStar* GetHomeStar() override;
-        std::uint8_t GetStrengthScaledPirateStatus() override;
+        aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         // Always zero.
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Invalidates TargetPlanet on the existing offer.
@@ -95,7 +95,7 @@ namespace aRuins {
         // Returns 10..18; advances the station RNG state.
         std::int32_t CalculateEquipmentShopTargetCount();
         // Bucket 50 includes all weapon item types 50..68.
-        std::int32_t CountEquipmentShopItems(std::uint8_t ItemType);
+        std::int32_t CountEquipmentShopItems(aConst::TItemType ItemType);
         // Excludes hulls; inclusive cost bounds. Borrowed result, nil when absent.
         aItem::TItem* FindMostExpensiveShopItem(std::int32_t MinCost, std::int32_t MaxCost);
         // Frees at most one existing offer matching type and level; never inserts Item. May also compare size when below the target shop count.
@@ -138,7 +138,7 @@ namespace aRuins {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
         std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;

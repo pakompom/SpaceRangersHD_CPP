@@ -13,6 +13,8 @@ namespace EC_Buf {
 namespace GR_GraphBuf {
     struct TColorBGRA;
 
+    struct TColorRGB;
+
     struct TPixelFormatGR;
 
     struct TColorRGBA;
@@ -115,8 +117,9 @@ namespace GR_GraphBuf {
         std::int32_t BytesPerPixel;
         std::uint8_t UseTexture;
         std::uint8_t UsesTextureStorage;
-        // Cleared on allocation and reset; purpose unresolved.
-        std::uint8_t TextureFlag22;
+        // Skips the explicit nil assignment before resize/crop replaces Texture.
+        // All retained writes clear this flag.
+        std::uint8_t KeepTextureUntilReplacement;
         std::uint8_t cpp_padding[1];
         Direct3D9::IDirect3DTexture9 Texture;
         std::uint8_t TextureLocked;
@@ -176,6 +179,14 @@ namespace GR_GraphBuf {
     #pragma pack(pop)
     #endif
 
+    #pragma pack(push, 1)
+    struct TColorRGB {
+        std::uint8_t R;
+        std::uint8_t G;
+        std::uint8_t B;
+    };
+    #pragma pack(pop)
+
     // Screen/texture byte order used by the brightness and grayscale routines.
     #pragma pack(push, 1)
     struct TColorBGRA {
@@ -191,5 +202,7 @@ namespace GR_GraphBuf {
     using TColorRGBAArray = pas::Array<TColorRGBA, 0, 0>;
 
     using PColorRGBAArray = TColorRGBAArray*;
+
+    using PColorRGB = TColorRGB*;
 
 } // namespace GR_GraphBuf

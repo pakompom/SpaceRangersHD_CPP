@@ -65,7 +65,7 @@ namespace ab_MainForm {
     static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, CampaignLoadProgress) == 804);
     static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, DepartureTurn) == 808);
     static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, ArrivalTurn) == 812);
-    static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, InfoObject) == 816);
+    static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, InfoSpace) == 816);
     static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, CargoPickupItem) == 820);
     static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, CargoPickupZone) == 824);
     static_assert(sizeof(void*) != 4 || offsetof(ab_MainForm::TfAB, InitialRandomSeed) == 828);

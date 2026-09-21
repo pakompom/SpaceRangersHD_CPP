@@ -1,8 +1,7 @@
 #pragma once
 #include "runtime_support.hpp"
-#include "types/System.hpp"
 #include "types/Types.hpp"
-#include "types/Windows_group.hpp"
+#include "types/aGalaxyStruct.hpp"
 
 namespace GR_GraphBuf {
     struct TGraphBufGR;
@@ -33,7 +32,7 @@ namespace Robot {
 
     using PRobotDisplaySettings = TRobotDisplaySettingsPrefix*;
 
-    using TRobotRun = pas::StdcallProc<std::int32_t(std::uint32_t, std::uint32_t, char16_t*, PRobotDisplaySettings, char16_t*, char16_t*, char16_t*, char16_t*, char16_t*, WindowsSdk::PInteger)>;
+    using TRobotRun = pas::StdcallProc<std::int32_t(std::uint32_t, std::uint32_t, char16_t*, PRobotDisplaySettings, char16_t*, char16_t*, char16_t*, char16_t*, char16_t*, aGalaxyStruct::PPlanetBattleStatistics)>;
 
     // Dispatch table returned by GetRobotInterface.
     #pragma pack(push, 1)

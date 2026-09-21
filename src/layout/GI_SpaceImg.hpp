@@ -22,7 +22,7 @@ namespace GI_SpaceImg {
     static_assert(sizeof(void*) != 4 || offsetof(GI_SpaceImg::TSpaceImageGI, ImageOffset) == 88);
     static_assert(sizeof(void*) != 4 || offsetof(GI_SpaceImg::TSpaceImageGI, PixelPosition) == 96);
     static_assert(sizeof(void*) != 4 || offsetof(GI_SpaceImg::TSpaceImageGI, OrbitStepDegrees) == 104);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_SpaceImg::TSpaceImageGI, Unknown70) == 112);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_SpaceImg::TSpaceImageGI, SavedTemplateIndex) == 112);
     static_assert(sizeof(void*) != 4 || offsetof(GI_SpaceImg::TSpaceImageGI, OrbitAngleRadians) == 120);
     static_assert(sizeof(void*) != 4 || offsetof(GI_SpaceImg::TSpaceImageGI, OrbitRadius) == 128);
 

@@ -17,6 +17,10 @@
 #include "units/GR_gi.hpp"
 
 namespace GI_GAIFile {
+    std::uint32_t ReadGaiFrameSize(void* Directory, std::int32_t Index) {
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Directory, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Index * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))))->DataSize))));
+    }
+
     void TGAIFileThreadGI_Execute(TGAIFileThreadGI* Self) {
         std::int32_t Index{};
         std::int32_t Count{};
@@ -53,9 +57,9 @@ namespace GI_GAIFile {
             if (Self->IsStopRequested()) {
                 break;
             }
-            Data = EC_Mem::AllocEC(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Self->Owner->FrameDirectory, SourceFrame * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + 4)));
+            Data = EC_Mem::AllocEC(GI_GAIFile::ReadGaiFrameSize(Self->Owner->FrameDirectory, SourceFrame));
             Self->Owner->ImageFile->SetPointer(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Self->Owner->FrameDirectory, SourceFrame * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))), WindowsImports::FILE_BEGIN);
-            Self->Owner->ImageFile->ReadBuffer(Data, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Self->Owner->FrameDirectory, SourceFrame * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + 4)));
+            Self->Owner->ImageFile->ReadBuffer(Data, GI_GAIFile::ReadGaiFrameSize(Self->Owner->FrameDirectory, SourceFrame));
             GR_gi::PrepareRawGiColorCache(Data);
             if (Self->IsStopRequested()) {
                 EC_Mem::FreeEC(Data);
@@ -175,9 +179,9 @@ namespace GI_GAIFile {
         if (Data != nullptr) {
             return Data;
         }
-        Data = EC_Mem::AllocEC(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameDirectory, FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + 4)));
+        Data = EC_Mem::AllocEC(GI_GAIFile::ReadGaiFrameSize(FrameDirectory, FrameIndex));
         ImageFile->SetPointer(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameDirectory, FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))), WindowsImports::FILE_BEGIN);
-        ImageFile->ReadBuffer(Data, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameDirectory, FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + 4)));
+        ImageFile->ReadBuffer(Data, GI_GAIFile::ReadGaiFrameSize(FrameDirectory, FrameIndex));
         GR_gi::PrepareRawGiColorCache(Data);
         EC_Mem::WriteIntegerEC(EC_Mem::AddPointerOffset(FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*))), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Data)));
         LoaderThread->Start();
@@ -295,12 +299,12 @@ namespace GI_GAIFile {
         }
         CurrentFrame = 0;
         SequenceFrameCount = 0;
-        std::int32_t Count = (EC_Str::CountDelimitedPartsW(Sequence, u"[]"_wref.get()) - 1) / 2;
+        std::int32_t Count = (EC_Str::CountDelimitedPartsW(pas::view(Sequence), u"[]"sv) - 1) / 2;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            Text = EC_Str::ExtractDelimitedPartW(Sequence, I * 2 + 1, u"[]"_wref.get());
-            Delay = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u",-"_wref.get()));
-            First = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 1, u",-"_wref.get()));
-            Last = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 2, u",-"_wref.get()));
+            Text = EC_Str::ExtractDelimitedPartW(pas::view(Sequence), I * 2 + 1, u"[]"sv);
+            Delay = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u",-"sv)));
+            First = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u",-"sv)));
+            Last = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u",-"sv)));
             FrameCount = pas::abs(First - Last) + 1;
             SequenceFrameCount += FrameCount;
             SequenceFrames = EC_Mem::ReAllocREC(SequenceFrames, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t)));
@@ -349,34 +353,34 @@ namespace GI_GAIFile {
 
     void TGAIFileGI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            ImageFile->SetFileName(Block->GetParam(u"Image"_wref.get()));
+            ImageFile->SetFileName(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"KindX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"KindX"sv))));
         }
         if (Block->CountParams(u"KindY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"KindY"sv))));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"AlignX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"AlignX"sv))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"AlignY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"AlignY"sv))));
         }
         if (Block->CountParams(u"PBuf"_wref.get()) > 0) {
-            UsePlaybackBuffer = GI_Main::ParseEnabledNameGI(Block->GetParam(u"PBuf"_wref.get()));
+            UsePlaybackBuffer = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"PBuf"sv)));
         }
         if (Block->CountParams(u"Stop"_wref.get()) > 0) {
-            Stopped = GI_Main::ParseEnabledNameGI(Block->GetParam(u"Stop"_wref.get()));
+            Stopped = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Stop"sv)));
         }
         if (Block->CountParams(u"Frame"_wref.get()) > 0) {
-            SetFrameSequence(Block->GetParam(u"Frame"_wref.get()));
+            SetFrameSequence(Block->GetParam(u"Frame"sv));
         }
         if (Block->CountParams(u"Auto"_wref.get()) > 0) {
-            AutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"_wref.get()));
+            AutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"sv));
         }
         if (Block->CountParams(u"TransColor"_wref.get()) > 0) {
-            TransparentColor = GI_Main::GetColorGI(Block->GetParam(u"TransColor"_wref.get()));
+            TransparentColor = GI_Main::GetColorGI(pas::view(Block->GetParam(u"TransColor"sv)));
         }
     }
 
@@ -481,7 +485,7 @@ namespace GI_GAIFile {
         if (Header.Flags == 0) {
             SourceFrame = GetSequenceFrame(CurrentFrame);
             Data = GetFrameData(SourceFrame);
-            FrameImage->LoadRawGiBytes(Data, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameDirectory, SourceFrame * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + 4)));
+            FrameImage->LoadRawGiBytes(Data, GI_GAIFile::ReadGaiFrameSize(FrameDirectory, SourceFrame));
             TrimFrameCache();
             Y = StartY;
             while (Y < EndY) {
@@ -511,7 +515,7 @@ namespace GI_GAIFile {
                 while (Frame <= CurrentFrame) {
                     SourceFrame = GetSequenceFrame(Frame);
                     Data = GetFrameData(SourceFrame);
-                    FrameImage->LoadRawGiBytes(Data, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameDirectory, SourceFrame * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + 4)));
+                    FrameImage->LoadRawGiBytes(Data, GI_GAIFile::ReadGaiFrameSize(FrameDirectory, SourceFrame));
                     FrameImage->DrawToGraphBuf(PlaybackBuffer, FrameImage->GetBoundsRect().Left - Bounds.Left, FrameImage->GetBoundsRect().Top - Bounds.Top, ClassesImports::Rect(0, 0, PlaybackBuffer->Width, PlaybackBuffer->Height), 0, 255);
                     ++Frame;
                 }

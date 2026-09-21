@@ -33,8 +33,8 @@ namespace aEObjInfo {
     struct TEOTPlanet {
         std::uint32_t Id;
         pas::WideString Name;
-        std::uint8_t OwnerId;
-        std::uint8_t RaceId;
+        aGalaxyStruct::TOwnerId OwnerId;
+        aGalaxyStruct::TOwnerId RaceId;
         std::uint8_t cpp_padding[2];
         std::int32_t Population;
         aGalaxyStruct::TPlanetEconomy Economy;
@@ -53,7 +53,7 @@ namespace aEObjInfo {
         std::uint32_t Id;
         pas::WideString Name;
         pas::WideString FullName;
-        std::uint8_t OwnerId;
+        aGalaxyStruct::TOwnerId OwnerId;
         aGalaxyStruct::TDominatorSeries DominatorSeries;
         std::uint8_t cpp_padding[2];
         pas::WideString TypeName;
@@ -87,7 +87,7 @@ namespace aEObjInfo {
         pas::WideString InfoText;
         std::int32_t Weight;
         std::int32_t Cost;
-        std::uint8_t OwnerId;
+        aGalaxyStruct::TOwnerId OwnerId;
         std::uint8_t cpp_padding_2[3];
         double ConditionPercent;
         double Fragility;

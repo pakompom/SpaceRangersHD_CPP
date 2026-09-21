@@ -118,30 +118,30 @@ namespace SE_Hole {
 
     void THoleSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
-        MapImagePath = Block->GetParam(u"ImageMap"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
+        MapImagePath = Block->GetParam(u"ImageMap"sv);
         if (Block->CountParams(u"Radius"_wref.get()) > 0) {
-            HitRadius = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Radius"_wref.get()));
+            HitRadius = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Radius"sv)));
         } else {
             HitRadius = 80;
         }
         if (Block->CountParams(u"GalaxyImage"_wref.get()) > 0) {
-            GalaxyImagePath = Block->GetParam(u"GalaxyImage"_wref.get());
+            GalaxyImagePath = Block->GetParam(u"GalaxyImage"sv);
         } else {
             GalaxyImagePath = u"GI,Bm.FormGalaxy.BlackHole"_w;
         }
         if (Block->CountParams(u"GalaxyPriority"_wref.get()) > 0) {
-            GalaxyPriority = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"GalaxyPriority"_wref.get()));
+            GalaxyPriority = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"GalaxyPriority"sv)));
         } else {
             GalaxyPriority = 80;
         }
         if (Block->CountParams(u"NamePath"_wref.get()) > 0) {
-            NameTextPath = Block->GetParam(u"NamePath"_wref.get());
+            NameTextPath = Block->GetParam(u"NamePath"sv);
         } else {
             NameTextPath = u"FormInfo.HoleName"_w;
         }
         if (Block->CountParams(u"TextPath"_wref.get()) > 0) {
-            InfoTextPath = Block->GetParam(u"TextPath"_wref.get());
+            InfoTextPath = Block->GetParam(u"TextPath"sv);
         } else {
             InfoTextPath = u"FormInfo.HoleText"_w;
         }

@@ -52,10 +52,10 @@ namespace aNormalShip {
             CeremonyPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Star->FindFirstInhabitedPlanet()));
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
-                if (pas::class_cast_if<TNormalShip*>(Ship) != nullptr) {
-                    Normal = pas::checked_cast<TNormalShip*>(Ship);
+                if (TNormalShip* normalShip = pas::class_cast_if<TNormalShip*>(Ship)) {
+                    Normal = normalShip;
                     Normal->PendingLiberationCeremonyPlanet = nullptr;
-                    if (Normal->CurrentSystemKills.Dominator > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfDominators || Normal->CurrentSystemKills.Pirate > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfPirates && Normal->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || aPlayer::GetPlayer() != Ship && Ship->DaysSincePlayerSeen > 1 && Normal->DominatorKillCount + Normal->PirateKillCount > Normal->LiberatedSystemCount) {
+                    if (Normal->CurrentSystemKills.Dominator > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfDominators || Normal->CurrentSystemKills.Pirate > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfPirates && Normal->OwnerId != aGalaxyStruct::oiPirate || aPlayer::GetPlayer() != Ship && Ship->DaysSincePlayerSeen > 1 && Normal->DominatorKillCount + Normal->PirateKillCount > Normal->LiberatedSystemCount) {
                         if (Star->Status.PreviousControlFaction == aGalaxyStruct::sfDominators) {
                             Normal->PendingLiberationContribution = Normal->CurrentSystemKills.Dominator;
                         }
@@ -68,7 +68,7 @@ namespace aNormalShip {
                         Normal->CurrentSystemKills.Custom = 0;
                         ++Normal->LiberatedSystemCount;
                         Normal->PendingLiberationCeremonyPlanet = CeremonyPlanet;
-                        if (Normal->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        if (Normal->OwnerId != aGalaxyStruct::oiPirate) {
                             Normal->AddRankPoints(30);
                         } else {
                             Normal->AddPirateRankPoints(16u);
@@ -123,10 +123,10 @@ namespace aNormalShip {
             CeremonyPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Star->FindFirstInhabitedPlanet()));
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
-                if (pas::class_cast_if<TNormalShip*>(Ship) != nullptr) {
-                    Normal = pas::checked_cast<TNormalShip*>(Ship);
+                if (TNormalShip* normalShip_2 = pas::class_cast_if<TNormalShip*>(Ship)) {
+                    Normal = normalShip_2;
                     Normal->PendingLiberationCeremonyPlanet = nullptr;
-                    if (Normal->CurrentSystemKills.Dominator > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfDominators || Normal->CurrentSystemKills.Normal > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfCoalition && Normal->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || aPlayer::GetPlayer() != Ship && Ship->DaysSincePlayerSeen > 1 && Normal->MilitaryKillCount + Normal->DominatorKillCount > Normal->LiberatedSystemCount) {
+                    if (Normal->CurrentSystemKills.Dominator > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfDominators || Normal->CurrentSystemKills.Normal > 0 && Star->Status.PreviousControlFaction == aGalaxyStruct::sfCoalition && Normal->OwnerId == aGalaxyStruct::oiPirate || aPlayer::GetPlayer() != Ship && Ship->DaysSincePlayerSeen > 1 && Normal->MilitaryKillCount + Normal->DominatorKillCount > Normal->LiberatedSystemCount) {
                         if (Star->Status.PreviousControlFaction == aGalaxyStruct::sfDominators) {
                             Normal->PendingLiberationContribution = Normal->CurrentSystemKills.Dominator;
                         }
@@ -226,8 +226,8 @@ namespace aNormalShip {
     }
 
     void TNormalShip_Destroy(TNormalShip* Self) {
-        std::uint8_t Career{};
-        for (Career = static_cast<std::uint8_t>(0); Career <= static_cast<std::uint8_t>(2); ++Career) {
+        aGalaxyStruct::TRangerCareer Career{};
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TRangerCareer>(aGalaxyStruct::rcTrader, aGalaxyStruct::rcWarrior); cpp_range.next(Career); ) {
             if (aGalaxy::Galaxy->EminentCareerShips[Career] == Self) {
                 aGalaxy::Galaxy->EminentCareerShips[Career] = nullptr;
             }
@@ -302,7 +302,7 @@ namespace aNormalShip {
         PirateRank = EC_Buf::TBufEC_GetByte(Buffer);
         PirateRankPoints = EC_Buf::TBufEC_GetUInt32(Buffer);
         if (GlobalsV::LoadedSaveVersion < 126 && EC_Buf::TBufEC_GetByte(Buffer) != 0) {
-            OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+            OwnerId = aGalaxyStruct::oiPirate;
         }
         LastDockedPlanet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
         LastPlayerExtortionTurn = EC_Buf::TBufEC_GetInt32(Buffer);
@@ -341,10 +341,10 @@ namespace aNormalShip {
     // Native editable import truncates PirateRankPoints to Word.
     void TNormalShip::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         aShip::TShip::LoadFromBlock(Block);
-        Rank = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Roarnuke"_w))));
-        RankPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"RearnaksProcitnotas"_w))));
-        PirateRank = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"PlivroaktrenRiasnuk"_w))));
-        PirateRankPoints = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"PhilroaAtrelRoasnAkoPiopionatos"_w)))));
+        Rank = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Roarnuke"_w)))));
+        RankPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"RearnaksProcitnotas"_w)))));
+        PirateRank = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"PlivroaktrenRiasnuk"_w)))));
+        PirateRankPoints = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"PhilroaAtrelRoasnAkoPiopionatos"_w))))));
     }
 
     void TNormalShip_NextDay(TNormalShip* Self) {
@@ -419,8 +419,8 @@ namespace aNormalShip {
         } else {
             AwardWeight = aMyFunction::RemapClamped(pas::list_count(AwardIds), 0.0, 15.0, 8.0E+1, 1.0E+1);
         }
-        if (pas::class_cast_if<aRanger::TRanger*>(this) != nullptr && static_cast<aRanger::TRanger*>(this)->HasProgram(aGalaxyStruct::prgIntercom)) {
-            ProgramWeight = aMyFunction::RemapClamped(pas::checked_cast<aRanger::TRanger*>(this)->CountProgramsInFilter(static_cast<aRanger::TRangerProgramMask>(RewardPrograms)), 0.0, 1.0E+1, 8.0E+1, 1.0E+1);
+        if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(this); ranger != nullptr && ranger->HasProgram(aGalaxyStruct::prgIntercom)) {
+            ProgramWeight = aMyFunction::RemapClamped(ranger->CountProgramsInFilter(static_cast<aRanger::TRangerProgramMask>(RewardPrograms)), 0.0, 1.0E+1, 8.0E+1, 1.0E+1);
         } else {
             ProgramWeight = 0.0f;
         }
@@ -449,7 +449,7 @@ namespace aNormalShip {
         if (ModuleWeight > 0.0L) {
             ModuleWeight = static_cast<long double>(ModuleWeight) * aMyFunction::SeededRandomIntRange(5, 25, CurrentPlanet->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 107 + 1967);
         }
-        if (CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && AwardWeight > 0.0L) {
+        if (CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate && AwardWeight > 0.0L) {
             AwardWeight = 1.0f;
         }
         if (AwardWeight > 0.0L && AwardWeight >= pas::real_max<float>(ModuleWeight, pas::real_max<float>(ProgramWeight, ArtefactWeight))) {
@@ -465,7 +465,7 @@ namespace aNormalShip {
             RewardKind = 0;
         }
         if (aPlayer::GetPlayer() == this) {
-            if (CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (CurrentPlanet->OwnerId != aGalaxyStruct::oiPirate) {
                 if (static_cast<std::uint8_t>(CurrentPlanet->CurrentStar->Status.PreviousControlFaction) == 1) {
                     Result = aConst::LocalizedColorText(pas::concat_wide({u"PlanetCongratulations.LiberationStarNormalsFromKling.", aConst::OwnerToSys(CurrentPlanet->OwnerId), u"Text"}));
                 } else {
@@ -509,7 +509,7 @@ namespace aNormalShip {
         } else {
             Result = pas::WideString();
         }
-        if (CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (CurrentPlanet->OwnerId != aGalaxyStruct::oiPirate) {
             Prefix = u"PlanetCongratulations.LiberationAwardNormals."_w;
         } else {
             Prefix = u"PlanetCongratulations.LiberationAwardPirateClan."_w;
@@ -527,8 +527,8 @@ namespace aNormalShip {
                 break;
             }
             case 2: {
-                if (pas::class_cast_if<aRanger::TRanger*>(this) != nullptr) {
-                    ProgramIndex = pas::checked_cast<aRanger::TRanger*>(this)->SelectRandomProgramIdFromFilter(static_cast<aRanger::TRangerProgramMask>(RewardPrograms));
+                if (aRanger::TRanger* ranger_2 = pas::class_cast_if<aRanger::TRanger*>(this)) {
+                    ProgramIndex = ranger_2->SelectRandomProgramIdFromFilter(static_cast<aRanger::TRangerProgramMask>(RewardPrograms));
                     Quantity = aMyFunction::SeededRandomIntRange(1, System::Round(aMyFunction::RemapClamped(pas::checked_cast<aRanger::TRanger*>(this)->CountProgramsInFilter(static_cast<aRanger::TRangerProgramMask>(RewardPrograms)), 2.0, 1.0E+1, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].MaximumQuestProgramRewardCount, 1.0)), ProgramIndex + CurrentStar->GenerationSeed * (aGalaxy::Galaxy->CurrentTurn / 25));
                     pas::checked_cast<aRanger::TRanger*>(this)->ProgramCounts[ProgramIndex] += Quantity;
                     if (aPlayer::GetPlayer() == this) {
@@ -543,8 +543,8 @@ namespace aNormalShip {
             }
             case 3: {
                 RewardItem = aItem::CreateRandomLootItem(aItem::ilpReward, CurrentPlanet->OwnerId, (static_cast<std::int32_t>(CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn) / 50 + 123424767);
-                if (pas::class_cast_if<aItem::TArtefactTranclucator*>(RewardItem) != nullptr) {
-                    static_cast<aTranclucator::TTranclucator*>(reinterpret_cast<aItem::TArtefactTranclucator*>(RewardItem)->Ship)->OwnerShip = this;
+                if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(RewardItem)) {
+                    static_cast<aTranclucator::TTranclucator*>(artefactTranclucator->Ship)->OwnerShip = this;
                 }
                 if (pas::class_cast_if<aItem::TArtefact*>(RewardItem) != nullptr) {
                     pas::list_add(Artefacts, reinterpret_cast<void*>(RewardItem));
@@ -595,7 +595,7 @@ namespace aNormalShip {
         }
         GainExperience(I, 0);
         if (aPlayer::GetPlayer() == this) {
-            Result = pas::concat_wide({Result, u"\r\n", u" ", u"\r\n", aMyFunction::WrapTextInColor(aConst::LocalizedColorText(pas::concat_wide({Prefix, u"AddPoints"})), u"<color=45,105,45>"_w)});
+            Result = pas::concat_wide({Result, u"\r\n", u" ", u"\r\n", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(pas::concat_wide({Prefix, u"AddPoints"}))), u"<color=45,105,45>"sv)});
             aMyFunction::ReplaceTextToken(Result, u"<Points>"_w, pas::wide_int_to_str(I), pas::WideString());
         } else {
             Result = pas::WideString();
@@ -638,7 +638,7 @@ namespace aNormalShip {
         auto RecordShipKillCategory = [&](TNormalShip* Ship, aShip::TShip* Victim) -> void {
             switch (Victim->TypeId) {
                 case aGalaxyStruct::stTransport: {
-                    if (Victim->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                    if (Victim->OwnerId != aGalaxyStruct::oiPirate) {
                         ++Ship->CivilianKillCount;
                         if (aPlayer::GetPlayer() == Ship) {
                             Achievements::TryAddAchievementProgress(u"BLACKHEAD"_w, 1);
@@ -653,7 +653,7 @@ namespace aNormalShip {
                     break;
                 }
                 case aGalaxyStruct::stRanger: {
-                    if (pas::checked_cast<aRanger::TRanger*>(Victim)->GetDominantCareer() != aGalaxyStruct::rcPirate && Victim->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(pas::checked_cast<aRanger::TRanger*>(Victim)->ExcludedFromRating ^ 1)) {
+                    if (pas::checked_cast<aRanger::TRanger*>(Victim)->GetDominantCareer() != aGalaxyStruct::rcPirate && Victim->OwnerId != aGalaxyStruct::oiPirate && static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(Victim)->ExcludedFromRating ^ 1)) {
                         ++Ship->RangerKillCount;
                         Ship->CheckKillCountAwards(Victim);
                     }
@@ -676,14 +676,14 @@ namespace aNormalShip {
             Event->AddData(Victim->GetFullHullRelativeStrengthPercent());
             Event->AddTextData(Victim->GetFullName(u" "_wref.get()));
             Event->AddTextData(Victim->TypeNameOverrideKey);
-            if (pas::class_cast_if<aKling::TKling*>(Victim) != nullptr) {
-                Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Victim)->KlingType));
-            } else if (pas::class_cast_if<aTransport::TTransport*>(Victim) != nullptr) {
-                Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aTransport::TTransport*>(Victim)->TransportType));
-            } else if (pas::class_cast_if<aWarrior::TWarrior*>(Victim) != nullptr) {
-                Event->AddData(pas::checked_cast<aWarrior::TWarrior*>(Victim)->WarriorType);
-            } else if (pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr) {
-                Event->AddData(pas::checked_cast<aPirate::TPirate*>(Victim)->PirateType);
+            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Victim)) {
+                Event->AddData(static_cast<std::uint8_t>(kling->KlingType));
+            } else if (aTransport::TTransport* transport = pas::class_cast_if<aTransport::TTransport*>(Victim)) {
+                Event->AddData(static_cast<std::uint8_t>(transport->TransportType));
+            } else if (aWarrior::TWarrior* warrior = pas::class_cast_if<aWarrior::TWarrior*>(Victim)) {
+                Event->AddData(warrior->WarriorType);
+            } else if (aPirate::TPirate* pirate = pas::class_cast_if<aPirate::TPirate*>(Victim)) {
+                Event->AddData(pirate->PirateType);
             } else {
                 Event->AddData(0);
             }
@@ -708,14 +708,14 @@ namespace aNormalShip {
             Event->AddData(Victim->GetFullHullRelativeStrengthPercent());
             Event->AddTextData(Victim->GetFullName(u" "_wref.get()));
             Event->AddTextData(Victim->TypeNameOverrideKey);
-            if (pas::class_cast_if<aKling::TKling*>(Victim) != nullptr) {
-                Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Victim)->KlingType));
-            } else if (pas::class_cast_if<aTransport::TTransport*>(Victim) != nullptr) {
-                Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aTransport::TTransport*>(Victim)->TransportType));
-            } else if (pas::class_cast_if<aWarrior::TWarrior*>(Victim) != nullptr) {
-                Event->AddData(pas::checked_cast<aWarrior::TWarrior*>(Victim)->WarriorType);
-            } else if (pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr) {
-                Event->AddData(pas::checked_cast<aPirate::TPirate*>(Victim)->PirateType);
+            if (aKling::TKling* kling_2 = pas::class_cast_if<aKling::TKling*>(Victim)) {
+                Event->AddData(static_cast<std::uint8_t>(kling_2->KlingType));
+            } else if (aTransport::TTransport* transport_2 = pas::class_cast_if<aTransport::TTransport*>(Victim)) {
+                Event->AddData(static_cast<std::uint8_t>(transport_2->TransportType));
+            } else if (aWarrior::TWarrior* warrior_2 = pas::class_cast_if<aWarrior::TWarrior*>(Victim)) {
+                Event->AddData(warrior_2->WarriorType);
+            } else if (aPirate::TPirate* pirate_2 = pas::class_cast_if<aPirate::TPirate*>(Victim)) {
+                Event->AddData(pirate_2->PirateType);
             } else {
                 Event->AddData(0);
             }
@@ -732,20 +732,20 @@ namespace aNormalShip {
             RankReward = 10;
             Experience = aMyFunction::NextRandomIntRange(250, 500, aGalaxy::Galaxy->RandomState);
             SourceKind = 0;
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
+            if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Self)) {
                 if (aPlayer::GetPlayer() == Self) {
                     ActivityAmount = 4;
                 } else {
                     ActivityAmount = 8;
                 }
                 if (aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
-                    pas::checked_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(ActivityAmount);
+                    ranger->AddWarriorCareerActivity(ActivityAmount);
                 }
             }
             if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace()) {
-                pas::checked_cast<TNormalShip*>(Self->PartnerShip)->AddRankPoints(6);
+                static_cast<TNormalShip*>(Self->PartnerShip)->AddRankPoints(6);
             }
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 PirateReward = 8;
             }
         } else if (Victim->TypeId == aGalaxyStruct::stTransport && pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
@@ -753,13 +753,13 @@ namespace aNormalShip {
                 aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Normal));
             }
             if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
             }
             {
                 pas::Extended cpp_left = aMyFunction::NextRandomIntRange(100, 250, aGalaxy::Galaxy->RandomState);
                 Experience = System::Round(cpp_left * (static_cast<std::int8_t>(reinterpret_cast<TNormalShip*>(Victim)->Rank + static_cast<std::uint8_t>(0)) * 0.1L + 1.0L));
             }
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 PirateReward = 8;
                 Experience = System::Round(Experience * 1.5L);
             }
@@ -769,11 +769,11 @@ namespace aNormalShip {
                 ActivityAmount = 1;
             }
             pas::checked_cast<aRanger::TRanger*>(Self)->AddPirateCareerActivity(ActivityAmount);
-        } else if (pas::class_cast_if<aRanger::TRanger*>(Victim) != nullptr && pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
-            if (pas::checked_cast<aRanger::TRanger*>(Victim)->GetDominantCareer() == aGalaxyStruct::rcPirate) {
+        } else if (aRanger::TRanger* ranger_2 = pas::class_cast_if<aRanger::TRanger*>(Victim); ranger_2 != nullptr && pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
+            if (ranger_2->GetDominantCareer() == aGalaxyStruct::rcPirate) {
                 SourceKind = 2;
                 RankReward = 10;
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(4);
+                static_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(4);
                 {
                     pas::Extended cpp_left_2 = aMyFunction::NextRandomIntRange(250, 500, aGalaxy::Galaxy->RandomState);
                     Experience = System::Round(cpp_left_2 * (static_cast<std::int8_t>(reinterpret_cast<TNormalShip*>(Victim)->PirateRank + static_cast<std::uint8_t>(0)) * 0.1L + 1.0L));
@@ -782,7 +782,7 @@ namespace aNormalShip {
                 if (!QuestTargetKill) {
                     aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Normal));
                     if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                        ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                        ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
                     }
                 }
                 if (aPlayer::GetPlayer() == Self) {
@@ -795,25 +795,25 @@ namespace aNormalShip {
                     pas::Extended cpp_left_3 = aMyFunction::NextRandomIntRange(100, 250, aGalaxy::Galaxy->RandomState);
                     Experience = System::Round(cpp_left_3 * (static_cast<std::int8_t>(reinterpret_cast<TNormalShip*>(Victim)->Rank + static_cast<std::uint8_t>(0)) * 0.1L + 1.0L));
                 }
-                if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                     PirateReward = 24;
                     Experience = System::Round(Experience * 1.5L);
                 }
             }
-        } else if (pas::class_cast_if<aRanger::TRanger*>(Victim) != nullptr && pas::class_cast_if<aPirate::TPirate*>(Self) != nullptr) {
-            if (reinterpret_cast<aRanger::TRanger*>(Victim)->GetDominantCareer() != aGalaxyStruct::rcPirate) {
+        } else if (aRanger::TRanger* ranger_3 = pas::class_cast_if<aRanger::TRanger*>(Victim); ranger_3 != nullptr && pas::class_cast_if<aPirate::TPirate*>(Self) != nullptr) {
+            if (ranger_3->GetDominantCareer() != aGalaxyStruct::rcPirate) {
                 ++Self->CurrentSystemKills.Normal;
                 if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                    ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                    ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
                 }
                 PirateReward = 24;
             }
         } else if (pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr) {
             SourceKind = 2;
-            if (Victim->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(QuestTargetKill ^ 1)) {
+            if (Victim->OwnerId == aGalaxyStruct::oiPirate && static_cast<std::uint8_t>(QuestTargetKill ^ 1)) {
                 aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Pirate));
                 if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate == 0) {
-                    ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate;
+                    ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate;
                 }
             }
             ++Self->PirateKillCount;
@@ -825,32 +825,32 @@ namespace aNormalShip {
                 Experience = System::Round(cpp_left_4 * (static_cast<std::int8_t>(reinterpret_cast<TNormalShip*>(Victim)->PirateRank + static_cast<std::uint8_t>(0)) * 0.1L + 1.0L));
             }
             RankReward = 10;
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 Experience = Experience / 2;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(4);
+            if (aRanger::TRanger* ranger_4 = pas::class_cast_if<aRanger::TRanger*>(Self)) {
+                ranger_4->AddWarriorCareerActivity(4);
             }
-        } else if (pas::class_cast_if<aKling::TKling*>(Victim) != nullptr) {
+        } else if (aKling::TKling* kling_3 = pas::class_cast_if<aKling::TKling*>(Victim)) {
             ++Self->DominatorKillCount;
             if (aPlayer::GetPlayer() == Self) {
-                ++aPlayer::GetPlayer()->DominatorKillsByType[pas::checked_cast<aKling::TKling*>(Victim)->KlingType];
+                ++aPlayer::GetPlayer()->DominatorKillsByType[kling_3->KlingType];
             }
             aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Dominator));
             RankReward = aConst::DominatorShipDefinitions[pas::checked_cast<aKling::TKling*>(Victim)->KlingType].RankPoints;
             Experience = System::Round(([&] {
-                pas::Extended cpp_left_5 = aConst::DominatorShipDefinitions[pas::checked_cast<aKling::TKling*>(Victim)->KlingType].KillExperience;
+                pas::Extended cpp_left_5 = aConst::DominatorShipDefinitions[static_cast<aKling::TKling*>(Victim)->KlingType].KillExperience;
                 return cpp_left_5 * aGalaxy::Galaxy->GetDominatorKillExperienceScale();
             }()));
             SourceKind = 1;
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
+            if (aRanger::TRanger* ranger_5 = pas::class_cast_if<aRanger::TRanger*>(Self)) {
                 if (aPlayer::GetPlayer() == Self) {
                     ActivityAmount = 4;
                 } else {
                     ActivityAmount = 8;
                 }
                 if (aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
-                    pas::checked_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(ActivityAmount);
+                    ranger_5->AddWarriorCareerActivity(ActivityAmount);
                 }
                 if (aPlayer::GetPlayer() == Self) {
                     aPlayer::GetPlayer()->TryAwardDominatorPrograms(Victim);
@@ -862,22 +862,22 @@ namespace aNormalShip {
             if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace()) {
                 {
                     std::uint16_t cpp_arg = static_cast<std::int32_t>(aConst::DominatorShipDefinitions[pas::checked_cast<aKling::TKling*>(Victim)->KlingType].RankPoints) / 2 + 1;
-                    TNormalShip* cpp_arg_2 = pas::checked_cast<TNormalShip*>(Self->PartnerShip);
+                    TNormalShip* cpp_arg_2 = static_cast<TNormalShip*>(Self->PartnerShip);
                     cpp_arg_2->AddRankPoints(cpp_arg);
                 }
                 if (pas::checked_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Dominator == 0) {
-                    ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Dominator;
+                    ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Dominator;
                 }
             }
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 PirateReward = aConst::DominatorShipDefinitions[pas::checked_cast<aKling::TKling*>(Victim)->KlingType].PirateRankPoints;
             }
         } else if (pas::class_cast_if<aWarrior::TWarrior*>(Victim) != nullptr) {
             aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Normal));
             if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
             }
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 {
                     pas::Extended cpp_left_6 = aMyFunction::NextRandomIntRange(250, 500, aGalaxy::Galaxy->RandomState);
                     Experience = System::Round(cpp_left_6 * (static_cast<std::int8_t>(reinterpret_cast<TNormalShip*>(Victim)->Rank + static_cast<std::uint8_t>(0)) * 0.1L + 1.0L));
@@ -889,65 +889,65 @@ namespace aNormalShip {
                     PirateReward = 16;
                 }
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
+            if (aRanger::TRanger* ranger_6 = pas::class_cast_if<aRanger::TRanger*>(Self)) {
                 if (aPlayer::GetPlayer() == Self) {
                     ActivityAmount = 8;
                 } else {
                     ActivityAmount = 2;
                 }
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddPirateCareerActivity(ActivityAmount);
+                ranger_6->AddPirateCareerActivity(ActivityAmount);
             }
         } else if (Victim->TypeId == aGalaxyStruct::stTransport) {
             aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Normal));
             if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
             }
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 PirateReward = 8;
             }
         } else if (pas::in_range(Victim->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && Victim->CurrentStanding == aGalaxyStruct::ssCoalitionMilitary) {
             aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Normal));
             if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
             }
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 PirateReward = 32;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
+            if (aRanger::TRanger* ranger_7 = pas::class_cast_if<aRanger::TRanger*>(Self)) {
                 if (aPlayer::GetPlayer() == Self) {
                     ActivityAmount = 8;
                 } else {
                     ActivityAmount = 2;
                 }
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddPirateCareerActivity(ActivityAmount);
+                ranger_7->AddPirateCareerActivity(ActivityAmount);
             }
         } else if (pas::in_range(Victim->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && Victim->CurrentStanding == aGalaxyStruct::ssCoalitionActive) {
             ++Self->CurrentSystemKills.Normal;
             if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
             }
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                 PirateReward = 24;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
+            if (aRanger::TRanger* ranger_8 = pas::class_cast_if<aRanger::TRanger*>(Self)) {
                 if (aPlayer::GetPlayer() == Self) {
                     ActivityAmount = 4;
                 } else {
                     ActivityAmount = 1;
                 }
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddPirateCareerActivity(ActivityAmount);
+                ranger_8->AddPirateCareerActivity(ActivityAmount);
             }
         } else if (pas::in_range(Victim->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && pas::in_range(Victim->CurrentStanding, aGalaxyStruct::ssCoalitionPassive, aGalaxyStruct::ssPiratePassive)) {
             if (Self->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfCoalition) {
                 aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Normal));
                 if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal == 0) {
-                    ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
+                    ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Normal;
                 }
             }
             if (Self->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
                 aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Pirate));
                 if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate == 0) {
-                    ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate;
+                    ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate;
                 }
             }
             if (Victim->TypeId != static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase) && pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
@@ -956,7 +956,7 @@ namespace aNormalShip {
                 } else {
                     ActivityAmount = 1;
                 }
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddPirateCareerActivity(ActivityAmount);
+                static_cast<aRanger::TRanger*>(Self)->AddPirateCareerActivity(ActivityAmount);
             }
             if (Victim->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase) && pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
                 if (aPlayer::GetPlayer() == Self) {
@@ -964,28 +964,28 @@ namespace aNormalShip {
                 } else {
                     ActivityAmount = 1;
                 }
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(ActivityAmount);
+                static_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(ActivityAmount);
             }
         } else if (pas::in_range(Victim->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && pas::in_range(Victim->CurrentStanding, aGalaxyStruct::ssPirateActive, aGalaxyStruct::ssPirateMilitary)) {
             if (Self->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
                 aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&Self->CurrentSystemKills.Pirate));
                 if (Self->PartnerShip != nullptr && pas::class_cast_if<TNormalShip*>(Self->PartnerShip) != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace() && static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate == 0) {
-                    ++reinterpret_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate;
+                    ++static_cast<TNormalShip*>(Self->PartnerShip)->CurrentSystemKills.Pirate;
                 }
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr) {
+            if (aRanger::TRanger* ranger_9 = pas::class_cast_if<aRanger::TRanger*>(Self)) {
                 if (aPlayer::GetPlayer() == Self) {
                     ActivityAmount = 4;
                 } else {
                     ActivityAmount = 1;
                 }
-                pas::checked_cast<aRanger::TRanger*>(Self)->AddWarriorCareerActivity(ActivityAmount);
+                ranger_9->AddWarriorCareerActivity(ActivityAmount);
             }
         }
         if (Victim->CurrentStanding != aGalaxyStruct::ssCustom) {
             if (aPlayer::GetPlayer() == Self && aPlayer::GetPlayer()->PirateLicenseTicks > 0) {
-                if (pas::class_cast_if<aWarrior::TWarrior*>(Victim) != nullptr) {
-                    if (pas::checked_cast<aWarrior::TWarrior*>(Victim)->WarriorType == aWarrior::wtFlagship) {
+                if (aWarrior::TWarrior* warrior_3 = pas::class_cast_if<aWarrior::TWarrior*>(Victim)) {
+                    if (warrior_3->WarriorType == aWarrior::wtFlagship) {
                         aPlayer::GetPlayer()->PirateLicenseCash += System::Round(pas::real_divide(aGalaxy::Galaxy->AverageRangerCapital, 2.0E+3L));
                     } else {
                         aPlayer::GetPlayer()->PirateLicenseCash += System::Round(pas::real_divide(aGalaxy::Galaxy->AverageRangerCapital, 6.0E+3L));
@@ -1000,12 +1000,12 @@ namespace aNormalShip {
             }
             RecordShipKillCategory(Self, Victim);
         }
-        if (pas::class_cast_if<aPirate::TPirate*>(Self) != nullptr) {
-            pas::checked_cast<aPirate::TPirate*>(Self)->RaidPressure = 0.0f;
+        if (aPirate::TPirate* pirate_3 = pas::class_cast_if<aPirate::TPirate*>(Self)) {
+            pirate_3->RaidPressure = 0.0f;
         }
         if (RankReward > 0 || Experience > 0 || PirateReward > 0) {
             if (RankReward > 0) {
-                if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (Self->OwnerId != aGalaxyStruct::oiPirate) {
                     Self->AddRankPoints(RankReward);
                 }
                 RankReward = RankReward / 2 + 1;
@@ -1013,11 +1013,11 @@ namespace aNormalShip {
             if (Experience > 0) {
                 Self->GainExperience(Experience, SourceKind);
                 if (Self->PartnerShip != nullptr && Self->PartnerShip->CurrentStar == Self->CurrentStar && Self->PartnerShip->InNormalSpace()) {
-                    SharedExperience = System::Round(Experience * aConst::LeadershipExperiencePercent[Self->PartnerShip->GetEffectiveSkillLevel(aShip::psLeadership, false) & 0x0000007f] * 0.01L);
+                    SharedExperience = System::Round(Experience * aConst::LeadershipExperiencePercent[Self->PartnerShip->GetEffectiveSkillLevel(aGalaxyStruct::psLeadership, false)] * 0.01L);
                     if (aPlayer::GetPlayer() == Self->PartnerShip) {
                         Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerGotExpFromPartner"_w, nullptr);
                         Event->AddData(Self->Id);
-                        Event->AddData(Self->PartnerShip->GetEffectiveSkillLevel(aShip::psLeadership, false));
+                        Event->AddData(Self->PartnerShip->GetEffectiveSkillLevel(aGalaxyStruct::psLeadership, false));
                         if (SourceKind == 1) {
                             ExperienceDelta = aPlayer::GetPlayer()->ExperienceByDominators;
                         } else if (SourceKind == 2) {
@@ -1045,7 +1045,7 @@ namespace aNormalShip {
                 Experience = Experience / 2 + 1;
             }
             if (PirateReward > 0) {
-                if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (Self->OwnerId == aGalaxyStruct::oiPirate) {
                     Self->AddPirateRankPoints(PirateReward);
                 }
                 PirateReward = PirateReward / 2 + 1;
@@ -1055,7 +1055,7 @@ namespace aNormalShip {
                 if (OtherShip == Self || static_cast<std::uint8_t>(OtherShip->InNormalSpace() ^ 1) || static_cast<std::uint8_t>(OtherShip->IsAttackingShip(Victim) ^ 1)) {
                     continue;
                 }
-                if (pas::class_cast_if<aTranclucator::TTranclucator*>(OtherShip) != nullptr && aPlayer::GetPlayer() == reinterpret_cast<aTranclucator::TTranclucator*>(OtherShip)->OwnerShip) {
+                if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(OtherShip); tranclucator != nullptr && aPlayer::GetPlayer() == tranclucator->OwnerShip) {
                     Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerTranclucatorAssistKillsShip"_w, nullptr);
                     Event->AddData(Victim->TypeId);
                     Event->AddData(Victim->CurrentStar->Id);
@@ -1068,14 +1068,14 @@ namespace aNormalShip {
                     Event->AddData(Victim->GetFullHullRelativeStrengthPercent());
                     Event->AddTextData(Victim->GetFullName(u" "_wref.get()));
                     Event->AddTextData(Victim->TypeNameOverrideKey);
-                    if (pas::class_cast_if<aKling::TKling*>(Victim) != nullptr) {
-                        Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Victim)->KlingType));
-                    } else if (pas::class_cast_if<aTransport::TTransport*>(Victim) != nullptr) {
-                        Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aTransport::TTransport*>(Victim)->TransportType));
-                    } else if (pas::class_cast_if<aWarrior::TWarrior*>(Victim) != nullptr) {
-                        Event->AddData(pas::checked_cast<aWarrior::TWarrior*>(Victim)->WarriorType);
-                    } else if (pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr) {
-                        Event->AddData(pas::checked_cast<aPirate::TPirate*>(Victim)->PirateType);
+                    if (aKling::TKling* kling_4 = pas::class_cast_if<aKling::TKling*>(Victim)) {
+                        Event->AddData(static_cast<std::uint8_t>(kling_4->KlingType));
+                    } else if (aTransport::TTransport* transport_3 = pas::class_cast_if<aTransport::TTransport*>(Victim)) {
+                        Event->AddData(static_cast<std::uint8_t>(transport_3->TransportType));
+                    } else if (aWarrior::TWarrior* warrior_4 = pas::class_cast_if<aWarrior::TWarrior*>(Victim)) {
+                        Event->AddData(warrior_4->WarriorType);
+                    } else if (aPirate::TPirate* pirate_4 = pas::class_cast_if<aPirate::TPirate*>(Victim)) {
+                        Event->AddData(pirate_4->PirateType);
                     } else {
                         Event->AddData(0);
                     }
@@ -1083,7 +1083,7 @@ namespace aNormalShip {
                 if (!(pas::class_cast_if<TNormalShip*>(OtherShip) != nullptr)) {
                     continue;
                 }
-                OtherNormal = reinterpret_cast<TNormalShip*>(OtherShip);
+                OtherNormal = static_cast<TNormalShip*>(OtherShip);
                 if (aPlayer::GetPlayer() == OtherShip) {
                     Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerAssistKillsShip"_w, nullptr);
                     Event->AddData(Victim->TypeId);
@@ -1094,14 +1094,14 @@ namespace aNormalShip {
                     Event->AddData(Victim->GetFullHullRelativeStrengthPercent());
                     Event->AddTextData(Victim->GetFullName(u" "_wref.get()));
                     Event->AddTextData(Victim->TypeNameOverrideKey);
-                    if (pas::class_cast_if<aKling::TKling*>(Victim) != nullptr) {
-                        Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Victim)->KlingType));
-                    } else if (pas::class_cast_if<aTransport::TTransport*>(Victim) != nullptr) {
-                        Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aTransport::TTransport*>(Victim)->TransportType));
-                    } else if (pas::class_cast_if<aWarrior::TWarrior*>(Victim) != nullptr) {
-                        Event->AddData(pas::checked_cast<aWarrior::TWarrior*>(Victim)->WarriorType);
-                    } else if (pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr) {
-                        Event->AddData(pas::checked_cast<aPirate::TPirate*>(Victim)->PirateType);
+                    if (aKling::TKling* kling_5 = pas::class_cast_if<aKling::TKling*>(Victim)) {
+                        Event->AddData(static_cast<std::uint8_t>(kling_5->KlingType));
+                    } else if (aTransport::TTransport* transport_4 = pas::class_cast_if<aTransport::TTransport*>(Victim)) {
+                        Event->AddData(static_cast<std::uint8_t>(transport_4->TransportType));
+                    } else if (aWarrior::TWarrior* warrior_5 = pas::class_cast_if<aWarrior::TWarrior*>(Victim)) {
+                        Event->AddData(warrior_5->WarriorType);
+                    } else if (aPirate::TPirate* pirate_5 = pas::class_cast_if<aPirate::TPirate*>(Victim)) {
+                        Event->AddData(pirate_5->PirateType);
                     } else {
                         Event->AddData(0);
                     }
@@ -1120,28 +1120,28 @@ namespace aNormalShip {
                     Event->AddData(Victim->GetFullHullRelativeStrengthPercent());
                     Event->AddTextData(Victim->GetFullName(u" "_wref.get()));
                     Event->AddTextData(Victim->TypeNameOverrideKey);
-                    if (pas::class_cast_if<aKling::TKling*>(Victim) != nullptr) {
-                        Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Victim)->KlingType));
-                    } else if (pas::class_cast_if<aTransport::TTransport*>(Victim) != nullptr) {
-                        Event->AddData(static_cast<std::uint8_t>(pas::checked_cast<aTransport::TTransport*>(Victim)->TransportType));
-                    } else if (pas::class_cast_if<aWarrior::TWarrior*>(Victim) != nullptr) {
-                        Event->AddData(pas::checked_cast<aWarrior::TWarrior*>(Victim)->WarriorType);
-                    } else if (pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr) {
-                        Event->AddData(pas::checked_cast<aPirate::TPirate*>(Victim)->PirateType);
+                    if (aKling::TKling* kling_6 = pas::class_cast_if<aKling::TKling*>(Victim)) {
+                        Event->AddData(static_cast<std::uint8_t>(kling_6->KlingType));
+                    } else if (aTransport::TTransport* transport_5 = pas::class_cast_if<aTransport::TTransport*>(Victim)) {
+                        Event->AddData(static_cast<std::uint8_t>(transport_5->TransportType));
+                    } else if (aWarrior::TWarrior* warrior_6 = pas::class_cast_if<aWarrior::TWarrior*>(Victim)) {
+                        Event->AddData(warrior_6->WarriorType);
+                    } else if (aPirate::TPirate* pirate_6 = pas::class_cast_if<aPirate::TPirate*>(Victim)) {
+                        Event->AddData(pirate_6->PirateType);
                     } else {
                         Event->AddData(0);
                     }
                 }
-                if (pas::class_cast_if<aPirate::TPirate*>(OtherNormal) != nullptr) {
-                    pas::checked_cast<aPirate::TPirate*>(OtherNormal)->RaidPressure = 0.0f;
+                if (aPirate::TPirate* pirate_7 = pas::class_cast_if<aPirate::TPirate*>(OtherNormal)) {
+                    pirate_7->RaidPressure = 0.0f;
                 }
-                if (RankReward > 0 && OtherNormal->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (RankReward > 0 && OtherNormal->OwnerId != aGalaxyStruct::oiPirate) {
                     OtherNormal->AddRankPoints(RankReward);
                 }
                 if (Experience > 0) {
                     OtherNormal->GainExperience(Experience, SourceKind);
                 }
-                if (PirateReward > 0 && OtherNormal->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (PirateReward > 0 && OtherNormal->OwnerId == aGalaxyStruct::oiPirate) {
                     OtherNormal->AddPirateRankPoints(PirateReward);
                 }
                 ++OtherNormal->TotalShipKillCount;
@@ -1154,18 +1154,18 @@ namespace aNormalShip {
                         ++aPlayer::GetPlayer()->DominatorKillsByType[pas::checked_cast<aKling::TKling*>(Victim)->KlingType];
                     }
                 } else if (pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr || pas::class_cast_if<aRanger::TRanger*>(Victim) != nullptr && static_cast<aRanger::TRanger*>(Victim)->GetDominantCareer() == aGalaxyStruct::rcPirate) {
-                    if (Victim->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(QuestTargetKill ^ 1)) {
+                    if (Victim->OwnerId == aGalaxyStruct::oiPirate && static_cast<std::uint8_t>(QuestTargetKill ^ 1)) {
                         aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&OtherNormal->CurrentSystemKills.Pirate));
                     }
                     ++OtherNormal->PirateKillCount;
                     if (aPlayer::GetPlayer() == OtherShip && pas::class_cast_if<aPirate::TPirate*>(Victim) != nullptr) {
                         Achievements::TryAddAchievementProgress(u"SHIELD"_w, 1);
                     }
-                } else if (pas::class_cast_if<TNormalShip*>(Victim) != nullptr && pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), Victim->OwnerId)) {
+                } else if (pas::class_cast_if<TNormalShip*>(Victim) != nullptr && pas::contains(aConst::PlanetOwnerMasks.Coalition, Victim->OwnerId)) {
                     if (!QuestTargetKill) {
                         aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(&OtherNormal->CurrentSystemKills.Normal));
                     }
-                } else if (pas::in_range(Victim->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[Self->CurrentStar->Status.ControlFaction]), Victim->CurrentStanding)) {
+                } else if (pas::in_range(Victim->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && pas::contains(aConst::FactionStandingMasks[Self->CurrentStar->Status.ControlFaction], Victim->CurrentStanding)) {
                     aConst::IncrementWordSaturating(pas::Var<std::uint16_t>(pas::byte_offset(&OtherNormal->CurrentSystemKills, Self->CurrentStar->Status.ControlFaction * sizeof(std::uint16_t))));
                 }
                 RecordShipKillCategory(OtherNormal, Victim);
@@ -1231,10 +1231,10 @@ namespace aNormalShip {
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
-            if (pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr && Ship != Self && Ship->InNormalSpace()) {
-                Ranger = pas::checked_cast<aRanger::TRanger*>(Ship);
-                if (pas::class_cast_if<aShip::TShip*>(Ranger->OrderTarget) != nullptr && Ranger->OrderTarget == Ranger->EnemyShip) {
-                    Target = pas::checked_cast<aShip::TShip*>(Ranger->OrderTarget);
+            if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship); ranger != nullptr && Ship != Self && Ship->InNormalSpace()) {
+                Ranger = ranger;
+                if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Ranger->OrderTarget); ship != nullptr && Ranger->OrderTarget == Ranger->EnemyShip) {
+                    Target = ship;
                     if (aShip::TShip_GetRelationLevelToShip(Self, Target) == aGalaxyStruct::rlExcellent) {
                         if (aPlayer::GetPlayer() == Ship || aMyFunction::NextRandomUnitFloat(Self->RandomState) <= 0.1L) {
                             Change = Target->OrderTarget != Ranger && aShip::TShip_GetRelationLevelToShip(Target, Ranger) == aGalaxyStruct::rlHostile;
@@ -1254,20 +1254,20 @@ namespace aNormalShip {
     }
 
     // Returns 255 when no award qualifies; retries duplicates twice.
-    std::uint8_t TNormalShip::SelectAward(std::uint8_t Owner, TAwardTypeMask Kinds, aGalaxyStruct::TShipTypeMask VictimTypes) {
+    std::uint8_t TNormalShip::SelectAward(aGalaxyStruct::TOwnerId Owner, TAwardTypeMask Kinds, aGalaxyStruct::TShipTypeMask VictimTypes) {
         std::uint8_t Result{};
         std::int32_t I{};
         pas::WideString KillName{};
         pas::List* Candidates = pas::make_object<pas::List>();
         std::int32_t Count = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"Reward.Count"_wref.get()))) - 1;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count); cpp_range.next(I); ) {
-            if (aConst::MatchesOwnerName(Owner, GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(I), ".Race"})))) && pas::contains(Kinds, aConst::SysToReward(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(I), ".Type"}))))) && ([&] {
+            if (aConst::MatchesOwnerName(Owner, pas::view(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(I), ".Race"}))))) && pas::contains(Kinds, aConst::SysToReward(pas::view(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(I), ".Type"})))))) && ([&] {
                 const pas::WideString& lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(I), ".Status"})));
-                std::uint8_t dominantCareer = static_cast<std::uint8_t>(GetDominantCareer());
-                return aConst::MatchesCareerName(dominantCareer, lookupLocalizedTextByKey);
+                aGalaxyStruct::TRangerCareer dominantCareer = GetDominantCareer();
+                return aConst::MatchesCareerName(dominantCareer, pas::view(lookupLocalizedTextByKey));
             }())) {
                 KillName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(I), ".Kill"})));
-                if (KillName.length() == 0 || pas::contains(VictimTypes, aConst::SysToShipType(KillName))) {
+                if (KillName.length() == 0 || pas::contains(VictimTypes, aConst::SysToShipType(pas::view(KillName)))) {
                     pas::list_add(Candidates, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(I))));
                 }
             }
@@ -1475,8 +1475,8 @@ namespace aNormalShip {
                 if (!(pas::class_cast_if<aPlanet::TPlanet*>(Self->OrderTarget) != nullptr)) {
                     continue;
                 }
-                Planet = pas::checked_cast<aPlanet::TPlanet*>(Self->OrderTarget);
-                if (!pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
+                Planet = static_cast<aPlanet::TPlanet*>(Self->OrderTarget);
+                if (!pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
                     continue;
                 }
                 if (Self->CurrentStar->Status.CustomFaction != u"") {
@@ -1485,9 +1485,9 @@ namespace aNormalShip {
                 if (Definitions[EntryIndex].ToPlanetRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToPlanetRace, Planet->RaceId) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToPlanetRelations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                    std::uint8_t cpp_element = static_cast<std::uint8_t>(Planet->GetRelationLevelToShip(aPlayer::GetPlayer()));
-                    const Globals::TGreetingMask& cpp_set = Definitions[EntryIndex].ToPlanetRelations;
+                if (Definitions[EntryIndex].ToPlanetRelations != pas::constant_set<aGalaxyStruct::TRelationLevels>({}) && static_cast<std::uint8_t>(([&] {
+                    aGalaxyStruct::TRelationLevel cpp_element = Planet->GetRelationLevelToShip(aPlayer::GetPlayer());
+                    const aGalaxyStruct::TRelationLevels& cpp_set = Definitions[EntryIndex].ToPlanetRelations;
                     return pas::contains(cpp_set, cpp_element);
                 }()) ^ 1)) {
                     continue;
@@ -1528,17 +1528,17 @@ namespace aNormalShip {
                 if (Definitions[EntryIndex].ToPlanetRaceIsPlayerRace != 2 && (Definitions[EntryIndex].ToPlanetRaceIsPlayerRace == 0 && !(aPlayer::GetPlayer()->PilotRace == Planet->RaceId) || Definitions[EntryIndex].ToPlanetRaceIsPlayerRace == 1 && aPlayer::GetPlayer()->PilotRace == Planet->RaceId)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToPlanetEconomy != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToPlanetEconomy, static_cast<std::uint8_t>(Planet->Economy)) ^ 1)) {
+                if (Definitions[EntryIndex].ToPlanetEconomy != pas::constant_set<aGalaxyStruct::TPlanetEconomies>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToPlanetEconomy, Planet->Economy) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToPlanetGovernment != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToPlanetGovernment, static_cast<std::uint8_t>(Planet->Government)) ^ 1)) {
+                if (Definitions[EntryIndex].ToPlanetGovernment != pas::constant_set<aGalaxyStruct::TPlanetGovernments>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToPlanetGovernment, Planet->Government) ^ 1)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToPlanetIsLastPlanet != 2 && (Definitions[EntryIndex].ToPlanetIsLastPlanet == 0 && !(Self->LastDockedPlanet == Planet) || Definitions[EntryIndex].ToPlanetIsLastPlanet == 1 && Self->LastDockedPlanet == Planet)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace != 2) {
-                    if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
+                    if (!pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Self->LastDockedPlanet->OwnerId)) {
                         continue;
                     }
                     if (Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace == 0 && !(Planet->RaceId == Self->LastDockedPlanet->RaceId) || Definitions[EntryIndex].ToPlanetRaceIsLastPlanetRace == 1 && Planet->RaceId == Self->LastDockedPlanet->RaceId) {
@@ -1572,8 +1572,8 @@ namespace aNormalShip {
                     }
                     if (CountMask != pas::constant_set<aGalaxyStruct::TGreetingCountMask>({})) {
                         Count = 0;
-                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Ships) - 1); cpp_range_2.next(K); ) {
-                            Other = pas::list_at<aShip::TShip>(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Ships, K);
+                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Ships) - 1); cpp_range_2.next(K); ) {
+                            Other = pas::list_at<aShip::TShip>(static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Ships, K);
                             if (static_cast<std::uint8_t>(Other->HasScriptStateText() ^ 1) && Other->TypeNameOverrideKey == u"" && Other->TypeId == ShipKind) {
                                 ++Count;
                             }
@@ -1589,22 +1589,22 @@ namespace aNormalShip {
                     continue;
                 }
                 if (Definitions[EntryIndex].ToStarControlByKling != 2) {
-                    if (pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.CustomFaction != u"") {
+                    if (static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.CustomFaction != u"") {
                         continue;
                     }
-                    if (Definitions[EntryIndex].ToStarControlByKling == 0 && !(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) || Definitions[EntryIndex].ToStarControlByKling == 1 && pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) {
+                    if (Definitions[EntryIndex].ToStarControlByKling == 0 && !(static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) || Definitions[EntryIndex].ToStarControlByKling == 1 && static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfDominators) {
                         continue;
                     }
                 }
                 if (Definitions[EntryIndex].ToStarControlByPirates != 2) {
-                    if (pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.CustomFaction != u"") {
+                    if (static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.CustomFaction != u"") {
                         continue;
                     }
-                    if (Definitions[EntryIndex].ToStarControlByPirates == 0 && !(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) || Definitions[EntryIndex].ToStarControlByPirates == 1 && pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) {
+                    if (Definitions[EntryIndex].ToStarControlByPirates == 0 && !(static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) || Definitions[EntryIndex].ToStarControlByPirates == 1 && static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.ControlFaction == aGalaxyStruct::sfPirates) {
                         continue;
                     }
                 }
-                if (Definitions[EntryIndex].ToStarInBattle != 2 && (Definitions[EntryIndex].ToStarInBattle == 0 && !(pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.Battle != 0) || Definitions[EntryIndex].ToStarInBattle == 1 && pas::checked_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.Battle != 0)) {
+                if (Definitions[EntryIndex].ToStarInBattle != 2 && (Definitions[EntryIndex].ToStarInBattle == 0 && !(static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.Battle != 0) || Definitions[EntryIndex].ToStarInBattle == 1 && static_cast<aGalaxy::TStar*>(Self->OrderTarget)->Status.Battle != 0)) {
                     continue;
                 }
                 MessageText = aConst::LocalizedColorText(pas::concat_wide({u"ShipGreetings.", Definitions[EntryIndex].Name, u".Text"}));
@@ -1638,21 +1638,21 @@ namespace aNormalShip {
                 if (!(pas::class_cast_if<aShip::TShip*>(Self->OrderTarget) != nullptr)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipType != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipType, pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->GetGreetingShipCategory()) ^ 1)) {
+                if (Definitions[EntryIndex].ToShipType != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipType, static_cast<aShip::TShip*>(Self->OrderTarget)->GetGreetingShipCategory()) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipRace, pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->PilotRace) ^ 1)) {
+                if (Definitions[EntryIndex].ToShipRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ToShipRace, static_cast<aShip::TShip*>(Self->OrderTarget)->PilotRace) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipInPlanet != 2 && (Definitions[EntryIndex].ToShipInPlanet == 0 && !(pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet != nullptr) || Definitions[EntryIndex].ToShipInPlanet == 1 && pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet != nullptr)) {
+                if (Definitions[EntryIndex].ToShipInPlanet != 2 && (Definitions[EntryIndex].ToShipInPlanet == 0 && !(static_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet != nullptr) || Definitions[EntryIndex].ToShipInPlanet == 1 && static_cast<aShip::TShip*>(Self->OrderTarget)->CurrentPlanet != nullptr)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipBad != 2 && (Definitions[EntryIndex].ToShipBad == 0 && !(pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->EnemyShip == Self) || Definitions[EntryIndex].ToShipBad == 1 && pas::checked_cast<aShip::TShip*>(Self->OrderTarget)->EnemyShip == Self)) {
+                if (Definitions[EntryIndex].ToShipBad != 2 && (Definitions[EntryIndex].ToShipBad == 0 && !(static_cast<aShip::TShip*>(Self->OrderTarget)->EnemyShip == Self) || Definitions[EntryIndex].ToShipBad == 1 && static_cast<aShip::TShip*>(Self->OrderTarget)->EnemyShip == Self)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].ToShipRelations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                    std::uint8_t cpp_element_4 = static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Self, pas::checked_cast<aShip::TShip*>(Self->OrderTarget)));
-                    const Globals::TGreetingMask& cpp_set_4 = Definitions[EntryIndex].ToShipRelations;
+                if (Definitions[EntryIndex].ToShipRelations != pas::constant_set<aGalaxyStruct::TRelationLevels>({}) && static_cast<std::uint8_t>(([&] {
+                    aGalaxyStruct::TRelationLevel cpp_element_4 = aShip::TShip_GetRelationLevelToShip(Self, pas::checked_cast<aShip::TShip*>(Self->OrderTarget));
+                    const aGalaxyStruct::TRelationLevels& cpp_set_4 = Definitions[EntryIndex].ToShipRelations;
                     return pas::contains(cpp_set_4, cpp_element_4);
                 }()) ^ 1)) {
                     continue;
@@ -1667,9 +1667,9 @@ namespace aNormalShip {
             if (Definitions[EntryIndex].ShipType != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipType, Self->GetGreetingShipCategory()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].Relations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                std::uint8_t cpp_element_5 = static_cast<std::uint8_t>(aShip::TShip_GetRelationLevelToShip(Self, aPlayer::GetPlayer()));
-                const Globals::TGreetingMask& cpp_set_5 = Definitions[EntryIndex].Relations;
+            if (Definitions[EntryIndex].Relations != pas::constant_set<aGalaxyStruct::TRelationLevels>({}) && static_cast<std::uint8_t>(([&] {
+                aGalaxyStruct::TRelationLevel cpp_element_5 = aShip::TShip_GetRelationLevelToShip(Self, aPlayer::GetPlayer());
+                const aGalaxyStruct::TRelationLevels& cpp_set_5 = Definitions[EntryIndex].Relations;
                 return pas::contains(cpp_set_5, cpp_element_5);
             }()) ^ 1)) {
                 continue;
@@ -1744,10 +1744,10 @@ namespace aNormalShip {
                     continue;
                 }
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr && Definitions[EntryIndex].ShipStatus != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStatus, static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(Self)->GetDominantCareer())) ^ 1)) {
+            if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Self); ranger != nullptr && Definitions[EntryIndex].ShipStatus != pas::constant_set<aGalaxyStruct::TRangerCareerSet>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStatus, ranger->GetDominantCareer()) ^ 1)) {
                 continue;
             }
-            if (Definitions[EntryIndex].PlayerStatus != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerStatus, static_cast<std::uint8_t>(aPlayer::GetPlayer()->GetDominantCareer())) ^ 1)) {
+            if (Definitions[EntryIndex].PlayerStatus != pas::constant_set<aGalaxyStruct::TRangerCareerSet>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerStatus, aPlayer::GetPlayer()->GetDominantCareer()) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].ShipStrength != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipStrength, Self->GetRelativeStrengthCategory()) ^ 1)) {
@@ -1762,7 +1762,7 @@ namespace aNormalShip {
             if (Definitions[EntryIndex].PlayerStructure != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerStructure, aPlayer::GetPlayer()->GetHullConditionCategory()) ^ 1)) {
                 continue;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr && static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(Self)->ExcludedFromRating ^ 1) && Definitions[EntryIndex].ShipRating != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRating, Self->GetRangerRatingBand()) ^ 1)) {
+            if (aRanger::TRanger* ranger_2 = pas::class_cast_if<aRanger::TRanger*>(Self); ranger_2 != nullptr && static_cast<std::uint8_t>(ranger_2->ExcludedFromRating ^ 1) && Definitions[EntryIndex].ShipRating != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].ShipRating, Self->GetRangerRatingBand()) ^ 1)) {
                 continue;
             }
             if (Definitions[EntryIndex].PlayerRating != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerRating, aPlayer::GetPlayer()->GetRangerRatingBand()) ^ 1)) {
@@ -1777,7 +1777,7 @@ namespace aNormalShip {
             if (Definitions[EntryIndex].PlayerPirateRank != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].PlayerPirateRank, aPlayer::GetPlayer()->PirateRank) ^ 1)) {
                 continue;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Self) != nullptr && static_cast<std::uint8_t>(static_cast<aRanger::TRanger*>(Self)->ExcludedFromRating ^ 1) && Definitions[EntryIndex].RatingShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
+            if (aRanger::TRanger* ranger_3 = pas::class_cast_if<aRanger::TRanger*>(Self); ranger_3 != nullptr && static_cast<std::uint8_t>(ranger_3->ExcludedFromRating ^ 1) && Definitions[EntryIndex].RatingShipWithPlayer != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
                 std::uint8_t cpp_element_6 = (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetShipRatingComparison(Self));
                 const Globals::TGreetingMask& cpp_set_6 = Definitions[EntryIndex].RatingShipWithPlayer;
                 return pas::contains(cpp_set_6, cpp_element_6);
@@ -1847,7 +1847,7 @@ namespace aNormalShip {
                 if (Self->LastDockedPlanet == nullptr) {
                     continue;
                 }
-                if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
+                if (!pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Self->LastDockedPlanet->OwnerId)) {
                     continue;
                 }
                 if (Self->LastDockedPlanet->CurrentStar->Status.CustomFaction != u"") {
@@ -1856,9 +1856,9 @@ namespace aNormalShip {
                 if (!pas::contains(Definitions[EntryIndex].LastPlanetRace, Self->LastDockedPlanet->RaceId)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].LastPlanetRelations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                    std::uint8_t cpp_element_7 = static_cast<std::uint8_t>(Self->LastDockedPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()));
-                    const Globals::TGreetingMask& cpp_set_7 = Definitions[EntryIndex].LastPlanetRelations;
+                if (Definitions[EntryIndex].LastPlanetRelations != pas::constant_set<aGalaxyStruct::TRelationLevels>({}) && static_cast<std::uint8_t>(([&] {
+                    aGalaxyStruct::TRelationLevel cpp_element_7 = Self->LastDockedPlanet->GetRelationLevelToShip(aPlayer::GetPlayer());
+                    const aGalaxyStruct::TRelationLevels& cpp_set_7 = Definitions[EntryIndex].LastPlanetRelations;
                     return pas::contains(cpp_set_7, cpp_element_7);
                 }()) ^ 1)) {
                     continue;
@@ -1894,7 +1894,7 @@ namespace aNormalShip {
                     continue;
                 }
                 if (Definitions[EntryIndex].LastPlanetRaceIsShipRace != 2) {
-                    if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
+                    if (!pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Self->LastDockedPlanet->OwnerId)) {
                         continue;
                     }
                     if (Definitions[EntryIndex].LastPlanetRaceIsShipRace == 0 && !(Self->LastDockedPlanet->RaceId == Self->PilotRace) || Definitions[EntryIndex].LastPlanetRaceIsShipRace == 1 && Self->LastDockedPlanet->RaceId == Self->PilotRace) {
@@ -1902,17 +1902,17 @@ namespace aNormalShip {
                     }
                 }
                 if (Definitions[EntryIndex].LastPlanetRaceIsPlayerRace != 2) {
-                    if (!pas::in_set<0, 4, 7, 7>(Self->LastDockedPlanet->OwnerId)) {
+                    if (!pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Self->LastDockedPlanet->OwnerId)) {
                         continue;
                     }
                     if (Definitions[EntryIndex].LastPlanetRaceIsPlayerRace == 0 && !(aPlayer::GetPlayer()->PilotRace == Self->LastDockedPlanet->RaceId) || Definitions[EntryIndex].LastPlanetRaceIsPlayerRace == 1 && aPlayer::GetPlayer()->PilotRace == Self->LastDockedPlanet->RaceId) {
                         continue;
                     }
                 }
-                if (Definitions[EntryIndex].LastPlanetEconomy != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetEconomy, static_cast<std::uint8_t>(Self->LastDockedPlanet->Economy)) ^ 1)) {
+                if (Definitions[EntryIndex].LastPlanetEconomy != pas::constant_set<aGalaxyStruct::TPlanetEconomies>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetEconomy, Self->LastDockedPlanet->Economy) ^ 1)) {
                     continue;
                 }
-                if (Definitions[EntryIndex].LastPlanetGovernment != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetGovernment, static_cast<std::uint8_t>(Self->LastDockedPlanet->Government)) ^ 1)) {
+                if (Definitions[EntryIndex].LastPlanetGovernment != pas::constant_set<aGalaxyStruct::TPlanetGovernments>({}) && static_cast<std::uint8_t>(pas::contains(Definitions[EntryIndex].LastPlanetGovernment, Self->LastDockedPlanet->Government) ^ 1)) {
                     continue;
                 }
                 if (Definitions[EntryIndex].LastPlanetInCurStar != 2 && (Definitions[EntryIndex].LastPlanetInCurStar == 0 && !(Self->LastDockedPlanet->CurrentStar == Self->CurrentStar) || Definitions[EntryIndex].LastPlanetInCurStar == 1 && Self->LastDockedPlanet->CurrentStar == Self->CurrentStar)) {
@@ -2000,14 +2000,14 @@ namespace aNormalShip {
     void TNormalShip::TrainSkillsAutomatically() {
         float Score{};
         float BestScore{};
-        aShip::TPilotSkill Skill{};
-        aShip::TPilotSkill BestSkill{};
+        aGalaxyStruct::TPilotSkill Skill{};
+        aGalaxyStruct::TPilotSkill BestSkill{};
         std::uint8_t Bonus{};
         do {
             BestScore = -1.0f;
-            BestSkill = aShip::psAccuracy;
+            BestSkill = aGalaxyStruct::psAccuracy;
             for (Bonus = static_cast<std::uint8_t>(22); Bonus <= static_cast<std::uint8_t>(27); ++Bonus) {
-                Skill = static_cast<aShip::TPilotSkill>(aConst::EquipmentBonusSkills[Bonus - 22]);
+                Skill = aConst::EquipmentBonusSkills[Bonus - 22];
                 if (BaseSkills[Skill] < 6) {
                     {
                         pas::Extended cpp_left = pas::sqr(static_cast<pas::Extended>(EvaluateStatBonus(static_cast<aConst::TEquipmentBonusKind>(Bonus), 1)));

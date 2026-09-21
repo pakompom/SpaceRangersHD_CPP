@@ -37,13 +37,13 @@ namespace GR_Music {
             Weight = 0;
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
                 if (Block->GetParamValue(Index) != u"") {
-                    Weight += EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+                    Weight += EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
                 }
             }
             Weight = pas::random(Weight, &System::RandSeed);
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(Index); ) {
                 if (Block->GetParamValue(Index) != u"") {
-                    Weight -= EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+                    Weight -= EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
                     if (Weight < 0) {
                         Result = EC_Str::TrimWideString(EC_Str::LowerCaseWideString(Block->GetParamValue(Index)));
                         GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Result));

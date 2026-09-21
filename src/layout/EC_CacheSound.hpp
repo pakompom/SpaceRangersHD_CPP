@@ -16,8 +16,15 @@ namespace EC_CacheSound {
     static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TCSoundEC, SampleData) == 52);
     static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TCSoundEC, SampleDataSize) == 56);
     static_assert(sizeof(void*) != 4 || sizeof(EC_CacheSound::TWaveFileHeader) == 44);
+    static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, RiffId) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, RiffSize) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, WaveId) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, FormatId) == 12);
+    static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, FormatSize) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, FormatTag) == 20);
     static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, Channels) == 22);
     static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, SamplesPerSecond) == 24);
+    static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, AverageBytesPerSecond) == 28);
     static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, BlockAlign) == 32);
     static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, BitsPerSample) == 34);
     static_assert(sizeof(void*) != 4 || offsetof(EC_CacheSound::TWaveFileHeader, DataId) == 36);

@@ -38,6 +38,10 @@ namespace aKling {
 
     extern aPlanet::TPlanet* DominatorSpawnPlanet;
 
+    // Native ANSI exception text contains UTF-8 bytes; ordinary Russian literals
+    // compile to Windows-1251. Text: Клинг выпустился со скоростью 0
+    extern const pas::WideString DominatorZeroSpeedError;
+
     void TKling_Destroy(TKling* Self);
 
     void TKling_ResolveLoadedReferences(TKling* Self, aGalaxy::TGalaxy* Galaxy);

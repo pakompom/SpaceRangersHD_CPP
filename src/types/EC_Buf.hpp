@@ -2,6 +2,11 @@
 #include "runtime_support.hpp"
 #include "types/EC_Struct.hpp"
 
+namespace EC_Buf {
+    struct TEncodedTableHeaderEC;
+
+} // namespace EC_Buf
+
 namespace EC_File {
     struct TFileEC;
 
@@ -103,6 +108,19 @@ namespace EC_Buf {
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
     #endif
+
+    // Shared disk header in score.dat and achievements.dat, after zlib expansion.
+    // The XOR stream starts at Checksum; the checksum covers the following payload.
+    #pragma pack(push, 1)
+    struct TEncodedTableHeaderEC {
+        std::int32_t Version;
+        std::uint16_t SeedHighWord;
+        std::uint16_t SeedLowWord;
+        std::uint32_t Checksum;
+    };
+    #pragma pack(pop)
+
+    using PEncodedTableHeaderEC = TEncodedTableHeaderEC*;
 
     inline constexpr std::int32_t BufferGrowthSlack = 256;
 

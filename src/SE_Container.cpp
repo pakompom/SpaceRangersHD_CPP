@@ -21,7 +21,7 @@ namespace SE_Container {
     void TContainerSE::CopyTo(SE_Space::TObjectSE* Destination) {
         SE_Space::TObjectSE::CopyTo(Destination);
         pas::checked_cast<TContainerSE*>(Destination)->ImagePath = ImagePath;
-        pas::checked_cast<TContainerSE*>(Destination)->MinimapImagePath = MinimapImagePath;
+        static_cast<TContainerSE*>(Destination)->MinimapImagePath = MinimapImagePath;
     }
 
     void TContainerSE::AttachToSpace(SE_Space::TSpaceSE* ASpace) {
@@ -108,8 +108,8 @@ namespace SE_Container {
 
     void TContainerSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(pas::concat_wide({GR_Main::GiResourceSuffix(), u"Image"}));
-        MinimapImagePath = Block->GetParam(u"ImageMap"_wref.get());
+        ImagePath = Block->GetParam(pas::view(pas::concat_wide({GR_Main::GiResourceSuffix(), u"Image"})));
+        MinimapImagePath = Block->GetParam(u"ImageMap"sv);
     }
 
     void TContainerSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {

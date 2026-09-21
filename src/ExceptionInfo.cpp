@@ -30,8 +30,8 @@ namespace ExceptionInfo {
         if (pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(E) != nullptr) {
             Handled = false;
         } else {
-            if (pas::class_cast_if<BlockParException::EBlockPar*>(E) != nullptr) {
-                if (!pas::checked_cast<BlockParException::EBlockPar*>(E)->IsReportable()) {
+            if (BlockParException::EBlockPar* eBlockPar = pas::class_cast_if<BlockParException::EBlockPar*>(E)) {
+                if (!eBlockPar->IsReportable()) {
                     Handled = false;
                 }
             }

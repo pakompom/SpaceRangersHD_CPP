@@ -681,45 +681,45 @@ namespace GI_Label {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"sv));
         }
         Self->LoadTextLinesFromBlockParam(Block, u"Text"_wref.get());
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            Self->SetEmbeddedImagePath(Block->GetParam(u"Image"_wref.get()));
+            Self->SetEmbeddedImagePath(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"ImageKindX"_wref.get()) > 0) {
-            Self->SetEmbeddedImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"ImageKindX"_wref.get())));
+            Self->SetEmbeddedImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"ImageKindX"sv))));
         }
         if (Block->CountParams(u"ImageKindY"_wref.get()) > 0) {
-            Self->SetEmbeddedImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"ImageKindY"_wref.get())));
+            Self->SetEmbeddedImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"ImageKindY"sv))));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
-            Self->SetTextColor(GI_Main::GetColorGI(Block->GetParam(u"TextColor"_wref.get())));
+            Self->SetTextColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"TextColor"sv))));
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
-            if (Block->GetParam(u"Border"_wref.get()) == u"True") {
+            if (Block->GetParam(u"Border"sv) == u"True") {
                 Self->BorderEnabled = true;
             } else {
                 Self->BorderEnabled = false;
             }
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
-            Self->SetBorderLightColor(GI_Main::GetColorGI(Block->GetParam(u"BorderLightColor"_wref.get())));
+            Self->SetBorderLightColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"BorderLightColor"sv))));
             Self->SetBorderDarkColor(Self->BorderLightColor);
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
-            Self->SetBorderDarkColor(GI_Main::GetColorGI(Block->GetParam(u"BorderDarkColor"_wref.get())));
+            Self->SetBorderDarkColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"BorderDarkColor"sv))));
         }
         if (Block->CountParams(u"WordWrap"_wref.get()) > 0) {
-            Self->SetWordWrapEnabled(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"WordWrap"_wref.get()))));
+            Self->SetWordWrapEnabled(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"WordWrap"sv)))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
-            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignY"_wref.get()));
-            Self->SetTextAlignY(GI_Main::ParseTextAlignYName(Alignment));
+            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignY"sv));
+            Self->SetTextAlignY(GI_Main::ParseTextAlignYName(pas::view(Alignment)));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignX"_wref.get()));
-            Self->SetTextAlignX(GI_Main::ParseTextAlignXName(Alignment));
+            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv));
+            Self->SetTextAlignX(GI_Main::ParseTextAlignXName(pas::view(Alignment)));
         }
     }
 
@@ -727,57 +727,57 @@ namespace GI_Label {
         pas::WideString Alignment{};
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+            FontCache->SetCacheKey(Block->GetParam(u"Font"sv));
         }
         LoadTextLinesFromBlockParam(Block, u"Text"_wref.get());
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            SetEmbeddedImagePath(Block->GetParam(u"Image"_wref.get()));
+            SetEmbeddedImagePath(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"ImageKindX"_wref.get()) > 0) {
-            SetEmbeddedImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"ImageKindX"_wref.get())));
+            SetEmbeddedImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"ImageKindX"sv))));
         }
         if (Block->CountParams(u"ImageKindY"_wref.get()) > 0) {
-            SetEmbeddedImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"ImageKindY"_wref.get())));
+            SetEmbeddedImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"ImageKindY"sv))));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
-            SetTextColor(GI_Main::GetColorGI(Block->GetParam(u"TextColor"_wref.get())));
+            SetTextColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"TextColor"sv))));
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
-            if (Block->GetParam(u"Border"_wref.get()) == u"True") {
+            if (Block->GetParam(u"Border"sv) == u"True") {
                 BorderEnabled = true;
             } else {
                 BorderEnabled = false;
             }
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
-            SetBorderLightColor(GI_Main::GetColorGI(Block->GetParam(u"BorderLightColor"_wref.get())));
+            SetBorderLightColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"BorderLightColor"sv))));
             SetBorderDarkColor(BorderLightColor);
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
-            SetBorderDarkColor(GI_Main::GetColorGI(Block->GetParam(u"BorderDarkColor"_wref.get())));
+            SetBorderDarkColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"BorderDarkColor"sv))));
         }
         if (Block->CountParams(u"WordWrap"_wref.get()) > 0) {
-            SetWordWrapEnabled(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"WordWrap"_wref.get()))));
+            SetWordWrapEnabled(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"WordWrap"sv)))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
-            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignY"_wref.get()));
-            SetTextAlignY(GI_Main::ParseTextAlignYName(Alignment));
+            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignY"sv));
+            SetTextAlignY(GI_Main::ParseTextAlignYName(pas::view(Alignment)));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignX"_wref.get()));
-            SetTextAlignX(GI_Main::ParseTextAlignXName(Alignment));
+            Alignment = EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv));
+            SetTextAlignX(GI_Main::ParseTextAlignXName(pas::view(Alignment)));
         }
         if (Block->CountParams(u"TextBorderColor"_wref.get()) > 0) {
-            SetTextBorderColor(GI_Main::GetColorGI(Block->GetParam(u"TextBorderColor"_wref.get())));
+            SetTextBorderColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"TextBorderColor"sv))));
         }
         if (Block->CountParams(u"TextShadowColor"_wref.get()) > 0) {
-            SetShadowColor(GI_Main::GetColorGI(Block->GetParam(u"TextShadowColor"_wref.get())));
+            SetShadowColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"TextShadowColor"sv))));
         }
         if (Block->CountParams(u"TextBorder"_wref.get()) > 0) {
-            SetTextBorderWidth(EC_Str::ExtractDigitsToIntW(Block->GetParam(u"TextBorder"_wref.get())));
+            SetTextBorderWidth(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"TextBorder"sv))));
         }
         if (Block->CountParams(u"TextShadow"_wref.get()) > 0) {
-            SetShadowOffset(EC_Str::ExtractDigitsToIntW(Block->GetParam(u"TextShadow"_wref.get())));
+            SetShadowOffset(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"TextShadow"sv))));
         }
     }
 

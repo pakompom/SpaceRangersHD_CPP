@@ -145,7 +145,7 @@ namespace aConst {
     static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, AllowedRatingBands) == 10);
     static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, AllowedRanks) == 11);
     static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, AllowedCareers) == 12);
-    static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, EffectClass0D) == 13);
+    static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, MedicalPriceSizeLevel) == 13);
     static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, DevelopmentRate) == 16);
     static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, InfectionChance) == 24);
     static_assert(sizeof(void*) != 4 || offsetof(aConst::TIllnessInfo, Locations) == 32);

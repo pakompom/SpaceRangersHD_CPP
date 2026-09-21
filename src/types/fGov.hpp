@@ -42,10 +42,8 @@ namespace fGov {
         PAS_CLASS_META(TfGov, fPanelMain::TMessageLoopGIWithMainPanel, "TfGov", 316)
         void p_destroy() override;
         void InitializeLayout() override;
-        // Reviewed compiler-layout difference: native reserves one extra, unreferenced
-        // dword at EBP-$F4, before its managed-string temporaries, and emits an extra
-        // push ECX in the prologue. Rebuilt temporaries from $F8 onward are four bytes
-        // nearer EBP. Calls, branches, constants and field accesses agree throughout.
+        // Native reserves an unreferenced dword before its managed-string temporaries.
+        // UnresolvedFrameBytes below preserves the matching frame and prologue push ECX.
         // Native diagnostic name: TfGov.BeforeRun.
         void OnOpen() override;
         void OnClose() override;

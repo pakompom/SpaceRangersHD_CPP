@@ -38,40 +38,40 @@
 
 namespace SE_Process {
     // Film-tag factory; copies the eight-byte point and forwards it to the selected constructor. Returns nil for an unknown case-sensitive tag.
-    SE_Space::TObjectSE* CreateSpaceObjectByName(const pas::WideString& ClassName, const pas::WideString& GraphKey, WindowsSdk::TPoint UnusedPosition) {
-        if (ClassName == u"Star") {
+    SE_Space::TObjectSE* CreateSpaceObjectByName(const std::u16string_view& ClassName, const pas::WideString& GraphKey, WindowsSdk::TPoint UnusedPosition) {
+        if (ClassName == u"Star"sv) {
             return pas::construct_call<SE_Star::TStarSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"StarsField") {
+        } else if (ClassName == u"StarsField"sv) {
             return pas::construct_call<SE_StarsField::TStarsFieldSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Planet") {
+        } else if (ClassName == u"Planet"sv) {
             return pas::construct_call<SE_Planet::TPlanetSE>(SE_Planet::TPlanetSE_CreateFromGraph, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Sputnik") {
+        } else if (ClassName == u"Sputnik"sv) {
             return pas::construct_call<SE_Sputnik::TSputnikSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Asteroid") {
+        } else if (ClassName == u"Asteroid"sv) {
             return pas::construct_call<SE_Asteroid::TAsteroidSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Hole") {
+        } else if (ClassName == u"Hole"sv) {
             return pas::construct_call<SE_Hole::THoleSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Ruins") {
+        } else if (ClassName == u"Ruins"sv) {
             return pas::construct_call<SE_Ruins::TRuinsSE>(SE_Ruins::TRuinsSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Ship2" || ClassName == u"Ship") {
+        } else if (ClassName == u"Ship2"sv || ClassName == u"Ship"sv) {
             return pas::construct_call<SE_Ship2::TShip2SE>(SE_Ship2::TShip2SE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Container") {
+        } else if (ClassName == u"Container"sv) {
             return pas::construct_call<SE_Container::TContainerSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Laser") {
+        } else if (ClassName == u"Laser"sv) {
             return pas::construct_call<SE_Laser::TLaserSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Anim") {
+        } else if (ClassName == u"Anim"sv) {
             return pas::construct_call<SE_Anim::TAnimSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"BGObj") {
+        } else if (ClassName == u"BGObj"sv) {
             return pas::construct_call<SE_BGObj::TBGObjSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Weapon") {
+        } else if (ClassName == u"Weapon"sv) {
             return pas::construct_call<SE_Weapon::TWeaponSE>(SE_Weapon::TWeaponSE_Create, GraphKey, UnusedPosition, 0, -1);
-        } else if (ClassName == u"Effect") {
+        } else if (ClassName == u"Effect"sv) {
             return pas::construct_call<SE_GAIEffect::TGAIEffectSE>(SE_GAIEffect::TGAIEffectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Gate") {
+        } else if (ClassName == u"Gate"sv) {
             return pas::construct_call<SE_Gate::TGateSE>(SE_Gate::TGateSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"GateEffect") {
+        } else if (ClassName == u"GateEffect"sv) {
             return pas::construct_call<SE_Gate::TGateEffectSE>(SE_Gate::TGateEffectSE_Create, GraphKey, UnusedPosition);
-        } else if (ClassName == u"Missile") {
+        } else if (ClassName == u"Missile"sv) {
             return pas::construct_call<SE_Missile::TMissileSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
         } else {
             return nullptr;
@@ -247,22 +247,22 @@ namespace SE_Process {
                 Text = ([&] {
                     const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"0", SysUtils::IntToStr(BackgroundImage)}));
                     EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"StyleComet"_wref.get());
-                    return blockByPath->GetParam(cpp_arg);
+                    return blockByPath->GetParam(pas::view(cpp_arg));
                 }());
             } else {
                 Text = ([&] {
                     const pas::WideString& intToStr = pas::wide_int_to_str(BackgroundImage);
                     EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(u"StyleComet"_wref.get());
-                    return blockByPath_2->GetParam(intToStr);
+                    return blockByPath_2->GetParam(pas::view(intToStr));
                 }());
             }
-            Index = aMyFunction::NextRandomIntRange(0, EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) / 2 - 1, Seed) * 2;
-            VariantCount = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, Index + 1, u","_wref.get()));
-            Text = EC_Str::ExtractDelimitedPartW(Text, Index, u","_wref.get());
+            Index = aMyFunction::NextRandomIntRange(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) / 2 - 1, Seed) * 2;
+            VariantCount = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), Index + 1, u","sv)));
+            Text = EC_Str::ExtractDelimitedPartW(pas::view(Text), Index, u","sv);
             CountRange.X = 15;
             CountRange.Y = 30;
             if (Block->CountParams(u"CometCount"_wref.get()) > 0) {
-                CountRange = GI_Main::GetPointGI(Block->GetParam(u"CometCount"_wref.get()));
+                CountRange = GI_Main::GetPointGI(pas::view(Block->GetParam(u"CometCount"sv)));
             }
             if (GlobalsV::Comet == 1) {
                 Count = CountRange.X;
@@ -283,14 +283,14 @@ namespace SE_Process {
         }
         // Native reuses the previous Count when AngelCount is absent.
         if (Block->CountParams(u"AngelCount"_wref.get()) > 0) {
-            CountRange = GI_Main::GetPointGI(Block->GetParam(u"AngelCount"_wref.get()));
+            CountRange = GI_Main::GetPointGI(pas::view(Block->GetParam(u"AngelCount"sv)));
             Count = aMyFunction::RandomIntRange(CountRange.X, CountRange.Y);
         }
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, Count); cpp_range_3.next(Index); ) {
             AngelObj = pas::construct_call<SE_Angel::TAngelSE>(SE_Space::TObjectSE_Create, u"Anim.BGO_HS.Angel"_wref.get(), ClassesImports::Point(0, 0));
             AddObject(AngelObj);
         }
-        CountRange = GI_Main::GetPointGI(GR_Main::GameDataConfig->GetParamByPathOrMarker(u"SE.Anim.BGO_HS.Objects.MeteoriteCount"_wref.get()));
+        CountRange = GI_Main::GetPointGI(pas::view(GR_Main::GameDataConfig->GetParamByPathOrMarker(u"SE.Anim.BGO_HS.Objects.MeteoriteCount"_wref.get())));
         Count = aMyFunction::RandomIntRange(CountRange.X, CountRange.Y);
         Block = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Meteorite"_wref.get());
         std::int32_t BlockCount = Block->GetBlockCount();
@@ -364,14 +364,14 @@ namespace SE_Process {
         std::int32_t Count = Block->GetParamCount();
         std::int32_t Weight = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            Weight += EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+            Weight += EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
         }
         Weight = aMyFunction::RandomIntRange(0, Weight - 1);
         Index = 0;
-        Weight -= EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+        Weight -= EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
         while (Weight >= 0) {
             ++Index;
-            Weight -= EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+            Weight -= EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
         }
         return Block->GetParamValue(Index);
     }
@@ -384,10 +384,10 @@ namespace SE_Process {
         std::int32_t Count = Objects->GetBlockCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Obj = ([&] {
-                WindowsSdk::TPoint pointGI = GI_Main::GetPointGI(Objects->GetBlockByIndex(Index)->GetParam(u"Size"_wref.get()));
-                const pas::WideString& param = Objects->GetBlockByIndex(Index)->GetParam(u"Type"_wref.get());
+                WindowsSdk::TPoint pointGI = GI_Main::GetPointGI(pas::view(Objects->GetBlockByIndex(Index)->GetParam(u"Size"sv)));
+                const pas::WideString& param = Objects->GetBlockByIndex(Index)->GetParam(u"Type"sv);
                 const pas::WideString& blockNameByIndex = Objects->GetBlockNameByIndex(Index);
-                return SE_Process::CreateSpaceObjectByName(blockNameByIndex, param, pointGI);
+                return SE_Process::CreateSpaceObjectByName(pas::view(blockNameByIndex), param, pointGI);
             }());
             if (Obj != nullptr) {
                 AddObject(Obj);

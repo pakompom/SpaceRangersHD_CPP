@@ -170,8 +170,8 @@ namespace CheatCode {
         Parent->InvalidateViewport();
         Parent->DrawQueuedUpdateRects();
         if (Globals::ShipScreen->IsOpen) {
-            Globals::ShipScreen->Flag3BC = true;
-            Globals::ShipScreen->FlagD4 = true;
+            Globals::ShipScreen->ShipStateChanged = true;
+            Globals::ShipScreen->ReopenRequested = true;
             Globals::ShipScreen->PlayTransitionSounds = false;
             Globals::ShipScreen->CloseClicked(nullptr);
         }
@@ -219,7 +219,7 @@ namespace CheatCode {
                             }
                             // Preserve DCC32 O- receiver-before-index evaluation.
                             Planet = pas::list_at<aPlanet::TPlanet>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Planets) + 0), PlanetIndex);
-                        } while (!(Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)));
+                        } while (!(Planet->OwnerId != aGalaxyStruct::oiUninhabited));
                         Planet->SpawnWeightedDominatorShip();
                     }
                 }
@@ -250,7 +250,7 @@ namespace CheatCode {
                                 PlanetIndex = 0;
                             }
                             Planet = pas::list_at<aPlanet::TPlanet>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Planets) + 0), PlanetIndex);
-                        } while (!(Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)));
+                        } while (!(Planet->OwnerId != aGalaxyStruct::oiUninhabited));
                         Planet->BuyWarrior(100);
                         ++Created;
                         if (Created >= 500) {
@@ -276,7 +276,7 @@ namespace CheatCode {
                 if (Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && Star->Status.CustomFaction == u"") {
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_2.next(PlanetIndex); ) {
                         Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
-                        if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                             while (static_cast<long double>(pas::list_count(Planet->Warriors)) < aMyFunction::RemapClamped(Planet->Radius, 6.0E+1, 1.0E+2, 2.0, 6.0) && Created < 500) {
                                 Planet->BuyWarrior(100);
                                 ++Created;
@@ -304,14 +304,14 @@ namespace CheatCode {
                     Eligible = 0;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(ShipIndex); ) {
                         Ship = pas::list_at<aShip::TShip>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Ships) + 0), ShipIndex);
-                        if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
+                        if (Ship->OwnerId == aGalaxyStruct::oiDominator && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
                             ++Eligible;
                         }
                     }
                     if (Eligible > 2) {
                         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(ShipIndex); ) {
                             Ship = pas::list_at<aShip::TShip>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Ships) + 0), ShipIndex);
-                            if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
+                            if (Ship->OwnerId == aGalaxyStruct::oiDominator && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
                                 Ship->OrderJump(aPlayer::GetPlayer()->CurrentStar, true);
                                 ++Sent;
                                 --Eligible;
@@ -345,14 +345,14 @@ namespace CheatCode {
                     Eligible = 0;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(ShipIndex); ) {
                         Ship = pas::list_at<aShip::TShip>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Ships) + 0), ShipIndex);
-                        if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
+                        if (Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
                             ++Eligible;
                         }
                     }
                     if (Eligible > 2) {
                         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(ShipIndex); ) {
                             Ship = pas::list_at<aShip::TShip>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Star->Ships) + 0), ShipIndex);
-                            if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
+                            if (Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
                                 Ship->OrderJump(aPlayer::GetPlayer()->CurrentStar, true);
                                 ++Sent;
                                 --Eligible;
@@ -402,7 +402,7 @@ namespace CheatCode {
             pas::list_add(aPlayer::GetPlayer()->CurrentPlanet->EquipmentShop, reinterpret_cast<void*>(Item));
             {
                 std::uint8_t randomIntRange = aMyFunction::RandomIntRange(4, 8);
-                std::uint8_t raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId);
+                aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId);
                 std::int32_t randomIntRange_2 = aMyFunction::RandomIntRange(50, 100);
                 aConst::TItemType randomIntRange_3 = static_cast<aConst::TItemType>(aMyFunction::RandomIntRange(58, 61));
                 aItem::TWeapon* cpp_arg = pas::checked_cast<aItem::TWeapon*>(Item);
@@ -429,7 +429,7 @@ namespace CheatCode {
                 Info = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), 8, 1);
             }
             {
-                std::uint8_t raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId);
+                aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId);
                 std::int32_t randomIntRange_2 = aMyFunction::RandomIntRange(1, 8);
                 std::int32_t randomIntRange_3 = aMyFunction::RandomIntRange(14, 200);
                 Item = aItem::CreateGeneratedWeapon(Info, randomIntRange_3, randomIntRange_2, raceToOwner);
@@ -466,37 +466,37 @@ namespace CheatCode {
     void CheatRobotforce() {
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1)) {
             {
-                void* createConfiguredArtefactByItemType = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, 0));
+                void* createConfiguredArtefactByItemType = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiMaloc));
                 aMyFunction::TObjectList* artefacts = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts, createConfiguredArtefactByItemType);
             }
             {
-                void* createConfiguredArtefactByItemType_2 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, 1));
+                void* createConfiguredArtefactByItemType_2 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiPeleng));
                 aMyFunction::TObjectList* artefacts_2 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_2, createConfiguredArtefactByItemType_2);
             }
             {
-                void* createConfiguredArtefactByItemType_3 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, 2));
+                void* createConfiguredArtefactByItemType_3 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiHuman));
                 aMyFunction::TObjectList* artefacts_3 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_3, createConfiguredArtefactByItemType_3);
             }
             {
-                void* createConfiguredArtefactByItemType_4 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, 3));
+                void* createConfiguredArtefactByItemType_4 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiFeyan));
                 aMyFunction::TObjectList* artefacts_4 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_4, createConfiguredArtefactByItemType_4);
             }
             {
-                void* createConfiguredArtefactByItemType_5 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, 4));
+                void* createConfiguredArtefactByItemType_5 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiGaal));
                 aMyFunction::TObjectList* artefacts_5 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_5, createConfiguredArtefactByItemType_5);
             }
             {
-                void* createConfiguredArtefactByItemType_6 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, 6));
+                void* createConfiguredArtefactByItemType_6 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiUninhabited));
                 aMyFunction::TObjectList* artefacts_6 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_6, createConfiguredArtefactByItemType_6);
             }
             {
-                void* createConfiguredArtefactByItemType_7 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, 7));
+                void* createConfiguredArtefactByItemType_7 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiPirate));
                 aMyFunction::TObjectList* artefacts_7 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_7, createConfiguredArtefactByItemType_7);
             }
@@ -510,7 +510,7 @@ namespace CheatCode {
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle) {
             {
                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 1000000000);
-                std::uint8_t raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->HomePlanet->RaceId);
+                aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->HomePlanet->RaceId);
                 Item = aItem::CreateRandomLootItem(aItem::ilpAnyAvailable, raceToOwner, randomIntRange);
             }
             if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
@@ -618,7 +618,7 @@ namespace CheatCode {
             {
                 std::int32_t randomIntRange_2 = aMyFunction::RandomIntRange(1, 8);
                 std::int32_t randomIntRange_3 = aMyFunction::RandomIntRange(77, 200);
-                Item = aItem::CreateGeneratedWeapon(Info, randomIntRange_3, randomIntRange_2, 5);
+                Item = aItem::CreateGeneratedWeapon(Info, randomIntRange_3, randomIntRange_2, aGalaxyStruct::oiDominator);
             }
             switch (aMyFunction::RandomIntRange(1, 3)) {
                 case 1: Item->DominatorSeries = aGalaxyStruct::dsBlazer; break;
@@ -678,7 +678,7 @@ namespace CheatCode {
                 }
             }
             aPlayer::GetPlayer()->CareerStatus[aGalaxyStruct::rcPirate] = 100;
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
             if (GlobalsV::CurrentScreenId == GlobalsV::screenRuinsTalk) {
                 Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenGoodsShop) {
@@ -840,14 +840,14 @@ namespace CheatCode {
     void CheatPelengsurprise() {
         aItem::TItem* Item{};
         std::int32_t I{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng) && GlobalsV::CurrentScreenId != GlobalsV::screenShip) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPeleng && GlobalsV::CurrentScreenId != GlobalsV::screenShip) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(fEquipmentShop::TemporaryShopSlots) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<fEquipmentShop::TShopSlot>(fEquipmentShop::TemporaryShopSlots, I)->Item;
                 if (Item != nullptr && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                    pas::checked_cast<aItem::TWeapon*>(Item)->Range = pas::checked_cast<aItem::TWeapon*>(Item)->Range * 2;
+                    static_cast<aItem::TWeapon*>(Item)->Range = static_cast<aItem::TWeapon*>(Item)->Range * 2;
                 }
             }
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
             CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"PLEVLIESNOGASRUEROPTROINSAEN"_w));
         }
     }
@@ -880,7 +880,7 @@ namespace CheatCode {
             if (GlobalsV::CurrentScreenId == GlobalsV::screenStarMap) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                     Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-                    if (aPlayer::GetPlayer() != Ship && static_cast<std::uint8_t>(Ship->InHyperspace ^ 1) && (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited))) {
+                    if (aPlayer::GetPlayer() != Ship && static_cast<std::uint8_t>(Ship->InHyperspace ^ 1) && (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited)) {
                         Ship->DestroyQueued = true;
                     }
                 }
@@ -891,7 +891,7 @@ namespace CheatCode {
 
     void CheatHaterangers() {
         static const pas::Set<0, 255> ShipTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htPirate, aGalaxyStruct::htDiplomat}});
-        static const pas::Set<0, 255> Owners = pas::constant_set<pas::Set<0, 255>>({{0, 7}});
+        static const pas::Set<0, 255> Owners = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate}});
         std::int32_t I{};
         aShip::TShip* Ship{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
@@ -919,7 +919,7 @@ namespace CheatCode {
                             aMyFunction::TObjectList* planets = Star->Planets;
                             Planet = pas::list_at<aPlanet::TPlanet>(planets, randomIntRange);
                         }
-                        if (pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
+                        if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
                             Planet->BuyPirate(100);
                             break;
                         }
@@ -939,7 +939,7 @@ namespace CheatCode {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}))); cpp_range.next(I); ) {
                 Kind = aConst::GetItemTypeFromMask(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}), I);
                 {
-                    void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(Kind), System::Round(static_cast<long double>(aConst::WeaponInfos[Kind].AverageSize) * aConst::EquipmentSizeFactors[5]), aGalaxy::Galaxy->TechLevel, aPlayer::GetPlayer()->OwnerId));
+                    void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(Kind), System::Round(static_cast<long double>(aConst::WeaponInfos[static_cast<aConst::TItemType>(Kind)].AverageSize) * aConst::EquipmentSizeFactors[5]), aGalaxy::Galaxy->TechLevel, aPlayer::GetPlayer()->OwnerId));
                     aMyFunction::TObjectList* inventory = aPlayer::GetPlayer()->Inventory;
                     pas::list_add(inventory, createGeneratedEquipment);
                 }
@@ -957,10 +957,10 @@ namespace CheatCode {
     }
 
     void CheatVertix() {
-        std::uint8_t Owner{};
+        aGalaxyStruct::TOwnerId Owner{};
         aItem::TEquipment* Item{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (Owner = static_cast<std::uint8_t>(0); Owner <= static_cast<std::uint8_t>(4); ++Owner) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal); cpp_range.next(Owner); ) {
                 Item = aItem::CreateGeneratedEquipment(aConst::t_Weapon14, 20, aGalaxy::Galaxy->TechLevel, Owner);
                 pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
             }
@@ -969,10 +969,10 @@ namespace CheatCode {
     }
 
     void CheatDevice() {
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (Kind = static_cast<std::uint8_t>(43); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
-                void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(Kind), System::Round(static_cast<long double>(aConst::GetAverageItemSize(Kind)) * aConst::EquipmentSizeFactors[5]), 8, aPlayer::GetPlayer()->OwnerId));
+            for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_FuelTanks, aConst::t_DefGenerator); cpp_range.next(Kind); ) {
+                void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(Kind, System::Round(static_cast<long double>(aConst::GetAverageItemSize(Kind)) * aConst::EquipmentSizeFactors[5]), 8, aPlayer::GetPlayer()->OwnerId));
                 aMyFunction::TObjectList* inventory = aPlayer::GetPlayer()->Inventory;
                 pas::list_add(inventory, createGeneratedEquipment);
             }
@@ -1036,7 +1036,7 @@ namespace CheatCode {
     }
 
     void CheatSkill() {
-        std::uint8_t I{};
+        aGalaxyStruct::TPilotSkill Skill{};
         aShip::TShip* Ship{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             Ship = nullptr;
@@ -1051,8 +1051,8 @@ namespace CheatCode {
                 Ship = aPlayer::GetPlayer();
             }
             CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"SXKOINLAL0"_w));
-            for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(5); ++I) {
-                Ship->BaseSkills[I] = 6;
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
+                Ship->BaseSkills[Skill] = 6;
             }
             if (Globals::GetInnermostScreenLoop() == Globals::ScannerScreen) {
                 Globals::ScannerScreen->CloseClicked(nullptr);
@@ -1238,11 +1238,11 @@ namespace CheatCode {
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
             Parent = pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
             Items = pas::make_object<pas::List>();
-            Block = GR_Main::GameDataConfig->GetBlock(u"ABMap"_wref.get());
+            Block = GR_Main::GameDataConfig->GetBlock(u"ABMap"sv);
             Count = Block->GetBlockCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count); cpp_range.next(Index); ) {
                 if (Index < Count) {
-                    CheatHoleAddName(Block->GetBlockByIndex(Index)->GetParam(u"Path"_wref.get()));
+                    CheatHoleAddName(Block->GetBlockByIndex(Index)->GetParam(u"Path"sv));
                 } else {
                     CheatHoleAddName(u"ABMap.map_boss"_w);
                 }
@@ -1260,7 +1260,7 @@ namespace CheatCode {
                 reinterpret_cast<SE_Hole::THoleSE*>(Hole->Graphic)->SetState(1);
                 Hole->Star1 = aPlayer::GetPlayer()->CurrentStar;
                 Hole->Star2 = aPlayer::GetPlayer()->CurrentStar;
-                Hole->ArcadeMapName = MapName;
+                Hole->ArcadeMapName = std::move(MapName);
                 Angle = Math::ArcTan2(aPlayer::GetPlayer()->Position.X, -aPlayer::GetPlayer()->Position.Y);
                 Radius = pas::real_max<pas::Extended>(aPlayer::GetPlayer()->CurrentStar->SafeRadius + 1.0E+2L, System::Sqrt(aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, EC_Struct::MakePointF(0.0f, 0.0f))) + 2.0E+2L);
                 {
@@ -1308,7 +1308,7 @@ namespace CheatCode {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
                 if (Item->EquippedFlag != 0 && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                    aItem::TWeapon* cpp_with = pas::checked_cast<aItem::TWeapon*>(Item);
+                    aItem::TWeapon* cpp_with = static_cast<aItem::TWeapon*>(Item);
                     cpp_with->TechLevel = 8;
                     cpp_with->MinDamage = cpp_with->CalculateGeneratedMinDamage();
                     cpp_with->MaxDamage = cpp_with->CalculateStandardMaxDamage();
@@ -1317,10 +1317,10 @@ namespace CheatCode {
                     if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(cpp_with->GetWeaponInfo()->ShotType)) {
                         cpp_with->AmmoCapacity = cpp_with->CalculateGeneratedAmmoCapacity();
                         if (cpp_with->MicroModuleIndex != 0) {
-                            cpp_with->AmmoCapacity += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
+                            cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
                         }
                         if (cpp_with->SpecialModuleIndex != 0) {
-                            cpp_with->AmmoCapacity += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
+                            cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[aConst::bonAmmo];
                         }
                     }
                 }
@@ -1360,8 +1360,8 @@ namespace CheatCode {
         if (aPlayer::GetPlayer() != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TArtefact>(aPlayer::GetPlayer()->Artefacts, I);
-                if (pas::class_cast_if<aItem::TArtefactTransmitter*>(Item) != nullptr && reinterpret_cast<aItem::TArtefactTransmitter*>(Item)->Power <= 1000) {
-                    reinterpret_cast<aItem::TArtefactTransmitter*>(Item)->Power += 100;
+                if (aItem::TArtefactTransmitter* artefactTransmitter = pas::class_cast_if<aItem::TArtefactTransmitter*>(Item); artefactTransmitter != nullptr && artefactTransmitter->Power <= 1000) {
+                    artefactTransmitter->Power += 100;
                 }
             }
             CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ECNDCAHAALRIGEE"_w));
@@ -1383,7 +1383,7 @@ namespace CheatCode {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
                 if (Item->EquippedFlag != 0) {
-                    Item->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    Item->OwnerId = aGalaxyStruct::oiUninhabited;
                 }
             }
             CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"MRALDIETISNOCIHSIMNIA"_w));
@@ -1478,8 +1478,8 @@ namespace CheatCode {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, Count - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
                 if (Item->EquippedFlag == 0 && Item->ScriptItem == nullptr && !(pas::class_cast_if<aItem::TTreasureMap*>(Item) != nullptr)) {
-                    if (pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr) {
-                        pas::checked_cast<aItem::TCountableItem*>(Item)->StackCount = pas::checked_cast<aItem::TCountableItem*>(Item)->StackCount * 2;
+                    if (aItem::TCountableItem* countableItem = pas::class_cast_if<aItem::TCountableItem*>(Item)) {
+                        countableItem->StackCount = countableItem->StackCount * 2;
                         Item->Weight *= 2;
                     } else {
                         Item = reinterpret_cast<aItem::TEquipment*>(Item->Clone());
@@ -1604,7 +1604,7 @@ namespace CheatCode {
     void CheatSeed() {
         pas::WideString Value{};
         if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]) == Globals::NewGameScreen) {
-            if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Globals::NewGameScreen->GetByName(u"ButExtended"_wref.get()))->Down) {
+            if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Globals::NewGameScreen->GetByName(u"ButExtended"sv))->Down) {
                 if (GR_Main::NewGameSeedText == u"") {
                     SystemImports::Randomize();
                     GR_Main::NewGameSeedText = EC_Str::IntToWideString(aMyFunction::RandomIntRange(100000, SystemImports::MaxInt));
@@ -1675,6 +1675,7 @@ namespace CheatCode {
     }
 
     // Compiler unit entry registers the native command order.
+    // 'INFOS'
     void UnitInitialize() {
         CheatEntries = pas::make_object<TCheatList>();
         CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ROEMPOAYIURU"_w), TCheatCallback(CheatRepair));

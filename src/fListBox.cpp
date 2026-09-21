@@ -23,7 +23,7 @@ namespace fListBox {
     std::uint32_t ShowListDialog(GI_MessageLoop::TMessageLoopGI* Parent, std::int32_t& SelectedIndex, pas::WideString Caption, pas::List* Items, std::int32_t OffsetX, std::int32_t OffsetY) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&State);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -55,7 +55,7 @@ namespace fListBox {
         }
         Parent->RestoreCursorState(&State);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         if (Result == 254) {
             GI_Main::BreakUiMessage();
         }

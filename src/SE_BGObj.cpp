@@ -46,8 +46,8 @@ namespace SE_BGObj {
 
     void TBGObjSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
-        Radius = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Radius"_wref.get()));
+        ImagePath = Block->GetParam(u"Image"sv);
+        Radius = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Radius"sv)));
     }
 
     void TBGObjSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {

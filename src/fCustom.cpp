@@ -23,7 +23,7 @@ namespace fCustom {
         pas::WideString BeforeCode{};
         pas::WideString AfterCode{};
         GI_MessageLoop::TCursorStateGI State{};
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&State);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -32,13 +32,13 @@ namespace fCustom {
         Dialog->ParentLoop = Parent;
         Parent->ChildLoop = Dialog;
         Dialog->InitializeFromConfig(GR_Main::UiStyleConfig, ScreenName, true);
-        EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlock(ScreenName)->FindBlock(u"CodeBeforeRun"_wref.get());
+        EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlock(pas::view(ScreenName))->FindBlock(u"CodeBeforeRun"sv);
         if (Block != nullptr) {
             BeforeCode = Block->ConcatenateValues();
         } else {
             BeforeCode = pas::WideString();
         }
-        Block = GR_Main::UiStyleConfig->GetBlock(ScreenName)->FindBlock(u"CodeAfterRun"_wref.get());
+        Block = GR_Main::UiStyleConfig->GetBlock(pas::view(ScreenName))->FindBlock(u"CodeAfterRun"sv);
         if (Block != nullptr) {
             AfterCode = Block->ConcatenateValues();
         } else {
@@ -70,7 +70,7 @@ namespace fCustom {
         }
         Parent->RestoreCursorState(&State);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         return Result;
     }
 

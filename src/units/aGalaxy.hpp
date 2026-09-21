@@ -12,8 +12,6 @@ namespace SE_Space {
 } // namespace SE_Space
 
 namespace aEFilm {
-    struct TEFilm;
-
     struct TEFilmObj;
 
 } // namespace aEFilm
@@ -84,9 +82,6 @@ namespace aGalaxy {
     void TConstellation_Create(TConstellation* Self);
 
     void TConstellation_Destroy(TConstellation* Self);
-
-    // Source helpers; both inline away without changing the native instructions.
-    aEFilm::TEFilm* CurrentFilm();
 
     // Constant arguments preserve evaluation order; computed arguments stay at their call sites.
     void CreateFilmEffect(const pas::WideString& GraphKey, std::int32_t ShotVisual, SE_Space::TObjectSE*& Effect, aEFilm::TEFilmObj*& EffectFilm);

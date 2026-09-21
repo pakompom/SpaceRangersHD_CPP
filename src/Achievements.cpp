@@ -52,30 +52,30 @@ namespace Achievements {
 
     EC_BlockPar::TBlockParEC* AchievementDefinitions = nullptr;
 
-    std::int32_t GetCurrentAchievementProgress(pas::WideString Key, std::int32_t StoredValue) {
+    std::int32_t GetCurrentAchievementProgress(const std::u16string_view& Key, std::int32_t StoredValue) {
         TAchievementStats* Stats{};
         std::int32_t Result = 0;
         if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
             Stats = aPlayer::GetPlayer()->AchievementStats;
-            if (Key == u"ASTEROID") {
+            if (Key == u"ASTEROID"sv) {
                 Result = Stats->AsteroidsDestroyed;
-            } else if (Key == u"FRY") {
+            } else if (Key == u"FRY"sv) {
                 Result = Stats->EnemiesDestroyedByStarHeat;
-            } else if (Key == u"DEFENDER") {
+            } else if (Key == u"DEFENDER"sv) {
                 Result = Stats->SystemsDefended;
-            } else if (Key == u"PIRATE") {
+            } else if (Key == u"PIRATE"sv) {
                 Result = Stats->SystemsCapturedForPirates;
-            } else if (Key == u"SCIENCE") {
+            } else if (Key == u"SCIENCE"sv) {
                 Result = Stats->CompletedResearchPrograms;
-            } else if (Key == u"HACKER") {
+            } else if (Key == u"HACKER"sv) {
                 Result = Stats->SuccessfulDominatorHacks;
-            } else if (Key == u"PRISONBAIL") {
+            } else if (Key == u"PRISONBAIL"sv) {
                 Result = Stats->PrisonersBailedOut;
-            } else if (Key == u"DRAIN") {
+            } else if (Key == u"DRAIN"sv) {
                 Result = Stats->DrainedHullPoints;
-            } else if (Key == u"BERTORSLAYER") {
+            } else if (Key == u"BERTORSLAYER"sv) {
                 Result = aPlayer::GetPlayer()->DominatorKillsByType[aGalaxyStruct::ktBertor];
-            } else if (Key == u"SIDECHANGER") {
+            } else if (Key == u"SIDECHANGER"sv) {
                 Result = aPlayer::GetPlayer()->SideChangeCount;
             }
             if (Result == StoredValue) {
@@ -136,12 +136,12 @@ namespace Achievements {
     SimpleSteamApi::PAchievementData GetAchievementData(pas::WideString Key) {
         SimpleSteamApi::PAchievementData Result{};
         Result = nullptr;
-        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(Key);
+        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(pas::view(Key));
         if (Block != nullptr) {
             Result = Achievements::CreateAchievementData();
             switch (Achievements::GetAchievementBackend()) {
                 case 1: {
-                    SimpleSteamApi::SteamAchievementData(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"_wref.get()))), Result);
+                    SimpleSteamApi::SteamAchievementData(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Result);
                     break;
                 }
                 case 3: NoSteamAchievemens::GetLocalAchievementData(Key, Result); break;
@@ -168,13 +168,13 @@ namespace Achievements {
         if (Achievements::GetAvailableAchievementCount() <= 0) {
             return Result;
         }
-        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(Key);
+        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(pas::view(Key));
         if (Block == nullptr) {
             return Result;
         }
         switch (Achievements::GetAchievementBackend()) {
             case 1: {
-                Result = SimpleSteamApi::SteamUnlockAchievement(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"_wref.get()))));
+                Result = SimpleSteamApi::SteamUnlockAchievement(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))));
                 break;
             }
             case 3: Result = NoSteamAchievemens::UnlockLocalAchievement(Block); break;
@@ -203,7 +203,7 @@ namespace Achievements {
         if (Achievements::GetAvailableAchievementCount() <= 0) {
             return Result;
         }
-        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(Key);
+        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(pas::view(Key));
         if (Block == nullptr) {
             return Result;
         }
@@ -218,7 +218,7 @@ namespace Achievements {
         }
         switch (Achievements::GetAchievementBackend()) {
             case 1: {
-                Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"_wref.get()))), Increment);
+                Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
                 break;
             }
             case 3: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
@@ -250,7 +250,7 @@ namespace Achievements {
         if (Achievements::GetAvailableAchievementCount() <= 0) {
             return Result;
         }
-        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(Key);
+        EC_BlockPar::TBlockParEC* Block = AchievementDefinitions->FindBlock(pas::view(Key));
         if (Block == nullptr) {
             return Result;
         }
@@ -262,7 +262,7 @@ namespace Achievements {
         }
         switch (Achievements::GetAchievementBackend()) {
             case 1: {
-                Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"_wref.get()))), Increment);
+                Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
                 break;
             }
             case 3: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
@@ -497,10 +497,10 @@ namespace Achievements {
     // are checked by the caller; the instance counters are not used here.
     // SKILL: all six player base skills are at least level six.
     void TAchievementStats::CheckAllSkillsAchievement() {
-        aShip::TPilotSkill Skill{};
+        aGalaxyStruct::TPilotSkill Skill{};
         std::uint8_t Complete = true;
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            for (auto cpp_range = pas::for_to<aShip::TPilotSkill>(aShip::psAccuracy, aShip::psLeadership); cpp_range.next(Skill); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
                 if (aPlayer::GetPlayer()->GetBaseSkillLevel(Skill) < 6) {
                     Complete = false;
                 }
@@ -563,7 +563,7 @@ namespace Achievements {
             if (Star->Status.ControlFaction == aGalaxyStruct::sfCoalition) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_2.next(J); ) {
                     Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
-                    if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                         ++Count;
                         if (Planet->GetRelationLevelToShip(aPlayer::GetPlayer()) > aGalaxyStruct::rlHostile) {
                             return;

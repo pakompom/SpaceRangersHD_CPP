@@ -57,59 +57,59 @@ namespace fFilm {
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         GR_Main::AppendLogTextThreadSafe("fFilm... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GI_MessageLoop::TObjectGI* Main = GetByName(u"MainPanel"_wref.get());
+        GI_MessageLoop::TObjectGI* Main = GetByName(u"MainPanel"sv);
         Main->Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         Main->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
         Main->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
         Main->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* Map = Main->FindByNameRecursive(u"MapPanel"_wref.get());
+        GI_MessageLoop::TObjectGI* Map = Main->FindByNameRecursive(u"MapPanel"sv);
         Map->SetPosition(ClassesImports::Point(Map->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Map->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
-        GI_MessageLoop::TObjectGI* Center = Main->FindByNameRecursive(u"CenterShip"_wref.get());
+        GI_MessageLoop::TObjectGI* Center = Main->FindByNameRecursive(u"CenterShip"sv);
         Center->SetPosition(ClassesImports::Point(Center->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Center->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
-        GI_MessageLoop::TObjectGI* Shade = Main->FindByNameRecursive(u"MapPanelA"_wref.get());
+        GI_MessageLoop::TObjectGI* Shade = Main->FindByNameRecursive(u"MapPanelA"sv);
         Shade->SetPosition(ClassesImports::Point(Shade->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Shade->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
         GI_MessageLoop::TObjectGI* ShadeNext = Shade->NextSibling;
         ShadeNext->SetPosition(ClassesImports::Point(ShadeNext->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, ShadeNext->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
-        GI_MessageLoop::TObjectGI* Fps = Main->FindByNameRecursive(u"FPS"_wref.get());
+        GI_MessageLoop::TObjectGI* Fps = Main->FindByNameRecursive(u"FPS"sv);
         Fps->SetPosition(ClassesImports::Point(Fps->LocalPosition.X, Fps->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
-        GI_MessageLoop::TObjectGI* FilmPanel = Main->FindByNameRecursive(u"PanelFilm"_wref.get());
+        GI_MessageLoop::TObjectGI* FilmPanel = Main->FindByNameRecursive(u"PanelFilm"sv);
         FilmPanel->SetPosition(ClassesImports::Point(FilmPanel->LocalPosition.X, FilmPanel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
-        GI_MessageLoop::TObjectGI* SpaceImages = Main->FindByNameRecursive(u"SpaceImg"_wref.get());
+        GI_MessageLoop::TObjectGI* SpaceImages = Main->FindByNameRecursive(u"SpaceImg"sv);
         SpaceImages->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
         SpaceImages->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* Stars = Main->FindByNameRecursive(u"StarField"_wref.get());
+        GI_MessageLoop::TObjectGI* Stars = Main->FindByNameRecursive(u"StarField"sv);
         Stars->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
         Stars->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* StarImages = Main->FindByNameRecursive(u"StarFieldImg"_wref.get());
+        GI_MessageLoop::TObjectGI* StarImages = Main->FindByNameRecursive(u"StarFieldImg"sv);
         StarImages->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
         StarImages->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* StarM = Main->FindByNameRecursive(u"StarFieldM"_wref.get());
+        GI_MessageLoop::TObjectGI* StarM = Main->FindByNameRecursive(u"StarFieldM"sv);
         StarM->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
         StarM->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"_wref.get()));
+        CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"sv));
         CenterShipButton->DownCallback = pas::bind_method<&TfFilm::CenterShipClicked>(this);
-        SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
-        MapPanel = GetByName(u"MapPanel"_wref.get());
-        FrameSlider = pas::checked_cast<GI_ScrollBar::TScrollBarGI*>(GetByName(u"SBFrame"_wref.get()));
-        SpeedSlider = pas::checked_cast<GI_ScrollBar::TScrollBarGI*>(GetByName(u"SBSpeed"_wref.get()));
-        PlayButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PF_Play"_wref.get()));
-        StopButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PF_Stop"_wref.get()));
-        TurnSlider = pas::checked_cast<GI_ScrollBar::TScrollBarGI*>(GetByName(u"PF_SBTurn"_wref.get()));
-        DateLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PF_Date"_wref.get()));
+        SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
+        MapPanel = GetByName(u"MapPanel"sv);
+        FrameSlider = pas::checked_cast<GI_ScrollBar::TScrollBarGI*>(GetByName(u"SBFrame"sv));
+        SpeedSlider = pas::checked_cast<GI_ScrollBar::TScrollBarGI*>(GetByName(u"SBSpeed"sv));
+        PlayButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PF_Play"sv));
+        StopButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PF_Stop"sv));
+        TurnSlider = pas::checked_cast<GI_ScrollBar::TScrollBarGI*>(GetByName(u"PF_SBTurn"sv));
+        DateLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PF_Date"sv));
         SpacePanel->ScrollType = GI_Panel::pstSimple;
         GI_GraphBuf::TGraphBufGI* Graph = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(MapPanel);
         Graph->BindExternalGraphBuf(GR_Main::RenderScratchBuffer);
     }
 
     void TfFilm::OnOpen() {
-        GetByName(u"FPS"_wref.get())->SetActive(GR_Main::ShowFrameRate);
-        GI_StarFieldImg::TStarFieldImgGI* Stars = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(GetByName(u"StarFieldImg"_wref.get()));
+        GetByName(u"FPS"sv)->SetActive(GR_Main::ShowFrameRate);
+        GI_StarFieldImg::TStarFieldImgGI* Stars = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(GetByName(u"StarFieldImg"sv));
         Stars->SetActive(GlobalsV::Wind >= 2);
         if (Stars->StarCount <= 0) {
             Stars->SeedStars();
         }
-        Stars->CopyStarsFrom(pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(Globals::StarMapScreen->GetByName(u"StarFieldImg"_wref.get())));
+        Stars->CopyStarsFrom(pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(Globals::StarMapScreen->GetByName(u"StarFieldImg"sv)));
         {
             GI_MessageLoop::TObjectGI* findControlByPath = FindControlByPath(u"StarFieldM"_wref.get());
             std::uint8_t cpp_arg = GlobalsV::Wind >= 1;
@@ -134,7 +134,7 @@ namespace fFilm {
         SpeedSlider->PositionChangedCallback = pas::bind_method<&TfFilm::SpeedSliderChanged>(this);
         SpeedSlider->SetRange(0, 100);
         SetFrameInterval(18, true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PF_Exit"_wref.get()))->UpCallback = pas::bind_method<&TfFilm::ExitClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PF_Exit"sv))->UpCallback = pas::bind_method<&TfFilm::ExitClicked>(this);
         PlayButton->UpCallback = pas::bind_method<&TfFilm::PlayStopClicked>(this);
         StopButton->UpCallback = pas::bind_method<&TfFilm::PlayStopClicked>(this);
         {
@@ -143,7 +143,7 @@ namespace fFilm {
             turnSlider->SetRange(0, cpp_arg_2);
         }
         TurnSlider->PositionChangedCallback = pas::bind_method<&TfFilm::TurnSliderChanged>(this);
-        GetByName(u"MapPanelA"_wref.get())->SetActive(aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(1));
+        GetByName(u"MapPanelA"sv)->SetActive(aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(1));
         SelectHistoryEntry(Globals::FilmHistory->GetCount() - 1, true);
         CopyLiveVisualStateToFilm();
         AdvanceOneStep();
@@ -154,11 +154,11 @@ namespace fFilm {
     void TfFilm::OnClose() {
         aGalaxy::Galaxy->CheckIntegrityChecksum(134);
         {
-            GI_StarFieldImg::TStarFieldImgGI* cpp_arg = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(GetByName(u"StarFieldImg"_wref.get()));
-            GI_StarFieldImg::TStarFieldImgGI* cpp_arg_2 = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(Globals::StarMapScreen->GetByName(u"StarFieldImg"_wref.get()));
+            GI_StarFieldImg::TStarFieldImgGI* cpp_arg = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(GetByName(u"StarFieldImg"sv));
+            GI_StarFieldImg::TStarFieldImgGI* cpp_arg_2 = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(Globals::StarMapScreen->GetByName(u"StarFieldImg"sv));
             cpp_arg_2->CopyStarsFrom(cpp_arg);
         }
-        fStarMap::TfStarMap::SaveSpaceImageState(pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"_wref.get())));
+        fStarMap::TfStarMap::SaveSpaceImageState(pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"sv)));
         if (Globals::TrailingFilmEffects != nullptr) {
             pas::free(Globals::TrailingFilmEffects);
             Globals::TrailingFilmEffects = nullptr;
@@ -186,7 +186,7 @@ namespace fFilm {
     WindowsSdk::TPoint TfFilm::GetViewOffset() {
         WindowsSdk::TPoint Result{};
         if (SpacePanel == nullptr) {
-            SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
+            SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
         }
         Result = SpacePanel->ScrollOffset;
         return Result;
@@ -195,7 +195,7 @@ namespace fFilm {
     // Disables automatic camera following.
     void TfFilm::SetViewOffset(WindowsSdk::TPoint Offset) {
         if (SpacePanel == nullptr) {
-            SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
+            SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
         }
         SpacePanel->SetScrollOffset(Offset);
         if (Globals::SpaceProcess->Space != nullptr) {
@@ -208,7 +208,7 @@ namespace fFilm {
     void TfFilm::FollowViewOffset(WindowsSdk::TPoint Offset) {
         if (Globals::FilmCameraFollow) {
             if (SpacePanel == nullptr) {
-                SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
+                SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
             }
             SpacePanel->SetScrollOffset(Offset);
             if (Globals::SpaceProcess->Space != nullptr) {
@@ -292,14 +292,14 @@ namespace fFilm {
         aPlanet::TPlanet* Planet{};
         aPlanet::TSputnik* Satellite{};
         aAsteroid::TAsteroid* Asteroid{};
-        aEFilm::TEFilmObj* Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(aGalaxy::PlayerStar->Graphic), aGalaxy::PlayerStar->Graphic->GraphKey, aGalaxy::PlayerStar->Id);
+        aEFilm::TEFilmObj* Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(aGalaxy::PlayerStar->Graphic)), pas::view(aGalaxy::PlayerStar->Graphic->GraphKey), aGalaxy::PlayerStar->Id);
         if (Obj != nullptr && Obj->SceneObject != nullptr) {
             pas::checked_cast<SE_Star::TStarSE*>(Obj->SceneObject)->SetSequenceFrameIndex(reinterpret_cast<SE_Star::TStarSE*>(aGalaxy::PlayerStar->Graphic)->GetSequenceFrameIndex());
         }
         std::int32_t Count = pas::list_count(aGalaxy::PlayerStar->Planets);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::PlayerStar->Planets, Index);
-            Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(Planet->Graphic), Planet->Graphic->GraphKey, Planet->Id);
+            Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(Planet->Graphic)), pas::view(Planet->Graphic->GraphKey), Planet->Id);
             if (Obj != nullptr && Obj->SceneObject != nullptr) {
                 pas::checked_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->SetSurfaceMapOffset(Planet->Graphic->SurfaceMapOffset);
                 pas::checked_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->SetCloud1MapOffset(Planet->Graphic->Cloud1MapOffset);
@@ -309,17 +309,17 @@ namespace fFilm {
             SatelliteCount = pas::list_count(Planet->Satellites);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, SatelliteCount - 1); cpp_range_2.next(SatelliteIndex); ) {
                 Satellite = pas::list_at<aPlanet::TSputnik>(Planet->Satellites, SatelliteIndex);
-                Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(Satellite->Graphic), Satellite->Graphic->GraphKey, Satellite->Id);
+                Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(Satellite->Graphic)), pas::view(Satellite->Graphic->GraphKey), Satellite->Id);
                 if (Obj != nullptr && Obj->SceneObject != nullptr) {
                     pas::checked_cast<SE_Sputnik::TSputnikSE*>(Obj->SceneObject)->SurfaceMapOffset = Satellite->Graphic->SurfaceMapOffset;
-                    pas::checked_cast<SE_Sputnik::TSputnikSE*>(Obj->SceneObject)->OrbitAngle = Satellite->Graphic->OrbitAngle;
+                    static_cast<SE_Sputnik::TSputnikSE*>(Obj->SceneObject)->OrbitAngle = Satellite->Graphic->OrbitAngle;
                 }
             }
         }
         Count = pas::list_count(aGalaxy::PlayerStar->Asteroids);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(Index); ) {
             Asteroid = pas::list_at<aAsteroid::TAsteroid>(aGalaxy::PlayerStar->Asteroids, Index);
-            Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(Asteroid->GraphObject), Asteroid->GraphObject->GraphKey, Asteroid->Id);
+            Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(Asteroid->GraphObject)), pas::view(Asteroid->GraphObject->GraphKey), Asteroid->Id);
             if (Obj != nullptr && Obj->SceneObject != nullptr) {
                 pas::checked_cast<SE_Asteroid::TAsteroidSE*>(Obj->SceneObject)->SetSequenceFrameIndex(reinterpret_cast<SE_Asteroid::TAsteroidSE*>(Asteroid->GraphObject)->GetSequenceFrameIndex());
             }
@@ -333,14 +333,14 @@ namespace fFilm {
         aPlanet::TPlanet* Planet{};
         aPlanet::TSputnik* Satellite{};
         aAsteroid::TAsteroid* Asteroid{};
-        aEFilm::TEFilmObj* Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(aGalaxy::PlayerStar->Graphic), aGalaxy::PlayerStar->Graphic->GraphKey, aGalaxy::PlayerStar->Id);
+        aEFilm::TEFilmObj* Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(aGalaxy::PlayerStar->Graphic)), pas::view(aGalaxy::PlayerStar->Graphic->GraphKey), aGalaxy::PlayerStar->Id);
         if (Obj != nullptr && Obj->SceneObject != nullptr) {
             reinterpret_cast<SE_Star::TStarSE*>(aGalaxy::PlayerStar->Graphic)->SetSequenceFrameIndex(pas::checked_cast<SE_Star::TStarSE*>(Obj->SceneObject)->GetSequenceFrameIndex());
         }
         std::int32_t Count = pas::list_count(aGalaxy::PlayerStar->Planets);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::PlayerStar->Planets, Index);
-            Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(Planet->Graphic), Planet->Graphic->GraphKey, Planet->Id);
+            Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(Planet->Graphic)), pas::view(Planet->Graphic->GraphKey), Planet->Id);
             if (Obj != nullptr && Obj->SceneObject != nullptr) {
                 Planet->Graphic->SetSurfaceMapOffset(pas::checked_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->SurfaceMapOffset);
                 Planet->Graphic->SetCloud1MapOffset(pas::checked_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->Cloud1MapOffset);
@@ -350,17 +350,17 @@ namespace fFilm {
             SatelliteCount = pas::list_count(Planet->Satellites);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, SatelliteCount - 1); cpp_range_2.next(SatelliteIndex); ) {
                 Satellite = pas::list_at<aPlanet::TSputnik>(Planet->Satellites, SatelliteIndex);
-                Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(Satellite->Graphic), Satellite->Graphic->GraphKey, Satellite->Id);
+                Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(Satellite->Graphic)), pas::view(Satellite->Graphic->GraphKey), Satellite->Id);
                 if (Obj != nullptr && Obj->SceneObject != nullptr) {
                     Satellite->Graphic->SurfaceMapOffset = pas::checked_cast<SE_Sputnik::TSputnikSE*>(Obj->SceneObject)->SurfaceMapOffset;
-                    Satellite->Graphic->OrbitAngle = pas::checked_cast<SE_Sputnik::TSputnikSE*>(Obj->SceneObject)->OrbitAngle;
+                    Satellite->Graphic->OrbitAngle = static_cast<SE_Sputnik::TSputnikSE*>(Obj->SceneObject)->OrbitAngle;
                 }
             }
         }
         Count = pas::list_count(aGalaxy::PlayerStar->Asteroids);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(Index); ) {
             Asteroid = pas::list_at<aAsteroid::TAsteroid>(aGalaxy::PlayerStar->Asteroids, Index);
-            Obj = CurrentFilm->FindObject(SE_Process::ClassSEtoName(Asteroid->GraphObject), Asteroid->GraphObject->GraphKey, Asteroid->Id);
+            Obj = CurrentFilm->FindObject(pas::view(SE_Process::ClassSEtoName(Asteroid->GraphObject)), pas::view(Asteroid->GraphObject->GraphKey), Asteroid->Id);
             if (Obj != nullptr && Obj->SceneObject != nullptr) {
                 reinterpret_cast<SE_Asteroid::TAsteroidSE*>(Asteroid->GraphObject)->SetSequenceFrameIndex(pas::checked_cast<SE_Asteroid::TAsteroidSE*>(Obj->SceneObject)->GetSequenceFrameIndex());
             }
@@ -400,11 +400,11 @@ namespace fFilm {
         CurrentHistoryIndex = Index;
         PreloadHistoryIndex = 0;
         if (!InitialLoad) {
-            fStarMap::TfStarMap::SaveSpaceImageState(pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"_wref.get())));
+            fStarMap::TfStarMap::SaveSpaceImageState(pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"sv)));
         }
         {
-            GI_SpaceImg::TSpaceImgGI* cpp_arg = pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"_wref.get()));
-            GI_StarField::TStarFieldGI* cpp_arg_2 = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"_wref.get()));
+            GI_SpaceImg::TSpaceImgGI* cpp_arg = pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"sv));
+            GI_StarField::TStarFieldGI* cpp_arg_2 = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"sv));
             fStarMap::TfStarMap::BuildSpaceBackground(cpp_arg_2, cpp_arg, CurrentFilm->StarGenerationSeed, CurrentFilm->BackgroundImage);
         }
         GR_Main::FullFrameRedrawRequested = true;
@@ -453,7 +453,7 @@ namespace fFilm {
         Obj = Film->FirstObject;
         while (Obj != nullptr) {
             if (Obj->SceneObject == nullptr) {
-                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(Obj->KindName, Obj->GraphKey, ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(pas::view(Obj->KindName), Obj->GraphKey, ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> sceneObject = pas::Var<SE_Space::TObjectSE*>(&Obj->SceneObject);
                 SE_Space::RetainSpaceObject(sceneObject, createSpaceObjectByName);
             }
@@ -501,7 +501,7 @@ namespace fFilm {
         NewObj = PreloadedFilm->FirstObject;
         while (NewObj != nullptr) {
             if (NewObj->SceneObject == nullptr) {
-                OldObj = CurrentFilm->FindObject(NewObj->KindName, NewObj->GraphKey, NewObj->ObjectId);
+                OldObj = CurrentFilm->FindObject(pas::view(NewObj->KindName), pas::view(NewObj->GraphKey), NewObj->ObjectId);
                 if (OldObj != nullptr) {
                     if (OldObj->SceneObject != nullptr) {
                         SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&NewObj->SceneObject), OldObj->SceneObject);
@@ -509,8 +509,8 @@ namespace fFilm {
                             NewObj->SceneObject->DetachFromSpace();
                         }
                         SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&OldObj->SceneObject));
-                        if (pas::class_cast_if<SE_Weapon::TWeaponSE*>(NewObj->SceneObject) != nullptr) {
-                            SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&pas::checked_cast<SE_Weapon::TWeaponSE*>(NewObj->SceneObject)->SourceObject));
+                        if (SE_Weapon::TWeaponSE* weaponSE = pas::class_cast_if<SE_Weapon::TWeaponSE*>(NewObj->SceneObject)) {
+                            SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&weaponSE->SourceObject));
                             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&pas::checked_cast<SE_Weapon::TWeaponSE*>(NewObj->SceneObject)->TargetObject));
                         }
                     }
@@ -705,7 +705,7 @@ namespace fFilm {
         }
         ++Globals::MinimapFrameCounter;
         InvalidateAnimatedControls();
-        GI_StarField::TStarFieldGI* StarField = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"_wref.get()));
+        GI_StarField::TStarFieldGI* StarField = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"sv));
         StarField->UpdateBackgroundBounds();
         if (GlobalsV::SkipSavedPixelRestore || GR_Main::FullFrameRedrawRequested) {
             UpdateRects->Clear();

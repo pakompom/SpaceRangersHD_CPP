@@ -517,32 +517,32 @@ namespace GI_Planet {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Mask"_wref.get()) > 0 || Block->CountParams(u"Image"_wref.get()) > 0 || Block->CountParams(u"ImageLight"_wref.get()) > 0) {
-            const pas::WideString& param = Block->GetParam(u"ImageLight"_wref.get());
-            const pas::WideString& param_2 = Block->GetParam(u"Image"_wref.get());
-            const pas::WideString& param_3 = Block->GetParam(u"Mask"_wref.get());
+            const pas::WideString& param = Block->GetParam(u"ImageLight"sv);
+            const pas::WideString& param_2 = Block->GetParam(u"Image"sv);
+            const pas::WideString& param_3 = Block->GetParam(u"Mask"sv);
             Self->SetImage(param_3, param_2, param);
         }
         if (Block->CountParams(u"SmeMap"_wref.get()) > 0) {
-            Self->SurfaceMapOffset = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmeMap"_wref.get())));
+            Self->SurfaceMapOffset = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmeMap"sv)));
         }
         if (Block->CountParams(u"AngleLight"_wref.get()) > 0) {
-            Self->LightAngle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AngleLight"_wref.get())));
+            Self->LightAngle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AngleLight"sv)));
         }
     }
 
     void TPlanetGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         {
-            const pas::WideString& param = Block->GetParam(u"ImageLight"_wref.get());
-            const pas::WideString& param_2 = Block->GetParam(u"Image"_wref.get());
-            const pas::WideString& param_3 = Block->GetParam(u"Mask"_wref.get());
+            const pas::WideString& param = Block->GetParam(u"ImageLight"sv);
+            const pas::WideString& param_2 = Block->GetParam(u"Image"sv);
+            const pas::WideString& param_3 = Block->GetParam(u"Mask"sv);
             SetImage(param_3, param_2, param);
         }
         if (Block->CountParams(u"SmeMap"_wref.get()) > 0) {
-            SurfaceMapOffset = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmeMap"_wref.get())));
+            SurfaceMapOffset = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmeMap"sv)));
         }
         if (Block->CountParams(u"AngleLight"_wref.get()) > 0) {
-            LightAngle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AngleLight"_wref.get())));
+            LightAngle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AngleLight"sv)));
         }
     }
 

@@ -92,7 +92,7 @@
 #include "units/fTextBox.hpp"
 
 namespace aScriptFun {
-    using TWeaponDamageFlags = pas::Set<0, 31>;
+    using TKillFactionIndex = std::uint8_t;
 
     using TKillCounts = pas::Array<std::uint16_t, 0, 3>;
 
@@ -119,7 +119,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_GCntRun"_a));
         }
-        std::int32_t Index = Globals::FindScriptTemplateIndex(av[1]->GetString());
+        std::int32_t Index = Globals::FindScriptTemplateIndex(pas::view(av[1]->GetString()));
         if (Index < 0) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script.NotFound SF_GCntRun"_a));
         }
@@ -132,7 +132,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_GCntRun"_a));
         }
-        std::int32_t Index = Globals::FindScriptTemplateIndex(av[1]->GetString());
+        std::int32_t Index = Globals::FindScriptTemplateIndex(pas::view(av[1]->GetString()));
         if (Index < 0) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script.NotFound SF_GLastTurnRun"_a));
         }
@@ -144,8 +144,9 @@ namespace aScriptFun {
     }
 
     void SF_GAllCntRun(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count{};
         std::int32_t ClassId{};
         std::int32_t I{};
@@ -170,7 +171,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script IsScriptActive"_a));
         }
         av[0]->SetInt(0);
-        std::int32_t Index = Globals::FindScriptTemplateIndex(av[1]->GetString());
+        std::int32_t Index = Globals::FindScriptTemplateIndex(pas::view(av[1]->GetString()));
         if (Index >= 0) {
             av[0]->SetInt(pas::list_at<Globals::TScriptTemplUnit>(Globals::ScriptTemplates, Index)->ActiveScriptIndex >= 0);
         }
@@ -196,7 +197,7 @@ namespace aScriptFun {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script GetValueFromScript - var ", av[2]->GetString(), u" not found"}))));
             }
         } else {
-            Index = Globals::FindScriptTemplateIndex(av[1]->GetString());
+            Index = Globals::FindScriptTemplateIndex(pas::view(av[1]->GetString()));
             if (Index < 0) {
                 return;
             }
@@ -266,7 +267,7 @@ namespace aScriptFun {
         if (LastArg < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RunFunctionFromScript"_a));
         }
-        std::int32_t Index = Globals::FindScriptTemplateIndex(av[1]->GetString());
+        std::int32_t Index = Globals::FindScriptTemplateIndex(pas::view(av[1]->GetString()));
         if (Index < 0) {
             return;
         }
@@ -327,8 +328,9 @@ namespace aScriptFun {
     }
 
     void SF_GetVariableType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetVariableType"_a));
         }
@@ -336,8 +338,9 @@ namespace aScriptFun {
     }
 
     void SF_StatusPlayer(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         switch (aPlayer::GetPlayer()->GetDominantCareer()) {
             case aGalaxyStruct::rcTrader: av[0]->SetInt(1); break;
             case aGalaxyStruct::rcWarrior: av[0]->SetInt(0); break;
@@ -346,8 +349,9 @@ namespace aScriptFun {
     }
 
     void SF_AddPlanetNews(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AddPlanetNews"_a));
         }
@@ -364,8 +368,9 @@ namespace aScriptFun {
     }
 
     void SF_AddJournalRecord(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPlayer::TJournalRecord* Entry{};
         std::int32_t I{};
         std::int32_t Turn{};
@@ -403,8 +408,9 @@ namespace aScriptFun {
     }
 
     void SF_AutoBattle(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AutoBattle"_a));
         }
@@ -412,8 +418,9 @@ namespace aScriptFun {
     }
 
     void SF_GetOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_GetOwner"_a));
         }
@@ -423,13 +430,14 @@ namespace aScriptFun {
     }
 
     void SF_GiveReward(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_GiveReward"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        std::uint8_t Owner = av[2]->GetInt();
+        aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
         std::uint8_t Kind = av[3]->GetInt();
         std::int32_t Award = pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->SelectAward(Owner, pas::make_set<aNormalShip::TAwardTypeMask>({{static_cast<std::int32_t>(Kind)}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
         if (Award == aGalaxyStruct::AwardNotFound) {
@@ -440,8 +448,9 @@ namespace aScriptFun {
     }
 
     void SF_GiveRewardByNom(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_GiveRewardByNom"_a));
         }
@@ -479,7 +488,7 @@ namespace aScriptFun {
             }
             Count = 0;
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Ship->AwardIds) - 1); cpp_range_2.next(Index); ) {
-                if (aConst::SysToReward(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index)))), ".Type"})))) == Kind) {
+                if (aConst::SysToReward(pas::view(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Reward.", SysUtils::IntToStr(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index)))), ".Type"}))))) == Kind) {
                     ++Count;
                 }
             }
@@ -488,8 +497,9 @@ namespace aScriptFun {
     }
 
     void SF_CountRewardByNom(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_CountRewardByNom"_a));
@@ -510,8 +520,9 @@ namespace aScriptFun {
     }
 
     void SF_DeleteRewardByNom(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::int32_t Count{};
         if (av.length() - 1 < 2) {
@@ -542,8 +553,9 @@ namespace aScriptFun {
     }
 
     void SF_Rnd(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t LowValue{};
         std::int32_t HighValue{};
         std::uint32_t Seed{};
@@ -590,54 +602,57 @@ namespace aScriptFun {
     }
 
     void SF_Id(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_Id"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aShip::TShip*>(Obj)->Id);
-        } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aPlanet::TPlanet*>(Obj)->Id);
-        } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aGalaxy::TStar*>(Obj)->Id);
-        } else if (pas::class_cast_if<aGalaxy::TConstellation*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aGalaxy::TConstellation*>(Obj)->Id);
-        } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aItem::TItem*>(Obj)->Id);
-        } else if (pas::class_cast_if<aGalaxy::THole*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aGalaxy::THole*>(Obj)->Id);
-        } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aMissile::TMissile*>(Obj)->Id);
-        } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->Id);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            av[0]->SetDword(ship->Id);
+        } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            av[0]->SetDword(planet->Id);
+        } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+            av[0]->SetDword(star->Id);
+        } else if (aGalaxy::TConstellation* constellation = pas::class_cast_if<aGalaxy::TConstellation*>(Obj)) {
+            av[0]->SetDword(constellation->Id);
+        } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            av[0]->SetDword(item->Id);
+        } else if (aGalaxy::THole* hole = pas::class_cast_if<aGalaxy::THole*>(Obj)) {
+            av[0]->SetDword(hole->Id);
+        } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+            av[0]->SetDword(missile->Id);
+        } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+            av[0]->SetDword(asteroid->Id);
         } else {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_Id 2"_a));
         }
     }
 
     void SF_SetName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_SetName"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            reinterpret_cast<aShip::TShip*>(Obj)->Name = av[2]->GetString();
-        } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            reinterpret_cast<aPlanet::TPlanet*>(Obj)->Name = av[2]->GetString();
-        } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-            reinterpret_cast<aGalaxy::TStar*>(Obj)->Name = av[2]->GetString();
-        } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            reinterpret_cast<aItem::TItem*>(Obj)->NameOverride = av[2]->GetString();
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            ship->Name = av[2]->GetString();
+        } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            planet->Name = av[2]->GetString();
+        } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+            star->Name = av[2]->GetString();
+        } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            item->NameOverride = av[2]->GetString();
         }
     }
 
     void SF_UseTranclucator(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Obj{};
         aItem::TArtefactTranclucator* Artefact{};
         aTranclucator::TTranclucator* Drone{};
@@ -655,13 +670,13 @@ namespace aScriptFun {
             } else {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->Artefacts) - 1); cpp_range.next(Index); ) {
                     Obj = pas::list_at<pas::Object>(Ship->Artefacts, Index);
-                    if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Obj) != nullptr && reinterpret_cast<aItem::TArtefactTranclucator*>(Obj)->BrokenFlag == 0) {
+                    if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Obj); artefactTranclucator != nullptr && artefactTranclucator->BrokenFlag == 0) {
                         break;
                     }
                 }
             }
             if (Obj != nullptr && pas::class_cast_if<aItem::TArtefactTranclucator*>(Obj) != nullptr) {
-                Artefact = pas::checked_cast<aItem::TArtefactTranclucator*>(Obj);
+                Artefact = static_cast<aItem::TArtefactTranclucator*>(Obj);
                 Drone = static_cast<aTranclucator::TTranclucator*>(Artefact->Ship);
                 Artefact->Ship = nullptr;
                 Drone->CurrentStar = Ship->CurrentStar;
@@ -694,17 +709,18 @@ namespace aScriptFun {
     }
 
     void SF_HullDamage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::THull* Hull{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HullDamage"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aShip::TShip*>(Obj)->GetHull();
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(reinterpret_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Hull = ship->GetHull();
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Hull = reinterpret_cast<aItem::THull*>(scriptItem->Item);
         } else {
             Hull = reinterpret_cast<aItem::THull*>(Obj);
         }
@@ -712,17 +728,18 @@ namespace aScriptFun {
     }
 
     void SF_Hitpoints(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::THull* Hull{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script Hitpoints"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aShip::TShip*>(Obj)->GetHull();
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(reinterpret_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Hull = ship->GetHull();
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Hull = reinterpret_cast<aItem::THull*>(scriptItem->Item);
         } else {
             Hull = reinterpret_cast<aItem::THull*>(Obj);
         }
@@ -730,8 +747,9 @@ namespace aScriptFun {
     }
 
     void SF_Hit(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         aScript::TScriptShip* Binding{};
         if (av.length() - 1 < 1) {
@@ -742,7 +760,7 @@ namespace aScriptFun {
         if (Ship != nullptr) {
             Binding = aScript::GetScriptShipBindingForContext(Ship, aScript::CurrentScript);
             if (av.length() - 1 < 2) {
-                av[0]->SetInt((Binding->Hit || Binding->HitPlayer) & 0x0000007f);
+                av[0]->SetInt(Binding->Hit || Binding->HitPlayer);
             } else if (av[2]->GetInt() != 0) {
                 av[0]->SetInt(Binding->HitPlayer);
                 if (av.length() - 1 > 2) {
@@ -758,12 +776,13 @@ namespace aScriptFun {
     }
 
     void SF_ChangeGlobalRelationsShips(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Scope{};
         aRanger::TRelationChangeMode Mode{};
         aConst::THullShipTypeMask ShipTypes{};
-        std::uint8_t Owners{};
+        aGalaxyStruct::TOwnerMask Owners{};
         if (av.length() - 1 != 6) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ChangeGlobalRelationsShips"_a));
         }
@@ -786,18 +805,19 @@ namespace aScriptFun {
                 case 3: Mode = aRanger::rcmDecrease; break;
                 default: Mode = aRanger::rcmCapAt; break;
             }
-            pas::store_unaligned<std::uint16_t>(&ShipTypes, static_cast<std::uint16_t>(av[5]->GetDword()));
-            Owners = av[6]->GetDword();
-            reinterpret_cast<aRanger::TRanger*>(Ranger)->ChangeShipRelations(Scope, Mode, av[4]->GetInt(), ShipTypes, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&Owners));
+            ShipTypes = std::bit_cast<aConst::THullShipTypeMask>(static_cast<std::uint16_t>(av[5]->GetDword()));
+            Owners = std::bit_cast<aGalaxyStruct::TOwnerMask>(static_cast<std::uint8_t>(av[6]->GetDword()));
+            static_cast<aRanger::TRanger*>(Ranger)->ChangeShipRelations(Scope, Mode, av[4]->GetInt(), ShipTypes, Owners);
         }
     }
 
     void SF_ChangeGlobalRelationsPlanets(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Scope{};
         aRanger::TRelationChangeMode Mode{};
-        std::uint8_t Owners{};
+        aGalaxyStruct::TOwnerMask Owners{};
         if (av.length() - 1 != 5) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ChangeGlobalRelationsPlanets"_a));
         }
@@ -817,17 +837,18 @@ namespace aScriptFun {
                 case 3: Mode = aRanger::rcmDecrease; break;
                 default: Mode = aRanger::rcmCapAt; break;
             }
-            Owners = av[5]->GetDword();
-            aRanger::TRanger_ChangePlanetRelations(reinterpret_cast<aRanger::TRanger*>(Ranger), Scope, Mode, av[4]->GetInt(), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&Owners));
+            Owners = std::bit_cast<aGalaxyStruct::TOwnerMask>(static_cast<std::uint8_t>(av[5]->GetDword()));
+            aRanger::TRanger_ChangePlanetRelations(static_cast<aRanger::TRanger*>(Ranger), Scope, Mode, av[4]->GetInt(), Owners);
         }
     }
 
     void SF_GlobalRelationsShips(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Scope{};
-        std::uint16_t ShipTypes{};
-        std::uint8_t Owners{};
+        aConst::THullShipTypeMask ShipTypes{};
+        aGalaxyStruct::TOwnerMask Owners{};
         if (av.length() - 1 != 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GlobalRelationsShips"_a));
         }
@@ -840,8 +861,8 @@ namespace aScriptFun {
             } else {
                 Scope = nullptr;
             }
-            ShipTypes = av[3]->GetDword();
-            Owners = av[4]->GetDword();
+            ShipTypes = std::bit_cast<aConst::THullShipTypeMask>(static_cast<std::uint16_t>(av[3]->GetDword()));
+            Owners = std::bit_cast<aGalaxyStruct::TOwnerMask>(static_cast<std::uint8_t>(av[4]->GetDword()));
             {
                 std::int32_t globalRelationsShips = reinterpret_cast<aRanger::TRanger*>(Ranger)->GlobalRelationsShips(Scope, ShipTypes, Owners);
                 EC_Expression::TVarEC* cpp_arg = av[0];
@@ -851,10 +872,11 @@ namespace aScriptFun {
     }
 
     void SF_GlobalRelationsPlanets(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Scope{};
-        std::uint8_t Owners{};
+        aGalaxyStruct::TOwnerMask Owners{};
         if (av.length() - 1 != 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GlobalRelationsPlanets"_a));
         }
@@ -867,14 +889,15 @@ namespace aScriptFun {
             } else {
                 Scope = nullptr;
             }
-            Owners = av[3]->GetDword();
-            av[0]->SetInt(reinterpret_cast<aRanger::TRanger*>(Ranger)->GlobalRelationsPlanets(Scope, Owners));
+            Owners = std::bit_cast<aGalaxyStruct::TOwnerMask>(static_cast<std::uint8_t>(av[3]->GetDword()));
+            av[0]->SetInt(static_cast<aRanger::TRanger*>(Ranger)->GlobalRelationsPlanets(Scope, Owners));
         }
     }
 
     void SF_SetRelationGroup(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetRelationGroup"_a));
         }
@@ -887,8 +910,9 @@ namespace aScriptFun {
     }
 
     void SF_SetRelationPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetRelationPlanet"_a));
         }
@@ -901,8 +925,9 @@ namespace aScriptFun {
     }
 
     void SF_GetRelationPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetRelationPlanet"_a));
         }
@@ -915,8 +940,9 @@ namespace aScriptFun {
     }
 
     void SF_CurTurn(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aGalaxy::Galaxy->CurrentTurn);
         if (av.length() - 1 > 0) {
             aGalaxy::Galaxy->CurrentTurn = av[1]->GetInt();
@@ -924,8 +950,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipType"_a));
@@ -954,8 +981,9 @@ namespace aScriptFun {
     }
 
     void SF_ConName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TConstellation* Constellation{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ConName"_a));
@@ -973,8 +1001,9 @@ namespace aScriptFun {
     }
 
     void SF_StarName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Obj{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarName"_a));
@@ -984,8 +1013,9 @@ namespace aScriptFun {
     }
 
     void SF_StarMapLabel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Star{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarMapLabel"_a));
@@ -998,8 +1028,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPlanet::TPlanet* Obj{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetName"_a));
@@ -1009,8 +1040,9 @@ namespace aScriptFun {
     }
 
     void SF_IdToPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script IdToPlanet"_a));
         }
@@ -1018,8 +1050,9 @@ namespace aScriptFun {
     }
 
     void SF_IdToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script IdToShip"_a));
         }
@@ -1031,8 +1064,9 @@ namespace aScriptFun {
     }
 
     void SF_IdToItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script IdToItem"_a));
         }
@@ -1040,8 +1074,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetSetGoods(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetSetGoods"_a));
         }
@@ -1053,8 +1088,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Obj{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipName"_a));
@@ -1068,8 +1104,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipRank(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRank"_a));
         }
@@ -1078,8 +1115,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipRankPoints(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRankPoints"_a));
         }
@@ -1091,8 +1129,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipNextRankPoints(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipNextRankPoints"_a));
         }
@@ -1101,8 +1140,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipRaiseRank(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRaiseRank"_a));
         }
@@ -1116,8 +1156,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipStar"_a));
         }
@@ -1126,8 +1167,9 @@ namespace aScriptFun {
     }
 
     void SF_StarToCon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarToCon"_a));
         }
@@ -1161,8 +1203,9 @@ namespace aScriptFun {
     }
 
     void SF_ConStars(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ConStars"_a));
         }
@@ -1171,8 +1214,9 @@ namespace aScriptFun {
     }
 
     void SF_ConStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ConStar"_a));
         }
@@ -1186,14 +1230,16 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyStars(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(pas::list_count(aGalaxy::Galaxy->Stars));
     }
 
     void SF_GalaxyStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GalaxyStar"_a));
         }
@@ -1206,8 +1252,9 @@ namespace aScriptFun {
     }
 
     void SF_StarAngleBetween(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 5) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarAngleBetween"_a));
         }
@@ -1229,8 +1276,9 @@ namespace aScriptFun {
     }
 
     void SF_FindPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Star{};
         aPlanet::TPlanet* Planet{};
         pas::WideString Filters{};
@@ -1256,33 +1304,33 @@ namespace aScriptFun {
         }
         pas::List* Planets = pas::make_object<pas::List>();
         std::int32_t Count = pas::list_count(Star->Planets);
-        std::int32_t FilterCount = EC_Str::CountDelimitedPartsW(Filters, u","_wref.get());
+        std::int32_t FilterCount = EC_Str::CountDelimitedPartsW(pas::view(Filters), u","sv);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, I);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, FilterCount - 1); cpp_range_2.next(J); ) {
-                Filter = EC_Str::ExtractDelimitedPartW(Filters, J, u","_wref.get());
-                if (Filter == u"NotMaloc" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc)) {
+                Filter = EC_Str::ExtractDelimitedPartW(pas::view(Filters), J, u","sv);
+                if (Filter == u"NotMaloc" && Planet->OwnerId == aGalaxyStruct::oiMaloc) {
                     break;
                 }
-                if (Filter == u"NotPeleng" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng)) {
+                if (Filter == u"NotPeleng" && Planet->OwnerId == aGalaxyStruct::oiPeleng) {
                     break;
                 }
-                if (Filter == u"NotPeople" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiHuman)) {
+                if (Filter == u"NotPeople" && Planet->OwnerId == aGalaxyStruct::oiHuman) {
                     break;
                 }
-                if (Filter == u"NotFei" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan)) {
+                if (Filter == u"NotFei" && Planet->OwnerId == aGalaxyStruct::oiFeyan) {
                     break;
                 }
-                if (Filter == u"NotGaal" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiGaal)) {
+                if (Filter == u"NotGaal" && Planet->OwnerId == aGalaxyStruct::oiGaal) {
                     break;
                 }
-                if (Filter == u"NotKling" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+                if (Filter == u"NotKling" && Planet->OwnerId == aGalaxyStruct::oiDominator) {
                     break;
                 }
-                if (Filter == u"NotPirateClan" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (Filter == u"NotPirateClan" && Planet->OwnerId == aGalaxyStruct::oiPirate) {
                     break;
                 }
-                if (Filter == u"NotNone" && Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                if (Filter == u"NotNone" && Planet->OwnerId == aGalaxyStruct::oiUninhabited) {
                     break;
                 }
             }
@@ -1303,8 +1351,9 @@ namespace aScriptFun {
     }
 
     void SF_IsPlayer(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script IsPlayer"_a));
         }
@@ -1313,8 +1362,9 @@ namespace aScriptFun {
     }
 
     void SF_GroupCount(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptShip* Binding{};
         std::int32_t I{};
         if (av.length() - 1 != 1) {
@@ -1333,8 +1383,9 @@ namespace aScriptFun {
     }
 
     void SF_GroupIn(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t Count{};
         aScript::TScriptShip* Binding{};
@@ -1406,12 +1457,12 @@ namespace aScriptFun {
                     }
                 }
             }
-        } else if (pas::class_cast_if<aScript::TScriptPlace*>(Location) != nullptr) {
+        } else if (aScript::TScriptPlace* scriptPlace = pas::class_cast_if<aScript::TScriptPlace*>(Location)) {
             Count = pas::list_count(aScript::CurrentScript->Ships);
             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(I); ) {
                 Binding = pas::list_at<aScript::TScriptShip>(aScript::CurrentScript->Ships, I);
                 if (Binding->GroupIndex == GroupIndex) {
-                    if (!reinterpret_cast<aScript::TScriptPlace*>(Location)->ShipInPlace(Binding->Ship)) {
+                    if (!scriptPlace->ShipInPlace(Binding->Ship)) {
                         av[0]->SetInt(0);
                         return;
                     }
@@ -1423,8 +1474,9 @@ namespace aScriptFun {
     }
 
     void SF_CountIn(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Location{};
         std::int32_t I{};
         std::int32_t Count{};
@@ -1491,11 +1543,11 @@ namespace aScriptFun {
                         ++FoundCount;
                     }
                 }
-            } else if (pas::class_cast_if<aScript::TScriptPlace*>(Location) != nullptr) {
+            } else if (aScript::TScriptPlace* scriptPlace = pas::class_cast_if<aScript::TScriptPlace*>(Location)) {
                 Count = pas::list_count(aScript::CurrentScript->Ships);
                 for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_6.next(I); ) {
                     Binding = pas::list_at<aScript::TScriptShip>(aScript::CurrentScript->Ships, I);
-                    if (Binding->GroupIndex == GroupIndex && reinterpret_cast<aScript::TScriptPlace*>(Location)->ShipInPlace(Binding->Ship)) {
+                    if (Binding->GroupIndex == GroupIndex && scriptPlace->ShipInPlace(Binding->Ship)) {
                         ++FoundCount;
                     }
                 }
@@ -1505,8 +1557,9 @@ namespace aScriptFun {
     }
 
     void SF_ChangeState(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         std::int32_t Index{};
         aScript::TScriptContextSnapshot Snapshot{};
@@ -1576,8 +1629,9 @@ namespace aScriptFun {
     }
 
     void SF_StarAngle(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarAngle"_a));
         }
@@ -1650,33 +1704,33 @@ namespace aScriptFun {
             if (Obj == nullptr) {
                 return;
             }
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                if (reinterpret_cast<aShip::TShip*>(Obj)->InNormalSpace()) {
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                if (ship->InNormalSpace()) {
                     if (aPlayer::GetPlayer()->InNormalSpace()) {
-                        InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == reinterpret_cast<aShip::TShip*>(Obj)->CurrentStar;
+                        InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == ship->CurrentStar;
                     }
                 }
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
                 if (aPlayer::GetPlayer()->InNormalSpace()) {
-                    InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == reinterpret_cast<aPlanet::TPlanet*>(Obj)->CurrentStar;
+                    InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == planet->CurrentStar;
                 }
             } else {
                 pas::make_exception<pas::Exception>("Error.Script Ether objtype"_a);
             }
         }
         if (static_cast<std::uint8_t>(pas::in_set<1, 1, 10, 10>(Kind) ^ 1) || Obj == nullptr || InPlayerSystem) {
-            if (Kind == 3 && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(Key) < 0) {
+            if (Kind == 3 && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(pas::view(Key)) < 0) {
                 aScript::CurrentScript->EtherIds->Add(Key);
             }
             MessageEntry = ([&] {
                 auto key = pas::borrow(Key);
-                const pas::WideString& replaceAllWideString = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[3]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+                const pas::WideString& replaceAllWideString = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[3]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
                 std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
                 return Globals::AddOrUpdatePlayerBubble(Kind, currentTurn, replaceAllWideString, key.get());
             }());
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    MessageEntry->Targets[0].ShipId = reinterpret_cast<aShip::TShip*>(Obj)->Id;
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    MessageEntry->Targets[0].ShipId = ship_2->Id;
                 } else {
                     MessageEntry->Targets[0].PlanetId = reinterpret_cast<aPlanet::TPlanet*>(Obj)->Id;
                 }
@@ -1687,8 +1741,8 @@ namespace aScriptFun {
                 Obj = nullptr;
             }
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    MessageEntry->Targets[1].ShipId = reinterpret_cast<aShip::TShip*>(Obj)->Id;
+                if (aShip::TShip* ship_3 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    MessageEntry->Targets[1].ShipId = ship_3->Id;
                 } else {
                     MessageEntry->Targets[1].PlanetId = reinterpret_cast<aPlanet::TPlanet*>(Obj)->Id;
                 }
@@ -1699,8 +1753,8 @@ namespace aScriptFun {
                 Obj = nullptr;
             }
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    MessageEntry->Targets[2].ShipId = reinterpret_cast<aShip::TShip*>(Obj)->Id;
+                if (aShip::TShip* ship_4 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    MessageEntry->Targets[2].ShipId = ship_4->Id;
                 } else {
                     MessageEntry->Targets[2].PlanetId = reinterpret_cast<aPlanet::TPlanet*>(Obj)->Id;
                 }
@@ -1727,34 +1781,34 @@ namespace aScriptFun {
             if (Obj == nullptr) {
                 return;
             }
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                if (reinterpret_cast<aShip::TShip*>(Obj)->InNormalSpace()) {
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                if (ship->InNormalSpace()) {
                     if (aPlayer::GetPlayer()->InNormalSpace()) {
-                        InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == reinterpret_cast<aShip::TShip*>(Obj)->CurrentStar;
+                        InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == ship->CurrentStar;
                     }
                 }
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
                 if (aPlayer::GetPlayer()->InNormalSpace()) {
-                    InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == reinterpret_cast<aPlanet::TPlanet*>(Obj)->CurrentStar;
+                    InPlayerSystem = aPlayer::GetPlayer()->CurrentStar == planet->CurrentStar;
                 }
             } else {
                 pas::make_exception<pas::Exception>("Error.Script Ether objtype"_a);
             }
         }
         if (static_cast<std::uint8_t>(pas::in_set<1, 1, 10, 10>(Kind) ^ 1) || Obj == nullptr || InPlayerSystem) {
-            if (Kind == 3 && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(Key) < 0) {
+            if (Kind == 3 && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(pas::view(Key)) < 0) {
                 aScript::CurrentScript->EtherIds->Add(Key);
             }
             MessageEntry = ([&] {
                 auto key = pas::borrow(Key);
-                const pas::WideString& replaceAllWideString = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[4]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+                const pas::WideString& replaceAllWideString = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[4]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
                 std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
                 return Globals::AddOrUpdatePlayerBubble(Kind, currentTurn, replaceAllWideString, key.get());
             }());
             MessageEntry->ImageNameOverride = av[1]->GetString();
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    MessageEntry->Targets[0].ShipId = reinterpret_cast<aShip::TShip*>(Obj)->Id;
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    MessageEntry->Targets[0].ShipId = ship_2->Id;
                 } else {
                     MessageEntry->Targets[0].PlanetId = reinterpret_cast<aPlanet::TPlanet*>(Obj)->Id;
                 }
@@ -1765,8 +1819,8 @@ namespace aScriptFun {
                 Obj = nullptr;
             }
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    MessageEntry->Targets[1].ShipId = reinterpret_cast<aShip::TShip*>(Obj)->Id;
+                if (aShip::TShip* ship_3 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    MessageEntry->Targets[1].ShipId = ship_3->Id;
                 } else {
                     MessageEntry->Targets[1].PlanetId = reinterpret_cast<aPlanet::TPlanet*>(Obj)->Id;
                 }
@@ -1777,8 +1831,8 @@ namespace aScriptFun {
                 Obj = nullptr;
             }
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    MessageEntry->Targets[2].ShipId = reinterpret_cast<aShip::TShip*>(Obj)->Id;
+                if (aShip::TShip* ship_4 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    MessageEntry->Targets[2].ShipId = ship_4->Id;
                 } else {
                     MessageEntry->Targets[2].PlanetId = reinterpret_cast<aPlanet::TPlanet*>(Obj)->Id;
                 }
@@ -1820,7 +1874,7 @@ namespace aScriptFun {
             Index = ([&] {
                 const pas::WideString& string = av[1]->GetString();
                 EC_Str::TStringsEC* etherIds = aScript::CurrentScript->EtherIds;
-                return etherIds->IndexOf(string);
+                return etherIds->IndexOf(pas::view(string));
             }());
             if (Index < 0) {
                 break;
@@ -1844,8 +1898,9 @@ namespace aScriptFun {
     }
 
     void SF_ConChangeRelationToRanger(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Star{};
         aPlanet::TPlanet* Planet{};
         std::int32_t StarIndex{};
@@ -1863,7 +1918,7 @@ namespace aScriptFun {
             PlanetCount = pas::list_count(Star->Planets);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, PlanetCount - 1); cpp_range_2.next(PlanetIndex); ) {
                 Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
-                if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                     Planet->ChangeRelationToRanger(Ranger, Amount);
                 }
             }
@@ -1871,8 +1926,9 @@ namespace aScriptFun {
     }
 
     void SF_GetData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         std::int32_t Index = 0;
         if (av.length() - 1 >= 1) {
@@ -1894,8 +1950,9 @@ namespace aScriptFun {
     }
 
     void SF_SetData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetData"_a));
@@ -1921,8 +1978,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetDword(aScript::GetScriptShipBindingForContext(aScript::CurrentScript->CurrentShip, aScript::CurrentScript)->Data[0]);
         if (av.length() - 1 >= 1) {
             auto& cpp_target = aScript::GetScriptShipBindingForContext(aScript::CurrentScript->CurrentShip, aScript::CurrentScript)->Data[0];
@@ -1942,10 +2000,10 @@ namespace aScriptFun {
         }
         if (av.length() - 1 == 1) {
             Text = av[1]->GetString();
-            Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<ll>"_wref.get(), u"\r\n \r\n"_wref.get());
+            Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"sv);
+            Text = EC_Str::ReplaceAllWideString(Text, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             if (aPlayer::GetPlayer() != nullptr) {
-                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"}));
+                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::view(pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"})));
             }
             av[0]->SetString(Text);
         } else {
@@ -1964,11 +2022,11 @@ namespace aScriptFun {
                     const pas::WideString& wrapTextInColor = ([&] {
                         pas::WideString string = av[2 + I * 2 + 1]->GetString();
                         pas::WideString color = Color;
-                        return aMyFunction::WrapTextInColor(std::move(string), std::move(color));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(string)), pas::view(std::move(color)));
                     }());
                     const pas::WideString& string_2 = av[2 + I * 2]->GetString();
                     const pas::WideString& text = Text;
-                    return EC_Str::ReplaceAllWideString(text, string_2, wrapTextInColor);
+                    return EC_Str::ReplaceAllWideString(text, string_2, pas::view(wrapTextInColor));
                 }());
             }
             av[0]->SetString(Text);
@@ -2092,11 +2150,11 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DText"_a));
         }
         if (aPlayer::GetPlayer()->IsDockedToShip()) {
-            Globals::RuinsTalkScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+            Globals::RuinsTalkScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
         } else if (!aPlayer::GetPlayer()->IsOnPlanet()) {
-            Globals::TalkScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+            Globals::TalkScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
         } else {
-            Globals::GovernmentScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get());
+            Globals::GovernmentScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
         }
     }
 
@@ -2107,17 +2165,18 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DAddText"_a));
         }
         if (aPlayer::GetPlayer()->IsDockedToShip()) {
-            Globals::RuinsTalkScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get()), Globals::RuinsTalkScreen->DialogText});
+            Globals::RuinsTalkScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv), Globals::RuinsTalkScreen->DialogText});
         } else if (!aPlayer::GetPlayer()->IsOnPlanet()) {
-            Globals::TalkScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get()), Globals::TalkScreen->DialogText});
+            Globals::TalkScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv), Globals::TalkScreen->DialogText});
         } else {
-            Globals::GovernmentScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"_wref.get()), u"<clrEnd>"_wref.get(), u"</color>"_wref.get()), Globals::GovernmentScreen->DialogText});
+            Globals::GovernmentScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv), Globals::GovernmentScreen->DialogText});
         }
     }
 
     void SF_DAdd(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DAdd"_a));
         }
@@ -2125,8 +2184,9 @@ namespace aScriptFun {
     }
 
     void SF_DChange(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DChange"_a));
         }
@@ -2141,85 +2201,85 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DAnswer"_a));
         }
         if (aPlayer::GetPlayer()->IsDockedToShip()) {
-            if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"takeoff") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"takeoff") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen = Globals::RuinsTalkScreen;
                     ruinsTalkScreen->AddScriptTakeoffChoice(std::move(extractDelimitedRangeW));
                 } else {
                     Globals::RuinsTalkScreen->AddScriptTakeoffChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"exit" || EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"fastexit") {
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"exit" || EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"fastexit") {
                 if (aPlayer::GetPlayer()->RuinsMode > 0) {
                     aPlayer::GetPlayer()->CloseRuinsModeScreen();
                 } else {
                     Globals::RuinsTalkScreen->ContinueScriptDialog();
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"continue") {
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"continue") {
                 Globals::RuinsTalkScreen->ContinueScriptDialog();
             } else if (SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())) == "main") {
                 Globals::RuinsTalkScreen->M_Main(false);
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"exit_news") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"exit_news") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_2 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_2 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen_2 = Globals::RuinsTalkScreen;
                     ruinsTalkScreen_2->AddScriptNewsExitChoice(std::move(extractDelimitedRangeW_2));
                 } else {
                     Globals::RuinsTalkScreen->AddScriptNewsExitChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"exit_end") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"exit_end") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_3 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_3 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen_3 = Globals::RuinsTalkScreen;
                     ruinsTalkScreen_3->AddScriptGameEndChoice(std::move(extractDelimitedRangeW_3));
                 } else {
                     Globals::RuinsTalkScreen->AddScriptGameEndChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"hangar") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"hangar") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_4 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_4 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen_4 = Globals::RuinsTalkScreen;
                     ruinsTalkScreen_4->AddScriptHangarChoice(std::move(extractDelimitedRangeW_4));
                 } else {
                     Globals::RuinsTalkScreen->AddScriptHangarChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"restart") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"restart") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_5 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_5 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen_5 = Globals::RuinsTalkScreen;
                     ruinsTalkScreen_5->AddScriptRestartChoice(std::move(extractDelimitedRangeW_5));
                 } else {
                     Globals::RuinsTalkScreen->AddScriptRestartChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"goods") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"goods") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_6 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_6 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen_6 = Globals::RuinsTalkScreen;
                     ruinsTalkScreen_6->AddScriptGoodsChoice(std::move(extractDelimitedRangeW_6));
                 } else {
                     Globals::RuinsTalkScreen->AddScriptGoodsChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"block") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"block") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
                     GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback = fTalk::ScriptDialogBlockCallback;
-                    pas::WideString cpp_arg = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get())});
+                    pas::WideString cpp_arg = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv)});
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen_7 = Globals::RuinsTalkScreen;
                     ruinsTalkScreen_7->AddChoice(std::move(cpp_arg), 0, scriptDialogBlockCallback);
                 } else {
                     Globals::RuinsTalkScreen->AddChoice(pas::WideString(), 0, fTalk::ScriptDialogBlockCallback);
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"snap") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"snap") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg_2 = pas::bind_method<&fRuinsTalk::TfRuinsTalk::RunScriptAnswerKeepingScroll>(Globals::RuinsTalkScreen);
-                    pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get())});
+                    pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv)});
                     std::int32_t currentAnswer = aScript::CurrentScript->CurrentAnswer;
                     fRuinsTalk::TfRuinsTalk* ruinsTalkScreen_8 = Globals::RuinsTalkScreen;
                     ruinsTalkScreen_8->AddChoice(std::move(cpp_arg_3), currentAnswer, cpp_arg_2);
@@ -2234,20 +2294,20 @@ namespace aScriptFun {
                 ruinsTalkScreen_9->AddChoice(std::move(cpp_arg_5), currentAnswer_2, cpp_arg_4);
             }
         } else if (!aPlayer::GetPlayer()->IsOnPlanet()) {
-            if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"exit" || EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"takeoff") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"exit" || EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"takeoff") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_7 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_7 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fTalk::TfTalk* talkScreen = Globals::TalkScreen;
                     talkScreen->AddScriptExitChoice(std::move(extractDelimitedRangeW_7));
                 } else {
                     Globals::TalkScreen->AddScriptExitChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"fastexit") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"fastexit") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg_6 = pas::bind_method<&fTalk::TfTalk::FastExit>(Globals::TalkScreen);
-                    pas::WideString cpp_arg_7 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get())});
+                    pas::WideString cpp_arg_7 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv)});
                     fTalk::TfTalk* talkScreen_2 = Globals::TalkScreen;
                     talkScreen_2->AddChoice(std::move(cpp_arg_7), 0, cpp_arg_6, 0);
                 } else {
@@ -2256,40 +2316,40 @@ namespace aScriptFun {
             } else if (SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())) == "main") {
                 Globals::ScriptDialogIndex = -1;
                 Globals::TalkScreen->CodeMsgOut(true);
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"exit_end") {
-                GlobalsV::GameEndReason = 4;
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"exit_end") {
+                GlobalsV::GameEndReason = GlobalsV::gerTerronConversion;
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_8 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_8 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fTalk::TfTalk* talkScreen_3 = Globals::TalkScreen;
                     talkScreen_3->AddScriptExitChoice(std::move(extractDelimitedRangeW_8));
                 } else {
                     Globals::TalkScreen->AddScriptExitChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"restart") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"restart") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
-                    pas::WideString extractDelimitedRangeW_9 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                    pas::WideString extractDelimitedRangeW_9 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                     fTalk::TfTalk* talkScreen_4 = Globals::TalkScreen;
                     talkScreen_4->AddScriptRestartChoice(std::move(extractDelimitedRangeW_9));
                 } else {
                     Globals::TalkScreen->AddScriptRestartChoice(pas::WideString());
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"block") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"block") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
                     GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback_2 = fTalk::ScriptDialogBlockCallback;
-                    pas::WideString cpp_arg_8 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get())});
+                    pas::WideString cpp_arg_8 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv)});
                     fTalk::TfTalk* talkScreen_5 = Globals::TalkScreen;
                     talkScreen_5->AddChoice(std::move(cpp_arg_8), 0, scriptDialogBlockCallback_2, 0);
                 } else {
                     Globals::TalkScreen->AddChoice(pas::WideString(), 0, fTalk::ScriptDialogBlockCallback, 0);
                 }
-            } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"snap") {
-                Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+            } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"snap") {
+                Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
                 if (Count > 1) {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg_9 = pas::bind_method<&fTalk::TfTalk::RunScriptAnswerKeepingScroll>(Globals::TalkScreen);
-                    pas::WideString cpp_arg_10 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get())});
+                    pas::WideString cpp_arg_10 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv)});
                     std::int32_t currentAnswer_3 = aScript::CurrentScript->CurrentAnswer;
                     fTalk::TfTalk* talkScreen_6 = Globals::TalkScreen;
                     talkScreen_6->AddChoice(std::move(cpp_arg_10), currentAnswer_3, cpp_arg_9, 0);
@@ -2303,88 +2363,88 @@ namespace aScriptFun {
                 fTalk::TfTalk* talkScreen_7 = Globals::TalkScreen;
                 talkScreen_7->AddChoice(std::move(cpp_arg_12), currentAnswer_4, cpp_arg_11, 0);
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"takeoff") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"takeoff") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
-                pas::WideString extractDelimitedRangeW_10 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                pas::WideString extractDelimitedRangeW_10 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                 fGov::TfGov* governmentScreen = Globals::GovernmentScreen;
                 governmentScreen->AddScriptTakeoffChoice(std::move(extractDelimitedRangeW_10));
             } else {
                 Globals::GovernmentScreen->AddScriptTakeoffChoice(pas::WideString());
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"planet") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"planet") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
-                pas::WideString extractDelimitedRangeW_11 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                pas::WideString extractDelimitedRangeW_11 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                 fGov::TfGov* governmentScreen_2 = Globals::GovernmentScreen;
                 governmentScreen_2->AddScriptPlanetChoice(std::move(extractDelimitedRangeW_11));
             } else {
                 Globals::GovernmentScreen->AddScriptPlanetChoice(pas::WideString());
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"goods") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"goods") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
-                pas::WideString extractDelimitedRangeW_12 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                pas::WideString extractDelimitedRangeW_12 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                 fGov::TfGov* governmentScreen_3 = Globals::GovernmentScreen;
                 governmentScreen_3->AddScriptGoodsChoice(std::move(extractDelimitedRangeW_12));
             } else {
                 Globals::GovernmentScreen->AddScriptGoodsChoice(pas::WideString());
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"shop") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"shop") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
-                pas::WideString extractDelimitedRangeW_13 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                pas::WideString extractDelimitedRangeW_13 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                 fGov::TfGov* governmentScreen_4 = Globals::GovernmentScreen;
                 governmentScreen_4->AddScriptShopChoice(std::move(extractDelimitedRangeW_13));
             } else {
                 Globals::GovernmentScreen->AddScriptShopChoice(pas::WideString());
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"hangar") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"hangar") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
-                pas::WideString extractDelimitedRangeW_14 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                pas::WideString extractDelimitedRangeW_14 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                 fGov::TfGov* governmentScreen_5 = Globals::GovernmentScreen;
                 governmentScreen_5->AddScriptHangarChoice(std::move(extractDelimitedRangeW_14));
             } else {
                 Globals::GovernmentScreen->AddScriptHangarChoice(pas::WideString());
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"restart") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"restart") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
-                pas::WideString extractDelimitedRangeW_15 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                pas::WideString extractDelimitedRangeW_15 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                 fGov::TfGov* governmentScreen_6 = Globals::GovernmentScreen;
                 governmentScreen_6->AddScriptRestartChoice(std::move(extractDelimitedRangeW_15));
             } else {
                 Globals::GovernmentScreen->AddScriptRestartChoice(pas::WideString());
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"exit_news") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"exit_news") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
-                pas::WideString extractDelimitedRangeW_16 = EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get());
+                pas::WideString extractDelimitedRangeW_16 = EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv);
                 fGov::TfGov* governmentScreen_7 = Globals::GovernmentScreen;
                 governmentScreen_7->AddScriptNewsExitChoice(std::move(extractDelimitedRangeW_16));
             } else {
                 Globals::GovernmentScreen->AddScriptNewsExitChoice(pas::WideString());
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"exit" || EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"fastexit") {
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"exit" || EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"fastexit") {
             Globals::GovernmentScreen->ContinueScriptDialog();
         } else if (SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())) == "main") {
             Globals::GovernmentScreen->BuildGovernmentChoices(false);
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"block") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"block") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
                 GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback_3 = fTalk::ScriptDialogBlockCallback;
-                pas::WideString cpp_arg_13 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get())});
+                pas::WideString cpp_arg_13 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv)});
                 fGov::TfGov* governmentScreen_8 = Globals::GovernmentScreen;
                 governmentScreen_8->AddChoice(std::move(cpp_arg_13), 0, scriptDialogBlockCallback_3);
             } else {
                 Globals::GovernmentScreen->AddChoice(pas::WideString(), 0, fTalk::ScriptDialogBlockCallback);
             }
-        } else if (EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString()))), 0, u"~"_wref.get()) == u"snap") {
-            Count = EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"~"_wref.get());
+        } else if (EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(av[1]->GetString())))), 0, u"~"sv) == u"snap") {
+            Count = EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"~"sv);
             if (Count > 1) {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg_14 = pas::bind_method<&fGov::TfGov::RunScriptAnswerKeepingScroll>(Globals::GovernmentScreen);
-                pas::WideString cpp_arg_15 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(av[1]->GetString(), 1, Count - 1, u"~"_wref.get())});
+                pas::WideString cpp_arg_15 = pas::concat_wide({u"- ", EC_Str::ExtractDelimitedRangeW(pas::view(av[1]->GetString()), 1, Count - 1, u"~"sv)});
                 std::int32_t currentAnswer_5 = aScript::CurrentScript->CurrentAnswer;
                 fGov::TfGov* governmentScreen_9 = Globals::GovernmentScreen;
                 governmentScreen_9->AddChoice(std::move(cpp_arg_15), currentAnswer_5, cpp_arg_14);
@@ -2401,14 +2461,16 @@ namespace aScriptFun {
     }
 
     void SF_Player(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aPlayer::GetPlayer())));
     }
 
     void SF_ItemExist(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemExist"_a));
         }
@@ -2421,8 +2483,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemIn(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Star{};
         aShip::TShip* Ship{};
         aPlanet::TPlanet* Planet{};
@@ -2433,8 +2496,8 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemInStar"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         } else {
             Item = reinterpret_cast<aItem::TItem*>(Obj);
         }
@@ -2453,22 +2516,22 @@ namespace aScriptFun {
                 }
             }
             av[0]->SetInt(0);
-        } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-            Star = pas::checked_cast<aGalaxy::TStar*>(Obj);
+        } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+            Star = star;
             if (pas::list_indexof(Star->Items, reinterpret_cast<void*>(Item)) < 0) {
                 av[0]->SetInt(0);
             } else {
                 av[0]->SetInt(1);
             }
-        } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Ship = pas::checked_cast<aShip::TShip*>(Obj);
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Ship = ship;
             if (pas::list_indexof(Ship->Inventory, reinterpret_cast<void*>(Item)) < 0 && pas::list_indexof(Ship->Artefacts, reinterpret_cast<void*>(Item)) < 0) {
                 av[0]->SetInt(0);
             } else {
                 av[0]->SetInt(1);
             }
-        } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            Planet = pas::checked_cast<aPlanet::TPlanet*>(Obj);
+        } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            Planet = planet;
             if (aPlayer::GetPlayer()->CurrentPlanet == Planet && fEquipmentShop::TemporaryShopSlots != nullptr) {
                 if (fEquipmentShop::FindShopSlotByItem(Item) == nullptr) {
                     av[0]->SetInt(0);
@@ -2484,19 +2547,20 @@ namespace aScriptFun {
     }
 
     void SF_ItemCost(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemCost"_a));
         }
         std::uint32_t Value = 0u;
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             Value = Item->Cost;
@@ -2508,8 +2572,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemCount(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ItemCount"_a));
@@ -2531,8 +2596,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipPicksItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ShipPicksItem"_a));
         }
@@ -2563,8 +2629,9 @@ namespace aScriptFun {
     }
 
     void SF_DropItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Item{};
         std::uint8_t Kind{};
         std::int32_t Index{};
@@ -2648,8 +2715,9 @@ namespace aScriptFun {
     }
 
     void SF_DropScriptItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t SavedNoDrop{};
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DropScriptItem"_a));
@@ -2667,8 +2735,9 @@ namespace aScriptFun {
     }
 
     void SF_DeleteEquipment(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_DeleteEquipment"_a));
@@ -2689,21 +2758,23 @@ namespace aScriptFun {
     }
 
     void SF_DecayGoods(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DecayGoods"_a));
         }
         std::uint8_t Kind = av[2]->GetInt();
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            pas::checked_cast<aPlanet::TPlanet*>(Obj)->ForceGoodsScarcity(true, pas::make_set<aGalaxyStruct::TItemTypeMask>({{static_cast<std::int32_t>(Kind)}}));
+        if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            planet->ForceGoodsScarcity(true, pas::make_set<aGalaxyStruct::TItemTypeMask>({{static_cast<std::int32_t>(Kind)}}));
         }
     }
 
     void SF_UpsurgeGoods(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DecayGoods"_a));
         }
@@ -2712,31 +2783,33 @@ namespace aScriptFun {
     }
 
     void SF_GoodsAdd(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GoodsAdd"_a));
         }
         std::uint8_t Kind = av[2]->GetInt();
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            aGalaxyStruct::TGoodsTradePriceEntry& cpp_with = reinterpret_cast<aPlanet::TPlanet*>(Obj)->Goods[Kind];
+        if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            aGalaxyStruct::TGoodsTradePriceEntry& cpp_with = planet->Goods[Kind];
             cpp_with.Count += av[3]->GetInt();
             av[0]->SetInt(cpp_with.Count);
-        } else if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-            aGalaxyStruct::TGoodsTradePriceEntry& cpp_with_2 = reinterpret_cast<aRuins::TRuins*>(Obj)->ShopGoods[Kind];
+        } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+            aGalaxyStruct::TGoodsTradePriceEntry& cpp_with_2 = ruins->ShopGoods[Kind];
             cpp_with_2.Count += av[3]->GetInt();
             av[0]->SetInt(cpp_with_2.Count);
-        } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            aShip::TCargoGoodsEntry& cpp_with_3 = reinterpret_cast<aShip::TShip*>(Obj)->CargoGoods[Kind];
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            aShip::TCargoGoodsEntry& cpp_with_3 = ship->CargoGoods[Kind];
             cpp_with_3.Count += av[3]->GetInt();
             av[0]->SetInt(cpp_with_3.Count);
         }
     }
 
     void SF_GoodsCount(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GoodsCount"_a));
         }
@@ -2746,8 +2819,9 @@ namespace aScriptFun {
     }
 
     void SF_GoodsCost(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GoodsCost"_a));
         }
@@ -2757,8 +2831,9 @@ namespace aScriptFun {
     }
 
     void SF_GoodsRuinsForBuy(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GoodsRuinsForBuy"_a));
         }
@@ -2767,8 +2842,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipGoods(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Cost{};
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipGoods"_a));
@@ -2789,8 +2865,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipGoodsIllegalOnPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipGoodsIllegalOnPlanet"_a));
         }
@@ -2798,7 +2875,7 @@ namespace aScriptFun {
         std::uint8_t Kind = av[2]->GetInt();
         aPlanet::TPlanet* Planet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[3]->GetDword())));
         av[0]->SetInt(0);
-        if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics)) && Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics)) && Planet->OwnerId != aGalaxyStruct::oiPirate) {
             if (!aConst::GoodsLegalOnPlanet[Kind][Planet->RaceId][Planet->Government]) {
                 av[0]->SetInt(1);
             } else if (pas::in_set<0, 1>(Kind) && Ship->IsHealthEffectActive(12)) {
@@ -2808,8 +2885,9 @@ namespace aScriptFun {
     }
 
     void SF_GoodsDrop(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         aScript::TScriptItem* ScriptItem{};
         aItem::TGoods* Goods{};
@@ -2857,8 +2935,9 @@ namespace aScriptFun {
     }
 
     void SF_UselessItemCreate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script UselessItemCreate"_a));
         }
@@ -2887,21 +2966,22 @@ namespace aScriptFun {
     }
 
     void SF_GoodsSellPrice(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GoodsSellPrice"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         std::uint8_t Kind = av[2]->GetInt();
-        if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aRuins::TRuins*>(Obj)->ShopGoods[Kind].BaseSalePrice);
+        if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+            av[0]->SetInt(ruins->ShopGoods[Kind].BaseSalePrice);
         } else {
             av[0]->SetInt(reinterpret_cast<aPlanet::TPlanet*>(Obj)->Goods[Kind].BaseSalePrice);
         }
         if (av.length() - 1 > 2) {
-            if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-                reinterpret_cast<aRuins::TRuins*>(Obj)->ShopGoods[Kind].BaseSalePrice = av[3]->GetInt();
+            if (aRuins::TRuins* ruins_2 = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+                ruins_2->ShopGoods[Kind].BaseSalePrice = av[3]->GetInt();
             } else {
                 reinterpret_cast<aPlanet::TPlanet*>(Obj)->Goods[Kind].BaseSalePrice = av[3]->GetInt();
             }
@@ -2909,21 +2989,22 @@ namespace aScriptFun {
     }
 
     void SF_GoodsBuyPrice(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GoodsSellPrice"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         std::uint8_t Kind = av[2]->GetInt();
-        if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aRuins::TRuins*>(Obj)->ShopGoods[Kind].PurchasePrice);
+        if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+            av[0]->SetInt(ruins->ShopGoods[Kind].PurchasePrice);
         } else {
             av[0]->SetInt(reinterpret_cast<aPlanet::TPlanet*>(Obj)->Goods[Kind].PurchasePrice);
         }
         if (av.length() - 1 > 2) {
-            if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-                reinterpret_cast<aRuins::TRuins*>(Obj)->ShopGoods[Kind].PurchasePrice = av[3]->GetInt();
+            if (aRuins::TRuins* ruins_2 = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+                ruins_2->ShopGoods[Kind].PurchasePrice = av[3]->GetInt();
             } else {
                 reinterpret_cast<aPlanet::TPlanet*>(Obj)->Goods[Kind].PurchasePrice = av[3]->GetInt();
             }
@@ -2931,8 +3012,9 @@ namespace aScriptFun {
     }
 
     void SF_CountTurn(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* OtherShip{};
         aPlanet::TPlanet* Planet{};
         aScript::TScriptPlace* Place{};
@@ -2945,8 +3027,8 @@ namespace aScriptFun {
         std::int32_t Turns = 0;
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
-            Place = pas::checked_cast<aScript::TScriptPlace*>(Obj);
+        if (aScript::TScriptPlace* scriptPlace = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
+            Place = scriptPlace;
             if (Place->PlaceKind == aScript::spkPlanetPosition || Place->PlaceKind == aScript::spkDockedPlanet) {
                 Planet = pas::checked_cast<aPlanet::TPlanet*>(reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Place->TargetValue))));
                 Position = Planet->GetPosition();
@@ -2956,15 +3038,15 @@ namespace aScriptFun {
             }
             Landed = Place->PlaceKind == aScript::spkDockedPlanet;
             Star = Place->OriginStar;
-        } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            Planet = pas::checked_cast<aPlanet::TPlanet*>(Obj);
+        } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            Planet = planet;
             Landed = false;
             Position = Planet->GetPosition();
             Star = Planet->CurrentStar;
-        } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
             Landed = false;
             Planet = nullptr;
-            OtherShip = pas::checked_cast<aShip::TShip*>(Obj);
+            OtherShip = ship;
             while (OtherShip->DockedTo != nullptr) {
                 OtherShip = OtherShip->DockedTo;
             }
@@ -3026,8 +3108,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipSetBad(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipSetBad"_a));
         }
@@ -3037,8 +3120,9 @@ namespace aScriptFun {
     }
 
     void SF_GroupSetBad(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aScript::TScriptShip* Binding{};
         if (av.length() - 1 != 2) {
@@ -3055,8 +3139,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipSetPartner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipSetPartner"_a));
         }
@@ -3075,8 +3160,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipJoin(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 8> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 8), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         std::int32_t StateIndex{};
         std::int32_t I{};
@@ -3141,8 +3227,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipOut(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             Ship = aScript::CurrentScript->CurrentShip;
@@ -3164,8 +3251,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInScript(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInScript"_a));
         }
@@ -3177,24 +3265,26 @@ namespace aScriptFun {
     }
 
     void SF_ShipInGameEvent(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInGameEvent"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetInt(0);
-        if (pas::class_cast_if<aWarrior::TWarrior*>(Ship) != nullptr && static_cast<aWarrior::TWarrior*>(Ship)->LiberationGroup != nullptr) {
+        if (aWarrior::TWarrior* warrior = pas::class_cast_if<aWarrior::TWarrior*>(Ship); warrior != nullptr && warrior->LiberationGroup != nullptr) {
             av[0]->SetInt(1);
         }
-        if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr && static_cast<aRuins::TRuins*>(Ship)->FlyToStar != nullptr) {
+        if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Ship); ruins != nullptr && ruins->FlyToStar != nullptr) {
             av[0]->SetInt(1);
         }
     }
 
     void SF_ShipInCurScript(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInCurScript"_a));
         }
@@ -3206,8 +3296,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInNormalSpace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInNormalSpace"_a));
         }
@@ -3219,8 +3310,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInHole(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInHole"_a));
         }
@@ -3238,8 +3330,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipIsTakeoff(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipIsTakeoff"_a));
         }
@@ -3252,8 +3345,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipCntWeapon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipCntWeapon"_a));
         }
@@ -3261,8 +3355,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipWeapon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipWeapon"_a));
         }
@@ -3276,14 +3371,15 @@ namespace aScriptFun {
     }
 
     void SF_ShipEqInSlot(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t SlotIndex{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipEqInSlot"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        std::uint8_t ItemType = av[2]->GetInt();
+        aConst::TItemType ItemType = static_cast<aConst::TItemType>(av[2]->GetInt());
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::load_unaligned<aItem::TEquipment*>(pas::byte_offset(&reinterpret_cast<aShip::PShipEquipmentCacheView>(Ship)->Slots, (ItemType - 42) * sizeof(aItem::TEquipment*))))));
         } else {
@@ -3298,9 +3394,10 @@ namespace aScriptFun {
     }
 
     void SF_ArtefactTypeInUse(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
-        std::uint8_t ItemType{};
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
+        aConst::TItemType ItemType{};
         pas::WideString Name{};
         std::int32_t I{};
         std::int32_t Count{};
@@ -3330,16 +3427,17 @@ namespace aScriptFun {
             if (Item != nullptr) {
                 ItemType = reinterpret_cast<aItem::TArtefact*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())))->GetEffectiveType();
             } else {
-                ItemType = av[2]->GetInt();
+                ItemType = static_cast<aConst::TItemType>(av[2]->GetInt());
             }
             av[0]->SetInt(Ship->CountActiveArtefacts(ItemType));
         }
     }
 
     void SF_ArtefactTypeBoosted(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
-        std::uint8_t ItemType{};
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
+        aConst::TItemType ItemType{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArtefactTypeBoosted"_a));
         }
@@ -3347,14 +3445,15 @@ namespace aScriptFun {
         if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkDword && av[2]->GetDword() > 0x000000ff) {
             ItemType = reinterpret_cast<aItem::TArtefact*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())))->GetEffectiveType();
         } else {
-            ItemType = av[2]->GetInt();
+            ItemType = static_cast<aConst::TItemType>(av[2]->GetInt());
         }
         av[0]->SetInt(Ship->CanBoostArtefact(ItemType, nullptr, false) & 127);
     }
 
     void SF_ShipSpeed(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipSpeed"_a));
         }
@@ -3362,19 +3461,20 @@ namespace aScriptFun {
     }
 
     void SF_EnginePower(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script EnginePower"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TEngine* Engine = nullptr;
-        if (pas::class_cast_if<aItem::TEngine*>(Obj) != nullptr) {
-            Engine = reinterpret_cast<aItem::TEngine*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && static_cast<aScript::TScriptItem*>(Obj)->Item != nullptr && pas::class_cast_if<aItem::TEngine*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Engine = reinterpret_cast<aItem::TEngine*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
-        } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Engine = reinterpret_cast<aShip::TShip*>(Obj)->GetEngine();
+        if (aItem::TEngine* engine = pas::class_cast_if<aItem::TEngine*>(Obj)) {
+            Engine = engine;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && scriptItem->Item != nullptr && pas::class_cast_if<aItem::TEngine*>(scriptItem->Item) != nullptr) {
+            Engine = static_cast<aItem::TEngine*>(scriptItem->Item);
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Engine = ship->GetEngine();
         }
         if (Engine != nullptr) {
             av[0]->SetInt(Engine->OutputPercent);
@@ -3387,8 +3487,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipJump(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipJump"_a));
         }
@@ -3396,8 +3497,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipArmor(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipArmor"_a));
         }
@@ -3405,8 +3507,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipProtectability(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipProtectability"_a));
         }
@@ -3414,8 +3517,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipDroidRepair(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipDroidRepair"_a));
         }
@@ -3427,8 +3531,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipRadarRange(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRadarRange"_a));
         }
@@ -3436,8 +3541,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipScanerPower(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipScanerPower"_a));
         }
@@ -3445,8 +3551,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipHookPower(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipHookPower"_a));
         }
@@ -3458,8 +3565,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipHookRange(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipHookRange"_a));
         }
@@ -3471,8 +3579,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipAverageDamage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aItem::TWeapon* Weapon{};
         if (av.length() - 1 < 1) {
@@ -3526,8 +3635,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipHealthFactor(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Duration{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipHealthFactor"_a));
@@ -3590,8 +3700,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipHealthFactorStatus(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipHealthFactorStatus"_a));
         }
@@ -3613,8 +3724,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerImmunity(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->DiseaseImmunity);
         if (av.length() - 1 >= 1) {
             aPlayer::GetPlayer()->DiseaseImmunity = av[1]->GetInt();
@@ -3622,8 +3734,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipStatusEffect(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         float Strength{};
         aShip::TShip* Source{};
         if (av.length() - 1 < 2) {
@@ -3653,8 +3766,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipGroup(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipGroup"_a));
         }
@@ -3706,8 +3820,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInStar"_a));
         }
@@ -3722,8 +3837,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInPlanet"_a));
         }
@@ -3738,8 +3854,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipStatistic(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         std::int32_t I{};
         if (av.length() - 1 < 2) {
@@ -3747,11 +3864,11 @@ namespace aScriptFun {
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aNormalShip::TNormalShip* NormalShip = nullptr;
-        if (pas::class_cast_if<aNormalShip::TNormalShip*>(Obj) != nullptr) {
-            NormalShip = reinterpret_cast<aNormalShip::TNormalShip*>(Obj);
+        if (aNormalShip::TNormalShip* normalShip = pas::class_cast_if<aNormalShip::TNormalShip*>(Obj)) {
+            NormalShip = normalShip;
             Ship = NormalShip;
-        } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && pas::in_set<10, 11>(av[2]->GetInt())) {
-            Ship = reinterpret_cast<aShip::TShip*>(Obj);
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj); ship != nullptr && pas::in_set<10, 11>(av[2]->GetInt())) {
+            Ship = ship;
         } else {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipStatistic - illegal object type"_a));
         }
@@ -3870,21 +3987,23 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDominatorStatistic(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlayerDominatorStatistic"_a));
         }
-        av[0]->SetInt(aPlayer::GetPlayer()->DominatorKillsByType[av[1]->GetInt() & 0x0000007f]);
+        av[0]->SetInt(aPlayer::GetPlayer()->DominatorKillsByType[static_cast<aGalaxyStruct::TKlingType>(av[1]->GetInt())]);
         if (av.length() - 1 > 1) {
-            auto& cpp_target = aPlayer::GetPlayer()->DominatorKillsByType[av[1]->GetInt() & 0x0000007f];
+            auto& cpp_target = aPlayer::GetPlayer()->DominatorKillsByType[static_cast<aGalaxyStruct::TKlingType>(av[1]->GetInt())];
             cpp_target = av[2]->GetInt();
         }
     }
 
     void SF_ShipMoney(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipMoney"_a));
         }
@@ -3896,8 +4015,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipFuel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipFuel"_a));
         }
@@ -3916,8 +4036,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipFuelLow(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipFuelLow"_a));
         }
@@ -3932,8 +4053,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipStrengthInBestRanger(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipStrengthInBestRanger"_a));
         }
@@ -3942,8 +4064,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipStrengthInAverageRanger(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipStrength"_a));
         }
@@ -3952,8 +4075,9 @@ namespace aScriptFun {
     }
 
     void SF_ChanceToWin(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ChanceToWin"_a));
         }
@@ -3971,8 +4095,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipFind(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Kind{};
         aGalaxy::TStar* Star{};
         aShip::TShip* Ship{};
@@ -3995,8 +4120,9 @@ namespace aScriptFun {
     }
 
     void SF_RangerStatus(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RangerStatus"_a));
         }
@@ -4015,13 +4141,14 @@ namespace aScriptFun {
             if (!(pas::class_cast_if<aRanger::TRanger*>(Obj) != nullptr)) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script RangerStatus 2"_a));
             }
-            av[0]->SetInt(pas::checked_cast<aRanger::TRanger*>(Obj)->GetDominantCareer());
+            av[0]->SetInt(static_cast<aRanger::TRanger*>(Obj)->GetDominantCareer());
         }
     }
 
     void SF_RangerPlaceInRating(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RangerPlaceInRating"_a));
         }
@@ -4029,12 +4156,13 @@ namespace aScriptFun {
         if (!(pas::class_cast_if<aRanger::TRanger*>(Obj) != nullptr)) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RangerPlaceInRating 2"_a));
         }
-        av[0]->SetInt(pas::checked_cast<aRanger::TRanger*>(Obj)->PlaceInRating);
+        av[0]->SetInt(static_cast<aRanger::TRanger*>(Obj)->PlaceInRating);
     }
 
     void SF_RangerExcludedFromRating(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RangerExcludedFromRating"_a));
         }
@@ -4042,7 +4170,7 @@ namespace aScriptFun {
         if (!(pas::class_cast_if<aRanger::TRanger*>(Obj) != nullptr)) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RangerExcludedFromRating 2"_a));
         }
-        aRanger::TRanger* Ranger = reinterpret_cast<aRanger::TRanger*>(Obj);
+        aRanger::TRanger* Ranger = static_cast<aRanger::TRanger*>(Obj);
         av[0]->SetInt(Ranger->ExcludedFromRating);
         if (av.length() - 1 > 1) {
             Ranger->ExcludedFromRating = av[2]->GetInt() != 0;
@@ -4061,29 +4189,31 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyMoney(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_GalaxyMoney"_a));
         }
-        std::uint8_t ScaleIndex = 2;
+        aGalaxyStruct::TOwnerId Owner = aGalaxyStruct::oiHuman;
         if (av.length() - 1 >= 2) {
-            ScaleIndex = av[2]->GetInt();
+            Owner = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
         }
         switch (av[1]->GetInt()) {
-            case 0: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledMiniMoney(ScaleIndex)); break;
-            case 1: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledSmallMoney(ScaleIndex)); break;
-            case 2: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledAverageMoney(ScaleIndex)); break;
-            case 3: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledBigMoney(ScaleIndex)); break;
-            case 4: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledHugeMoney(ScaleIndex)); break;
+            case 0: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledMiniMoney(Owner)); break;
+            case 1: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledSmallMoney(Owner)); break;
+            case 2: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledAverageMoney(Owner)); break;
+            case 3: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledBigMoney(Owner)); break;
+            case 4: av[0]->SetInt(aGalaxy::Galaxy->ComputeScaledHugeMoney(Owner)); break;
             default: pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_GalaxyMoney"_a));
         }
     }
 
     // Queues destruction without removing the ship immediately; returns the previous flag. An omitted second argument queues destruction, a negative one only queries.
     void SF_ShipDestroy(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipDestroy"_a));
         }
@@ -4100,8 +4230,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipDestroyType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t J{};
         aGalaxy::TStar* Star{};
@@ -4122,18 +4253,19 @@ namespace aScriptFun {
     }
 
     void SF_ItemDestroy(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemDestroy"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             av[0]->SetInt(Item->DestroyFlag);
@@ -4144,14 +4276,16 @@ namespace aScriptFun {
     }
 
     void SF_RangersCapital(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aGalaxy::Galaxy->AverageRangerCapital);
     }
 
     void SF_GroupToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptShip* Binding{};
         std::int32_t I{};
         if (av.length() - 1 != 1) {
@@ -4174,8 +4308,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderLanding(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t SavedOrderLock{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script OrderLanding"_a));
@@ -4201,8 +4336,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderJump(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t SavedOrderLock{};
         aShip::TShip* Ship{};
         if (av.length() - 1 < 2) {
@@ -4285,8 +4421,9 @@ namespace aScriptFun {
     }
 
     void SF_Dist(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         EC_Struct::TPointF Point1{};
         EC_Struct::TPointF Point2{};
         if (av.length() - 1 < 2) {
@@ -4295,51 +4432,51 @@ namespace aScriptFun {
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         if (Obj != nullptr) {
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-            } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aItem::TItem*>(Obj)->Position;
-            } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                if (pas::checked_cast<aScript::TScriptItem*>(Obj)->Item != nullptr) {
-                    Point1 = pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position;
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                Point1 = ship->Position;
+            } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                Point1 = item->Position;
+            } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                if (scriptItem->Item != nullptr) {
+                    Point1 = scriptItem->Item->Position;
                 } else {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 1"_a));
                 }
-            } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aScript::TScriptPlace*>(Obj)->GetPoint();
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetPosition();
-            } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aGalaxy::TStar*>(Obj)->Position;
-            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position;
-            } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aMissile::TMissile*>(Obj)->Position;
+            } else if (aScript::TScriptPlace* scriptPlace = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
+                Point1 = scriptPlace->GetPoint();
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                Point1 = planet->GetPosition();
+            } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+                Point1 = star->Position;
+            } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                Point1 = asteroid->Position;
+            } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                Point1 = missile->Position;
             } else {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 2"_a));
             }
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-                } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aItem::TItem*>(Obj)->Position;
-                } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                    if (pas::checked_cast<aScript::TScriptItem*>(Obj)->Item != nullptr) {
-                        Point2 = pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position;
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    Point2 = ship_2->Position;
+                } else if (aItem::TItem* item_2 = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                    Point2 = item_2->Position;
+                } else if (aScript::TScriptItem* scriptItem_2 = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                    if (scriptItem_2->Item != nullptr) {
+                        Point2 = scriptItem_2->Item->Position;
                     } else {
                         pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 3"_a));
                     }
-                } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aScript::TScriptPlace*>(Obj)->GetPoint();
-                } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetPosition();
-                } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aGalaxy::TStar*>(Obj)->Position;
-                } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position;
-                } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aMissile::TMissile*>(Obj)->Position;
+                } else if (aScript::TScriptPlace* scriptPlace_2 = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
+                    Point2 = scriptPlace_2->GetPoint();
+                } else if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                    Point2 = planet_2->GetPosition();
+                } else if (aGalaxy::TStar* star_2 = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+                    Point2 = star_2->Position;
+                } else if (aAsteroid::TAsteroid* asteroid_2 = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                    Point2 = asteroid_2->Position;
+                } else if (aMissile::TMissile* missile_2 = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                    Point2 = missile_2->Position;
                 } else {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 4"_a));
                 }
@@ -4349,8 +4486,9 @@ namespace aScriptFun {
     }
 
     void SF_Angle(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         EC_Struct::TPointF Point1{};
         EC_Struct::TPointF Point2{};
         if (av.length() - 1 < 2) {
@@ -4359,51 +4497,51 @@ namespace aScriptFun {
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         if (Obj != nullptr) {
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-            } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aItem::TItem*>(Obj)->Position;
-            } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                if (pas::checked_cast<aScript::TScriptItem*>(Obj)->Item != nullptr) {
-                    Point1 = pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position;
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                Point1 = ship->Position;
+            } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                Point1 = item->Position;
+            } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                if (scriptItem->Item != nullptr) {
+                    Point1 = scriptItem->Item->Position;
                 } else {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 1"_a));
                 }
-            } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aScript::TScriptPlace*>(Obj)->GetPoint();
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetPosition();
-            } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aGalaxy::TStar*>(Obj)->Position;
-            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position;
-            } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                Point1 = pas::checked_cast<aMissile::TMissile*>(Obj)->Position;
+            } else if (aScript::TScriptPlace* scriptPlace = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
+                Point1 = scriptPlace->GetPoint();
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                Point1 = planet->GetPosition();
+            } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+                Point1 = star->Position;
+            } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                Point1 = asteroid->Position;
+            } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                Point1 = missile->Position;
             } else {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 2"_a));
             }
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
             if (Obj != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-                } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aItem::TItem*>(Obj)->Position;
-                } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                    if (pas::checked_cast<aScript::TScriptItem*>(Obj)->Item != nullptr) {
-                        Point2 = pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position;
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    Point2 = ship_2->Position;
+                } else if (aItem::TItem* item_2 = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                    Point2 = item_2->Position;
+                } else if (aScript::TScriptItem* scriptItem_2 = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                    if (scriptItem_2->Item != nullptr) {
+                        Point2 = scriptItem_2->Item->Position;
                     } else {
                         pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 3"_a));
                     }
-                } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aScript::TScriptPlace*>(Obj)->GetPoint();
-                } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetPosition();
-                } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aGalaxy::TStar*>(Obj)->Position;
-                } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position;
-                } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                    Point2 = pas::checked_cast<aMissile::TMissile*>(Obj)->Position;
+                } else if (aScript::TScriptPlace* scriptPlace_2 = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
+                    Point2 = scriptPlace_2->GetPoint();
+                } else if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                    Point2 = planet_2->GetPosition();
+                } else if (aGalaxy::TStar* star_2 = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+                    Point2 = star_2->Position;
+                } else if (aAsteroid::TAsteroid* asteroid_2 = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                    Point2 = asteroid_2->Position;
+                } else if (aMissile::TMissile* missile_2 = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                    Point2 = missile_2->Position;
                 } else {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script Dist 4"_a));
                 }
@@ -4413,8 +4551,9 @@ namespace aScriptFun {
     }
 
     void SF_Dist2Star(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DistStar"_a));
         }
@@ -4426,8 +4565,9 @@ namespace aScriptFun {
     }
 
     void SF_BuyPirate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPirate::TPirate* Ship{};
         std::uint8_t WasMainPiratePlanet{};
         if (av.length() - 1 < 1) {
@@ -4448,8 +4588,9 @@ namespace aScriptFun {
     }
 
     void SF_BuyTransport(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aTransport::TTransport* Ship{};
         std::uint8_t Kind{};
         if (av.length() - 1 < 1) {
@@ -4477,27 +4618,28 @@ namespace aScriptFun {
     }
 
     void SF_Name(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Obj{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script Name"_a));
         }
         Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-            av[0]->SetString(reinterpret_cast<aGalaxy::TStar*>(Obj)->Name);
+        if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+            av[0]->SetString(star->Name);
         } else if (pas::class_cast_if<aGalaxy::TConstellation*>(Obj) != nullptr) {
             const pas::WideString& name = reinterpret_cast<aGalaxy::TConstellation*>(Obj)->GetName();
             EC_Expression::TVarEC* cpp_arg = av[0];
             cpp_arg->SetString(name);
-        } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            av[0]->SetString(reinterpret_cast<aPlanet::TPlanet*>(Obj)->Name);
+        } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            av[0]->SetString(planet->Name);
         } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
             const pas::WideString& fullName = reinterpret_cast<aShip::TShip*>(Obj)->GetFullName(u" "_wref.get());
             EC_Expression::TVarEC* cpp_arg_2 = av[0];
             cpp_arg_2->SetString(fullName);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            if (reinterpret_cast<aScript::TScriptItem*>(Obj)->Item == nullptr) {
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            if (scriptItem->Item == nullptr) {
                 av[0]->SetString(u"NameError"_wref.get());
             } else {
                 const pas::WideString& displayName = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item->GetDisplayName();
@@ -4514,23 +4656,24 @@ namespace aScriptFun {
     }
 
     void SF_ShortName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Obj{};
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script Name"_a));
         }
         Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-            av[0]->SetString(reinterpret_cast<aGalaxy::TStar*>(Obj)->Name);
-        } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            av[0]->SetString(reinterpret_cast<aPlanet::TPlanet*>(Obj)->Name);
+        if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+            av[0]->SetString(star->Name);
+        } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            av[0]->SetString(planet->Name);
         } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
             const pas::WideString& name = reinterpret_cast<aShip::TShip*>(Obj)->GetName();
             EC_Expression::TVarEC* cpp_arg = av[0];
             cpp_arg->SetString(name);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            if (reinterpret_cast<aScript::TScriptItem*>(Obj)->Item == nullptr) {
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            if (scriptItem->Item == nullptr) {
                 av[0]->SetString(u"NameError"_wref.get());
             } else {
                 const pas::WideString& shortName = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item->GetShortName();
@@ -4547,14 +4690,16 @@ namespace aScriptFun {
     }
 
     void SF_FirstGiveMoney(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(System::Round(3.0E+2L * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].ArcadeRewardScale));
     }
 
     void SF_HaveProgramm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HaveProgramm"_a));
         }
@@ -4562,30 +4707,33 @@ namespace aScriptFun {
     }
 
     void SF_GetProgramm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetProgramm"_a));
         }
-        av[0]->SetInt(aPlayer::GetPlayer()->ProgramCounts[av[1]->GetDword() & 0x0000007f]);
+        av[0]->SetInt(aPlayer::GetPlayer()->ProgramCounts[static_cast<aGalaxyStruct::TProgramIndex>(av[1]->GetDword())]);
     }
 
     void SF_SetProgramm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetProgramm"_a));
         }
         av[0]->SetInt(aPlayer::GetPlayer()->HasProgram(av[1]->GetDword()) & 127);
         {
-            auto& cpp_target = aPlayer::GetPlayer()->ProgramCounts[av[1]->GetDword() & 0x0000007f];
+            auto& cpp_target = aPlayer::GetPlayer()->ProgramCounts[static_cast<aGalaxyStruct::TProgramIndex>(av[1]->GetDword())];
             cpp_target = av[2]->GetInt();
         }
     }
 
     void SF_DomikProgramm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t ProgramId{};
         std::int32_t Count{};
         if (av.length() - 1 < 1) {
@@ -4617,8 +4765,9 @@ namespace aScriptFun {
     }
 
     void SF_DomikProgrammDate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DomikProgrammDate"_a));
         }
@@ -4681,8 +4830,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleCreate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aEFilm::TEFilmObj* Film{};
         if (av.length() - 1 != 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleCreate"_a));
@@ -4742,8 +4892,9 @@ namespace aScriptFun {
     }
 
     void SF_KellerNewResearch(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::Galaxy->KellerResearchTargetStarId = av[1]->GetDword();
     }
 
@@ -4752,8 +4903,9 @@ namespace aScriptFun {
     }
 
     void SF_BlazerLanding(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aItem::TWeapon* Weapon{};
         if (av.length() - 1 != 1) {
@@ -4782,14 +4934,16 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyShipId(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aGalaxy::Galaxy->NextShipId);
     }
 
     void SF_NearCivilPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         float Distance{};
         aPlanet::TPlanet* Planet{};
@@ -4801,7 +4955,7 @@ namespace aScriptFun {
         float BestDistance = 1.0E+30f;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->CurrentStar->Planets) - 1); cpp_range.next(Index); ) {
             Planet = pas::list_at<aPlanet::TPlanet>(Ship->CurrentStar->Planets, Index);
-            if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+            if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                 Distance = aMyFunction::PointDistanceSquared(Ship->Position, Planet->GetPosition());
                 if (Distance < BestDistance) {
                     BestDistance = Distance;
@@ -4829,8 +4983,9 @@ namespace aScriptFun {
     }
 
     void SF_Tips(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script Tips"_a));
         }
@@ -4838,8 +4993,9 @@ namespace aScriptFun {
     }
 
     void SF_TipsState(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script TipsState"_a));
         }
@@ -4887,22 +5043,23 @@ namespace aScriptFun {
         } else {
             Text = aConst::LocalizedColorText(av[1]->GetString());
             if (EC_Str::FindTextOffsetW(Text, u"<"_wref.get(), 0) >= 0) {
-                Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"_wref.get());
+                Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"sv);
                 if (aPlayer::GetPlayer() != nullptr) {
                     Text = ([&] {
-                        const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(aPlayer::GetPlayer()->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w);
+                        const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aPlayer::GetPlayer()->GetFullName(u" "_wref.get())), u"<color=255,240,100>"sv);
                         const pas::WideString& text = Text;
-                        return EC_Str::ReplaceAllWideString(text, u"<PlayerFull>"_wref.get(), wrapTextInColor);
+                        return EC_Str::ReplaceAllWideString(text, u"<PlayerFull>"_wref.get(), pas::view(wrapTextInColor));
                     }());
                 }
             }
-            av[0]->SetString(EC_Str::ReplaceAllWideString(Text, u"\r\n "_wref.get(), u"\r\n"_wref.get()));
+            av[0]->SetString(EC_Str::ReplaceAllWideString(Text, u"\r\n "_wref.get(), u"\r\n"sv));
         }
     }
 
     void SF_BlockExist(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Path{};
         std::int32_t I{};
         EC_BlockPar::TBlockParEC* Block{};
@@ -4910,7 +5067,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BlockExist"_a));
         }
         Path = av[1]->GetString();
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"."_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Path), u"."sv);
         if (av.length() - 1 < 2) {
             Block = GR_Main::LanguageDataConfig;
         } else if (av[2]->GetString() == u"Lang") {
@@ -4924,10 +5081,10 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            if (Block->CountBlocks(EC_Str::ExtractDelimitedPartW(Path, I, u"."_wref.get())) == 0) {
+            if (Block->CountBlocks(EC_Str::ExtractDelimitedPartW(pas::view(Path), I, u"."sv)) == 0) {
                 return;
             }
-            Block = Block->GetBlock(EC_Str::ExtractDelimitedPartW(Path, I, u"."_wref.get()));
+            Block = Block->GetBlock(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Path), I, u"."sv)));
         }
         av[0]->SetInt(1);
     }
@@ -5001,7 +5158,7 @@ namespace aScriptFun {
                 const pas::WideString& param = ([&] {
                     const pas::WideString& string = av[1]->GetString();
                     EC_BlockPar::TBlockParEC* userSettingsConfig = GR_Main::UserSettingsConfig;
-                    return userSettingsConfig->GetParam(string);
+                    return userSettingsConfig->GetParam(pas::view(string));
                 }());
                 EC_Expression::TVarEC* cpp_arg = av[0];
                 cpp_arg->SetString(param);
@@ -5048,7 +5205,7 @@ namespace aScriptFun {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
         if (av.length() - 1 < 1) {
-            av[0]->SetInt(EC_Str::CountDelimitedPartsW(GR_Main::SelectedMods, u","_wref.get()));
+            av[0]->SetInt(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods), u","sv));
         } else if (EC_Expression::TVarEC_RealVType(av[1]) == EC_Expression::vkString) {
             std::int32_t cpp_arg_2 = ([&] {
                 const pas::WideString& cpp_arg = pas::concat_wide({u", ", av[1]->GetString(), u","});
@@ -5060,20 +5217,22 @@ namespace aScriptFun {
         } else if (av[1]->GetInt() == -1) {
             av[0]->SetString(GR_Main::SelectedMods);
         } else {
-            av[0]->SetString(EC_Str::ExtractDelimitedPartW(GR_Main::SelectedMods, av[1]->GetInt(), u","_wref.get()));
+            av[0]->SetString(EC_Str::ExtractDelimitedPartW(pas::view(GR_Main::SelectedMods), av[1]->GetInt(), u","sv));
         }
     }
 
     void SF_RobotSupport(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Supported = Robot::RobotInterface != nullptr && Robot::RobotInterface->Support() == 0;
-        av[0]->SetInt(Supported & 0x0000007f);
+        av[0]->SetInt(Supported);
     }
 
     void SF_StarShips(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarShips"_a));
@@ -5094,8 +5253,9 @@ namespace aScriptFun {
     }
 
     void SF_StarPlanets(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarPlanets"_a));
@@ -5116,8 +5276,9 @@ namespace aScriptFun {
     }
 
     void SF_StarMissiles(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarMissiles"_a));
@@ -5138,8 +5299,9 @@ namespace aScriptFun {
     }
 
     void SF_StarAsteroids(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarAsteroids"_a));
@@ -5160,8 +5322,9 @@ namespace aScriptFun {
     }
 
     void SF_GroupShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptShip* Binding{};
         std::int32_t I{};
         if (av.length() - 1 < 2) {
@@ -5184,8 +5347,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipItems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ShipItems"_a));
@@ -5206,8 +5370,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipArts(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ShipArts"_a));
@@ -5228,8 +5393,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerTranclucators(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Star{};
         aShip::TShip* Ship{};
         std::int32_t I{};
@@ -5243,8 +5409,8 @@ namespace aScriptFun {
             Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(J); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-                if (pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr) {
-                    if (pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer()) {
+                if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Ship)) {
+                    if (tranclucator->OwnerShip == aPlayer::GetPlayer()) {
                         ++Count;
                         if (Count == Wanted) {
                             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Ship)));
@@ -5258,29 +5424,31 @@ namespace aScriptFun {
     }
 
     void SF_ArtTranclucatorToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ArtTranclucatorToShip"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)));
+            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Item)) {
+                av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(artefactTranclucator->Ship)));
             }
         }
     }
 
     void SF_TranclucatorData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aTranclucator::TTranclucator* Ship{};
         std::int32_t Kind{};
         if (av.length() - 1 < 2) {
@@ -5378,65 +5546,65 @@ namespace aScriptFun {
                 break;
             }
             case 7: {
-                av[0]->SetInt(Ship->StoragePermissions[1]);
+                av[0]->SetInt(Ship->StoragePermissions[aTranclucator::tskPlanet]);
                 if (WriteValue) {
-                    Ship->StoragePermissions[1] = av[3]->GetInt() != 0;
+                    Ship->StoragePermissions[aTranclucator::tskPlanet] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 8: {
-                av[0]->SetInt(Ship->StoragePermissions[2]);
+                av[0]->SetInt(Ship->StoragePermissions[aTranclucator::tskStation]);
                 if (WriteValue) {
-                    Ship->StoragePermissions[2] = av[3]->GetInt() != 0;
+                    Ship->StoragePermissions[aTranclucator::tskStation] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 9: {
-                av[0]->SetInt(Ship->CollectionPermissions[0]);
+                av[0]->SetInt(Ship->CollectionPermissions[aTranclucator::tckOther]);
                 if (WriteValue) {
-                    Ship->CollectionPermissions[0] = av[3]->GetInt() != 0;
+                    Ship->CollectionPermissions[aTranclucator::tckOther] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 10: {
-                av[0]->SetInt(Ship->CollectionPermissions[1]);
+                av[0]->SetInt(Ship->CollectionPermissions[aTranclucator::tckArtefact]);
                 if (WriteValue) {
-                    Ship->CollectionPermissions[1] = av[3]->GetInt() != 0;
+                    Ship->CollectionPermissions[aTranclucator::tckArtefact] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 11: {
-                av[0]->SetInt(Ship->CollectionPermissions[2]);
+                av[0]->SetInt(Ship->CollectionPermissions[aTranclucator::tckMicroModule]);
                 if (WriteValue) {
-                    Ship->CollectionPermissions[2] = av[3]->GetInt() != 0;
+                    Ship->CollectionPermissions[aTranclucator::tckMicroModule] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 12: {
-                av[0]->SetInt(Ship->CollectionPermissions[3]);
+                av[0]->SetInt(Ship->CollectionPermissions[aTranclucator::tckEquipment]);
                 if (WriteValue) {
-                    Ship->CollectionPermissions[3] = av[3]->GetInt() != 0;
+                    Ship->CollectionPermissions[aTranclucator::tckEquipment] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 13: {
-                av[0]->SetInt(Ship->CollectionPermissions[4]);
+                av[0]->SetInt(Ship->CollectionPermissions[aTranclucator::tckUseless]);
                 if (WriteValue) {
-                    Ship->CollectionPermissions[4] = av[3]->GetInt() != 0;
+                    Ship->CollectionPermissions[aTranclucator::tckUseless] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 14: {
-                av[0]->SetInt(Ship->CollectionPermissions[5]);
+                av[0]->SetInt(Ship->CollectionPermissions[aTranclucator::tckGoods]);
                 if (WriteValue) {
-                    Ship->CollectionPermissions[5] = av[3]->GetInt() != 0;
+                    Ship->CollectionPermissions[aTranclucator::tckGoods] = av[3]->GetInt() != 0;
                 }
                 break;
             }
             case 15: {
-                av[0]->SetInt(Ship->CollectionPermissions[6]);
+                av[0]->SetInt(Ship->CollectionPermissions[aTranclucator::tckCountable]);
                 if (WriteValue) {
-                    Ship->CollectionPermissions[6] = av[3]->GetInt() != 0;
+                    Ship->CollectionPermissions[aTranclucator::tckCountable] = av[3]->GetInt() != 0;
                 }
                 break;
             }
@@ -5447,8 +5615,9 @@ namespace aScriptFun {
     }
 
     void SF_LinkItemToScript(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptItem* Binding{};
         std::int32_t I{};
         if (av.length() - 1 < 1) {
@@ -5493,18 +5662,19 @@ namespace aScriptFun {
     }
 
     void SF_ReleaseItemFromScript(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ReleaseItemFromScript"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aScript::TScriptItem* Binding = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Binding = reinterpret_cast<aScript::TScriptItem*>(item->ScriptItem);
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(Obj);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Binding = scriptItem;
         }
         if (Binding->Item != nullptr) {
             Binding->Item->ScriptItem = nullptr;
@@ -5513,18 +5683,19 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ScriptItemData"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aScript::TScriptItem* Binding = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Binding = reinterpret_cast<aScript::TScriptItem*>(item->ScriptItem);
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(Obj);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Binding = scriptItem;
         }
         av[0]->SetInt(0);
         std::int32_t Index = av[2]->GetInt();
@@ -5544,19 +5715,20 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemTextData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptItem* Binding{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ScriptItemTextData"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         Binding = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Binding = reinterpret_cast<aScript::TScriptItem*>(item->ScriptItem);
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(Obj);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Binding = scriptItem;
         }
         av[0]->SetString(u""_wref.get());
         std::int32_t Index = av[2]->GetInt();
@@ -5576,8 +5748,9 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemToItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ScriptItemToItem"_a));
         }
@@ -5586,15 +5759,16 @@ namespace aScriptFun {
         if (Obj != nullptr) {
             if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
                 av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Obj)));
-            } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(reinterpret_cast<aScript::TScriptItem*>(Obj)->Item)));
+            } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(scriptItem->Item)));
             }
         }
     }
 
     void SF_GetShipPirateRank(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetShipPirateRank"_a));
         }
@@ -5603,8 +5777,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipPirateRankPoints(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipPirateRankPoints"_a));
         }
@@ -5616,8 +5791,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipNextPirateRankPoints(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipNextPirateRankPoints"_a));
         }
@@ -5626,8 +5802,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInPirateClan(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInPirateClan"_a));
         }
@@ -5635,23 +5812,25 @@ namespace aScriptFun {
         if (aPlayer::GetPlayer() == Ship) {
             av[0]->SetDword(aPlayer::GetPlayer()->PirateClanReal);
         } else {
-            av[0]->SetDword(Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate));
+            av[0]->SetDword(Ship->OwnerId == aGalaxyStruct::oiPirate);
         }
     }
 
     void SF_ShipOnSidePirateClan(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipOnSidePirateClan"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        av[0]->SetDword(Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate));
+        av[0]->SetDword(Ship->OwnerId == aGalaxyStruct::oiPirate);
     }
 
     void SF_RaisePirateRank(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint32_t Rank{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RaisePirateRank"_a));
@@ -5671,19 +5850,20 @@ namespace aScriptFun {
     }
 
     void SF_ItemType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemType"_a));
         }
         std::uint8_t Value = 0;
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             Value = Item->ItemType;
@@ -5692,8 +5872,9 @@ namespace aScriptFun {
     }
 
     void SF_CustomWeaponType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CustomWeaponType"_a));
@@ -5701,22 +5882,23 @@ namespace aScriptFun {
         av[0]->SetString(u""_wref.get());
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TCustomWeapon*>(Item) != nullptr) {
-                av[0]->SetString(pas::checked_cast<aItem::TCustomWeapon*>(Item)->GetWeaponInfo()->ConfigName);
+            if (aItem::TCustomWeapon* customWeapon = pas::class_cast_if<aItem::TCustomWeapon*>(Item)) {
+                av[0]->SetString(customWeapon->GetWeaponInfo()->ConfigName);
             }
         }
     }
 
     void SF_ItemName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemName"_a));
@@ -5724,11 +5906,11 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
         Text = pas::WideString();
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             Text = Item->GetShortName();
@@ -5737,8 +5919,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemFullName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemFullName"_a));
@@ -5746,11 +5929,11 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
         Text = pas::WideString();
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             Text = Item->GetDisplayName();
@@ -5759,8 +5942,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemSize(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Value{};
         std::uint8_t IsCountable{};
         std::uint8_t IsGoods{};
@@ -5769,14 +5953,14 @@ namespace aScriptFun {
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            IsGoods = pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics));
+            IsGoods = pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics));
             IsCountable = static_cast<std::uint8_t>(IsGoods ^ 1) && pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr;
             if ((IsCountable || IsGoods) && av.length() - 1 > 1 && EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString && av[2]->GetString() == u"Count") {
                 if (IsCountable) {
@@ -5814,8 +5998,8 @@ namespace aScriptFun {
                     Item->Weight = Value;
                 }
             }
-        } else if (pas::class_cast_if<aTranclucator::TTranclucator*>(Obj) != nullptr) {
-            av[0]->SetDword(reinterpret_cast<aTranclucator::TTranclucator*>(Obj)->ArtefactSize);
+        } else if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Obj)) {
+            av[0]->SetDword(tranclucator->ArtefactSize);
             if (av.length() - 1 > 1) {
                 reinterpret_cast<aTranclucator::TTranclucator*>(Obj)->ArtefactSize = av[2]->GetInt();
             }
@@ -5823,32 +6007,34 @@ namespace aScriptFun {
     }
 
     void SF_ItemOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemOwner"_a));
         }
         std::uint8_t Value = 0;
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             Value = Item->OwnerId;
             if (av.length() - 1 > 1) {
-                Item->OwnerId = av[2]->GetDword();
+                Item->OwnerId = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetDword());
             }
         }
         av[0]->SetDword(Value);
     }
 
     void SF_ItemSubrace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemSubrace"_a));
         }
@@ -5858,8 +6044,8 @@ namespace aScriptFun {
         if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
             Item = reinterpret_cast<aItem::TEquipment*>(Obj);
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = pas::checked_cast<aItem::TEquipment*>(reinterpret_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = pas::checked_cast<aItem::TEquipment*>(scriptItem->Item);
         }
         if (Item != nullptr) {
             Value = Item->DominatorSeries;
@@ -5871,8 +6057,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemIsInUse(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         std::int32_t I{};
         if (av.length() - 1 < 1) {
@@ -5881,31 +6068,31 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetInt(0);
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr && static_cast<aItem::TEquipment*>(Item)->EquippedFlag != 0) {
-                av[0]->SetInt(static_cast<std::int32_t>(pas::checked_cast<aItem::TEquipment*>(Item)->AssignedSlotData) + 1);
+            if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item); equipment != nullptr && equipment->EquippedFlag != 0) {
+                av[0]->SetInt(static_cast<std::int32_t>(equipment->AssignedSlotData) + 1);
             }
             if (av.length() - 1 > 2 && pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
                 Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
                 if (Ship != nullptr) {
-                    if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
+                    if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(Item)) {
                         if (av[3]->GetInt() != 0) {
-                            reinterpret_cast<aItem::TEquipment*>(Item)->Equip();
+                            static_cast<aItem::TEquipment*>(artefact)->Equip();
                             if (av.length() - 1 > 3) {
                                 reinterpret_cast<aItem::TEquipment*>(Item)->AssignedSlotData = av[4]->GetInt() - 1;
                             }
                         } else {
-                            pas::checked_cast<aItem::TArtefact*>(Item)->Unequip();
+                            artefact->Unequip();
                         }
-                    } else if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
+                    } else if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item)) {
                         if (av[3]->GetInt() != 0) {
-                            Ship->EquipItem(reinterpret_cast<aItem::TEquipment*>(Item));
+                            Ship->EquipItem(static_cast<aItem::TEquipment*>(weapon));
                             if (av.length() - 1 > 3) {
                                 reinterpret_cast<aItem::TEquipment*>(Item)->AssignedSlotData = av[4]->GetInt() - 1;
                             }
@@ -5914,18 +6101,18 @@ namespace aScriptFun {
                             if (1 <= cpp_last) {
                                 for (I = 1; I <= cpp_last; ++I) {
                                     if (Ship->Weapons[I] == Item) {
-                                        Ship->UnequipSlot(static_cast<std::uint8_t>(Item->ItemType), I);
+                                        Ship->UnequipSlot(Item->ItemType, I);
                                     }
                                 }
                             }
                         }
                     } else if (av[3]->GetInt() != 0) {
-                        Ship->EquipItem(reinterpret_cast<aItem::TEquipment*>(Item));
+                        Ship->EquipItem(static_cast<aItem::TEquipment*>(Item));
                         if (av.length() - 1 > 3) {
                             reinterpret_cast<aItem::TEquipment*>(Item)->AssignedSlotData = av[4]->GetInt() - 1;
                         }
                     } else {
-                        Ship->UnequipSlot(static_cast<std::uint8_t>(Item->ItemType), 0);
+                        Ship->UnequipSlot(Item->ItemType, 0);
                     }
                     Ship->RefreshAssignedItemSlots();
                     Ship->RefreshDerivedStats(true);
@@ -5936,8 +6123,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemIsInSet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t SetIndex{};
         std::int32_t I{};
         if (av.length() - 1 < 1) {
@@ -5946,11 +6134,11 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
         av[0]->SetInt(0);
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             if (av.length() - 1 > 1) {
@@ -5983,8 +6171,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerEqSet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(aPlayer::GetPlayer()->SelectedEquipmentConfiguration + 1);
@@ -6010,26 +6199,27 @@ namespace aScriptFun {
     }
 
     void SF_ItemIsBroken(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemIsBroken"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         std::uint8_t Broken = 0;
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                Broken = pas::checked_cast<aItem::TEquipment*>(Item)->BrokenFlag;
+            if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
+                Broken = equipment->BrokenFlag;
             }
-            if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
-                Broken = pas::checked_cast<aItem::TArtefact*>(Item)->BrokenFlag;
+            if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(Item)) {
+                Broken = artefact->BrokenFlag;
             }
         }
         if (Broken != 0) {
@@ -6040,56 +6230,59 @@ namespace aScriptFun {
     }
 
     void SF_ShipCanUseEq(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipCanUseEq"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         } else {
             Item = nullptr;
         }
         av[0]->SetInt(0);
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                av[0]->SetInt(aShip::TShip_CanUseEquipmentTech(Ship, reinterpret_cast<aItem::TEquipment*>(Item)) & 127);
+            if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
+                av[0]->SetInt(aShip::TShip_CanUseEquipmentTech(Ship, equipment) & 127);
             }
         }
     }
 
     void SF_ShipCanRepairEq(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipCanRepairEq"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         } else {
             Item = nullptr;
         }
         av[0]->SetInt(0);
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                av[0]->SetInt(aShip::TShip_CanRepairEquipmentTech(Ship, reinterpret_cast<aItem::TEquipment*>(Item)) & 127);
+            if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
+                av[0]->SetInt(aShip::TShip_CanRepairEquipmentTech(Ship, equipment) & 127);
             }
         }
     }
 
     void SF_ShipTechLevelKnowledge(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipTechLevelKnowledge"_a));
         }
@@ -6101,22 +6294,23 @@ namespace aScriptFun {
     }
 
     void SF_WeaponTarget(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script WeaponTarget"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetDword(0u);
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && static_cast<aItem::TWeapon*>(Item)->EquippedFlag != 0) {
-            av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::checked_cast<aItem::TWeapon*>(Item)->Target)));
+            av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(static_cast<aItem::TWeapon*>(Item)->Target)));
             if (av.length() - 1 > 1) {
                 pas::checked_cast<aItem::TWeapon*>(Item)->Target = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
             }
@@ -6124,8 +6318,9 @@ namespace aScriptFun {
     }
 
     void SF_GetEquipmentStats(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetEquipmentStats"_a));
@@ -6133,18 +6328,18 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         std::int32_t Stat = 0;
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             if (av.length() - 1 > 1) {
                 if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
-                    if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
+                    if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
                         Text = av[2]->GetString();
-                        reinterpret_cast<aItem::TEquipment*>(Item)->ReplaceInfoTokens(Text, pas::WideString(), nullptr);
+                        equipment->ReplaceInfoTokens(Text, pas::WideString(), nullptr);
                         av[0]->SetString(Text);
                     } else {
                         av[0]->SetString(u""_wref.get());
@@ -6276,8 +6471,9 @@ namespace aScriptFun {
     }
 
     void SF_SetEquipmentStats(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetEquipmentStats"_a));
         }
@@ -6288,11 +6484,11 @@ namespace aScriptFun {
             Stat = av[3]->GetInt();
         }
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
@@ -6371,15 +6567,16 @@ namespace aScriptFun {
     }
 
     void SF_CreateHull(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateHull"_a));
         }
         std::uint8_t HullType = av[1]->GetDword();
         std::int32_t Capacity = av[2]->GetInt();
         std::int32_t Level = av[3]->GetInt();
-        std::uint8_t Owner = av[4]->GetDword();
+        aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[4]->GetDword());
         std::int32_t Series = -1;
         std::uint8_t PirateBuilt = false;
         if (av.length() - 1 > 4) {
@@ -6394,8 +6591,9 @@ namespace aScriptFun {
     }
 
     void SF_CreateEquipment(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Item{};
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateEquipment"_a));
@@ -6403,7 +6601,7 @@ namespace aScriptFun {
         aConst::TItemType Kind = static_cast<aConst::TItemType>(av[1]->GetDword());
         std::int32_t Weight = av[2]->GetInt();
         std::int32_t Level = av[3]->GetInt();
-        std::uint8_t Owner = av[4]->GetDword();
+        aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[4]->GetDword());
         if (Kind == aConst::t_Cistern) {
             Item = pas::construct_call<aItem::TCistern>(aItem::TEquipment_Create);
             reinterpret_cast<aItem::TCistern*>(Item)->Init(Level, Weight, Owner);
@@ -6414,20 +6612,22 @@ namespace aScriptFun {
     }
 
     void SF_CreateArt(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateArt"_a));
         }
         aConst::TItemType Kind = static_cast<aConst::TItemType>(av[1]->GetDword());
-        std::uint8_t Owner = av[2]->GetDword();
+        aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetDword());
         aItem::TArtefact* Item = aItem::CreateConfiguredArtefactByItemType(Kind, Owner);
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Item)));
     }
 
     void SF_CreateCustomWeapon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateEquipment"_a));
         }
@@ -6438,14 +6638,15 @@ namespace aScriptFun {
         }());
         std::int32_t Weight = av[2]->GetInt();
         std::int32_t Level = av[3]->GetInt();
-        std::uint8_t Owner = av[4]->GetDword();
+        aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[4]->GetDword());
         aItem::TWeapon* Item = aItem::CreateGeneratedWeapon(Info, Weight, static_cast<std::uint8_t>(Level), Owner);
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Item)));
     }
 
     void SF_CreateCustomArt(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString ConfigName{};
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateCustomArt"_a));
@@ -6453,7 +6654,7 @@ namespace aScriptFun {
         ConfigName = av[1]->GetString();
         std::int32_t Weight = av[2]->GetInt();
         std::int32_t Cost = av[3]->GetInt();
-        std::uint8_t Owner = av[4]->GetDword();
+        aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[4]->GetDword());
         aItem::TArtefactCustom* Item = pas::construct_call<aItem::TArtefactCustom>(aItem::TArtefact_Create);
         Item->ConfigBlockName = std::move(ConfigName);
         Item->LoadConfig(true);
@@ -6467,27 +6668,28 @@ namespace aScriptFun {
     }
 
     void SF_CustomArtData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CustomArtData"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         av[0]->SetInt(0);
-        if (pas::class_cast_if<aItem::TArtefactCustom*>(Item) != nullptr) {
+        if (aItem::TArtefactCustom* artefactCustom = pas::class_cast_if<aItem::TArtefactCustom*>(Item)) {
             Index = av[2]->GetInt();
             switch (Index) {
-                case 1: av[0]->SetInt(pas::checked_cast<aItem::TArtefactCustom*>(Item)->Data[1]); break;
-                case 2: av[0]->SetInt(pas::checked_cast<aItem::TArtefactCustom*>(Item)->Data[2]); break;
-                case 3: av[0]->SetInt(pas::checked_cast<aItem::TArtefactCustom*>(Item)->Data[3]); break;
+                case 1: av[0]->SetInt(artefactCustom->Data[1]); break;
+                case 2: av[0]->SetInt(artefactCustom->Data[2]); break;
+                case 3: av[0]->SetInt(artefactCustom->Data[3]); break;
                 default: pas::raise(pas::make_exception<pas::Exception>("Error.Script CustomArtData no"_a));
             }
             if (av.length() - 1 > 2) {
@@ -6501,8 +6703,9 @@ namespace aScriptFun {
     }
 
     void SF_CustomArtTextData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         std::int32_t Index{};
         if (av.length() - 1 < 2) {
@@ -6510,19 +6713,19 @@ namespace aScriptFun {
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         av[0]->SetString(u""_wref.get());
-        if (pas::class_cast_if<aItem::TArtefactCustom*>(Item) != nullptr) {
+        if (aItem::TArtefactCustom* artefactCustom = pas::class_cast_if<aItem::TArtefactCustom*>(Item)) {
             Index = av[2]->GetInt();
             switch (Index) {
-                case 1: av[0]->SetString(pas::checked_cast<aItem::TArtefactCustom*>(Item)->TextData1); break;
-                case 2: av[0]->SetString(pas::checked_cast<aItem::TArtefactCustom*>(Item)->TextData2); break;
-                case 3: av[0]->SetString(pas::checked_cast<aItem::TArtefactCustom*>(Item)->TextData3); break;
+                case 1: av[0]->SetString(artefactCustom->TextData1); break;
+                case 2: av[0]->SetString(artefactCustom->TextData2); break;
+                case 3: av[0]->SetString(artefactCustom->TextData3); break;
                 default: pas::raise(pas::make_exception<pas::Exception>("Error.Script CustomArtTextData no"_a));
             }
             if (av.length() - 1 > 2) {
@@ -6536,8 +6739,9 @@ namespace aScriptFun {
     }
 
     void SF_CreateMM(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateMM"_a));
         }
@@ -6548,8 +6752,9 @@ namespace aScriptFun {
     }
 
     void SF_CreateNodes(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateNodes"_a));
         }
@@ -6569,8 +6774,9 @@ namespace aScriptFun {
     }
 
     void SF_CreateCustomCountableItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString ConfigName{};
         std::int32_t Count{};
         std::uint8_t DropFlag{};
@@ -6594,13 +6800,14 @@ namespace aScriptFun {
     }
 
     void SF_CreateZond(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateZond"_a));
         }
         std::uint8_t Kind = av[1]->GetDword();
-        std::uint8_t Owner = av[2]->GetDword();
+        aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetDword());
         aItem::TSatellite* Item = pas::construct_call<aItem::TSatellite>(aItem::TEquipment_Create);
         Item->InitGenerated(Kind, Owner, aMyFunction::NextRandomIntRange(1, 10000, aGalaxy::Galaxy->RandomState));
         if (av.length() - 1 > 4) {
@@ -6612,8 +6819,9 @@ namespace aScriptFun {
     }
 
     void SF_ExistingZonds(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(aGalaxy::Galaxy->CountExistingSatellites());
@@ -6632,18 +6840,19 @@ namespace aScriptFun {
     }
 
     void SF_FreeItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FreeItem"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             if (Item->ScriptItem != nullptr) {
@@ -6654,25 +6863,27 @@ namespace aScriptFun {
     }
 
     void SF_ShipJoinsClan(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipJoinsClan"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId != aGalaxyStruct::oiPirate) {
             ++aGalaxy::Galaxy->PirateClanCount;
             --aGalaxy::Galaxy->PirateCount;
         }
-        Ship->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+        Ship->OwnerId = aGalaxyStruct::oiPirate;
         if (aPlayer::GetPlayer() == Ship) {
             aPlayer::GetPlayer()->PirateClanReal = true;
         }
     }
 
     void SF_AddItemToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Other{};
         std::uint8_t GoodsKind{};
         std::int32_t Index{};
@@ -6681,15 +6892,15 @@ namespace aScriptFun {
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
-            GoodsKind = static_cast<std::uint8_t>(pas::checked_cast<aItem::TGoods*>(Item)->ItemType);
-            Ship->CargoGoods[GoodsKind].Count += pas::checked_cast<aItem::TGoods*>(Item)->Weight;
+        if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
+            GoodsKind = static_cast<std::uint8_t>(goods->ItemType);
+            Ship->CargoGoods[GoodsKind].Count += goods->Weight;
             Ship->CargoGoods[GoodsKind].TotalCost += Item->Cost;
             pas::free(Item);
-        } else if (pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr) {
+        } else if (aItem::TCountableItem* countableItem = pas::class_cast_if<aItem::TCountableItem*>(Item)) {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Ship->Inventory) - 1); cpp_range.next(Index); ) {
                 Other = pas::list_at<aItem::TItem>(Ship->Inventory, Index);
-                if (aItem::TCountableItem_CanMerge(pas::checked_cast<aItem::TCountableItem*>(Item), Other)) {
+                if (aItem::TCountableItem_CanMerge(countableItem, Other)) {
                     aItem::TCountableItem_Merge(pas::checked_cast<aItem::TCountableItem*>(Other), Item);
                     pas::free(Item);
                     Item = nullptr;
@@ -6714,8 +6925,9 @@ namespace aScriptFun {
     }
 
     void SF_GetItemFromShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         aItem::TItem* Item{};
         std::int32_t Index{};
@@ -6746,15 +6958,18 @@ namespace aScriptFun {
             if (Ship->GetHull() == Item) {
                 Ship->GetHull()->OwnerShip = nullptr;
                 Ship->UnequipSlot(aConst::t_Hull, 0);
-            } else if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr && static_cast<aItem::TEquipment*>(Item)->EquippedFlag != 0) {
-                if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-                    Ship->UnequipSlot(static_cast<std::uint8_t>(Item->ItemType), 0);
+            } else if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item); equipment != nullptr && equipment->EquippedFlag != 0) {
+                if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+                    Ship->UnequipSlot(Item->ItemType, 0);
                 }
                 if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                    for (auto cpp_range = pas::for_to<std::int32_t>(1, Ship->CountEquippedWeapons() & 0x0000007f); cpp_range.next(WeaponIndex); ) {
-                        if (Ship->Weapons[WeaponIndex] == Item) {
-                            Ship->UnequipSlot(aConst::t_Weapon1, WeaponIndex);
-                            break;
+                    const std::int32_t cpp_last = static_cast<std::int32_t>(Ship->CountEquippedWeapons());
+                    if (1 <= cpp_last) {
+                        for (WeaponIndex = 1; WeaponIndex <= cpp_last; ++WeaponIndex) {
+                            if (Ship->Weapons[WeaponIndex] == Item) {
+                                Ship->UnequipSlot(aConst::t_Weapon1, WeaponIndex);
+                                break;
+                            }
                         }
                     }
                 }
@@ -6764,8 +6979,9 @@ namespace aScriptFun {
     }
 
     void SF_GetArtFromShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Item{};
         std::int32_t Index{};
         if (av.length() - 1 < 2) {
@@ -6794,8 +7010,9 @@ namespace aScriptFun {
     }
 
     void SF_ArrangeItems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrangeItems"_a));
         }
@@ -6807,8 +7024,9 @@ namespace aScriptFun {
     }
 
     void SF_AddItemToPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AddItemToPlanet"_a));
         }
@@ -6822,8 +7040,9 @@ namespace aScriptFun {
     }
 
     void SF_GetItemFromPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPlanet::PPlanetSurfaceLootEntry Entry{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetItemFromPlanet"_a));
@@ -6841,8 +7060,9 @@ namespace aScriptFun {
     }
 
     void SF_AddItemToShop(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AddItemToShop"_a));
         }
@@ -6880,8 +7100,9 @@ namespace aScriptFun {
     }
 
     void SF_GetItemFromShop(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::uint8_t Refresh{};
         pas::List* Items{};
@@ -6895,10 +7116,10 @@ namespace aScriptFun {
             if (Refresh) {
                 fEquipmentShop::RestoreTemporaryShopStock();
             }
-            if (pas::class_cast_if<aPlanet::TPlanet*>(Shop) != nullptr) {
-                Items = reinterpret_cast<aPlanet::TPlanet*>(Shop)->EquipmentShop;
-            } else if (pas::class_cast_if<aRuins::TRuins*>(Shop) != nullptr) {
-                Items = reinterpret_cast<aRuins::TRuins*>(Shop)->EquipmentShop;
+            if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Shop)) {
+                Items = planet->EquipmentShop;
+            } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Shop)) {
+                Items = ruins->EquipmentShop;
             } else {
                 return;
             }
@@ -6925,8 +7146,9 @@ namespace aScriptFun {
     }
 
     void SF_AddItemToStorage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aPlayer::PStorageEntry Entry{};
         if (av.length() - 1 < 2) {
@@ -6934,7 +7156,7 @@ namespace aScriptFun {
         }
         pas::Object* Location = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
+        if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range.next(Index); ) {
                 Entry = pas::list_at<aPlayer::TStorageEntry>(aPlayer::GetPlayer()->StorageEntries, Index);
                 // Early guards retain DCC32's native operand weighting for the additions.
@@ -6947,7 +7169,7 @@ namespace aScriptFun {
                 {
                     aItem::TGoods* cpp_with = pas::checked_cast<aItem::TGoods*>(Entry->Item);
                     if (cpp_with->ItemType == Item->ItemType) {
-                        cpp_with->Quantity += reinterpret_cast<aItem::TGoods*>(Item)->Quantity;
+                        cpp_with->Quantity += goods->Quantity;
                         cpp_with->Weight += Item->Weight;
                         cpp_with->Cost += Item->Cost;
                         pas::free(Item);
@@ -6957,7 +7179,7 @@ namespace aScriptFun {
                 }
             }
         }
-        if (pas::class_cast_if<aItem::TCountableItem*>(Item) != nullptr) {
+        if (aItem::TCountableItem* countableItem = pas::class_cast_if<aItem::TCountableItem*>(Item)) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range_2.next(Index); ) {
                 Entry = pas::list_at<aPlayer::TStorageEntry>(aPlayer::GetPlayer()->StorageEntries, Index);
                 if (Entry->LocationOwner == Location) {
@@ -6980,8 +7202,9 @@ namespace aScriptFun {
     }
 
     void SF_GetItemFromStorage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPlayer::PStorageEntry Entry{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetItemFromStorage"_a));
@@ -6998,8 +7221,9 @@ namespace aScriptFun {
     }
 
     void SF_FindItemInStorage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aPlayer::PStorageEntry Entry{};
         if (av.length() - 1 < 1) {
@@ -7017,8 +7241,9 @@ namespace aScriptFun {
     }
 
     void SF_PutItemInVault(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Item{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PutItemInVault"_a));
@@ -7041,8 +7266,9 @@ namespace aScriptFun {
     }
 
     void SF_GetItemFromVault(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetItemFromVault"_a));
         }
@@ -7059,8 +7285,9 @@ namespace aScriptFun {
     }
 
     void SF_DropItemInSystem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         EC_Struct::TPointF Destination{};
         EC_Struct::TPointF Position{};
@@ -7071,8 +7298,8 @@ namespace aScriptFun {
         }
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         } else {
             Item = reinterpret_cast<aItem::TItem*>(Obj);
         }
@@ -7103,7 +7330,7 @@ namespace aScriptFun {
                 pas::store_unaligned<EC_Struct::TPointF>(&Entry->Destination, Destination);
                 Entry->SourceShipId = 0;
                 Entry->InsertedIntoStar = false;
-                Entry->UseFlag = 0;
+                Entry->DeployTranclucator = 0;
                 {
                     std::int32_t cpp_arg = pas::list_add(Star->MovingDropItems, static_cast<void*>(Entry));
                     EC_Expression::TVarEC* cpp_arg_2 = av[0];
@@ -7114,8 +7341,9 @@ namespace aScriptFun {
     }
 
     void SF_StopMovingItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         aGalaxy::PMovingDropItemEntry Entry{};
         std::int32_t Index{};
@@ -7125,8 +7353,8 @@ namespace aScriptFun {
         }
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         } else {
             Item = reinterpret_cast<aItem::TItem*>(Obj);
         }
@@ -7156,8 +7384,9 @@ namespace aScriptFun {
     }
 
     void SF_StarItems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarItems"_a));
@@ -7180,8 +7409,9 @@ namespace aScriptFun {
     }
 
     void SF_GetItemFromStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TItem* Item{};
         std::int32_t Index{};
         if (av.length() - 1 < 2) {
@@ -7217,8 +7447,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetItems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::int32_t Count{};
         if (av.length() - 1 < 1) {
@@ -7247,8 +7478,9 @@ namespace aScriptFun {
     }
 
     void SF_StorageItems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(pas::list_count(aPlayer::GetPlayer()->StorageEntries));
@@ -7263,8 +7495,9 @@ namespace aScriptFun {
     }
 
     void SF_StorageItemLocation(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StorageItemLocation"_a));
         }
@@ -7276,8 +7509,9 @@ namespace aScriptFun {
     }
 
     void SF_ShopItems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Wanted{};
         std::int32_t Index{};
         std::int32_t Count{};
@@ -7289,10 +7523,10 @@ namespace aScriptFun {
         if (Shop == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShopItems shop=nil"_a));
         }
-        if (pas::class_cast_if<aPlanet::TPlanet*>(Shop) != nullptr) {
-            Items = reinterpret_cast<aPlanet::TPlanet*>(Shop)->EquipmentShop;
-        } else if (pas::class_cast_if<aRuins::TRuins*>(Shop) != nullptr) {
-            Items = reinterpret_cast<aRuins::TRuins*>(Shop)->EquipmentShop;
+        if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Shop)) {
+            Items = planet->EquipmentShop;
+        } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Shop)) {
+            Items = ruins->EquipmentShop;
         } else {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShopItems obj not a shop"_a));
         }
@@ -7337,8 +7571,9 @@ namespace aScriptFun {
     }
 
     void SF_AddDialogOverride(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::PScriptDialogOverride Entry{};
         pas::WideString DialogName{};
         std::int32_t Index{};
@@ -7346,8 +7581,8 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AddDialogOverride"_a));
         }
         DialogName = av[1]->GetString();
-        if (EC_Str::CountDelimitedPartsW(DialogName, u":"_wref.get()) > 1) {
-            Index = Globals::FindScriptTemplateIndex(EC_Str::ExtractDelimitedPartW(DialogName, 0, u":"_wref.get()));
+        if (EC_Str::CountDelimitedPartsW(pas::view(DialogName), u":"sv) > 1) {
+            Index = Globals::FindScriptTemplateIndex(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(DialogName), 0, u":"sv)));
             if (Index < 0) {
                 return;
             }
@@ -7357,7 +7592,7 @@ namespace aScriptFun {
             }
             pas::new_value(Entry);
             Entry->Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index);
-            Entry->DialogName = EC_Str::ExtractDelimitedPartW(DialogName, 1, u":"_wref.get());
+            Entry->DialogName = EC_Str::ExtractDelimitedPartW(pas::view(DialogName), 1, u":"sv);
         } else {
             pas::new_value(Entry);
             Entry->Script = aScript::CurrentScript;
@@ -7376,8 +7611,9 @@ namespace aScriptFun {
     }
 
     void SF_AddDialogInject(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 8> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 8), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::PScriptDialogInjection Entry{};
         pas::WideString DialogName{};
         std::int32_t Index{};
@@ -7385,8 +7621,8 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AddDialogInject"_a));
         }
         DialogName = av[1]->GetString();
-        if (EC_Str::CountDelimitedPartsW(DialogName, u":"_wref.get()) > 1) {
-            Index = Globals::FindScriptTemplateIndex(EC_Str::ExtractDelimitedPartW(DialogName, 0, u":"_wref.get()));
+        if (EC_Str::CountDelimitedPartsW(pas::view(DialogName), u":"sv) > 1) {
+            Index = Globals::FindScriptTemplateIndex(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(DialogName), 0, u":"sv)));
             if (Index < 0) {
                 return;
             }
@@ -7396,7 +7632,7 @@ namespace aScriptFun {
             }
             pas::new_value(Entry);
             Entry->Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index);
-            Entry->DialogName = EC_Str::ExtractDelimitedPartW(DialogName, 1, u":"_wref.get());
+            Entry->DialogName = EC_Str::ExtractDelimitedPartW(pas::view(DialogName), 1, u":"sv);
         } else {
             pas::new_value(Entry);
             Entry->Script = aScript::CurrentScript;
@@ -7429,8 +7665,9 @@ namespace aScriptFun {
     }
 
     void SF_InjectAnswer(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         pas::WideString Mode{};
         std::int32_t Index{};
@@ -7439,8 +7676,8 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script InjectAnswer"_a));
         }
         Text = av[1]->GetString();
-        if (EC_Str::CountDelimitedPartsW(Text, u":"_wref.get()) > 1) {
-            Index = Globals::FindScriptTemplateIndex(EC_Str::ExtractDelimitedPartW(Text, 0, u":"_wref.get()));
+        if (EC_Str::CountDelimitedPartsW(pas::view(Text), u":"sv) > 1) {
+            Index = Globals::FindScriptTemplateIndex(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u":"sv)));
             if (Index < 0) {
                 return;
             }
@@ -7450,7 +7687,7 @@ namespace aScriptFun {
             }
             pas::new_value(Entry);
             Entry->Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index);
-            Entry->DialogName = EC_Str::ExtractDelimitedPartW(Text, 1, u":"_wref.get());
+            Entry->DialogName = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u":"sv);
         } else {
             pas::new_value(Entry);
             Entry->Script = aScript::CurrentScript;
@@ -7473,10 +7710,10 @@ namespace aScriptFun {
         }
         pas::list_add(aScript::ScriptDialogInjections, static_cast<void*>(Entry));
         Text = Entry->Answer;
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Text, u"~"_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
         if (Count > 1) {
-            Mode = EC_Str::ExtractDelimitedPartW(Text, 0, u"~"_wref.get());
-            Text = EC_Str::ExtractDelimitedRangeW(Text, 1, Count - 1, u"~"_wref.get());
+            Mode = EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"~"sv);
+            Text = EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, Count - 1, u"~"sv);
         }
         if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (Mode == u"block") {
@@ -7504,8 +7741,9 @@ namespace aScriptFun {
     }
 
     void SF_AddDialogBlock(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::PScriptDialogBlock Entry{};
         std::int32_t I{};
         if (av.length() - 1 < 1) {
@@ -7540,8 +7778,9 @@ namespace aScriptFun {
     }
 
     void SF_GotoGov(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->PendingDockDialogue);
         if (av.length() - 1 >= 1) {
             aPlayer::GetPlayer()->PendingDockDialogue = av[1]->GetInt();
@@ -7549,8 +7788,9 @@ namespace aScriptFun {
     }
 
     void SF_GetShipPlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetShipPlanet"_a));
         }
@@ -7563,8 +7803,9 @@ namespace aScriptFun {
     }
 
     void SF_GetShipHomePlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetShipHomePlanet"_a));
         }
@@ -7573,8 +7814,9 @@ namespace aScriptFun {
     }
 
     void SF_GetShipRuins(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetShipRuins"_a));
         }
@@ -7587,20 +7829,23 @@ namespace aScriptFun {
     }
 
     void SF_GetTalkShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Globals::TalkShip)));
     }
 
     void SF_GetTalkType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(Globals::TalkType);
     }
 
     void SF_TalkByAI(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (Globals::TalkScripted) {
             av[0]->SetInt(1);
         } else {
@@ -7609,8 +7854,9 @@ namespace aScriptFun {
     }
 
     void SF_ScriptRun(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Name{};
         std::int32_t I{};
         aScript::TScript* Script{};
@@ -7633,14 +7879,15 @@ namespace aScriptFun {
                 return;
             }
         }
-        if (aScript::TryStartScriptByName(Star, Planet, Name)) {
+        if (aScript::TryStartScriptByName(Star, Planet, pas::view(Name))) {
             av[0]->SetInt(1);
         }
     }
 
     void SF_CreateABShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Obj{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateABShip"_a));
@@ -7676,8 +7923,8 @@ namespace aScriptFun {
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[6]->GetDword())));
             if (av[6]->GetInt() == -1) {
                 Ship->RandomRewardsDisabled = false;
-            } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                Ship->RewardObject = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+            } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                Ship->RewardObject = scriptItem->Item;
             } else {
                 Ship->RewardObject = Obj;
             }
@@ -7689,8 +7936,9 @@ namespace aScriptFun {
     }
 
     void SF_ConvertToABShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aShip::TShip* Source{};
         ab_ShipAI::TabShipAI* Ship{};
@@ -7754,8 +8002,8 @@ namespace aScriptFun {
                 Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[6]->GetDword())));
                 if (av[6]->GetInt() == -1) {
                     Ship->RandomRewardsDisabled = false;
-                } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                    Ship->RewardObject = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+                } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                    Ship->RewardObject = scriptItem->Item;
                 } else {
                     Ship->RewardObject = Obj;
                 }
@@ -7810,8 +8058,9 @@ namespace aScriptFun {
     }
 
     void SF_StartAB(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::PScriptABRequest Request{};
         if (av.length() - 1 == 0) {
             av[0]->SetInt(pas::list_count(aScript::QueuedArcadeBattles));
@@ -7847,8 +8096,9 @@ namespace aScriptFun {
 
     // No arguments returns queue length; otherwise queues name and optional success/failure captions, setting GQuestStatus to 1.
     void SF_StartTextQuest(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::PQueuedTextQuest Request{};
         if (av.length() - 1 == 0) {
             av[0]->SetInt(pas::list_count(aScript::QueuedTextQuests));
@@ -7875,8 +8125,9 @@ namespace aScriptFun {
     }
 
     void SF_StartRobots(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::PScriptPBRequest Request{};
         if (av.length() - 1 == 0) {
             av[0]->SetInt(pas::list_count(aScript::QueuedPlanetaryBattles));
@@ -7904,8 +8155,9 @@ namespace aScriptFun {
     }
 
     void SF_MarkRobotsMapAsUsed(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         pas::WideString Name{};
         if (av.length() - 1 < 1) {
@@ -7921,12 +8173,12 @@ namespace aScriptFun {
                         {
                             aPlayer::TPlanetBattleHistoryEntry& cpp_with = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                             cpp_with.MapId = Globals::RobotMapDefinitions[I].Id;
-                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 0 * sizeof(std::int32_t)), 0);
-                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 1 * sizeof(std::int32_t)), 0);
-                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 2 * sizeof(std::int32_t)), 0);
-                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 3 * sizeof(std::int32_t)), 0);
-                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 4 * sizeof(std::int32_t)), 0);
-                            pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 5 * sizeof(std::int32_t)), 0);
+                            cpp_with.Statistics.SignedTimeMs = 0;
+                            cpp_with.Statistics.RobotsBuilt = 0;
+                            cpp_with.Statistics.RobotsDestroyed = 0;
+                            cpp_with.Statistics.TurretsBuilt = 0;
+                            cpp_with.Statistics.TurretsDestroyed = 0;
+                            cpp_with.Statistics.BuildingsDestroyed = 0;
                             cpp_with.ResultCode = 1;
                             cpp_with.CompletionMode = 0;
                             cpp_with.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -7945,8 +8197,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t WasPirateClan{};
         std::uint8_t IsPirateClan{};
         if (av.length() - 1 < 1) {
@@ -7956,9 +8209,9 @@ namespace aScriptFun {
         if (Ship != nullptr) {
             av[0]->SetInt(Ship->OwnerId);
             if (av.length() - 1 > 1) {
-                WasPirateClan = Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
-                Ship->OwnerId = av[2]->GetInt();
-                IsPirateClan = Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+                WasPirateClan = Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == aGalaxyStruct::oiPirate;
+                Ship->OwnerId = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
+                IsPirateClan = Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == aGalaxyStruct::oiPirate;
                 if (WasPirateClan && static_cast<std::uint8_t>(IsPirateClan ^ 1)) {
                     --aGalaxy::Galaxy->PirateClanCount;
                     ++aGalaxy::Galaxy->PirateCount;
@@ -7974,8 +8227,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipPilotRace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipPilotRace"_a));
         }
@@ -7983,7 +8237,7 @@ namespace aScriptFun {
         if (Ship != nullptr) {
             av[0]->SetInt(Ship->PilotRace);
             if (av.length() - 1 > 1) {
-                Ship->PilotRace = av[2]->GetInt();
+                Ship->PilotRace = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
             }
         } else {
             av[0]->SetInt(-1);
@@ -7991,8 +8245,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipSkill(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Skill{};
         std::int32_t Value{};
         if (av.length() - 1 < 2) {
@@ -8044,19 +8299,20 @@ namespace aScriptFun {
             }
         }
         if (Current) {
-            av[0]->SetInt(Ship->GetEffectiveSkillLevel(static_cast<aShip::TPilotSkill>(Skill), false));
+            av[0]->SetInt(Ship->GetEffectiveSkillLevel(static_cast<aGalaxyStruct::TPilotSkill>(Skill), false));
         } else {
-            av[0]->SetInt(Ship->BaseSkills[static_cast<std::uint8_t>(Skill)]);
+            av[0]->SetInt(Ship->BaseSkills[static_cast<aGalaxyStruct::TPilotSkill>(Skill)]);
         }
         if (av.length() - 1 > 2) {
             Value = av[3]->GetInt();
-            Ship->BaseSkills[static_cast<std::uint8_t>(Skill)] = std::max<std::int32_t>(0, std::min<std::int32_t>(6, Value));
+            Ship->BaseSkills[static_cast<aGalaxyStruct::TPilotSkill>(Skill)] = std::max<std::int32_t>(0, std::min<std::int32_t>(6, Value));
         }
     }
 
     void SF_ShipFace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipFace"_a));
@@ -8092,8 +8348,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipFreeExp(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipFreeExp"_a));
         }
@@ -8107,8 +8364,9 @@ namespace aScriptFun {
     }
 
     void SF_GetShipExpByType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetShipExpByType"_a));
         }
@@ -8134,8 +8392,9 @@ namespace aScriptFun {
 
     // Moving a star updates its drawn StarLinks, but not distance caches, sector boundaries or adjacency.
     void SF_CoordX(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         EC_Struct::TPointF Position{};
         aGalaxy::PConstellationStarLink Link{};
         std::int32_t Index{};
@@ -8146,56 +8405,56 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetInt(0);
         if (Obj != nullptr) {
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-            } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aItem::TItem*>(Obj)->Position;
-            } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                if (pas::checked_cast<aScript::TScriptItem*>(Obj)->Item != nullptr) {
-                    Position = pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position;
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                Position = ship->Position;
+            } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                Position = item->Position;
+            } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                if (scriptItem->Item != nullptr) {
+                    Position = scriptItem->Item->Position;
                 } else {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script CoordX - script item does not exist"_a));
                 }
-            } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aScript::TScriptPlace*>(Obj)->GetPoint();
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetPosition();
-            } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aGalaxy::TStar*>(Obj)->Position;
-            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position;
-            } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aMissile::TMissile*>(Obj)->Position;
+            } else if (aScript::TScriptPlace* scriptPlace = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
+                Position = scriptPlace->GetPoint();
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                Position = planet->GetPosition();
+            } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+                Position = star->Position;
+            } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                Position = asteroid->Position;
+            } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                Position = missile->Position;
             } else {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script CoordX - Object type not supported"_a));
             }
             av[0]->SetInt(System::Round(Position.X));
             if (av.length() - 1 > 1) {
                 Position.X = av[2]->GetInt();
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    pas::checked_cast<aShip::TShip*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                    pas::checked_cast<aItem::TItem*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                    pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position = Position;
-                } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    ship_2->Position = Position;
+                } else if (aItem::TItem* item_2 = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                    item_2->Position = Position;
+                } else if (aScript::TScriptItem* scriptItem_2 = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                    scriptItem_2->Item->Position = Position;
+                } else if (aScript::TScriptPlace* scriptPlace_2 = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
                     {
                         std::int32_t round = System::Round(Position.Y);
                         std::int32_t round_2 = System::Round(Position.X);
                         cpp_with = aMyFunction::IntegerPointToPolar(ClassesImports::Point(round_2, round));
                     }
-                    pas::checked_cast<aScript::TScriptPlace*>(Obj)->Radius = System::Round(cpp_with.Radius);
-                    pas::checked_cast<aScript::TScriptPlace*>(Obj)->AngleOffset = cpp_with.AngleRadians;
-                } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                    pas::checked_cast<aPlanet::TPlanet*>(Obj)->Orbit = std::bit_cast<aMyFunction::TPolarPoint>(([&] {
+                    scriptPlace_2->Radius = System::Round(cpp_with.Radius);
+                    scriptPlace_2->AngleOffset = cpp_with.AngleRadians;
+                } else if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                    planet_2->Orbit = std::bit_cast<aMyFunction::TPolarPoint>(([&] {
                         std::int32_t round_3 = System::Round(Position.Y);
                         std::int32_t round_4 = System::Round(Position.X);
                         return aMyFunction::IntegerPointToPolar(ClassesImports::Point(round_4, round_3));
                     }()));
-                    pas::checked_cast<aPlanet::TPlanet*>(Obj)->Graphic->SetPosition(Position);
-                } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
+                    planet_2->Graphic->SetPosition(Position);
+                } else if (aGalaxy::TStar* star_2 = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
                     {
-                        pas::List* cpp_with_2 = reinterpret_cast<aGalaxy::TStar*>(Obj)->Constellation->StarLinks;
+                        pas::List* cpp_with_2 = star_2->Constellation->StarLinks;
                         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(cpp_with_2) - 1); cpp_range.next(Index); ) {
                             Link = pas::list_at<aGalaxy::TConstellationStarLink>(cpp_with_2, Index);
                             if (Link->StartPoint.X == reinterpret_cast<aGalaxy::TStar*>(Obj)->Position.X && Link->StartPoint.Y == reinterpret_cast<aGalaxy::TStar*>(Obj)->Position.Y) {
@@ -8209,10 +8468,10 @@ namespace aScriptFun {
                         }
                     }
                     pas::checked_cast<aGalaxy::TStar*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                    pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                    pas::checked_cast<aMissile::TMissile*>(Obj)->Position = Position;
+                } else if (aAsteroid::TAsteroid* asteroid_2 = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                    asteroid_2->Position = Position;
+                } else if (aMissile::TMissile* missile_2 = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                    missile_2->Position = Position;
                 }
             }
         }
@@ -8220,8 +8479,9 @@ namespace aScriptFun {
 
     // Moving a star updates its drawn StarLinks, but not distance caches, sector boundaries or adjacency.
     void SF_CoordY(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         EC_Struct::TPointF Position{};
         aGalaxy::PConstellationStarLink Link{};
         std::int32_t Index{};
@@ -8232,56 +8492,56 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetInt(0);
         if (Obj != nullptr) {
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-            } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aItem::TItem*>(Obj)->Position;
-            } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                if (pas::checked_cast<aScript::TScriptItem*>(Obj)->Item != nullptr) {
-                    Position = pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position;
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                Position = ship->Position;
+            } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                Position = item->Position;
+            } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                if (scriptItem->Item != nullptr) {
+                    Position = scriptItem->Item->Position;
                 } else {
                     pas::raise(pas::make_exception<pas::Exception>("Error.Script CoordY - script item does not exist"_a));
                 }
-            } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aScript::TScriptPlace*>(Obj)->GetPoint();
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetPosition();
-            } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aGalaxy::TStar*>(Obj)->Position;
-            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position;
-            } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                Position = pas::checked_cast<aMissile::TMissile*>(Obj)->Position;
+            } else if (aScript::TScriptPlace* scriptPlace = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
+                Position = scriptPlace->GetPoint();
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                Position = planet->GetPosition();
+            } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+                Position = star->Position;
+            } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                Position = asteroid->Position;
+            } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                Position = missile->Position;
             } else {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script CoordY - Object type not supported"_a));
             }
             av[0]->SetInt(System::Round(Position.Y));
             if (av.length() - 1 > 1) {
                 Position.Y = av[2]->GetInt();
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    pas::checked_cast<aShip::TShip*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                    pas::checked_cast<aItem::TItem*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                    pas::checked_cast<aScript::TScriptItem*>(Obj)->Item->Position = Position;
-                } else if (pas::class_cast_if<aScript::TScriptPlace*>(Obj) != nullptr) {
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    ship_2->Position = Position;
+                } else if (aItem::TItem* item_2 = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                    item_2->Position = Position;
+                } else if (aScript::TScriptItem* scriptItem_2 = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                    scriptItem_2->Item->Position = Position;
+                } else if (aScript::TScriptPlace* scriptPlace_2 = pas::class_cast_if<aScript::TScriptPlace*>(Obj)) {
                     {
                         std::int32_t round = System::Round(Position.Y);
                         std::int32_t round_2 = System::Round(Position.X);
                         cpp_with = aMyFunction::IntegerPointToPolar(ClassesImports::Point(round_2, round));
                     }
-                    pas::checked_cast<aScript::TScriptPlace*>(Obj)->Radius = System::Round(cpp_with.Radius);
-                    pas::checked_cast<aScript::TScriptPlace*>(Obj)->AngleOffset = cpp_with.AngleRadians;
-                } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                    pas::checked_cast<aPlanet::TPlanet*>(Obj)->Orbit = std::bit_cast<aMyFunction::TPolarPoint>(([&] {
+                    scriptPlace_2->Radius = System::Round(cpp_with.Radius);
+                    scriptPlace_2->AngleOffset = cpp_with.AngleRadians;
+                } else if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                    planet_2->Orbit = std::bit_cast<aMyFunction::TPolarPoint>(([&] {
                         std::int32_t round_3 = System::Round(Position.Y);
                         std::int32_t round_4 = System::Round(Position.X);
                         return aMyFunction::IntegerPointToPolar(ClassesImports::Point(round_4, round_3));
                     }()));
-                    pas::checked_cast<aPlanet::TPlanet*>(Obj)->Graphic->SetPosition(Position);
-                } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
+                    planet_2->Graphic->SetPosition(Position);
+                } else if (aGalaxy::TStar* star_2 = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
                     {
-                        pas::List* cpp_with_2 = reinterpret_cast<aGalaxy::TStar*>(Obj)->Constellation->StarLinks;
+                        pas::List* cpp_with_2 = star_2->Constellation->StarLinks;
                         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(cpp_with_2) - 1); cpp_range.next(Index); ) {
                             Link = pas::list_at<aGalaxy::TConstellationStarLink>(cpp_with_2, Index);
                             if (Link->StartPoint.X == reinterpret_cast<aGalaxy::TStar*>(Obj)->Position.X && Link->StartPoint.Y == reinterpret_cast<aGalaxy::TStar*>(Obj)->Position.Y) {
@@ -8295,18 +8555,19 @@ namespace aScriptFun {
                         }
                     }
                     pas::checked_cast<aGalaxy::TStar*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                    pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position = Position;
-                } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                    pas::checked_cast<aMissile::TMissile*>(Obj)->Position = Position;
+                } else if (aAsteroid::TAsteroid* asteroid_2 = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                    asteroid_2->Position = Position;
+                } else if (aMissile::TMissile* missile_2 = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                    missile_2->Position = Position;
                 }
             }
         }
     }
 
     void SF_ShipSetCoords(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipSetCoords"_a));
         }
@@ -8319,8 +8580,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipAngle(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipAngle"_a));
         }
@@ -8335,8 +8597,9 @@ namespace aScriptFun {
     }
 
     void SF_ObjectType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ObjectType"_a));
         }
@@ -8362,8 +8625,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInHyperSpace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInHyperSpace"_a));
         }
@@ -8380,28 +8644,30 @@ namespace aScriptFun {
     }
 
     void SF_ShipStatus(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aRanger::TRanger* Ranger{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipStatus"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aRanger::TRanger*>(Obj) != nullptr) {
-            Ranger = reinterpret_cast<aRanger::TRanger*>(Obj);
+        if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Obj)) {
+            Ranger = ranger;
         } else {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipStatus - not Ranger"_a));
         }
-        std::uint8_t Index = av[2]->GetInt();
-        av[0]->SetInt(Ranger->CareerStatus[Index]);
+        aGalaxyStruct::TRangerCareer Career = static_cast<aGalaxyStruct::TRangerCareer>(av[2]->GetInt());
+        av[0]->SetInt(Ranger->CareerStatus[Career]);
         if (av.length() - 1 > 2) {
-            Ranger->CareerStatus[Index] = av[3]->GetInt();
+            Ranger->CareerStatus[Career] = av[3]->GetInt();
         }
     }
 
     void SF_BuyRanger(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuyRanger"_a));
@@ -8418,8 +8684,9 @@ namespace aScriptFun {
     }
 
     void SF_BuyWarrior(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuyWarrior"_a));
@@ -8436,8 +8703,9 @@ namespace aScriptFun {
     }
 
     void SF_BuyBigWarrior(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuyBigWarrior"_a));
@@ -8454,8 +8722,9 @@ namespace aScriptFun {
     }
 
     void SF_BuyDomik(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuyDomik"_a));
@@ -8468,8 +8737,9 @@ namespace aScriptFun {
     }
 
     void SF_BuyDomikExtremal(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         aGalaxyStruct::TDominatorSeries SavedSeries{};
         if (av.length() - 1 < 1) {
@@ -8492,8 +8762,9 @@ namespace aScriptFun {
     }
 
     void SF_BuyTranclucator(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         std::uint8_t BasicEquipment{};
         if (av.length() - 1 < 1) {
@@ -8511,8 +8782,9 @@ namespace aScriptFun {
     }
 
     void SF_TransferShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Destination{};
         aGalaxy::TStar* OldStar{};
         aGalaxy::TStar* NewStar{};
@@ -8533,11 +8805,11 @@ namespace aScriptFun {
                     }
                     Planet = nullptr;
                     Station = nullptr;
-                    if (pas::class_cast_if<aPlanet::TPlanet*>(Destination) != nullptr) {
-                        Planet = reinterpret_cast<aPlanet::TPlanet*>(Destination);
+                    if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Destination)) {
+                        Planet = planet;
                         NewStar = Planet->CurrentStar;
-                    } else if (pas::class_cast_if<aShip::TShip*>(Destination) != nullptr) {
-                        Station = reinterpret_cast<aShip::TShip*>(Destination);
+                    } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Destination)) {
+                        Station = ship;
                         NewStar = Station->CurrentStar;
                     } else {
                         NewStar = reinterpret_cast<aGalaxy::TStar*>(Destination);
@@ -8549,11 +8821,11 @@ namespace aScriptFun {
                     pas::list_add(NewStar->Ships, reinterpret_cast<void*>(Ship));
                     Ship->CurrentStar = NewStar;
                     if (Ship->CurrentPlanet != nullptr) {
-                        if (pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr) {
-                            pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->LastDockedPlanet = Ship->CurrentPlanet;
+                        if (aNormalShip::TNormalShip* normalShip = pas::class_cast_if<aNormalShip::TNormalShip*>(Ship)) {
+                            normalShip->LastDockedPlanet = Ship->CurrentPlanet;
                         }
                     } else if (Ship->DockedTo != nullptr && pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
-                        pas::checked_cast<aRanger::TRanger*>(Ship)->LastDockedNonPlanetLocation = Ship->DockedTo;
+                        static_cast<aRanger::TRanger*>(Ship)->LastDockedNonPlanetLocation = Ship->DockedTo;
                     }
                     if (aPlayer::GetPlayer() == Ship && fEquipmentShop::TemporaryShopSlots != nullptr) {
                         fEquipmentShop::RestoreTemporaryShopStock();
@@ -8580,8 +8852,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderForsage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script OrderForsage"_a));
         }
@@ -8608,8 +8881,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderNone(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t SavedOrderLock{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script OrderNone"_a));
@@ -8631,8 +8905,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderMove(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Absolute{};
         EC_Struct::TPointF Destination{};
         std::uint8_t SavedOrderLock{};
@@ -8672,8 +8947,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderTeleport(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         EC_Struct::TPointF Destination{};
         std::uint8_t SavedOrderLock{};
         aShip::TShip* Ship{};
@@ -8711,8 +8987,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderTakeOff(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t SavedOrderLock{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script OrderTakeOff"_a));
@@ -8727,8 +9004,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderFollowShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t SavedOrderLock{};
         aShip::TShip* Ship{};
         if (av.length() - 1 < 2) {
@@ -8760,8 +9038,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderJumpHole(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Absolute{};
         std::uint8_t SavedOrderLock{};
         if (av.length() - 1 < 2) {
@@ -8789,8 +9068,9 @@ namespace aScriptFun {
     }
 
     void SF_RelationToRanger(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Relation{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RelationToRanger"_a));
@@ -8799,8 +9079,8 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aRanger::TRanger* Ranger = reinterpret_cast<aRanger::TRanger*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         if (Ranger != nullptr) {
-            if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(reinterpret_cast<aPlanet::TPlanet*>(Obj)->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger))))));
+            if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(planet->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger))))));
                 if (av.length() - 1 > 2) {
                     if (av[3]->GetInt() < 0) {
                         Relation = 0;
@@ -8811,9 +9091,9 @@ namespace aScriptFun {
                     }
                     pas::list_put(reinterpret_cast<aPlanet::TPlanet*>(Obj)->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger)), reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Relation))));
                 }
-            } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                if (reinterpret_cast<aShip::TShip*>(Obj)->RangerRelations != nullptr && pas::list_count(reinterpret_cast<aShip::TShip*>(Obj)->RangerRelations) > 0) {
-                    av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(reinterpret_cast<aShip::TShip*>(Obj)->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger))))));
+            } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                if (ship->RangerRelations != nullptr && pas::list_count(ship->RangerRelations) > 0) {
+                    av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(ship->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger))))));
                 } else {
                     std::int32_t relationToShip = aShip::TShip_RelationToShip(reinterpret_cast<aShip::TShip*>(Obj), Ranger);
                     EC_Expression::TVarEC* cpp_arg = av[0];
@@ -8834,8 +9114,9 @@ namespace aScriptFun {
     }
 
     void SF_RelationToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RelationToShip"_a));
         }
@@ -8856,8 +9137,9 @@ namespace aScriptFun {
     }
 
     void SF_StarOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarOwner"_a));
         }
@@ -8872,8 +9154,9 @@ namespace aScriptFun {
     }
 
     void SF_StarBattle(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarBattle"_a));
         }
@@ -8885,8 +9168,9 @@ namespace aScriptFun {
     }
 
     void SF_StarSeries(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarSeries"_a));
         }
@@ -8901,8 +9185,9 @@ namespace aScriptFun {
     }
 
     void SF_StarHoles(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::THole* Hole{};
         std::int32_t I{};
         if (av.length() - 1 < 1) {
@@ -8931,8 +9216,9 @@ namespace aScriptFun {
     }
 
     void SF_StarNearbyStars(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarNearbyStars"_a));
@@ -8948,8 +9234,9 @@ namespace aScriptFun {
     }
 
     void SF_StarNearbyStarsDist(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarNearbyStarsDist"_a));
@@ -8974,7 +9261,7 @@ namespace aScriptFun {
         Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Star->Graphic));
         {
-            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Star"_wref.get(), av[2]->GetString(), ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Star"sv, av[2]->GetString(), ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> graphic = pas::Var<SE_Space::TObjectSE*>(&Star->Graphic);
             SE_Space::RetainSpaceObject(graphic, createSpaceObjectByName);
         }
@@ -8983,8 +9270,9 @@ namespace aScriptFun {
     }
 
     void SF_CreatePlanet(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreatePlanet"_a));
@@ -9012,8 +9300,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetSetGraph(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPlanet::TPlanet* Planet{};
         std::uint16_t RotationInterval{};
         if (av.length() - 1 < 2) {
@@ -9025,7 +9314,7 @@ namespace aScriptFun {
             RotationInterval = Planet->Graphic->RotationTimerInterval;
             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Planet->Graphic));
             {
-                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Planet"_wref.get(), Planet->GraphName, ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Planet"sv, Planet->GraphName, ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> graphic = pas::Var<SE_Space::TObjectSE*>(&Planet->Graphic);
                 SE_Space::RetainSpaceObject(graphic, createSpaceObjectByName);
             }
@@ -9046,8 +9335,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetGetGraph(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPlanet::TPlanet* Planet{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetGetGraph"_a));
@@ -9057,8 +9347,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetPopulation(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetPopulation"_a));
         }
@@ -9073,8 +9364,9 @@ namespace aScriptFun {
 
     // Updates planet ownership flags, not the containing star's faction or its other planets.
     void SF_PlanetOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetOwner"_a));
         }
@@ -9082,15 +9374,16 @@ namespace aScriptFun {
         if (Planet != nullptr) {
             av[0]->SetInt(Planet->OwnerId);
             if (av.length() - 1 > 1) {
-                Planet->OwnerId = av[2]->GetInt();
+                Planet->OwnerId = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
                 Planet->UpdateOwnerFlags();
             }
         }
     }
 
     void SF_PlanetRace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetRace"_a));
         }
@@ -9098,14 +9391,15 @@ namespace aScriptFun {
         if (Planet != nullptr) {
             av[0]->SetInt(Planet->RaceId);
             if (av.length() - 1 > 1) {
-                Planet->RaceId = av[2]->GetInt();
+                Planet->RaceId = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
             }
         }
     }
 
     void SF_PlanetGov(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetGov"_a));
         }
@@ -9119,8 +9413,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetEco(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetEco"_a));
         }
@@ -9134,8 +9429,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetTerrain(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aPlanet::PPlanetSurfaceLootEntry Entry{};
         if (av.length() - 1 < 2) {
@@ -9169,8 +9465,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetTerrainExplored(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetTerrainExplored"_a));
         }
@@ -9192,8 +9489,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetOrbitRadius(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetOrbitRadius"_a));
         }
@@ -9205,8 +9503,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetOrbitalVelocity(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetOrbitalVelocity"_a));
         }
@@ -9218,8 +9517,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetSize(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetSize"_a));
         }
@@ -9231,8 +9531,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetCurInvention(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetCurInvention"_a));
         }
@@ -9244,8 +9545,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetCurInventionPoints(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetCurInventionPoints"_a));
         }
@@ -9257,8 +9559,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetInventionLevel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetInventionLevel"_a));
         }
@@ -9271,8 +9574,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetBoostInventions(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count{};
         std::int32_t I{};
         if (av.length() - 1 < 1) {
@@ -9290,8 +9594,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetWarriors(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetWarriors"_a));
@@ -9310,8 +9615,9 @@ namespace aScriptFun {
     }
 
     void SF_GalaxySectors(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 == 0) {
             av[0]->SetInt(pas::list_count(aGalaxy::Galaxy->Constellations));
@@ -9326,44 +9632,48 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyTechLevel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aGalaxy::Galaxy->TechLevel);
     }
 
     void SF_GalaxyDominatorResearchPercent(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             av[0]->SetFloat(pas::real_divide(static_cast<long double>(aGalaxy::Galaxy->DominatorResearch[0].Progress) + aGalaxy::Galaxy->DominatorResearch[1].Progress + aGalaxy::Galaxy->DominatorResearch[2].Progress, 3.0L));
         } else {
-            av[0]->SetFloat(aGalaxy::Galaxy->DominatorResearch[av[1]->GetInt() & 0x0000007f].Progress);
+            av[0]->SetFloat(aGalaxy::Galaxy->DominatorResearch[static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt())].Progress);
             if (av.length() - 1 > 1) {
-                auto& cpp_target = aGalaxy::Galaxy->DominatorResearch[av[1]->GetInt() & 0x0000007f].Progress;
+                auto& cpp_target = aGalaxy::Galaxy->DominatorResearch[static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt())].Progress;
                 cpp_target = av[2]->GetFloat();
             }
         }
     }
 
     void SF_GalaxyDominatorResearchMaterial(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GalaxyDominatorResearchMaterial"_a));
         }
-        av[0]->SetInt(aGalaxy::Galaxy->DominatorResearch[av[1]->GetInt() & 0x0000007f].Material);
+        av[0]->SetInt(aGalaxy::Galaxy->DominatorResearch[static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt())].Material);
         if (av.length() - 1 > 1) {
-            aGalaxy::Galaxy->DominatorResearch[av[1]->GetInt() & 0x0000007f].Material = av[2]->GetInt();
+            aGalaxy::Galaxy->DominatorResearch[static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt())].Material = av[2]->GetInt();
         }
     }
 
     void SF_GalaxyDiffLevels(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t Total{};
         if (av.length() - 1 > 0) {
-            av[0]->SetInt((aGalaxy::Galaxy->DifficultyLevels[av[1]->GetInt() & 0x0000007f] + 1) * 50);
+            av[0]->SetInt((aGalaxy::Galaxy->DifficultyLevels[static_cast<aGalaxyStruct::TGalaxyDifficultyIndex>(av[1]->GetInt())] + 1) * 50);
         } else {
             Total = 0;
             for (I = 0; I <= 7; ++I) {
@@ -9374,8 +9684,9 @@ namespace aScriptFun {
     }
 
     void SF_SectorVisible(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SectorVisible"_a));
@@ -9395,8 +9706,9 @@ namespace aScriptFun {
     }
 
     void SF_HullHP(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::THull* Hull{};
         aShip::TShip* Ship{};
         std::int32_t Amount{};
@@ -9405,12 +9717,12 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aShip::TShip*>(Obj)->GetHull();
-        } else if (pas::class_cast_if<aItem::THull*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::THull*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Hull = pas::checked_cast<aItem::THull*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Hull = ship->GetHull();
+        } else if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
+            Hull = hull;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::THull*>(scriptItem->Item) != nullptr) {
+            Hull = static_cast<aItem::THull*>(scriptItem->Item);
         } else {
             return;
         }
@@ -9434,8 +9746,8 @@ namespace aScriptFun {
             } else {
                 Hull->HullPoints = av[2]->GetInt();
             }
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                Ship = reinterpret_cast<aShip::TShip*>(Obj);
+            if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                Ship = ship_2;
             } else {
                 Ship = static_cast<aShip::TShip*>(Hull->OwnerShip);
             }
@@ -9451,20 +9763,21 @@ namespace aScriptFun {
     }
 
     void SF_HullDamageSuspectibility(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::THull* Hull{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HullDamageSuspectibility"_a));
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aShip::TShip*>(Obj)->GetHull();
-        } else if (pas::class_cast_if<aItem::THull*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::THull*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Hull = pas::checked_cast<aItem::THull*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Hull = ship->GetHull();
+        } else if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
+            Hull = hull;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::THull*>(scriptItem->Item) != nullptr) {
+            Hull = static_cast<aItem::THull*>(scriptItem->Item);
         } else {
             return;
         }
@@ -9472,20 +9785,21 @@ namespace aScriptFun {
     }
 
     void SF_HullType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::THull* Hull{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HullType"_a));
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aShip::TShip*>(Obj)->GetHull();
-        } else if (pas::class_cast_if<aItem::THull*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::THull*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Hull = pas::checked_cast<aItem::THull*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Hull = ship->GetHull();
+        } else if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
+            Hull = hull;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::THull*>(scriptItem->Item) != nullptr) {
+            Hull = static_cast<aItem::THull*>(scriptItem->Item);
         } else {
             return;
         }
@@ -9496,20 +9810,21 @@ namespace aScriptFun {
     }
 
     void SF_HullSpecial(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::THull* Hull{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HullSpecial"_a));
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aShip::TShip*>(Obj)->GetHull();
-        } else if (pas::class_cast_if<aItem::THull*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::THull*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Hull = pas::checked_cast<aItem::THull*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Hull = ship->GetHull();
+        } else if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
+            Hull = hull;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::THull*>(scriptItem->Item) != nullptr) {
+            Hull = static_cast<aItem::THull*>(scriptItem->Item);
         } else {
             return;
         }
@@ -9520,20 +9835,21 @@ namespace aScriptFun {
     }
 
     void SF_HullSeries(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::THull* Hull{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HullSeries"_a));
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aShip::TShip*>(Obj)->GetHull();
-        } else if (pas::class_cast_if<aItem::THull*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::THull*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Hull = pas::checked_cast<aItem::THull*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Hull = ship->GetHull();
+        } else if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
+            Hull = hull;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::THull*>(scriptItem->Item) != nullptr) {
+            Hull = static_cast<aItem::THull*>(scriptItem->Item);
         } else {
             return;
         }
@@ -9544,8 +9860,9 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyHoles(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 == 0) {
             av[0]->SetInt(pas::list_count(aGalaxy::Galaxy->Holes));
@@ -9560,8 +9877,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleCreate2(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aEFilm::TEFilmObj* FilmObject{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleCreate2"_a));
@@ -9600,8 +9918,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleStar1(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleStar1"_a));
         }
@@ -9615,8 +9934,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleStar2(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleStar2"_a));
         }
@@ -9630,8 +9950,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleX1(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleX1"_a));
         }
@@ -9645,8 +9966,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleY1(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleY1"_a));
         }
@@ -9660,8 +9982,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleX2(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleX2"_a));
         }
@@ -9675,8 +9998,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleY2(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleY2"_a));
         }
@@ -9690,8 +10014,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleTurnCreate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleTurnCreate"_a));
         }
@@ -9706,8 +10031,9 @@ namespace aScriptFun {
     }
 
     void SF_HoleMap(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::THole* Hole{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HoleMap"_a));
@@ -9738,7 +10064,7 @@ namespace aScriptFun {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Hole->Graphic));
                 }
                 {
-                    SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Hole"_wref.get(), av[2]->GetString(), ClassesImports::Point(0, 0));
+                    SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Hole"sv, av[2]->GetString(), ClassesImports::Point(0, 0));
                     pas::Var<SE_Space::TObjectSE*> graphic = pas::Var<SE_Space::TObjectSE*>(&Hole->Graphic);
                     SE_Space::RetainSpaceObject(graphic, createSpaceObjectByName);
                 }
@@ -9750,8 +10076,9 @@ namespace aScriptFun {
     }
 
     void SF_StarRuins(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         std::int32_t I{};
         std::int32_t Found{};
@@ -9804,24 +10131,26 @@ namespace aScriptFun {
     }
 
     void SF_CreateQuestItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateQuestItem"_a));
         }
         aItem::TUselessItem* Item = pas::construct_call<aItem::TUselessItem>(aItem::TUselessItem_Create);
         Item->Init(av[1]->GetString(), aGalaxyStruct::dsBlazer, 0u, false);
         if (av.length() - 1 == 1) {
-            Item->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+            Item->OwnerId = aGalaxyStruct::oiUninhabited;
         } else if (av[2]->GetInt() >= 0) {
-            Item->OwnerId = av[2]->GetInt();
+            Item->OwnerId = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
         }
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Item)));
     }
 
     void SF_ShipOrder(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipOrder"_a));
         }
@@ -9853,8 +10182,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipTurnBeforeEndOrder(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipTurnBeforeEndOrder"_a));
         }
@@ -9863,8 +10193,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipOrderData1(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipOrderData1"_a));
         }
@@ -9878,8 +10209,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipOrderData2(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipOrderData2"_a));
         }
@@ -9893,8 +10225,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipOrderObj(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipOrderObj"_a));
         }
@@ -9916,8 +10249,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipDestination(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipDestination"_a));
         }
@@ -9928,15 +10262,15 @@ namespace aScriptFun {
                 if (av.length() - 1 > 1) {
                     aPlayer::GetPlayer()->QueuedTravelTarget = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
                 }
-            } else if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
+            } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
                 if (av.length() - 1 > 1 && EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString && av[2]->GetString() == u"Date") {
                     // Native Date query reads the target pointer at +558, while its setter writes FlyDate at +55C.
-                    av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(reinterpret_cast<aRuins::TRuins*>(Obj)->FlyToStar)));
+                    av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ruins->FlyToStar)));
                     if (av.length() - 1 > 2) {
                         reinterpret_cast<aRuins::TRuins*>(Obj)->FlyDate = av[3]->GetInt();
                     }
                 } else {
-                    av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(reinterpret_cast<aRuins::TRuins*>(Obj)->FlyToStar)));
+                    av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(ruins->FlyToStar)));
                     if (av.length() - 1 > 1) {
                         reinterpret_cast<aRuins::TRuins*>(Obj)->FlyToStar = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
                     }
@@ -9951,8 +10285,9 @@ namespace aScriptFun {
     }
 
     void SF_BuildRuins(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aRuins::TRuins* Station{};
         std::int32_t Kind{};
         if (av.length() - 1 < 2) {
@@ -9971,8 +10306,9 @@ namespace aScriptFun {
     }
 
     void SF_BuildCustomRuins(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aRuins::TRuins* Station{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BuildCustomRuins"_a));
@@ -9991,8 +10327,9 @@ namespace aScriptFun {
     }
 
     void SF_RuinsChangeType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aRuins::TRuins* Station{};
         std::int32_t Kind{};
         std::uint8_t Index{};
@@ -10000,8 +10337,8 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RuinsChangeType"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-            Station = reinterpret_cast<aRuins::TRuins*>(Obj);
+        if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+            Station = ruins;
             if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
                 for (Index = aGalaxyStruct::rstRangerCenter; Index <= aGalaxyStruct::rstCustomStation; ++Index) {
                     if (([&] {
@@ -10022,8 +10359,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipStanding(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipStanding"_a));
         }
@@ -10037,8 +10375,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipSlots(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipSlots"_a));
         }
@@ -10059,8 +10398,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileStar"_a));
         }
@@ -10068,8 +10408,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileType"_a));
         }
@@ -10086,8 +10427,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileOwner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileOwner"_a));
         }
@@ -10107,8 +10449,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileTarget(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileTarget"_a));
         }
@@ -10124,8 +10467,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileMaxDamage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileMaxDamage"_a));
         }
@@ -10136,8 +10480,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileMinDamage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileMinDamage"_a));
         }
@@ -10148,8 +10493,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileLive(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileLive"_a));
         }
@@ -10160,8 +10506,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileSpeed(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileSpeed"_a));
         }
@@ -10173,8 +10520,9 @@ namespace aScriptFun {
     }
 
     void SF_MissileAngle(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissileAngle"_a));
         }
@@ -10186,8 +10534,9 @@ namespace aScriptFun {
     }
 
     void SF_AsteroidMinerals(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AsteroidMinerals"_a));
         }
@@ -10210,9 +10559,9 @@ namespace aScriptFun {
             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Asteroid->GraphObject));
             {
                 SE_Space::TObjectSE* createSpaceObjectByName = ([&] {
-                    const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(av[2]->GetString(), 0, u"."_wref.get());
+                    const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(pas::view(av[2]->GetString()), 0, u"."sv);
                     const pas::WideString& string = av[2]->GetString();
-                    return SE_Process::CreateSpaceObjectByName(extractDelimitedPartW, string, ClassesImports::Point(0, 0));
+                    return SE_Process::CreateSpaceObjectByName(pas::view(extractDelimitedPartW), string, ClassesImports::Point(0, 0));
                 }());
                 pas::Var<SE_Space::TObjectSE*> graphObject = pas::Var<SE_Space::TObjectSE*>(&Asteroid->GraphObject);
                 SE_Space::RetainSpaceObject(graphObject, createSpaceObjectByName);
@@ -10221,8 +10570,9 @@ namespace aScriptFun {
     }
 
     void SF_AsteroidRespawn(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script AsteroidRespawn"_a));
         }
@@ -10233,8 +10583,9 @@ namespace aScriptFun {
     }
 
     void SF_ArrayAdd(pas::OpenArray<EC_Expression::TVarEC*> Args, EC_Expression::TCodeEC* Code) {
-        auto cpp_array_copy = pas::copy_open_array(Args);
-        Args = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(Args.data(), std::min(Args.length(), 4), cpp_array_copy.data());
+        Args.elements = cpp_array_copy.data();
         if (Args.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayAdd"_a));
         }
@@ -10275,8 +10626,9 @@ namespace aScriptFun {
     }
 
     void SF_ArrayClear(pas::OpenArray<EC_Expression::TVarEC*> Args, EC_Expression::TCodeEC* Code) {
-        auto cpp_array_copy = pas::copy_open_array(Args);
-        Args = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(Args.data(), std::min(Args.length(), 2), cpp_array_copy.data());
+        Args.elements = cpp_array_copy.data();
         if (Args.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayClear"_a));
         }
@@ -10293,8 +10645,9 @@ namespace aScriptFun {
     }
 
     void SF_ArrayDim(pas::OpenArray<EC_Expression::TVarEC*> Args, EC_Expression::TCodeEC* Code) {
-        auto cpp_array_copy = pas::copy_open_array(Args);
-        Args = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(Args.data(), std::min(Args.length(), 2), cpp_array_copy.data());
+        Args.elements = cpp_array_copy.data();
         if (Args.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayDim"_a));
         }
@@ -10458,8 +10811,9 @@ namespace aScriptFun {
     }
 
     void SF_ArrayFind(pas::OpenArray<EC_Expression::TVarEC*> Args, EC_Expression::TCodeEC* Code) {
-        auto cpp_array_copy = pas::copy_open_array(Args);
-        Args = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(Args.data(), std::min(Args.length(), 3), cpp_array_copy.data());
+        Args.elements = cpp_array_copy.data();
         std::int32_t ElementIndex{};
         if (Args.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ArrayFind"_a));
@@ -10507,8 +10861,9 @@ namespace aScriptFun {
     }
 
     void SF_ArrayFindInSorted(pas::OpenArray<EC_Expression::TVarEC*> Args, EC_Expression::TCodeEC* Code) {
-        auto cpp_array_copy = pas::copy_open_array(Args);
-        Args = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(Args.data(), std::min(Args.length(), 3), cpp_array_copy.data());
+        Args.elements = cpp_array_copy.data();
         std::int32_t ProbeValue{};
         std::int32_t Pass{};
         std::int32_t ScanDirection{};
@@ -10585,8 +10940,9 @@ namespace aScriptFun {
     }
 
     void SF_DistToNearestEnemySystem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Other{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DistToNearestEnemySystem"_a));
@@ -10608,8 +10964,9 @@ namespace aScriptFun {
     }
 
     void SF_StarEnemyThreatLevel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Other{};
         aShip::TShip* Ship{};
         std::int32_t I{};
@@ -10641,7 +10998,7 @@ namespace aScriptFun {
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(J); ) {
             Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-            if ((Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) && pas::contains(Standings, Ship->CurrentStanding)) {
+            if ((Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited) && pas::contains(Standings, Ship->CurrentStanding)) {
                 av[0]->SetInt(1);
                 return;
             }
@@ -10656,7 +11013,7 @@ namespace aScriptFun {
                         av[0]->SetInt(1);
                         return;
                     }
-                    if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr && reinterpret_cast<aRuins::TRuins*>(Ship)->FlyToStar == Star && pas::contains(Standings, Ship->CurrentStanding)) {
+                    if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Ship); ruins != nullptr && ruins->FlyToStar == Star && pas::contains(Standings, Ship->CurrentStanding)) {
                         av[0]->SetInt(1);
                         return;
                     }
@@ -10767,19 +11124,20 @@ namespace aScriptFun {
     }
 
     void SF_FindItemInShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FindItemInShip"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         av[0]->SetInt(-1);
         if (Item != nullptr) {
@@ -10791,8 +11149,9 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyRangers(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 == 0) {
             av[0]->SetInt(pas::list_count(aGalaxy::Galaxy->Rangers));
@@ -10807,8 +11166,9 @@ namespace aScriptFun {
     }
 
     void SF_MakeShipEnterStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MakeShipEnterStar"_a));
         }
@@ -10834,16 +11194,17 @@ namespace aScriptFun {
         Ship->InHyperspace = true;
         Ship->TransitOriginStar = Origin;
         Ship->MovementDirection = aMyFunction::PointBearingDegrees(Origin->Position, Star->Position);
-        if (pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr && static_cast<aNormalShip::TNormalShip*>(Ship)->LastDockedPlanet == nullptr) {
-            pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->LastDockedPlanet = pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->HomePlanet;
+        if (aNormalShip::TNormalShip* normalShip = pas::class_cast_if<aNormalShip::TNormalShip*>(Ship); normalShip != nullptr && normalShip->LastDockedPlanet == nullptr) {
+            normalShip->LastDockedPlanet = normalShip->HomePlanet;
         }
         Ship->CurrentPlanet = nullptr;
         Ship->DockedTo = nullptr;
     }
 
     void SF_ShipGetBad(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipGetBad"_a));
         }
@@ -10853,8 +11214,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipAddDropItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipAddDropItem"_a));
         }
@@ -10868,8 +11230,9 @@ namespace aScriptFun {
     }
 
     void SF_OrderLock(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script OrderLock"_a));
         }
@@ -10883,20 +11246,23 @@ namespace aScriptFun {
     }
 
     void SF_BonusCount(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aConst::MicroModuleTemplateCount);
     }
 
     void SF_SeriesCount(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aConst::HullSeriesCount);
     }
 
     void SF_BonusPriority(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BonusPriority"_a));
         }
@@ -10907,8 +11273,9 @@ namespace aScriptFun {
     }
 
     void SF_BonusIsSpecial(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BonusIsSpecial"_a));
         }
@@ -10963,24 +11330,26 @@ namespace aScriptFun {
     }
 
     void SF_BonusValue(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BonusValue"_a));
         }
         if (av[1]->GetInt() < 0 || av[1]->GetInt() >= aConst::MicroModuleTemplateCount) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BonusValue - number out of range"_a));
         }
-        av[0]->SetInt(pas::load_unaligned<std::int32_t>(([&] {
-            auto cpp_array = &aConst::MicroModuleTemplates[av[1]->GetInt()].StatBonuses;
-            auto cpp_index = av[2]->GetInt() & 0x0000007f;
-            return pas::byte_offset(cpp_array, cpp_index * sizeof(std::int32_t));
-        }())));
+        av[0]->SetInt(*([&] {
+            auto* cpp_array = &aConst::MicroModuleTemplates[av[1]->GetInt()].StatBonuses;
+            auto cpp_index = static_cast<aConst::TEquipmentBonusKind>(av[2]->GetInt());
+            return &(*cpp_array)[cpp_index];
+        }()));
     }
 
     void SF_FindBonusByName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FindBonusByName"_a));
@@ -11003,8 +11372,9 @@ namespace aScriptFun {
     }
 
     void SF_FindSeriesByName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FindSeriesByName"_a));
@@ -11027,8 +11397,9 @@ namespace aScriptFun {
     }
 
     void SF_FindBonusByCustomTag(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FindBonusByCustomTag"_a));
@@ -11053,8 +11424,9 @@ namespace aScriptFun {
     }
 
     void SF_FindBonusByNameInCfg(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FindBonusByNameInCfg"_a));
@@ -11094,8 +11466,9 @@ namespace aScriptFun {
     }
 
     void SF_CreateEquipmentWithSpecial(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Item{};
         aGalaxyStruct::TItemTypeMask Mask{};
         if (av.length() - 1 < 1) {
@@ -11104,10 +11477,10 @@ namespace aScriptFun {
         if (!aConst::MicroModuleTemplates[av[1]->GetInt()].SpecialOnly) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateEquipmentWithSpecial - not special"_a));
         }
-        Mask = pas::load_unaligned<aGalaxyStruct::TItemTypeMask>(&aConst::MicroModuleTemplates[av[1]->GetInt()].AllowedItemTypes);
+        Mask = aConst::MicroModuleTemplates[av[1]->GetInt()].AllowedItemTypes;
         std::uint8_t Kind = aConst::PickRandomItemTypeFromSeed(Mask, aGalaxy::Galaxy->RandomState);
         if (av.length() - 1 > 3) {
-            std::uint8_t pasint = av[4]->GetInt();
+            aGalaxyStruct::TOwnerId pasint = static_cast<aGalaxyStruct::TOwnerId>(av[4]->GetInt());
             std::int32_t pasint_2 = av[3]->GetInt();
             std::int32_t pasint_3 = av[2]->GetInt();
             Item = aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(Kind), pasint_3, pasint_2, pasint);
@@ -11119,8 +11492,9 @@ namespace aScriptFun {
     }
 
     void SF_SpecialToEquipment(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Obj{};
         aItem::TEquipment* Item{};
         std::int32_t Level{};
@@ -11144,14 +11518,14 @@ namespace aScriptFun {
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         }
         aItem::TItem* RawItem = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            RawItem = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            RawItem = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            RawItem = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            RawItem = scriptItem->Item;
         }
         if (RawItem != nullptr && pas::class_cast_if<aItem::TEquipment*>(RawItem) != nullptr) {
-            Item = reinterpret_cast<aItem::TEquipment*>(RawItem);
+            Item = static_cast<aItem::TEquipment*>(RawItem);
         } else {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SpecialToEquipment - not eq"_a));
         }
@@ -11169,7 +11543,7 @@ namespace aScriptFun {
             Count = 0;
             Template = static_cast<aConst::PMicroModuleTemplate>(aConst::MicroModuleTemplates.data());
             for (auto cpp_range = pas::for_to<std::int32_t>(0, aConst::MicroModuleTemplateCount - 1); cpp_range.next(Index); ) {
-                if (Template->SpecialOnly && (pas::load_unaligned<aGalaxyStruct::TShipTypeMask>(&Template->OfferStationTypes) != pas::constant_set<aGalaxyStruct::TShipTypeMask>({}) || Template->OfferStationNames != u"<>" || Template->OnPlanets) && (static_cast<std::uint8_t>(IsWeapon ^ 1) || aItem::IsBonusCompatibleWithWeapon(Index, reinterpret_cast<aItem::TWeapon*>(Item))) && (static_cast<std::uint8_t>(IsHull ^ 1) || aItem::IsBonusCompatibleWithHull(Index, reinterpret_cast<aItem::THull*>(Item))) && (static_cast<std::uint8_t>(IsOther ^ 1) || aItem::IsBonusCompatibleWithEquipment(Index, Item)) && Template->Priority <= PriorityLimit) {
+                if (Template->SpecialOnly && (Template->OfferStationTypes != pas::constant_set<aGalaxyStruct::TShipTypeMask>({}) || Template->OfferStationNames != u"<>" || Template->OnPlanets) && (static_cast<std::uint8_t>(IsWeapon ^ 1) || aItem::IsBonusCompatibleWithWeapon(Index, reinterpret_cast<aItem::TWeapon*>(Item))) && (static_cast<std::uint8_t>(IsHull ^ 1) || aItem::IsBonusCompatibleWithHull(Index, reinterpret_cast<aItem::THull*>(Item))) && (static_cast<std::uint8_t>(IsOther ^ 1) || aItem::IsBonusCompatibleWithEquipment(Index, Item)) && Template->Priority <= PriorityLimit) {
                     if (Count == 0) {
                         BestPriority = Template->Priority;
                     } else {
@@ -11203,8 +11577,9 @@ namespace aScriptFun {
     }
 
     void SF_ModuleToEquipment(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Obj{};
         aItem::TEquipment* Item{};
         std::int32_t Attempts{};
@@ -11222,14 +11597,14 @@ namespace aScriptFun {
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         }
         aItem::TItem* RawItem = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            RawItem = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            RawItem = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            RawItem = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            RawItem = scriptItem->Item;
         }
         if (RawItem != nullptr && pas::class_cast_if<aItem::TEquipment*>(RawItem) != nullptr) {
-            Item = reinterpret_cast<aItem::TEquipment*>(RawItem);
+            Item = static_cast<aItem::TEquipment*>(RawItem);
         } else {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ModuleToEquipment - not eq"_a));
         }
@@ -11274,8 +11649,9 @@ namespace aScriptFun {
     }
 
     void SF_EqSpecial(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Item{};
         aMissile::TMissile* Missile{};
         if (av.length() - 1 < 1) {
@@ -11283,17 +11659,17 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-            Missile = reinterpret_cast<aMissile::TMissile*>(Obj);
+        if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+            Missile = missile;
             av[0]->SetInt(Missile->SpecialModuleIndex - 1);
             if (av.length() - 1 > 1) {
                 Missile->SpecialModuleIndex = av[2]->GetInt() + 1;
             }
         }
-        if (pas::class_cast_if<aItem::TEquipment*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TEquipment*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::TEquipment*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Item = pas::checked_cast<aItem::TEquipment*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Obj)) {
+            Item = equipment;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::TEquipment*>(scriptItem->Item) != nullptr) {
+            Item = static_cast<aItem::TEquipment*>(scriptItem->Item);
         } else {
             return;
         }
@@ -11304,8 +11680,9 @@ namespace aScriptFun {
     }
 
     void SF_EqModule(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Item{};
         aMissile::TMissile* Missile{};
         if (av.length() - 1 < 1) {
@@ -11313,17 +11690,17 @@ namespace aScriptFun {
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-            Missile = reinterpret_cast<aMissile::TMissile*>(Obj);
+        if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+            Missile = missile;
             av[0]->SetInt(Missile->MicroModuleIndex - 1);
             if (av.length() - 1 > 1) {
                 Missile->MicroModuleIndex = av[2]->GetInt() + 1;
             }
         }
-        if (pas::class_cast_if<aItem::TEquipment*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TEquipment*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::TEquipment*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Item = pas::checked_cast<aItem::TEquipment*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Obj)) {
+            Item = equipment;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::TEquipment*>(scriptItem->Item) != nullptr) {
+            Item = static_cast<aItem::TEquipment*>(scriptItem->Item);
         } else {
             return;
         }
@@ -11334,8 +11711,9 @@ namespace aScriptFun {
     }
 
     void SF_MayAddBonusToEq(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Item{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MayAddModuleToEq"_a));
@@ -11343,18 +11721,18 @@ namespace aScriptFun {
         av[0]->SetInt(0);
         std::int32_t Index = av[1]->GetInt();
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
-        if (pas::class_cast_if<aItem::TEquipment*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TEquipment*>(Obj);
-        } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr && pas::class_cast_if<aItem::TEquipment*>(static_cast<aScript::TScriptItem*>(Obj)->Item) != nullptr) {
-            Item = pas::checked_cast<aItem::TEquipment*>(pas::checked_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Obj)) {
+            Item = equipment;
+        } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj); scriptItem != nullptr && pas::class_cast_if<aItem::TEquipment*>(scriptItem->Item) != nullptr) {
+            Item = static_cast<aItem::TEquipment*>(scriptItem->Item);
         } else {
             return;
         }
         if (Item->SpecialModuleIndex == 0 || static_cast<std::uint8_t>(aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].BlocksMicroModuleSlot ^ 1)) {
-            if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                av[0]->SetInt(aItem::IsBonusCompatibleWithWeapon(Index, reinterpret_cast<aItem::TWeapon*>(Item)) & 127);
-            } else if (pas::class_cast_if<aItem::THull*>(Item) != nullptr) {
-                av[0]->SetInt(aItem::IsBonusCompatibleWithHull(Index, reinterpret_cast<aItem::THull*>(Item)) & 127);
+            if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item)) {
+                av[0]->SetInt(aItem::IsBonusCompatibleWithWeapon(Index, weapon) & 127);
+            } else if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Item)) {
+                av[0]->SetInt(aItem::IsBonusCompatibleWithHull(Index, hull) & 127);
             } else {
                 av[0]->SetInt(aItem::IsBonusCompatibleWithEquipment(Index, Item) & 127);
             }
@@ -11362,8 +11740,9 @@ namespace aScriptFun {
     }
 
     void SF_BuildListOfMMByPriority(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t LowPriority{};
         std::int32_t HighPriority{};
@@ -11437,8 +11816,8 @@ namespace aScriptFun {
         // Requires SF_BuildListOfNewShips' live frame. Ignores nil and non-Tranclucator artefacts.
         auto CheckItem = [&](aItem::TItem* Item) -> void {
             if (Item != nullptr) {
-                if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                    aScriptFun::CheckShip(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(reinterpret_cast<aItem::TArtefactTranclucator*>(Item)->Ship)), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
+                if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Item)) {
+                    aScriptFun::CheckShip(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(artefactTranclucator->Ship)), av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
                 }
             }
         };
@@ -11466,7 +11845,7 @@ namespace aScriptFun {
         if (av.length() - 1 > 3 && av[4]->GetDword() != 0) {
             pas::store_unaligned<std::uint8_t>(&OwnerMask, static_cast<std::uint8_t>(av[4]->GetDword()));
         } else {
-            OwnerMask = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 7}});
+            OwnerMask = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate}});
         }
         IncludeScripted = false;
         if (av.length() - 1 > 4 && av[5]->GetInt() != 0) {
@@ -11478,10 +11857,10 @@ namespace aScriptFun {
                 FactionCount = 0;
                 Factions = nullptr;
             } else {
-                FactionCount = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+                FactionCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
                 Factions.set_length(FactionCount);
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, FactionCount - 1); cpp_range.next(I); ) {
-                    Factions[I] = EC_Str::ExtractDelimitedPartW(Text, I, u","_wref.get());
+                    Factions[I] = EC_Str::ExtractDelimitedPartW(pas::view(Text), I, u","sv);
                 }
             }
             if (av.length() - 1 > 6) {
@@ -11490,10 +11869,10 @@ namespace aScriptFun {
                     TypeCount = 0;
                     CustomTypes = nullptr;
                 } else {
-                    TypeCount = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+                    TypeCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
                     CustomTypes.set_length(TypeCount);
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, TypeCount - 1); cpp_range_2.next(I); ) {
-                        CustomTypes[I] = EC_Str::ExtractDelimitedPartW(Text, I, u","_wref.get());
+                        CustomTypes[I] = EC_Str::ExtractDelimitedPartW(pas::view(Text), I, u","sv);
                     }
                 }
             } else {
@@ -11565,8 +11944,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetToStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetToStar"_a));
         }
@@ -11592,9 +11972,9 @@ namespace aScriptFun {
             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Ship->Graphic));
             {
                 SE_Space::TObjectSE* createSpaceObjectByName = ([&] {
-                    const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(av[2]->GetString(), 0, u"."_wref.get());
+                    const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(pas::view(av[2]->GetString()), 0, u"."sv);
                     const pas::WideString& string = av[2]->GetString();
-                    return SE_Process::CreateSpaceObjectByName(extractDelimitedPartW, string, ClassesImports::Point(0, 0));
+                    return SE_Process::CreateSpaceObjectByName(pas::view(extractDelimitedPartW), string, ClassesImports::Point(0, 0));
                 }());
                 pas::Var<SE_Space::TObjectSE*> graphic = pas::Var<SE_Space::TObjectSE*>(&Ship->Graphic);
                 SE_Space::RetainSpaceObject(graphic, createSpaceObjectByName);
@@ -11619,8 +11999,9 @@ namespace aScriptFun {
     }
 
     void SF_IsChameleon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script IsChameleon"_a));
         }
@@ -11636,8 +12017,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerChameleonCharges(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlayerChameleonCharges"_a));
         }
@@ -11649,8 +12031,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerChameleonCurType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (!aPlayer::GetPlayer()->ChameleonActive) {
             av[0]->SetInt(-1);
         } else {
@@ -11667,8 +12050,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerChameleonDetected(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlayerChameleonDetected"_a));
         }
@@ -11680,8 +12064,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerLogicChameleon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlayerLogicChameleon"_a));
         }
@@ -11705,7 +12090,7 @@ namespace aScriptFun {
             Ship = aPlayer::GetPlayer();
         }
         if (Ship->ScriptChameleon && EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
-            Mirror = pas::checked_cast<SE_Ship2::TShip2SE*>(SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), av[2]->GetString(), ClassesImports::Point(0, 0)));
+            Mirror = pas::checked_cast<SE_Ship2::TShip2SE*>(SE_Process::CreateSpaceObjectByName(u"Ship2"sv, av[2]->GetString(), ClassesImports::Point(0, 0)));
             Mirror->CopyDataFromMirrorImage(Ship->Graphic);
             pas::free(Mirror);
             Ship->GraphName = Ship->Graphic->GraphKey;
@@ -11716,7 +12101,7 @@ namespace aScriptFun {
             }
             Hull->SpecialModuleIndex = av[2]->GetInt() + 1;
             if (static_cast<std::uint8_t>(Ship->ScriptChameleon ^ 1) && static_cast<std::uint8_t>(Ship->ChameleonActive ^ 1) && static_cast<std::uint8_t>(Ship->GraphDominator ^ 1)) {
-                Mirror = pas::checked_cast<SE_Ship2::TShip2SE*>(SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), pas::concat_wide({u"Ship.Akrin.", Hull->GetSpecialKindGraph()}), ClassesImports::Point(0, 0)));
+                Mirror = pas::checked_cast<SE_Ship2::TShip2SE*>(SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.Akrin.", Hull->GetSpecialKindGraph()}), ClassesImports::Point(0, 0)));
                 Mirror->CopyDataFromMirrorImage(Ship->Graphic);
                 pas::free(Mirror);
                 Ship->GraphName = Ship->Graphic->GraphKey;
@@ -11725,8 +12110,9 @@ namespace aScriptFun {
     }
 
     void SF_EquipmentImageName(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint32_t Kind{};
         pas::Object* Obj{};
         aItem::TItem* Item{};
@@ -11746,34 +12132,34 @@ namespace aScriptFun {
         } else {
             Kind = av[1]->GetDword();
             if (Kind < 256) {
-                av[0]->SetString(aConst::ItemTypeNames[static_cast<std::uint8_t>(Kind)]);
+                av[0]->SetString(aConst::ItemTypeNames[static_cast<aConst::TItemType>(Kind)]);
             } else {
                 Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Kind)));
                 av[0]->SetString(u""_wref.get());
                 Item = nullptr;
-                if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                    Item = reinterpret_cast<aItem::TItem*>(Obj);
+                if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                    Item = item;
                 }
-                if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                    Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+                if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                    Item = scriptItem->Item;
                 }
                 if (Item != nullptr && pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                    av[0]->SetString(pas::checked_cast<aItem::TEquipment*>(Item)->ConfigBlockName);
+                    av[0]->SetString(static_cast<aItem::TEquipment*>(Item)->ConfigBlockName);
                     if (av.length() - 1 > 1) {
                         reinterpret_cast<aItem::TEquipment*>(Item)->ConfigBlockName = av[2]->GetString();
-                        if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) {
-                            reinterpret_cast<aItem::TEquipmentWithActCode*>(Item)->ActionCode = nullptr;
+                        if (aItem::TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item)) {
+                            equipmentWithActCode->ActionCode = nullptr;
                             reinterpret_cast<aItem::TEquipmentWithActCode*>(Item)->ActCodeInitialized = false;
-                            if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
-                                reinterpret_cast<aItem::TUselessItem*>(Item)->CheckIfWeDisplayAsArtefact();
+                            if (aItem::TUselessItem* uselessItem = pas::class_cast_if<aItem::TUselessItem*>(Item)) {
+                                uselessItem->CheckIfWeDisplayAsArtefact();
                             }
-                            if (pas::class_cast_if<aItem::TArtefactCustom*>(Item) != nullptr) {
-                                reinterpret_cast<aItem::TArtefactCustom*>(Item)->LoadConfig(false);
+                            if (aItem::TArtefactCustom* artefactCustom = pas::class_cast_if<aItem::TArtefactCustom*>(Item)) {
+                                artefactCustom->LoadConfig(false);
                             }
                         }
                     }
-                } else if (pas::class_cast_if<aTranclucator::TTranclucator*>(Obj) != nullptr) {
-                    av[0]->SetString(pas::checked_cast<aTranclucator::TTranclucator*>(Obj)->ArtefactSystemName);
+                } else if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Obj)) {
+                    av[0]->SetString(tranclucator->ArtefactSystemName);
                     if (av.length() - 1 > 1) {
                         pas::checked_cast<aTranclucator::TTranclucator*>(Obj)->ArtefactSystemName = av[2]->GetString();
                     }
@@ -11783,8 +12169,9 @@ namespace aScriptFun {
     }
 
     void SF_StarFonImage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarFonImage"_a));
         }
@@ -11808,8 +12195,9 @@ namespace aScriptFun {
     }
 
     void SF_StarListToPlanetList(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 9> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 9), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t J{};
         std::int32_t Priority{};
@@ -11836,11 +12224,11 @@ namespace aScriptFun {
         if (av.length() - 1 > 7) {
             Penalty = pas::real_divide(av[8]->GetInt(), 1.0E+2L);
         }
-        Weights[0] = av[2]->GetInt();
-        Weights[1] = av[3]->GetInt();
-        Weights[2] = av[4]->GetInt();
-        Weights[3] = av[5]->GetInt();
-        Weights[4] = av[6]->GetInt();
+        Weights[aGalaxyStruct::oiMaloc] = av[2]->GetInt();
+        Weights[aGalaxyStruct::oiPeleng] = av[3]->GetInt();
+        Weights[aGalaxyStruct::oiHuman] = av[4]->GetInt();
+        Weights[aGalaxyStruct::oiFeyan] = av[5]->GetInt();
+        Weights[aGalaxyStruct::oiGaal] = av[6]->GetInt();
         std::int32_t Count = av[1]->GetArray()->Count;
         {
             const std::int32_t cpp_first = Count - 1;
@@ -11921,8 +12309,9 @@ namespace aScriptFun {
     }
 
     void SF_EndGame(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 > 0) {
             GlobalsV::GameEndReason = av[1]->GetInt();
             GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
@@ -11936,8 +12325,9 @@ namespace aScriptFun {
     }
 
     void SF_CustomWin(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CustomWin"_a));
         }
@@ -11948,14 +12338,15 @@ namespace aScriptFun {
         } else {
             Event->AddTextData(pas::WideString());
         }
-        GlobalsV::GameEndReason = 0;
+        GlobalsV::GameEndReason = GlobalsV::gerDefault;
         GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
         reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
     }
 
     void SF_CustomLose(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CustomLose"_a));
         }
@@ -11966,15 +12357,16 @@ namespace aScriptFun {
         } else {
             Event->AddTextData(pas::WideString());
         }
-        GlobalsV::GameEndReason = 0;
+        GlobalsV::GameEndReason = GlobalsV::gerDefault;
         GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
         reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
     }
 
     // Returns the previous ending; accepts only 1..5 when setting. Does not remove clan objects. Calling at turn zero leaves the ending timestamp zero.
     void SF_PirateWin(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aGalaxy::Galaxy->PirateWinType);
         if (av.length() - 1 > 0 && av[1]->GetInt() >= 1 && av[1]->GetInt() <= 5) {
             aGalaxy::Galaxy->PirateWinTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -11997,7 +12389,7 @@ namespace aScriptFun {
         }
         if (Globals::GetInnermostScreenLoop() == Globals::ShipScreen) {
             Globals::ShipScreen->ShipLoopSound->SetVolume(0.0f);
-            Video = pas::checked_cast<GI_XviD::TxvidGI*>(Globals::ShipScreen->GetByName(u"Film"_wref.get()));
+            Video = pas::checked_cast<GI_XviD::TxvidGI*>(Globals::ShipScreen->GetByName(u"Film"sv));
             Video->SetActive(true);
             if (!Video->ImageOpen(av[1]->GetString(), false)) {
                 Globals::ShipScreen->StopScriptVideo();
@@ -12020,7 +12412,7 @@ namespace aScriptFun {
                 while (!GR_Main::MusicManager->IsPlaying()) {
                     SysUtilsImports::Sleep(1u);
                 }
-                GR_Main::MusicManager->CategoryOverride = SavedCategory;
+                GR_Main::MusicManager->CategoryOverride = std::move(SavedCategory);
             }
             Globals::ShipScreen->ScriptVideoStartedAt = MMSystem::timeGetTime();
             if (Globals::ShipScreen->ScriptVideoTimer != nullptr) {
@@ -12057,7 +12449,7 @@ namespace aScriptFun {
             while (GR_Main::MusicManager->IsPlaying()) {
                 SysUtilsImports::Sleep(1u);
             }
-            if (EC_Str::CountDelimitedPartsW(av[1]->GetString(), u"."_wref.get()) > 1) {
+            if (EC_Str::CountDelimitedPartsW(pas::view(av[1]->GetString()), u"."sv) > 1) {
                 const pas::WideString& string = av[1]->GetString();
                 GR_Music::TMusicControl* musicManager = GR_Main::MusicManager;
                 musicManager->PlayFile(string);
@@ -12069,14 +12461,15 @@ namespace aScriptFun {
                     GR_Music::TMusicControl* musicManager_2 = GR_Main::MusicManager;
                     musicManager_2->PlayCategory(string_2);
                 }
-                GR_Main::MusicManager->CategoryOverride = SavedCategory;
+                GR_Main::MusicManager->CategoryOverride = std::move(SavedCategory);
             }
         }
     }
 
     void SF_NoComeKlingToStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script NoComeKlingToStar"_a));
         }
@@ -12094,8 +12487,9 @@ namespace aScriptFun {
     }
 
     void SF_NoDropToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script NoDropToShip"_a));
         }
@@ -12113,8 +12507,9 @@ namespace aScriptFun {
     }
 
     void SF_NoTargetToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script NoTargetToShip"_a));
         }
@@ -12128,8 +12523,9 @@ namespace aScriptFun {
     }
 
     void SF_NoTalkToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(aPlayer::GetPlayer()->TalkLocked);
@@ -12152,8 +12548,9 @@ namespace aScriptFun {
     }
 
     void SF_NoScanToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(aPlayer::GetPlayer()->ScanLocked);
@@ -12176,8 +12573,9 @@ namespace aScriptFun {
     }
 
     void SF_NoJump(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (aPlayer::GetPlayer()->NoJump) {
             av[0]->SetInt(1);
         } else {
@@ -12189,22 +12587,23 @@ namespace aScriptFun {
     }
 
     void SF_NoLanding(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script NoLanding"_a));
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            if (pas::checked_cast<aPlanet::TPlanet*>(Obj)->NoLanding) {
+        if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            if (planet->NoLanding) {
                 av[0]->SetInt(1);
             }
             if (av.length() - 1 > 1) {
                 pas::checked_cast<aPlanet::TPlanet*>(Obj)->NoLanding = av[2]->GetInt() != 0;
             }
-        } else if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-            if (pas::checked_cast<aRuins::TRuins*>(Obj)->NoLanding) {
+        } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+            if (ruins->NoLanding) {
                 av[0]->SetInt(1);
             }
             if (av.length() - 1 > 1) {
@@ -12214,20 +12613,21 @@ namespace aScriptFun {
     }
 
     void SF_NoShopUpdate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script NoShopUpdate"_a));
         }
         av[0]->SetInt(0);
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            av[0]->SetInt(pas::checked_cast<aPlanet::TPlanet*>(Obj)->ShopUpdateMode);
+        if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            av[0]->SetInt(planet->ShopUpdateMode);
             if (av.length() - 1 > 1) {
                 pas::checked_cast<aPlanet::TPlanet*>(Obj)->ShopUpdateMode = av[2]->GetInt();
             }
-        } else if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-            av[0]->SetInt(pas::checked_cast<aRuins::TRuins*>(Obj)->ShopUpdateMode);
+        } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+            av[0]->SetInt(ruins->ShopUpdateMode);
             if (av.length() - 1 > 1) {
                 pas::checked_cast<aRuins::TRuins*>(Obj)->ShopUpdateMode = static_cast<aGalaxyStruct::TShopUpdateMode>(av[2]->GetInt());
             }
@@ -12235,8 +12635,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetExtraFlags(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetExtraFlags"_a));
         }
@@ -12250,19 +12651,20 @@ namespace aScriptFun {
     }
 
     void SF_NoDropItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script NoDropItem"_a));
         }
         av[0]->SetInt(0);
         aItem::TItem* Item = nullptr;
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
             av[0]->SetInt(Item->NoDropFlag);
@@ -12273,19 +12675,20 @@ namespace aScriptFun {
     }
 
     void SF_CanSellItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CanSellItem"_a));
         }
         av[0]->SetInt(1);
         aScript::TScriptItem* Binding = nullptr;
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Binding = reinterpret_cast<aScript::TScriptItem*>(item->ScriptItem);
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(Obj);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Binding = scriptItem;
         }
         if (Binding != nullptr) {
             if (!Binding->CanSell) {
@@ -12298,8 +12701,9 @@ namespace aScriptFun {
     }
 
     void SF_TruceBetweenShips(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Partner1{};
         aShip::TShip* Partner2{};
         if (av.length() - 1 < 2) {
@@ -12324,8 +12728,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInPrison(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInPrison"_a));
         }
@@ -12358,8 +12763,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipPartners(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Partner{};
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
@@ -12388,8 +12794,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerPirates(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::int32_t Count{};
         if (aPlayer::GetPlayer()->PiratePartners == nullptr) {
@@ -12410,8 +12817,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipIsPartner(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipIsPartner"_a));
         }
@@ -12426,8 +12834,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipFreeSpace(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipFreeSpace"_a));
         }
@@ -12438,8 +12847,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipWealth(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipWealth"_a));
         }
@@ -12450,8 +12860,9 @@ namespace aScriptFun {
     }
 
     void SF_DomiksDefeated(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Kind{};
         if (av.length() - 1 < 1) {
             if (!aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}}))) {
@@ -12504,8 +12915,9 @@ namespace aScriptFun {
     }
 
     void SF_CoalitionDefeated(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (aGalaxy::Galaxy->CoalitionDefeatedTurn != 0) {
             av[0]->SetInt(1);
         } else {
@@ -12521,8 +12933,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipRefuel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRefuel"_a));
         }
@@ -12535,8 +12948,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipRepairEq(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aItem::TEquipment* Equipment{};
         aItem::TArtefact* Artefact{};
@@ -12564,8 +12978,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemInScript(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemInScript"_a));
         }
@@ -12578,8 +12993,9 @@ namespace aScriptFun {
     }
 
     void SF_FindPlanetByAdvancement(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Score{};
         aPlanet::TPlanet* Planet{};
         std::int32_t I{};
@@ -12612,7 +13028,7 @@ namespace aScriptFun {
             if (Faction < 0 || static_cast<aGalaxyStruct::TStarFaction>(Faction) == Star->Status.ControlFaction && Star->Status.CustomFaction == u"") {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_2.next(J); ) {
                     Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
-                    if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                         CalcValue();
                         MaxScore = std::max<std::int32_t>(Score, MaxScore);
                         MinScore = std::min<std::int32_t>(Score, MinScore);
@@ -12628,7 +13044,7 @@ namespace aScriptFun {
             if (Faction < 0 || static_cast<aGalaxyStruct::TStarFaction>(Faction) == Star->Status.ControlFaction && Star->Status.CustomFaction == u"") {
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_4.next(J); ) {
                     Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
-                    if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                         CalcValue();
                         if (BestPlanet == nullptr || pas::abs(Score - TargetScore) < BestDistance) {
                             BestPlanet = Planet;
@@ -12698,7 +13114,7 @@ namespace aScriptFun {
             BestScore = 0.0;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range.next(J); ) {
                 Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
-                if (Planet->OwnerId < 5) {
+                if (static_cast<std::int32_t>(Planet->OwnerId) < 5) {
                     Score = pas::real_divide(Detour * Weights[Planet->OwnerId], 1.0E+2L);
                     if (av.length() - 1 > 10) {
                         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, av[10]->GetArray()->Count - 1); cpp_range_2.next(K); ) {
@@ -12755,14 +13171,16 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyEvents(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(pas::list_count(aGalaxy::Galaxy->GalaxyEvents));
     }
 
     void SF_GalaxyEventDate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GalaxyEventDate"_a));
         }
@@ -12774,8 +13192,9 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyEventType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GalaxyEventType"_a));
@@ -12788,8 +13207,9 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyEventData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GalaxyEventData"_a));
         }
@@ -12830,14 +13250,16 @@ namespace aScriptFun {
     }
 
     void SF_PlanetNews(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(pas::list_count(aGalaxy::Galaxy->PlanetNews));
     }
 
     void SF_PlanetNewsDate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetNewsDate"_a));
         }
@@ -12849,8 +13271,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetNewsType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetNewsType"_a));
         }
@@ -12862,8 +13285,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetNewsText(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetNewsText"_a));
@@ -12879,8 +13303,9 @@ namespace aScriptFun {
     }
 
     void SF_ControlledSystems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aGalaxy::TStar* Star{};
         if (av.length() - 1 < 1) {
@@ -12898,8 +13323,9 @@ namespace aScriptFun {
     }
 
     void SF_DeltaWin(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DeltaWin"_a));
         }
@@ -12911,8 +13337,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipInFear(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipInFear"_a));
         }
@@ -12925,8 +13352,9 @@ namespace aScriptFun {
     }
 
     void SF_CreateGoods(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateGoods"_a));
         }
@@ -12943,8 +13371,9 @@ namespace aScriptFun {
     }
 
     void SF_GetNodesFromShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aItem::TItem* Item{};
         aItem::TProtoplasm* Nodes{};
@@ -12969,7 +13398,7 @@ namespace aScriptFun {
                     if (!(pas::class_cast_if<aItem::TProtoplasm*>(Item) != nullptr)) {
                         continue;
                     }
-                    Nodes = pas::checked_cast<aItem::TProtoplasm*>(Item);
+                    Nodes = static_cast<aItem::TProtoplasm*>(Item);
                     if (Series < 0 || Nodes->DominatorSeries == Series) {
                         Total += Nodes->StackCount;
                         if (Remaining >= Nodes->StackCount) {
@@ -12994,8 +13423,9 @@ namespace aScriptFun {
     }
 
     void SF_GetNodesFromStorage(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t NewCount{};
         aPlayer::PStorageEntry Entry{};
         aItem::TProtoplasm* Nodes{};
@@ -13044,8 +13474,9 @@ namespace aScriptFun {
     }
 
     void SF_RangerBaseNodes(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RangerBaseNodes"_a));
         }
@@ -13056,8 +13487,9 @@ namespace aScriptFun {
     }
 
     void SF_RuinsAllowModernization(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RuinsAllowModernization"_a));
         }
@@ -13072,8 +13504,9 @@ namespace aScriptFun {
     }
 
     void SF_RuinsMicromoduleChain(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::uint8_t InvertRarity{};
         if (av.length() - 1 < 2) {
@@ -13083,7 +13516,7 @@ namespace aScriptFun {
         if (!(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr)) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RuinsMicromoduleChain - not a ruins"_a));
         }
-        aRuins::TRuins* Station = reinterpret_cast<aRuins::TRuins*>(Obj);
+        aRuins::TRuins* Station = static_cast<aRuins::TRuins*>(Obj);
         std::int32_t Kind = av[2]->GetInt();
         if (av.length() - 1 == 2) {
             for (Index = 0; Index <= 50; ++Index) {
@@ -13112,8 +13545,9 @@ namespace aScriptFun {
     }
 
     void SF_DomikKilledInCurSystem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             av[0]->SetInt(aPlayer::GetPlayer()->CurrentSystemKills.Dominator);
         } else {
@@ -13122,8 +13556,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipTypeN(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipTypeN"_a));
         }
@@ -13132,43 +13567,45 @@ namespace aScriptFun {
     }
 
     void SF_ShipSubType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipSubType"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aKling::TKling*>(Ship)->KlingType);
-        } else if (pas::class_cast_if<aTransport::TTransport*>(Ship) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aTransport::TTransport*>(Ship)->TransportType);
-        } else if (pas::class_cast_if<aWarrior::TWarrior*>(Ship) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aWarrior::TWarrior*>(Ship)->WarriorType);
-        } else if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType);
-        } else if (pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aRanger::TRanger*>(Ship)->PreferredCareer);
+        if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship)) {
+            av[0]->SetInt(kling->KlingType);
+        } else if (aTransport::TTransport* transport = pas::class_cast_if<aTransport::TTransport*>(Ship)) {
+            av[0]->SetInt(transport->TransportType);
+        } else if (aWarrior::TWarrior* warrior = pas::class_cast_if<aWarrior::TWarrior*>(Ship)) {
+            av[0]->SetInt(warrior->WarriorType);
+        } else if (aPirate::TPirate* pirate = pas::class_cast_if<aPirate::TPirate*>(Ship)) {
+            av[0]->SetInt(pirate->PirateType);
+        } else if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
+            av[0]->SetInt(ranger->PreferredCareer);
         } else {
             av[0]->SetInt(0);
         }
         if (av.length() - 1 > 1) {
-            if (pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) {
-                reinterpret_cast<aKling::TKling*>(Ship)->KlingType = static_cast<aGalaxyStruct::TKlingType>(av[2]->GetInt());
-            } else if (pas::class_cast_if<aTransport::TTransport*>(Ship) != nullptr) {
-                reinterpret_cast<aTransport::TTransport*>(Ship)->TransportType = static_cast<aTransport::TTransportType>(av[2]->GetInt());
-            } else if (pas::class_cast_if<aWarrior::TWarrior*>(Ship) != nullptr) {
-                reinterpret_cast<aWarrior::TWarrior*>(Ship)->WarriorType = av[2]->GetInt();
-            } else if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr) {
-                reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType = av[2]->GetInt();
-            } else if (pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
-                reinterpret_cast<aRanger::TRanger*>(Ship)->PreferredCareer = static_cast<aGalaxyStruct::TRangerCareer>(av[2]->GetInt());
+            if (aKling::TKling* kling_2 = pas::class_cast_if<aKling::TKling*>(Ship)) {
+                kling_2->KlingType = static_cast<aGalaxyStruct::TKlingType>(av[2]->GetInt());
+            } else if (aTransport::TTransport* transport_2 = pas::class_cast_if<aTransport::TTransport*>(Ship)) {
+                transport_2->TransportType = static_cast<aTransport::TTransportType>(av[2]->GetInt());
+            } else if (aWarrior::TWarrior* warrior_2 = pas::class_cast_if<aWarrior::TWarrior*>(Ship)) {
+                warrior_2->WarriorType = av[2]->GetInt();
+            } else if (aPirate::TPirate* pirate_2 = pas::class_cast_if<aPirate::TPirate*>(Ship)) {
+                pirate_2->PirateType = av[2]->GetInt();
+            } else if (aRanger::TRanger* ranger_2 = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
+                ranger_2->PreferredCareer = static_cast<aGalaxyStruct::TRangerCareer>(av[2]->GetInt());
             }
         }
     }
 
     void SF_ShipChangeStar(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipChangeStar"_a));
         }
@@ -13187,8 +13624,9 @@ namespace aScriptFun {
     }
 
     void SF_IsFilm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (Globals::StarMapScreen->Mode == fStarMap::smmTurnFilm) {
             av[0]->SetInt(1);
         } else {
@@ -13245,8 +13683,9 @@ namespace aScriptFun {
     }
 
     void SF_ShowEffect(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 12> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 12), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aEFilmEnd::PEFilmEndEntry Entry{};
         SE_Space::TObjectSE* TargetGraphic{};
         SE_Space::TObjectSE* SourceGraphic{};
@@ -13287,13 +13726,13 @@ namespace aScriptFun {
             std::int32_t pasint_2 = av[9]->GetInt();
             std::int32_t pasint_3 = av[8]->GetInt();
             Color = GR_Main::CurrentPixelFormat->PackRgb(pasint_3, pasint_2, pasint);
-        } else if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Target)) {
             if (aPlayer::GetPlayer() == Target) {
                 Color = aConst::OwnerToFilmColor(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
-            } else if (reinterpret_cast<aShip::TShip*>(Target)->HasNamedScriptFaction()) {
-                Color = aConst::CustomFactionToFilmColor(reinterpret_cast<aScript::TScriptShip*>(reinterpret_cast<aShip::TShip*>(Target)->ScriptShip)->StateText);
+            } else if (ship->HasNamedScriptFaction()) {
+                Color = aConst::CustomFactionToFilmColor(reinterpret_cast<aScript::TScriptShip*>(ship->ScriptShip)->StateText);
             } else {
-                Color = aConst::OwnerToFilmColor(reinterpret_cast<aShip::TShip*>(Target)->OwnerId);
+                Color = aConst::OwnerToFilmColor(ship->OwnerId);
             }
         } else {
             Color = 0u;
@@ -13306,24 +13745,24 @@ namespace aScriptFun {
         if (aGalaxy::PlayerStar != nullptr && aGalaxy::PlayerStar->RecordingTurnFilm) {
             if (Globals::PrimaryFilm != nullptr) {
                 TargetFilm = nullptr;
-                if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
-                    TargetFilm = reinterpret_cast<aShip::TShip*>(Target)->FilmObject;
-                } else if (pas::class_cast_if<aPlanet::TPlanet*>(Target) != nullptr) {
-                    TargetFilm = reinterpret_cast<aPlanet::TPlanet*>(Target)->FilmObject;
-                } else if (pas::class_cast_if<aGalaxy::TStar*>(Target) != nullptr) {
-                    TargetFilm = Globals::PrimaryFilm->FindObject(SE_Process::ClassSEtoName(reinterpret_cast<aGalaxy::TStar*>(Target)->Graphic), reinterpret_cast<aGalaxy::TStar*>(Target)->Graphic->GraphKey, reinterpret_cast<aGalaxy::TStar*>(Target)->Id);
-                } else if (pas::class_cast_if<aGalaxy::THole*>(Target) != nullptr) {
-                    TargetFilm = reinterpret_cast<aEFilm::TEFilmObj*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(reinterpret_cast<aGalaxy::THole*>(Target)->FilmObjectId)));
-                } else if (pas::class_cast_if<aMissile::TMissile*>(Target) != nullptr) {
-                    TargetFilm = reinterpret_cast<aMissile::TMissile*>(Target)->FilmObject;
-                } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Target) != nullptr) {
-                    TargetFilm = reinterpret_cast<aAsteroid::TAsteroid*>(Target)->FilmObject;
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Target)) {
+                    TargetFilm = ship_2->FilmObject;
+                } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Target)) {
+                    TargetFilm = planet->FilmObject;
+                } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Target)) {
+                    TargetFilm = Globals::PrimaryFilm->FindObject(pas::view(SE_Process::ClassSEtoName(star->Graphic)), pas::view(star->Graphic->GraphKey), star->Id);
+                } else if (aGalaxy::THole* hole = pas::class_cast_if<aGalaxy::THole*>(Target)) {
+                    TargetFilm = reinterpret_cast<aEFilm::TEFilmObj*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(hole->FilmObjectId)));
+                } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Target)) {
+                    TargetFilm = missile->FilmObject;
+                } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Target)) {
+                    TargetFilm = asteroid->FilmObject;
                 } else {
                     Item = nullptr;
-                    if (pas::class_cast_if<aItem::TItem*>(Target) != nullptr) {
-                        Item = pas::checked_cast<aItem::TItem*>(Target);
-                    } else if (pas::class_cast_if<aScript::TScriptItem*>(Target) != nullptr) {
-                        Item = reinterpret_cast<aScript::TScriptItem*>(Target)->Item;
+                    if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Target)) {
+                        Item = item;
+                    } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Target)) {
+                        Item = scriptItem->Item;
                     }
                     if (Item != nullptr) {
                         TargetFilm = Item->FilmObject;
@@ -13331,24 +13770,24 @@ namespace aScriptFun {
                 }
                 SourceFilm = nullptr;
                 if (Source != nullptr) {
-                    if (pas::class_cast_if<aShip::TShip*>(Source) != nullptr) {
-                        SourceFilm = reinterpret_cast<aShip::TShip*>(Source)->FilmObject;
-                    } else if (pas::class_cast_if<aPlanet::TPlanet*>(Source) != nullptr) {
-                        SourceFilm = reinterpret_cast<aPlanet::TPlanet*>(Source)->FilmObject;
-                    } else if (pas::class_cast_if<aGalaxy::TStar*>(Source) != nullptr) {
-                        SourceFilm = Globals::PrimaryFilm->FindObject(SE_Process::ClassSEtoName(reinterpret_cast<aGalaxy::TStar*>(Source)->Graphic), reinterpret_cast<aGalaxy::TStar*>(Source)->Graphic->GraphKey, reinterpret_cast<aGalaxy::TStar*>(Source)->Id);
-                    } else if (pas::class_cast_if<aGalaxy::THole*>(Source) != nullptr) {
-                        SourceFilm = reinterpret_cast<aEFilm::TEFilmObj*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(reinterpret_cast<aGalaxy::THole*>(Source)->FilmObjectId)));
-                    } else if (pas::class_cast_if<aMissile::TMissile*>(Source) != nullptr) {
-                        SourceFilm = reinterpret_cast<aMissile::TMissile*>(Source)->FilmObject;
-                    } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Source) != nullptr) {
-                        SourceFilm = reinterpret_cast<aAsteroid::TAsteroid*>(Source)->FilmObject;
+                    if (aShip::TShip* ship_3 = pas::class_cast_if<aShip::TShip*>(Source)) {
+                        SourceFilm = ship_3->FilmObject;
+                    } else if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(Source)) {
+                        SourceFilm = planet_2->FilmObject;
+                    } else if (aGalaxy::TStar* star_2 = pas::class_cast_if<aGalaxy::TStar*>(Source)) {
+                        SourceFilm = Globals::PrimaryFilm->FindObject(pas::view(SE_Process::ClassSEtoName(star_2->Graphic)), pas::view(star_2->Graphic->GraphKey), star_2->Id);
+                    } else if (aGalaxy::THole* hole_2 = pas::class_cast_if<aGalaxy::THole*>(Source)) {
+                        SourceFilm = reinterpret_cast<aEFilm::TEFilmObj*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(hole_2->FilmObjectId)));
+                    } else if (aMissile::TMissile* missile_2 = pas::class_cast_if<aMissile::TMissile*>(Source)) {
+                        SourceFilm = missile_2->FilmObject;
+                    } else if (aAsteroid::TAsteroid* asteroid_2 = pas::class_cast_if<aAsteroid::TAsteroid*>(Source)) {
+                        SourceFilm = asteroid_2->FilmObject;
                     } else {
                         Item = nullptr;
-                        if (pas::class_cast_if<aItem::TItem*>(Source) != nullptr) {
-                            Item = pas::checked_cast<aItem::TItem*>(Source);
-                        } else if (pas::class_cast_if<aScript::TScriptItem*>(Source) != nullptr) {
-                            Item = reinterpret_cast<aScript::TScriptItem*>(Source)->Item;
+                        if (aItem::TItem* item_2 = pas::class_cast_if<aItem::TItem*>(Source)) {
+                            Item = item_2;
+                        } else if (aScript::TScriptItem* scriptItem_2 = pas::class_cast_if<aScript::TScriptItem*>(Source)) {
+                            Item = scriptItem_2->Item;
                         }
                         if (Item != nullptr) {
                             SourceFilm = Item->FilmObject;
@@ -13370,24 +13809,24 @@ namespace aScriptFun {
             }
         } else {
             TargetGraphic = nullptr;
-            if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
-                TargetGraphic = reinterpret_cast<aShip::TShip*>(Target)->Graphic;
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Target) != nullptr) {
-                TargetGraphic = reinterpret_cast<aPlanet::TPlanet*>(Target)->Graphic;
-            } else if (pas::class_cast_if<aGalaxy::TStar*>(Target) != nullptr) {
-                TargetGraphic = reinterpret_cast<aGalaxy::TStar*>(Target)->Graphic;
-            } else if (pas::class_cast_if<aGalaxy::THole*>(Target) != nullptr) {
-                TargetGraphic = reinterpret_cast<aGalaxy::THole*>(Target)->Graphic;
-            } else if (pas::class_cast_if<aMissile::TMissile*>(Target) != nullptr) {
-                TargetGraphic = reinterpret_cast<aMissile::TMissile*>(Target)->Graphic;
-            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Target) != nullptr) {
-                TargetGraphic = reinterpret_cast<aAsteroid::TAsteroid*>(Target)->GraphObject;
+            if (aShip::TShip* ship_4 = pas::class_cast_if<aShip::TShip*>(Target)) {
+                TargetGraphic = ship_4->Graphic;
+            } else if (aPlanet::TPlanet* planet_3 = pas::class_cast_if<aPlanet::TPlanet*>(Target)) {
+                TargetGraphic = planet_3->Graphic;
+            } else if (aGalaxy::TStar* star_3 = pas::class_cast_if<aGalaxy::TStar*>(Target)) {
+                TargetGraphic = star_3->Graphic;
+            } else if (aGalaxy::THole* hole_3 = pas::class_cast_if<aGalaxy::THole*>(Target)) {
+                TargetGraphic = hole_3->Graphic;
+            } else if (aMissile::TMissile* missile_3 = pas::class_cast_if<aMissile::TMissile*>(Target)) {
+                TargetGraphic = missile_3->Graphic;
+            } else if (aAsteroid::TAsteroid* asteroid_3 = pas::class_cast_if<aAsteroid::TAsteroid*>(Target)) {
+                TargetGraphic = asteroid_3->GraphObject;
             } else {
                 Item = nullptr;
-                if (pas::class_cast_if<aItem::TItem*>(Target) != nullptr) {
-                    Item = pas::checked_cast<aItem::TItem*>(Target);
-                } else if (pas::class_cast_if<aScript::TScriptItem*>(Target) != nullptr) {
-                    Item = reinterpret_cast<aScript::TScriptItem*>(Target)->Item;
+                if (aItem::TItem* item_3 = pas::class_cast_if<aItem::TItem*>(Target)) {
+                    Item = item_3;
+                } else if (aScript::TScriptItem* scriptItem_3 = pas::class_cast_if<aScript::TScriptItem*>(Target)) {
+                    Item = scriptItem_3->Item;
                 }
                 if (Item != nullptr) {
                     TargetGraphic = Item->GetGraphObject();
@@ -13396,24 +13835,24 @@ namespace aScriptFun {
             if (TargetGraphic != nullptr) {
                 SourceGraphic = nullptr;
                 if (Source != nullptr) {
-                    if (pas::class_cast_if<aShip::TShip*>(Source) != nullptr) {
-                        SourceGraphic = reinterpret_cast<aShip::TShip*>(Source)->Graphic;
-                    } else if (pas::class_cast_if<aPlanet::TPlanet*>(Source) != nullptr) {
-                        SourceGraphic = reinterpret_cast<aPlanet::TPlanet*>(Source)->Graphic;
-                    } else if (pas::class_cast_if<aGalaxy::TStar*>(Source) != nullptr) {
-                        SourceGraphic = reinterpret_cast<aGalaxy::TStar*>(Source)->Graphic;
-                    } else if (pas::class_cast_if<aGalaxy::THole*>(Source) != nullptr) {
-                        SourceGraphic = reinterpret_cast<aGalaxy::THole*>(Source)->Graphic;
-                    } else if (pas::class_cast_if<aMissile::TMissile*>(Source) != nullptr) {
-                        SourceGraphic = reinterpret_cast<aMissile::TMissile*>(Source)->Graphic;
-                    } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Source) != nullptr) {
-                        SourceGraphic = reinterpret_cast<aAsteroid::TAsteroid*>(Source)->GraphObject;
+                    if (aShip::TShip* ship_5 = pas::class_cast_if<aShip::TShip*>(Source)) {
+                        SourceGraphic = ship_5->Graphic;
+                    } else if (aPlanet::TPlanet* planet_4 = pas::class_cast_if<aPlanet::TPlanet*>(Source)) {
+                        SourceGraphic = planet_4->Graphic;
+                    } else if (aGalaxy::TStar* star_4 = pas::class_cast_if<aGalaxy::TStar*>(Source)) {
+                        SourceGraphic = star_4->Graphic;
+                    } else if (aGalaxy::THole* hole_4 = pas::class_cast_if<aGalaxy::THole*>(Source)) {
+                        SourceGraphic = hole_4->Graphic;
+                    } else if (aMissile::TMissile* missile_4 = pas::class_cast_if<aMissile::TMissile*>(Source)) {
+                        SourceGraphic = missile_4->Graphic;
+                    } else if (aAsteroid::TAsteroid* asteroid_4 = pas::class_cast_if<aAsteroid::TAsteroid*>(Source)) {
+                        SourceGraphic = asteroid_4->GraphObject;
                     } else {
                         Item = nullptr;
-                        if (pas::class_cast_if<aItem::TItem*>(Source) != nullptr) {
-                            Item = pas::checked_cast<aItem::TItem*>(Source);
-                        } else if (pas::class_cast_if<aScript::TScriptItem*>(Source) != nullptr) {
-                            Item = reinterpret_cast<aScript::TScriptItem*>(Source)->Item;
+                        if (aItem::TItem* item_4 = pas::class_cast_if<aItem::TItem*>(Source)) {
+                            Item = item_4;
+                        } else if (aScript::TScriptItem* scriptItem_4 = pas::class_cast_if<aScript::TScriptItem*>(Source)) {
+                            Item = scriptItem_4->Item;
                         }
                         if (Item != nullptr) {
                             SourceGraphic = Item->GetGraphObject();
@@ -13438,8 +13877,9 @@ namespace aScriptFun {
     }
 
     void SF_ShowStaticEffect(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         SE_GAIEffect::TGAIEffectSE* Effect{};
         pas::WideString Name{};
         float Scale{};
@@ -13485,8 +13925,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipConnect(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipConnect"_a));
         }
@@ -13512,8 +13953,9 @@ namespace aScriptFun {
     }
 
     void SF_FilmSound(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aEFilm::TEFilmObj* FilmObject{};
         pas::WideString Text{};
         pas::Object* Obj{};
@@ -13526,24 +13968,24 @@ namespace aScriptFun {
             Text = av[1]->GetString();
             Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
             FilmObject = nullptr;
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                FilmObject = reinterpret_cast<aShip::TShip*>(Obj)->FilmObject;
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                FilmObject = reinterpret_cast<aPlanet::TPlanet*>(Obj)->FilmObject;
-            } else if (pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr) {
-                FilmObject = Globals::PrimaryFilm->FindObject(SE_Process::ClassSEtoName(reinterpret_cast<aGalaxy::TStar*>(Obj)->Graphic), reinterpret_cast<aGalaxy::TStar*>(Obj)->Graphic->GraphKey, reinterpret_cast<aGalaxy::TStar*>(Obj)->Id);
-            } else if (pas::class_cast_if<aGalaxy::THole*>(Obj) != nullptr) {
-                FilmObject = reinterpret_cast<aEFilm::TEFilmObj*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(reinterpret_cast<aGalaxy::THole*>(Obj)->FilmObjectId)));
-            } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                FilmObject = reinterpret_cast<aMissile::TMissile*>(Obj)->FilmObject;
-            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                FilmObject = reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->FilmObject;
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                FilmObject = ship->FilmObject;
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                FilmObject = planet->FilmObject;
+            } else if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Obj)) {
+                FilmObject = Globals::PrimaryFilm->FindObject(pas::view(SE_Process::ClassSEtoName(star->Graphic)), pas::view(star->Graphic->GraphKey), star->Id);
+            } else if (aGalaxy::THole* hole = pas::class_cast_if<aGalaxy::THole*>(Obj)) {
+                FilmObject = reinterpret_cast<aEFilm::TEFilmObj*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(hole->FilmObjectId)));
+            } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                FilmObject = missile->FilmObject;
+            } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                FilmObject = asteroid->FilmObject;
             } else {
                 Item = nullptr;
-                if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                    Item = pas::checked_cast<aItem::TItem*>(Obj);
-                } else if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-                    Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+                if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                    Item = item;
+                } else if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+                    Item = scriptItem->Item;
                 }
                 if (Item != nullptr) {
                     FilmObject = Item->FilmObject;
@@ -13555,8 +13997,9 @@ namespace aScriptFun {
     }
 
     void SF_FireWeapon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FireWeapon"_a));
         }
@@ -13566,23 +14009,24 @@ namespace aScriptFun {
         std::uint8_t RecordFilm = Ship->CurrentStar->RecordingTurnFilm;
         if (pas::class_cast_if<aMissile::TMissile*>(Target) != nullptr) {
             aShip::TShip_FireWeaponAtMissile(Ship, Weapon, Target, RecordFilm);
-        } else if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
-            aShip::TShip_FireWeaponAtShip(Ship, Weapon, reinterpret_cast<aShip::TShip*>(Target), RecordFilm);
-        } else if (pas::class_cast_if<aItem::TItem*>(Target) != nullptr) {
-            Ship->FireWeaponAtItem(Weapon, reinterpret_cast<aItem::TItem*>(Target), RecordFilm);
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Target)) {
+            aShip::TShip_FireWeaponAtShip(Ship, Weapon, ship, RecordFilm);
+        } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Target)) {
+            Ship->FireWeaponAtItem(Weapon, item, RecordFilm);
         } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Target) != nullptr) {
             Ship->FireWeaponAtAsteroid(Weapon, Target, RecordFilm);
         }
     }
 
     void SF_WeaponHit(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint32_t Color{};
         std::uint8_t Hit{};
         aMissile::TMissile* Missile{};
         aGalaxy::TStar* Star{};
-        std::uint32_t Flags{};
+        aGalaxyStruct::TDamageFlagSet Flags{};
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script WeaponHit"_a));
         }
@@ -13594,11 +14038,11 @@ namespace aScriptFun {
             Range = av[4]->GetInt();
         }
         if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
-            std::int32_t applyWeaponHit = aShip::TShip_ApplyWeaponHit(reinterpret_cast<aShip::TShip*>(Target), Ship, Weapon, Range, Color, pas::Var<std::uint32_t>(&Flags), 1.0f, 0);
+            std::int32_t applyWeaponHit = aShip::TShip_ApplyWeaponHit(reinterpret_cast<aShip::TShip*>(Target), Ship, Weapon, Range, Color, Flags, 1.0f, 0);
             EC_Expression::TVarEC* cpp_arg = av[0];
             cpp_arg->SetInt(applyWeaponHit);
-        } else if (pas::class_cast_if<aMissile::TMissile*>(Target) != nullptr) {
-            Missile = reinterpret_cast<aMissile::TMissile*>(Target);
+        } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Target)) {
+            Missile = missile;
             Hit = Missile->CanBeHit(Ship, Weapon);
             Hit = Ship->ScriptItemsAct(aConst::satOnWeaponShot, Missile, Weapon, Hit) != 0;
             if (Hit) {
@@ -13615,8 +14059,9 @@ namespace aScriptFun {
     }
 
     void SF_DealDamageToShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxyStruct::TDamageFlagSet Flags{};
         std::int32_t Range{};
         std::uint32_t Color{};
@@ -13650,8 +14095,9 @@ namespace aScriptFun {
     }
 
     void SF_LaunchMissile(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TWeapon* Weapon{};
         aMissile::TMissile* Missile{};
         std::int32_t Step{};
@@ -13661,8 +14107,8 @@ namespace aScriptFun {
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         pas::Object* Target = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[2]->GetDword())));
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[3]->GetDword())));
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Weapon = reinterpret_cast<aItem::TWeapon*>(reinterpret_cast<aScript::TScriptItem*>(Obj)->Item);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Weapon = reinterpret_cast<aItem::TWeapon*>(scriptItem->Item);
         } else {
             Weapon = reinterpret_cast<aItem::TWeapon*>(Obj);
         }
@@ -13687,8 +14133,9 @@ namespace aScriptFun {
     }
 
     void SF_SpawnMissile(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 12> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 12), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Kind{};
         std::int32_t Module{};
         std::int32_t Special{};
@@ -13729,11 +14176,12 @@ namespace aScriptFun {
     }
 
     void SF_BonusText(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         pas::WideString Text{};
-        std::uint8_t Bonus{};
+        aConst::TEquipmentBonusKind Bonus{};
         std::int32_t Value{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BonusText"_a));
@@ -13756,8 +14204,8 @@ namespace aScriptFun {
         if (Text != u"") {
             aMyFunction::ReplaceTextToken(Text, u"<ExCount>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
             if (aConst::MicroModuleTemplates[Index].SeparatedNumbers) {
-                for (Bonus = static_cast<std::uint8_t>(0); Bonus <= static_cast<std::uint8_t>(42); ++Bonus) {
-                    Value = Count * pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Index].StatBonuses, Bonus * sizeof(std::int32_t)));
+                for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range.next(Bonus); ) {
+                    Value = Count * aConst::MicroModuleTemplates[Index].StatBonuses[Bonus];
                     if (Value > 0) {
                         pas::WideString cpp_arg_2 = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
                         pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[Bonus], u">"});
@@ -13772,50 +14220,56 @@ namespace aScriptFun {
                 }
             }
         }
-        av[0]->SetString(aMyFunction::WrapTextInColor(Text, aItem::GetMicroModuleTextColorTag(Index)));
+        av[0]->SetString(aMyFunction::WrapTextInColor(pas::view(Text), pas::view(aItem::GetMicroModuleTextColorTag(Index))));
     }
 
     void SF_PlanetPirateClan(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aPlanet::MainPiratePlanet)));
     }
 
     void SF_Blazer(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aKling::BlazerShip)));
     }
 
     void SF_Keller(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aKling::KellerShip)));
     }
 
     void SF_Terron(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aKling::TerronShip)));
     }
 
     void SF_PirateType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PirateType"_a));
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType);
+        if (aPirate::TPirate* pirate = pas::class_cast_if<aPirate::TPirate*>(Ship)) {
+            av[0]->SetInt(pirate->PirateType);
         } else {
             av[0]->SetInt(0);
         }
     }
 
     void SF_PlayerQuestInProgress(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aRanger::PQuest Quest{};
         std::int32_t Index{};
         aPlanet::TPlanet* Planet{};
@@ -13837,8 +14291,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerQuestsCompleted(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aRanger::PPlayerOldQuest Quest{};
         std::int32_t Index{};
         av[0]->SetInt(0);
@@ -13855,8 +14310,9 @@ namespace aScriptFun {
     }
 
     void SF_QuestsStatusByNom(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aRanger::PPlayerOldQuest OldQuest{};
         aRanger::PQuest Quest{};
@@ -13895,14 +14351,16 @@ namespace aScriptFun {
     }
 
     void SF_PlayerPlanetaryBattlesCompleted(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->PlanetBattles);
     }
 
     void SF_PlayerMayTakeSubCrack(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (aPlayer::GetPlayer()->MayTakeSubCrack()) {
             av[0]->SetInt(1);
         } else {
@@ -13911,14 +14369,16 @@ namespace aScriptFun {
     }
 
     void SF_SubCrackCost(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost()));
     }
 
     void SF_ShipCalcParam(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipCalcParam"_a));
         }
@@ -13926,8 +14386,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipRefit(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipRefit"_a));
         }
@@ -13950,8 +14411,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipImproveItems(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipImproveItems"_a));
@@ -13976,8 +14438,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemImprovement(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Equipment{};
         std::int32_t SavedId{};
         std::int32_t Kind{};
@@ -13986,11 +14449,11 @@ namespace aScriptFun {
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         av[0]->SetInt(0);
         if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
@@ -14021,8 +14484,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipFreeFlight(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptContextSnapshot Snapshot{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ShipFreeFlight"_a));
@@ -14045,9 +14509,10 @@ namespace aScriptFun {
     }
 
     void SF_ShipKillFactionInCurSystem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
-        std::int32_t Index{};
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
+        TKillFactionIndex Index{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ShipKillFactionInCurSystem"_a));
         }
@@ -14056,17 +14521,17 @@ namespace aScriptFun {
             av[0]->SetInt(0);
             return;
         }
-        aNormalShip::TNormalShip* Ship = reinterpret_cast<aNormalShip::TNormalShip*>(Obj);
+        aNormalShip::TNormalShip* Ship = static_cast<aNormalShip::TNormalShip*>(Obj);
         if (av[2]->GetInt() == -1) {
             av[0]->SetInt(Ship->CurrentSystemKills.Custom);
             if (av.length() - 1 > 2) {
                 Ship->CurrentSystemKills.Custom = av[3]->GetInt();
             }
         } else {
-            Index = av[2]->GetInt() & 0x0000007f;
+            Index = av[2]->GetInt();
             av[0]->SetInt(pas::load_unaligned<std::uint16_t>(pas::byte_offset(&Ship->CurrentSystemKills, Index * sizeof(std::uint16_t))));
             if (av.length() - 1 > 2) {
-                Index = av[2]->GetInt() & 0x0000007f;
+                Index = av[2]->GetInt();
                 pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ship->CurrentSystemKills, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(av[3]->GetInt()));
                 Ship->virtual_TShip_RefreshCurrentStanding();
             }
@@ -14074,8 +14539,9 @@ namespace aScriptFun {
     }
 
     void SF_CapitalShipStats(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(0);
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_CapitalShipStats"_a));
@@ -14083,17 +14549,17 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aShip::TShip* Ship = nullptr;
         aItem::THull* Hull = nullptr;
-        if (pas::class_cast_if<aScript::TScriptShip*>(Obj) != nullptr) {
-            Ship = pas::checked_cast<aScript::TScriptShip*>(Obj)->Ship;
+        if (aScript::TScriptShip* scriptShip = pas::class_cast_if<aScript::TScriptShip*>(Obj)) {
+            Ship = scriptShip->Ship;
         }
-        if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Ship = reinterpret_cast<aShip::TShip*>(Obj);
+        if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Ship = ship;
         }
         if (Ship != nullptr) {
             Hull = Ship->GetHull();
         }
-        if (pas::class_cast_if<aItem::THull*>(Obj) != nullptr) {
-            Hull = reinterpret_cast<aItem::THull*>(Obj);
+        if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
+            Hull = hull;
         }
         if (Hull != nullptr) {
             av[0]->SetInt(Hull->CapitalShip);
@@ -14117,8 +14583,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerBridge(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Mode{};
         av[0]->SetInt(aPlayer::GetPlayer()->RuinsMode);
         if (av.length() - 1 > 0) {
@@ -14137,8 +14604,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDebt(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->DebtAmount);
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->DebtAmount = av[1]->GetInt();
@@ -14146,8 +14614,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDebtDate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->DebtDueTurn);
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->DebtDueTurn = av[1]->GetInt();
@@ -14155,8 +14624,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDebtCnt(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->DebtDefaultCount);
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->DebtDefaultCount = av[1]->GetInt();
@@ -14164,8 +14634,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDeposit(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->DepositAmount);
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->DepositAmount = av[1]->GetInt();
@@ -14173,8 +14644,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDepositDate(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->DepositStartTurn);
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->DepositStartTurn = av[1]->GetInt();
@@ -14182,8 +14654,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDepositDay(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->DepositDayCount);
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->DepositDayCount = av[1]->GetInt();
@@ -14191,8 +14664,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerDepositPercent(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(System::Round(aPlayer::GetPlayer()->DepositInterestRate * 1.0E+2L));
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->DepositInterestRate = av[1]->GetInt() * 0.01L;
@@ -14200,8 +14674,9 @@ namespace aScriptFun {
     }
 
     void SF_PlayerMedPolicy(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetInt(aPlayer::GetPlayer()->MedicalPolicyTicks);
         if (av.length() - 1 > 0) {
             aPlayer::GetPlayer()->MedicalPolicyTicks = av[1]->GetInt();
@@ -14209,8 +14684,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipCustomShipInfosCount(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aShip::PCustomShipInfo Info{};
         if (av.length() - 1 < 1) {
@@ -14228,8 +14704,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipAddCustomShipInfo(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 10> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 10), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::PCustomShipInfo Info{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipAddCustomShipInfo"_a));
@@ -14275,13 +14752,14 @@ namespace aScriptFun {
         } else {
             Info->TextData3 = pas::WideString();
         }
-        Info->StatusEffect = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"_wref.get())->GetBlock(u"AddInfo"_wref.get())->GetBlock(u"CustomInfos"_wref.get())->GetBlock(Info->TypeName)->CountParams(u"StatusEffect"_wref.get()) > 0;
+        Info->StatusEffect = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"sv)->GetBlock(u"AddInfo"sv)->GetBlock(u"CustomInfos"sv)->GetBlock(pas::view(Info->TypeName))->CountParams(u"StatusEffect"_wref.get()) > 0;
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Info)));
     }
 
     void SF_ShipDeleteCustomShipInfo(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::int32_t I{};
         aShip::PCustomShipInfo Info{};
@@ -14326,8 +14804,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipFindCustomShipInfoByType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aShip::PCustomShipInfo Info{};
         if (av.length() - 1 < 2) {
@@ -14352,8 +14831,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipCustomShipInfoDescription(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t Index{};
         aShip::PCustomShipInfo Info{};
@@ -14407,9 +14887,9 @@ namespace aScriptFun {
         }
         av[0]->SetString(Info->Description);
         if (av[0]->GetString() == u"") {
-            Block = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"_wref.get())->GetBlock(u"AddInfo"_wref.get())->GetBlock(u"CustomInfos"_wref.get())->GetBlock(Info->TypeName);
+            Block = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"sv)->GetBlock(u"AddInfo"sv)->GetBlock(u"CustomInfos"sv)->GetBlock(pas::view(Info->TypeName));
             if (Block->CountParams(u"Description"_wref.get()) != 0) {
-                av[0]->SetString(Block->GetParam(u"Description"_wref.get()));
+                av[0]->SetString(Block->GetParam(u"Description"sv));
             }
         }
         if (av.length() - 1 > 2) {
@@ -14418,8 +14898,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipCustomShipInfoData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t Index{};
         aShip::PCustomShipInfo Info{};
@@ -14504,8 +14985,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipCustomShipInfoTextData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         std::int32_t Index{};
         aShip::PCustomShipInfo Info{};
@@ -14572,8 +15054,9 @@ namespace aScriptFun {
     }
 
     void SF_StarCustomStarInfosCount(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarCustomStarInfosCount"_a));
         }
@@ -14581,8 +15064,9 @@ namespace aScriptFun {
     }
 
     void SF_StarAddCustomStarInfo(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarAddCustomStarInfo"_a));
         }
@@ -14609,8 +15093,9 @@ namespace aScriptFun {
     }
 
     void SF_StarDeleteCustomStarInfo(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aGalaxy::TCustomSystemInfo* Info{};
         if (av.length() - 1 < 2) {
@@ -14644,8 +15129,9 @@ namespace aScriptFun {
     }
 
     void SF_StarFindCustomStarInfoByType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t I{};
         aGalaxy::TCustomSystemInfo* Info{};
         if (av.length() - 1 < 2) {
@@ -14666,8 +15152,9 @@ namespace aScriptFun {
     }
 
     void SF_StarCustomStarInfoData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TCustomSystemInfo* Info{};
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarCustomStarInfoData"_a));
@@ -14704,51 +15191,54 @@ namespace aScriptFun {
     }
 
     void SF_ItemCanBeBroken(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemCanBeBroken"_a));
         }
         std::uint8_t CanBreak = false;
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            CanBreak = pas::in_set<43, 68, 73, 73>(static_cast<std::uint8_t>(Item->ItemType)) || pas::in_set<8, 8, 10, 22, 26, 34, 39, 41>(static_cast<std::uint8_t>(Item->ItemType));
+            CanBreak = pas::in_set<aConst::t_FuelTanks, aConst::t_CustomWeapon, aConst::t_Satellite, aConst::t_Satellite>(Item->ItemType) || pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(Item->ItemType);
         }
         av[0]->SetDword(CanBreak);
     }
 
     void SF_ItemFragility(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemFragility"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         av[0]->SetFloat(1.0);
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                av[0]->SetFloat(reinterpret_cast<aItem::TEquipment*>(Item)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+            if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
+                av[0]->SetFloat(equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
             }
         }
     }
 
     void SF_ItemDurability(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t NewValue{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemDurability"_a));
@@ -14756,19 +15246,19 @@ namespace aScriptFun {
         std::int32_t OldValue = 100;
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                OldValue = System::Round(pas::checked_cast<aItem::TEquipment*>(Item)->ConditionPercent);
+            if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {
+                OldValue = System::Round(equipment->ConditionPercent);
                 if (av.length() - 1 > 1) {
                     NewValue = std::min<std::int32_t>(av[2]->GetInt(), 100);
-                    pas::checked_cast<aItem::TEquipment*>(Item)->ConditionPercent = NewValue;
-                    pas::checked_cast<aItem::TEquipment*>(Item)->BrokenFlag = NewValue <= 0;
+                    equipment->ConditionPercent = NewValue;
+                    equipment->BrokenFlag = NewValue <= 0;
                 }
             }
         }
@@ -14776,8 +15266,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemLevel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t NewLevel{};
         aItem::TEquipment* OldBase{};
         aItem::TEquipment* NewBase{};
@@ -14787,14 +15278,14 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
         std::int32_t OldLevel = 0;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                 OldLevel = pas::checked_cast<aItem::TEquipment*>(Item)->GetLevel();
                 if (av.length() - 1 > 1) {
                     NewLevel = std::max<std::int32_t>(1, av[2]->GetInt());
@@ -14852,7 +15343,7 @@ namespace aScriptFun {
                             break;
                         }
                         default: {
-                            if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                                 reinterpret_cast<aItem::TWeapon*>(Item)->TechLevel = NewLevel;
                                 reinterpret_cast<aItem::TWeapon*>(Item)->Range = reinterpret_cast<aItem::TWeapon*>(Item)->Range + reinterpret_cast<aItem::TWeapon*>(NewBase)->Range - reinterpret_cast<aItem::TWeapon*>(OldBase)->Range;
                                 reinterpret_cast<aItem::TWeapon*>(Item)->MinDamage = reinterpret_cast<aItem::TWeapon*>(Item)->MinDamage + reinterpret_cast<aItem::TWeapon*>(NewBase)->MinDamage - reinterpret_cast<aItem::TWeapon*>(OldBase)->MinDamage;
@@ -14872,19 +15363,20 @@ namespace aScriptFun {
     }
 
     void SF_ContainerFuel(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ContainerFuel"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aItem::TFuelTanks*>(Obj) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aItem::TFuelTanks*>(Obj)->Fuel);
+        if (aItem::TFuelTanks* fuelTanks = pas::class_cast_if<aItem::TFuelTanks*>(Obj)) {
+            av[0]->SetInt(fuelTanks->Fuel);
             if (av.length() - 1 > 1) {
                 reinterpret_cast<aItem::TFuelTanks*>(Obj)->Fuel = av[2]->GetInt();
             }
-        } else if (pas::class_cast_if<aItem::TCistern*>(Obj) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aItem::TCistern*>(Obj)->Fuel);
+        } else if (aItem::TCistern* cistern = pas::class_cast_if<aItem::TCistern*>(Obj)) {
+            av[0]->SetInt(cistern->Fuel);
             if (av.length() - 1 > 1) {
                 reinterpret_cast<aItem::TCistern*>(Obj)->Fuel = av[2]->GetInt();
             }
@@ -14894,14 +15386,15 @@ namespace aScriptFun {
     }
 
     void SF_ItemCharge(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemCharge"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        if (pas::class_cast_if<aItem::TArtefactTransmitter*>(Obj) != nullptr) {
-            av[0]->SetInt(reinterpret_cast<aItem::TArtefactTransmitter*>(Obj)->Power);
+        if (aItem::TArtefactTransmitter* artefactTransmitter = pas::class_cast_if<aItem::TArtefactTransmitter*>(Obj)) {
+            av[0]->SetInt(artefactTransmitter->Power);
             if (av.length() - 1 > 1) {
                 reinterpret_cast<aItem::TArtefactTransmitter*>(Obj)->Power = av[2]->GetInt();
             }
@@ -14911,8 +15404,9 @@ namespace aScriptFun {
     }
 
     void SF_MissilesToRearm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MissilesToRearm"_a));
@@ -14920,14 +15414,14 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         std::int32_t Needed = 0;
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::in_range(static_cast<std::uint8_t>(reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+            if (pas::in_range(reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
                 // Native checks the base equipment class here, then accesses weapon fields.
                 {
                     std::int32_t cpp_left = reinterpret_cast<aItem::TWeapon*>(pas::checked_cast<aItem::TEquipment*>(Item))->AmmoCapacity;
@@ -14935,9 +15429,9 @@ namespace aScriptFun {
                 }
                 if (av.length() - 1 > 1) {
                     Count = av[2]->GetInt();
-                    reinterpret_cast<aItem::TWeapon*>(pas::checked_cast<aItem::TEquipment*>(Item))->Ammo = std::max<std::int32_t>(0, ([&] {
-                        std::int32_t ammoCapacity = reinterpret_cast<aItem::TWeapon*>(pas::checked_cast<aItem::TEquipment*>(Item))->AmmoCapacity;
-                        std::int32_t cpp_arg = reinterpret_cast<aItem::TWeapon*>(pas::checked_cast<aItem::TEquipment*>(Item))->Ammo + Count;
+                    reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->Ammo = std::max<std::int32_t>(0, ([&] {
+                        std::int32_t ammoCapacity = reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->AmmoCapacity;
+                        std::int32_t cpp_arg = reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->Ammo + Count;
                         return std::min<std::int32_t>(ammoCapacity, cpp_arg);
                     }()));
                 }
@@ -14947,24 +15441,25 @@ namespace aScriptFun {
     }
 
     void SF_WeaponAmmunition(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TWeapon* Weapon{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script WeaponAmmunition"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item == nullptr || !(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr)) {
             av[0]->SetInt(0);
         } else {
-            Weapon = pas::checked_cast<aItem::TWeapon*>(Item);
+            Weapon = static_cast<aItem::TWeapon*>(Item);
             av[0]->SetInt(Weapon->Ammo);
             if (av.length() - 1 > 1) {
                 Weapon->Ammo = av[2]->GetInt();
@@ -14973,24 +15468,25 @@ namespace aScriptFun {
     }
 
     void SF_WeaponMaxAmmunition(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script WeaponAmmunition"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item == nullptr || !(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr)) {
             av[0]->SetInt(0);
             return;
         }
-        aItem::TWeapon* Weapon = pas::checked_cast<aItem::TWeapon*>(Item);
+        aItem::TWeapon* Weapon = static_cast<aItem::TWeapon*>(Item);
         av[0]->SetInt(Weapon->AmmoCapacity);
         if (av.length() - 1 > 1) {
             Weapon->AmmoCapacity = av[2]->GetInt();
@@ -14998,8 +15494,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipSpecialBonuses(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ShipSpecialBonuses"_a));
         }
@@ -15016,14 +15513,15 @@ namespace aScriptFun {
     }
 
     void SF_ItemExtraSpecials(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::int32_t Count{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ItemExtraSpecials"_a));
         }
-        if (av.length() - 1 == 1 && pas::in_range(static_cast<std::uint8_t>(reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->ItemType), static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
+        if (av.length() - 1 == 1 && pas::in_range(reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
             av[0]->SetInt(0);
             return;
         }
@@ -15046,14 +15544,15 @@ namespace aScriptFun {
     }
 
     void SF_ItemExtraSpecialsCountByType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         aItem::PExtraSpecial Entry{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SF_ItemExtraSpecialsCountByType"_a));
         }
-        if (pas::in_range(static_cast<std::uint8_t>(reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->ItemType), static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
+        if (pas::in_range(reinterpret_cast<aItem::TItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())))->ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
             av[0]->SetInt(0);
             return;
         }
@@ -15072,8 +15571,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemExtraSpecialsAddByType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::int32_t Count{};
         if (av.length() - 1 < 2) {
@@ -15123,8 +15623,9 @@ namespace aScriptFun {
     }
 
     void SF_ItemExtraSpecialsDeleteByType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         std::int32_t Count{};
         if (av.length() - 1 < 2) {
@@ -15244,14 +15745,14 @@ namespace aScriptFun {
         }
         av[0]->SetString(u""_wref.get());
         Path = av[1]->GetString();
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u"."_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Path), u"."sv);
         if (av.length() - 1 > 1 && av[2]->GetInt() != 0) {
             Block = GR_Main::MainDataConfig;
         } else {
             Block = GR_Main::LanguageDataConfig;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            Block = Block->FindBlockByPath(EC_Str::ExtractDelimitedPartW(Path, I, u"."_wref.get()));
+            Block = Block->FindBlockByPath(EC_Str::ExtractDelimitedPartW(pas::view(Path), I, u"."sv));
             if (Block == nullptr) {
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning.Script SF_GenerateCodeStringFromBlock - cant find block ", av[1]->GetString(), u" [", pas::wide_int_to_str(I), u"]"})));
                 return;
@@ -15264,19 +15765,20 @@ namespace aScriptFun {
     }
 
     void SF_ItemOnUseCode(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptItem* Binding{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemOnUseCode"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         Binding = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Binding = reinterpret_cast<aScript::TScriptItem*>(item->ScriptItem);
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(Obj);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Binding = scriptItem;
         }
         if (Binding != nullptr) {
             av[0]->SetString(Binding->OnUseText);
@@ -15289,19 +15791,20 @@ namespace aScriptFun {
     }
 
     void SF_ItemOnActCode(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aScript::TScriptItem* Binding{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ItemOnActCode"_a));
         }
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         Binding = nullptr;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Binding = reinterpret_cast<aScript::TScriptItem*>(item->ScriptItem);
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Binding = reinterpret_cast<aScript::TScriptItem*>(Obj);
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Binding = scriptItem;
         }
         if (Binding != nullptr) {
             av[0]->SetString(Binding->OnActionText);
@@ -15321,8 +15824,9 @@ namespace aScriptFun {
     }
 
     void SF_CreateActCodeEvent(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 7> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 7), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::Object* Obj{};
         pas::Object* Object1{};
         pas::Object* Object2{};
@@ -15342,7 +15846,7 @@ namespace aScriptFun {
             if (!(pas::class_cast_if<aShip::TShip*>(Obj) != nullptr)) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateActCodeEvent cant call info - not a ship"_a));
             }
-            Ship = reinterpret_cast<aShip::TShip*>(Obj);
+            Ship = static_cast<aShip::TShip*>(Obj);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->CustomShipInfos) - 1); cpp_range.next(I); ) {
                 Info = pas::list_at<aShip::TCustomShipInfo>(Ship->CustomShipInfos, I);
                 if (static_cast<std::uint8_t>(Info->DeleteQueued ^ 1) && ([&] {
@@ -15397,7 +15901,7 @@ namespace aScriptFun {
                     EC_Expression::TVarEC* cpp_arg_2 = av[0];
                     cpp_arg_2->SetInt(scriptItemsAct);
                 }
-            } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
+            } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
                 if (av.length() - 1 >= 3) {
                     Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[3]->GetDword())));
                 } else {
@@ -15418,7 +15922,7 @@ namespace aScriptFun {
                 } else {
                     Param = 0;
                 }
-                if (reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem != nullptr) {
+                if (item->ScriptItem != nullptr) {
                     std::int32_t runActionCode = reinterpret_cast<aScript::TScriptItem*>(reinterpret_cast<aItem::TItem*>(Obj)->ScriptItem)->RunActionCode(ActionType, Ship, Object1, Object2, Param);
                     EC_Expression::TVarEC* cpp_arg_3 = av[0];
                     cpp_arg_3->SetInt(runActionCode);
@@ -15433,8 +15937,9 @@ namespace aScriptFun {
     }
 
     void SF_CurItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (pas::list_count(Globals::ScriptItemContextStack) < 1) {
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Globals::ScriptUseItem)));
         } else {
@@ -15443,8 +15948,9 @@ namespace aScriptFun {
     }
 
     void SF_CurInfo(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (pas::list_count(Globals::ScriptItemInfoContextStack) < 1) {
             av[0]->SetDword(0u);
         } else {
@@ -15453,8 +15959,9 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemActShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (pas::list_count(Globals::ScriptActionShipStack) < 1) {
             av[0]->SetDword(0u);
         } else {
@@ -15463,8 +15970,9 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemActObject1(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (pas::list_count(Globals::ScriptActionObject1Stack) < 1) {
             av[0]->SetDword(0u);
         } else {
@@ -15473,8 +15981,9 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemActObject2(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (pas::list_count(Globals::ScriptActionObject2Stack) < 1) {
             av[0]->SetDword(0u);
         } else {
@@ -15483,8 +15992,9 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemActParam(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (pas::list_count(Globals::ScriptActionParamStack) < 1) {
             av[0]->SetInt(0);
         } else {
@@ -15496,8 +16006,9 @@ namespace aScriptFun {
     }
 
     void SF_ScriptItemActionType(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Matches{};
         if (pas::list_count(Globals::ScriptActionTypeStack) < 1) {
             av[0]->SetDword(0u);
@@ -15517,8 +16028,9 @@ namespace aScriptFun {
     }
 
     void SF_OnUseCodeTranclucator(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TArtefactTranclucator* Item{};
         aTranclucator::TTranclucator* Ship{};
         std::int32_t Index{};
@@ -15527,7 +16039,7 @@ namespace aScriptFun {
         aGalaxy::TStar* Star{};
         pas::Object* Other{};
         if (Globals::ScriptUseItem != nullptr && pas::class_cast_if<aItem::TArtefactTranclucator*>(Globals::ScriptUseItem) != nullptr) {
-            Item = reinterpret_cast<aItem::TArtefactTranclucator*>(Globals::ScriptUseItem);
+            Item = static_cast<aItem::TArtefactTranclucator*>(Globals::ScriptUseItem);
         } else {
             if (av.length() - 1 < 1) {
                 return;
@@ -15572,8 +16084,8 @@ namespace aScriptFun {
                 if (aPlayer::GetPlayer()->ChameleonActive) {
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(Index); ) {
                         Other = pas::list_at<pas::Object>(Star->Ships, Index);
-                        if (pas::class_cast_if<aKling::TKling*>(Other) != nullptr && static_cast<std::uint8_t>(reinterpret_cast<aShip::TShip*>(Other)->HasIndependentScriptFaction() ^ 1)) {
-                            reinterpret_cast<aKling::TKling*>(Other)->DetectAttackingPlayer(aPlayer::GetPlayer());
+                        if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Other); kling != nullptr && static_cast<std::uint8_t>(static_cast<aShip::TShip*>(kling)->HasIndependentScriptFaction() ^ 1)) {
+                            kling->DetectAttackingPlayer(aPlayer::GetPlayer());
                         }
                     }
                 }
@@ -15619,12 +16131,13 @@ namespace aScriptFun {
     }
 
     void SF_OnUseCodeTransmitter(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TArtefactTransmitter* Artefact{};
         std::uint8_t ShowFeedback{};
         if (Globals::ScriptUseItem != nullptr && pas::class_cast_if<aItem::TArtefactTransmitter*>(Globals::ScriptUseItem) != nullptr) {
-            Artefact = reinterpret_cast<aItem::TArtefactTransmitter*>(Globals::ScriptUseItem);
+            Artefact = static_cast<aItem::TArtefactTransmitter*>(Globals::ScriptUseItem);
         } else {
             if (av.length() - 1 < 1) {
                 return;
@@ -15678,8 +16191,9 @@ namespace aScriptFun {
     }
 
     void SF_OnUseCodeBlackHole(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TArtefact* Item{};
         std::int32_t Index{};
         float Angle{};
@@ -15688,7 +16202,7 @@ namespace aScriptFun {
         aGalaxyEvent::TGalaxyEvent* Event{};
         av[0]->SetDword(0u);
         if (Globals::ScriptUseItem != nullptr && pas::class_cast_if<aItem::TArtefact*>(Globals::ScriptUseItem) != nullptr) {
-            Item = reinterpret_cast<aItem::TArtefact*>(Globals::ScriptUseItem);
+            Item = static_cast<aItem::TArtefact*>(Globals::ScriptUseItem);
         } else {
             if (av.length() - 1 < 1) {
                 return;
@@ -15986,8 +16500,9 @@ namespace aScriptFun {
     }
 
     void SF_TextBox(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Caption{};
         pas::WideString Value{};
         std::int32_t OffsetX{};
@@ -16072,8 +16587,9 @@ namespace aScriptFun {
     }
 
     void SF_FormCurShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (Globals::GetInnermostScreenLoop() == Globals::HangarScreen) {
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Globals::HangarScreen->SelectedShip)));
         } else if (Globals::GetInnermostScreenLoop() == Globals::ScannerScreen) {
@@ -16086,8 +16602,9 @@ namespace aScriptFun {
     }
 
     void SF_UselessItemText(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script UselessItemText"_a));
@@ -16095,17 +16612,17 @@ namespace aScriptFun {
         pas::Object* Obj = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aItem::TItem* Item = nullptr;
         Text = pas::WideString();
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
-                Text = pas::checked_cast<aItem::TUselessItem*>(Item)->CustomText;
+            if (aItem::TUselessItem* uselessItem = pas::class_cast_if<aItem::TUselessItem*>(Item)) {
+                Text = uselessItem->CustomText;
                 if (av.length() - 1 > 1) {
-                    pas::checked_cast<aItem::TUselessItem*>(Item)->CustomText = av[2]->GetString();
+                    uselessItem->CustomText = av[2]->GetString();
                 }
             }
         }
@@ -16113,8 +16630,9 @@ namespace aScriptFun {
     }
 
     void SF_UselessItemData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script UselessItemData"_a));
         }
@@ -16122,17 +16640,17 @@ namespace aScriptFun {
         std::int32_t Index = av[2]->GetInt();
         aItem::TItem* Item = nullptr;
         std::int32_t Value = 0;
-        if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aItem::TItem*>(Obj);
+        if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+            Item = item;
         }
-        if (pas::class_cast_if<aScript::TScriptItem*>(Obj) != nullptr) {
-            Item = reinterpret_cast<aScript::TScriptItem*>(Obj)->Item;
+        if (aScript::TScriptItem* scriptItem = pas::class_cast_if<aScript::TScriptItem*>(Obj)) {
+            Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && Index > 0 && Index <= 3) {
-                Value = pas::checked_cast<aItem::TUselessItem*>(Item)->Data[Index - 1];
+            if (aItem::TUselessItem* uselessItem = pas::class_cast_if<aItem::TUselessItem*>(Item); uselessItem != nullptr && Index > 0 && Index <= 3) {
+                Value = uselessItem->Data[Index - 1];
                 if (av.length() - 1 > 2) {
-                    auto& cpp_target = pas::checked_cast<aItem::TUselessItem*>(Item)->Data[Index - 1];
+                    auto& cpp_target = uselessItem->Data[Index - 1];
                     cpp_target = av[3]->GetInt();
                 }
             }
@@ -16181,7 +16699,7 @@ namespace aScriptFun {
         if (FormName == u"") {
             Form = Globals::GetInnermostScreenLoop();
         } else {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
         }
         if (Form != nullptr) {
             Control = Form->FindControlByPath(Path);
@@ -16204,17 +16722,17 @@ namespace aScriptFun {
             if (!(pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control) != nullptr)) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script UICheckElement - ", Path, u" (", FormName, u") is not a button"}))));
             }
-            av[0]->SetInt(reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Control)->Disabled);
+            av[0]->SetInt(static_cast<GI_GraphButton::TGraphButtonGI*>(Control)->Disabled);
         } else if (Query == u"Text") {
-            if (pas::class_cast_if<GI_Edit::TEditGI*>(Control) != nullptr) {
-                av[0]->SetString(reinterpret_cast<GI_Edit::TEditGI*>(Control)->Text);
+            if (GI_Edit::TEditGI* editGI = pas::class_cast_if<GI_Edit::TEditGI*>(Control)) {
+                av[0]->SetString(editGI->Text);
                 if (av.length() - 1 > 3) {
                     pas::WideString string = av[4]->GetString();
                     GI_Edit::TEditGI* control = reinterpret_cast<GI_Edit::TEditGI*>(Control);
                     control->SetText(std::move(string));
                 }
-            } else if (pas::class_cast_if<GI_Label::TLabelGI*>(Control) != nullptr) {
-                av[0]->SetString(reinterpret_cast<GI_Label::TLabelGI*>(Control)->GetText());
+            } else if (GI_Label::TLabelGI* labelGI = pas::class_cast_if<GI_Label::TLabelGI*>(Control)) {
+                av[0]->SetString(labelGI->GetText());
             } else {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script UICheckElement - ", Path, u" (", FormName, u") is not a label or edit"}))));
             }
@@ -16224,8 +16742,8 @@ namespace aScriptFun {
                 Control->HelpText = av[4]->GetString();
             }
         } else if (Query == u"CursorPos") {
-            if (pas::class_cast_if<GI_Edit::TEditGI*>(Control) != nullptr) {
-                av[0]->SetInt(reinterpret_cast<GI_Edit::TEditGI*>(Control)->CaretPosition);
+            if (GI_Edit::TEditGI* editGI_2 = pas::class_cast_if<GI_Edit::TEditGI*>(Control)) {
+                av[0]->SetInt(editGI_2->CaretPosition);
                 if (av.length() - 1 > 3) {
                     reinterpret_cast<GI_Edit::TEditGI*>(Control)->SetCaretPosition(av[4]->GetInt());
                 }
@@ -16235,17 +16753,17 @@ namespace aScriptFun {
         } else if (Query == u"IsFocused") {
             av[0]->SetInt(Form->FocusedControl == Control);
         } else if (Query == u"Image") {
-            if (pas::class_cast_if<GI_GAI::TgaiGI*>(Control) != nullptr) {
-                av[0]->SetString(reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetImagePath());
+            if (GI_GAI::TgaiGI* gaiGI = pas::class_cast_if<GI_GAI::TgaiGI*>(Control)) {
+                av[0]->SetString(gaiGI->GetImagePath());
                 if (reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetFirstFrameImagePath() != u"") {
                     const pas::WideString& cpp_arg = pas::concat_wide({av[0]->GetString(), u"|", reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetFirstFrameImagePath()});
                     EC_Expression::TVarEC* cpp_arg_2 = av[0];
                     cpp_arg_2->SetString(cpp_arg);
                 }
-            } else if (pas::class_cast_if<GI_GI::TgiGI*>(Control) != nullptr) {
-                av[0]->SetString(reinterpret_cast<GI_GI::TgiGI*>(Control)->GetImagePath());
-            } else if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr) {
-                av[0]->SetString(reinterpret_cast<GI_Image::TImageGI*>(Control)->GetImagePath());
+            } else if (GI_GI::TgiGI* giGI = pas::class_cast_if<GI_GI::TgiGI*>(Control)) {
+                av[0]->SetString(giGI->GetImagePath());
+            } else if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
+                av[0]->SetString(imageGI->GetImagePath());
             } else {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script UICheckElement - ", Path, u" (", FormName, u") is not a image"}))));
             }
@@ -16253,13 +16771,13 @@ namespace aScriptFun {
             if (!(pas::class_cast_if<GI_GAI::TgaiGI*>(Control) != nullptr)) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script UICheckElement - ", Path, u" (", FormName, u") is not a gai"}))));
             }
-            av[0]->SetInt(reinterpret_cast<GI_GAI::TgaiGI*>(Control)->SequenceFrame);
+            av[0]->SetInt(static_cast<GI_GAI::TgaiGI*>(Control)->SequenceFrame);
             if (av.length() - 1 > 3) {
                 reinterpret_cast<GI_GAI::TgaiGI*>(Control)->SetSequenceFrame(av[4]->GetInt());
             }
         } else if (Query == u"IsDown") {
-            if (pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control) != nullptr) {
-                av[0]->SetInt(reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Control)->Down);
+            if (GI_GraphButton::TGraphButtonGI* graphButtonGI = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control)) {
+                av[0]->SetInt(graphButtonGI->Down);
                 if (av.length() - 1 > 3) {
                     reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Control)->SetDown(av[4]->GetInt() != 0);
                 }
@@ -16289,8 +16807,9 @@ namespace aScriptFun {
     }
 
     void SF_InterfaceState(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString FormName{};
         pas::WideString Path{};
         std::int32_t I{};
@@ -16303,7 +16822,7 @@ namespace aScriptFun {
         FormName = av[1]->GetString();
         Path = av[2]->GetString();
         if (aGalaxy::Galaxy == nullptr) {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
             if (Form == nullptr) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"ML not found - ", FormName}))));
             }
@@ -16312,13 +16831,13 @@ namespace aScriptFun {
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Object not found - ", Path})));
             } else {
                 av[0]->SetInt(Control->Active);
-                if (pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control) != nullptr && reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Control)->Disabled && Control->Active) {
+                if (GI_GraphButton::TGraphButtonGI* graphButtonGI = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control); graphButtonGI != nullptr && graphButtonGI->Disabled && Control->Active) {
                     av[0]->SetInt(2);
                 }
                 if (av.length() - 1 > 2) {
                     Control->SetActive(av[3]->GetInt() > 0);
                     if (av[3]->GetInt() > 1 && pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control) != nullptr) {
-                        reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Control)->SetDisabled(av[3]->GetInt() == 2);
+                        static_cast<GI_GraphButton::TGraphButtonGI*>(Control)->SetDisabled(av[3]->GetInt() == 2);
                     }
                 }
             }
@@ -16362,7 +16881,7 @@ namespace aScriptFun {
         FormName = av[1]->GetString();
         Path = av[2]->GetString();
         if (aGalaxy::Galaxy == nullptr) {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
             if (Form == nullptr) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"ML not found - ", FormName}))));
             }
@@ -16373,7 +16892,7 @@ namespace aScriptFun {
                 if (!(pas::class_cast_if<GI_Label::TLabelGI*>(Control) != nullptr)) {
                     pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Object is not a label - ", Path}))));
                 }
-                av[0]->SetString(reinterpret_cast<GI_Label::TLabelGI*>(Control)->GetText());
+                av[0]->SetString(static_cast<GI_Label::TLabelGI*>(Control)->GetText());
                 if (av.length() - 1 > 2) {
                     const pas::WideString& string = av[3]->GetString();
                     GI_Label::TLabelGI* control = reinterpret_cast<GI_Label::TLabelGI*>(Control);
@@ -16427,7 +16946,7 @@ namespace aScriptFun {
         FormName = av[1]->GetString();
         Path = av[2]->GetString();
         if (aGalaxy::Galaxy == nullptr) {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
             if (Form == nullptr) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"ML not found - ", FormName}))));
             }
@@ -16435,38 +16954,38 @@ namespace aScriptFun {
             if (Control == nullptr) {
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Object not found - ", Path})));
             } else {
-                if (pas::class_cast_if<GI_GAI::TgaiGI*>(Control) != nullptr) {
-                    av[0]->SetString(reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetImagePath());
+                if (GI_GAI::TgaiGI* gaiGI = pas::class_cast_if<GI_GAI::TgaiGI*>(Control)) {
+                    av[0]->SetString(gaiGI->GetImagePath());
                     if (reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetFirstFrameImagePath() != u"") {
                         const pas::WideString& cpp_arg = pas::concat_wide({av[0]->GetString(), u"|", reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetFirstFrameImagePath()});
                         EC_Expression::TVarEC* cpp_arg_2 = av[0];
                         cpp_arg_2->SetString(cpp_arg);
                     }
-                } else if (pas::class_cast_if<GI_GI::TgiGI*>(Control) != nullptr) {
-                    av[0]->SetString(reinterpret_cast<GI_GI::TgiGI*>(Control)->GetImagePath());
-                } else if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr) {
-                    av[0]->SetString(reinterpret_cast<GI_Image::TImageGI*>(Control)->GetImagePath());
+                } else if (GI_GI::TgiGI* giGI = pas::class_cast_if<GI_GI::TgiGI*>(Control)) {
+                    av[0]->SetString(giGI->GetImagePath());
+                } else if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
+                    av[0]->SetString(imageGI->GetImagePath());
                 } else {
                     av[0]->SetString(Control->ConfigPath);
                 }
                 if (av.length() - 1 > 2) {
-                    if (EC_Str::CountDelimitedPartsW(av[3]->GetString(), u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(av[3]->GetString(), 0, u":"_wref.get()) == u"Style") {
-                        const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(av[3]->GetString(), 1, u":"_wref.get());
+                    if (EC_Str::CountDelimitedPartsW(pas::view(av[3]->GetString()), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(av[3]->GetString()), 0, u":"sv) == u"Style") {
+                        const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(pas::view(av[3]->GetString()), 1, u":"sv);
                         GI_MessageLoop::TObjectGI* control = Control;
                         control->SetConfigPath(extractDelimitedPartW);
                     } else if (pas::class_cast_if<GI_GAI::TgaiGI*>(Control) != nullptr) {
-                        if (EC_Str::CountDelimitedPartsW(av[3]->GetString(), u"|"_wref.get()) < 2) {
+                        if (EC_Str::CountDelimitedPartsW(pas::view(av[3]->GetString()), u"|"sv) < 2) {
                             const pas::WideString& string = av[3]->GetString();
                             GI_GAI::TgaiGI* control_2 = reinterpret_cast<GI_GAI::TgaiGI*>(Control);
                             control_2->SetImagePath(string);
                         } else {
                             {
-                                const pas::WideString& extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(av[3]->GetString(), 1, u"|"_wref.get());
+                                const pas::WideString& extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(pas::view(av[3]->GetString()), 1, u"|"sv);
                                 GI_GAI::TgaiGI* control_3 = reinterpret_cast<GI_GAI::TgaiGI*>(Control);
                                 control_3->SetFirstFrameImagePath(extractDelimitedPartW_2);
                             }
                             {
-                                const pas::WideString& extractDelimitedPartW_3 = EC_Str::ExtractDelimitedPartW(av[3]->GetString(), 0, u"|"_wref.get());
+                                const pas::WideString& extractDelimitedPartW_3 = EC_Str::ExtractDelimitedPartW(pas::view(av[3]->GetString()), 0, u"|"sv);
                                 GI_GAI::TgaiGI* control_4 = reinterpret_cast<GI_GAI::TgaiGI*>(Control);
                                 control_4->SetImagePath(extractDelimitedPartW_3);
                             }
@@ -16521,8 +17040,9 @@ namespace aScriptFun {
     }
 
     void SF_InterfacePos(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString FormName{};
         pas::WideString Path{};
         std::int32_t I{};
@@ -16538,7 +17058,7 @@ namespace aScriptFun {
         std::int32_t Y = av[4]->GetInt();
         std::int32_t Z = av[5]->GetInt();
         if (aGalaxy::Galaxy == nullptr) {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
             if (Form == nullptr) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"ML not found - ", FormName}))));
             }
@@ -16571,8 +17091,9 @@ namespace aScriptFun {
     }
 
     void SF_InterfaceSize(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString FormName{};
         pas::WideString Path{};
         std::int32_t I{};
@@ -16587,7 +17108,7 @@ namespace aScriptFun {
         std::int32_t X = av[3]->GetInt();
         std::int32_t Y = av[4]->GetInt();
         if (aGalaxy::Galaxy == nullptr) {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
             if (Form == nullptr) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"ML not found - ", FormName}))));
             }
@@ -16619,8 +17140,9 @@ namespace aScriptFun {
     }
 
     void SF_ButtonClick(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString FormName{};
         pas::WideString Path{};
         GI_MessageLoop::TMessageLoopGI* Form{};
@@ -16632,7 +17154,7 @@ namespace aScriptFun {
         if (FormName == u"") {
             Form = Globals::GetInnermostScreenLoop();
         } else {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
         }
         if (Form == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ButtonClick - ML not found"_a));
@@ -16644,7 +17166,7 @@ namespace aScriptFun {
         if (!(pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control) != nullptr)) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ButtonClick - Object not a button"_a));
         }
-        GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control);
+        GI_GraphButton::TGraphButtonGI* Button = static_cast<GI_GraphButton::TGraphButtonGI*>(Control);
         if (av.length() - 1 < 3 || EC_Expression::TVarEC_RealVType(av[3]) != EC_Expression::vkString || av[3]->GetString() == u"AllCode") {
             if (pas::assigned(Button->UpCallback)) {
                 Button->UpCallback(Button);
@@ -16661,8 +17183,9 @@ namespace aScriptFun {
     }
 
     void SF_SetFocus(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString FormName{};
         pas::WideString Path{};
         GI_MessageLoop::TMessageLoopGI* Form{};
@@ -16674,7 +17197,7 @@ namespace aScriptFun {
         if (FormName == u"") {
             Form = Globals::GetInnermostScreenLoop();
         } else {
-            Form = Globals::FindMessageLoop(FormName);
+            Form = Globals::FindMessageLoop(pas::view(FormName));
         }
         if (Form == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetFocus - ML not found"_a));
@@ -16687,14 +17210,16 @@ namespace aScriptFun {
     }
 
     void SF_CurrentForm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         av[0]->SetString(Globals::GetInnermostScreenLoop()->RegisteredLoopName);
     }
 
     void SF_FormShipCurItem(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Query{};
         pas::Object* Item{};
         if (Globals::GetInnermostScreenLoop() != Globals::ShipScreen) {
@@ -16744,7 +17269,7 @@ namespace aScriptFun {
                 Globals::ShipScreen->SelectedHoldItem = nullptr;
                 Globals::ShipScreen->SelectedHoldKind = fShip2::phkEmpty;
                 fShip2::PlayerHoldShip->RefreshDerivedStats(true);
-                if (!Globals::ShipScreen->IsCursorImageSelected(u"Main"_wref.get())) {
+                if (!Globals::ShipScreen->IsCursorImageSelected(u"Main"sv)) {
                     Globals::ShipScreen->SetCursorByName(u"Main"_wref.get());
                 }
                 Globals::ShipScreen->RefreshShipView();
@@ -16755,7 +17280,7 @@ namespace aScriptFun {
                 Globals::ShipScreen->SelectedHoldItem = nullptr;
                 Globals::ShipScreen->SelectedHoldKind = fShip2::phkEmpty;
                 fShip2::PlayerHoldShip->RefreshDerivedStats(true);
-                if (!Globals::ShipScreen->IsCursorImageSelected(u"Main"_wref.get())) {
+                if (!Globals::ShipScreen->IsCursorImageSelected(u"Main"sv)) {
                     Globals::ShipScreen->SetCursorByName(u"Main"_wref.get());
                 }
                 Globals::ShipScreen->RefreshShipView();
@@ -16791,16 +17316,17 @@ namespace aScriptFun {
 
     void SF_UpdateFormShip(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
         if (Globals::GetInnermostScreenLoop() == Globals::ShipScreen) {
-            Globals::ShipScreen->Flag3BC = true;
-            Globals::ShipScreen->FlagD4 = true;
+            Globals::ShipScreen->ShipStateChanged = true;
+            Globals::ShipScreen->ReopenRequested = true;
             Globals::ShipScreen->PlayTransitionSounds = false;
             Globals::ShipScreen->CloseClicked(nullptr);
         }
     }
 
     void SF_FormChange(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         GlobalsV::TGameScreenId Id{};
         pas::WideString Name{};
         if (av.length() - 1 < 1) {
@@ -16844,8 +17370,9 @@ namespace aScriptFun {
     }
 
     void SF_RunChildForm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         GlobalsV::TGameScreenId Id{};
         pas::WideString Name{};
         GI_MessageLoop::TMessageLoopGI* Parent{};
@@ -16875,7 +17402,7 @@ namespace aScriptFun {
                         ChildBackground->SetActive(true);
                     }
                 }
-                Parent->RootUiObject->NativeHook50();
+                Parent->RootUiObject->OnModalSuspend();
                 Parent->CaptureCursorState(&State);
                 Parent->SetCursorActive(false);
                 Parent->DrawQueuedUpdateRects();
@@ -16907,7 +17434,7 @@ namespace aScriptFun {
                 Parent->InvalidateViewport();
                 Parent->RestoreCursorState(&State);
                 Parent->UpdateCursorPosition();
-                Parent->RootUiObject->NativeHook48();
+                Parent->RootUiObject->OnModalResume();
                 Parent->Present();
                 GR_Main::PostMouseMoveMessage();
                 return;
@@ -16934,8 +17461,9 @@ namespace aScriptFun {
     }
 
     void SF_CloseCustomForm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t ResultCode{};
         if (fCustom::CurrentCustomDialog == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CloseCustomForm - no custom form"_a));
@@ -16966,9 +17494,9 @@ namespace aScriptFun {
         if (av.length() - 1 > 1) {
             Control->SetActive(av[2]->GetInt() > 0);
         }
-        if (pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control) != nullptr) {
+        if (GI_GraphButton::TGraphButtonGI* graphButtonGI = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control)) {
             if (Control->Active) {
-                av[0]->SetInt(reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Control)->Disabled + av[0]->GetInt());
+                av[0]->SetInt(graphButtonGI->Disabled + av[0]->GetInt());
             }
             if (av.length() - 1 > 1) {
                 reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Control)->SetDisabled(av[2]->GetInt() == 2);
@@ -16991,10 +17519,10 @@ namespace aScriptFun {
         if (Control == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script CustomInterfaceText - object not found: ", av[1]->GetString()}))));
         }
-        if (pas::class_cast_if<GI_Label::TLabelGI*>(Control) != nullptr) {
-            av[0]->SetString(reinterpret_cast<GI_Label::TLabelGI*>(Control)->GetText());
-        } else if (pas::class_cast_if<GI_Edit::TEditGI*>(Control) != nullptr) {
-            av[0]->SetString(reinterpret_cast<GI_Edit::TEditGI*>(Control)->Text);
+        if (GI_Label::TLabelGI* labelGI = pas::class_cast_if<GI_Label::TLabelGI*>(Control)) {
+            av[0]->SetString(labelGI->GetText());
+        } else if (GI_Edit::TEditGI* editGI = pas::class_cast_if<GI_Edit::TEditGI*>(Control)) {
+            av[0]->SetString(editGI->Text);
         } else {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script CustomInterfaceText - object is not a label or edit: ", av[1]->GetString()}))));
         }
@@ -17026,38 +17554,38 @@ namespace aScriptFun {
         if (Control == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script CustomInterfaceImage - object not found: ", av[1]->GetString()}))));
         }
-        if (pas::class_cast_if<GI_GAI::TgaiGI*>(Control) != nullptr) {
-            av[0]->SetString(reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetImagePath());
+        if (GI_GAI::TgaiGI* gaiGI = pas::class_cast_if<GI_GAI::TgaiGI*>(Control)) {
+            av[0]->SetString(gaiGI->GetImagePath());
             if (reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetFirstFrameImagePath() != u"") {
                 const pas::WideString& cpp_arg = pas::concat_wide({av[0]->GetString(), u"|", reinterpret_cast<GI_GAI::TgaiGI*>(Control)->GetFirstFrameImagePath()});
                 EC_Expression::TVarEC* cpp_arg_2 = av[0];
                 cpp_arg_2->SetString(cpp_arg);
             }
-        } else if (pas::class_cast_if<GI_GI::TgiGI*>(Control) != nullptr) {
-            av[0]->SetString(reinterpret_cast<GI_GI::TgiGI*>(Control)->GetImagePath());
-        } else if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr) {
-            av[0]->SetString(reinterpret_cast<GI_Image::TImageGI*>(Control)->GetImagePath());
+        } else if (GI_GI::TgiGI* giGI = pas::class_cast_if<GI_GI::TgiGI*>(Control)) {
+            av[0]->SetString(giGI->GetImagePath());
+        } else if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
+            av[0]->SetString(imageGI->GetImagePath());
         } else {
             av[0]->SetString(Control->ConfigPath);
         }
         if (av.length() - 1 > 1) {
-            if (EC_Str::CountDelimitedPartsW(av[2]->GetString(), u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(av[2]->GetString(), 0, u":"_wref.get()) == u"Style") {
-                const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(av[2]->GetString(), 1, u":"_wref.get());
+            if (EC_Str::CountDelimitedPartsW(pas::view(av[2]->GetString()), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(av[2]->GetString()), 0, u":"sv) == u"Style") {
+                const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(pas::view(av[2]->GetString()), 1, u":"sv);
                 GI_MessageLoop::TObjectGI* control = Control;
                 control->SetConfigPath(extractDelimitedPartW);
             } else if (pas::class_cast_if<GI_GAI::TgaiGI*>(Control) != nullptr) {
-                if (EC_Str::CountDelimitedPartsW(av[2]->GetString(), u"|"_wref.get()) < 2) {
+                if (EC_Str::CountDelimitedPartsW(pas::view(av[2]->GetString()), u"|"sv) < 2) {
                     const pas::WideString& string = av[2]->GetString();
                     GI_GAI::TgaiGI* control_2 = reinterpret_cast<GI_GAI::TgaiGI*>(Control);
                     control_2->SetImagePath(string);
                 } else {
                     {
-                        const pas::WideString& extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(av[2]->GetString(), 1, u"|"_wref.get());
+                        const pas::WideString& extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(pas::view(av[2]->GetString()), 1, u"|"sv);
                         GI_GAI::TgaiGI* control_3 = reinterpret_cast<GI_GAI::TgaiGI*>(Control);
                         control_3->SetFirstFrameImagePath(extractDelimitedPartW_2);
                     }
                     {
-                        const pas::WideString& extractDelimitedPartW_3 = EC_Str::ExtractDelimitedPartW(av[2]->GetString(), 0, u"|"_wref.get());
+                        const pas::WideString& extractDelimitedPartW_3 = EC_Str::ExtractDelimitedPartW(pas::view(av[2]->GetString()), 0, u"|"sv);
                         GI_GAI::TgaiGI* control_4 = reinterpret_cast<GI_GAI::TgaiGI*>(Control);
                         control_4->SetImagePath(extractDelimitedPartW_3);
                     }
@@ -17140,8 +17668,9 @@ namespace aScriptFun {
     }
 
     void SF_StarMapCenterView(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         EC_Struct::TPointF Position{};
         std::int32_t Index{};
         std::int32_t Count{};
@@ -17161,8 +17690,9 @@ namespace aScriptFun {
     }
 
     void SF_StarMapCurPosX(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         {
             std::int32_t x = Globals::StarMapScreen->GetMapCenter().X;
             EC_Expression::TVarEC* cpp_arg = av[0];
@@ -17171,8 +17701,9 @@ namespace aScriptFun {
     }
 
     void SF_StarMapCurPosY(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 1> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 1), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         {
             std::int32_t y = Globals::StarMapScreen->GetMapCenter().Y;
             EC_Expression::TVarEC* cpp_arg = av[0];
@@ -17181,8 +17712,9 @@ namespace aScriptFun {
     }
 
     void SF_StarMapCustomSelectionMode(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 11> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 11), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 10) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarMapCustomSelectionMode"_a));
         }
@@ -17224,8 +17756,9 @@ namespace aScriptFun {
     }
 
     void SF_CustomWeaponTypes(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Index{};
         if (av.length() - 1 < 1) {
             av[0]->SetInt(pas::list_count(aGalaxy::Galaxy->CustomWeaponTypes));
@@ -17240,8 +17773,9 @@ namespace aScriptFun {
     }
 
     void SF_InventNewCustomWeapon(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::uint8_t Kind{};
         std::int32_t I{};
         if (av.length() - 1 < 1) {
@@ -17261,7 +17795,7 @@ namespace aScriptFun {
         if (!pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script InventNewCustomWeapon - invalid type ", av[2]->GetString()}))));
         }
-        aConst::PWeaponInfo Base = &aConst::WeaponInfos[Kind];
+        aConst::PWeaponInfo Base = &aConst::WeaponInfos[static_cast<aConst::TItemType>(Kind)];
         Info->TechLevel = Base->TechLevel;
         Info->InventionIndex = Base->InventionIndex;
         Info->CostFactor = Base->CostFactor;
@@ -17292,8 +17826,9 @@ namespace aScriptFun {
     }
 
     void SF_GetCustomWeaponInfo(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script GetCustomWeaponInfo"_a));
         }
@@ -17323,7 +17858,7 @@ namespace aScriptFun {
                 return galaxy->RequireCustomWeaponInfo(std::move(string));
             }());
         } else {
-            Info = &aConst::WeaponInfos[av[1]->GetInt() & 0x0000007f];
+            Info = &aConst::WeaponInfos[static_cast<aConst::TItemType>(av[1]->GetInt())];
         }
         Key = av[2]->GetString();
         if (Key == u"TechLevel") {
@@ -17341,7 +17876,7 @@ namespace aScriptFun {
         } else if (Key == u"MinDamage") {
             av[0]->SetInt(Info->MinDamage);
         } else if (Key == u"DamageType") {
-            av[0]->SetDword(Info->DamageFlags);
+            av[0]->SetDword(pas::load_unaligned<std::uint32_t>(&Info->DamageFlags));
         } else if (Key == u"kCost") {
             av[0]->SetFloat(Info->CostFactor);
         } else if (Key == u"AttackCount") {
@@ -17395,14 +17930,15 @@ namespace aScriptFun {
                 return galaxy->RequireCustomWeaponInfo(std::move(string));
             }());
         } else {
-            Info = &aConst::WeaponInfos[av[1]->GetInt() & 0x0000007f];
+            Info = &aConst::WeaponInfos[static_cast<aConst::TItemType>(av[1]->GetInt())];
         }
         av[0]->SetInt(aConst::ClassifyWeaponDamageFlags(Info->DamageFlags));
     }
 
     void SF_SetCustomWeaponAvailability(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomWeaponAvailability"_a));
@@ -17438,8 +17974,9 @@ namespace aScriptFun {
     }
 
     void SF_SetCustomWeaponSE(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 5) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomWeaponSE"_a));
         }
@@ -17452,8 +17989,9 @@ namespace aScriptFun {
     }
 
     void SF_SetCustomWeaponPrimaryData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 5> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 5), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomWeaponPrimaryData"_a));
         }
@@ -17463,13 +18001,14 @@ namespace aScriptFun {
         if (!pas::in_range(static_cast<aConst::TItemType>(av[3]->GetInt()), static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomWeaponPrimaryData invalid tech"_a));
         }
-        Info->InventionIndex = aConst::WeaponInfos[av[3]->GetInt() & 0x0000007f].InventionIndex;
+        Info->InventionIndex = aConst::WeaponInfos[static_cast<aConst::TItemType>(av[3]->GetInt())].InventionIndex;
         Info->ArcadeWeaponType = av[4]->GetInt();
     }
 
     void SF_SetCustomWeaponSizeAndCost(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomWeaponSizeAndCost"_a));
         }
@@ -17484,7 +18023,7 @@ namespace aScriptFun {
         av = pas::open_array(cpp_array_copy);
         static const pas::Set<0, 255> EmptyFlags = pas::constant_set<pas::Set<0, 255>>({});
         std::uint8_t Flag{};
-        TWeaponDamageFlags Flags{};
+        aGalaxyStruct::TDamageFlagSet Flags{};
         std::int32_t I{};
         std::int32_t Count{};
         pas::WideString Text{};
@@ -17495,23 +18034,23 @@ namespace aScriptFun {
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Info)));
         Info->MinDamage = av[2]->GetInt();
         Info->MaxDamage = av[3]->GetInt();
-        Flags = static_cast<TWeaponDamageFlags>(EmptyFlags);
+        Flags = static_cast<aGalaxyStruct::TDamageFlagSet>(EmptyFlags);
         if (EC_Expression::TVarEC_RealVType(av[4]) == EC_Expression::vkString) {
             Text = pas::concat_wide({u",", av[4]->GetString(), u","});
             for (Flag = static_cast<std::uint8_t>(0); Flag <= static_cast<std::uint8_t>(20); ++Flag) {
                 if (pas::pos(pas::concat_wide({u",", aConst::WeaponDamageFlagNames[Flag], u","}), Text) > 0) {
-                    pas::include_at(&Flags, Flag);
+                    pas::include_at(&Flags, static_cast<aGalaxyStruct::TDamageKind>(Flag));
                 }
             }
         } else {
             pas::store_unaligned<std::uint32_t>(&Flags, av[4]->GetDword());
         }
-        Info->DamageFlags = pas::load_unaligned<std::uint32_t>(&Flags);
+        Info->DamageFlags = Flags;
         if (av.length() - 1 > 4 && EC_Expression::TVarEC_RealVType(av[5]) == EC_Expression::vkString) {
             Text = av[5]->GetString();
-            Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+            Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, std::min<std::int32_t>(8, Count)); cpp_range.next(I); ) {
-                pas::store_unaligned<float>(pas::byte_offset(&Info->DamageScaleByLevel, (I - 1) * sizeof(float)), EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, I - 1, u","_wref.get())));
+                pas::store_unaligned<float>(pas::byte_offset(&Info->DamageScaleByLevel, (I - 1) * sizeof(float)), EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), I - 1, u","sv)));
             }
         } else {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, std::min<std::int32_t>(8, av.length() - 1 - 4)); cpp_range_2.next(I); ) {
@@ -17523,8 +18062,9 @@ namespace aScriptFun {
     }
 
     void SF_SetCustomWeaponShotData(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 8> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 8), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomWeaponShotData"_a));
@@ -17552,7 +18092,7 @@ namespace aScriptFun {
             }
         }
         if (pas::is_one_of<aGalaxyStruct::wstChain, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(Info->ShotType)) {
-            Info->ShotCount = EC_Str::ExtractDigitsToIntW(Text);
+            Info->ShotCount = EC_Str::ExtractDigitsToIntW(pas::view(Text));
         }
         if (av.length() - 1 > 2) {
             Info->ShotSpeedPercent = av[3]->GetInt();
@@ -17572,8 +18112,9 @@ namespace aScriptFun {
     }
 
     void SF_SetCustomMissileWeaponStats(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 6> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 6), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 5) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomMissileWeaponStats"_a));
         }
@@ -17586,8 +18127,9 @@ namespace aScriptFun {
     }
 
     void SF_StarCustomFaction(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aGalaxy::TStar* Obj{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarCustomFaction"_a));
@@ -17603,8 +18145,9 @@ namespace aScriptFun {
     }
 
     void SF_ShipCustomFaction(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aShip::TShip* Ship{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ShipCustomFaction"_a));
@@ -17630,8 +18173,9 @@ namespace aScriptFun {
     }
 
     void SF_EqCustomFaction(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aItem::TEquipment* Obj{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script EqCustomFaction"_a));
@@ -17644,8 +18188,9 @@ namespace aScriptFun {
     }
 
     void SF_PlanetCustomFaction(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         aPlanet::TPlanet* Obj{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetCustomFaction"_a));
@@ -17676,8 +18221,9 @@ namespace aScriptFun {
     }
 
     void SF_ImportAll(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script ImportAll"_a));
         }
@@ -17697,8 +18243,9 @@ namespace aScriptFun {
     }
 
     void SF_GalaxyPtr(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aGalaxy::Galaxy)));
         } else if (av[1]->GetString() == u"StarCnt") {
@@ -17709,8 +18256,9 @@ namespace aScriptFun {
     }
 
     void SF_MusicControls(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Command{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script MusicControls"_a));
@@ -17736,8 +18284,9 @@ namespace aScriptFun {
     }
 
     void SF_BlinkingWarning(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script BlinkingWarning"_a));
         }
@@ -17761,7 +18310,7 @@ namespace aScriptFun {
     void InitializeScriptBuiltinsAndConstants(EC_Expression::TVarArrayEC* Scope) {
         std::int32_t WeaponIndex{};
         std::uint8_t ActionIndex{};
-        std::uint8_t BonusIndex{};
+        aConst::TEquipmentBonusKind BonusIndex{};
         EC_Expression::RegisterExpressionBuiltins(Scope);
         Scope->Add(u"GRun"_wref.get(), EC_Expression::vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<EC_Expression::TVarEC*>, EC_Expression::TCodeEC*)>(SF_GRun))));
         Scope->Add(u"GCntRun"_wref.get(), EC_Expression::vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<EC_Expression::TVarEC*>, EC_Expression::TCodeEC*)>(SF_GCntRun))));
@@ -18522,10 +19071,10 @@ namespace aScriptFun {
         Scope->Add(u"TalkBreakPartner"_wref.get(), EC_Expression::vkInt)->SetInt(aGalaxyStruct::tkPartnerBreak);
         Scope->Add(u"TalkPartnerTheEnd"_wref.get(), EC_Expression::vkInt)->SetInt(aGalaxyStruct::tkPartnerEnd);
         Scope->Add(u"TalkPartnerRiot"_wref.get(), EC_Expression::vkInt)->SetInt(aGalaxyStruct::tkPartnerRiot);
-        for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(42)); cpp_range_2.next(BonusIndex); ) {
+        for (auto cpp_range_2 = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range_2.next(BonusIndex); ) {
             EC_Expression::TVarEC* add_2 = Scope->Add(aConst::EquipmentBonusNames[BonusIndex], EC_Expression::vkInt);
-            std::int32_t bonusIndex = BonusIndex;
-            add_2->SetInt(bonusIndex);
+            std::int32_t cpp_arg = BonusIndex;
+            add_2->SetInt(cpp_arg);
         }
         for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(61)); cpp_range_3.next(ActionIndex); ) {
             EC_Expression::TVarEC* add_3 = Scope->Add(aConst::ScriptActionTypeNames[ActionIndex], EC_Expression::vkInt);

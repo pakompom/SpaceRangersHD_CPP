@@ -101,24 +101,6 @@ namespace fRuinsTalk {
 
     void ResetStationImprovement();
 
-    void PayDepositMoney();
-
-    // Native M_Main reserves four unreferenced bytes after its inline scalar cells.
-    // Keep that gap without moving the named locals or emitting an instruction.
-    void ReserveGreetingFrame();
-
-    // Preserve the native clamp cells before the captured money receiver.
-    void PayStationModernization(std::uint32_t QuotedCost);
-
-    void PayNationalityMoney();
-
-    void PayChameleonMoney(std::int32_t Cost);
-
-    // Native reads the active count before evaluating the rank clamps.
-    void ComputeStimulantOfferLimit(std::uint8_t Rank, std::int32_t Bonus, std::int32_t& Limit);
-
-    void PayConstructionMoney(std::int32_t Price);
-
     void TfRuinsTalk_Create(TfRuinsTalk* Self);
 
     void TfRuinsTalk_Destroy(TfRuinsTalk* Self);

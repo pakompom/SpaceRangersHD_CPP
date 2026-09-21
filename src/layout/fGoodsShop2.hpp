@@ -14,7 +14,7 @@ namespace fGoodsShop2 {
     static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, DraggedGoodsIndex) == 224);
     static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, NameFaceHeight) == 228);
     static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, FaceCaptionHeight) == 232);
-    static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, FlagEC) == 236);
+    static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, ReopenRequested) == 236);
     static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, TradeRows) == 240);
     static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, PartnerCargoLimit) == 368);
     static_assert(sizeof(void*) != 4 || offsetof(fGoodsShop2::TfGoodsShop2, PartnerMoneyLimit) == 372);

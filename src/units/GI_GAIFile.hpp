@@ -7,6 +7,8 @@ namespace GI_MessageLoop {
 } // namespace GI_MessageLoop
 
 namespace GI_GAIFile {
+    std::uint32_t ReadGaiFrameSize(void* Directory, std::int32_t Index);
+
     void TGAIFileThreadGI_Execute(TGAIFileThreadGI* Self);
 
     void TGAIFileGI_Create(TGAIFileGI* Self, GI_MessageLoop::TObjectGI* Owner);

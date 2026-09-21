@@ -21,7 +21,7 @@ namespace fChameleon {
     std::uint32_t ShowChameleonDialog(GI_MessageLoop::TMessageLoopGI* Parent, std::int32_t BlazerCharges, std::int32_t KellerCharges, std::int32_t TerronCharges, std::uint8_t VisualType, std::uint8_t Active, std::int32_t& Choice) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI CursorState{};
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&CursorState);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -49,7 +49,7 @@ namespace fChameleon {
         }
         Parent->RestoreCursorState(&CursorState);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         if (Result == 254) {
             GI_Main::BreakUiMessage();
         }
@@ -127,7 +127,7 @@ namespace fChameleon {
         Caption->SetFontName(GlobalsV::NormalFontName);
         Caption->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         ShipName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[0], u".", pas::wide_int_to_str(static_cast<std::int32_t>(VisualType))}));
-        Caption->SetText(pas::concat_wide({aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Name"_wref.get()), u" - ", aMyFunction::WrapTextInColor(ShipName, u"<color=0,50,200>"_w)}));
+        Caption->SetText(pas::concat_wide({aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Name"_wref.get()), u" - ", aMyFunction::WrapTextInColor(pas::view(ShipName), u"<color=0,50,200>"sv)}));
         Caption->SetTextAlignX(GI_Main::taxCenter);
         Caption->SetTextAlignY(GI_Main::tayAuto);
         Caption->SetPosition(ClassesImports::Point(0, WorkRect.Bottom));
@@ -151,7 +151,7 @@ namespace fChameleon {
             NameText = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[Series], u".0"}));
             Disabled = ChameleonChargeUnavailable(Charges[Series]);
             {
-                pas::WideString cpp_arg_2 = pas::concat_wide({SeriesText, u" ", aMyFunction::WrapTextInColor(NameText, ChameleonSeriesColor(Series)), FormatChameleonChargeCount(Charges[Series])});
+                pas::WideString cpp_arg_2 = pas::concat_wide({SeriesText, u" ", aMyFunction::WrapTextInColor(pas::view(NameText), pas::view(ChameleonSeriesColor(Series))), FormatChameleonChargeCount(Charges[Series])});
                 TfChameleon* self_2 = this;
                 self_2->AddChoice(Index, 20, Y, std::move(cpp_arg_2), NeedSelection && static_cast<std::uint8_t>(Disabled ^ 1), Disabled);
             }
@@ -224,13 +224,13 @@ namespace fChameleon {
             if (Child->ControlName == Sender->ControlName && pas::class_cast_if<GI_Image::TImageGI*>(Child) != nullptr) {
                 if (Child == Sender) {
                     {
-                        GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Child);
+                        GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Child);
                         pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchD"});
                         cpp_arg->SetImagePath(std::move(cpp_arg_2));
                     }
                     Choice = pas::checked_cast<GI_Image::TImageGI*>(Child)->UserValue;
-                } else if (pas::checked_cast<GI_Image::TImageGI*>(Child)->UserValue != 0) {
-                    GI_Image::TImageGI* cpp_arg_3 = pas::checked_cast<GI_Image::TImageGI*>(Child);
+                } else if (static_cast<GI_Image::TImageGI*>(Child)->UserValue != 0) {
+                    GI_Image::TImageGI* cpp_arg_3 = static_cast<GI_Image::TImageGI*>(Child);
                     pas::WideString cpp_arg_4 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
                     cpp_arg_3->SetImagePath(std::move(cpp_arg_4));
                 }
@@ -251,7 +251,7 @@ namespace fChameleon {
             pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
             return cpp_string == cpp_string_2;
         }())) {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Sender);
+            GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -266,7 +266,7 @@ namespace fChameleon {
             pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
             return cpp_string == cpp_string_2;
         }())) {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Sender);
+            GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }

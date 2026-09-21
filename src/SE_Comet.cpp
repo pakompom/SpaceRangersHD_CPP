@@ -329,37 +329,37 @@ namespace SE_Comet {
         SE_Space::TObjectSE::LoadTemplate(Block);
         SkipMoves = 0;
         SavedFrameIndex = -1;
-        TimerInterval = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Time"_wref.get())));
+        TimerInterval = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Time"sv)));
         StarAttraction = 2.0E+4f;
         ObjectAttraction = 4.0E+3f;
         if (Block->CountParams(u"Radius"_wref.get()) > 0) {
-            Range = GI_Main::GetFloatPointGI(Block->GetParam(u"Radius"_wref.get()));
+            Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"Radius"sv)));
             Radius = aMyFunction::RandomFloatRange(Range.X, Range.Y);
         }
         if (Block->CountParams(u"Speed"_wref.get()) > 0) {
-            Range = GI_Main::GetFloatPointGI(Block->GetParam(u"Speed"_wref.get()));
+            Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"Speed"sv)));
             Speed = aMyFunction::RandomFloatRange(Range.X, Range.Y);
         }
         if (Block->CountParams(u"StarFallStrength"_wref.get()) > 0) {
-            Range = GI_Main::GetFloatPointGI(Block->GetParam(u"StarFallStrength"_wref.get()));
+            Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"StarFallStrength"sv)));
             StarAttraction = aMyFunction::RandomFloatRange(Range.X, Range.Y);
         }
         if (Block->CountParams(u"PlanetFallStrength"_wref.get()) > 0) {
-            Range = GI_Main::GetFloatPointGI(Block->GetParam(u"PlanetFallStrength"_wref.get()));
+            Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"PlanetFallStrength"sv)));
             ObjectAttraction = aMyFunction::RandomFloatRange(Range.X, Range.Y);
         }
         if (Block->CountParams(u"SkipMoves"_wref.get()) > 0) {
-            IntRange = GI_Main::GetPointGI(Block->GetParam(u"SkipMoves"_wref.get()));
+            IntRange = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SkipMoves"sv)));
             SkipMoves = aMyFunction::RandomIntRange(IntRange.X, IntRange.Y);
         }
         if (Block->CountParams(u"MoveAngle"_wref.get()) > 0) {
-            IntRange = GI_Main::GetPointGI(Block->GetParam(u"MoveAngle"_wref.get()));
+            IntRange = GI_Main::GetPointGI(pas::view(Block->GetParam(u"MoveAngle"sv)));
             MoveAngle = pas::real_divide(aMyFunction::RandomIntRange(IntRange.X, IntRange.Y) * SystemImports::Pi, 1.8E+2L);
         }
-        ExplosionPath = Block->GetParam(u"Explore"_wref.get());
-        ExplosionFrames = Block->GetParam(u"ExploreFrame"_wref.get());
-        TrailPath = Block->GetParam(u"Track"_wref.get());
-        TrailFrames = Block->GetParam(u"TrackFrame"_wref.get());
+        ExplosionPath = Block->GetParam(u"Explore"sv);
+        ExplosionFrames = Block->GetParam(u"ExploreFrame"sv);
+        TrailPath = Block->GetParam(u"Track"sv);
+        TrailFrames = Block->GetParam(u"TrackFrame"sv);
         ResetTrajectory(MoveAngle);
     }
 

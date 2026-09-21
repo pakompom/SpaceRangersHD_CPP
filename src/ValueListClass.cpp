@@ -21,18 +21,18 @@ namespace ValueListClass {
         Normalized = pas::concat_wide({u"(", Text, u")"});
         do {
             Result = Normalized;
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u","_wref.get(), u";"_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u";;"_wref.get(), u";"_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"-;"_wref.get(), u";"_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"--"_wref.get(), u""_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"(-;"_wref.get(), u"("_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"(-)"_wref.get(), u"("_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"(;"_wref.get(), u"("_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u";-)"_wref.get(), u")"_wref.get());
-            Normalized = EC_Str::ReplaceAllWideString(Normalized, u";)"_wref.get(), u")"_wref.get());
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u","_wref.get(), u";"sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u";;"_wref.get(), u";"sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"-;"_wref.get(), u";"sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"--"_wref.get(), u""sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"(-;"_wref.get(), u"("sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"(-)"_wref.get(), u"("sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u"(;"_wref.get(), u"("sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u";-)"_wref.get(), u")"sv);
+            Normalized = EC_Str::ReplaceAllWideString(Normalized, u";)"_wref.get(), u")"sv);
         } while (!(Result == Normalized));
-        Result = EC_Str::ReplaceAllWideString(Result, u"("_wref.get(), u""_wref.get());
-        return EC_Str::ReplaceAllWideString(Result, u")"_wref.get(), u""_wref.get());
+        Result = EC_Str::ReplaceAllWideString(Result, u"("_wref.get(), u""sv);
+        return EC_Str::ReplaceAllWideString(Result, u")"_wref.get(), u""sv);
     }
 
     void TValuesList_Create(TValuesList* Self) {
@@ -85,7 +85,7 @@ namespace ValueListClass {
                 }
                 if (i == Text.length() || Text.read(i + 1) == u';') {
                     ++Count;
-                    Values[Count] = EC_Str::ExtractSignedDigitsToIntW(NumberText);
+                    Values[Count] = EC_Str::ExtractSignedDigitsToIntW(pas::view(NumberText));
                     NumberText = pas::WideString();
                 }
                 ++i;

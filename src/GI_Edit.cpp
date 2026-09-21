@@ -69,7 +69,7 @@ namespace GI_Edit {
     // Resets CaretPosition on change; does not clamp to MaxLength or invoke ChangedCallback.
     void TEditGI::SetText(pas::WideString Value) {
         if (Text != Value) {
-            Text = Value;
+            Text = std::move(Value);
             CaretPosition = 0;
             Invalidate();
         }
@@ -278,10 +278,10 @@ namespace GI_Edit {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+            Self->FontCache->SetCacheKey(Block->GetParam(u"Font"sv));
         }
         if (Block->CountParams(u"Text"_wref.get()) > 0) {
-            Self->Text = Block->GetParam(u"Text"_wref.get());
+            Self->Text = Block->GetParam(u"Text"sv);
             if (GR_Main::LanguageDataConfig->CountParamsByPath(Self->Text) > 0) {
                 Self->Text = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(Self->Text);
             }
@@ -289,49 +289,49 @@ namespace GI_Edit {
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
             Self->BackgroundCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Self->BackgroundCache);
-            Self->BackgroundCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            Self->BackgroundCache->SetCacheKey(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"TextColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"TextColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             Self->TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
-            if (Block->GetParam(u"Border"_wref.get()) == u"True") {
+            if (Block->GetParam(u"Border"sv) == u"True") {
                 Self->BorderEnabled = true;
             } else {
                 Self->BorderEnabled = false;
             }
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"BorderLightColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"BorderLightColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             Self->BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
             Self->BorderDarkColor = Self->BorderLightColor;
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"BorderDarkColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"BorderDarkColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             Self->BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CursorColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"CursorColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"CursorColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             Self->CaretColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"MaxLen"_wref.get()) > 0) {
-            Self->MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"_wref.get())));
+            Self->MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"sv)));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(EC_Str::TrimWideString(Block->GetParam(u"AlignX"_wref.get())));
+            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(pas::view(EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv))));
             TEditGI* self = Self;
             self->SetTextAlignX(parseTextAlignXName);
         }
@@ -343,12 +343,12 @@ namespace GI_Edit {
         std::uint8_t Green{};
         std::uint8_t Blue{};
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
-        FontCache->SetCacheKey(Block->GetParam(u"Font"_wref.get()));
+        FontCache->SetCacheKey(Block->GetParam(u"Font"sv));
         if (Block->CountParams(u"ReturnFocusLeave"_wref.get()) > 0) {
-            ClearFocusOnEnter = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"ReturnFocusLeave"_wref.get())));
+            ClearFocusOnEnter = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"ReturnFocusLeave"sv))));
         }
         if (Block->CountParams(u"Text"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Text"_wref.get());
+            Text = Block->GetParam(u"Text"sv);
             if (GR_Main::LanguageDataConfig->CountParamsByPath(Text) > 0) {
                 Text = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(Text);
             }
@@ -356,49 +356,49 @@ namespace GI_Edit {
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
             BackgroundCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(BackgroundCache);
-            BackgroundCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            BackgroundCache->SetCacheKey(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"TextColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"TextColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
-            if (Block->GetParam(u"Border"_wref.get()) == u"True") {
+            if (Block->GetParam(u"Border"sv) == u"True") {
                 BorderEnabled = true;
             } else {
                 BorderEnabled = false;
             }
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"BorderLightColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"BorderLightColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
             BorderDarkColor = BorderLightColor;
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"BorderDarkColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"BorderDarkColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CursorColor"_wref.get()) > 0) {
-            ColorText = Block->GetParam(u"CursorColor"_wref.get());
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","_wref.get())));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","_wref.get())));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","_wref.get())));
+            ColorText = Block->GetParam(u"CursorColor"sv);
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
             CaretColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"MaxLen"_wref.get()) > 0) {
-            MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"_wref.get())));
+            MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"sv)));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(EC_Str::TrimWideString(Block->GetParam(u"AlignX"_wref.get())));
+            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(pas::view(EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv))));
             TEditGI* self = this;
             self->SetTextAlignX(parseTextAlignXName);
         }

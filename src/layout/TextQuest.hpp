@@ -15,10 +15,10 @@ namespace TextQuest {
     static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, EditorGridHeight) == 40);
     static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, Difficulty) == 44);
     static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, CompleteOnFinish) == 48);
-    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, IssuerRaceMask) == 49);
-    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, TargetOwnerMask) == 50);
-    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, PlayerCareerMask) == 51);
-    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, PlayerRaceMask) == 52);
+    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, IssuerRaces) == 49);
+    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, TargetRaces) == 50);
+    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, PlayerCareers) == 51);
+    static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, PlayerRaces) == 52);
     static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, SuccessRelationDelta) == 56);
     static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, DefaultTraversalLimit) == 60);
     static_assert(sizeof(void*) != 4 || offsetof(TextQuest::TTextQuest, QuestDescriptionText) == 64);

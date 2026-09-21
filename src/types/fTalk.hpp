@@ -26,6 +26,13 @@ namespace fTalk {
 
     struct TfTalk;
 
+    // TfStarMap.RunTalkDialogs dispatches the next modal screen from this value.
+    enum TTalkModalTransition : std::uint32_t {
+        tmtNone = 0,
+        tmtReopen = 1,
+        tmtTrade = 2,
+    };
+
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -184,10 +191,10 @@ namespace fTalk {
         GI_MessageLoop::PCallbackTimerGI SlideTimer;
         float SlideProgress;
         std::int32_t DialogPanelLeft;
-        // Nonzero suppresses parent star-map presentation during modal transitions; other uses unresolved.
-        std::int32_t Flag128;
-        // Set after the star-map goods-trading modal returns; remaining readers need recovery.
-        std::uint8_t Flag12C;
+        // Reopen dialogue or switch to goods trading after refreshing the star-map background.
+        TTalkModalTransition ModalTransition;
+        // Set after the goods-trading modal returns; reset on opening dialogue, with no retained reader.
+        std::uint8_t ReturnedFromTrade;
         std::uint8_t cpp_padding_4[3];
         std::int32_t SavedChoiceScroll;
     };

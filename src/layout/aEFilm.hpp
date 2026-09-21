@@ -42,7 +42,8 @@ namespace aEFilm {
     static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmCommand, Next) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmCommand, Kind) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmCommand, StepIndex) == 12);
-    static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmCommand, Payload) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmCommand, Obj) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmCommand, Payload) == 20);
     static_assert(sizeof(void*) != 4 || sizeof(aEFilm::TEFilmObjectCommand) == 32);
     static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmObjectCommand, Kind) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(aEFilm::TEFilmObjectCommand, StepIndex) == 12);

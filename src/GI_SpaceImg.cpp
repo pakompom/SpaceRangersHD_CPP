@@ -80,7 +80,7 @@ namespace GI_SpaceImg {
             Image->FrameTicks = System::Round(pas::real_divide(Data->GetSequenceFrameDelay(0, Image->FrameIndex), 1.0E+1L));
         }
         pas::store_unaligned<EC_Struct::TVector3D>(&Image->Unknown38, EC_Struct::MakeVector3D(0.0, 0.0, 0.0));
-        Image->Unknown70 = 0;
+        Image->SavedTemplateIndex = 0;
         Image->OrbitAngleRadians = 0.0;
         Image->OrbitRadius = 0.0;
         pas::store_unaligned<EC_Struct::TVector3D>(&Image->OrbitCenter, EC_Struct::MakeVector3D(0.0, 0.0, 0.0));

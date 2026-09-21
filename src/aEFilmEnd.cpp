@@ -91,20 +91,20 @@ namespace aEFilmEnd {
         FirstTrailing = FirstTrailing->Next;
         Obj = Film->FirstObject;
         while (Obj != nullptr) {
-            if (pas::class_cast_if<SE_GAIEffect::TGAIEffectSE*>(Obj->SceneObject) != nullptr) {
-                if (reinterpret_cast<SE_GAIEffect::TGAIEffectSE*>(Obj->SceneObject)->Animation != nullptr) {
-                    reinterpret_cast<SE_GAIEffect::TGAIEffectSE*>(Obj->SceneObject)->Animation->RestartPlayback();
+            if (SE_GAIEffect::TGAIEffectSE* gAIEffectSE = pas::class_cast_if<SE_GAIEffect::TGAIEffectSE*>(Obj->SceneObject)) {
+                if (gAIEffectSE->Animation != nullptr) {
+                    gAIEffectSE->Animation->RestartPlayback();
                 }
-            } else if (pas::class_cast_if<SE_Weapon::TWeaponSE*>(Obj->SceneObject) != nullptr) {
-                Weapon = pas::checked_cast<SE_Weapon::TWeaponSE*>(Obj->SceneObject);
+            } else if (SE_Weapon::TWeaponSE* weaponSE = pas::class_cast_if<SE_Weapon::TWeaponSE*>(Obj->SceneObject)) {
+                Weapon = weaponSE;
                 Entry = AppendEntry();
                 SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->SceneObject), Weapon);
                 if (Weapon->TargetDestroyed) {
                     Command = FirstTrailing;
                     while (Command != nullptr) {
-                        if (Command->Kind == aEFilm::efcReleaseObject && reinterpret_cast<aEFilm::PEFilmObjectCommand>(Command)->Obj != nullptr && reinterpret_cast<aEFilm::PEFilmObjectCommand>(Command)->Obj->SceneObject == Weapon->TargetObject) {
-                            SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->RelatedObject1), reinterpret_cast<aEFilm::PEFilmObjectCommand>(Command)->Obj->SceneObject);
-                            SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&reinterpret_cast<aEFilm::PEFilmObjectCommand>(Command)->Obj->SceneObject));
+                        if (Command->Kind == aEFilm::efcReleaseObject && Command->Obj != nullptr && Command->Obj->SceneObject == Weapon->TargetObject) {
+                            SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->RelatedObject1), Command->Obj->SceneObject);
+                            SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Command->Obj->SceneObject));
                             break;
                         }
                         Command = Command->Next;
@@ -114,7 +114,7 @@ namespace aEFilmEnd {
             } else if (pas::class_cast_if<SE_Hole::THoleSE*>(Obj->SceneObject) != nullptr) {
                 Command = FirstTrailing;
                 while (Command != nullptr) {
-                    if (Command->Kind == aEFilm::efcReleaseObject && reinterpret_cast<aEFilm::PEFilmObjectCommand>(Command)->Obj != nullptr && reinterpret_cast<aEFilm::PEFilmObjectCommand>(Command)->Obj->SceneObject == Obj->SceneObject) {
+                    if (Command->Kind == aEFilm::efcReleaseObject && Command->Obj != nullptr && Command->Obj->SceneObject == Obj->SceneObject) {
                         Entry = AppendEntry();
                         SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->SceneObject), Obj->SceneObject);
                         SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj->SceneObject));

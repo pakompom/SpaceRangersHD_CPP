@@ -50,18 +50,18 @@ namespace SE_Ship2 {
         std::int32_t Last{};
         pas::WideString RangeText{};
         Clear();
-        std::int32_t Index = EC_Str::CountDelimitedPartsW(Specification, u","_wref.get());
+        std::int32_t Index = EC_Str::CountDelimitedPartsW(pas::view(Specification), u","sv);
         if (Index < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error in TShip2AnimSE.Load"_a));
         }
-        Weight = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Specification, 0, u","_wref.get()));
-        Specification = EC_Str::ExtractDelimitedRangeW(Specification, 1, Index - 1, u","_wref.get());
-        std::int32_t RangeCount = (EC_Str::CountDelimitedPartsW(Specification, u"[]"_wref.get()) - 1) / 2;
+        Weight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Specification), 0, u","sv)));
+        Specification = EC_Str::ExtractDelimitedRangeW(pas::view(Specification), 1, Index - 1, u","sv);
+        std::int32_t RangeCount = (EC_Str::CountDelimitedPartsW(pas::view(Specification), u"[]"sv) - 1) / 2;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, RangeCount - 1); cpp_range.next(Index); ) {
-            RangeText = EC_Str::ExtractDelimitedPartW(Specification, Index * 2 + 1, u"[]"_wref.get());
-            Delay = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(RangeText, 0, u",-"_wref.get()));
-            First = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(RangeText, 1, u",-"_wref.get()));
-            Last = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(RangeText, 2, u",-"_wref.get()));
+            RangeText = EC_Str::ExtractDelimitedPartW(pas::view(Specification), Index * 2 + 1, u"[]"sv);
+            Delay = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 0, u",-"sv)));
+            First = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 1, u",-"sv)));
+            Last = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 2, u",-"sv)));
             Count = pas::abs(First - Last) + 1;
             FrameCount += Count;
             Frames.set_length(FrameCount);
@@ -86,9 +86,9 @@ namespace SE_Ship2 {
 
     void TShip2SE_Create(TShip2SE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition) {
         Self->AngleOverride = -1;
-        if (EC_Str::CountDelimitedPartsW(GraphKey, u","_wref.get()) > 1) {
-            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(GraphKey, 0, u","_wref.get()), UnusedPosition);
-            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(GraphKey, 1, u","_wref.get()));
+        if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1) {
+            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv), UnusedPosition);
+            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 1, u","sv)));
         } else {
             SE_Space::TObjectSE_Create(Self, GraphKey, UnusedPosition);
             Self->AlphaLimit = 255;
@@ -728,37 +728,37 @@ namespace SE_Ship2 {
         SE_Space::TObjectSE::LoadTemplate(Block);
         SharedAnimations = false;
         if (Block->CountParams(u"AngleOverride"_wref.get()) > 0) {
-            AngleOverride = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"AngleOverride"_wref.get()));
+            AngleOverride = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"AngleOverride"sv)));
         } else {
             AngleOverride = -1;
         }
         SetAngle(0);
         SetAlpha(255);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
-        ReducedImagePath = Block->GetParam(u"ImageS"_wref.get());
-        MinimapImagePath = Block->GetParam(u"ImageMap"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
+        ReducedImagePath = Block->GetParam(u"ImageS"sv);
+        MinimapImagePath = Block->GetParam(u"ImageMap"sv);
         if (Block->CountParams(u"ImageI"_wref.get()) > 0) {
-            AlternateImagePath = Block->GetParam(u"ImageI"_wref.get());
+            AlternateImagePath = Block->GetParam(u"ImageI"sv);
         } else {
             AlternateImagePath = pas::WideString();
         }
         if (Block->CountParams(u"PanelPartnerImage"_wref.get()) > 0) {
-            PanelPartnerImage = Block->GetParam(u"PanelPartnerImage"_wref.get());
+            PanelPartnerImage = Block->GetParam(u"PanelPartnerImage"sv);
         } else {
             PanelPartnerImage = pas::WideString();
         }
-        ImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImage"_wref.get()));
-        MinimapImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImageMap"_wref.get()));
-        ImageSize = GI_Main::GetPointGI(Block->GetParam(u"SizeImage"_wref.get()));
-        ImageCenter = EC_Struct::PointToPointF(GI_Main::GetPointGI(Block->GetParam(u"SmeCenterImage"_wref.get())));
+        ImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImage"sv)));
+        MinimapImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImageMap"sv)));
+        ImageSize = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SizeImage"sv)));
+        ImageCenter = EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeCenterImage"sv))));
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 10); cpp_range.next(Index); ) {
             TailOrigins[Index] = EC_Struct::MakePointF(0.0f, 0.0f);
             if (Block->CountParams(pas::concat_wide({u"Tail", EC_Str::IntToWideString(Index)})) > 0) {
-                TailOrigins[Index] = EC_Struct::PointToPointF(GI_Main::GetPointGI(Block->GetParam(pas::concat_wide({u"Tail", EC_Str::IntToWideString(Index)}))));
+                TailOrigins[Index] = EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(pas::view(pas::concat_wide({u"Tail", EC_Str::IntToWideString(Index)}))))));
             }
         }
         if (Block->CountParams(u"TailPrefix"_wref.get()) > 0) {
-            TailPrefix = Block->GetParam(u"TailPrefix"_wref.get());
+            TailPrefix = Block->GetParam(u"TailPrefix"sv);
         } else {
             TailPrefix = pas::WideString();
         }
@@ -767,34 +767,34 @@ namespace SE_Ship2 {
             if (Block->CountParams(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)})) <= 0) {
                 break;
             }
-            WeaponPorts[Index] = EC_Struct::PointToPointF(GI_Main::GetPointGI(Block->GetParam(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))));
+            WeaponPorts[Index] = EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(pas::view(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))))));
             ++WeaponPortCount;
         }
-        StateIntervalMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StateTime"_wref.get())));
-        EC_BlockPar::TBlockParEC* AnimBlock = Block->GetBlock(u"Anim"_wref.get());
+        StateIntervalMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StateTime"sv)));
+        EC_BlockPar::TBlockParEC* AnimBlock = Block->GetBlock(u"Anim"sv);
         TShip2AnimSE* Normal = AddAnimation();
-        Normal->Load(AnimBlock->GetParam(u"Normal"_wref.get()));
+        Normal->Load(AnimBlock->GetParam(u"Normal"sv));
         TotalAnimationWeight = Normal->Weight;
         DefaultAnimation = LastAnimation;
         Index = 0;
         while (AnimBlock->CountParams(pas::wide_int_to_str(Index)) > 0) {
             Animation = AddAnimation();
-            Animation->Load(AnimBlock->GetParam(pas::wide_int_to_str(Index)));
+            Animation->Load(AnimBlock->GetParam(pas::view(pas::wide_int_to_str(Index))));
             TotalAnimationWeight += Animation->Weight;
             if (LastAnimation->Weight > DefaultAnimation->Weight) {
                 DefaultAnimation = LastAnimation;
             }
             ++Index;
         }
-        AnimBlock = Block->GetBlock(u"AnimS"_wref.get());
+        AnimBlock = Block->GetBlock(u"AnimS"sv);
         TShip2AnimSE* ReducedNormal = AddReducedAnimation();
-        ReducedNormal->Load(AnimBlock->GetParam(u"Normal"_wref.get()));
+        ReducedNormal->Load(AnimBlock->GetParam(u"Normal"sv));
         TotalReducedAnimationWeight = ReducedNormal->Weight;
         DefaultReducedAnimation = LastReducedAnimation;
         Index = 0;
         while (AnimBlock->CountParams(pas::wide_int_to_str(Index)) > 0) {
             ReducedAnimation = AddReducedAnimation();
-            ReducedAnimation->Load(AnimBlock->GetParam(pas::wide_int_to_str(Index)));
+            ReducedAnimation->Load(AnimBlock->GetParam(pas::view(pas::wide_int_to_str(Index))));
             TotalReducedAnimationWeight += ReducedAnimation->Weight;
             if (LastReducedAnimation->Weight > DefaultReducedAnimation->Weight) {
                 DefaultReducedAnimation = LastReducedAnimation;
@@ -802,17 +802,17 @@ namespace SE_Ship2 {
             ++Index;
         }
         if (Block->CountParams(u"SizeSmall"_wref.get()) > 0) {
-            SmallSize = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"SizeSmall"_wref.get()));
+            SmallSize = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"SizeSmall"sv)));
         } else {
             SmallSize = 0;
         }
         if (Block->CountParams(u"SizeLarge"_wref.get()) > 0) {
-            LargeSize = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"SizeLarge"_wref.get()));
+            LargeSize = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"SizeLarge"sv)));
         } else {
             LargeSize = 0;
         }
         if (Block->CountParams(u"TargetSizeK"_wref.get()) > 0) {
-            TargetSizeScale = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"TargetSizeK"_wref.get()));
+            TargetSizeScale = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"TargetSizeK"sv));
         } else {
             TargetSizeScale = 0.3f;
         }
@@ -822,7 +822,7 @@ namespace SE_Ship2 {
     void TShip2SE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::ApplyConfig(Block);
         if (Block->CountParams(u"Angle"_wref.get()) > 0) {
-            SetAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"_wref.get()))));
+            SetAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"sv))));
         }
     }
 

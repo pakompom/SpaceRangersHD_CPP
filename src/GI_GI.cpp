@@ -322,18 +322,18 @@ namespace GI_GI {
     }
 
     void TgiGI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
-        ImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+        ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
         if (Block->CountParams(u"KindX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"KindX"sv))));
         }
         if (Block->CountParams(u"KindY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"KindY"sv))));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"AlignX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"AlignX"sv))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"AlignY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"AlignY"sv))));
         }
     }
 

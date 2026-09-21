@@ -113,16 +113,16 @@ namespace GI_RotateImage2 {
 
     void TRotateImage2GI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Image"_wref.get()) > 0 && Block->CountParams(u"Size"_wref.get()) > 0 && Block->CountParams(u"Sme"_wref.get()) > 0) {
-            Types::TPoint pointGI = GI_Main::GetPointGI(Block->GetParam(u"Sme"_wref.get()));
-            Types::TPoint pointGI_2 = GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get()));
-            pas::WideString param = Block->GetParam(u"Image"_wref.get());
+            Types::TPoint pointGI = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Sme"sv)));
+            Types::TPoint pointGI_2 = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv)));
+            pas::WideString param = Block->GetParam(u"Image"sv);
             SetImage(std::move(param), pointGI_2, pointGI);
         }
         if (Block->CountParams(u"Angle"_wref.get()) > 0) {
-            SetAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"_wref.get()))));
+            SetAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"sv))));
         }
         if (Block->CountParams(u"Trans"_wref.get()) > 0) {
-            SetAlpha(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Trans"_wref.get()))));
+            SetAlpha(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Trans"sv))));
         }
     }
 

@@ -67,23 +67,15 @@ namespace GI_RotateImage5 {
         pas::Object* Unknown13C;
         pas::Array<GR_DX::TScreenVertexGR, 0, 3> Vertices;
         Direct3D9::IDirect3DTexture9 FrameTexture;
-        // Corner coordinates are indexed by Angle; each table has an unused trailing dword.
-        pas::Array<float, 0, 255> TopLeftX;
-        std::uint8_t cpp_padding_3[4];
-        pas::Array<float, 0, 255> TopLeftY;
-        std::uint8_t cpp_padding_4[4];
-        pas::Array<float, 0, 255> TopRightX;
-        std::uint8_t cpp_padding_5[4];
-        pas::Array<float, 0, 255> TopRightY;
-        std::uint8_t cpp_padding_6[4];
-        pas::Array<float, 0, 255> BottomRightX;
-        std::uint8_t cpp_padding_7[4];
-        pas::Array<float, 0, 255> BottomRightY;
-        std::uint8_t cpp_padding_8[4];
-        pas::Array<float, 0, 255> BottomLeftX;
-        std::uint8_t cpp_padding_9[4];
-        pas::Array<float, 0, 255> BottomLeftY;
-        std::uint8_t cpp_padding_10[4];
+        // Native table spacing is 257 Singles; only the 256 byte-angle entries are initialized.
+        pas::Array<float, 0, 256> TopLeftX;
+        pas::Array<float, 0, 256> TopLeftY;
+        pas::Array<float, 0, 256> TopRightX;
+        pas::Array<float, 0, 256> TopRightY;
+        pas::Array<float, 0, 256> BottomRightX;
+        pas::Array<float, 0, 256> BottomRightY;
+        pas::Array<float, 0, 256> BottomLeftX;
+        pas::Array<float, 0, 256> BottomLeftY;
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)

@@ -121,7 +121,6 @@ namespace aConst {
         t_UselessCountableItem = 75,
     };
 
-    #pragma pack(push, 1)
     struct TWeaponInfo {
         TItemType ItemType;
         std::uint8_t cpp_padding[3];
@@ -141,7 +140,7 @@ namespace aConst {
         std::int32_t MissileMaxSpeed;
         std::int32_t MissileMinSpeed;
         std::uint8_t MissileChanceToBeHit;
-        std::uint32_t DamageFlags;
+        aGalaxyStruct::TDamageFlagSet DamageFlags;
         aGalaxyStruct::TWeaponShotType ShotType;
         std::uint8_t ShotCount;
         std::uint8_t AttackCount;
@@ -159,7 +158,6 @@ namespace aConst {
         // Built-in templates use 171 * ItemType; custom templates use CRC32 of the UTF-16 configuration name.
         std::uint32_t TypeHash;
     };
-    #pragma pack(pop)
 
     // Names and ordinals from the native bon* configuration/script table.
     enum TEquipmentBonusKind : std::uint8_t {
@@ -223,21 +221,22 @@ namespace aConst {
     };
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TRewardInfo {
         std::uint8_t AwardId;
         std::uint8_t cpp_padding[3];
         pas::WideString Name;
         pas::WideString Text;
     };
-    #pragma pack(pop)
 
     using THullShipTypeMask = pas::Set<0, 15>;
 
     using TEquipmentBonuses = pas::Array<std::int32_t, 0, 42>;
 
+    // These helpers copy a byte-aligned set parameter. The separately compiled
+    // aGalaxyStruct mask has the same bits but different DCU alignment.
+    using TItemTypeSelection = pas::Set<0, 79>;
+
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TMicroModuleInfo {
         std::uint8_t SpecialOnly;
         std::uint8_t BlocksMicroModuleSlot;
@@ -258,17 +257,17 @@ namespace aConst {
         pas::Array<float, 0, 2> FragilityFactorByDamageClass;
         std::uint8_t Priority;
         // OwnerId bits; bit 7 also accepts PirateBuilt hulls (IsBonusCompatibleWithHull,).
-        std::uint8_t AllowedHullOwnerMask;
+        aGalaxyStruct::TOwnerMask AllowedHullOwnerMask;
         std::uint8_t cpp_padding_2[2];
         pas::WideString AllowedCustomHullFactions;
         pas::WideString CustomFaction;
-        std::uint8_t AllowedDominatorSeriesMask;
+        aGalaxyStruct::TDominatorSeriesMask AllowedDominatorSeriesMask;
         // Bitset indexed by item type, covering 0..79.
-        pas::Array<std::uint8_t, 0, 9> AllowedItemTypes;
+        TItemTypeSelection AllowedItemTypes;
         std::uint8_t cpp_padding_3[1];
         pas::WideString AllowedCustomWeaponTypes;
         // Bitset indexed by station ship type.
-        std::uint16_t OfferStationTypes;
+        aGalaxyStruct::TShipTypeMask OfferStationTypes;
         std::uint8_t cpp_padding_4[2];
         // Bracketed Ruins configuration tokens.
         pas::WideString OfferStationNames;
@@ -287,11 +286,8 @@ namespace aConst {
         std::int32_t ShotVisual;
         std::int32_t HullGraphSizePercent;
         pas::WideString CustomTag;
-        std::uint32_t WeaponDamageFlags;
+        aGalaxyStruct::TDamageFlagSet WeaponDamageFlags;
     };
-    #pragma pack(pop)
-
-    using TEquipmentSizeFactorTable = pas::Array<float, 1, 5>;
 
     enum TWeaponDamageClass : std::uint8_t {
         wdcEnergy = 0,
@@ -299,10 +295,12 @@ namespace aConst {
         wdcMissile = 2,
     };
 
+    using TEquipmentSizeFactorTable = pas::Array<float, 1, 5>;
+
     // Native record RTTI.
     struct TPrimaryDamageTypeInfo {
         TWeaponDamageClass Kind;
-        std::uint8_t BonusKind;
+        TEquipmentBonusKind BonusKind;
         std::uint8_t cpp_padding[2];
         pas::WideString Name;
     };
@@ -319,7 +317,6 @@ namespace aConst {
     using THullLevelStatsTable = pas::Array<THullLevelStats, 1, 8>;
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct THullTypeInfo {
         pas::WideString Name;
         pas::WideString Text;
@@ -347,7 +344,6 @@ namespace aConst {
         // CRC32 of the UTF-16 config block name.
         std::uint32_t SystemNameCRC;
     };
-    #pragma pack(pop)
 
     #pragma pack(push, 1)
     struct TOwnerInfo {
@@ -386,7 +382,6 @@ namespace aConst {
     };
     #pragma pack(pop)
 
-    #pragma pack(push, 1)
     struct TGovermentInfo {
         pas::WideString InternalName;
         pas::WideString DisplayName;
@@ -397,7 +392,6 @@ namespace aConst {
         pas::Array<float, 0, 4> QuestOfferProbabilities;
         pas::Array<aGalaxyStruct::TPlanetGoodsFactors, 0, 7> GoodsFactors;
     };
-    #pragma pack(pop)
 
     // Native record RTTI.
     struct TRelationTypeInfo {
@@ -409,7 +403,6 @@ namespace aConst {
     };
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TKlingTypeInfo {
         // Indexed by TDominatorSeries; replaced by localized names during configuration loading.
         pas::Array<pas::WideString, 0, 2> DisplayNames;
@@ -431,7 +424,6 @@ namespace aConst {
         // Multiplies Dominator strength in TStar.GetCachedFactionStrength ().
         double FactionStrengthWeight;
     };
-    #pragma pack(pop)
 
     #pragma pack(push, 1)
     struct TEconomyInfo {
@@ -446,34 +438,28 @@ namespace aConst {
 
     // Native record RTTI.
     // Native TIllnessInfo RTTI.
-    #pragma pack(push, 1)
     struct TIllnessInfo {
         pas::WideString Name;
         pas::WideString Text;
         aGalaxyStruct::TOwnerMask AllowedLocationOwners;
         aGalaxyStruct::TOwnerMask AllowedOwners;
-        aGalaxyStruct::TOwnerMask AllowedRatingBands;
-        aGalaxyStruct::TOwnerMask AllowedRanks;
-        aGalaxyStruct::TOwnerMask AllowedCareers;
-        // Native values 1..5; gameplay meaning unresolved.
-        std::uint8_t EffectClass0D;
+        aGalaxyStruct::TByteMask AllowedRatingBands;
+        aGalaxyStruct::TByteMask AllowedRanks;
+        aGalaxyStruct::TRangerCareerSet AllowedCareers;
+        // Mini..Huge (1..5); GenerateValueForSizeLevel bucket for treatment and stimulation prices.
+        std::uint8_t MedicalPriceSizeLevel;
         std::uint8_t cpp_padding[2];
         // Progress increment factor.
         double DevelopmentRate;
         double InfectionChance;
         // Bits 0=planet, 1=ship interior, 2=normal space, 3=combat infection.
-        aGalaxyStruct::TOwnerMask Locations;
+        aGalaxyStruct::TByteMask Locations;
         std::uint8_t Disabled;
         std::uint8_t cpp_padding_2[2];
         std::int32_t Duration;
     };
-    #pragma pack(pop)
 
     using TRadiationHealthDefinitions = pas::Array<TIllnessInfo, 1, 1>;
-
-    // These helpers copy a byte-aligned set parameter. The separately compiled
-    // aGalaxyStruct mask has the same bits but different DCU alignment.
-    using TItemTypeSelection = pas::Set<0, 79>;
 
     // Native managed-record RTTI.
     struct TShipTypeInfo {
@@ -481,13 +467,11 @@ namespace aConst {
     };
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct SEquipment {
         TItemType ItemType;
         std::uint8_t cpp_padding[3];
         pas::WideString Name;
     };
-    #pragma pack(pop)
 
     using TGoodsLegalityTable = pas::Array<pas::Array<pas::Array<std::uint8_t, 0, 4>, 0, 4>, 0, 7>;
 
@@ -517,7 +501,6 @@ namespace aConst {
     using TOwnerWeaponAvailabilityTable = pas::Array<aGalaxyStruct::TWeaponAvailability, 0, 7>;
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TStatusInfo {
         // Native career identifier.
         pas::WideString Name;
@@ -531,9 +514,7 @@ namespace aConst {
         // Strength / BestRangerStrength threshold in the same catch-up test.
         double MinimumStrengthToBestRatio;
     };
-    #pragma pack(pop)
 
-    #pragma pack(push, 1)
     struct tInventionInfo {
         // Native initialization names the research levels.
         pas::WideString Name;
@@ -542,7 +523,6 @@ namespace aConst {
         std::uint8_t RequiredMainTechLevel;
         std::uint8_t cpp_padding[2];
     };
-    #pragma pack(pop)
 
     // Ordinals of the native ScriptActionTypeNames table.
     // These ordinary constants preserve the byte API and existing set layout.

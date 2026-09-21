@@ -77,10 +77,10 @@ namespace fSaveManager {
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         GR_Main::AppendLogTextThreadSafe("fSaveManager... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GetByName(u""_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GetByName(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        GetByName(u""sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        GetByName(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         {
-            GI_MessageLoop::TObjectGI* ButClose_Parent = GetByName(u"ButClose"_wref.get())->Parent;
+            GI_MessageLoop::TObjectGI* ButClose_Parent = GetByName(u"ButClose"sv)->Parent;
             ButClose_Parent->SetPosition(ClassesImports::Point(ButClose_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, ButClose_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
         }
         NewSaveNormalColor = GR_Main::GetStyleColorGI(u"SaveManager.NewSaveNormal"_w, 0, 41, 65);
@@ -101,45 +101,45 @@ namespace fSaveManager {
         if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         {
-            GI_GAI::TgaiGI* Anim = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Anim"_wref.get()));
+            GI_GAI::TgaiGI* Anim = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Anim"sv));
             Anim->RestartPlayback();
         }
         SelectedSlot = -1;
         if (Globals::SaveManagerMode == smmSave) {
             SelectedSlot = 0;
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"_wref.get()))->UpCallback = pas::bind_method<&TfSaveManager::CloseClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"_wref.get()))->UpCallback = pas::bind_method<&TfSaveManager::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfSaveManager::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<&TfSaveManager::CloseClicked>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButLoad = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLoad"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButLoad = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLoad"sv));
             ButLoad->SetActive(Globals::SaveManagerMode == smmLoad);
             ButLoad->UpCallback = pas::bind_method<&TfSaveManager::LoadClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButSave = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSave"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButSave = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSave"sv));
             ButSave->SetActive(Globals::SaveManagerMode == smmSave);
             ButSave->UpCallback = pas::bind_method<&TfSaveManager::SaveClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButDelete = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButDelete"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButDelete = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButDelete"sv));
             ButDelete->UpCallback = pas::bind_method<&TfSaveManager::DeleteClicked>(this);
             ButDelete->SetDisabled(true);
             ButDelete->SetActive(true);
         }
         {
-            GI_GraphBuf::TGraphBufGI* GameImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* GameImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"sv));
             GameImage->GraphBuf->Clear();
             GameImage->Invalidate();
         }
         {
-            GI_GraphBuf::TGraphBufGI* GameImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* GameImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"sv));
             GameImage2->GraphBuf->Clear();
             GameImage2->Invalidate();
         }
-        GetByName(u"CaptionLoad"_wref.get())->SetActive(Globals::SaveManagerMode == smmLoad);
-        GetByName(u"CaptionSave"_wref.get())->SetActive(Globals::SaveManagerMode == smmSave);
+        GetByName(u"CaptionLoad"sv)->SetActive(Globals::SaveManagerMode == smmLoad);
+        GetByName(u"CaptionSave"sv)->SetActive(Globals::SaveManagerMode == smmSave);
         if (aSaveLoad::SaveWriter != nullptr && aSaveLoad::SaveWriter->IsRunning()) {
             aSaveLoad::SaveWriter->WaitForIdle(0xffffffffu);
         }
@@ -167,14 +167,14 @@ namespace fSaveManager {
             CancelCallbackTimer(PreviewTimer);
             PreviewTimer = nullptr;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         ScrollPanel->FreeOwnedChildren();
         {
-            GI_GraphBuf::TGraphBufGI* GameImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* GameImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"sv));
             GameImage->GraphBuf->Clear();
         }
         {
-            GI_GraphBuf::TGraphBufGI* GameImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* GameImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"sv));
             GameImage2->GraphBuf->Clear();
         }
         GR_Main::AuxRenderBuffer->Clear();
@@ -198,10 +198,10 @@ namespace fSaveManager {
         if (pas::list_count(Slots) <= SelectedSlot) {
             SelectedSlot = pas::list_count(Slots) - 1;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         ScrollPanel->KeyDownCallback = pas::bind_method<&TfSaveManager::SlotKeyDown>(this);
         ScrollPanel->FreeOwnedChildren();
-        GetByName(u"PanelAutoSave"_wref.get())->FreeOwnedChildren();
+        GetByName(u"PanelAutoSave"sv)->FreeOwnedChildren();
         std::int32_t Y = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Slots) - 1); cpp_range.next(I); ) {
             std::int32_t cpp_left_2 = FindAutoSaveSlot();
@@ -218,7 +218,7 @@ namespace fSaveManager {
             }
         }
         if (FindAutoSaveSlot() >= 0) {
-            Panel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, GetByName(u"PanelAutoSave"_wref.get()));
+            Panel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, GetByName(u"PanelAutoSave"sv));
             Panel->UserValue = FindAutoSaveSlot();
             Panel->SetPosition(ClassesImports::Point(0, 0));
             InitializeSlotPanel(Panel);
@@ -229,7 +229,7 @@ namespace fSaveManager {
                 TfSaveManager* self = this;
                 self->RefreshSlot(findAutoSaveSlot, false);
             }
-            GetByName(u"PanelAutoSave"_wref.get())->SetSize(Panel->ClientSize);
+            GetByName(u"PanelAutoSave"sv)->SetSize(Panel->ClientSize);
             ScrollPanel->VerticalScrollBar->SetSmallChange(Panel->ClientSize.Y);
         }
         ScrollPanel->UpdateScrollRanges();
@@ -397,18 +397,18 @@ namespace fSaveManager {
                 State = u"N"_w;
             }
             {
-                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "BG"}))));
+                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "BG"})))));
                 cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormSave2.2Slot", State}));
             }
             {
-                GI_Image::TImageGI* cpp_with_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Emblem"}))));
+                GI_Image::TImageGI* cpp_with_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Emblem"})))));
                 cpp_with_2->SetImagePath(pas::concat_wide({u"GI,Bm.FormSave2.2", pas::list_at<TSMSlot>(Slots, SlotIndex)->RaceName, State}));
                 cpp_with_2->SetImageKindX(GI_Main::ikxCenter);
                 cpp_with_2->SetImageKindY(GI_Main::ikyCenter);
                 cpp_with_2->SetActive(true);
             }
             {
-                GI_Label::TLabelGI* cpp_with_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Date"}))));
+                GI_Label::TLabelGI* cpp_with_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Date"})))));
                 if (IsSlotEmpty(SlotIndex)) {
                     cpp_with_3->SetText(aConst::LocalizedText(u"FormSaveManager.New"_wref.get()));
                 } else {
@@ -436,47 +436,47 @@ namespace fSaveManager {
             } else {
                 Color = GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0);
             }
-            if (pas::class_cast_if<GI_Edit::TEditGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"})))) != nullptr) {
-                GI_Edit::TEditGI* cpp_with_4 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"}))));
+            if (pas::class_cast_if<GI_Edit::TEditGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"}))))) != nullptr) {
+                GI_Edit::TEditGI* cpp_with_4 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"})))));
                 cpp_with_4->SetText(pas::list_at<TSMSlot>(Slots, SlotIndex)->DisplayName);
                 cpp_with_4->SetTextColor(Color);
             } else {
-                GI_Label::TLabelGI* cpp_with_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"}))));
+                GI_Label::TLabelGI* cpp_with_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"})))));
                 cpp_with_5->SetText(pas::list_at<TSMSlot>(Slots, SlotIndex)->DisplayName);
                 cpp_with_5->SetTextColor(Color);
             }
             if (IsSlotEmpty(SlotIndex)) {
                 if (SelectedSlot == SlotIndex) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Captain"}))))->SetText(aPlayer::GetPlayer()->Name);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Captain"})))))->SetText(aPlayer::GetPlayer()->Name);
                     {
                         const pas::WideString& formatGameTurnDate = aGalaxy::FormatGameTurnDate(aGalaxy::Galaxy->CurrentTurn);
-                        GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Turn"}))));
+                        GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Turn"})))));
                         cpp_arg->SetText(formatGameTurnDate);
                     }
                     {
                         const pas::WideString& intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->Money);
-                        GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Money"}))));
+                        GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Money"})))));
                         cpp_arg_2->SetText(intToStr);
                     }
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Captain"}))))->SetText(u""_wref.get());
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Turn"}))))->SetText(u""_wref.get());
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Money"}))))->SetText(u""_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Captain"})))))->SetText(u""_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Turn"})))))->SetText(u""_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Money"})))))->SetText(u""_wref.get());
                 }
             } else {
                 {
                     auto pilotName = pas::borrow(pas::list_at<TSMSlot>(Slots, SlotIndex)->PilotName);
-                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Captain"}))));
+                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Captain"})))));
                     cpp_arg_3->SetText(pilotName.get());
                 }
                 {
                     const pas::WideString& formatGameTurnDate_2 = aGalaxy::FormatGameTurnDate(pas::list_at<TSMSlot>(Slots, SlotIndex)->Turn);
-                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Turn"}))));
+                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Turn"})))));
                     cpp_arg_4->SetText(formatGameTurnDate_2);
                 }
                 {
                     const pas::WideString& intToStr_2 = pas::wide_int_to_str(pas::list_at<TSMSlot>(Slots, SlotIndex)->Money);
-                    GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Money"}))));
+                    GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Money"})))));
                     cpp_arg_5->SetText(intToStr_2);
                 }
             }
@@ -536,13 +536,13 @@ namespace fSaveManager {
                 SysUtilsImports::DeleteFile(static_cast<pas::AnsiString>(pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName));
                 pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName = pas::WideString();
             }
-            FileName = EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SelectedSlot), "Edit"}))))->Text);
+            FileName = EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SelectedSlot), "Edit"})))))->Text);
             if (FileName == u"") {
-                SetFocusedControl(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SelectedSlot), "Edit"}))));
+                SetFocusedControl(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SelectedSlot), "Edit"})))));
             } else {
                 Description = FileName;
-                FileName = EC_Str::RemoveWideStringChars(FileName, u"<>\"/\\:"_w);
-                if (GlobalsV::RunningUnderWine || GR_Main::UserSettingsConfig->CountParams(u"TransliterateSaveNames"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TransliterateSaveNames"_wref.get())))) {
+                FileName = EC_Str::RemoveWideStringChars(pas::view(FileName), u"<>\"/\\:"_w);
+                if (GlobalsV::RunningUnderWine || GR_Main::UserSettingsConfig->CountParams(u"TransliterateSaveNames"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TransliterateSaveNames"_wref.get()))))) {
                     FileName = EC_Str::TransliterateCyrillicToLatin(FileName);
                 }
                 FileName = ([&] {
@@ -681,31 +681,31 @@ namespace fSaveManager {
         }
         {
             std::uint8_t isSlotEmpty = IsSlotEmpty(SlotIndex);
-            GI_GraphButton::TGraphButtonGI* cpp_arg = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButDelete"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* cpp_arg = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButDelete"sv));
             cpp_arg->SetDisabled(isSlotEmpty);
         }
         {
             std::uint8_t isSlotEmpty_2 = IsSlotEmpty(SlotIndex);
-            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLoad"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButLoad"sv));
             cpp_arg_2->SetDisabled(isSlotEmpty_2);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSave"_wref.get()))->SetDisabled(SlotIndex < 0 || pas::list_count(Slots) <= SlotIndex);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSave"sv))->SetDisabled(SlotIndex < 0 || pas::list_count(Slots) <= SlotIndex);
         if (SelectedSlot >= 0 && pas::list_count(Slots) > SelectedSlot) {
-            ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            ScrollPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             {
                 std::int32_t cpp_left = FindAutoSaveSlot();
                 if (cpp_left != SlotIndex) {
-                    GI_Panel::TPanelGI* cpp_with = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex)}))));
+                    GI_Panel::TPanelGI* cpp_with = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex)})))));
                     ScrollPanel->ScrollRectIntoView(cpp_with->GetLocalBounds());
                 }
             }
             RefreshSlot(SlotIndex, Globals::SaveManagerMode == smmSave);
-            if (pas::class_cast_if<GI_Edit::TEditGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"})))) != nullptr) {
+            if (pas::class_cast_if<GI_Edit::TEditGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"}))))) != nullptr) {
                 if (IsSlotEmpty(SlotIndex)) {
-                    GI_Edit::TEditGI* cpp_with_2 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"}))));
+                    GI_Edit::TEditGI* cpp_with_2 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"})))));
                     cpp_with_2->SetText(TfSaveManager::BuildCurrentSaveDescription());
                 }
-                SetFocusedControl(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"}))));
+                SetFocusedControl(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(SlotIndex), "Edit"})))));
             }
             if (!IsSlotEmpty(SlotIndex)) {
                 if (PreviewTimer != nullptr) {
@@ -715,7 +715,7 @@ namespace fSaveManager {
                 LoadSavePreviews(pas::list_at<TSMSlot>(Slots, SlotIndex)->FileName);
             } else if (SelectedSlot == 0 && Globals::SaveManagerMode == smmSave) {
                 {
-                    GI_GraphBuf::TGraphBufGI* GameImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* GameImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"sv));
                     GameImage->GraphBuf->Clear();
                     GameImage->GraphBuf->AllocateRgb(GR_Main::SavePreviewGraph->Width, GR_Main::SavePreviewGraph->Height, GR_Main::SavePreviewGraph->PitchBytes);
                     {
@@ -730,7 +730,7 @@ namespace fSaveManager {
                     GameImage->SetActive(false);
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* GameImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* GameImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"sv));
                     GameImage2->GraphBuf->Clear();
                     GameImage2->GraphBuf->AllocateRgb(GR_Main::SecondarySavePreviewGraph->Width, GR_Main::SecondarySavePreviewGraph->Height, GR_Main::SecondarySavePreviewGraph->PitchBytes);
                     {
@@ -752,13 +752,13 @@ namespace fSaveManager {
                 PreviewSound->SetVolume(1.0f);
             } else {
                 {
-                    GI_GraphBuf::TGraphBufGI* GameImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* GameImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"sv));
                     GameImage_2->GraphBuf->Clear();
                     GameImage_2->Invalidate();
                     GameImage_2->SetActive(false);
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* GameImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* GameImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"sv));
                     GameImage2_2->GraphBuf->Clear();
                     GameImage2_2->Invalidate();
                     GameImage2_2->SetActive(false);
@@ -774,12 +774,12 @@ namespace fSaveManager {
             CancelCallbackTimer(PreviewTimer);
             PreviewTimer = nullptr;
         }
-        GetByName(u"GameImage"_wref.get())->SetActive(false);
-        GetByName(u"GameImage2"_wref.get())->SetActive(false);
+        GetByName(u"GameImage"sv)->SetActive(false);
+        GetByName(u"GameImage2"sv)->SetActive(false);
         PreviousSlot = SelectedSlot;
         SelectedSlot = -1;
         if (PreviousSlot >= 0) {
-            if (pas::class_cast_if<GI_Edit::TEditGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(PreviousSlot), "Edit"})))) != nullptr) {
+            if (pas::class_cast_if<GI_Edit::TEditGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(PreviousSlot), "Edit"}))))) != nullptr) {
                 SetFocusedControl(nullptr);
             }
             RefreshSlot(PreviousSlot, false);
@@ -816,17 +816,17 @@ namespace fSaveManager {
             if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
                 if (aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
                     Result = aConst::LocalizedText(u"FormSaveManager.SaveInShip"_wref.get());
-                    Result = EC_Str::ReplaceAllWideString(Result, u"<ShipName>"_wref.get(), aPlayer::GetPlayer()->CurrentPlanet->Name);
+                    Result = EC_Str::ReplaceAllWideString(Result, u"<ShipName>"_wref.get(), pas::view(aPlayer::GetPlayer()->CurrentPlanet->Name));
                 } else {
                     Result = aConst::LocalizedText(u"FormSaveManager.SaveInPlanet"_wref.get());
-                    Result = EC_Str::ReplaceAllWideString(Result, u"<Planet>"_wref.get(), aPlayer::GetPlayer()->CurrentPlanet->Name);
+                    Result = EC_Str::ReplaceAllWideString(Result, u"<Planet>"_wref.get(), pas::view(aPlayer::GetPlayer()->CurrentPlanet->Name));
                 }
             } else if (aPlayer::GetPlayer()->DockedTo != nullptr) {
                 Result = aConst::LocalizedText(u"FormSaveManager.SaveInShip"_wref.get());
                 Result = ([&] {
                     const pas::WideString& fullName = aPlayer::GetPlayer()->DockedTo->GetFullName(u" "_wref.get());
                     const pas::WideString& result = Result;
-                    return EC_Str::ReplaceAllWideString(result, u"<ShipName>"_wref.get(), fullName);
+                    return EC_Str::ReplaceAllWideString(result, u"<ShipName>"_wref.get(), pas::view(fullName));
                 }());
             } else {
                 Result = aConst::LocalizedText(u"FormSaveManager.SaveInSpace"_wref.get());
@@ -834,28 +834,28 @@ namespace fSaveManager {
         } else if (aPlayer::GetPlayer()->RuinsSavedPlanet != nullptr) {
             if (aPlayer::GetPlayer()->RuinsSavedPlanet->IsMainPiratePlanet) {
                 Result = aConst::LocalizedText(u"FormSaveManager.SaveInShip"_wref.get());
-                Result = EC_Str::ReplaceAllWideString(Result, u"<ShipName>"_wref.get(), aPlayer::GetPlayer()->RuinsSavedPlanet->Name);
+                Result = EC_Str::ReplaceAllWideString(Result, u"<ShipName>"_wref.get(), pas::view(aPlayer::GetPlayer()->RuinsSavedPlanet->Name));
             } else {
                 Result = aConst::LocalizedText(u"FormSaveManager.SaveInPlanet"_wref.get());
-                Result = EC_Str::ReplaceAllWideString(Result, u"<Planet>"_wref.get(), aPlayer::GetPlayer()->RuinsSavedPlanet->Name);
+                Result = EC_Str::ReplaceAllWideString(Result, u"<Planet>"_wref.get(), pas::view(aPlayer::GetPlayer()->RuinsSavedPlanet->Name));
             }
         } else if (aPlayer::GetPlayer()->RuinsSavedDockedTo != nullptr) {
             Result = aConst::LocalizedText(u"FormSaveManager.SaveInShip"_wref.get());
             Result = ([&] {
                 const pas::WideString& fullName_2 = aPlayer::GetPlayer()->RuinsSavedDockedTo->GetFullName(u" "_wref.get());
                 const pas::WideString& result_2 = Result;
-                return EC_Str::ReplaceAllWideString(result_2, u"<ShipName>"_wref.get(), fullName_2);
+                return EC_Str::ReplaceAllWideString(result_2, u"<ShipName>"_wref.get(), pas::view(fullName_2));
             }());
         } else {
             Result = aConst::LocalizedText(u"FormSaveManager.SaveInSpace"_wref.get());
         }
-        Result = EC_Str::ReplaceAllWideString(Result, u"<Star>"_wref.get(), aPlayer::GetPlayer()->CurrentStar->Name);
+        Result = EC_Str::ReplaceAllWideString(Result, u"<Star>"_wref.get(), pas::view(aPlayer::GetPlayer()->CurrentStar->Name));
         Result = ([&] {
             const pas::WideString& name = aPlayer::GetPlayer()->CurrentStar->Constellation->GetName();
             const pas::WideString& result_3 = Result;
-            return EC_Str::ReplaceAllWideString(result_3, u"<Constellation>"_wref.get(), name);
+            return EC_Str::ReplaceAllWideString(result_3, u"<Constellation>"_wref.get(), pas::view(name));
         }());
-        return EC_Str::ReplaceAllWideString(Result, u"<Player>"_wref.get(), aPlayer::GetPlayer()->Name);
+        return EC_Str::ReplaceAllWideString(Result, u"<Player>"_wref.get(), pas::view(aPlayer::GetPlayer()->Name));
     }
 
     // Uses the current Slots list, without rescanning disk. SuffixIndex is zero when no numbered suffix is needed.
@@ -868,7 +868,7 @@ namespace fSaveManager {
         pas::WideString Extension{};
         pas::WideString ExistingName{};
         pas::WideString Suffix{};
-        Directory = EC_Str::TrimWideString(EC_Str::ExtractFileDirW(FileName));
+        Directory = EC_Str::TrimWideString(EC_Str::ExtractFileDirW(pas::view(FileName)));
         if (Directory == u"") {
             Directory = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"save"});
         }
@@ -877,24 +877,24 @@ namespace fSaveManager {
         if (Extension == u"") {
             Extension = u"sav"_w;
         }
-        Parts = EC_Str::CountDelimitedPartsW(BaseName, u"()"_wref.get());
+        Parts = EC_Str::CountDelimitedPartsW(pas::view(BaseName), u"()"sv);
         if (Parts >= 3) {
-            Suffix = EC_Str::ExtractDelimitedPartW(BaseName, Parts - 2, u"()"_wref.get());
-            if (EC_Str::IsIntegerTextW(Suffix)) {
-                BaseName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(BaseName, 0, Parts - 3, u"()"_wref.get()));
+            Suffix = EC_Str::ExtractDelimitedPartW(pas::view(BaseName), Parts - 2, u"()"sv);
+            if (EC_Str::IsIntegerTextW(pas::view(Suffix))) {
+                BaseName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(pas::view(BaseName), 0, Parts - 3, u"()"sv));
             }
         }
         SuffixIndex = 0;
         I = 0;
         while (I < pas::list_count(Slots)) {
             ExistingName = EC_Str::TrimWideString(EC_Str::LowerCaseWideString(EC_Str::ExtractFileNameNoExtW(pas::list_at<TSMSlot>(Slots, I)->FileName)));
-            Parts = EC_Str::CountDelimitedPartsW(ExistingName, u"()"_wref.get());
+            Parts = EC_Str::CountDelimitedPartsW(pas::view(ExistingName), u"()"sv);
             ExistingSuffix = 0;
             if (Parts >= 3) {
-                Suffix = EC_Str::ExtractDelimitedPartW(ExistingName, Parts - 2, u"()"_wref.get());
-                if (EC_Str::IsIntegerTextW(Suffix)) {
-                    ExistingName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(ExistingName, 0, Parts - 3, u"()"_wref.get()));
-                    ExistingSuffix = EC_Str::ExtractDigitsToIntW(Suffix);
+                Suffix = EC_Str::ExtractDelimitedPartW(pas::view(ExistingName), Parts - 2, u"()"sv);
+                if (EC_Str::IsIntegerTextW(pas::view(Suffix))) {
+                    ExistingName = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(pas::view(ExistingName), 0, Parts - 3, u"()"sv));
+                    ExistingSuffix = EC_Str::ExtractDigitsToIntW(pas::view(Suffix));
                 }
             }
             if (([&] {
@@ -908,11 +908,11 @@ namespace fSaveManager {
         if (SuffixIndex == 0) {
             return pas::concat_wide({Directory, u"\\", BaseName, u".", Extension});
         }
-        Parts = EC_Str::CountDelimitedPartsW(BaseName, u"()"_wref.get());
+        Parts = EC_Str::CountDelimitedPartsW(pas::view(BaseName), u"()"sv);
         if (Parts >= 3) {
-            Suffix = EC_Str::ExtractDelimitedPartW(BaseName, Parts - 2, u"()"_wref.get());
-            if (EC_Str::IsIntegerTextW(Suffix)) {
-                return pas::concat_wide({Directory, u"\\", EC_Str::ExtractDelimitedRangeW(BaseName, 0, Parts - 3, u"()"_wref.get()), u" (", pas::wide_int_to_str(SuffixIndex), u").", Extension});
+            Suffix = EC_Str::ExtractDelimitedPartW(pas::view(BaseName), Parts - 2, u"()"sv);
+            if (EC_Str::IsIntegerTextW(pas::view(Suffix))) {
+                return pas::concat_wide({Directory, u"\\", EC_Str::ExtractDelimitedRangeW(pas::view(BaseName), 0, Parts - 3, u"()"sv), u" (", pas::wide_int_to_str(SuffixIndex), u").", Extension});
             }
             return pas::concat_wide({Directory, u"\\", BaseName, u" (", pas::wide_int_to_str(SuffixIndex), u").", Extension});
         }
@@ -923,7 +923,7 @@ namespace fSaveManager {
         pas::WideString Directory{};
         pas::WideString BaseName{};
         pas::WideString Extension{};
-        Directory = EC_Str::TrimWideString(EC_Str::ExtractFileDirW(FileName));
+        Directory = EC_Str::TrimWideString(EC_Str::ExtractFileDirW(pas::view(FileName)));
         BaseName = EC_Str::TrimWideString(EC_Str::ExtractFileNameNoExtW(FileName));
         Extension = u"txt"_w;
         return pas::concat_wide({Directory, u"\\", BaseName, u".", Extension});
@@ -944,7 +944,7 @@ namespace fSaveManager {
 
     void TfSaveManager::SlotMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
         {
-            GI_MessageLoop::TObjectGI* byName = GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Sender->UserValue)), "onmouse"})));
+            GI_MessageLoop::TObjectGI* byName = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Sender->UserValue)), "onmouse"}))));
             std::uint8_t cpp_arg = ([&] {
                 std::int32_t cpp_left = FindAutoSaveSlot();
                 return cpp_left != Sender->UserValue;
@@ -955,7 +955,7 @@ namespace fSaveManager {
     }
 
     void TfSaveManager::SlotMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
-        GetByName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Sender->UserValue)), "onmouse"})))->SetActive(false);
+        GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Sender->UserValue)), "onmouse"}))))->SetActive(false);
         GR_Main::SoundManager->PlaySound(u"Sound.ButtonLeave"_wref.get());
     }
 
@@ -1025,8 +1025,8 @@ namespace fSaveManager {
         pas::list_clear(Slots);
         if (Globals::SaveManagerMode == smmSave) {
             pas::new_value(NewSlot);
-            if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                NewSlot->RaceName = pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace) & 0x0000007f].InternalName});
+            if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
+                NewSlot->RaceName = pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)].InternalName});
             } else {
                 NewSlot->RaceName = aConst::OwnerInfo[aPlayer::GetPlayer()->OwnerId].InternalName;
             }
@@ -1061,7 +1061,7 @@ namespace fSaveManager {
                                     GR_Main::SuppressExceptionLogCopy = true;
                                     pas::raise(pas::make_exception<pas::Abort>("Err"_a));
                                 }
-                                I = EC_Str::ExtractDigitsToIntW(FileObject->ReadWideString());
+                                I = EC_Str::ExtractDigitsToIntW(pas::view(FileObject->ReadWideString()));
                                 if (I < 13 || I > aConst::CurrentSaveVersion) {
                                     GR_Main::SuppressExceptionLogCopy = true;
                                     pas::raise(pas::make_exception<pas::Abort>("Err"_a));
@@ -1071,8 +1071,8 @@ namespace fSaveManager {
                                 } else {
                                     FileObject->ReadWideString();
                                 }
-                                Slot->Turn = EC_Str::ExtractDigitsToIntW(FileObject->ReadWideString());
-                                Slot->Money = EC_Str::ExtractDigitsToIntW(FileObject->ReadWideString());
+                                Slot->Turn = EC_Str::ExtractDigitsToIntW(pas::view(FileObject->ReadWideString()));
+                                Slot->Money = EC_Str::ExtractDigitsToIntW(pas::view(FileObject->ReadWideString()));
                                 Slot->PilotName = FileObject->ReadWideString();
                                 Slot->RaceName = FileObject->ReadWideString();
                                 if (FileObject->ReadWideString() != u"EZ") {
@@ -1140,7 +1140,7 @@ namespace fSaveManager {
         FileObject->AcquireReadHandle(false);
         FileObject->TryAcquireReadHandle(false);
         FileObject->ReadWideString();
-        std::int32_t Result = EC_Str::ExtractDigitsToIntW(FileObject->ReadWideString());
+        std::int32_t Result = EC_Str::ExtractDigitsToIntW(pas::view(FileObject->ReadWideString()));
         FileObject->ReleaseHandle();
         pas::free(FileObject);
         return Result;
@@ -1148,11 +1148,11 @@ namespace fSaveManager {
 
     void TfSaveManager::LoadSavePreviews(pas::WideString FileName) {
         std::int32_t ByteCount{};
-        GI_GraphBuf::TGraphBufGI* FirstImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"_wref.get()));
+        GI_GraphBuf::TGraphBufGI* FirstImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage"sv));
         FirstImage->SetActive(false);
         FirstImage->GraphBuf->Clear();
         FirstImage->Invalidate();
-        GI_GraphBuf::TGraphBufGI* SecondImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"_wref.get()));
+        GI_GraphBuf::TGraphBufGI* SecondImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GameImage2"sv));
         SecondImage->SetActive(false);
         SecondImage->GraphBuf->Clear();
         SecondImage->Invalidate();
@@ -1213,11 +1213,11 @@ namespace fSaveManager {
             PreviewTimer = nullptr;
         }
         if (static_cast<std::uint8_t>(IsSlotEmpty(SelectedSlot) ^ 1) || SelectedSlot == 0 && Globals::SaveManagerMode == smmSave) {
-            GetByName(u"GameImage"_wref.get())->SetActive(true);
-            GetByName(u"GameImage2"_wref.get())->SetActive(true);
+            GetByName(u"GameImage"sv)->SetActive(true);
+            GetByName(u"GameImage2"sv)->SetActive(true);
         } else {
-            GetByName(u"GameImage"_wref.get())->SetActive(false);
-            GetByName(u"GameImage2"_wref.get())->SetActive(false);
+            GetByName(u"GameImage"sv)->SetActive(false);
+            GetByName(u"GameImage2"sv)->SetActive(false);
         }
     }
 

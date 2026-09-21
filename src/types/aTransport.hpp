@@ -70,7 +70,7 @@ namespace aTransport {
         std::uint8_t GetGreetingShipCategory() override;
         // Always rcTrader.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
-        std::uint8_t GetStrengthScaledPirateStatus() override;
+        aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
@@ -83,7 +83,7 @@ namespace aTransport {
         void TryOfferRansomToPursuer();
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         void AssignWeaponTargetsInStar() override;
         void SelectEnemyShipInStar() override;
         void EngageEnemyShip() override;

@@ -235,7 +235,7 @@ namespace ab_Object {
         if (static_cast<std::uint8_t>(Collidable ^ 1) && static_cast<std::uint8_t>(Other->Collidable ^ 1)) {
             return false;
         }
-        if (pas::class_cast_if<ab_Hit::TabHit*>(Other) != nullptr && static_cast<ab_Hit::TabHit*>(Other)->Health <= 0) {
+        if (ab_Hit::TabHit* abHit = pas::class_cast_if<ab_Hit::TabHit*>(Other); abHit != nullptr && abHit->Health <= 0) {
             return false;
         }
         return static_cast<long double>(CollisionRadius) + Other->CollisionRadius >= DistanceTo(Other);
@@ -315,8 +315,8 @@ namespace ab_Object {
                             }());
                         } else {
                             ApplyDamage(Zone->DamagePerTick, nullptr, false);
-                            if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(this) != nullptr) {
-                                pas::checked_cast<ab_ShipAI::TabShipAI*>(this)->NoticeDamagingZone(Zone);
+                            if (ab_ShipAI::TabShipAI* abShipAI = pas::class_cast_if<ab_ShipAI::TabShipAI*>(this)) {
+                                abShipAI->NoticeDamagingZone(Zone);
                             }
                         }
                     }

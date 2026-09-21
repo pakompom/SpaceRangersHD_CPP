@@ -693,67 +693,67 @@ namespace GI_GraphButton {
     void TGraphButtonGI::LoadButtonProperties(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         if (Block->CountParams(u"CaptionAlignY"_wref.get()) > 0) {
-            Text = EC_Str::TrimWideString(Block->GetParam(u"CaptionAlignY"_wref.get()));
-            CaptionAlignY = GI_Main::ParseTextAlignYName(Text);
+            Text = EC_Str::TrimWideString(Block->GetParam(u"CaptionAlignY"sv));
+            CaptionAlignY = GI_Main::ParseTextAlignYName(pas::view(Text));
         }
         if (Block->CountParams(u"CaptionAlignX"_wref.get()) > 0) {
-            Text = EC_Str::TrimWideString(Block->GetParam(u"CaptionAlignX"_wref.get()));
-            CaptionAlignX = GI_Main::ParseTextAlignXName(Text);
+            Text = EC_Str::TrimWideString(Block->GetParam(u"CaptionAlignX"sv));
+            CaptionAlignX = GI_Main::ParseTextAlignXName(pas::view(Text));
         }
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            SetCaptionFontName(Block->GetParam(u"Font"_wref.get()));
+            SetCaptionFontName(Block->GetParam(u"Font"sv));
         }
         if (Block->CountParams(u"Caption"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Caption"_wref.get());
+            Text = Block->GetParam(u"Caption"sv);
             SetCaption(Text);
             if (GR_Main::LanguageDataConfig->CountParamsByPath(Text) > 0) {
                 SetCaption(GR_Main::LanguageDataConfig->GetParamByPathOrMarker(Text));
             }
         }
         if (Block->CountParams(u"CaptionColor"_wref.get()) > 0) {
-            SetCaptionColor(GI_Main::GetColorGI(Block->GetParam(u"CaptionColor"_wref.get())));
+            SetCaptionColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionColor"sv))));
         }
         if (Block->CountParams(u"CaptionShadow"_wref.get()) > 0) {
-            SetCaptionShadowOffset(EC_Str::ExtractDigitsToIntW(Block->GetParam(u"CaptionShadow"_wref.get())));
+            SetCaptionShadowOffset(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"CaptionShadow"sv))));
         }
         if (Block->CountParams(u"CaptionColorNormal"_wref.get()) > 0) {
-            CaptionColors[0] = GI_Main::GetColorGI(Block->GetParam(u"CaptionColorNormal"_wref.get()));
+            CaptionColors[0] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionColorNormal"sv)));
         }
         if (Block->CountParams(u"CaptionColorNormalA"_wref.get()) > 0) {
-            CaptionColors[1] = GI_Main::GetColorGI(Block->GetParam(u"CaptionColorNormalA"_wref.get()));
+            CaptionColors[1] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionColorNormalA"sv)));
         }
         if (Block->CountParams(u"CaptionColorDown"_wref.get()) > 0) {
-            CaptionColors[2] = GI_Main::GetColorGI(Block->GetParam(u"CaptionColorDown"_wref.get()));
+            CaptionColors[2] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionColorDown"sv)));
         }
         if (Block->CountParams(u"CaptionColorDownA"_wref.get()) > 0) {
-            CaptionColors[3] = GI_Main::GetColorGI(Block->GetParam(u"CaptionColorDownA"_wref.get()));
+            CaptionColors[3] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionColorDownA"sv)));
         }
         if (Block->CountParams(u"CaptionColorDisable"_wref.get()) > 0) {
-            CaptionColors[4] = GI_Main::GetColorGI(Block->GetParam(u"CaptionColorDisable"_wref.get()));
+            CaptionColors[4] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionColorDisable"sv)));
         }
         if (Block->CountParams(u"CaptionColorDisableA"_wref.get()) > 0) {
-            CaptionColors[5] = GI_Main::GetColorGI(Block->GetParam(u"CaptionColorDisableA"_wref.get()));
+            CaptionColors[5] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionColorDisableA"sv)));
         }
         if (Block->CountParams(u"CaptionShadowColorNormal"_wref.get()) > 0) {
-            CaptionShadowColors[0] = GI_Main::GetColorGI(Block->GetParam(u"CaptionShadowColorNormal"_wref.get()));
+            CaptionShadowColors[0] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionShadowColorNormal"sv)));
         }
         if (Block->CountParams(u"CaptionShadowColorNormalA"_wref.get()) > 0) {
-            CaptionShadowColors[1] = GI_Main::GetColorGI(Block->GetParam(u"CaptionShadowColorNormalA"_wref.get()));
+            CaptionShadowColors[1] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionShadowColorNormalA"sv)));
         }
         if (Block->CountParams(u"CaptionShadowColorDown"_wref.get()) > 0) {
-            CaptionShadowColors[2] = GI_Main::GetColorGI(Block->GetParam(u"CaptionShadowColorDown"_wref.get()));
+            CaptionShadowColors[2] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionShadowColorDown"sv)));
         }
         if (Block->CountParams(u"CaptionShadowColorDownA"_wref.get()) > 0) {
-            CaptionShadowColors[3] = GI_Main::GetColorGI(Block->GetParam(u"CaptionShadowColorDownA"_wref.get()));
+            CaptionShadowColors[3] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionShadowColorDownA"sv)));
         }
         if (Block->CountParams(u"CaptionShadowColorDisable"_wref.get()) > 0) {
-            CaptionShadowColors[4] = GI_Main::GetColorGI(Block->GetParam(u"CaptionShadowColorDisable"_wref.get()));
+            CaptionShadowColors[4] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionShadowColorDisable"sv)));
         }
         if (Block->CountParams(u"CaptionShadowColorDisableA"_wref.get()) > 0) {
-            CaptionShadowColors[5] = GI_Main::GetColorGI(Block->GetParam(u"CaptionShadowColorDisableA"_wref.get()));
+            CaptionShadowColors[5] = GI_Main::GetColorGI(pas::view(Block->GetParam(u"CaptionShadowColorDisableA"sv)));
         }
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Kind"_wref.get());
+            Text = Block->GetParam(u"Kind"sv);
             if (Text == u"Normal") {
                 SetKind(gbkNormal);
             } else if (Text == u"Fix") {
@@ -765,10 +765,10 @@ namespace GI_GraphButton {
             }
         }
         if (Block->CountParams(u"Auto"_wref.get()) > 0) {
-            ImageAutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"_wref.get()));
+            ImageAutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"sv));
         }
         if (Block->CountParams(u"KindHit"_wref.get()) > 0) {
-            Text = Block->GetParam(u"KindHit"_wref.get());
+            Text = Block->GetParam(u"KindHit"sv);
             if (Text == u"Rect") {
                 HitKind = gbhRect;
             } else if (Text == u"Graph") {
@@ -778,58 +778,58 @@ namespace GI_GraphButton {
             }
         }
         if (Block->CountParams(u"ImageNormal"_wref.get()) > 0) {
-            SetImageNormalPath(Block->GetParam(u"ImageNormal"_wref.get()));
+            SetImageNormalPath(Block->GetParam(u"ImageNormal"sv));
         }
         if (Block->CountParams(u"ImageNormalA"_wref.get()) > 0) {
-            SetImageNormalActivePath(Block->GetParam(u"ImageNormalA"_wref.get()));
+            SetImageNormalActivePath(Block->GetParam(u"ImageNormalA"sv));
         }
         if (Block->CountParams(u"ImageDown"_wref.get()) > 0) {
-            SetImageDownPath(Block->GetParam(u"ImageDown"_wref.get()));
+            SetImageDownPath(Block->GetParam(u"ImageDown"sv));
         }
         if (Block->CountParams(u"ImageDownA"_wref.get()) > 0) {
-            SetImageDownActivePath(Block->GetParam(u"ImageDownA"_wref.get()));
+            SetImageDownActivePath(Block->GetParam(u"ImageDownA"sv));
         }
         if (Block->CountParams(u"ImageDisable"_wref.get()) > 0) {
-            SetImageDisabledPath(Block->GetParam(u"ImageDisable"_wref.get()));
+            SetImageDisabledPath(Block->GetParam(u"ImageDisable"sv));
         }
         if (Block->CountParams(u"ImageDisableA"_wref.get()) > 0) {
-            SetImageDisabledActivePath(Block->GetParam(u"ImageDisableA"_wref.get()));
+            SetImageDisabledActivePath(Block->GetParam(u"ImageDisableA"sv));
         }
         if (Block->CountParams(u"ImageHit"_wref.get()) > 0) {
-            SetImageHitPath(Block->GetParam(u"ImageHit"_wref.get()));
+            SetImageHitPath(Block->GetParam(u"ImageHit"sv));
         }
         if (Block->CountParams(u"ImageNormal_Pos"_wref.get()) > 0) {
-            NormalOffset = GI_Main::GetPointGI(Block->GetParam(u"ImageNormal_Pos"_wref.get()));
+            NormalOffset = GI_Main::GetPointGI(pas::view(Block->GetParam(u"ImageNormal_Pos"sv)));
         } else {
             NormalOffset = LocalPosition;
         }
         if (Block->CountParams(u"ImageNormalA_Pos"_wref.get()) > 0) {
-            NormalActiveOffset = GI_Main::GetPointGI(Block->GetParam(u"ImageNormalA_Pos"_wref.get()));
+            NormalActiveOffset = GI_Main::GetPointGI(pas::view(Block->GetParam(u"ImageNormalA_Pos"sv)));
         } else {
             NormalActiveOffset = LocalPosition;
         }
         if (Block->CountParams(u"ImageDown_Pos"_wref.get()) > 0) {
-            DownOffset = GI_Main::GetPointGI(Block->GetParam(u"ImageDown_Pos"_wref.get()));
+            DownOffset = GI_Main::GetPointGI(pas::view(Block->GetParam(u"ImageDown_Pos"sv)));
         } else {
             DownOffset = LocalPosition;
         }
         if (Block->CountParams(u"ImageDownA_Pos"_wref.get()) > 0) {
-            DownActiveOffset = GI_Main::GetPointGI(Block->GetParam(u"ImageDownA_Pos"_wref.get()));
+            DownActiveOffset = GI_Main::GetPointGI(pas::view(Block->GetParam(u"ImageDownA_Pos"sv)));
         } else {
             DownActiveOffset = LocalPosition;
         }
         if (Block->CountParams(u"ImageDisable_Pos"_wref.get()) > 0) {
-            DisabledOffset = GI_Main::GetPointGI(Block->GetParam(u"ImageDisable_Pos"_wref.get()));
+            DisabledOffset = GI_Main::GetPointGI(pas::view(Block->GetParam(u"ImageDisable_Pos"sv)));
         } else {
             DisabledOffset = LocalPosition;
         }
         if (Block->CountParams(u"ImageDisableA_Pos"_wref.get()) > 0) {
-            DisabledActiveOffset = GI_Main::GetPointGI(Block->GetParam(u"ImageDisableA_Pos"_wref.get()));
+            DisabledActiveOffset = GI_Main::GetPointGI(pas::view(Block->GetParam(u"ImageDisableA_Pos"sv)));
         } else {
             DisabledActiveOffset = LocalPosition;
         }
         if (Block->CountParams(u"ImageHit_Pos"_wref.get()) > 0) {
-            HitOffset = GI_Main::GetPointGI(Block->GetParam(u"ImageHit_Pos"_wref.get()));
+            HitOffset = GI_Main::GetPointGI(pas::view(Block->GetParam(u"ImageHit_Pos"sv)));
         } else {
             HitOffset = LocalPosition;
         }
@@ -841,28 +841,28 @@ namespace GI_GraphButton {
         DisabledActiveOffset = EC_Struct::SubtractPoints(DisabledActiveOffset, LocalPosition);
         HitOffset = EC_Struct::SubtractPoints(HitOffset, LocalPosition);
         if (Block->CountParams(u"Disable"_wref.get()) > 0) {
-            SetDisabled(GI_Main::ParseEnabledNameGI(Block->GetParam(u"Disable"_wref.get())));
+            SetDisabled(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Disable"sv))));
         }
         if (Block->CountParams(u"Down"_wref.get()) > 0) {
-            SetDown(GI_Main::ParseEnabledNameGI(Block->GetParam(u"Down"_wref.get())));
+            SetDown(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Down"sv))));
         }
         if (Block->CountParams(u"UpOnlyDown"_wref.get()) > 0) {
-            UpOnlyDown = GI_Main::ParseEnabledNameGI(Block->GetParam(u"UpOnlyDown"_wref.get()));
+            UpOnlyDown = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"UpOnlyDown"sv)));
         }
         if (Block->CountParams(u"SoundEnter"_wref.get()) > 0) {
-            EnterSound = Block->GetParam(u"SoundEnter"_wref.get());
+            EnterSound = Block->GetParam(u"SoundEnter"sv);
         }
         if (Block->CountParams(u"SoundLeave"_wref.get()) > 0) {
-            LeaveSound = Block->GetParam(u"SoundLeave"_wref.get());
+            LeaveSound = Block->GetParam(u"SoundLeave"sv);
         }
         if (Block->CountParams(u"SoundClick"_wref.get()) > 0) {
-            ClickSound = Block->GetParam(u"SoundClick"_wref.get());
+            ClickSound = Block->GetParam(u"SoundClick"sv);
         }
         if (Block->CountParams(u"CaptionSme"_wref.get()) > 0) {
-            CaptionOffsets = GI_Main::GetRectGI(Block->GetParam(u"CaptionSme"_wref.get()));
+            CaptionOffsets = GI_Main::GetRectGI(pas::view(Block->GetParam(u"CaptionSme"sv)));
         }
         if (Block->CountBlocks(u"OnPressCode"_wref.get()) > 0) {
-            OnPressCode = Block->GetBlock(u"OnPressCode"_wref.get());
+            OnPressCode = Block->GetBlock(u"OnPressCode"sv);
         }
         UpdateStateImagePlacement();
     }

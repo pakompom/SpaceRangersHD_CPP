@@ -24,7 +24,7 @@ namespace aScript {
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, DialogAnswers) == 48);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, InitCode) == 52);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, TurnCode) == 56);
-    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, AuxiliaryCode) == 60);
+    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, DialogCode) == 60);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, Ether) == 64);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, CurrentShip) == 68);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScript, CurrentDialog) == 72);
@@ -112,8 +112,8 @@ namespace aScript {
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, PickupItemVarName) == 28);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, PickupItem) == 32);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, PickUpNearbyItems) == 36);
-    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, AuxiliaryText) == 40);
-    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, AuxiliaryCode) == 44);
+    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, DialogTextOrVariable) == 40);
+    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, DialogCode) == 44);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, OnActionText) == 48);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, ActionCode) == 52);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptState, ActionTypeMask) == 56);
@@ -153,7 +153,7 @@ namespace aScript {
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptPlanet, GovernmentMask) == 7);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptPlanet, MinOrbitPercent) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptPlanet, MaxOrbitPercent) == 12);
-    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptPlanet, DefinitionText) == 16);
+    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptPlanet, DialogChoiceText) == 16);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptPlanet, Planet) == 20);
     static_assert(sizeof(void*) != 4 || sizeof(aScript::TScriptShipOtb) == 72);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptShipOtb, Count) == 0);
@@ -212,7 +212,7 @@ namespace aScript {
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptGroup, MinPirateStatus) == 92);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptGroup, MaxPirateStatus) == 96);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptGroup, MaxDistanceFromPlanet) == 100);
-    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptGroup, DefinitionText) == 104);
+    static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptGroup, StationDialogVariable) == 104);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptGroup, Ships) == 108);
     static_assert(sizeof(void*) != 4 || sizeof(aScript::TScriptDialog) == 12);
     static_assert(sizeof(void*) != 4 || offsetof(aScript::TScriptDialog, Name) == 4);

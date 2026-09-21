@@ -21,8 +21,8 @@ namespace ab_W03 {
         if (ProjectileCount > 30) {
             Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
-                if (pas::class_cast_if<TabW03*>(Obj) != nullptr && static_cast<std::uint8_t>(reinterpret_cast<TabW03*>(Obj)->Exploding ^ 1)) {
-                    pas::checked_cast<TabW03*>(Obj)->Explode();
+                if (TabW03* abW03 = pas::class_cast_if<TabW03*>(Obj); abW03 != nullptr && static_cast<std::uint8_t>(abW03->Exploding ^ 1)) {
+                    abW03->Explode();
                     break;
                 }
                 Obj = Obj->Next;

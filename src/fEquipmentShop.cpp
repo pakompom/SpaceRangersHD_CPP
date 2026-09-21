@@ -229,10 +229,10 @@ namespace fEquipmentShop {
 
     pas::WideString GetShopItemIconName(aItem::TItem* Item) {
         pas::WideString Result{};
-        std::uint8_t Owner{};
+        aGalaxyStruct::TOwnerId Owner{};
         if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr && pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator)) && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(3)) {
             Owner = Item->OwnerId;
-            Item->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
+            Item->OwnerId = aGalaxyStruct::oiDominator;
             Result = Item->GetBitmapResourceName();
             Item->OwnerId = Owner;
             return Result;
@@ -285,8 +285,8 @@ namespace fEquipmentShop {
         } else {
             Buffer->AddAnsiChar('\001');
             Buffer->AddAnsiChar(static_cast<std::uint8_t>(Item->ItemType));
-            if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                pas::checked_cast<aItem::TWeapon*>(Item)->Target = nullptr;
+            if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item)) {
+                weapon->Target = nullptr;
             }
             Item->SaveToBuffer(Buffer);
         }
@@ -338,59 +338,59 @@ namespace fEquipmentShop {
         GR_Main::AppendLogTextThreadSafe("fEquipmentShop... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGCity"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGCity2"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity2"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* PanelShop = MainPanel->FindByNameRecursive(u"PanelShop"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelShop = MainPanel->FindByNameRecursive(u"PanelShop"sv);
                 PanelShop->SetSize(ClassesImports::Point(PanelShop->ClientSize.X + ExtraWidth, PanelShop->ClientSize.Y));
                 PanelShop->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - PanelShop->ClientSize.X) / 2, PanelShop->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
                 if (ExtraWidth > 0) {
                     {
-                        GI_MessageLoop::TObjectGI* Right = PanelShop->FindByNameRecursive(u"Right"_wref.get());
+                        GI_MessageLoop::TObjectGI* Right = PanelShop->FindByNameRecursive(u"Right"sv);
                         Right->SetPosition(ClassesImports::Point(Right->LocalPosition.X + ExtraWidth, Right->LocalPosition.Y));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* ButFormClose = PanelShop->FindByNameRecursive(u"ButFormClose"_wref.get());
+                        GI_MessageLoop::TObjectGI* ButFormClose = PanelShop->FindByNameRecursive(u"ButFormClose"sv);
                         ButFormClose->SetPosition(ClassesImports::Point(ButFormClose->LocalPosition.X + ExtraWidth, ButFormClose->LocalPosition.Y));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* PanelImage = PanelShop->FindByNameRecursive(u"PanelImage"_wref.get());
+                        GI_MessageLoop::TObjectGI* PanelImage = PanelShop->FindByNameRecursive(u"PanelImage"sv);
                         PanelImage->SetSize(ClassesImports::Point(PanelImage->ClientSize.X + ExtraWidth, PanelImage->ClientSize.Y));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* BGImageRace = PanelShop->FindByNameRecursive(u"BGImageRace"_wref.get());
+                        GI_MessageLoop::TObjectGI* BGImageRace = PanelShop->FindByNameRecursive(u"BGImageRace"sv);
                         BGImageRace->SetSize(ClassesImports::Point(BGImageRace->ClientSize.X + ExtraWidth, BGImageRace->ClientSize.Y));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* PanelGoods = PanelShop->FindByNameRecursive(u"PanelGoods"_wref.get());
+                        GI_MessageLoop::TObjectGI* PanelGoods = PanelShop->FindByNameRecursive(u"PanelGoods"sv);
                         PanelGoods->SetSize(ClassesImports::Point(PanelGoods->ClientSize.X + ExtraWidth, PanelGoods->ClientSize.Y));
                     }
                 }
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfEquipmentShop::EndTurnClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->UpCallback = pas::bind_method<&TfEquipmentShop::ShipClicked>(this);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfEquipmentShop::MainPanelKeyDown>(this);
-        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"PII"_wref.get()));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfEquipmentShop::EndTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfEquipmentShop::ShipClicked>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfEquipmentShop::MainPanelKeyDown>(this);
+        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"PII"sv));
         {
-            GI_MessageLoop::TObjectGI* InfoHullSize = GetByName(u"InfoHullSize"_wref.get());
+            GI_MessageLoop::TObjectGI* InfoHullSize = GetByName(u"InfoHullSize"sv);
             HullSizeOffset = ClassesImports::Point(InfoHullSize->LocalPosition.X, InfoHullSize->LocalPosition.Y - InfoHullSize->Parent->ClientSize.Y);
         }
         {
-            GI_MessageLoop::TObjectGI* InfoHullPrice = GetByName(u"InfoHullPrice"_wref.get());
+            GI_MessageLoop::TObjectGI* InfoHullPrice = GetByName(u"InfoHullPrice"sv);
             HullPriceOffset = ClassesImports::Point(InfoHullPrice->LocalPosition.X, InfoHullPrice->LocalPosition.Y - InfoHullPrice->Parent->ClientSize.Y);
         }
         {
-            GI_MessageLoop::TObjectGI* InfoHullEmRace = GetByName(u"InfoHullEmRace"_wref.get());
+            GI_MessageLoop::TObjectGI* InfoHullEmRace = GetByName(u"InfoHullEmRace"sv);
             HullRaceOffset = ClassesImports::Point(InfoHullEmRace->LocalPosition.X - InfoHullEmRace->Parent->ClientSize.X, InfoHullEmRace->LocalPosition.Y - InfoHullEmRace->Parent->ClientSize.Y);
         }
     }
 
     void TfEquipmentShop::OnOpen() {
-        std::uint8_t Owner{};
+        aGalaxyStruct::TOwnerId Owner{};
         std::int32_t Size{};
         pas::WideString BackgroundPath{};
         pas::List* SavedSlots{};
@@ -409,7 +409,7 @@ namespace fEquipmentShop {
             StationPanel->Show();
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButFormClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButFormClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv));
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 ButFormClose->UpCallback = pas::bind_method<&fPanelPlanet::TfPanelPlanet::PlanetClicked>(PlanetPanel);
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
@@ -417,7 +417,7 @@ namespace fEquipmentShop {
             }
         }
         {
-            GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"_wref.get()));
+            GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"sv));
             BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase));
             if (BGCity2->Active) {
                 BGCity2->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(Size)}));
@@ -427,12 +427,12 @@ namespace fEquipmentShop {
             }
         }
         {
-            GI_Image::TImageGI* BGCity = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity"_wref.get()));
+            GI_Image::TImageGI* BGCity = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity"sv));
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 BGCity->SetActive(true);
                 {
                     pas::WideString governmentBackgroundGraph = aPlayer::GetPlayer()->CurrentPlanet->GetGovernmentBackgroundGraph();
-                    GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(BGCity->FindByNameRecursive(u"BGCity"_wref.get()));
+                    GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(BGCity->FindByNameRecursive(u"BGCity"sv));
                     cpp_arg->SetImagePath(std::move(governmentBackgroundGraph));
                 }
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
@@ -452,36 +452,36 @@ namespace fEquipmentShop {
             }
         }
         {
-            GI_Image::TImageGI* BGImageRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGImageRace"_wref.get()));
+            GI_Image::TImageGI* BGImageRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGImageRace"sv));
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 Owner = aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId);
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                 Owner = aPlayer::GetPlayer()->DockedTo->OwnerId;
             } else {
-                Owner = 0;
+                Owner = aGalaxyStruct::oiMaloc;
             }
             BGImageRace->SetActive(true);
-            if (Owner == 1) {
+            if (Owner == aGalaxyStruct::oiPeleng) {
                 BGImageRace->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Peleng"}));
-            } else if (Owner == 2) {
+            } else if (Owner == aGalaxyStruct::oiHuman) {
                 BGImageRace->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"People"}));
-            } else if (Owner == 3) {
+            } else if (Owner == aGalaxyStruct::oiFeyan) {
                 BGImageRace->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Fei"}));
-            } else if (Owner == 4) {
+            } else if (Owner == aGalaxyStruct::oiGaal) {
                 BGImageRace->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Gaal"}));
             } else {
                 BGImageRace->SetActive(false);
             }
         }
         {
-            GI_GraphButton::TGraphButtonGI* Left = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Left = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"sv));
             Left->DownCallback = pas::bind_method<&TfEquipmentShop::ScrollLeft>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Right = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Right = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"sv));
             Right->DownCallback = pas::bind_method<&TfEquipmentShop::ScrollRight>(this);
         }
-        GetByName(u"PII"_wref.get())->SetActive(false);
+        GetByName(u"PII"sv)->SetActive(false);
         ClearGoodsControls();
         fEquipmentShop::RestoreTemporaryShopStock();
         if (aPlayer::GetPlayer() != nullptr) {
@@ -581,7 +581,7 @@ namespace fEquipmentShop {
                 ContentColumnCount = Slot->GridPoint.X + 1;
             }
         }
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"sv));
         float CellWidth = pas::real_divide(Panel->ClientSize.X, ShopVisibleColumnCount);
         float CellHeight = pas::real_divide(Panel->ClientSize.Y, ShopGridRowCount);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, ContentColumnCount - 1); cpp_range_2.next(I); ) {
@@ -616,8 +616,8 @@ namespace fEquipmentShop {
                     if (Slot->Item == nullptr) {
                         cpp_with_2->SetActive(false);
                     } else {
-                        if (pas::class_cast_if<aItem::TWeapon*>(Slot->Item) != nullptr) {
-                            pas::checked_cast<aItem::TWeapon*>(Slot->Item)->Target = nullptr;
+                        if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Slot->Item)) {
+                            weapon->Target = nullptr;
                         }
                         cpp_with_2->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"SlotN"}));
                         cpp_with_2->MouseEnterCallback = pas::bind_method<&TfEquipmentShop::ItemMouseEnter>(this);
@@ -647,7 +647,7 @@ namespace fEquipmentShop {
                     } else {
                         Cost = Slot->Item->GetConditionAdjustedCost();
                         if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr) {
-                            Cost = std::max<std::int32_t>(1, Cost - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                            Cost = std::max<std::int32_t>(1, Cost - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psTrading, false)));
                         }
                         if (aPlayer::GetPlayer()->Money < Cost || Slot->Item->ItemType != aConst::t_Hull && aPlayer::GetPlayer()->GetCargoFreeSpace() < Slot->Item->Weight) {
                             cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"SlotBorderH"}));
@@ -676,14 +676,14 @@ namespace fEquipmentShop {
                         cpp_with_4->SetDepth(3.0);
                         if (reinterpret_cast<aItem::TEquipment*>(Slot->Item)->GetLevel() != 0) {
                             LevelSuffix = pas::concat_wide({u"_", EC_Str::IntToWideString(reinterpret_cast<aItem::TEquipment*>(Slot->Item)->GetLevel())});
-                        } else if (pas::class_cast_if<aItem::TMicroModule*>(Slot->Item) != nullptr) {
-                            LevelSuffix = pas::concat_wide({u"_", EC_Str::IntToWideString(aItem::GetMicroModulePriorityColorTier(reinterpret_cast<aItem::TEquipment*>(Slot->Item)->MicroModuleIndex - 1))});
+                        } else if (aItem::TMicroModule* microModule = pas::class_cast_if<aItem::TMicroModule*>(Slot->Item)) {
+                            LevelSuffix = pas::concat_wide({u"_", EC_Str::IntToWideString(aItem::GetMicroModulePriorityColorTier(static_cast<aItem::TEquipment*>(microModule)->MicroModuleIndex - 1))});
                         } else {
                             LevelSuffix = pas::WideString();
                         }
                         if (reinterpret_cast<aItem::TEquipment*>(Slot->Item)->ConfigBlockName != u"" && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({u"Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Slot", reinterpret_cast<aItem::TEquipment*>(Slot->Item)->ConfigBlockName, LevelSuffix}))) {
                             cpp_with_4->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Slot", reinterpret_cast<aItem::TEquipment*>(Slot->Item)->ConfigBlockName, LevelSuffix}));
-                        } else if (pas::class_cast_if<aItem::TMicroModule*>(Slot->Item) != nullptr && aConst::MicroModuleTemplates[reinterpret_cast<aItem::TEquipment*>(Slot->Item)->MicroModuleIndex - 1].KindGraph != u"" && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({u"Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Slot", aConst::MicroModuleTemplates[reinterpret_cast<aItem::TEquipment*>(Slot->Item)->MicroModuleIndex - 1].KindGraph, LevelSuffix}))) {
+                        } else if (aItem::TMicroModule* microModule_2 = pas::class_cast_if<aItem::TMicroModule*>(Slot->Item); microModule_2 != nullptr && aConst::MicroModuleTemplates[static_cast<aItem::TEquipment*>(microModule_2)->MicroModuleIndex - 1].KindGraph != u"" && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({u"Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Slot", aConst::MicroModuleTemplates[static_cast<aItem::TEquipment*>(microModule_2)->MicroModuleIndex - 1].KindGraph, LevelSuffix}))) {
                             cpp_with_4->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Slot", aConst::MicroModuleTemplates[reinterpret_cast<aItem::TEquipment*>(Slot->Item)->MicroModuleIndex - 1].KindGraph, LevelSuffix}));
                         } else if (GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({u"Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Slot", aConst::ItemTypeNames[Slot->Item->ItemType], LevelSuffix}))) {
                             cpp_with_4->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"Slot", aConst::ItemTypeNames[Slot->Item->ItemType], LevelSuffix}));
@@ -803,7 +803,7 @@ namespace fEquipmentShop {
                 }
             }
         }
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"sv));
         GI_MessageLoop::TObjectGI* Child = Panel->FirstChild;
         while (Child != nullptr) {
             Current = Child;
@@ -876,7 +876,7 @@ namespace fEquipmentShop {
             ClearGoodsControls();
             BuildGoodsControls();
             UpdateScrollButtons();
-            if (!Globals::ShipScreen->FlagD4) {
+            if (!Globals::ShipScreen->ReopenRequested) {
                 break;
             }
             SetCursorActive(false);
@@ -894,13 +894,13 @@ namespace fEquipmentShop {
     }
 
     void TfEquipmentShop::UpdateScrollButtons() {
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"sv));
         {
-            GI_GraphButton::TGraphButtonGI* Left = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Left = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"sv));
             Left->SetDisabled(Panel->ScrollOffset.X <= 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Right = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Right = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"sv));
             {
                 pas::Extended cpp_left = pas::real_divide(Panel->ClientSize.X, ShopVisibleColumnCount) * ContentColumnCount;
                 Right->SetDisabled(Panel->ScrollOffset.X >= System::Round(cpp_left - pas::real_divide(Panel->ClientSize.X, ShopVisibleColumnCount) * ShopVisibleColumnCount) - 1);
@@ -937,10 +937,10 @@ namespace fEquipmentShop {
         Slot->SlotImage->SetImageKindX(GI_Main::ikxCenter);
         Slot->SlotImage->SetImageKindY(GI_Main::ikyCenter);
         TfEquipmentShop::StartSlotAnimatedPreview(Slot);
-        GI_MessageLoop::TObjectGI* Panel = GetByName(u"PanelShop"_wref.get());
+        GI_MessageLoop::TObjectGI* Panel = GetByName(u"PanelShop"sv);
         ItemInfoAnchor = ClassesImports::Point(Sender->HitTestBounds.Left + Sender->ClientSize.X / 2, std::min<std::int32_t>(Sender->HitTestBounds.Bottom, Panel->HitTestBounds.Bottom - Sender->ClientSize.Y - 24));
         RefreshItemInfo(Slot->Item);
-        if (!IsCursorImageSelected(u"Take"_wref.get())) {
+        if (!IsCursorImageSelected(u"Take"sv)) {
             SetCursorByName(u"Take"_wref.get());
         }
     }
@@ -952,13 +952,13 @@ namespace fEquipmentShop {
         Slot->SlotImage->SetImageKindY(GI_Main::ikyCenter);
         ScheduleSlotPreviewStop(Slot);
         RefreshItemInfo(nullptr);
-        if (!IsCursorImageSelected(u"Main"_wref.get())) {
+        if (!IsCursorImageSelected(u"Main"sv)) {
             SetCursorByName(u"Main"_wref.get());
         }
     }
 
     void TfEquipmentShop::ScrollLeft(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"sv));
         pas::Extended cpp_left = Panel->ScrollOffset.X - pas::real_divide(Panel->ClientSize.X, ShopVisibleColumnCount);
         std::int32_t Column = System::Round(pas::real_divide(cpp_left, pas::real_divide(Panel->ClientSize.X, ShopVisibleColumnCount)));
         if (Column < 0) {
@@ -972,7 +972,7 @@ namespace fEquipmentShop {
     }
 
     void TfEquipmentShop::ScrollRight(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"sv));
         pas::Extended cpp_left = Panel->ScrollOffset.X + pas::real_divide(Panel->ClientSize.X, ShopVisibleColumnCount);
         std::int32_t Column = System::Round(pas::real_divide(cpp_left, pas::real_divide(Panel->ClientSize.X, ShopVisibleColumnCount)));
         if (Column > ContentColumnCount - ShopVisibleColumnCount) {
@@ -986,7 +986,7 @@ namespace fEquipmentShop {
     }
 
     void TfEquipmentShop::ScrollTick(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelGoods"sv));
         if (Panel->ScrollOffset.X == TargetScrollX) {
             if (ScrollTimer != nullptr) {
                 CancelCallbackTimer(ScrollTimer);
@@ -1001,7 +1001,7 @@ namespace fEquipmentShop {
     }
 
     void TfEquipmentShop::PanelScrollChanged(GI_MessageLoop::TObjectGI* Sender) {
-        pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelGoods"_wref.get()))->PanelScrollChanged(Sender);
+        pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelGoods"sv))->PanelScrollChanged(Sender);
         UpdateScrollButtons();
     }
 
@@ -1019,7 +1019,7 @@ namespace fEquipmentShop {
             aGalaxy::Galaxy->PendingEquipmentPurchasePrice = Slot->Item->GetConditionAdjustedCost();
             aPlayer::GetPlayer()->GetCargoFreeSpace();
             if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr && aPlayer::GetPlayer()->Money < aGalaxy::Galaxy->PendingEquipmentPurchasePrice && aPlayer::GetPlayer()->GetHull()->ScriptItem == nullptr && aPlayer::GetPlayer()->GetHull()->NoDropFlag == 0) {
-                aGalaxy::Galaxy->PendingEquipmentPurchasePrice = std::max<std::int32_t>(1, aGalaxy::Galaxy->PendingEquipmentPurchasePrice - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                aGalaxy::Galaxy->PendingEquipmentPurchasePrice = std::max<std::int32_t>(1, aGalaxy::Galaxy->PendingEquipmentPurchasePrice - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psTrading, false)));
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum(199);
             if (aPlayer::GetPlayer()->Money < aGalaxy::Galaxy->PendingEquipmentPurchasePrice) {
@@ -1090,7 +1090,7 @@ namespace fEquipmentShop {
                     if (Slot->Item->GetConditionAdjustedCost() > aPlayer::GetPlayer()->Money) {
                         Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerSellsEquipment"_w, nullptr);
                         Event->AddData(aPlayer::GetPlayer()->GetHull()->ItemType);
-                        Event->AddData(aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                        Event->AddData(aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psTrading, false)));
                         Event->AddData(aPlayer::GetPlayer()->GetHull()->Weight);
                         Event->AddData(aPlayer::GetPlayer()->GetHull()->Id);
                         if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
@@ -1184,7 +1184,7 @@ namespace fEquipmentShop {
                     Slot->MicroModuleImage = nullptr;
                 }
                 RefreshItemInfo(nullptr);
-                if (!IsCursorImageSelected(u"Main"_wref.get())) {
+                if (!IsCursorImageSelected(u"Main"sv)) {
                     SetCursorByName(u"Main"_wref.get());
                 }
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, ShopGridRowCount - 1); cpp_range.next(Y); ) {
@@ -1197,7 +1197,7 @@ namespace fEquipmentShop {
                             } else {
                                 Cost = Slot->Item->GetConditionAdjustedCost();
                                 if (pas::class_cast_if<aItem::THull*>(Slot->Item) != nullptr) {
-                                    Cost = std::max<std::int32_t>(1, Cost - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psTrading, false)));
+                                    Cost = std::max<std::int32_t>(1, Cost - aPlayer::GetPlayer()->GetHull()->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psTrading, false)));
                                 }
                                 if (aPlayer::GetPlayer()->Money < Cost || Slot->Item->ItemType != aConst::t_Hull && aPlayer::GetPlayer()->CargoFreeSpace < Slot->Item->Weight) {
                                     cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormShop2.", GR_Main::GiResourceSuffix(), u"SlotBorderH"}));
@@ -1250,11 +1250,11 @@ namespace fEquipmentShop {
             CancelCallbackTimer(ItemInfoTimer);
             ItemInfoTimer = nullptr;
         }
-        GetByName(u"PII"_wref.get())->SetActive(false);
-        GetByName(u"InfoHull"_wref.get())->SetActive(false);
-        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"_wref.get()))->SetText(u""_wref.get());
-        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"_wref.get()))->SetText(u""_wref.get());
-        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"_wref.get()))->SetText(u""_wref.get());
+        GetByName(u"PII"sv)->SetActive(false);
+        GetByName(u"InfoHull"sv)->SetActive(false);
+        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv))->SetText(u""_wref.get());
+        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"sv))->SetText(u""_wref.get());
+        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"sv))->SetText(u""_wref.get());
     }
 
     void TfEquipmentShop::RefreshItemInfo(aItem::TItem* Item) {
@@ -1326,9 +1326,9 @@ namespace fEquipmentShop {
                 ItemInfoWindow->SetActive(false);
             } else {
                 ItemInfoWindow->SetActive(true);
-                GetByName(u"InfoHull"_wref.get())->SetActive(false);
+                GetByName(u"InfoHull"sv)->SetActive(false);
                 {
-                    GI_Image::TImageGI* InfoImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoImage"_wref.get()));
+                    GI_Image::TImageGI* InfoImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoImage"sv));
                     InfoImage->SetImagePath(pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(Equipment), u"s"}));
                     InfoImage->SetImageKindX(GI_Main::ikxCenter);
                     InfoImage->SetImageKindY(GI_Main::ikyCenter);
@@ -1338,52 +1338,52 @@ namespace fEquipmentShop {
                         InfoImage->SetPosition(EC_Struct::SubtractPoints(itemImageCenter, visualCenter));
                     }
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"_wref.get()))->SetText(u""_wref.get());
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv))->SetText(u""_wref.get());
                 {
                     const pas::WideString& wrapTextInColor = ([&] {
                         pas::WideString displayName_2 = Equipment->GetDisplayName();
                         pas::WideString infoNameColorTag_2 = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(displayName_2), std::move(infoNameColorTag_2));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(displayName_2)), pas::view(std::move(infoNameColorTag_2)));
                     }());
-                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv));
                     cpp_arg_2->SetText(wrapTextInColor);
                 }
                 {
                     const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
-                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv));
                     cpp_arg_3->SetText(infoText_2);
                 }
                 {
                     const pas::WideString& intToWideString = EC_Str::IntToWideString(Equipment->Weight);
-                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoSize"sv));
                     cpp_arg_4->SetText(intToWideString);
                 }
                 Price = EC_Str::IntToWideString(Equipment->GetConditionAdjustedCost());
                 if (Equipment->GetConditionAdjustedCost() < Equipment->Cost) {
-                    Price = aMyFunction::WrapTextInColor(Price, u"<color=255,0,0>"_w);
+                    Price = aMyFunction::WrapTextInColor(pas::view(Price), u"<color=255,0,0>"sv);
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"_wref.get()))->SetText(Price);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"sv))->SetText(Price);
                 {
-                    GI_Image::TImageGI* EmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"EmRace"_wref.get()));
+                    GI_Image::TImageGI* EmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"EmRace"sv));
                     EmRace->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Equipment)));
                     EmRace->SetImageKindX(GI_Main::ikxCenter);
                     EmRace->SetImageKindY(GI_Main::ikyCenter);
                 }
                 if (static_cast<std::uint8_t>(pas::contains(DurableTypes, static_cast<std::uint8_t>(Equipment->ItemType)) ^ 1) && Equipment->ItemType != aConst::t_Hull) {
                     {
-                        GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                        GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                         InfoDurable->Parent->Parent->SetActive(false);
                     }
                     MinimumWidth = 0;
                 } else {
                     BarWidth = std::min<std::int64_t>(static_cast<std::int64_t>(192), std::max<std::int64_t>(static_cast<std::int64_t>(32), System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))))));
                     {
-                        GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
                         CapWidth = InfoDurableLeft->GetContentSize().X;
                         MinimumWidth = 2 * CapWidth + BarWidth + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + 2 * InfoDurableLeft->Parent->Parent->LocalPosition.X;
                     }
                     {
-                        GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                        GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                         InfoDurable_2->Parent->Parent->SetActive(true);
                         InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(2 * CapWidth + BarWidth, InfoDurable_2->Parent->Parent->ClientSize.Y));
                         InfoDurable_2->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
@@ -1401,7 +1401,7 @@ namespace fEquipmentShop {
                         }
                     }
                     {
-                        GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
                         {
                             std::int32_t cpp_arg_7 = BarWidth + CapWidth - InfoDurableRight->GetContentSize().X;
                             std::int32_t y_3 = InfoDurableRight->LocalPosition.Y;
@@ -1411,7 +1411,7 @@ namespace fEquipmentShop {
                         InfoDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableRight->Parent->ClientSize.Y));
                     }
                     {
-                        GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
                         {
                             std::int32_t cpp_arg_8 = BarWidth + 1 - InfoDurableBack->GetContentSize().X;
                             std::int32_t y_4 = InfoDurableBack->LocalPosition.Y;
@@ -1421,13 +1421,13 @@ namespace fEquipmentShop {
                     }
                 }
                 {
-                    GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv));
+                    GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv));
                     fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, cpp_arg_10, cpp_arg_9, true, true, MinimumWidth);
                 }
-                GetByName(u"InfoSize"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
-                GetByName(u"InfoPrice"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
-                GetByName(u"EmRace"_wref.get())->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
+                GetByName(u"InfoSize"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
+                GetByName(u"InfoPrice"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
+                GetByName(u"EmRace"sv)->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
                 if (GlobalsV::DynamicTipsPos) {
                     ItemInfoWindow->SetPosition(ClassesImports::Point(ItemInfoAnchor.X - ItemInfoWindow->ClientSize.X / 2, ItemInfoAnchor.Y));
                 } else {
@@ -1441,7 +1441,7 @@ namespace fEquipmentShop {
         GI_MessageLoop::TObjectGI* Root{};
         std::int32_t I{};
         // Nested in BuildHullSlotOverlays; captures root, parent and offsets.
-        auto AddOverlay = [&](pas::WideString Name) -> void {
+        auto AddOverlay = [&](const std::u16string_view& Name) -> void {
             pas::WideString Path{};
             GI_GraphBuf::TGraphBufGI* Graph{};
             GI_MessageLoop::TObjectGI* Control = Root->FindByNameRecursive(Name);
@@ -1452,56 +1452,56 @@ namespace fEquipmentShop {
                 Graph->SetSize(Control->ClientSize);
                 Graph->SourceHasPerPixelAlpha = true;
                 Path = pas::checked_cast<GI_Image::TImageGI*>(Control)->GetImagePath();
-                if (EC_Str::CountDelimitedPartsW(Path, u","_wref.get()) == 2) {
-                    Path = EC_Str::ExtractDelimitedPartW(Path, 1, u","_wref.get());
+                if (EC_Str::CountDelimitedPartsW(pas::view(Path), u","sv) == 2) {
+                    Path = EC_Str::ExtractDelimitedPartW(pas::view(Path), 1, u","sv);
                 }
                 GI_GI::LoadGiByPathIntoGraphBuf(Path, Graph->GraphBuf);
             }
         };
-        Root = GetByName(u"InfoHull"_wref.get());
+        Root = GetByName(u"InfoHull"sv);
         if (Hull->GetSlotCount(aConst::sskAfterburner) >= 1) {
-            AddOverlay(u"InfoHull_Forsage"_w);
+            AddOverlay(u"InfoHull_Forsage"sv);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 1) {
-            AddOverlay(u"InfoHull_W1"_w);
+            AddOverlay(u"InfoHull_W1"sv);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 2) {
-            AddOverlay(u"InfoHull_W2"_w);
+            AddOverlay(u"InfoHull_W2"sv);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 3) {
-            AddOverlay(u"InfoHull_W3"_w);
+            AddOverlay(u"InfoHull_W3"sv);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 4) {
-            AddOverlay(u"InfoHull_W4"_w);
+            AddOverlay(u"InfoHull_W4"sv);
         }
         if (Hull->GetSlotCount(aConst::sskWeapon) < 5) {
-            AddOverlay(u"InfoHull_W5"_w);
+            AddOverlay(u"InfoHull_W5"sv);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, aConst::DefaultHullSlotCounts[aConst::sskArtefact]); cpp_range.next(I); ) {
             if (Hull->GetSlotCount(aConst::sskArtefact) < I) {
-                AddOverlay(pas::concat_wide({u"InfoHull_A", EC_Str::IntToWideString(I)}));
+                AddOverlay(pas::view(pas::concat_wide({u"InfoHull_A", EC_Str::IntToWideString(I)})));
             }
         }
         if (Hull->GetSlotCount(aConst::sskEngine) < 1) {
-            AddOverlay(u"InfoHull_Engine"_w);
+            AddOverlay(u"InfoHull_Engine"sv);
         }
         if (Hull->GetSlotCount(aConst::sskFuelTanks) < 1) {
-            AddOverlay(u"InfoHull_FuelTanks"_w);
+            AddOverlay(u"InfoHull_FuelTanks"sv);
         }
         if (Hull->GetSlotCount(aConst::sskScanner) < 1) {
-            AddOverlay(u"InfoHull_Scaner"_w);
+            AddOverlay(u"InfoHull_Scaner"sv);
         }
         if (Hull->GetSlotCount(aConst::sskRadar) < 1) {
-            AddOverlay(u"InfoHull_Radar"_w);
+            AddOverlay(u"InfoHull_Radar"sv);
         }
         if (Hull->GetSlotCount(aConst::sskRepairRobot) < 1) {
-            AddOverlay(u"InfoHull_RepairRobot"_w);
+            AddOverlay(u"InfoHull_RepairRobot"sv);
         }
         if (Hull->GetSlotCount(aConst::sskCargoHook) < 1) {
-            AddOverlay(u"InfoHull_CargoHook"_w);
+            AddOverlay(u"InfoHull_CargoHook"sv);
         }
         if (Hull->GetSlotCount(aConst::sskDefGenerator) < 1) {
-            AddOverlay(u"InfoHull_DefGenerator"_w);
+            AddOverlay(u"InfoHull_DefGenerator"sv);
         }
     }
 
@@ -1514,56 +1514,56 @@ namespace fEquipmentShop {
         aGalaxyStruct::TDominatorSeries Series{};
         std::int32_t CapWidth{};
         std::int32_t MinimumWidth{};
-        GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(Target->GetByName(u"InfoHull"_wref.get()));
-        GI_Label::TLabelGI* TextLabel = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullText"_wref.get()));
+        GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(Target->GetByName(u"InfoHull"sv));
+        GI_Label::TLabelGI* TextLabel = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullText"sv));
         Window->SetActive(true);
         {
             const pas::WideString& wrapTextInColor = ([&] {
                 pas::WideString displayName = Hull->GetDisplayName();
                 pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                return aMyFunction::WrapTextInColor(std::move(displayName), std::move(infoNameColorTag));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag)));
             }());
-            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"sv));
             cpp_arg->SetText(wrapTextInColor);
         }
         SeriesName = Hull->GetSeriesName();
         if (SeriesName != u"") {
-            SeriesName = pas::concat_wide({u"\r\n", aMyFunction::WrapTextInColor(SeriesName, aMyFunction::InfoHullSeriesColorTag)});
+            SeriesName = pas::concat_wide({u"\r\n", aMyFunction::WrapTextInColor(pas::view(SeriesName), pas::view(aMyFunction::InfoHullSeriesColorTag))});
         }
         {
-            const pas::WideString& cpp_arg_2 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"_wref.get()))->GetText(), SeriesName});
-            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"_wref.get()));
+            const pas::WideString& cpp_arg_2 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"sv))->GetText(), SeriesName});
+            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"sv));
             cpp_arg_3->SetText(cpp_arg_2);
         }
         TextLabel->SetText(Text);
         {
             std::uint8_t cpp_arg_4 = Hull->GetSlotCount(aConst::sskAfterburner) >= 1;
-            GI_MessageLoop::TObjectGI* byName = Target->GetByName(u"InfoHull_Forsage"_wref.get());
+            GI_MessageLoop::TObjectGI* byName = Target->GetByName(u"InfoHull_Forsage"sv);
             byName->SetActive(cpp_arg_4);
         }
         {
             std::uint8_t cpp_arg_5 = !(Hull->GetSlotCount(aConst::sskWeapon) >= 1);
-            GI_MessageLoop::TObjectGI* byName_2 = Target->GetByName(u"InfoHull_W1"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_2 = Target->GetByName(u"InfoHull_W1"sv);
             byName_2->SetActive(cpp_arg_5);
         }
         {
             std::uint8_t cpp_arg_6 = !(Hull->GetSlotCount(aConst::sskWeapon) >= 2);
-            GI_MessageLoop::TObjectGI* byName_3 = Target->GetByName(u"InfoHull_W2"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_3 = Target->GetByName(u"InfoHull_W2"sv);
             byName_3->SetActive(cpp_arg_6);
         }
         {
             std::uint8_t cpp_arg_7 = !(Hull->GetSlotCount(aConst::sskWeapon) >= 3);
-            GI_MessageLoop::TObjectGI* byName_4 = Target->GetByName(u"InfoHull_W3"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_4 = Target->GetByName(u"InfoHull_W3"sv);
             byName_4->SetActive(cpp_arg_7);
         }
         {
             std::uint8_t cpp_arg_8 = !(Hull->GetSlotCount(aConst::sskWeapon) >= 4);
-            GI_MessageLoop::TObjectGI* byName_5 = Target->GetByName(u"InfoHull_W4"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_5 = Target->GetByName(u"InfoHull_W4"sv);
             byName_5->SetActive(cpp_arg_8);
         }
         {
             std::uint8_t cpp_arg_9 = !(Hull->GetSlotCount(aConst::sskWeapon) >= 5);
-            GI_MessageLoop::TObjectGI* byName_6 = Target->GetByName(u"InfoHull_W5"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_6 = Target->GetByName(u"InfoHull_W5"sv);
             byName_6->SetActive(cpp_arg_9);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, aConst::DefaultHullSlotCounts[aConst::sskArtefact]); cpp_range.next(I); ) {
@@ -1574,37 +1574,37 @@ namespace fEquipmentShop {
         }
         {
             std::uint8_t cpp_arg_10 = !(Hull->GetSlotCount(aConst::sskEngine) >= 1);
-            GI_MessageLoop::TObjectGI* byName_7 = Target->GetByName(u"InfoHull_Engine"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_7 = Target->GetByName(u"InfoHull_Engine"sv);
             byName_7->SetActive(cpp_arg_10);
         }
         {
             std::uint8_t cpp_arg_11 = !(Hull->GetSlotCount(aConst::sskFuelTanks) >= 1);
-            GI_MessageLoop::TObjectGI* byName_8 = Target->GetByName(u"InfoHull_FuelTanks"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_8 = Target->GetByName(u"InfoHull_FuelTanks"sv);
             byName_8->SetActive(cpp_arg_11);
         }
         {
             std::uint8_t cpp_arg_12 = !(Hull->GetSlotCount(aConst::sskScanner) >= 1);
-            GI_MessageLoop::TObjectGI* byName_9 = Target->GetByName(u"InfoHull_Scaner"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_9 = Target->GetByName(u"InfoHull_Scaner"sv);
             byName_9->SetActive(cpp_arg_12);
         }
         {
             std::uint8_t cpp_arg_13 = !(Hull->GetSlotCount(aConst::sskRadar) >= 1);
-            GI_MessageLoop::TObjectGI* byName_10 = Target->GetByName(u"InfoHull_Radar"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_10 = Target->GetByName(u"InfoHull_Radar"sv);
             byName_10->SetActive(cpp_arg_13);
         }
         {
             std::uint8_t cpp_arg_14 = !(Hull->GetSlotCount(aConst::sskRepairRobot) >= 1);
-            GI_MessageLoop::TObjectGI* byName_11 = Target->GetByName(u"InfoHull_RepairRobot"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_11 = Target->GetByName(u"InfoHull_RepairRobot"sv);
             byName_11->SetActive(cpp_arg_14);
         }
         {
             std::uint8_t cpp_arg_15 = !(Hull->GetSlotCount(aConst::sskCargoHook) >= 1);
-            GI_MessageLoop::TObjectGI* byName_12 = Target->GetByName(u"InfoHull_CargoHook"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_12 = Target->GetByName(u"InfoHull_CargoHook"sv);
             byName_12->SetActive(cpp_arg_15);
         }
         {
             std::uint8_t cpp_arg_16 = !(Hull->GetSlotCount(aConst::sskDefGenerator) >= 1);
-            GI_MessageLoop::TObjectGI* byName_13 = Target->GetByName(u"InfoHull_DefGenerator"_wref.get());
+            GI_MessageLoop::TObjectGI* byName_13 = Target->GetByName(u"InfoHull_DefGenerator"sv);
             byName_13->SetActive(cpp_arg_16);
         }
         DisplayKind = 0;
@@ -1621,7 +1621,7 @@ namespace fEquipmentShop {
             Series = pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Hull->OwnerShip))->DominatorSeries;
         }
         if (!SuppressImage) {
-            GI_Image::TImageGI* InfoHullImage = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullImage"_wref.get()));
+            GI_Image::TImageGI* InfoHullImage = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullImage"sv));
             if (HullKind == 6) {
                 InfoHullImage->SetImagePath(u"GraphBuf"_w);
                 PreviewPath = pas::WideString();
@@ -1631,7 +1631,7 @@ namespace fEquipmentShop {
                 if (PreviewPath != u"") {
                     GI_GraphBuf::TGraphBufGI* cpp_with_2 = InfoHullImage->GraphBufControl;
                     cpp_with_2->SourceHasPerPixelAlpha = true;
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(PreviewPath, 1, u","_wref.get()), cpp_with_2->GraphBuf);
+                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(PreviewPath), 1, u","sv), cpp_with_2->GraphBuf);
                     if (static_cast<std::uint32_t>(cpp_with_2->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_2->GraphBuf->Height)) {
                         cpp_with_2->GraphBuf->RescaleRgba(cpp_with_2->ClientSize.X, System::Round(pas::real_divide(cpp_with_2->ClientSize.X, static_cast<std::uint32_t>(cpp_with_2->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_2->GraphBuf->Height)), 5);
                     } else {
@@ -1675,16 +1675,16 @@ namespace fEquipmentShop {
         }
         {
             const pas::WideString& intToWideString = EC_Str::IntToWideString(Hull->Weight);
-            GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullSize"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullSize"sv));
             cpp_arg_17->SetText(intToWideString);
         }
         {
             const pas::WideString& intToWideString_2 = EC_Str::IntToWideString(Hull->GetConditionAdjustedCost());
-            GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullPrice"_wref.get()));
+            GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullPrice"sv));
             cpp_arg_18->SetText(intToWideString_2);
         }
         {
-            GI_Image::TImageGI* InfoHullEmRace = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullEmRace"_wref.get()));
+            GI_Image::TImageGI* InfoHullEmRace = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullEmRace"sv));
             InfoHullEmRace->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Hull)));
             InfoHullEmRace->SetImageKindX(GI_Main::ikxCenter);
             InfoHullEmRace->SetImageKindY(GI_Main::ikyCenter);
@@ -1693,12 +1693,12 @@ namespace fEquipmentShop {
         std::int32_t BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Hull->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
         BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
         {
-            GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"_wref.get()));
+            GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
             CapWidth = InfoDurableLeft->GetContentSize().X;
             MinimumWidth = 2 * CapWidth + BarWidth + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + 2 * InfoDurableLeft->Parent->Parent->LocalPosition.X;
         }
         {
-            GI_Image::TImageGI* InfoHullDurable = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullDurable"_wref.get()));
+            GI_Image::TImageGI* InfoHullDurable = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullDurable"sv));
             InfoHullDurable->Parent->Parent->SetSize(ClassesImports::Point(2 * CapWidth + BarWidth, InfoHullDurable->Parent->Parent->ClientSize.Y));
             InfoHullDurable->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoHullDurable->Parent->Parent->ClientSize.Y));
             {
@@ -1709,7 +1709,7 @@ namespace fEquipmentShop {
             }
         }
         {
-            GI_Image::TImageGI* InfoHullDurableRight = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullDurableRight"_wref.get()));
+            GI_Image::TImageGI* InfoHullDurableRight = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullDurableRight"sv));
             {
                 std::int32_t cpp_arg_20 = BarWidth + CapWidth - InfoHullDurableRight->GetContentSize().X;
                 std::int32_t y_2 = InfoHullDurableRight->LocalPosition.Y;
@@ -1719,7 +1719,7 @@ namespace fEquipmentShop {
             InfoHullDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoHullDurableRight->Parent->ClientSize.Y));
         }
         {
-            GI_Image::TImageGI* InfoHullDurableBack = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullDurableBack"_wref.get()));
+            GI_Image::TImageGI* InfoHullDurableBack = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullDurableBack"sv));
             {
                 std::int32_t cpp_arg_21 = BarWidth + 1 - InfoHullDurableBack->GetContentSize().X;
                 std::int32_t y_3 = InfoHullDurableBack->LocalPosition.Y;
@@ -1727,10 +1727,10 @@ namespace fEquipmentShop {
             }
             InfoHullDurableBack->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoHullDurableBack->Parent->ClientSize.Y));
         }
-        fShip2::TfShip2::LayoutItemInfo(Window, pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"_wref.get())), TextLabel, false, true, MinimumWidth);
-        Target->GetByName(u"InfoHullSize"_wref.get())->SetPosition(ClassesImports::Point(HullSizeOffset.X, Window->ClientSize.Y + HullSizeOffset.Y));
-        Target->GetByName(u"InfoHullPrice"_wref.get())->SetPosition(ClassesImports::Point(HullPriceOffset.X, Window->ClientSize.Y + HullPriceOffset.Y));
-        Target->GetByName(u"InfoHullEmRace"_wref.get())->SetPosition(ClassesImports::Point(Window->ClientSize.X + HullRaceOffset.X, Window->ClientSize.Y + HullRaceOffset.Y));
+        fShip2::TfShip2::LayoutItemInfo(Window, pas::checked_cast<GI_Label::TLabelGI*>(Target->GetByName(u"InfoHullName"sv)), TextLabel, false, true, MinimumWidth);
+        Target->GetByName(u"InfoHullSize"sv)->SetPosition(ClassesImports::Point(HullSizeOffset.X, Window->ClientSize.Y + HullSizeOffset.Y));
+        Target->GetByName(u"InfoHullPrice"sv)->SetPosition(ClassesImports::Point(HullPriceOffset.X, Window->ClientSize.Y + HullPriceOffset.Y));
+        Target->GetByName(u"InfoHullEmRace"sv)->SetPosition(ClassesImports::Point(Window->ClientSize.X + HullRaceOffset.X, Window->ClientSize.Y + HullRaceOffset.Y));
         if (GlobalsV::DynamicTipsPos) {
             Window->SetPosition(ClassesImports::Point(ItemInfoAnchor.X - Window->ClientSize.X / 2, ItemInfoAnchor.Y));
         } else {
@@ -1739,10 +1739,10 @@ namespace fEquipmentShop {
     }
 
     void TfEquipmentShop::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        if (Delta == WindowsSdk::WHEEL_DELTA && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"_wref.get()))->Disabled ^ 1)) {
+        if (Delta == WindowsSdk::WHEEL_DELTA && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"sv))->Disabled ^ 1)) {
             ScrollLeft(nullptr);
             RefreshItemInfo(nullptr);
-        } else if (Delta == -WindowsSdk::WHEEL_DELTA && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"_wref.get()))->Disabled ^ 1)) {
+        } else if (Delta == -WindowsSdk::WHEEL_DELTA && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"sv))->Disabled ^ 1)) {
             ScrollRight(nullptr);
             RefreshItemInfo(nullptr);
         }
@@ -1752,14 +1752,14 @@ namespace fEquipmentShop {
         if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1) && ExitCode == 0) {
             if (Key == 'S') {
                 ShipClicked(nullptr);
-            } else if ((Key == WindowsSdk::VK_LEFT || Key == WindowsSdk::VK_UP) && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"_wref.get()))->Disabled ^ 1)) {
+            } else if ((Key == WindowsSdk::VK_LEFT || Key == WindowsSdk::VK_UP) && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Left"sv))->Disabled ^ 1)) {
                 ScrollLeft(nullptr);
                 RefreshItemInfo(nullptr);
-            } else if ((Key == WindowsSdk::VK_RIGHT || Key == WindowsSdk::VK_DOWN) && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"_wref.get()))->Disabled ^ 1)) {
+            } else if ((Key == WindowsSdk::VK_RIGHT || Key == WindowsSdk::VK_DOWN) && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Right"sv))->Disabled ^ 1)) {
                 ScrollRight(nullptr);
                 RefreshItemInfo(nullptr);
             } else if (Key == WindowsSdk::VK_SPACE) {
-                if (GetByName(u"PM_EndTurn"_wref.get())->Active) {
+                if (GetByName(u"PM_EndTurn"sv)->Active) {
                     EndTurnClicked(nullptr);
                 }
             } else {
@@ -1793,9 +1793,9 @@ namespace fEquipmentShop {
             return;
         }
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
-            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
@@ -1806,9 +1806,9 @@ namespace fEquipmentShop {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName, u"Pirate"}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         }
     }

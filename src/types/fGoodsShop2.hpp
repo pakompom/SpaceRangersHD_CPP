@@ -95,8 +95,8 @@ namespace fGoodsShop2 {
         std::int32_t NameFaceHeight;
         // Total original extent from name top to character-description bottom.
         std::int32_t FaceCaptionHeight;
-        // Suppresses parent star-map presentation during modal transitions; other uses unresolved.
-        std::uint8_t FlagEC;
+        // Keeps the modal goods shop active for another pass after refreshing the parent background.
+        std::uint8_t ReopenRequested;
         std::uint8_t cpp_padding[3];
         pas::Array<TGoodsShopTradeRow, 0, 7> TradeRows;
         // Trading partner cargo limit.

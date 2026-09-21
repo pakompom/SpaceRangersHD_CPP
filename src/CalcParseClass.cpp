@@ -554,26 +554,26 @@ namespace CalcParseClass {
         Current = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(EC_Str::TrimWideString(Text))));
         do {
             Previous = Current;
-            Current = EC_Str::ReplaceAllWideString(Current, u"pct"_wref.get(), u"%"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"div"_wref.get(), u"f"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"mod"_wref.get(), u"g"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"in"_wref.get(), u"#"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"to"_wref.get(), u"$"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"or"_wref.get(), u"|"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"and"_wref.get(), u"&"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"<>"_wref.get(), u"e"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u">="_wref.get(), u"c"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"<="_wref.get(), u"b"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u".."_wref.get(), u"h"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"."_wref.get(), u","_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"  "_wref.get(), u" "_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"d"_wref.get(), u""_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"m"_wref.get(), u""_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"o"_wref.get(), u""_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"t"_wref.get(), u""_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"i"_wref.get(), u""_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"a"_wref.get(), u""_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"n"_wref.get(), u""_wref.get());
+            Current = EC_Str::ReplaceAllWideString(Current, u"pct"_wref.get(), u"%"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"div"_wref.get(), u"f"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"mod"_wref.get(), u"g"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"in"_wref.get(), u"#"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"to"_wref.get(), u"$"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"or"_wref.get(), u"|"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"and"_wref.get(), u"&"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"<>"_wref.get(), u"e"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u">="_wref.get(), u"c"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"<="_wref.get(), u"b"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u".."_wref.get(), u"h"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"."_wref.get(), u","sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"  "_wref.get(), u" "sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"d"_wref.get(), u""sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"m"_wref.get(), u""sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"o"_wref.get(), u""sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"t"_wref.get(), u""sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"i"_wref.get(), u""sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"a"_wref.get(), u""sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"n"_wref.get(), u""sv);
         } while (!(Current == Previous));
         do {
             Previous = Current;
@@ -597,29 +597,29 @@ namespace CalcParseClass {
         pas::WideString Inner{};
         std::int32_t i{};
         Current = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text)));
-        Current = EC_Str::ReplaceAllWideString(Current, u"$"_wref.get(), u" to "_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"#"_wref.get(), u" in "_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"|"_wref.get(), u" or "_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"&"_wref.get(), u" and "_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"e"_wref.get(), u"<>"_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"c"_wref.get(), u">="_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"b"_wref.get(), u"<="_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"f"_wref.get(), u" div "_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"g"_wref.get(), u" mod "_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"h"_wref.get(), u".."_wref.get());
-        Current = EC_Str::ReplaceAllWideString(Current, u"%"_wref.get(), u" pct "_wref.get());
+        Current = EC_Str::ReplaceAllWideString(Current, u"$"_wref.get(), u" to "sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"#"_wref.get(), u" in "sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"|"_wref.get(), u" or "sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"&"_wref.get(), u" and "sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"e"_wref.get(), u"<>"sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"c"_wref.get(), u">="sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"b"_wref.get(), u"<="sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"f"_wref.get(), u" div "sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"g"_wref.get(), u" mod "sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"h"_wref.get(), u".."sv);
+        Current = EC_Str::ReplaceAllWideString(Current, u"%"_wref.get(), u" pct "sv);
         do {
             Previous = Current;
-            Current = EC_Str::ReplaceAllWideString(Current, u"  "_wref.get(), u" "_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"(0-"_wref.get(), u"(-"_wref.get());
+            Current = EC_Str::ReplaceAllWideString(Current, u"  "_wref.get(), u" "sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"(0-"_wref.get(), u"(-"sv);
         } while (!(Current == Previous));
         std::int32_t Count = Current.length();
         if (Count >= 2 && Current.read(1) == u'(' && Current.read(Count) == u')') {
             for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
                 Inner = pas::concat_wide({Inner, Current.read(i)});
             }
-            if (TCalcParse::HasBalancedParenthesesInSlice(Current, 2, Count - 1)) {
-                Previous = Inner;
+            if (TCalcParse::HasBalancedParenthesesInSlice(pas::view(Current), 2, Count - 1)) {
+                Previous = std::move(Inner);
             }
         }
         return Previous;
@@ -668,8 +668,8 @@ namespace CalcParseClass {
                 ++PlusCount;
             }
         }
-        Operators = EC_Str::ReplaceAllWideString(Text, u"-"_wref.get(), u""_wref.get());
-        Operators = EC_Str::ReplaceAllWideString(Operators, u"+"_wref.get(), u""_wref.get());
+        Operators = EC_Str::ReplaceAllWideString(Text, u"-"_wref.get(), u""sv);
+        Operators = EC_Str::ReplaceAllWideString(Operators, u"+"_wref.get(), u""sv);
         if (MinusCount % 2 == 1) {
             Operators = pas::concat_wide({Operators, u"-"});
         } else if (PlusCount > 0 || MinusCount > 0) {
@@ -775,32 +775,32 @@ namespace CalcParseClass {
             Working = Text;
             do {
                 Text = Working;
-                Working = EC_Str::ReplaceAllWideString(Working, u")("_wref.get(), u")*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"."_wref.get(), u","_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u",,"_wref.get(), u","_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(,"_wref.get(), u"(0,"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"),"_wref.get(), u")*0,"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")0"_wref.get(), u")*0"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")1"_wref.get(), u")*1"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")2"_wref.get(), u")*2"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")3"_wref.get(), u")*3"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")4"_wref.get(), u")*4"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")5"_wref.get(), u")*5"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")6"_wref.get(), u")*6"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")7"_wref.get(), u")*7"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")8"_wref.get(), u")*8"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")9"_wref.get(), u")*9"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u",("_wref.get(), u",*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"0("_wref.get(), u"0*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"1("_wref.get(), u"1*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"2("_wref.get(), u"2*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"3("_wref.get(), u"3*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"4("_wref.get(), u"4*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"5("_wref.get(), u"5*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"6("_wref.get(), u"6*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"7("_wref.get(), u"7*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"8("_wref.get(), u"8*("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"9("_wref.get(), u"9*("_wref.get());
+                Working = EC_Str::ReplaceAllWideString(Working, u")("_wref.get(), u")*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"."_wref.get(), u","sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u",,"_wref.get(), u","sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(,"_wref.get(), u"(0,"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"),"_wref.get(), u")*0,"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")0"_wref.get(), u")*0"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")1"_wref.get(), u")*1"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")2"_wref.get(), u")*2"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")3"_wref.get(), u")*3"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")4"_wref.get(), u")*4"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")5"_wref.get(), u")*5"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")6"_wref.get(), u")*6"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")7"_wref.get(), u")*7"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")8"_wref.get(), u")*8"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")9"_wref.get(), u")*9"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u",("_wref.get(), u",*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"0("_wref.get(), u"0*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"1("_wref.get(), u"1*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"2("_wref.get(), u"2*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"3("_wref.get(), u"3*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"4("_wref.get(), u"4*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"5("_wref.get(), u"5*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"6("_wref.get(), u"6*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"7("_wref.get(), u"7*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"8("_wref.get(), u"8*("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"9("_wref.get(), u"9*("sv);
             } while (!(Text == Working));
             Count = Text.length();
             Working = pas::WideString();
@@ -828,40 +828,40 @@ namespace CalcParseClass {
             Working = Text;
             do {
                 Text = Working;
-                Working = EC_Str::ReplaceAllWideString(Working, u"(+"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(*"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(/"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(&"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(|"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(#"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"($"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(%"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(c"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(b"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(e"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(f"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(g"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(<"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(>"_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"(="_wref.get(), u"("_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"-)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"+)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"*)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"/)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"&)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"%)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"|)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"$)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"#)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"c)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"b)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"e)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"f)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"g)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u">)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"<)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u"=)"_wref.get(), u")"_wref.get());
-                Working = EC_Str::ReplaceAllWideString(Working, u")("_wref.get(), u")*("_wref.get());
+                Working = EC_Str::ReplaceAllWideString(Working, u"(+"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(*"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(/"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(&"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(|"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(#"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"($"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(%"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(c"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(b"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(e"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(f"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(g"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(<"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(>"_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"(="_wref.get(), u"("sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"-)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"+)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"*)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"/)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"&)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"%)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"|)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"$)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"#)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"c)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"b)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"e)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"f)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"g)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u">)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"<)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u"=)"_wref.get(), u")"sv);
+                Working = EC_Str::ReplaceAllWideString(Working, u")("_wref.get(), u")*("sv);
             } while (!(Text == Working));
         } while (!(Previous == Text));
         return Text;
@@ -869,7 +869,7 @@ namespace CalcParseClass {
 
     // Any lowercase p selects parameter parsing, even outside the [pN] form.
     pas::WideString TCalcParse::NormalizeBracketFragment(pas::WideString Text) {
-        if (EC_Str::ReplaceAllWideString(Text, u"p"_wref.get(), u""_wref.get()) != Text) {
+        if (EC_Str::ReplaceAllWideString(Text, u"p"_wref.get(), u""sv) != Text) {
             return NormalizeParameterReference(Text);
         }
         return NormalizeRangeLiteral(Text);
@@ -890,7 +890,7 @@ namespace CalcParseClass {
                 Digits = pas::concat_wide({Digits, Text.read(i)});
             }
         }
-        i = EC_Str::ExtractDigitsToIntW(pas::concat_wide({u"0", Digits}));
+        i = EC_Str::ExtractDigitsToIntW(pas::view(pas::concat_wide({u"0", Digits})));
         if (i > 0) {
             return pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
         }
@@ -927,13 +927,13 @@ namespace CalcParseClass {
         Clean = Text;
         do {
             Text = Clean;
-            Clean = EC_Str::ReplaceAllWideString(Clean, u"--"_wref.get(), u""_wref.get());
-            Clean = EC_Str::ReplaceAllWideString(Clean, u";;"_wref.get(), u";"_wref.get());
-            Clean = EC_Str::ReplaceAllWideString(Clean, u"h;"_wref.get(), u";"_wref.get());
-            Clean = EC_Str::ReplaceAllWideString(Clean, u";h"_wref.get(), u";"_wref.get());
-            Clean = EC_Str::ReplaceAllWideString(Clean, u"-;"_wref.get(), u";"_wref.get());
-            Clean = EC_Str::ReplaceAllWideString(Clean, u"-h"_wref.get(), u"h"_wref.get());
-            Clean = EC_Str::ReplaceAllWideString(Clean, u"hh"_wref.get(), u"h"_wref.get());
+            Clean = EC_Str::ReplaceAllWideString(Clean, u"--"_wref.get(), u""sv);
+            Clean = EC_Str::ReplaceAllWideString(Clean, u";;"_wref.get(), u";"sv);
+            Clean = EC_Str::ReplaceAllWideString(Clean, u"h;"_wref.get(), u";"sv);
+            Clean = EC_Str::ReplaceAllWideString(Clean, u";h"_wref.get(), u";"sv);
+            Clean = EC_Str::ReplaceAllWideString(Clean, u"-;"_wref.get(), u";"sv);
+            Clean = EC_Str::ReplaceAllWideString(Clean, u"-h"_wref.get(), u"h"sv);
+            Clean = EC_Str::ReplaceAllWideString(Clean, u"hh"_wref.get(), u"h"sv);
         } while (!(Text == Clean));
         if (Clean != u";" && Text.length() > 0) {
             Text.write(1) = u'[';
@@ -955,39 +955,39 @@ namespace CalcParseClass {
         Current = Text;
         do {
             Text = Current;
-            Current = EC_Str::ReplaceAllWideString(Current, u"-,"_wref.get(), u"-0,"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u")["_wref.get(), u")*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]("_wref.get(), u"]*("_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u")("_wref.get(), u")*("_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]["_wref.get(), u"]*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"],"_wref.get(), u"]*0,"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]0"_wref.get(), u"]*0"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]1"_wref.get(), u"]*1"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]2"_wref.get(), u"]*2"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]3"_wref.get(), u"]*3"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]4"_wref.get(), u"]*4"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]5"_wref.get(), u"]*5"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]6"_wref.get(), u"]*6"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]7"_wref.get(), u"]*7"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]8"_wref.get(), u"]*8"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"]9"_wref.get(), u"]*9"_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u",["_wref.get(), u",*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"0["_wref.get(), u"0*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"1["_wref.get(), u"1*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"2["_wref.get(), u"2*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"3["_wref.get(), u"3*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"4["_wref.get(), u"4*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"5["_wref.get(), u"5*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"6["_wref.get(), u"6*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"7["_wref.get(), u"7*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"8["_wref.get(), u"8*["_wref.get());
-            Current = EC_Str::ReplaceAllWideString(Current, u"9["_wref.get(), u"9*["_wref.get());
+            Current = EC_Str::ReplaceAllWideString(Current, u"-,"_wref.get(), u"-0,"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u")["_wref.get(), u")*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]("_wref.get(), u"]*("sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u")("_wref.get(), u")*("sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]["_wref.get(), u"]*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"],"_wref.get(), u"]*0,"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]0"_wref.get(), u"]*0"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]1"_wref.get(), u"]*1"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]2"_wref.get(), u"]*2"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]3"_wref.get(), u"]*3"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]4"_wref.get(), u"]*4"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]5"_wref.get(), u"]*5"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]6"_wref.get(), u"]*6"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]7"_wref.get(), u"]*7"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]8"_wref.get(), u"]*8"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"]9"_wref.get(), u"]*9"sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u",["_wref.get(), u",*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"0["_wref.get(), u"0*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"1["_wref.get(), u"1*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"2["_wref.get(), u"2*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"3["_wref.get(), u"3*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"4["_wref.get(), u"4*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"5["_wref.get(), u"5*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"6["_wref.get(), u"6*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"7["_wref.get(), u"7*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"8["_wref.get(), u"8*["sv);
+            Current = EC_Str::ReplaceAllWideString(Current, u"9["_wref.get(), u"9*["sv);
         } while (!(Text == Current));
         return Text;
     }
 
     // One-based; zero when absent. Rightmost ties give left associativity. Delimiter balance is unchecked.
-    std::int32_t TCalcParse::FindTopLevelOperator(const pas::WideString& Text, std::int32_t TextLength) {
+    std::int32_t TCalcParse::FindTopLevelOperator(const std::u16string_view& Text, std::int32_t TextLength) {
         std::int32_t Rank{};
         std::int32_t i{};
         std::int32_t BestRank = 0;
@@ -995,20 +995,20 @@ namespace CalcParseClass {
         std::int32_t BracketDepth = 0;
         std::int32_t ParenthesisDepth = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, TextLength); cpp_range.next(i); ) {
-            if (Text.read(i) == u'(') {
+            if (Text[i - 1] == u'(') {
                 ++ParenthesisDepth;
             }
-            if (Text.read(i) == u'[') {
+            if (Text[i - 1] == u'[') {
                 ++BracketDepth;
             }
-            if (Text.read(i) == u')') {
+            if (Text[i - 1] == u')') {
                 --ParenthesisDepth;
             }
-            if (Text.read(i) == u']') {
+            if (Text[i - 1] == u']') {
                 --BracketDepth;
             }
             if (ParenthesisDepth == 0 && BracketDepth == 0) {
-                Rank = TCalcParse::GetOperatorRank(Text.read(i));
+                Rank = TCalcParse::GetOperatorRank(Text[i - 1]);
                 if (BestRank <= Rank) {
                     BestRank = Rank;
                     BestIndex = i;
@@ -1035,7 +1035,7 @@ namespace CalcParseClass {
         if (!EvaluationError) {
             Count = Text.length();
             if (!Value->TryLoadFromText(Text)) {
-                if (Text.read(1) == u'(' && Text.read(Count) == u')' && TCalcParse::HasBalancedParenthesesInSlice(Text, 2, Count - 1)) {
+                if (Text.read(1) == u'(' && Text.read(Count) == u')' && TCalcParse::HasBalancedParenthesesInSlice(pas::view(Text), 2, Count - 1)) {
                     Inner = pas::WideString();
                     for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
                         Inner = pas::concat_wide({Inner, Text.read(i)});
@@ -1048,7 +1048,7 @@ namespace CalcParseClass {
                         value->Assign(evaluateExpression, false);
                     }
                 } else {
-                    Index = FindTopLevelOperator(Text, Count);
+                    Index = FindTopLevelOperator(pas::view(Text), Count);
                     if (Index < 1) {
                         EvaluationError = true;
                     } else {
@@ -1176,14 +1176,14 @@ namespace CalcParseClass {
         Text = NormalizeFragments(Text);
         Text = TCalcParse::InsertImplicitMultiplication(Text);
         Text = ClampNumericLiterals(Text);
-        UnbalancedParentheses = static_cast<std::uint8_t>(HasBalancedParentheses(Text) ^ 1);
+        UnbalancedParentheses = static_cast<std::uint8_t>(HasBalancedParentheses(pas::view(Text)) ^ 1);
         if (UnbalancedParentheses) {
             HasError = true;
         }
         Readable = Text;
         if (!HasError) {
             Count = Text.length();
-            if (Count >= 2 && Text.read(1) == u'(' && Text.read(Count) == u')' && TCalcParse::HasBalancedParenthesesInSlice(Text, 2, Count - 1)) {
+            if (Count >= 2 && Text.read(1) == u'(' && Text.read(Count) == u')' && TCalcParse::HasBalancedParenthesesInSlice(pas::view(Text), 2, Count - 1)) {
                 Readable = pas::WideString();
                 for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
                     Readable = pas::concat_wide({Readable, Text.read(i)});
@@ -1221,15 +1221,15 @@ namespace CalcParseClass {
     }
 
     // One-based inclusive bounds, unchecked. Empty slices pass; square brackets are ignored.
-    std::uint8_t TCalcParse::HasBalancedParenthesesInSlice(const pas::WideString& Text, std::int32_t FirstIndex, std::int32_t LastIndex) {
+    std::uint8_t TCalcParse::HasBalancedParenthesesInSlice(const std::u16string_view& Text, std::int32_t FirstIndex, std::int32_t LastIndex) {
         std::int32_t i{};
         std::int32_t Depth = 0;
         std::uint8_t Balanced = true;
         for (auto cpp_range = pas::for_to<std::int32_t>(FirstIndex, LastIndex); cpp_range.next(i); ) {
-            if (Text.read(i) == u'(') {
+            if (Text[i - 1] == u'(') {
                 ++Depth;
             }
-            if (Text.read(i) == u')') {
+            if (Text[i - 1] == u')') {
                 --Depth;
             }
             if (Depth < 0) {
@@ -1256,13 +1256,13 @@ namespace CalcParseClass {
                 Text = ([&] {
                     const pas::WideString& cpp_arg = pas::concat_wide({u"(0", EC_Str::IntToWideString(Parameter->Value), u")"});
                     const pas::WideString& cpp_arg_2 = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
-                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_2, cpp_arg);
+                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_2, pas::view(cpp_arg));
                 }());
             } else {
                 Text = ([&] {
                     const pas::WideString& intToWideString = EC_Str::IntToWideString(Parameter->Value);
                     const pas::WideString& cpp_arg_3 = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
-                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_3, intToWideString);
+                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_3, pas::view(intToWideString));
                 }());
             }
         }
@@ -1270,8 +1270,8 @@ namespace CalcParseClass {
     }
 
     // Empty text passes.
-    std::uint8_t TCalcParse::HasBalancedParentheses(const pas::WideString& Text) {
-        std::uint8_t Balanced = TCalcParse::HasBalancedParenthesesInSlice(Text, 1, Text.length());
+    std::uint8_t TCalcParse::HasBalancedParentheses(const std::u16string_view& Text) {
+        std::uint8_t Balanced = TCalcParse::HasBalancedParenthesesInSlice(Text, 1, static_cast<std::int32_t>(Text.length()));
         return Balanced;
     }
 

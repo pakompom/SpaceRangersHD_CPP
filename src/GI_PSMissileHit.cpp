@@ -16,7 +16,7 @@ namespace GI_PSMissileHit {
         std::int32_t BlockCount = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, BlockCount - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index)) + 1);
+            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         MissileHitAnimationPaths.set_length(Count);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
@@ -24,7 +24,7 @@ namespace GI_PSMissileHit {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 if (PaletteBlock->CountParams(u"GAI"_wref.get()) > 0) {
-                    MissileHitAnimationPaths[Index][0] = PaletteBlock->GetParam(u"GAI"_wref.get());
+                    MissileHitAnimationPaths[Index][0] = PaletteBlock->GetParam(u"GAI"sv);
                 }
             }
         }

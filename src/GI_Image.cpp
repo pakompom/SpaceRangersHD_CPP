@@ -314,19 +314,19 @@ namespace GI_Image {
 
     void TImageGI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            SetImagePath(Block->GetParam(u"Image"_wref.get()));
+            SetImagePath(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"KindX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"KindX"sv))));
         }
         if (Block->CountParams(u"KindY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"KindY"sv))));
         }
         if (Block->CountParams(u"HalfAlpha"_wref.get()) > 0) {
-            SetHalfAlpha(GI_Main::ParseEnabledNameGI(Block->GetParam(u"HalfAlpha"_wref.get())));
+            SetHalfAlpha(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"HalfAlpha"sv))));
         }
         if (Block->CountParams(u"Auto"_wref.get()) > 0) {
-            AutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"_wref.get()));
+            AutoUpdateFlags = GI_Main::ParseAutoGeometryFlagsGI(Block->GetParam(u"Auto"sv));
         }
     }
 

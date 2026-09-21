@@ -91,8 +91,7 @@ namespace GI_RotateImage5 {
 
     // A full turn has 256 steps.
     void TRotateImage5GI::SetAngle(std::uint8_t Value) {
-        // Preserve the native byte comparison operand order.
-        if (static_cast<std::uint8_t>(Value + 0) != Angle) {
+        if (Value != Angle) {
             Angle = Value;
             ImageDirty = true;
             Invalidate();
@@ -101,7 +100,7 @@ namespace GI_RotateImage5 {
 
     // Does not validate against the frame count.
     void TRotateImage5GI::SetFrameIndex(std::uint32_t Value) {
-        if (Value + 0 != FrameIndex) {
+        if (Value != FrameIndex) {
             FrameIndex = Value;
             ImageDirty = true;
             Invalidate();
@@ -109,7 +108,7 @@ namespace GI_RotateImage5 {
     }
 
     void TRotateImage5GI::SetAlpha(std::uint8_t Value) {
-        if (static_cast<std::uint8_t>(Value + 0) != Alpha) {
+        if (Value != Alpha) {
             Alpha = Value;
             ImageDirty = true;
             Invalidate();
@@ -281,18 +280,18 @@ namespace GI_RotateImage5 {
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
             if (Block->CountParams(u"Size"_wref.get()) > 0) {
                 if (Block->CountParams(u"Sme"_wref.get()) > 0) {
-                    Types::TPoint pointGI = GI_Main::GetPointGI(Block->GetParam(u"Sme"_wref.get()));
-                    Types::TPoint pointGI_2 = GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get()));
-                    pas::WideString param = Block->GetParam(u"Image"_wref.get());
+                    Types::TPoint pointGI = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Sme"sv)));
+                    Types::TPoint pointGI_2 = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv)));
+                    pas::WideString param = Block->GetParam(u"Image"sv);
                     SetImage(std::move(param), pointGI_2, pointGI);
                 }
             }
         }
         if (Block->CountParams(u"Angle"_wref.get()) > 0) {
-            SetAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"_wref.get()))));
+            SetAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"sv))));
         }
         if (Block->CountParams(u"Trans"_wref.get()) > 0) {
-            SetAlpha(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Trans"_wref.get()))));
+            SetAlpha(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Trans"sv))));
         }
     }
 

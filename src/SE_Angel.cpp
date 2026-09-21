@@ -340,20 +340,20 @@ namespace SE_Angel {
         MoveAngle = 0.0f;
         FrameIndex = 0;
         EntryCount = 4;
-        TimerInterval = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Time"_wref.get()));
+        TimerInterval = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Time"sv)));
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
-            SizeRange = GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get()));
+            SizeRange = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv)));
         }
         if (Block->CountParams(u"Speed"_wref.get()) > 0) {
-            Range = GI_Main::GetFloatPointGI(Block->GetParam(u"Speed"_wref.get()));
+            Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"Speed"sv)));
             Speed = aMyFunction::RandomFloatRange(Range.X, Range.Y);
         }
         if (Block->CountParams(u"MoveAngle"_wref.get()) > 0) {
-            Range = GI_Main::GetFloatPointGI(Block->GetParam(u"MoveAngle"_wref.get()));
+            Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"MoveAngle"sv)));
             MoveAngle = aMyFunction::RandomFloatRange(Range.X, Range.Y);
         }
         if (Block->CountParams(u"WorldPos"_wref.get()) > 0) {
-            Range = GI_Main::GetFloatPointGI(Block->GetParam(u"WorldPos"_wref.get()));
+            Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"WorldPos"sv)));
             {
                 float randomFloatRange = aMyFunction::RandomFloatRange(Range.X, Range.Y);
                 float randomFloatRange_2 = aMyFunction::RandomFloatRange(Range.X, Range.Y);
@@ -361,15 +361,15 @@ namespace SE_Angel {
             }
         }
         if (Block->CountParams(u"GroupSize"_wref.get()) > 0) {
-            GroupSize = GI_Main::GetFloatPointGI(Block->GetParam(u"GroupSize"_wref.get()));
+            GroupSize = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"GroupSize"sv)));
         }
         if (Block->CountParams(u"AngelCount"_wref.get()) > 0) {
-            IntRange = GI_Main::GetPointGI(Block->GetParam(u"AngelCount"_wref.get()));
+            IntRange = GI_Main::GetPointGI(pas::view(Block->GetParam(u"AngelCount"sv)));
             EntryCount = aMyFunction::RandomIntRange(IntRange.X, IntRange.Y);
         }
         ImageCount = 0;
         while (Block->CountParams(pas::concat_wide({u"Image", EC_Str::IntToWideString(ImageCount)})) > 0) {
-            ImagePaths[ImageCount] = Block->GetParam(pas::concat_wide({u"Image", EC_Str::IntToWideString(ImageCount)}));
+            ImagePaths[ImageCount] = Block->GetParam(pas::view(pas::concat_wide({u"Image", EC_Str::IntToWideString(ImageCount)})));
             ++ImageCount;
             if (ImageCount == 8) {
                 break;

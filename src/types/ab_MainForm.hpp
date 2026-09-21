@@ -261,8 +261,8 @@ namespace ab_MainForm {
         float CampaignLoadProgress;
         std::int32_t DepartureTurn;
         std::int32_t ArrivalTurn;
-        // Object currently described by InfoPanel/InfoStar; precise type pending.
-        pas::Object* InfoObject;
+        // Space currently described by InfoPanel/InfoStar; nil when hidden.
+        ab_Space::TabSpace* InfoSpace;
         ab_Item::TabItem* CargoPickupItem;
         ab_Zone::PabZone CargoPickupZone;
         std::uint32_t InitialRandomSeed;

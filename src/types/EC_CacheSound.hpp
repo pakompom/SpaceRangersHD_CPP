@@ -60,11 +60,22 @@ namespace EC_CacheSound {
 
     #pragma pack(push, 1)
     struct TWaveFileHeader {
-        std::uint8_t cpp_padding[22];
-        // Uninterpreted RIFF/fmt identifiers and lengths precede these fields.
+        // Fixed PCM header view. LoadFromConfigBuffer scans for data if it is not at $24.
+        // 'RIFF'.
+        std::uint32_t RiffId;
+        // File size minus eight.
+        std::uint32_t RiffSize;
+        // 'WAVE'.
+        std::uint32_t WaveId;
+        // 'fmt '.
+        std::uint32_t FormatId;
+        std::uint32_t FormatSize;
+        // Reader forces PCM without consulting this field.
+        std::uint16_t FormatTag;
         std::uint16_t Channels;
         std::uint32_t SamplesPerSecond;
-        std::uint8_t cpp_padding_2[4];
+        // Reader recomputes this from block alignment and sample rate.
+        std::uint32_t AverageBytesPerSecond;
         std::uint16_t BlockAlign;
         std::uint16_t BitsPerSample;
         std::uint32_t DataId;

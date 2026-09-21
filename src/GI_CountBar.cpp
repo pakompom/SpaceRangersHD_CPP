@@ -288,40 +288,40 @@ namespace GI_CountBar {
 
     void TCountBarGI::LoadCountBarProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"ImageDecNormal"_wref.get()) > 0) {
-            DecreaseButton->SetImageNormalPath(Block->GetParam(u"ImageDecNormal"_wref.get()));
+            DecreaseButton->SetImageNormalPath(Block->GetParam(u"ImageDecNormal"sv));
         }
         if (Block->CountParams(u"ImageDecNormalA"_wref.get()) > 0) {
-            DecreaseButton->SetImageNormalActivePath(Block->GetParam(u"ImageDecNormalA"_wref.get()));
+            DecreaseButton->SetImageNormalActivePath(Block->GetParam(u"ImageDecNormalA"sv));
         }
         if (Block->CountParams(u"ImageDecDown"_wref.get()) > 0) {
-            DecreaseButton->SetImageDownPath(Block->GetParam(u"ImageDecDown"_wref.get()));
+            DecreaseButton->SetImageDownPath(Block->GetParam(u"ImageDecDown"sv));
         }
         if (Block->CountParams(u"ImageIncNormal"_wref.get()) > 0) {
-            IncreaseButton->SetImageNormalPath(Block->GetParam(u"ImageIncNormal"_wref.get()));
+            IncreaseButton->SetImageNormalPath(Block->GetParam(u"ImageIncNormal"sv));
         }
         if (Block->CountParams(u"ImageIncNormalA"_wref.get()) > 0) {
-            IncreaseButton->SetImageNormalActivePath(Block->GetParam(u"ImageIncNormalA"_wref.get()));
+            IncreaseButton->SetImageNormalActivePath(Block->GetParam(u"ImageIncNormalA"sv));
         }
         if (Block->CountParams(u"ImageIncDown"_wref.get()) > 0) {
-            IncreaseButton->SetImageDownPath(Block->GetParam(u"ImageIncDown"_wref.get()));
+            IncreaseButton->SetImageDownPath(Block->GetParam(u"ImageIncDown"sv));
         }
         if (Block->CountParams(u"ImageTrackMin"_wref.get()) > 0) {
-            AfterThumbImage->SetImagePath(Block->GetParam(u"ImageTrackMin"_wref.get()));
+            AfterThumbImage->SetImagePath(Block->GetParam(u"ImageTrackMin"sv));
         }
         if (Block->CountParams(u"ImageTrackMax"_wref.get()) > 0) {
-            BeforeThumbImage->SetImagePath(Block->GetParam(u"ImageTrackMax"_wref.get()));
+            BeforeThumbImage->SetImagePath(Block->GetParam(u"ImageTrackMax"sv));
         }
         if (Block->CountParams(u"ImageTrackPolNormal"_wref.get()) > 0) {
-            ThumbButton->SetImageNormalPath(Block->GetParam(u"ImageTrackPolNormal"_wref.get()));
+            ThumbButton->SetImageNormalPath(Block->GetParam(u"ImageTrackPolNormal"sv));
         }
         if (Block->CountParams(u"ImageTrackPolNormalA"_wref.get()) > 0) {
-            ThumbButton->SetImageNormalActivePath(Block->GetParam(u"ImageTrackPolNormalA"_wref.get()));
+            ThumbButton->SetImageNormalActivePath(Block->GetParam(u"ImageTrackPolNormalA"sv));
         }
         if (Block->CountParams(u"ImageTrackPolDown"_wref.get()) > 0) {
-            ThumbButton->SetImageDownPath(Block->GetParam(u"ImageTrackPolDown"_wref.get()));
+            ThumbButton->SetImageDownPath(Block->GetParam(u"ImageTrackPolDown"sv));
         }
         if (Block->CountParams(u"ImageTrackUp"_wref.get()) > 0) {
-            MarkerImage->SetImagePath(Block->GetParam(u"ImageTrackUp"_wref.get()));
+            MarkerImage->SetImagePath(Block->GetParam(u"ImageTrackUp"sv));
         }
         UpdateLayout();
     }

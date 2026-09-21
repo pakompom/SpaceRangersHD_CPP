@@ -1,5 +1,6 @@
 #pragma once
 #include "types/aConst.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "types/aItem.hpp"
 
 namespace EC_BlockPar {
@@ -20,9 +21,8 @@ namespace aItem {
 
     extern pas::Array<std::int32_t, 1, 2> TreasureMapRuleLengths;
 
-    // Nested native helpers include the caller's saved EBP explicitly in the IDA ABI.
     // Selects across built-in artefacts, custom artefacts and configured useless items. Pool must be nonempty; AnyAvailable is the union of the three eligibility flags.
-    TEquipmentWithActCode* CreateRandomLootItem(TItemLootPool Pool, std::uint8_t Owner, std::uint32_t Seed);
+    TEquipmentWithActCode* CreateRandomLootItem(TItemLootPool Pool, aGalaxyStruct::TOwnerId Owner, std::uint32_t Seed);
 
     // Returns a one-based template index, or 0 if the saved template cannot be resolved.
     std::int32_t ReadSavedMicroModuleIndex(EC_Buf::TBufEC* Buffer);
@@ -30,29 +30,29 @@ namespace aItem {
     // Applies the ordered item-type insertions for save versions before 164, 78, 131, 78 and 127; arithmetic wraps in a byte.
     aConst::TItemType MigrateSavedItemType(std::uint8_t ItemType);
 
-    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, std::uint8_t HullType, std::uint8_t Owner, void* Ship);
+    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, std::uint8_t HullType, aGalaxyStruct::TOwnerId Owner, void* Ship);
 
-    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, std::uint8_t Owner, std::uint8_t HullType);
+    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner, std::uint8_t HullType);
 
     std::int32_t CalculateGeneratedFuelCapacity(std::uint32_t Weight, std::int32_t Level);
 
-    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedEngineCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedEngineCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedRadarCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedRadarCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedScanerCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedScanerCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
     double GetGeneratedDefenseDamageFactor(std::uint8_t Level);
 
-    std::uint8_t DefenseDamageFactorToPercent(double Factor);
+    aGalaxyStruct::TPercent DefenseDamageFactorToPercent(double Factor);
 
     double DefensePercentToDamageFactor(std::int32_t Percent);
 
@@ -68,9 +68,9 @@ namespace aItem {
     pas::WideString GetMicroModuleBitmapResourceName(std::int32_t ModuleIndex);
 
     // Returns nil outside item types 10..41.
-    TArtefact* CreateConfiguredArtefactByItemType(aConst::TItemType ItemType, std::uint8_t Owner);
+    TArtefact* CreateConfiguredArtefactByItemType(aConst::TItemType ItemType, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
     // Constructs the instance without calling its Init routine.
     TItem* CreateItemByType(aConst::TItemType ItemType);
@@ -78,9 +78,9 @@ namespace aItem {
     TItem* CreateDefaultItemByType(aConst::TItemType ItemType);
 
     // Clamps Level to 1..8; custom weapons require CreateGeneratedWeapon.
-    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level, std::uint8_t Owner);
+    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level, std::uint8_t Owner);
+    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner);
 
     // Module indices are zero-based; compatibility checks also accept special bonuses.
     std::uint8_t CanInstallMicroModule(std::int32_t ModuleIndex, TEquipment* Item);
@@ -109,10 +109,6 @@ namespace aItem {
 
     // Custom countables use their configured name; all other types use GetStackableItemTypeName. Ignores per-instance name overrides.
     pas::WideString GetStackableItemName(TItem* Item);
-
-    // Preserve the native evaluation order: select the percentage before clamping
-    // capacity. The inline helper also retains the compiler's separate temporaries.
-    void CalculateHullCapacityIncrease(THull* Hull, std::int32_t LowPercent, std::int32_t HighPercent, std::int32_t& Increase);
 
     void TItem_Create(TItem* Self);
 

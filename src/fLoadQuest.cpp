@@ -56,32 +56,32 @@ namespace fLoadQuest {
         LoadPanel->InitializeLayout(this);
         GR_Main::AppendLogTextThreadSafe("fLoadQuest... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GI_MessageLoop::TObjectGI* Root = GetByName(u""_wref.get());
+        GI_MessageLoop::TObjectGI* Root = GetByName(u""sv);
         Root->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Root->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"_wref.get());
+        Root->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"sv);
         if (GR_Main::ExtraScreenHeight < 0) {
             Panel->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + Panel->LocalPosition.X, (GR_Main::GameScreenHeight - Panel->ClientSize.Y) / 2));
         } else {
             Panel->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + Panel->LocalPosition.X, GR_Main::ExtraScreenHeight / 2 + Panel->LocalPosition.Y));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfLoadQuest::QuestListKeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"_wref.get()))->UpCallback = pas::bind_method<&TfLoadQuest::ReturnToMenu>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"_wref.get()))->UpCallback = pas::bind_method<&TfLoadQuest::ReturnToMenu>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"_wref.get()))->UpCallback = pas::bind_method<&TfLoadQuest::StartSelectedQuest>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfLoadQuest::QuestListKeyDown>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfLoadQuest::ReturnToMenu>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<&TfLoadQuest::ReturnToMenu>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv))->UpCallback = pas::bind_method<&TfLoadQuest::StartSelectedQuest>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
             ButGroup2->UpCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
             ButGroup2->DownCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
         }
@@ -97,17 +97,17 @@ namespace fLoadQuest {
                 GR_Main::CaptureScreenBackground(true, 0);
             }
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->SetDown(Category == 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->SetDown(Category == 1);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
             ButGroup2->SetDown(Category == 2);
         }
         RebuildQuestList();
@@ -161,12 +161,12 @@ namespace fLoadQuest {
         } else if (VirtualKey == 'Q') {
             ReturnToMenu(Sender);
         } else if (VirtualKey == WindowsSdk::VK_PRIOR) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot->VerticalScrollBar->Active) {
                 PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->LargeChange);
             }
         } else if (VirtualKey == WindowsSdk::VK_NEXT) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot_2->VerticalScrollBar->Active) {
                 PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position + PanelSlot_2->VerticalScrollBar->LargeChange);
             }
@@ -213,11 +213,11 @@ namespace fLoadQuest {
         } else if (VirtualKey == WindowsSdk::VK_TAB) {
             QuestRowMouseLeave(nullptr);
             if (Category == 0) {
-                SelectCategory(GetByName(u"ButGroup1"_wref.get()));
+                SelectCategory(GetByName(u"ButGroup1"sv));
             } else if (Category == 1) {
-                SelectCategory(GetByName(u"ButGroup2"_wref.get()));
+                SelectCategory(GetByName(u"ButGroup2"sv));
             } else if (Category == 2) {
-                SelectCategory(GetByName(u"ButGroup0"_wref.get()));
+                SelectCategory(GetByName(u"ButGroup0"sv));
             }
         }
     }
@@ -225,11 +225,11 @@ namespace fLoadQuest {
     void TfLoadQuest::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
         GI_PanelScrollBar::TPanelScrollBarGI* Panel{};
         WindowsSdk::TRect Bounds{};
-        Bounds = GetByName(u"MessageWindow"_wref.get())->HitTestBounds;
+        Bounds = GetByName(u"MessageWindow"sv)->HitTestBounds;
         if (Point.X >= Bounds.Left && Point.X < Bounds.Right && Point.Y >= Bounds.Top && Point.Y < Bounds.Bottom) {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
         } else {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             if (Panel->VerticalScrollBar->Active) {
@@ -267,7 +267,7 @@ namespace fLoadQuest {
         EC_BlockPar::TBlockParEC* List{};
         EC_BlockPar::TBlockParEC* Entry{};
         pas::WideString Name{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         Panel->FreeOwnedChildren();
         LoadCompletionData();
         std::int32_t QuestIdAndTop = 0;
@@ -279,20 +279,20 @@ namespace fLoadQuest {
                 Name = List->GetBlockNameByIndex(I);
                 Entry = List->GetBlockByIndex(I);
                 QuestIdAndTop = -1;
-                if (EC_Str::IsIntegerTextW(Name)) {
+                if (EC_Str::IsIntegerTextW(pas::view(Name))) {
                     QuestIdAndTop = SysUtils::StrToInt(static_cast<pas::AnsiString>(Name));
                 }
                 if (Entry->CountParams(u"Group"_wref.get()) > 0) {
-                    if (EC_Str::ExtractSignedDigitsToIntW(Entry->GetParam(u"Group"_wref.get())) == Category) {
-                        Index = InsertEntryByAccess(EC_Str::ExtractDigitsToIntW(Entry->GetParam(u"Access"_wref.get())));
+                    if (EC_Str::ExtractSignedDigitsToIntW(pas::view(Entry->GetParam(u"Group"sv))) == Category) {
+                        Index = InsertEntryByAccess(EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParam(u"Access"sv))));
                         Entries[Index].Name = Name;
-                        Entries[Index].Title = Entry->GetParam(u"Name"_wref.get());
-                        Entries[Index].Description = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"_wref.get())->GetBlock(u"PlanetQuest"_wref.get())->GetParam(Name);
+                        Entries[Index].Title = Entry->GetParam(u"Name"sv);
+                        Entries[Index].Description = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuest"sv)->GetParam(pas::view(Name));
                         Entries[Index].QuestId = QuestIdAndTop;
-                        Entries[Index].Image = Entry->GetParamOrMarker(u"Image"_wref.get());
-                        Entries[Index].Genre = Entry->GetParamOrMarker(u"Genre"_wref.get());
-                        Entries[Index].Length = EC_Str::ExtractDigitsToIntW(Entry->GetParamOrMarker(u"Length"_wref.get()));
-                        Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(Entry->GetParamOrMarker(u"Dif"_wref.get()));
+                        Entries[Index].Image = Entry->GetParamOrMarker(u"Image"sv);
+                        Entries[Index].Genre = Entry->GetParamOrMarker(u"Genre"sv);
+                        Entries[Index].Length = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Length"sv)));
+                        Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Dif"sv)));
                     }
                 }
             }
@@ -303,20 +303,20 @@ namespace fLoadQuest {
                 Name = List->GetBlockNameByIndex(I);
                 Entry = List->GetBlockByIndex(I);
                 QuestIdAndTop = -1;
-                if (EC_Str::IsIntegerTextW(Name)) {
+                if (EC_Str::IsIntegerTextW(pas::view(Name))) {
                     QuestIdAndTop = SysUtils::StrToInt(static_cast<pas::AnsiString>(Name));
                 }
                 if (Entry->CountParams(u"Group"_wref.get()) > 0) {
-                    if (EC_Str::ExtractSignedDigitsToIntW(Entry->GetParam(u"Group"_wref.get())) == Category) {
+                    if (EC_Str::ExtractSignedDigitsToIntW(pas::view(Entry->GetParam(u"Group"sv))) == Category) {
                         Index = InsertEntryByAccess(0);
                         Entries[Index].Name = Name;
-                        Entries[Index].Title = Entry->GetParam(u"Name"_wref.get());
-                        Entries[Index].Description = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"_wref.get())->GetBlock(u"PlanetQuest"_wref.get())->GetParam(Name);
+                        Entries[Index].Title = Entry->GetParam(u"Name"sv);
+                        Entries[Index].Description = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuest"sv)->GetParam(pas::view(Name));
                         Entries[Index].QuestId = QuestIdAndTop;
-                        Entries[Index].Image = Entry->GetParamOrMarker(u"Image"_wref.get());
-                        Entries[Index].Genre = Entry->GetParamOrMarker(u"Genre"_wref.get());
-                        Entries[Index].Length = EC_Str::ExtractDigitsToIntW(Entry->GetParamOrMarker(u"Length"_wref.get()));
-                        Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(Entry->GetParamOrMarker(u"Dif"_wref.get()));
+                        Entries[Index].Image = Entry->GetParamOrMarker(u"Image"sv);
+                        Entries[Index].Genre = Entry->GetParamOrMarker(u"Genre"sv);
+                        Entries[Index].Length = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Length"sv)));
+                        Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Dif"sv)));
                     }
                 }
             }
@@ -477,7 +477,7 @@ namespace fLoadQuest {
             return;
         }
         if (SelectedIndex >= 0) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             {
                 GI_MessageLoop::TObjectGI* cpp_with_2 = Entries[SelectedIndex].BackgroundImage->Parent;
                 PanelSlot->ScrollRectIntoView(cpp_with_2->GetLocalBounds());
@@ -536,13 +536,13 @@ namespace fLoadQuest {
     }
 
     void TfLoadQuest::SelectCategory(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t NewCategory = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()))->SetDown(NewCategory == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()))->SetDown(NewCategory == 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()))->SetDown(NewCategory == 2);
+        std::int32_t NewCategory = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->SetDown(NewCategory == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv))->SetDown(NewCategory == 1);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv))->SetDown(NewCategory == 2);
         if (Category != NewCategory) {
             {
-                GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+                GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
                 PanelSlot->ScrollRectIntoView(ClassesImports::Rect(0, 0, 1, 1));
             }
             Category = NewCategory;
@@ -578,11 +578,11 @@ namespace fLoadQuest {
         EC_CacheBuf::TCBufControlEC* Control{};
         EC_CacheBuf::TCBufEC* Data{};
         {
-            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv));
             ButStart->SetDisabled(SelectedIndex < 0 || Entries.length() - 1 < SelectedIndex);
         }
         {
-            GI_GraphBuf::TGraphBufGI* ImageMap = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"ImageMap"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* ImageMap = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"ImageMap"sv));
             ImageMap->SetActive(false);
             if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
                 if (Entries[SelectedIndex].Image != u"") {
@@ -609,7 +609,7 @@ namespace fLoadQuest {
             }
         }
         {
-            GI_Label::TLabelGI* with_MessageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"MessageText"_wref.get()));
+            GI_Label::TLabelGI* with_MessageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"MessageText"sv));
             with_MessageText->SetActive(false);
             if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
                 Quest = pas::construct_call<TextQuest::TTextQuest>(TextQuest::TTextQuest_Create);
@@ -666,7 +666,7 @@ namespace fLoadQuest {
                 aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(10000), u"<color=0,71,234>"_w);
                 aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, aConst::LocalizedText(u"FormLoadQuest.PFromPlanet"_wref.get()), u"<color=0,71,234>"_w);
                 aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, aConst::LocalizedText(u"FormLoadQuest.PFromStar"_wref.get()), u"<color=0,71,234>"_w);
-                Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), u"<color=0,71,234>"_wref.get());
+                Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), u"<color=0,71,234>"sv);
                 aConst::ExpandLocalizedTextMarkup(Text);
                 pas::free(Quest);
                 with_MessageText->SetActive(true);
@@ -674,12 +674,12 @@ namespace fLoadQuest {
             }
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
             MessageWindow->SetScrollOffset(ClassesImports::Point(0, 0));
             MessageWindow->UpdateScrollRanges();
-            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get())->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get()))->ClientSize.Y > MessageWindow->ClientSize.Y);
+            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"sv)->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->ClientSize.Y > MessageWindow->ClientSize.Y);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get()))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = MessageWindow->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }
@@ -831,10 +831,10 @@ namespace fLoadQuest {
             Entry = List->GetBlockByIndex(I);
             Name = List->GetBlockNameByIndex(I);
             QuestId = -1;
-            if (EC_Str::IsIntegerTextW(Name)) {
+            if (EC_Str::IsIntegerTextW(pas::view(Name))) {
                 QuestId = SysUtils::StrToInt(static_cast<pas::AnsiString>(Name));
             }
-            if (QuestId >= 0 && EC_Str::ExtractDigitsToIntW(Entry->GetParam(u"Access"_wref.get())) > 0) {
+            if (QuestId >= 0 && EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParam(u"Access"sv))) > 0) {
                 ++Result.Y;
                 CompletionIndex = QuestId;
                 if (CompletionIndex >= 0) {
@@ -860,7 +860,7 @@ namespace fLoadQuest {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Entry = List->GetBlockByIndex(I);
             if (Entry->CountParams(u"Group"_wref.get()) > 0) {
-                if (pas::in_set<0, 2>(EC_Str::ExtractSignedDigitsToIntW(Entry->GetParam(u"Group"_wref.get())))) {
+                if (pas::in_set<0, 2>(EC_Str::ExtractSignedDigitsToIntW(pas::view(Entry->GetParam(u"Group"sv))))) {
                     ++Total;
                 }
             }

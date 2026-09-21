@@ -40,19 +40,19 @@ namespace fPanelRuins {
         this->Screen = Screen;
         GR_Main::AppendLogTextThreadSafe("fPanelRuins... "_a);
         {
-            GI_MessageLoop::TObjectGI* PanelRuins = this->Screen->GetByName(u"PanelRuins"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelRuins = this->Screen->GetByName(u"PanelRuins"sv);
             PanelRuins->SetPosition(ClassesImports::Point(PanelRuins->LocalPosition.X + GR_Main::ExtraScreenWidth, PanelRuins->LocalPosition.Y + GR_Main::ExtraScreenHeight));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Gov"_wref.get()))->UpCallback = pas::bind_method<&TfPanelRuins::ServicesClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Shop"_wref.get()))->UpCallback = pas::bind_method<&TfPanelRuins::EquipmentShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Goods"_wref.get()))->UpCallback = pas::bind_method<&TfPanelRuins::GoodsShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Info"_wref.get()))->UpCallback = pas::bind_method<&TfPanelRuins::InformationClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Hangar"_wref.get()))->UpCallback = pas::bind_method<&TfPanelRuins::HangarClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Gov"sv))->UpCallback = pas::bind_method<&TfPanelRuins::ServicesClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Shop"sv))->UpCallback = pas::bind_method<&TfPanelRuins::EquipmentShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Goods"sv))->UpCallback = pas::bind_method<&TfPanelRuins::GoodsShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Info"sv))->UpCallback = pas::bind_method<&TfPanelRuins::InformationClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Hangar"sv))->UpCallback = pas::bind_method<&TfPanelRuins::HangarClicked>(this);
     }
 
     void TfPanelRuins::OnOpen() {
-        GI_MessageLoop::TObjectGI* PanelRuins = Screen->GetByName(u"PanelRuins"_wref.get());
+        GI_MessageLoop::TObjectGI* PanelRuins = Screen->GetByName(u"PanelRuins"sv);
         PanelRuins->SetActive(aPlayer::GetPlayer()->RuinsMode == 0);
     }
 
@@ -61,11 +61,11 @@ namespace fPanelRuins {
     }
 
     void TfPanelRuins::Show() {
-        Screen->GetByName(u"PanelRuins"_wref.get())->SetActive(true);
+        Screen->GetByName(u"PanelRuins"sv)->SetActive(true);
     }
 
     void TfPanelRuins::Hide() {
-        Screen->GetByName(u"PanelRuins"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PanelRuins"sv)->SetActive(false);
     }
 
     void TfPanelRuins::ServicesClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -241,15 +241,15 @@ namespace fPanelRuins {
         if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->IsAnimatingShutters()) {
             return;
         }
-        if (Key == 'G' && Screen->GetByName(u"PR_Gov"_wref.get())->Active) {
+        if (Key == 'G' && Screen->GetByName(u"PR_Gov"sv)->Active) {
             ServicesClicked(nullptr);
-        } else if (Key == 'E' && Screen->GetByName(u"PR_Shop"_wref.get())->Active) {
+        } else if (Key == 'E' && Screen->GetByName(u"PR_Shop"sv)->Active) {
             EquipmentShopClicked(nullptr);
-        } else if (Key == 'T' && Screen->GetByName(u"PR_Goods"_wref.get())->Active) {
+        } else if (Key == 'T' && Screen->GetByName(u"PR_Goods"sv)->Active) {
             GoodsShopClicked(nullptr);
-        } else if (Key == 'I' && Screen->GetByName(u"PR_Info"_wref.get())->Active) {
+        } else if (Key == 'I' && Screen->GetByName(u"PR_Info"sv)->Active) {
             InformationClicked(nullptr);
-        } else if (Key == 'H' && Screen->GetByName(u"PR_Hangar"_wref.get())->Active) {
+        } else if (Key == 'H' && Screen->GetByName(u"PR_Hangar"sv)->Active) {
             HangarClicked(nullptr);
         }
     }

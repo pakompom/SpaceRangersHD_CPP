@@ -35,9 +35,9 @@ namespace fPlanetQuest {
     #endif
     struct TfPlanetQuest : GI_MessageLoop::TMessageLoopGI {
         PAS_CLASS_META(TfPlanetQuest, GI_MessageLoop::TMessageLoopGI, "TfPlanetQuest", 276)
-        static pas::WideString GetTextBeforeDelimiter(const pas::WideString& Text, char16_t Delimiter);
+        static pas::WideString GetTextBeforeDelimiter(const std::u16string_view& Text, char16_t Delimiter);
         // A nonempty string without a comma is read past its end.
-        static pas::WideString GetTextAfterComma(const pas::WideString& Text, char16_t IgnoredDelimiter);
+        static pas::WideString GetTextAfterComma(const std::u16string_view& Text, char16_t IgnoredDelimiter);
         // Hexadecimal complement of the quest buffer's CRC32.
         static pas::WideString GetQuestContentHash(std::int32_t QuestId);
         void LoadQuestById(std::int32_t QuestId);

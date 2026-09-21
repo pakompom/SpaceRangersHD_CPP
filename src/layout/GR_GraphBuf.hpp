@@ -12,7 +12,7 @@ namespace GR_GraphBuf {
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, BytesPerPixel) == 28);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, UseTexture) == 32);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, UsesTextureStorage) == 33);
-    static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, TextureFlag22) == 34);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, KeepTextureUntilReplacement) == 34);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, Texture) == 36);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, TextureLocked) == 40);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TGraphBufGR, TextureLockedReadOnly) == 41);
@@ -40,6 +40,10 @@ namespace GR_GraphBuf {
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TPixelFormatGR, AlphaBits) == 64);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TPixelFormatGR, BytesPerPixel) == 68);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TPixelFormatGR, TotalChannelBits) == 72);
+    static_assert(sizeof(void*) != 4 || sizeof(GR_GraphBuf::TColorRGB) == 3);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TColorRGB, R) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TColorRGB, G) == 1);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TColorRGB, B) == 2);
     static_assert(sizeof(void*) != 4 || sizeof(GR_GraphBuf::TColorBGRA) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TColorBGRA, B) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(GR_GraphBuf::TColorBGRA, G) == 1);

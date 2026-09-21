@@ -98,7 +98,7 @@ namespace fScore {
         std::int32_t DifficultyPercent;
         pas::WideString PlayerName;
         std::int32_t PortraitFaceId;
-        std::uint8_t PilotRace;
+        aGalaxyStruct::TOwnerId PilotRace;
         std::uint8_t cpp_padding_2[3];
         std::int32_t FinishedTurn;
         std::uint8_t Rank;

@@ -46,7 +46,7 @@ namespace GI_InfiniteImage {
         SetSize(ClassesImports::Point(2000000000, 2000000000));
         SetOrigin(ClassesImports::Point(ClientSize.X / 2, ClientSize.Y / 2));
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            SetImagePath(Block->GetParam(u"Image"_wref.get()));
+            SetImagePath(Block->GetParam(u"Image"sv));
         }
     }
 

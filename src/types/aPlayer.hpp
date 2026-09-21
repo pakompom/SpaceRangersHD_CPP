@@ -1,6 +1,7 @@
 #pragma once
 #include "runtime_support.hpp"
 #include "types/EC_Struct.hpp"
+#include "types/aConst.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aRanger.hpp"
 
@@ -73,8 +74,8 @@ namespace aPlayer {
     #pragma pack(push, 1)
     struct TPlanetBattleHistoryEntry {
         std::int32_t MapId;
-        // Native robot statistics; individual meanings unresolved.
-        pas::Array<std::int32_t, 0, 5> Statistics;
+        // Player-side counters returned by MatrixGame.
+        aGalaxyStruct::TPlanetBattleStatistics Statistics;
         std::int32_t ResultCode;
         std::int32_t CompletionMode;
         std::int32_t DateTurn;
@@ -120,7 +121,7 @@ namespace aPlayer {
         // Difficulty-scaled price.
         static std::int32_t GetSubCrackCost();
         // Rounded pirate career status / 1.3, plus one percentage point.
-        std::uint8_t GetPirateServiceDiscount();
+        aGalaxyStruct::TPercent GetPirateServiceDiscount();
         std::int32_t CountProgramRewardStocks();
         // Requires a TKling victim; records its hull capacity even when no reward is due.
         std::uint8_t TryAwardDominatorPrograms(aShip::TShip* Victim);
@@ -146,7 +147,7 @@ namespace aPlayer {
         // Native always-true permission hook used by storage lookup, counting and slot allocation.
         static std::uint8_t CanAccessStoredItem(aItem::TItem* Item);
         // Location=nil includes all storage locations. Goods and item types 69/75 count by weight; other matching items count individually.
-        std::int32_t CountStoredItemUnits(pas::Object* Location, std::uint8_t ItemType);
+        std::int32_t CountStoredItemUnits(pas::Object* Location, aConst::TItemType ItemType);
         // Reassigns later accessible entries with duplicate slot indices.
         void RepairDuplicateStorageSlots(pas::Object* Location);
         // Returns a nonnegative slot local to Location.

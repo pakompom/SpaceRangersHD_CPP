@@ -51,9 +51,9 @@ namespace fJump {
         GR_Main::AppendLogTextThreadSafe("fJump... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* cpp_with = GetByName(u""_wref.get());
+            GI_MessageLoop::TObjectGI* cpp_with = GetByName(u""sv);
             cpp_with->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            cpp_with->FindByNameRecursive(u"Film"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            cpp_with->FindByNameRecursive(u"Film"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         RestoreOrdersOnArrival = false;
@@ -110,17 +110,17 @@ namespace fJump {
                 BeginTravel();
                 return;
             }
-            MoviePath = EC_Str::ExtractDelimitedPartW(MovieConfig, 0, u","_wref.get());
+            MoviePath = EC_Str::ExtractDelimitedPartW(pas::view(MovieConfig), 0, u","sv);
             {
-                GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+                GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
                 Film->SetActive(true);
                 if (Film->ImageOpen(MoviePath, true)) {
-                    if (GlobalsV::MusicEnabled && EC_Str::CountDelimitedPartsW(MovieConfig, u","_wref.get()) > 1) {
+                    if (GlobalsV::MusicEnabled && EC_Str::CountDelimitedPartsW(pas::view(MovieConfig), u","sv) > 1) {
                         GR_Main::MusicManager->StopImmediately();
                         while (GR_Main::MusicManager->IsPlaying()) {
                             SysUtilsImports::Sleep(1u);
                         }
-                        GR_Main::MusicManager->PlayCategory(EC_Str::ExtractDelimitedPartW(MovieConfig, 1, u","_wref.get()));
+                        GR_Main::MusicManager->PlayCategory(EC_Str::ExtractDelimitedPartW(pas::view(MovieConfig), 1, u","sv));
                         while (!GR_Main::MusicManager->IsPlaying()) {
                             SysUtilsImports::Sleep(1u);
                         }
@@ -142,7 +142,7 @@ namespace fJump {
     void TfJump::OnClose() {
         StopMovie();
         {
-            GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+            GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
             Film->ImageClose();
             Film->SetActive(false);
         }
@@ -272,7 +272,7 @@ namespace fJump {
         if (([&] {
             std::uint32_t cpp_left = MMSystem::timeGetTime();
             double cpp_arg = cpp_left - MovieStartTick;
-            GI_XviD::TxvidGI* cpp_arg_2 = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+            GI_XviD::TxvidGI* cpp_arg_2 = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
             return cpp_arg_2->SetPlaybackTime(cpp_arg);
         }())) {
             StopMovie();

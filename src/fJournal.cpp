@@ -57,7 +57,7 @@ namespace fJournal {
     std::uint8_t RunJournal(GI_MessageLoop::TMessageLoopGI* ParentLoop) {
         std::uint8_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
-        ParentLoop->RootUiObject->NativeHook50();
+        ParentLoop->RootUiObject->OnModalSuspend();
         ParentLoop->CaptureCursorState(&State);
         ParentLoop->SetCursorActive(false);
         ParentLoop->DrawQueuedUpdateRects();
@@ -73,7 +73,7 @@ namespace fJournal {
         ParentLoop->InvalidateViewport();
         ParentLoop->RestoreCursorState(&State);
         ParentLoop->UpdateCursorPosition();
-        ParentLoop->RootUiObject->NativeHook48();
+        ParentLoop->RootUiObject->OnModalResume();
         ParentLoop->Present();
         GR_Main::PostMouseMoveMessage();
         return Result;
@@ -94,62 +94,62 @@ namespace fJournal {
         GR_Main::AppendLogTextThreadSafe("fJournal... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* ButFormClose_Parent = MainPanel->FindByNameRecursive(u"ButFormClose"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* ButFormClose_Parent = MainPanel->FindByNameRecursive(u"ButFormClose"sv)->Parent;
                 ButFormClose_Parent->SetPosition(ClassesImports::Point(ButFormClose_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, ButFormClose_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        InfoPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelInfo"_wref.get()));
+        InfoPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelInfo"sv));
     }
 
     void TfJournal::OnOpen() {
         GR_Main::CaptureScreenBackground(true, 0);
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         if (!GlobalsV::MusicInPlanetEnabled) {
             GR_Main::MusicManager->RequestFadeOut();
         }
         MainPanel->OnOpen();
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->SetHitTestDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"_wref.get()))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->SetHitTestDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"sv))->SetHitTestDisabled(true);
         if (aPlayer::GetPlayer() != nullptr) {
             aPlayer::TPlayer_RefreshNewsAtLocation(aPlayer::GetPlayer());
         }
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->KeyDownCallback = pas::bind_method<&TfJournal::MainPanelKeyDown>(this);
             MainPanel->KeyUpCallback = pas::bind_static_method<&TfJournal::MainPanelKeyUp>(this);
             MainPanel->LeftButtonDownCallback = pas::bind_method<&TfJournal::MainPanelMouseDown>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"AddRecord"_wref.get()))->UpCallback = pas::bind_method<&TfJournal::AddRecordClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"_wref.get()))->UpCallback = pas::bind_method<&TfJournal::CloseClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"_wref.get()))->UpCallback = pas::bind_method<&TfJournal::ClearInputClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCopy"_wref.get()))->UpCallback = pas::bind_method<&TfJournal::CopyInputClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPaste"_wref.get()))->UpCallback = pas::bind_method<&TfJournal::PasteInputClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"AddRecord"sv))->UpCallback = pas::bind_method<&TfJournal::AddRecordClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv))->UpCallback = pas::bind_method<&TfJournal::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"sv))->UpCallback = pas::bind_method<&TfJournal::ClearInputClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCopy"sv))->UpCallback = pas::bind_method<&TfJournal::CopyInputClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPaste"sv))->UpCallback = pas::bind_method<&TfJournal::PasteInputClicked>(this);
         this->MainPanel->RebuildMessageButtons(false);
         {
-            GI_GraphButton::TGraphButtonGI* ButJournal = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJournal"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButJournal = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJournal"sv));
             ButJournal->UpCallback = pas::bind_method<&TfJournal::ToggleJournalNews>(this);
             ButJournal->SetDisabled(JournalSelected);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButNews = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButNews = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"sv));
             ButNews->UpCallback = pas::bind_method<&TfJournal::ToggleJournalNews>(this);
             ButNews->SetDisabled(static_cast<std::uint8_t>(JournalSelected ^ 1));
         }
-        GetByName(u"PanelJournal"_wref.get())->SetActive(JournalSelected);
+        GetByName(u"PanelJournal"sv)->SetActive(JournalSelected);
         std::uint8_t Reception = TfJournal::HasTelevisionReception();
-        pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TVNone"_wref.get()))->SetActive(static_cast<std::uint8_t>(Reception ^ 1));
-        pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TV"_wref.get()))->SetActive(Reception);
+        pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TVNone"sv))->SetActive(static_cast<std::uint8_t>(Reception ^ 1));
+        pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TV"sv))->SetActive(Reception);
         RefreshTelevisionAnimation(nullptr);
         {
-            GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"_wref.get()));
+            GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"sv));
             TextRecord->AutoScrollText = true;
             TextRecord->ClearFocusOnEnter = false;
         }
@@ -186,7 +186,7 @@ namespace fJournal {
             ++I;
         }
         {
-            GI_GAI::TgaiGI* TV = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TV"_wref.get()));
+            GI_GAI::TgaiGI* TV = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TV"sv));
             if (JournalSelected) {
                 TV->SetFirstFrameImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), u"FindI"}));
                 TV->SetImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), u"FindA"}));
@@ -226,7 +226,7 @@ namespace fJournal {
         InfoPanel->VerticalScrollBar->SetRange(0, InfoPanel->VerticalScrollBar->Maximum);
         InfoPanel->VerticalScrollBar->SetActive(InfoPanel->ClientSize.Y < ContentHeight);
         {
-            std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(Globals::GovernmentScreen->GetByName(u"TalkText"_wref.get()))->GetLineHeight();
+            std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(Globals::GovernmentScreen->GetByName(u"TalkText"sv))->GetLineHeight();
             GI_ScrollBar::TScrollBarGI* verticalScrollBar = InfoPanel->VerticalScrollBar;
             verticalScrollBar->SetSmallChange(lineHeight);
         }
@@ -243,8 +243,8 @@ namespace fJournal {
     void TfJournal::AddEntryHeading(pas::WideString Text, pas::WideString MessageText, std::int32_t Compact, std::int32_t RecordIndex) {
         pas::WideString ButtonPrefix{};
         std::int32_t PinWidth{};
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,0,0>"_wref.get());
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,0,0>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"sv);
         GI_Image::TImageGI* Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, InfoPanel);
         if (Compact == 0) {
             Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(), u"CaptionL"}));
@@ -336,7 +336,7 @@ namespace fJournal {
     }
 
     void TfJournal::AddEntryText(pas::WideString Text, GI_Main::TTextAlignXGI Align, pas::WideString FontName) {
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
         {
             GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, InfoPanel);
             if (FontName == u"") {
@@ -370,11 +370,11 @@ namespace fJournal {
     void TfJournal::ToggleJournalNews(GI_MessageLoop::TObjectGI* Sender) {
         JournalSelected = static_cast<std::uint8_t>(JournalSelected ^ 1);
         RefreshTelevisionAnimation(nullptr);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJournal"_wref.get()))->SetDisabled(JournalSelected);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"_wref.get()))->SetDisabled(static_cast<std::uint8_t>(JournalSelected ^ 1));
-        GetByName(u"PanelJournal"_wref.get())->SetActive(JournalSelected);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJournal"sv))->SetDisabled(JournalSelected);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"sv))->SetDisabled(static_cast<std::uint8_t>(JournalSelected ^ 1));
+        GetByName(u"PanelJournal"sv)->SetActive(JournalSelected);
         if (JournalSelected) {
-            SetFocusedControl(GetByName(u"TextRecord"_wref.get()));
+            SetFocusedControl(GetByName(u"TextRecord"sv));
         } else {
             SetFocusedControl(nullptr);
         }
@@ -386,7 +386,7 @@ namespace fJournal {
     }
 
     void TfJournal::MainPanelMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        SetFocusedControl(GetByName(u"TextRecord"_wref.get()));
+        SetFocusedControl(GetByName(u"TextRecord"sv));
     }
 
     void TfJournal::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
@@ -451,7 +451,7 @@ namespace fJournal {
     }
 
     std::uint8_t TfJournal::HasTelevisionReception() {
-        return aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->IsDockedToShip() || aPlayer::GetPlayer()->IsOnPlanet() && pas::in_set<0, 4, 7, 7>(aPlayer::GetPlayer()->CurrentPlanet->OwnerId));
+        return aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->IsDockedToShip() || aPlayer::GetPlayer()->IsOnPlanet() && pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(aPlayer::GetPlayer()->CurrentPlanet->OwnerId));
     }
 
     void TfJournal::PinEntryClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -542,9 +542,9 @@ namespace fJournal {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (aPlayer::GetPlayer()->IsOnPlanet()) {
-                if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                     if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                     } else {
                         GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                     }
@@ -555,9 +555,9 @@ namespace fJournal {
                 if (!GlobalsV::MusicInPlanetEnabled) {
                     GR_Main::MusicManager->RequestFadeOut();
                 } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
                 } else {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
                 }
             }
         } else if (GlobalsV::MusicInSpaceEnabled) {
@@ -591,8 +591,8 @@ namespace fJournal {
                     }
                     Entry = pas::list_at<aGalaxyStruct::TPlanetNews>(aPlayer::GetPlayer()->NewsEntries, I);
                     {
-                        pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), u"<color=255,240,100>"_w), u"\r\n", u" ", u"\r\n", Entry->Text});
-                        pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), HeadingSuffix}), u"<color=255,240,100>"_w);
+                        pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(aGalaxy::Galaxy->FormatTurnDate(Entry->Turn)), u"<color=255,240,100>"sv), u"\r\n", u" ", u"\r\n", Entry->Text});
+                        pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), HeadingSuffix})), u"<color=255,240,100>"sv);
                         AddEntryHeading(std::move(wrapTextInColor), std::move(cpp_arg), 1, 0);
                     }
                     AddEntryText(u" ."_w, GI_Main::taxCenter, pas::WideString());
@@ -624,8 +624,8 @@ namespace fJournal {
                 for (I = cpp_first; I >= 0; --I) {
                     Entry = pas::list_at<aPlayer::TJournalRecord>(aPlayer::GetPlayer()->JournalRecords, I);
                     {
-                        pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn), u"<color=255,240,100>"_w), u"\r\n", u" ", u"\r\n", Entry->Text});
-                        pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn), u"<color=255,240,100>"_w);
+                        pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn)), u"<color=255,240,100>"sv), u"\r\n", u" ", u"\r\n", Entry->Text});
+                        pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn)), u"<color=255,240,100>"sv);
                         AddEntryHeading(std::move(wrapTextInColor), std::move(cpp_arg), 1, I);
                     }
                     AddEntryText(u" ."_w, GI_Main::taxCenter, pas::WideString());
@@ -652,7 +652,7 @@ namespace fJournal {
     }
 
     void TfJournal::AddRecordClicked(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"_wref.get()));
+        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"sv));
         if (SysUtilsImports::Trim(static_cast<pas::AnsiString>(TextRecord->Text)).length() > 0) {
             aPlayer::GetPlayer()->AddJournalRecord(TextRecord->Text);
             GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
@@ -668,17 +668,17 @@ namespace fJournal {
     }
 
     void TfJournal::ClearInputClicked(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"_wref.get()));
+        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"sv));
         TextRecord->SetText(pas::WideString());
     }
 
     void TfJournal::CopyInputClicked(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"_wref.get()));
+        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"sv));
         GR_Main::SetClipboardWideText(TextRecord->Text);
     }
 
     void TfJournal::PasteInputClicked(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"_wref.get()));
+        GI_Edit::TEditGI* TextRecord = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextRecord"sv));
         TextRecord->SetText(GR_Main::GetClipboardWideText());
     }
 

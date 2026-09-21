@@ -174,30 +174,30 @@ namespace GI_SBPath {
         std::int32_t I{};
         if (Block->CountBlocks(u"Path"_wref.get()) > 0) {
             Points = nullptr;
-            Path = Block->GetBlock(u"Path"_wref.get());
+            Path = Block->GetBlock(u"Path"sv);
             PointCount = Path->GetParamCount();
             Points.set_length(PointCount);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, PointCount - 1); cpp_range.next(I); ) {
-                Points[I] = GI_Main::GetPointGI(Path->GetParamValue(I));
+                Points[I] = GI_Main::GetPointGI(pas::view(Path->GetParamValue(I)));
             }
         }
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            SetImagePath(Block->GetParam(u"Image"_wref.get()));
+            SetImagePath(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"Min"_wref.get()) > 0) {
-            Minimum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Min"_wref.get())));
+            Minimum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Min"sv)));
         }
         if (Block->CountParams(u"Max"_wref.get()) > 0) {
-            Maximum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Max"_wref.get())));
+            Maximum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Max"sv)));
         }
         if (Minimum > Maximum) {
             Minimum = Maximum;
         }
         if (Block->CountParams(u"Position"_wref.get()) > 0) {
-            SetPositionValue(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Position"_wref.get()))));
+            SetPositionValue(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Position"sv))));
         }
         if (Block->CountParams(u"RadiusHit"_wref.get()) > 0) {
-            HitRadius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"RadiusHit"_wref.get())));
+            HitRadius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"RadiusHit"sv)));
         }
         UpdateThumbPosition();
     }

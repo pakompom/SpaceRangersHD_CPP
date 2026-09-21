@@ -158,7 +158,7 @@ namespace GI_AlphaImage {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            Self->ImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            Self->ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
             Bitmap = EC_CacheAlphaBitmap::AcquireOrCreateAlphaBitmap(Self->ImageCache);
             {
                 pas::ScopeExit cpp_cleanup = [&]() noexcept {
@@ -168,31 +168,31 @@ namespace GI_AlphaImage {
             }
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Size"_wref.get());
+            Text = Block->GetParam(u"Size"sv);
             Self->SetSize(([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }()));
         }
         if (Block->CountParams(u"KindX"_wref.get()) > 0) {
-            Self->SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
+            Self->SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"KindX"sv))));
         }
         if (Block->CountParams(u"KindY"_wref.get()) > 0) {
-            Self->SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
+            Self->SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"KindY"sv))));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            Self->SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"AlignX"_wref.get())));
+            Self->SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"AlignX"sv))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
-            Self->SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"AlignY"_wref.get())));
+            Self->SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"AlignY"sv))));
         }
     }
 
     void TAlphaImageGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         pas::WideString Text{};
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
-        ImageCache->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+        ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
         EC_CacheAlphaBitmap::TCAlphaBitmapEC* Bitmap = EC_CacheAlphaBitmap::AcquireOrCreateAlphaBitmap(ImageCache);
         {
             pas::ScopeExit cpp_cleanup = [&]() noexcept {
@@ -201,24 +201,24 @@ namespace GI_AlphaImage {
             SetSize(Bitmap->PixelSize);
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Size"_wref.get());
+            Text = Block->GetParam(u"Size"sv);
             SetSize(([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }()));
         }
         if (Block->CountParams(u"KindX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"KindX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"KindX"sv))));
         }
         if (Block->CountParams(u"KindY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"KindY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"KindY"sv))));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            SetImageKindX(GI_Main::ParseImageKindXName(Block->GetParam(u"AlignX"_wref.get())));
+            SetImageKindX(GI_Main::ParseImageKindXName(pas::view(Block->GetParam(u"AlignX"sv))));
         }
         if (Block->CountParams(u"AlignY"_wref.get()) > 0) {
-            SetImageKindY(GI_Main::ParseImageKindYName(Block->GetParam(u"AlignY"_wref.get())));
+            SetImageKindY(GI_Main::ParseImageKindYName(pas::view(Block->GetParam(u"AlignY"sv))));
         }
     }
 

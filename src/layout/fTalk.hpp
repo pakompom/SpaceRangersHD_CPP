@@ -24,8 +24,8 @@ namespace fTalk {
     static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, SlideTimer) == 284);
     static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, SlideProgress) == 288);
     static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, DialogPanelLeft) == 292);
-    static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, Flag128) == 296);
-    static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, Flag12C) == 300);
+    static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, ModalTransition) == 296);
+    static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, ReturnedFromTrade) == 300);
     static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalk, SavedChoiceScroll) == 304);
     static_assert(sizeof(void*) != 4 || sizeof(fTalk::TfTalkA) == 36);
     static_assert(sizeof(void*) != 4 || offsetof(fTalk::TfTalkA, Reserved04) == 4);

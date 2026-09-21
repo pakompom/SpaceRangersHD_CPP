@@ -10,6 +10,7 @@
 #include "types/System.hpp"
 #include "types/SystemImports.hpp"
 #include "types/Types.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Buf.hpp"
 #include "units/EC_File.hpp"
@@ -55,47 +56,47 @@ namespace fLoadRobot {
         LoadPanel->InitializeLayout(this);
         GR_Main::AppendLogTextThreadSafe("fLoadRobot... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GI_MessageLoop::TObjectGI* Root = GetByName(u""_wref.get());
+        GI_MessageLoop::TObjectGI* Root = GetByName(u""sv);
         Root->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Root->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"_wref.get());
+        Root->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"sv);
         if (GR_Main::ExtraScreenHeight < 0) {
             Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, (GR_Main::GameScreenHeight - Panel->ClientSize.Y) / 2));
         } else {
             Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Panel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfLoadRobot::KeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"_wref.get()))->UpCallback = pas::bind_method<&TfLoadRobot::CloseClick>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"_wref.get()))->UpCallback = pas::bind_method<&TfLoadRobot::CloseClick>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"_wref.get()))->UpCallback = pas::bind_method<&TfLoadRobot::StartClick>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfLoadRobot::KeyDown>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfLoadRobot::CloseClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<&TfLoadRobot::CloseClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv))->UpCallback = pas::bind_method<&TfLoadRobot::StartClick>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
             ButGroup2->UpCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
             ButGroup2->DownCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Dif1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Dif1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"sv));
             Dif1->UpCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
             Dif1->DownCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"sv));
             Dif2->UpCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
             Dif2->DownCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Dif3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif3"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Dif3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif3"sv));
             Dif3->UpCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
             Dif3->DownCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
         }
@@ -146,9 +147,9 @@ namespace fLoadRobot {
                     if (BattleResult == 3) {
                         LoadCompletionData();
                         if (Difficulty == 1) {
-                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id, -Robot::RobotBattleStatistics[0] / 1000, 2);
+                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id, -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 2);
                         } else {
-                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id, -Robot::RobotBattleStatistics[0] / 1000, 1);
+                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id, -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 1);
                         }
                         SaveCompletionData();
                     }
@@ -162,26 +163,26 @@ namespace fLoadRobot {
                 if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
                     GR_Main::CaptureScreenBackground(true, 0);
                 }
-                pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+                pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
             } else {
                 BattleResult = 0;
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
                 ButGroup0->SetDown(Category == 0);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
                 ButGroup1->SetDown(Category == 1);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
                 ButGroup2->SetDown(Category == 2);
             }
             RebuildEntries();
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"_wref.get()))->SetDown(Difficulty == 1);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"_wref.get()))->SetDown(Difficulty == 2);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif3"_wref.get()))->SetDown(Difficulty == 3);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"sv))->SetDown(Difficulty == 1);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"sv))->SetDown(Difficulty == 2);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif3"sv))->SetDown(Difficulty == 3);
             SelectEntry(0);
         }
     }
@@ -231,12 +232,12 @@ namespace fLoadRobot {
         } else if (Key == 'R') {
             CloseClick(Sender);
         } else if (Key == WindowsSdk::VK_PRIOR) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot->VerticalScrollBar->Active) {
                 PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->LargeChange);
             }
         } else if (Key == WindowsSdk::VK_NEXT) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot_2->VerticalScrollBar->Active) {
                 PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position + PanelSlot_2->VerticalScrollBar->LargeChange);
             }
@@ -275,11 +276,11 @@ namespace fLoadRobot {
         } else if (Key == WindowsSdk::VK_TAB) {
             EntryMouseLeave(nullptr);
             if (Category == 0) {
-                CategoryClick(GetByName(u"ButGroup1"_wref.get()));
+                CategoryClick(GetByName(u"ButGroup1"sv));
             } else if (Category == 1) {
-                CategoryClick(GetByName(u"ButGroup2"_wref.get()));
+                CategoryClick(GetByName(u"ButGroup2"sv));
             } else if (Category == 2) {
-                CategoryClick(GetByName(u"ButGroup0"_wref.get()));
+                CategoryClick(GetByName(u"ButGroup0"sv));
             }
         }
     }
@@ -287,11 +288,11 @@ namespace fLoadRobot {
     void TfLoadRobot::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
         GI_PanelScrollBar::TPanelScrollBarGI* Panel{};
         WindowsSdk::TRect Bounds{};
-        Bounds = GetByName(u"MessageWindow"_wref.get())->HitTestBounds;
+        Bounds = GetByName(u"MessageWindow"sv)->HitTestBounds;
         if (Point.X >= Bounds.Left && Point.X < Bounds.Right && Point.Y >= Bounds.Top && Point.Y < Bounds.Bottom) {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
         } else {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             if (Panel->VerticalScrollBar->Active) {
@@ -328,7 +329,7 @@ namespace fLoadRobot {
         pas::WideString Path{};
         std::uint32_t FindHandle{};
         WindowsSdk::TWin32FindDataW FindData{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         Panel->FreeOwnedChildren();
         LoadCompletionData();
         std::int32_t Y = 0;
@@ -357,7 +358,7 @@ namespace fLoadRobot {
             }
             Path = pas::WideString();
             if (GR_Main::InstallConfig->CountParams(u"RobotPath"_wref.get()) > 0) {
-                Path = GR_Main::InstallConfig->GetParam(u"RobotPath"_wref.get());
+                Path = GR_Main::InstallConfig->GetParam(u"RobotPath"sv);
             }
             FindHandle = WindowsSdk::FindFirstFileW((cpp_text = pas::concat_wide({Path, u"Matrix\\Map\\*.cmap"}), cpp_text.pchar()), FindData);
             if (FindHandle != WindowsImports::INVALID_HANDLE_VALUE) {
@@ -566,7 +567,7 @@ namespace fLoadRobot {
                         TimeText = ([&] {
                             const pas::WideString& localizedText = aConst::LocalizedText(u"FormLoadRobot.Time"_wref.get());
                             const pas::WideString& timeText = TimeText;
-                            return EC_Str::ReplaceAllWideString(localizedText, u"<Val>"_wref.get(), timeText);
+                            return EC_Str::ReplaceAllWideString(localizedText, u"<Val>"_wref.get(), pas::view(timeText));
                         }());
                         cpp_with_7->SetText(TimeText);
                         break;
@@ -604,7 +605,7 @@ namespace fLoadRobot {
             return;
         }
         if (SelectedIndex >= 0) {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             EntryPanel = Entries[SelectedIndex].Image->Parent;
             Panel->ScrollRectIntoView(EntryPanel->GetLocalBounds());
         }
@@ -669,14 +670,14 @@ namespace fLoadRobot {
     }
 
     void TfLoadRobot::CategoryClick(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t NewCategory = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()))->SetDown(NewCategory == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()))->SetDown(NewCategory == 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()))->SetDown(NewCategory == 2);
+        std::int32_t NewCategory = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->SetDown(NewCategory == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv))->SetDown(NewCategory == 1);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv))->SetDown(NewCategory == 2);
         if (Category == NewCategory) {
             return;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         Panel->ScrollRectIntoView(ClassesImports::Rect(0, 0, 1, 1));
         Category = NewCategory;
         SelectedIndex = -1;
@@ -685,10 +686,10 @@ namespace fLoadRobot {
     }
 
     void TfLoadRobot::DifficultyClick(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t NewDifficulty = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"_wref.get()))->SetDown(NewDifficulty == 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"_wref.get()))->SetDown(NewDifficulty == 2);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif3"_wref.get()))->SetDown(NewDifficulty == 3);
+        std::int32_t NewDifficulty = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"sv))->SetDown(NewDifficulty == 1);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"sv))->SetDown(NewDifficulty == 2);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif3"sv))->SetDown(NewDifficulty == 3);
         if (Difficulty != NewDifficulty) {
             Difficulty = NewDifficulty;
         }
@@ -716,19 +717,19 @@ namespace fLoadRobot {
         std::uint8_t Success{};
         EC_Buf::TBufEC* Buffer{};
         {
-            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv));
             ButStart->SetDisabled(SelectedIndex < 0 || SelectedIndex > Entries.length() - 1);
         }
         {
-            GI_GraphBuf::TGraphBufGI* ImageMap = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"ImageMap"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* ImageMap = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"ImageMap"sv));
             ImageMap->SetActive(false);
             if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1) {
-                if (EC_Str::CountDelimitedPartsW(Entries[SelectedIndex].FileName, u"\\/"_wref.get()) == 1) {
+                if (EC_Str::CountDelimitedPartsW(pas::view(Entries[SelectedIndex].FileName), u"\\/"sv) == 1) {
                     Text = pas::concat_wide({u"Matrix\\Map\\", EC_Str::ExtractFileNameNoExtW(Entries[SelectedIndex].FileName), u".jpg"});
                 } else {
                     MapName = Entries[SelectedIndex].FileName;
-                    Extension = EC_Str::ExtractDelimitedPartW(MapName, EC_Str::CountDelimitedPartsW(MapName, u"."_wref.get()) - 1, u"."_wref.get());
-                    Text = EC_Str::ReplaceAllWideString(Entries[SelectedIndex].FileName, Extension, u"jpg"_wref.get());
+                    Extension = EC_Str::ExtractDelimitedPartW(pas::view(MapName), EC_Str::CountDelimitedPartsW(pas::view(MapName), u"."sv) - 1, u"."sv);
+                    Text = EC_Str::ReplaceAllWideString(Entries[SelectedIndex].FileName, Extension, u"jpg"sv);
                 }
                 F = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
                 F->SetFileName(Text);
@@ -751,7 +752,7 @@ namespace fLoadRobot {
             }
         }
         {
-            GI_Label::TLabelGI* with_MessageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"MessageText"_wref.get()));
+            GI_Label::TLabelGI* with_MessageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"MessageText"sv));
             with_MessageText->SetActive(false);
             if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0 && Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
                 with_MessageText->SetActive(true);
@@ -768,12 +769,12 @@ namespace fLoadRobot {
             }
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
             MessageWindow->SetScrollOffset(ClassesImports::Point(0, 0));
             MessageWindow->UpdateScrollRanges();
-            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get())->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get()))->ClientSize.Y > MessageWindow->ClientSize.Y);
+            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"sv)->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->ClientSize.Y > MessageWindow->ClientSize.Y);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get()))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = MessageWindow->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }
@@ -782,7 +783,7 @@ namespace fLoadRobot {
         }
         Success = false;
         {
-            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"sv));
             Dif2->SetDisabled(false);
             if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0 && Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
                 if (Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].ReinforcementsDisabled) {
@@ -795,7 +796,7 @@ namespace fLoadRobot {
             }
         }
         if (Success) {
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"_wref.get()))->SetDown(true);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"sv))->SetDown(true);
         }
     }
 

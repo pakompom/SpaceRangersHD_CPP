@@ -323,7 +323,7 @@ namespace GI_MessageLoop {
 
     void TObjectGI::SetDepthByName(const pas::WideString& Name) {
         pas::WideString Value{};
-        Value = GR_Main::UiDepthConfig->GetParamOrMarker(Name);
+        Value = GR_Main::UiDepthConfig->GetParamOrMarker(pas::view(Name));
         if (Value != u"") {
             SetDepth(EC_Str::ExtractDecimalToSingleW(Value));
         } else {
@@ -522,12 +522,12 @@ namespace GI_MessageLoop {
         }
     }
 
-    // Purpose unresolved; the base hook visits children whose Active flag equals True.
-    void TObjectGI::NativeHook48() {
+    // Called on the parent UI after closing a modal child and restoring the cursor; propagates to active children.
+    void TObjectGI::OnModalResume() {
         TObjectGI* Child = FirstChild;
         while (Child != nullptr) {
             if (Child->Active == true) {
-                Child->NativeHook48();
+                Child->OnModalResume();
             }
             Child = Child->NextSibling;
         }
@@ -544,12 +544,12 @@ namespace GI_MessageLoop {
         }
     }
 
-    // Purpose unresolved; the base hook visits children whose Active flag equals True.
-    void TObjectGI::NativeHook50() {
+    // Called on the parent UI before opening a modal child and capturing the cursor; propagates to active children.
+    void TObjectGI::OnModalSuspend() {
         TObjectGI* Child = FirstChild;
         while (Child != nullptr) {
             if (Child->Active == true) {
-                Child->NativeHook50();
+                Child->OnModalSuspend();
             }
             Child = Child->NextSibling;
         }
@@ -696,9 +696,9 @@ namespace GI_MessageLoop {
     }
 
     // Case-sensitive; includes Self. Duplicate names resolve in child-list order.
-    TObjectGI* TObjectGI::FindByNameRecursive(const pas::WideString& Name) {
+    TObjectGI* TObjectGI::FindByNameRecursive(const std::u16string_view& Name) {
         TObjectGI* Found{};
-        if (ControlName == Name) {
+        if (pas::view(ControlName) == Name) {
             return this;
         }
         TObjectGI* Child = FirstChild;
@@ -902,53 +902,53 @@ namespace GI_MessageLoop {
         std::int32_t Count{};
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Pos"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Pos"_wref.get());
-            Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+            Text = Block->GetParam(u"Pos"sv);
+            Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
             if (Count >= 2) {
-                Self->LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-                Self->LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+                Self->LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                Self->LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
             }
             if (Count >= 3) {
-                Self->SetDepthByName(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+                Self->SetDepthByName(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
             }
             if (Count >= 4) {
-                if (EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, 3, u","_wref.get())) == u"w") {
+                if (EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Text), 3, u","sv)) == u"w") {
                     Self->PositionModeW = true;
                 }
             }
         }
         if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
-            Self->SetDepthByName(Block->GetParam(u"PosZ"_wref.get()));
+            Self->SetDepthByName(Block->GetParam(u"PosZ"sv));
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Size"_wref.get());
-            Self->ClientSize.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Self->ClientSize.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            Text = Block->GetParam(u"Size"sv);
+            Self->ClientSize.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Self->ClientSize.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
         }
         if (Block->CountParams(u"Sme"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Sme"_wref.get());
-            Self->OriginPoint.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-            Self->OriginPoint.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+            Text = Block->GetParam(u"Sme"sv);
+            Self->OriginPoint.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            Self->OriginPoint.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
         }
         if (Block->CountParams(u"Name"_wref.get()) > 0) {
-            Self->ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"_wref.get()));
+            Self->ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"sv));
         }
         if (Block->CountParams(u"Help"_wref.get()) > 0) {
-            Self->HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"_wref.get())));
+            Self->HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"sv)));
         }
         if (Block->CountParams(u"Active"_wref.get()) > 0) {
-            if (EC_Str::TrimWideString(Block->GetParam(u"Active"_wref.get())) == u"False") {
+            if (EC_Str::TrimWideString(Block->GetParam(u"Active"sv)) == u"False") {
                 Self->Active = false;
             }
         }
         if (Block->CountParams(u"MouseBlocking"_wref.get()) > 0) {
-            Self->MouseBlocking = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"_wref.get())));
+            Self->MouseBlocking = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"sv))));
         }
         if (Block->CountParams(u"MouseBlockingTest"_wref.get()) > 0) {
-            Self->MouseBlockingTest = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"_wref.get())));
+            Self->MouseBlockingTest = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"sv))));
         }
         if (Block->CountParams(u"MVUpdate"_wref.get()) > 0) {
-            Self->SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"_wref.get()))));
+            Self->SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"sv)))));
         }
     }
 
@@ -961,78 +961,78 @@ namespace GI_MessageLoop {
         Depth = -1.0;
         SetDepth(0.0);
         if (Block->CountParams(u"Style"_wref.get()) > 0) {
-            SetConfigPath(Block->GetParam(u"Style"_wref.get()));
+            SetConfigPath(Block->GetParam(u"Style"sv));
         }
         if (Block->CountParams(u"Pos"_wref.get()) > 0) {
-            Text = Block->GetParam(u"Pos"_wref.get());
-            Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+            Text = Block->GetParam(u"Pos"sv);
+            Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
             if (Count >= 2) {
-                LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-                LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
+                LocalPosition.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                LocalPosition.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
             }
             if (Count >= 3) {
-                SetDepthByName(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+                SetDepthByName(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
             }
             if (Count >= 4) {
-                if (EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(Text, 3, u","_wref.get())) == u"w") {
+                if (EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Text), 3, u","sv)) == u"w") {
                     PositionModeW = true;
                 }
             }
         }
         if (Block->CountParams(u"PosZ"_wref.get()) > 0) {
-            SetDepthByName(Block->GetParam(u"PosZ"_wref.get()));
+            SetDepthByName(Block->GetParam(u"PosZ"sv));
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
-            SetSize(GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get())));
+            SetSize(GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv))));
         }
         if (Block->CountParams(u"Sme"_wref.get()) > 0) {
-            SetOrigin(GI_Main::GetPointGI(Block->GetParam(u"Sme"_wref.get())));
+            SetOrigin(GI_Main::GetPointGI(pas::view(Block->GetParam(u"Sme"sv))));
         }
         ControlName = pas::WideString();
         if (Block->CountParams(u"Name"_wref.get()) > 0) {
-            ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"_wref.get()));
+            ControlName = EC_Str::TrimWideString(Block->GetParam(u"Name"sv));
         }
         if (Block->CountParams(u"Help"_wref.get()) > 0) {
-            HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"_wref.get())));
+            HelpText = GR_Main::LookupLocalizedTextByKey(EC_Str::TrimWideString(Block->GetParam(u"Help"sv)));
         }
         Active = true;
         if (Block->CountParams(u"Active"_wref.get()) > 0) {
-            if (EC_Str::TrimWideString(Block->GetParam(u"Active"_wref.get())) == u"False") {
+            if (EC_Str::TrimWideString(Block->GetParam(u"Active"sv)) == u"False") {
                 Active = false;
             }
         }
         if (Block->CountParams(u"MouseBlocking"_wref.get()) > 0) {
-            MouseBlocking = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"_wref.get())));
+            MouseBlocking = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"MouseBlocking"sv))));
         }
         if (Block->CountParams(u"MouseBlockingTest"_wref.get()) > 0) {
-            MouseBlockingTest = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"_wref.get())));
+            MouseBlockingTest = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"MouseBlockingTest"sv))));
         }
         if (Block->CountParams(u"ScrollUpdate"_wref.get()) > 0) {
-            ScrollUpdate = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"ScrollUpdate"_wref.get())));
+            ScrollUpdate = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"ScrollUpdate"sv))));
         }
         if (Block->CountParams(u"MVUpdate"_wref.get()) > 0) {
-            SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"_wref.get()))));
+            SetMouseViewUpdates(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"MVUpdate"sv)))));
         }
         if (Block->CountParams(u"PosAutoCorrection"_wref.get()) > 0) {
-            AutoOffsetEnabled = GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrection"_wref.get())));
+            AutoOffsetEnabled = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrection"sv))));
         }
         if (Block->CountParams(u"PosAutoCorrectionXCoef"_wref.get()) > 0) {
-            AutoOffsetScale.X = EC_Str::ExtractDecimalToSingleW(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrectionXCoef"_wref.get())));
+            AutoOffsetScale.X = EC_Str::ExtractDecimalToSingleW(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrectionXCoef"sv)));
         }
         if (Block->CountParams(u"PosAutoCorrectionYCoef"_wref.get()) > 0) {
-            AutoOffsetScale.Y = EC_Str::ExtractDecimalToSingleW(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrectionYCoef"_wref.get())));
+            AutoOffsetScale.Y = EC_Str::ExtractDecimalToSingleW(EC_Str::TrimWideString(Block->GetParam(u"PosAutoCorrectionYCoef"sv)));
         }
         if (Block->CountBlocks(u"OnKey"_wref.get()) > 0) {
-            OnKeyDownCode = Block->GetBlock(u"OnKey"_wref.get());
+            OnKeyDownCode = Block->GetBlock(u"OnKey"sv);
         }
         if (Block->CountBlocks(u"OnMouseEnterCode"_wref.get()) > 0) {
-            OnMouseEnterCode = Block->GetBlock(u"OnMouseEnterCode"_wref.get());
+            OnMouseEnterCode = Block->GetBlock(u"OnMouseEnterCode"sv);
         }
         if (Block->CountBlocks(u"OnMouseLeaveCode"_wref.get()) > 0) {
-            OnMouseLeaveCode = Block->GetBlock(u"OnMouseLeaveCode"_wref.get());
+            OnMouseLeaveCode = Block->GetBlock(u"OnMouseLeaveCode"sv);
         }
         if (Block->CountBlocks(u"OnMouseRightClick"_wref.get()) > 0) {
-            OnRightButtonDownCode = Block->GetBlock(u"OnMouseRightClick"_wref.get());
+            OnRightButtonDownCode = Block->GetBlock(u"OnMouseRightClick"sv);
         }
     }
 
@@ -1041,7 +1041,7 @@ namespace GI_MessageLoop {
         TObjectGI* Child{};
         std::int32_t Count = Block->GetBlockCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            Child = GI_Main::CreateControlByName(Block->GetBlockNameByIndex(Index), Self);
+            Child = GI_Main::CreateControlByName(pas::view(Block->GetBlockNameByIndex(Index)), Self);
             if (Child != nullptr) {
                 Child->LoadFromBlock(Block->GetBlockByIndex(Index));
             } else if (Block->GetBlockNameByIndex(Index) != u"OnPressCode" && Block->GetBlockNameByIndex(Index) != u"OnMouseEnterCode" && Block->GetBlockNameByIndex(Index) != u"OnMouseLeaveCode") {
@@ -1092,19 +1092,19 @@ namespace GI_MessageLoop {
         std::int32_t Index{};
         Clear();
         TotalWeight = 0;
-        Text = Block->GetParam(u"NextTime"_wref.get());
-        MinDelayMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u",-"_wref.get())));
-        MaxDelayMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u",-"_wref.get())));
+        Text = Block->GetParam(u"NextTime"sv);
+        MinDelayMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u",-"sv)));
+        MaxDelayMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u",-"sv)));
         if (Block->CountParams(u"Section"_wref.get()) > 0) {
-            Section = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Section"_wref.get())));
+            Section = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Section"sv)));
         }
         std::int32_t Count = Block->GetParamCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Text = Block->GetParamName(Index);
-            if (EC_Str::IsIntegerTextW(Text)) {
+            if (EC_Str::IsIntegerTextW(pas::view(Text))) {
                 Sounds->Add(Block->GetParamValue(Index));
-                Sounds->SetDataAt(Sounds->GetCount() - 1, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Str::ExtractDigitsToIntW(Text)))));
-                TotalWeight += EC_Str::ExtractDigitsToIntW(Text);
+                Sounds->SetDataAt(Sounds->GetCount() - 1, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Str::ExtractDigitsToIntW(pas::view(Text))))));
+                TotalWeight += EC_Str::ExtractDigitsToIntW(pas::view(Text));
             }
         }
     }
@@ -1201,7 +1201,7 @@ namespace GI_MessageLoop {
         std::int32_t Index{};
         std::int32_t Count = pas::list_count(MouseViewUpdateControls);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            if (pas::list_get(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(MouseViewUpdateControls) + 0), Index) == Control) {
+            if (pas::list_get(MouseViewUpdateControls, Index) == Control) {
                 return Index;
             }
         }
@@ -1227,7 +1227,7 @@ namespace GI_MessageLoop {
         TObjectGI* Control{};
         std::int32_t Count = pas::list_count(MouseViewUpdateControls);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            Control = pas::list_at<TObjectGI>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(MouseViewUpdateControls) + 0), Index);
+            Control = pas::list_at<TObjectGI>(MouseViewUpdateControls, Index);
             Control->Invalidate();
         }
     }
@@ -1542,7 +1542,7 @@ namespace GI_MessageLoop {
                         FrameCount = 0;
                         if (GR_Main::ShowFrameRate) {
                             const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"FPS: ", SysUtils::IntToStr(FramesPerSecond)}));
-                            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"FPS"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"FPS"sv));
                             cpp_arg_2->SetText(cpp_arg);
                         }
                     }
@@ -1662,7 +1662,7 @@ namespace GI_MessageLoop {
     }
 
     void TMessageLoopGI::Present() {
-        GR_Main::UnknownPresentState = 0;
+        GR_Main::StartupIntegrityMarker = 0;
         if (ContinuousLoop) {
             GR_Main::FullFrameRedrawRequested = true;
             DrawFrame();
@@ -2042,7 +2042,7 @@ namespace GI_MessageLoop {
     }
 
     // Search is limited to ContentPanel; raises when absent.
-    TObjectGI* TMessageLoopGI::GetByName(const pas::WideString& Name) {
+    TObjectGI* TMessageLoopGI::GetByName(const std::u16string_view& Name) {
         TObjectGI* Result = ContentPanel->FindByNameRecursive(Name);
         if (Result == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TMessageLoopGI.GetByName. Name=", Name}))));
@@ -2053,13 +2053,13 @@ namespace GI_MessageLoop {
     // Each component may match a descendant, not just a direct child. Returns nil when absent.
     TObjectGI* TMessageLoopGI::FindControlByPath(const pas::WideString& Path) {
         std::int32_t Index{};
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Path, u":"_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Path), u":"sv);
         if (Count <= 1) {
-            return ContentPanel->FindByNameRecursive(Path);
+            return ContentPanel->FindByNameRecursive(pas::view(Path));
         }
         TObjectGI* Result = ContentPanel;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            Result = Result->FindByNameRecursive(EC_Str::ExtractDelimitedPartW(Path, Index, u":"_wref.get()));
+            Result = Result->FindByNameRecursive(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Path), Index, u":"sv)));
             if (Result == nullptr) {
                 break;
             }
@@ -2251,13 +2251,13 @@ namespace GI_MessageLoop {
     void TMessageLoopGI::SetCursorByName(const pas::WideString& Name) {
         GR_Main::TCursorUnit* Cursor{};
         if (GR_Main::CustomCursorEnabled) {
-            Cursor = GR_Main::FindCursorByName(Name);
+            Cursor = GR_Main::FindCursorByName(pas::view(Name));
             SetCursorImage(Cursor->ImagePath, Cursor->HotSpot);
         }
     }
 
     // Ignores cursor activity; registered names with the same image path compare equal.
-    std::uint8_t TMessageLoopGI::IsCursorImageSelected(const pas::WideString& RegisteredName) {
+    std::uint8_t TMessageLoopGI::IsCursorImageSelected(const std::u16string_view& RegisteredName) {
         GR_Main::TCursorUnit* Cursor = GR_Main::FindCursorByName(RegisteredName);
         return Cursor->ImagePath == CursorImagePath;
     }
@@ -2464,16 +2464,16 @@ namespace GI_MessageLoop {
     }
 
     void TMessageLoopGI::InitializeDefaults() {
-        RootUiObject = GI_Main::CreateControlByName(u"Panel"_w, nullptr);
+        RootUiObject = GI_Main::CreateControlByName(u"Panel"sv, nullptr);
         RootUiObject->MessageLoop = this;
         RootUiObject->SetPosition(ClassesImports::Point(0, 0));
         RootUiObject->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        BackgroundPanel = GI_Main::CreateControlByName(u"Panel"_w, RootUiObject);
+        BackgroundPanel = GI_Main::CreateControlByName(u"Panel"sv, RootUiObject);
         BackgroundPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         BackgroundPanel->SetDepth(1.0);
-        ContentPanel = GI_Main::CreateControlByName(u"Panel"_w, RootUiObject);
+        ContentPanel = GI_Main::CreateControlByName(u"Panel"sv, RootUiObject);
         ContentPanel->SetDepth(0.0);
-        OverlayPanel = GI_Main::CreateControlByName(u"Panel"_w, RootUiObject);
+        OverlayPanel = GI_Main::CreateControlByName(u"Panel"sv, RootUiObject);
         OverlayPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         OverlayPanel->SetDepth(-1.0);
         StatusLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, OverlayPanel);
@@ -2499,18 +2499,18 @@ namespace GI_MessageLoop {
         InitializeDefaults();
         EC_BlockPar::TBlockParEC* ScreenBlock = ConfigRoot->GetBlockByPath(ScreenName);
         RegisteredLoopName = ScreenName;
-        Text = ScreenBlock->GetParam(u"Border"_wref.get());
-        ViewportRect.Left = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-        ViewportRect.Top = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())));
-        ViewportRect.Right = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())));
-        ViewportRect.Bottom = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 3, u","_wref.get())));
+        Text = ScreenBlock->GetParam(u"Border"sv);
+        ViewportRect.Left = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+        ViewportRect.Top = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+        ViewportRect.Right = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+        ViewportRect.Bottom = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 3, u","sv)));
         if (ScreenBlock->CountBlocks(u"Sound"_wref.get()) > 0) {
-            SoundBlock = ScreenBlock->GetBlock(u"Sound"_wref.get());
+            SoundBlock = ScreenBlock->GetBlock(u"Sound"sv);
             if (SoundBlock->CountParams(u"Open"_wref.get()) > 0) {
-                OpenSoundName = SoundBlock->GetParam(u"Open"_wref.get());
+                OpenSoundName = SoundBlock->GetParam(u"Open"sv);
             }
             if (SoundBlock->CountParams(u"Close"_wref.get()) > 0) {
-                CloseSoundName = SoundBlock->GetParam(u"Close"_wref.get());
+                CloseSoundName = SoundBlock->GetParam(u"Close"sv);
             }
             Count = SoundBlock->GetBlockCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {

@@ -6,6 +6,7 @@
 #include "types/SE_Process.hpp"
 #include "types/SE_Star.hpp"
 #include "types/Types.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_CacheBitmap.hpp"
@@ -225,7 +226,7 @@ namespace SE_Planet {
             MinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
             MinimapControl->SetOrigin(MinimapImageOrigin);
             if (MinimapOwner <= 7) {
-                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.", aConst::OwnerInfo[MinimapOwner].InternalName}));
+                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.", aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(MinimapOwner)].InternalName}));
             } else {
                 OwnerIndex = MinimapOwner - 7 - 1;
                 if (OwnerIndex <= 9) {
@@ -477,7 +478,7 @@ namespace SE_Planet {
             Globals::TPlanetAdvtGroup& cpp_with = Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)];
             for (Index = 0; Index <= 23; ++Index) {
                 if ((SurfaceAnimationMask & pas::shl(1, Index)) != 0) {
-                    TotalWeight += cpp_with.Lists[Index].Key;
+                    TotalWeight += cpp_with.Lists[Index].Weight;
                 }
             }
             Attempts = 10;
@@ -485,7 +486,7 @@ namespace SE_Planet {
                 Choice = aMyFunction::RandomIntRange(0, TotalWeight - 1);
                 for (Index = 0; Index <= 23; ++Index) {
                     if ((SurfaceAnimationMask & pas::shl(1, Index)) != 0) {
-                        Choice -= cpp_with.Lists[Index].Key;
+                        Choice -= cpp_with.Lists[Index].Weight;
                         if (Choice < 0) {
                             SurfaceAnimationIndex = Index;
                             // Native compares the value just assigned; retain the unreachable assignment.
@@ -529,7 +530,7 @@ namespace SE_Planet {
         MinimapOwner = Owner;
         if (MinimapControl != nullptr) {
             if (MinimapOwner <= 7) {
-                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.", aConst::OwnerInfo[MinimapOwner].InternalName}));
+                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.", aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(MinimapOwner)].InternalName}));
             } else {
                 Index = MinimapOwner - 7 - 1;
                 if (Index <= 9) {
@@ -1055,7 +1056,7 @@ namespace SE_Planet {
         std::int32_t RenderRadius{};
         Globals::TSputnikTempl* SatelliteTemplate{};
         if (IsRuins) {
-            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(RuinsImagePath, 1, u","_wref.get()), Buffer);
+            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(RuinsImagePath), 1, u","sv), Buffer);
         } else if (PlanetControl != nullptr) {
             PlanetControl->RenderSurfaceToBuffer(Buffer);
         } else {
@@ -1095,7 +1096,7 @@ namespace SE_Planet {
             Control = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             if (SmallPreview) {
-                Control->SetCacheKey(pas::concat_wide({EC_Str::ExtractDelimitedPartW(SatelliteTemplate->MaskName, 0, u"?"_wref.get()), u"?RGBA"}));
+                Control->SetCacheKey(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(SatelliteTemplate->MaskName), 0, u"?"sv), u"?RGBA"}));
             } else {
                 Control->SetCacheKey(pas::concat_wide({Template->MaskName, u"?RGBA"}));
             }
@@ -1111,49 +1112,49 @@ namespace SE_Planet {
         pas::WideString Text{};
         SE_Space::TObjectSE::LoadTemplate(Block);
         if (IsRuins) {
-            RuinsAnimationPath = Block->GetParam(u"Image"_wref.get());
-            RuinsImagePath = Block->GetParam(u"ImageI"_wref.get());
-            RuinsMinimapPath = Block->GetParam(u"ImageMap"_wref.get());
+            RuinsAnimationPath = Block->GetParam(u"Image"sv);
+            RuinsImagePath = Block->GetParam(u"ImageI"sv);
+            RuinsMinimapPath = Block->GetParam(u"ImageMap"sv);
         } else {
             RotationTimerInterval = 100u;
             SurfaceMapStep = -1;
-            ImagePath = Block->GetParam(u"Image"_wref.get());
-            MinimapImagePath = Block->GetParam(u"ImageMap"_wref.get());
-            ImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImage"_wref.get()));
-            MinimapImageOrigin = GI_Main::GetPointGI(Block->GetParam(u"SmeImageMap"_wref.get()));
-            Radius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Radius"_wref.get())));
+            ImagePath = Block->GetParam(u"Image"sv);
+            MinimapImagePath = Block->GetParam(u"ImageMap"sv);
+            ImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImage"sv)));
+            MinimapImageOrigin = GI_Main::GetPointGI(pas::view(Block->GetParam(u"SmeImageMap"sv)));
+            Radius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Radius"sv)));
             if (Block->CountParams(u"Cloud0"_wref.get()) > 0) {
-                Text = Block->GetParam(u"Cloud0"_wref.get());
-                Cloud1RelativeRotationSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                Cloud1ImagePath = EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get());
+                Text = Block->GetParam(u"Cloud0"sv);
+                Cloud1RelativeRotationSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                Cloud1ImagePath = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
             if (Block->CountParams(u"Cloud1"_wref.get()) > 0) {
-                Text = Block->GetParam(u"Cloud1"_wref.get());
-                Cloud2RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                Cloud2ImagePath = EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get());
+                Text = Block->GetParam(u"Cloud1"sv);
+                Cloud2RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                Cloud2ImagePath = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
             if (Block->CountParams(u"Cloud2"_wref.get()) > 0) {
-                Text = Block->GetParam(u"Cloud2"_wref.get());
-                Cloud3RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                Cloud3ImagePath = EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get());
+                Text = Block->GetParam(u"Cloud2"sv);
+                Cloud3RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                Cloud3ImagePath = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
             if (Block->CountParams(u"AtmColor"_wref.get()) > 0) {
-                Text = Block->GetParam(u"AtmColor"_wref.get());
-                AtmosphereColor = static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get())));
-                AtmosphereColor |= pas::shl(static_cast<std::int32_t>(static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())))), 8);
-                AtmosphereColor |= pas::shl(static_cast<std::int32_t>(static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get())))), 16);
+                Text = Block->GetParam(u"AtmColor"sv);
+                AtmosphereColor = static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv))));
+                AtmosphereColor |= pas::shl(static_cast<std::int32_t>(static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv))))), 8);
+                AtmosphereColor |= pas::shl(static_cast<std::int32_t>(static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv))))), 16);
             }
             if (Block->CountParams(u"Space"_wref.get()) > 0) {
-                Text = Block->GetParam(u"Space"_wref.get());
-                SpaceConfigValues[0] = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get()));
-                SpaceConfigValues[1] = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get()));
-                SpaceConfigValues[2] = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 2, u","_wref.get()));
+                Text = Block->GetParam(u"Space"sv);
+                SpaceConfigValues[0] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                SpaceConfigValues[1] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+                SpaceConfigValues[2] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
             }
             if (Block->CountParams(u"BG"_wref.get()) > 0) {
-                BackgroundGraph = Block->GetParam(u"BG"_wref.get());
+                BackgroundGraph = Block->GetParam(u"BG"sv);
             }
             if (Block->CountParams(u"Quest"_wref.get()) > 0) {
-                QuestEnabled = GI_Main::ParseEnabledNameGI(Block->GetParam(u"Quest"_wref.get()));
+                QuestEnabled = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Quest"sv)));
             }
         }
     }
@@ -1164,16 +1165,16 @@ namespace SE_Planet {
             return;
         }
         if (Block->CountParams(u"SmeMap"_wref.get()) > 0) {
-            SetSurfaceMapOffset(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmeMap"_wref.get()))));
+            SetSurfaceMapOffset(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmeMap"sv))));
         }
         if (Block->CountParams(u"AngleLight"_wref.get()) > 0) {
-            SetLightAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AngleLight"_wref.get()))));
+            SetLightAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AngleLight"sv))));
         }
         if (Block->CountParams(u"SpeedRotate"_wref.get()) > 0) {
-            SetRotationTimerInterval(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SpeedRotate"_wref.get()))));
+            SetRotationTimerInterval(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SpeedRotate"sv))));
         }
         if (Block->CountParams(u"StepRotate"_wref.get()) > 0) {
-            SetSurfaceMapStep(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StepRotate"_wref.get()))));
+            SetSurfaceMapStep(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StepRotate"sv))));
         }
     }
 

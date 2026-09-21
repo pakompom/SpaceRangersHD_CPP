@@ -60,7 +60,7 @@ namespace GI_SimpleButton {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            Self->NormalImage->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+            Self->NormalImage->SetCacheKey(Block->GetParam(u"Image"sv));
             Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(Self->NormalImage);
             {
                 pas::ScopeExit cpp_cleanup = [&]() noexcept {
@@ -70,13 +70,13 @@ namespace GI_SimpleButton {
             }
         }
         if (Block->CountParams(u"ImageActive"_wref.get()) > 0) {
-            Self->ActiveImage->SetCacheKey(Block->GetParam(u"ImageActive"_wref.get()));
+            Self->ActiveImage->SetCacheKey(Block->GetParam(u"ImageActive"sv));
         }
     }
 
     void TSimpleButtonGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
-        NormalImage->SetCacheKey(Block->GetParam(u"Image"_wref.get()));
+        NormalImage->SetCacheKey(Block->GetParam(u"Image"sv));
         EC_CacheBitmap::TCBitmapEC* Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(NormalImage);
         {
             pas::ScopeExit cpp_cleanup = [&]() noexcept {
@@ -84,7 +84,7 @@ namespace GI_SimpleButton {
             };
             SetSize(ClassesImports::Point(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height));
         }
-        ActiveImage->SetCacheKey(Block->GetParam(u"ImageActive"_wref.get()));
+        ActiveImage->SetCacheKey(Block->GetParam(u"ImageActive"sv));
         CurrentImage = NormalImage;
     }
 

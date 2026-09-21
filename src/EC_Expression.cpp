@@ -15,7 +15,7 @@ namespace EC_Expression {
     // Nested in ResizeScriptArray; collects dimensions by following each first child.
     void CollectScriptArrayDimensions(TVarArrayEC* Values, pas::DynArray<std::int32_t>& Dimensions);
 
-    void AddScriptLocal(pas::WideString TypeName, pas::WideString Name, TCodeEC* Self);
+    void AddScriptLocal(const std::u16string_view& TypeName, pas::WideString Name, TCodeEC* Self);
 
     pas::Array<EC_Expression::TVarEC*, 0, 19> ScriptCallTrace{};
 
@@ -171,15 +171,15 @@ namespace EC_Expression {
     }
 
     // Collects decimal digits while ignoring other characters; negative only for a leading minus.
-    std::int32_t ScriptStringToInt(pas::WideString Text) {
+    std::int32_t ScriptStringToInt(const std::u16string_view& Text) {
         std::int32_t i{};
         std::int32_t Result = 0;
-        std::int32_t Count = Text.length();
+        std::int32_t Count = static_cast<std::int32_t>(Text.length());
         std::int32_t Sign = 1;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(i); ) {
-            if (Text.read(i) >= '0' && Text.read(i) <= '9') {
-                Result = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text.read(i))) + Result * 10;
-            } else if (Text.read(i) == u'-' && i == 1) {
+            if (Text[i - 1] >= '0' && Text[i - 1] <= '9') {
+                Result = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text[i - 1])) + Result * 10;
+            } else if (Text[i - 1] == u'-' && i == 1) {
                 Sign *= -1;
             }
         }
@@ -209,16 +209,16 @@ namespace EC_Expression {
     }
 
     // Ignores nonnumeric characters; not a strict literal validator.
-    double ScriptStringToFloat(pas::WideString Text) {
+    double ScriptStringToFloat(const std::u16string_view& Text) {
         std::int32_t i{};
         std::int32_t C{};
-        std::int32_t Count = Text.length();
+        std::int32_t Count = static_cast<std::int32_t>(Text.length());
         if (Count < 1) {
             return 0.0;
         }
         double Value = 0.0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            C = Text.read(i + 1);
+            C = Text[i + 1 - 1];
             if (C >= '0' && C <= '9') {
                 Value = Value * 1.0E+1L + (C - '0');
             } else if (C == '.') {
@@ -228,7 +228,7 @@ namespace EC_Expression {
         ++i;
         double Divisor = 1.0E+1;
         while (i < Count) {
-            C = Text.read(i + 1);
+            C = Text[i + 1 - 1];
             if (C >= '0' && C <= '9') {
                 Value = pas::real_divide(C - '0', Divisor) + Value;
                 Divisor = Divisor * 1.0E+1L;
@@ -236,7 +236,7 @@ namespace EC_Expression {
             ++i;
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(i); ) {
-            if (Text.read(i + 1) == '-') {
+            if (Text[i + 1 - 1] == '-') {
                 Value = -Value;
                 break;
             }
@@ -245,18 +245,18 @@ namespace EC_Expression {
     }
 
     // Also accepts empty text and a lone minus.
-    std::uint8_t IsScriptIntegerText(pas::WideString Text) {
+    std::uint8_t IsScriptIntegerText(const std::u16string_view& Text) {
         std::int32_t i{};
-        std::int32_t Count = Text.length();
+        std::int32_t Count = static_cast<std::int32_t>(Text.length());
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            if ((Text.read(i + 1) < u'0' || Text.read(i + 1) > u'9') && (Text.read(i + 1) != u'-' || i > 0)) {
+            if ((Text[i + 1 - 1] < u'0' || Text[i + 1 - 1] > u'9') && (Text[i + 1 - 1] != u'-' || i > 0)) {
                 return false;
             }
         }
         return true;
     }
 
-    std::uint8_t IsNonIntegerScriptText(pas::WideString Text) {
+    std::uint8_t IsNonIntegerScriptText(const std::u16string_view& Text) {
         return static_cast<std::uint8_t>(EC_Expression::IsScriptIntegerText(Text) ^ 1);
     }
 
@@ -280,10 +280,10 @@ namespace EC_Expression {
         if (Current->TokenKind != ctText) {
             return Result;
         }
-        if (!EC_Expression::IsScriptIntegerText(Current->Text)) {
+        if (!EC_Expression::IsScriptIntegerText(pas::view(Current->Text))) {
             return Result;
         }
-        Value = EC_Expression::ScriptStringToInt(Current->Text);
+        Value = EC_Expression::ScriptStringToInt(pas::view(Current->Text));
         Current = Current->Next;
         if (Current == nullptr) {
             return Result;
@@ -319,10 +319,10 @@ namespace EC_Expression {
         double Exponent = 0.0;
         if (Count - 1 > i) {
             ExponentText = pas::copy(Current->Text, i + 2, Count - i - 1);
-            if (!EC_Expression::IsScriptIntegerText(ExponentText)) {
+            if (!EC_Expression::IsScriptIntegerText(pas::view(ExponentText))) {
                 return Result;
             }
-            Exponent = EC_Expression::ScriptStringToInt(ExponentText);
+            Exponent = EC_Expression::ScriptStringToInt(pas::view(ExponentText));
             Current = Current->Next;
         } else if (Count - 1 == i) {
             Current = Current->Next;
@@ -335,13 +335,13 @@ namespace EC_Expression {
             if (Current->Next->TokenKind != ctText) {
                 return Result;
             }
-            if (!EC_Expression::IsScriptIntegerText(Current->Next->Text)) {
+            if (!EC_Expression::IsScriptIntegerText(pas::view(Current->Next->Text))) {
                 return Result;
             }
             if (Current->TokenKind == ctSubtract) {
-                Exponent = -EC_Expression::ScriptStringToInt(Current->Next->Text);
+                Exponent = -EC_Expression::ScriptStringToInt(pas::view(Current->Next->Text));
             } else if (Current->TokenKind == ctAdd) {
-                Exponent = EC_Expression::ScriptStringToInt(Current->Next->Text);
+                Exponent = EC_Expression::ScriptStringToInt(pas::view(Current->Next->Text));
             } else {
                 return Result;
             }
@@ -376,10 +376,10 @@ namespace EC_Expression {
         if (Current->TokenKind != ctText) {
             return Result;
         }
-        if (!EC_Expression::IsScriptIntegerText(Current->Text)) {
+        if (!EC_Expression::IsScriptIntegerText(pas::view(Current->Text))) {
             return Result;
         }
-        Value = EC_Expression::ScriptStringToInt(Current->Text);
+        Value = EC_Expression::ScriptStringToInt(pas::view(Current->Text));
         Current = Current->Next;
         Value = Sign * Value;
         Token = Current;
@@ -451,7 +451,7 @@ namespace EC_Expression {
     // Requires a nonnil initial Token.
     std::uint8_t TryReadMemberName(TCodeAnalyzerUnitEC*& Token, pas::WideString& Name) {
         Name = pas::WideString();
-        while (Token->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(Token->Text)) {
+        while (Token->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(pas::view(Token->Text))) {
             Name = pas::concat_wide({Name, Token->Text});
             Token = Token->Next;
             if (Token == nullptr || Token->TokenKind != ctDot) {
@@ -459,7 +459,7 @@ namespace EC_Expression {
             }
             Name = pas::concat_wide({Name, u"."});
             Token = Token->Next;
-            if (Token == nullptr || Token->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(Token->Text) ^ 1)) {
+            if (Token == nullptr || Token->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Token->Text)) ^ 1)) {
                 Name = pas::WideString();
                 break;
             }
@@ -538,8 +538,9 @@ namespace EC_Expression {
     }
 
     void EF_ArrayChange(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 2) {
             return;
         }
@@ -565,8 +566,9 @@ namespace EC_Expression {
     }
 
     void EF_Count(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1 - 1;
         if (Count < 1) {
             return;
@@ -582,8 +584,9 @@ namespace EC_Expression {
     }
 
     void EF_Copy(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1 - 1;
         if (Count < 2) {
             return;
@@ -593,8 +596,9 @@ namespace EC_Expression {
     }
 
     void EF_Abs(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -607,8 +611,9 @@ namespace EC_Expression {
     }
 
     void EF_ArcTan(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -617,8 +622,9 @@ namespace EC_Expression {
     }
 
     void EF_Exp(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -627,8 +633,9 @@ namespace EC_Expression {
     }
 
     void EF_Ln(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -637,8 +644,9 @@ namespace EC_Expression {
     }
 
     void EF_Round(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 3> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Step{};
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
@@ -657,8 +665,9 @@ namespace EC_Expression {
     }
 
     void EF_Sin(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -667,8 +676,9 @@ namespace EC_Expression {
     }
 
     void EF_Cos(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -677,8 +687,9 @@ namespace EC_Expression {
     }
 
     void EF_Sqr(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -692,8 +703,9 @@ namespace EC_Expression {
     }
 
     void EF_Sqrt(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -702,8 +714,9 @@ namespace EC_Expression {
     }
 
     void EF_Frac(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -712,8 +725,9 @@ namespace EC_Expression {
     }
 
     void EF_Int(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -722,8 +736,9 @@ namespace EC_Expression {
     }
 
     void EF_Ord(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         if (av.length() - 1 < 1) {
             return;
@@ -735,8 +750,9 @@ namespace EC_Expression {
     }
 
     void EF_Rnd(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -753,8 +769,9 @@ namespace EC_Expression {
     }
 
     void EF_RandSeed(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 1) {
             return;
@@ -801,8 +818,9 @@ namespace EC_Expression {
     }
 
     void EF_FindSubStr(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         pas::WideString Search{};
         if (av.length() - 1 < 2) {
@@ -879,8 +897,9 @@ namespace EC_Expression {
     }
 
     void EF_LowerCase(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         pas::AnsiString AnsiText{};
         std::int32_t Count{};
@@ -912,8 +931,9 @@ namespace EC_Expression {
     }
 
     void EF_UpperCase(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString Text{};
         pas::AnsiString AnsiText{};
         std::int32_t Count{};
@@ -946,8 +966,9 @@ namespace EC_Expression {
     }
 
     void EF_LoadLibrary(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         pas::WideString cpp_text{};
         if (av.length() - 1 != 1) {
             return;
@@ -960,8 +981,9 @@ namespace EC_Expression {
     }
 
     void EF_FreeLibrary(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             return;
         }
@@ -1063,8 +1085,9 @@ namespace EC_Expression {
 
     // Also resets av[1].
     void EF_Delete(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         if (av.length() - 1 != 1) {
             return;
         }
@@ -1186,7 +1209,7 @@ namespace EC_Expression {
                 } else if (Kind == vkFloat) {
                     IntValue = System::Trunc(FloatValue);
                 } else if (Kind == vkString) {
-                    IntValue = EC_Expression::ScriptStringToInt(StringValue);
+                    IntValue = EC_Expression::ScriptStringToInt(pas::view(StringValue));
                 } else {
                     IntValue = 0;
                 }
@@ -1207,7 +1230,7 @@ namespace EC_Expression {
                 if (Kind == vkFloat) {
                     DwordValue = System::Trunc(FloatValue);
                 } else if (Kind == vkString) {
-                    DwordValue = EC_Expression::ScriptStringToInt(StringValue);
+                    DwordValue = EC_Expression::ScriptStringToInt(pas::view(StringValue));
                 } else {
                     DwordValue = 0u;
                 }
@@ -1228,7 +1251,7 @@ namespace EC_Expression {
                 FloatValue = DwordValue;
             } else if (Kind != vkFloat) {
                 if (Kind == vkString) {
-                    FloatValue = EC_Expression::ScriptStringToFloat(StringValue);
+                    FloatValue = EC_Expression::ScriptStringToFloat(pas::view(StringValue));
                 } else {
                     FloatValue = 0.0;
                 }
@@ -1451,7 +1474,7 @@ namespace EC_Expression {
         } else if (Kind == vkFloat) {
             return System::Trunc(FloatValue);
         } else if (Kind == vkString) {
-            return EC_Expression::ScriptStringToInt(StringValue);
+            return EC_Expression::ScriptStringToInt(pas::view(StringValue));
         } else if (Kind == vkExternFun) {
             return 0;
         } else if (Kind == vkLibraryFun) {
@@ -1483,7 +1506,7 @@ namespace EC_Expression {
         } else if (Kind == vkFloat) {
             return System::Trunc(FloatValue);
         } else if (Kind == vkString) {
-            return EC_Expression::ScriptStringToInt(StringValue);
+            return EC_Expression::ScriptStringToInt(pas::view(StringValue));
         } else if (Kind == vkExternFun) {
             return 0u;
         } else if (Kind == vkLibraryFun) {
@@ -1514,7 +1537,7 @@ namespace EC_Expression {
         } else if (Kind == vkFloat) {
             return FloatValue;
         } else if (Kind == vkString) {
-            return EC_Expression::ScriptStringToFloat(StringValue);
+            return EC_Expression::ScriptStringToFloat(pas::view(StringValue));
         } else if (Kind == vkExternFun) {
             return 0.0;
         } else if (Kind == vkLibraryFun) {
@@ -1792,11 +1815,11 @@ namespace EC_Expression {
             ResetKind(vkString);
             StringValue = Value;
         } else if (Kind == vkInt) {
-            IntValue = EC_Expression::ScriptStringToInt(Value);
+            IntValue = EC_Expression::ScriptStringToInt(pas::view(Value));
         } else if (Kind == vkDword) {
-            DwordValue = EC_Expression::ScriptStringToInt(Value);
+            DwordValue = EC_Expression::ScriptStringToInt(pas::view(Value));
         } else if (Kind == vkFloat) {
-            FloatValue = EC_Expression::ScriptStringToFloat(Value);
+            FloatValue = EC_Expression::ScriptStringToFloat(pas::view(Value));
         } else if (Kind == vkString) {
             StringValue = Value;
         } else if (Kind == vkExternFun) {
@@ -5287,7 +5310,7 @@ namespace EC_Expression {
         pas::WideString Text{};
         std::uint8_t InsertSource{};
         auto IsScriptLocalDeclaration = [&](TCodeAnalyzerUnitEC* Token) -> std::uint8_t {
-            return Token != nullptr && Token->Next != nullptr && Token->Next->TokenKind == ctText && Token->TokenKind == ctText && (Token->Text == u"unknown" || Token->Text == u"int" || Token->Text == u"dword" || Token->Text == u"float" || Token->Text == u"str" || Token->Text == u"ref" || Token->Text == u"array") && EC_Expression::IsNonIntegerScriptText(Token->Next->Text);
+            return Token != nullptr && Token->Next != nullptr && Token->Next->TokenKind == ctText && Token->TokenKind == ctText && (Token->Text == u"unknown" || Token->Text == u"int" || Token->Text == u"dword" || Token->Text == u"float" || Token->Text == u"str" || Token->Text == u"ref" || Token->Text == u"array") && EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text));
         };
         auto CompileScriptLocals = [&](TCodeAnalyzerUnitEC*& Token) -> pas::WideString {
             pas::WideString Result{};
@@ -5297,12 +5320,12 @@ namespace EC_Expression {
             Result = pas::WideString();
             TypeName = Token->Text;
             Token = Token->Next;
-            while (Token->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(Token->Text)) {
+            while (Token->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(pas::view(Token->Text))) {
                 if (this->LocalVar->GetVarNE(Token->Text) != nullptr) {
                     EC_Expression::FormatScriptError(0, Token->SourceStart, Result);
                     return Result;
                 }
-                EC_Expression::AddScriptLocal(TypeName, Token->Text, this);
+                EC_Expression::AddScriptLocal(pas::view(TypeName), Token->Text, this);
                 if (Token->Next == nullptr) {
                     EC_Expression::FormatScriptError(0, Token->SourceStart + Token->SourceLength, Result);
                     return Result;
@@ -5767,7 +5790,7 @@ namespace EC_Expression {
                         EC_Expression::FormatScriptError(0, Token->SourceStart + Token->SourceLength, ErrorText);
                         return;
                     }
-                    if (Token->Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(Token->Next->Text) ^ 1) || Token->Next->Next == nullptr) {
+                    if (Token->Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text)) ^ 1) || Token->Next->Next == nullptr) {
                         EC_Expression::FormatScriptError(0, Token->Next->SourceStart, ErrorText);
                         return;
                     }
@@ -5779,14 +5802,14 @@ namespace EC_Expression {
                     Definition = Value->GetFunction();
                     Definition->Parent = this;
                     Next = Token->Next->Next->Next;
-                    while (Next != nullptr && Next->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(Next->Text)) {
+                    while (Next != nullptr && Next->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(pas::view(Next->Text))) {
                         Keyword = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Next->Text)));
                         if (Keyword == u"unknown" || Keyword == u"int" || Keyword == u"dword" || Keyword == u"float" || Keyword == u"str" || Keyword == u"ref" || Keyword == u"array") {
                             Next = Next->Next;
                         } else {
                             Keyword = u"unknown"_w;
                         }
-                        if (Next == nullptr || Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(Next->Text) ^ 1)) {
+                        if (Next == nullptr || Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Next->Text)) ^ 1)) {
                             break;
                         }
                         Value = nullptr;
@@ -5870,7 +5893,7 @@ namespace EC_Expression {
                         EC_Expression::FormatScriptError(0, Token->SourceStart + Token->SourceLength, ErrorText);
                         return;
                     }
-                    if (Token->Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(Token->Next->Text) ^ 1)) {
+                    if (Token->Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text)) ^ 1)) {
                         EC_Expression::FormatScriptError(0, Token->Next->SourceStart, ErrorText);
                         return;
                     }
@@ -6130,20 +6153,20 @@ namespace EC_Expression {
         }
     }
 
-    void AddScriptLocal(pas::WideString TypeName, pas::WideString Name, TCodeEC* Self) {
-        if (TypeName == u"unknown") {
+    void AddScriptLocal(const std::u16string_view& TypeName, pas::WideString Name, TCodeEC* Self) {
+        if (TypeName == u"unknown"sv) {
             Self->LocalVar->Add(Name, vkEmpty);
-        } else if (TypeName == u"int") {
+        } else if (TypeName == u"int"sv) {
             Self->LocalVar->Add(Name, vkInt);
-        } else if (TypeName == u"dword") {
+        } else if (TypeName == u"dword"sv) {
             Self->LocalVar->Add(Name, vkDword);
-        } else if (TypeName == u"float") {
+        } else if (TypeName == u"float"sv) {
             Self->LocalVar->Add(Name, vkFloat);
-        } else if (TypeName == u"str") {
+        } else if (TypeName == u"str"sv) {
             Self->LocalVar->Add(Name, vkString);
-        } else if (TypeName == u"ref") {
+        } else if (TypeName == u"ref"sv) {
             Self->LocalVar->Add(Name, vkRef);
-        } else if (TypeName == u"array") {
+        } else if (TypeName == u"array"sv) {
             Self->LocalVar->Add(Name, vkArray);
         }
     }

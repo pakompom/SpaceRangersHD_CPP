@@ -4,6 +4,7 @@
 #include "types/GI_MessageLoop.hpp"
 #include "types/GR_Music.hpp"
 #include "types/Types.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_CacheFont.hpp"
@@ -28,8 +29,8 @@ namespace Robot {
 
     Robot::TRobotCallbacks RobotCallbacks{};
 
-    // Returned planetary-battle statistics; entry 0 is negative elapsed milliseconds.
-    pas::Array<std::int32_t, 0, 5> RobotBattleStatistics{};
+    // Player-side SRobotGameState returned by MatrixGame.Run.
+    aGalaxyStruct::TPlanetBattleStatistics RobotBattleStatistics{};
 
     pas::DynArray<std::int32_t> SupportedMultiSamples{};
 
@@ -88,8 +89,8 @@ namespace Robot {
             RobotCallbacks.GetMusicVolume = TRobotGetVolume(RobotGetMusicVolume);
             RobotCallbacks.SetMusicVolume = TRobotSetVolume(RobotSetMusicVolume);
             if (GR_Main::DirectXVersion >= 0x00090000) {
-                if (GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"_wref.get())->CountParams(u"MatrixOverride"_wref.get()) > 0) {
-                    OverrideName = GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"_wref.get())->GetParam(u"MatrixOverride"_wref.get());
+                if (GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"sv)->CountParams(u"MatrixOverride"_wref.get()) > 0) {
+                    OverrideName = GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"sv)->GetParam(u"MatrixOverride"sv);
                     RobotModule = WindowsSdk::LoadLibraryW(OverrideName.pchar());
                 } else {
                     RobotModule = WindowsImports::LoadLibrary(pas::literal_pointer("MatrixGame.dll"));
@@ -144,7 +145,7 @@ namespace Robot {
             try {
                 reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->CaptureCursorState(&CursorState);
                 if (GR_Main::InstallConfig->CountParams(u"RobotPath"_wref.get()) > 0) {
-                    SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(GR_Main::InstallConfig->GetParam(u"RobotPath"_wref.get())));
+                    SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(GR_Main::InstallConfig->GetParam(u"RobotPath"sv)));
                     RobotDirectory = SysUtilsImports::GetCurrentDir();
                 }
                 Robot::RobotSetProgress(0.0f);
@@ -188,12 +189,12 @@ namespace Robot {
                 RobotSettings.FSAASamples = RobotFSAASamples;
                 RobotSettings.Anisotropy = RobotAnisotropy;
                 RobotSettings.MaxDistance = pas::real_divide(RobotMaxDistance, 1.0E+2L);
-                RobotBattleStatistics[0] = 0;
-                RobotBattleStatistics[1] = 0;
-                RobotBattleStatistics[2] = 0;
-                RobotBattleStatistics[3] = 0;
-                RobotBattleStatistics[4] = 0;
-                RobotBattleStatistics[5] = 0;
+                RobotBattleStatistics.SignedTimeMs = 0;
+                RobotBattleStatistics.RobotsBuilt = 0;
+                RobotBattleStatistics.RobotsDestroyed = 0;
+                RobotBattleStatistics.TurretsBuilt = 0;
+                RobotBattleStatistics.TurretsDestroyed = 0;
+                RobotBattleStatistics.BuildingsDestroyed = 0;
                 RobotSettings.Direct3D = static_cast<void*>(GR_Main::Direct3D.get());
                 RobotSettings.Device = static_cast<void*>(GR_Main::Direct3DDevice.get());
                 GR_Main::AppendLogLineThreadSafe("Starting planetary battle"_a);
@@ -201,12 +202,12 @@ namespace Robot {
                 Failed = false;
                 try {
                     if (RobotInterface != nullptr) {
-                        if (GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"_wref.get())->CountParams(u"CfgOverride"_wref.get()) > 0) {
-                            ConfigOverride = GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"_wref.get())->GetParam(u"CfgOverride"_wref.get());
+                        if (GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"sv)->CountParams(u"CfgOverride"_wref.get()) > 0) {
+                            ConfigOverride = GR_Main::LanguageDataConfig->GetBlock(u"RobotsMap"sv)->GetParam(u"CfgOverride"sv);
                         } else {
-                            ConfigOverride = GR_Main::LanguageInstallConfig->GetParam(u"Lang"_wref.get());
+                            ConfigOverride = GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv);
                         }
-                        Result = RobotInterface->Run(System::HInstance, GR_Main::MainWindowHandle, MapName.pchar(), &RobotSettings, ConfigOverride.pchar(), StartText.pchar(), WinText.pchar(), LossText.pchar(), TerronName.pchar(), &RobotBattleStatistics[0]);
+                        Result = RobotInterface->Run(System::HInstance, GR_Main::MainWindowHandle, MapName.pchar(), &RobotSettings, ConfigOverride.pchar(), StartText.pchar(), WinText.pchar(), LossText.pchar(), TerronName.pchar(), &RobotBattleStatistics);
                     }
                 } catch (...) {
                     auto cpp_exception = pas::caught_object();

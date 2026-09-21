@@ -105,8 +105,8 @@ namespace SimpleSteamApi {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Achievements::AchievementDefinitions->GetBlockCount() - 1); cpp_range.next(Index); ) {
             Block = Achievements::AchievementDefinitions->GetBlockByIndex(Index);
             AchievementName = static_cast<pas::AnsiString>(Achievements::AchievementDefinitions->GetBlockNameByIndex(Index));
-            Number = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"_wref.get())));
-            MaxValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxValue"_wref.get())));
+            Number = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv)));
+            MaxValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxValue"sv)));
             if (MaxValue > 0) {
                 StatName = pas::concat_ansi({"STAT_", AchievementName});
             } else {

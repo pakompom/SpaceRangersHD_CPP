@@ -522,7 +522,7 @@ namespace Globals {
     extern pas::Array<pas::WideString, 0, 10> ScriptVariableTypeNames;
 
     // Case-sensitive; returns -1 when absent. Requires the template list. Native callers include UI loading and script builtins.
-    std::int32_t FindScriptTemplateIndex(const pas::WideString& Name);
+    std::int32_t FindScriptTemplateIndex(const std::u16string_view& Name);
 
     // Clears Dest, borrows templates with ActiveScriptIndex < 0, then performs twice Count seeded swaps. Chaotic RNG mode ignores the seeds.
     void CollectInactiveScriptTemplates(pas::List* Dest);
@@ -572,7 +572,7 @@ namespace Globals {
     void ResetScriptHostRuntimeState();
 
     // Case-sensitive; returns nil when absent.
-    GI_MessageLoop::TMessageLoopGI* FindMessageLoop(pas::WideString Name);
+    GI_MessageLoop::TMessageLoopGI* FindMessageLoop(const std::u16string_view& Name);
 
     // Consumes RequestedScreenId before each run; zero ends dispatch. StarMap, Film and arcade battle use RunContinuous.
     void RunMainScreenStateLoop();

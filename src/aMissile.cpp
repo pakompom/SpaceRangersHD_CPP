@@ -71,14 +71,14 @@ namespace aMissile {
         std::int32_t SpeedBonus = this->OwnerShip->GetTotalStatBonus(aConst::bonMissileSpeed);
         std::int32_t SpecialBonus = 0;
         if (SpecialModuleIndex > 0) {
-            SpecialBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, aConst::bonMissileSpeed * sizeof(std::int32_t)));
+            SpecialBonus = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[aConst::bonMissileSpeed];
         }
         if (MicroModuleIndex > 0) {
-            SpeedBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonMissileSpeed * sizeof(std::int32_t)));
+            SpeedBonus += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonMissileSpeed];
             if (SpecialBonus < 0) {
-                SpecialBonus += System::Round(SpecialBonus * pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t))) * 1.0E-4L);
+                SpecialBonus += System::Round(SpecialBonus * aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] * 1.0E-4L);
             } else {
-                SpecialBonus += System::Round(SpecialBonus * pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t))) * 1.0E-4L);
+                SpecialBonus += System::Round(SpecialBonus * aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff] * 1.0E-4L);
             }
         }
         SpeedBonus += SpecialBonus;
@@ -349,7 +349,7 @@ namespace aMissile {
     SE_Space::TObjectSE* TMissile::GetGraphObject() {
         if (Graphic == nullptr) {
             {
-                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Missile"_wref.get(), pas::concat_wide({u"Missile.w", GetGraphSuffix()}), ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Missile"sv, pas::concat_wide({u"Missile.w", GetGraphSuffix()}), ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> graphic = pas::Var<SE_Space::TObjectSE*>(&Graphic);
                 SE_Space::RetainSpaceObject(graphic, createSpaceObjectByName);
             }
@@ -381,14 +381,14 @@ namespace aMissile {
                 } else {
                     Config = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"SE.Weapon.", SysUtils::IntToStr(ItemType - 50)})));
                 }
-                Palette = Config->FindBlock(u"Palettes"_wref.get());
+                Palette = Config->FindBlock(u"Palettes"sv);
                 if (Palette != nullptr) {
-                    Palette = Palette->FindBlock(pas::wide_int_to_str(GetShotVisual()));
+                    Palette = Palette->FindBlock(pas::view(pas::wide_int_to_str(GetShotVisual())));
                 }
                 if (Palette != nullptr && Palette->CountParams(u"SoundShot"_wref.get()) > 0) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Palette->GetParam(u"SoundShot"_wref.get()));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Palette->GetParam(u"SoundShot"sv));
                 } else if (Config->CountParams(u"SoundShot"_wref.get()) > 0) {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Config->GetParam(u"SoundShot"_wref.get()));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, Config->GetParam(u"SoundShot"sv));
                 } else if (pas::class_cast_if<TCustomMissile*>(this) != nullptr) {
                     Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, pas::concat_wide({u"Sound.shot", GetWeaponInfo()->ConfigName}));
                 } else {
@@ -509,21 +509,21 @@ namespace aMissile {
                 RetargetTorpedo();
                 Stage = 6;
                 if (Target != nullptr) {
-                    if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr && reinterpret_cast<aShip::TShip*>(Target)->CurrentStar == CurrentStar && reinterpret_cast<aShip::TShip*>(Target)->InNormalSpace()) {
+                    if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Target); ship != nullptr && ship->CurrentStar == CurrentStar && ship->InNormalSpace()) {
                         Stage = 7;
-                        TargetPosition = reinterpret_cast<aShip::TShip*>(Target)->Position;
+                        TargetPosition = ship->Position;
                         HasTarget = true;
-                    } else if (pas::class_cast_if<aItem::TItem*>(Target) != nullptr) {
+                    } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Target)) {
                         Stage = 8;
-                        TargetPosition = reinterpret_cast<aItem::TItem*>(Target)->Position;
+                        TargetPosition = item->Position;
                         HasTarget = true;
-                    } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Target) != nullptr) {
+                    } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Target)) {
                         Stage = 9;
-                        TargetPosition = reinterpret_cast<aAsteroid::TAsteroid*>(Target)->Position;
+                        TargetPosition = asteroid->Position;
                         HasTarget = true;
-                    } else if (pas::class_cast_if<TMissile*>(Target) != nullptr) {
+                    } else if (TMissile* missile = pas::class_cast_if<TMissile*>(Target)) {
                         Stage = 10;
-                        TargetPosition = reinterpret_cast<TMissile*>(Target)->Position;
+                        TargetPosition = missile->Position;
                         HasTarget = true;
                     } else {
                         Stage = 11;
@@ -720,8 +720,8 @@ namespace aMissile {
                 for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Ship->Inventory) - 1); cpp_range.next(I); ) {
                     Item = pas::list_at<aItem::TItem>(Ship->Inventory, I);
                     if (Item->Id == WeaponId) {
-                        if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->Ammo < reinterpret_cast<aItem::TWeapon*>(Item)->AmmoCapacity) {
-                            ++reinterpret_cast<aItem::TWeapon*>(Item)->Ammo;
+                        if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); weapon != nullptr && weapon->Ammo < weapon->AmmoCapacity) {
+                            ++weapon->Ammo;
                         }
                         break;
                     }
@@ -846,7 +846,7 @@ namespace aMissile {
         if (Attacker == nullptr) {
             Roll = aMyFunction::NextRandomIntRange(1, 100, aGalaxy::Galaxy->RandomState);
         } else {
-            if (pas::class_cast_if<aKling::TKling*>(Attacker) != nullptr && static_cast<aKling::TKling*>(Attacker)->KlingType == 0) {
+            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Attacker); kling != nullptr && kling->KlingType == 0) {
                 return true;
             }
             Roll = aMyFunction::NextRandomIntRange(1, 100, Attacker->RandomState);
@@ -897,7 +897,7 @@ namespace aMissile {
     }
 
     aConst::PWeaponInfo TMissile::GetWeaponInfo() {
-        return &aConst::WeaponInfos[ItemType];
+        return &aConst::WeaponInfos[static_cast<aConst::TItemType>(ItemType)];
     }
 
     aConst::PWeaponInfo TCustomMissile::GetWeaponInfo() {

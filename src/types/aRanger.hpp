@@ -57,7 +57,6 @@ namespace aRanger {
 
     using PQuest = TQuest*;
 
-    #pragma pack(push, 1)
     struct TQuest {
         aGalaxyStruct::TQuestType QuestType;
         std::uint8_t cpp_padding[1];
@@ -74,7 +73,6 @@ namespace aRanger {
         // Protected ship lost after success.
         pas::WideString SpecialCompletionText;
     };
-    #pragma pack(pop)
 
     enum TQuestTextKind : std::uint32_t {
         qtkOffer = 0,
@@ -107,11 +105,11 @@ namespace aRanger {
         // Ties favor trader, then pirate.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         // Values occupies the low three bytes of one stack slot; result is the average of 100 minus each career-distance.
-        std::uint8_t GetCareerSimilarity(TRangerCareerValues Values);
+        aGalaxyStruct::TPercent GetCareerSimilarity(TRangerCareerValues Values);
         // Selects the closest configured ShipCharacter profile; equal similarities retain the earlier profile.
         pas::WideString GetCharacterName();
         // Rounded pirate career status times StrengthInBestRanger, clamped to 0..100.
-        std::uint8_t GetStrengthScaledPirateStatus() override;
+        aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Dispatches by object class and radar distance; unsupported objects yield unknown object.
         pas::WideString GetObjectInfoText(pas::Object* Instance);
@@ -163,16 +161,16 @@ namespace aRanger {
         void TryRecruitWingman();
         void CheckForPartnershipBreakup();
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        // Tests relation plus a relative-strength score against 120; precise dialogue role remains unresolved.
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        // Tests relation plus a relative-strength score against 120; used by TfTalk.RequestProtection and RequestPreserveItems.
+        std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         // Returns whether imprisonment blocks this turn; may imprison, release or update standing.
         std::uint8_t ProcessPrisonAndHostileCheck();
         // Scope filters by ship, star or sector; nil selects all. Bulk changes skip scripted ships for which HasScriptControl is true. Masks use ShipToHullType categories and owner IDs, not TShip.TypeId.
         void ChangeShipRelations(pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount, aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask);
         // Averages stored relations for matching ships; empty selection returns 50. A single ship uses its virtual RelationToRanger.
-        std::uint8_t GlobalRelationsShips(pas::Object* Scope, std::uint16_t HullTypeMask, std::uint8_t OwnerMask);
+        std::uint8_t GlobalRelationsShips(pas::Object* Scope, aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask);
         // Averages Coalition planets in matching stars/sectors; empty selection returns 50. A planet Scope does not narrow this native scan.
-        std::uint8_t GlobalRelationsPlanets(pas::Object* Scope, std::uint8_t OwnerMask);
+        std::uint8_t GlobalRelationsPlanets(pas::Object* Scope, aGalaxyStruct::TOwnerMask OwnerMask);
         void AssignWeaponTargetsInStar() override;
         // May attempt extortion and assign weapon targets; preserves a prior enemy when no replacement qualifies.
         void SelectEnemyShipInStar() override;
@@ -208,7 +206,7 @@ namespace aRanger {
         void virtual_TShip_RefreshCurrentStanding() override;
         void ProcessQuestTimersAndOutcomes();
         // Uses player history.
-        static std::int32_t CountFailedQuests(std::uint8_t OwnerId, aGalaxyStruct::TQuestTypes QuestTypes);
+        static std::int32_t CountFailedQuests(aGalaxyStruct::TOwnerId OwnerId, aGalaxyStruct::TQuestTypes QuestTypes);
         void CheckQuestFailureAward(PQuest Quest, aGalaxyStruct::TQuestTypes QuestTypes);
         void TryTurnInQuests();
         void ArchiveQuest(std::int32_t Index);
@@ -227,11 +225,11 @@ namespace aRanger {
         // Excludes strength/title eligibility; placement sorting still assigns a position.
         std::uint8_t ExcludedFromRating;
         // TRangerCareer order.
-        pas::Array<std::uint8_t, 0, 2> CareerStatus;
+        TRangerCareerValues CareerStatus;
         // TRangerCareer order.
-        pas::Array<std::uint8_t, 0, 2> EminentProgress;
+        TRangerCareerValues EminentProgress;
         // Trader, pirate, warrior.
-        pas::Array<std::uint8_t, 0, 2> PendingCareerActivity;
+        TRangerCareerValues PendingCareerActivity;
         // AI preference; may differ from GetDominantCareer.
         aGalaxyStruct::TRangerCareer PreferredCareer;
         // Initialized in 0..100.
@@ -248,7 +246,6 @@ namespace aRanger {
     #pragma pack(pop)
     #endif
 
-    #pragma pack(push, 1)
     struct TPlayerOldQuest {
         aPlanet::TPlanet* Planet;
         pas::WideString Description;
@@ -260,7 +257,6 @@ namespace aRanger {
         std::uint16_t QuestNumber;
         std::uint8_t cpp_padding_2[2];
     };
-    #pragma pack(pop)
 
     using PPlayerOldQuest = TPlayerOldQuest*;
 

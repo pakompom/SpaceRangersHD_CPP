@@ -13,31 +13,31 @@ namespace GI_Main {
     void BreakUiMessage();
 
     // Exact type-name lookup; returns nil for unknown names. Placement in GI_Main is inferred from its configuration-helper region.
-    GI_MessageLoop::TObjectGI* CreateControlByName(pas::WideString Name, GI_MessageLoop::TObjectGI* Owner);
+    GI_MessageLoop::TObjectGI* CreateControlByName(const std::u16string_view& Name, GI_MessageLoop::TObjectGI* Owner);
 
     // Exact spelling required; unknown names raise.
-    TImageKindXGI ParseImageKindXName(pas::WideString Name);
+    TImageKindXGI ParseImageKindXName(const std::u16string_view& Name);
 
     // Exact spelling required; unknown names raise.
-    TImageKindYGI ParseImageKindYName(pas::WideString Name);
+    TImageKindYGI ParseImageKindYName(const std::u16string_view& Name);
 
-    TTextAlignXGI ParseTextAlignXName(pas::WideString Name);
+    TTextAlignXGI ParseTextAlignXName(const std::u16string_view& Name);
 
-    TTextAlignYGI ParseTextAlignYName(pas::WideString Name);
+    TTextAlignYGI ParseTextAlignYName(const std::u16string_view& Name);
 
     // True only for Yes, yes, True, true, TRUE or 1.
-    std::uint8_t ParseEnabledNameGI(pas::WideString Name);
+    std::uint8_t ParseEnabledNameGI(const std::u16string_view& Name);
 
     // At least three comma-separated components are required; only their low bytes are used.
-    std::uint32_t GetColorGI(pas::WideString ColorText);
+    std::uint32_t GetColorGI(const std::u16string_view& ColorText);
 
-    Types::TPoint GetPointGI(pas::WideString PointText);
+    Types::TPoint GetPointGI(const std::u16string_view& PointText);
 
     // Comma-separated pos and size names, trimmed and case-insensitive; unknown names are ignored. Placement in GI_Main is inferred.
     std::int32_t ParseAutoGeometryFlagsGI(pas::WideString Values);
 
-    EC_Struct::TPointF GetFloatPointGI(pas::WideString PointText);
+    EC_Struct::TPointF GetFloatPointGI(const std::u16string_view& PointText);
 
-    Types::TRect GetRectGI(pas::WideString RectText);
+    Types::TRect GetRectGI(const std::u16string_view& RectText);
 
 } // namespace GI_Main

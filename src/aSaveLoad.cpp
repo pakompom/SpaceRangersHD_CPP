@@ -103,8 +103,8 @@ namespace aSaveLoad {
                 Header->AddWideStringZ(pas::wide_int_to_str(aGalaxy::Galaxy->CurrentTurn));
                 Header->AddWideStringZ(pas::wide_int_to_str(aPlayer::GetPlayer()->Money));
                 Header->AddWideStringZ(aPlayer::GetPlayer()->Name);
-                if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                    Header->AddWideStringZ(pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace) & 0x0000007f].InternalName}));
+                if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
+                    Header->AddWideStringZ(pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)].InternalName}));
                 } else {
                     Header->AddWideStringZ(aConst::OwnerInfo[aPlayer::GetPlayer()->OwnerId].InternalName);
                 }
@@ -169,7 +169,7 @@ namespace aSaveLoad {
                 SaveWriter->QueueSave(FileName, Header, Preview, SecondaryPreview, GameState, Films);
                 if (aGalaxy::Galaxy->CampaignFlag183 != 0) {
                     GR_Main::EditableSaveFileName = fSaveManager::TfSaveManager::GetSaveConfigPath(FileName);
-                    if (GR_Main::UserSettingsConfig->CountParams(u"UnicodeDump"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UnicodeDump"_wref.get())))) {
+                    if (GR_Main::UserSettingsConfig->CountParams(u"UnicodeDump"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UnicodeDump"_wref.get()))))) {
                         GR_Main::EditableSaveBlock->SaveTextFile(GR_Main::EditableSaveFileName.pchar(), false, false);
                     } else {
                         GR_Main::EditableSaveBlock->SaveTextFile(GR_Main::EditableSaveFileName.pchar(), true, false);
@@ -239,7 +239,7 @@ namespace aSaveLoad {
             if (F->ReadWideString() != u"RSG") {
                 pas::raise(pas::make_exception<pas::Abort>(static_cast<pas::AnsiString>(pas::concat_wide({u"Bad pre-signature of file", FileName}))));
             }
-            GlobalsV::LoadedSaveVersion = EC_Str::ExtractDigitsToIntW(F->ReadWideString());
+            GlobalsV::LoadedSaveVersion = EC_Str::ExtractDigitsToIntW(pas::view(F->ReadWideString()));
             F->ReadWideString();
             SysUtils::StrToInt(static_cast<pas::AnsiString>(F->ReadWideString()));
             SysUtils::StrToInt(static_cast<pas::AnsiString>(F->ReadWideString()));
@@ -407,14 +407,14 @@ namespace aSaveLoad {
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
                     Loop = pas::list_at<GI_MessageLoop::TMessageLoopGI>(GI_MessageLoop::MessageLoopStack, I);
-                    if (pas::class_cast_if<fShip2::TfShip2*>(Loop) != nullptr) {
-                        pas::checked_cast<fShip2::TfShip2*>(Loop)->ReturnSelectedHoldEntry();
+                    if (fShip2::TfShip2* fShip2_2 = pas::class_cast_if<fShip2::TfShip2*>(Loop)) {
+                        fShip2_2->ReturnSelectedHoldEntry();
                     }
                 }
             }
         }
         aGalaxy::TGalaxy::ClearIntegrityStatus();
-        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) || aPlayer::GetPlayer()->IsDockedToShip() && pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
+        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited || aPlayer::GetPlayer()->IsDockedToShip() && pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
             fEquipmentShop::RestoreTemporaryShopStock();
         }
         std::int32_t Count = Globals::CountPersistentPlayerMessages();
@@ -581,8 +581,8 @@ namespace aSaveLoad {
                         Globals::StarMapScreen->ResumeMode = fStarMap::smrOrders;
                         if (pas::class_cast_if<fGoodsShop2::TfGoodsShop2*>(Loop) != nullptr) {
                             Loop->RequestClose(2);
-                            Globals::TalkScreen->Flag128 = 0;
-                            Globals::GoodsShopScreen->FlagEC = false;
+                            Globals::TalkScreen->ModalTransition = fTalk::tmtNone;
+                            Globals::GoodsShopScreen->ReopenRequested = false;
                             Globals::StarMapScreen->RequestClose(1);
                         } else {
                             Loop->RequestClose(1);
@@ -590,9 +590,9 @@ namespace aSaveLoad {
                         ReopenScreen = false;
                     } else if ((aPlayer::GetPlayer()->IsOnPlanet() || aPlayer::GetPlayer()->IsDockedToShip()) && pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr) {
                         Loop->RequestClose(1);
-                        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiUninhabited) {
                             GlobalsV::RequestedScreenId = GlobalsV::screenPlanetNO;
-                        } else if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        } else if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited) {
                             GlobalsV::RequestedScreenId = GlobalsV::screenPlanet;
                         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                             GlobalsV::RequestedScreenId = GlobalsV::screenRuinsTalk;
@@ -615,7 +615,7 @@ namespace aSaveLoad {
                 }
             }
         }
-        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) || aPlayer::GetPlayer()->IsDockedToShip() && pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
+        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited || aPlayer::GetPlayer()->IsDockedToShip() && pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
             fEquipmentShop::BuildTemporaryShopSlotGrid();
         }
         if (ReopenScreen) {
@@ -711,7 +711,7 @@ namespace aSaveLoad {
             SourceName = TempName;
             TargetName = Self->FileName;
             if (Self->FileName == QuickName && GlobalsV::QuickSaveExtraSlots > 0) {
-                Prefix = pas::concat_wide({EC_Str::TrimWideString(EC_Str::ExtractFileDirW(QuickName)), u"\\", EC_Str::TrimWideString(EC_Str::ExtractFileNameNoExtW(QuickName))});
+                Prefix = pas::concat_wide({EC_Str::TrimWideString(EC_Str::ExtractFileDirW(pas::view(QuickName))), u"\\", EC_Str::TrimWideString(EC_Str::ExtractFileNameNoExtW(QuickName))});
                 NewName = pas::concat_wide({Prefix, EC_Str::IntToWideString(GlobalsV::QuickSaveExtraSlots + 1), u".sav"});
                 {
                     const std::int32_t cpp_first = GlobalsV::QuickSaveExtraSlots;

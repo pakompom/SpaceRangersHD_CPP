@@ -97,14 +97,14 @@ namespace EC_Cache {
         // Does not adjust ResidentBytes. Accepts nil.
         void RemoveAndFreeData(TCacheDataEC* Data);
         // Case-sensitive key and exact class match; returns nil when absent.
-        TCacheDataEC* FindDataByKeyAndClass(const pas::WideString& Key, TCacheDataClass CacheDataClass);
+        TCacheDataEC* FindDataByKeyAndClass(const std::u16string_view& Key, TCacheDataClass CacheDataClass);
         void TouchData(TCacheDataEC* Data);
         // Caller owns the returned buffer.
         EC_Buf::TBufEC* OpenDataBuffer(const pas::WideString& Path);
         // Retained entries can prevent reaching the budget.
         void TrimToBudget(std::int32_t BudgetBytes);
         // PendingLoads owns added controls; duplicate pending entries are possible.
-        void QueueNamedLoadIfMissing(pas::List* PendingLoads, const pas::WideString& CacheKind, const pas::WideString& Key);
+        void QueueNamedLoadIfMissing(pas::List* PendingLoads, const std::u16string_view& CacheKind, const pas::WideString& Key);
         pas::CriticalSection* CacheLock;
         TCacheDataEC* MostRecentData;
         TCacheDataEC* LeastRecentData;

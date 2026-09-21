@@ -56,23 +56,23 @@ namespace GI_PlanetButton {
         TextLabel->SetActive(false);
         GI_Panel::TPanelGI::LoadFromBlock(Block);
         {
-            const pas::WideString& param = Block->GetParam(u"PN_ImageLight"_wref.get());
-            const pas::WideString& param_2 = Block->GetParam(u"PN_Image"_wref.get());
-            const pas::WideString& param_3 = Block->GetParam(u"PN_Mask"_wref.get());
+            const pas::WideString& param = Block->GetParam(u"PN_ImageLight"sv);
+            const pas::WideString& param_2 = Block->GetParam(u"PN_Image"sv);
+            const pas::WideString& param_3 = Block->GetParam(u"PN_Mask"sv);
             NormalPlanet->SetImage(param_3, param_2, param);
         }
         SetSize(NormalPlanet->ClientSize);
         {
-            const pas::WideString& param_4 = Block->GetParam(u"PA_ImageLight"_wref.get());
-            const pas::WideString& param_5 = Block->GetParam(u"PA_Image"_wref.get());
-            const pas::WideString& param_6 = Block->GetParam(u"PN_Mask"_wref.get());
+            const pas::WideString& param_4 = Block->GetParam(u"PA_ImageLight"sv);
+            const pas::WideString& param_5 = Block->GetParam(u"PA_Image"sv);
+            const pas::WideString& param_6 = Block->GetParam(u"PN_Mask"sv);
             HoverPlanet->SetImage(param_6, param_5, param_4);
         }
         if (Block->CountParams(u"Font"_wref.get()) > 0) {
-            TextLabel->SetFontName(Block->GetParam(u"Font"_wref.get()));
+            TextLabel->SetFontName(Block->GetParam(u"Font"sv));
         }
         if (Block->CountParams(u"Text"_wref.get()) > 0) {
-            TextLabel->SetText(Block->GetParam(u"Text"_wref.get()));
+            TextLabel->SetText(Block->GetParam(u"Text"sv));
             TextLabel->SetActive(true);
             TextLabel->SetSize(ClientSize);
         }

@@ -3,10 +3,13 @@
 
 namespace GR_gi {
     static_assert(sizeof(void*) != 4 || sizeof(GR_gi::TGaiHeader) == 48);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiHeader, Magic) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiHeader, Version) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiHeader, Bounds) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiHeader, FrameCount) == 24);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiHeader, Flags) == 28);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiHeader, SequenceTableOffset) == 32);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiHeader, SequenceTableSize) == 36);
     static_assert(sizeof(void*) != 4 || sizeof(GR_gi::TgiGR) == 20);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TgiGR, Data) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TgiGR, DataSize) == 8);
@@ -38,12 +41,12 @@ namespace GR_gi {
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TgiPlaneGR, DataOffset) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TgiPlaneGR, DataSize) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TgiPlaneGR, Bounds) == 8);
-    static_assert(sizeof(void*) != 4 || sizeof(GR_gi::TGaiSequenceDirectoryEntry) == 8);
-    static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiSequenceDirectoryEntry, SequenceDataOffset) == 0);
     static_assert(sizeof(void*) != 4 || sizeof(GR_gi::TGaiSequenceDataBlock) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiSequenceDataBlock, FrameCount) == 0);
     static_assert(sizeof(void*) != 4 || sizeof(GR_gi::TGaiSequenceFrameEntry) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiSequenceFrameEntry, SourceFrameIndex) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiSequenceFrameEntry, FrameDelay) == 4);
+    static_assert(sizeof(void*) != 4 || sizeof(GR_gi::TGaiSequenceDirectoryEntry) == 8);
+    static_assert(sizeof(void*) != 4 || offsetof(GR_gi::TGaiSequenceDirectoryEntry, SequenceDataOffset) == 0);
 
 } // namespace GR_gi

@@ -67,15 +67,22 @@ namespace EC_CacheHSAI {
 
     #pragma pack(push, 1)
     struct THSAIHeaderEC {
-        std::uint8_t cpp_padding[4];
-        // The leading dword and format metadata.. remain unresolved.
+        // HSAI/HAI disk header shared with OKGF; indexed ship frames use 1024 palette bytes.
+        // $04210420.
+        std::uint32_t Magic;
         std::int32_t Width;
         std::int32_t Height;
         std::int32_t PitchBytes;
         std::uint32_t FrameCount;
         std::uint32_t FrameStride;
-        std::uint8_t cpp_padding_2[24];
-        std::uint32_t PalettePresent;
+        std::uint32_t HasPalette;
+        std::uint32_t BitsPerPixel;
+        std::uint32_t RedMask;
+        std::uint32_t GreenMask;
+        std::uint32_t BlueMask;
+        std::uint32_t AlphaMask;
+        // Byte count, tested for zero by GetFramePalette.
+        std::uint32_t PaletteBytes;
     };
     #pragma pack(pop)
 

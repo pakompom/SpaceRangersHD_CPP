@@ -24,8 +24,8 @@ namespace ab_W15 {
         if (W15ProjectileCount > 50) {
             Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
-                if (pas::class_cast_if<TabW15*>(Obj) != nullptr && reinterpret_cast<TabW15*>(Obj)->Phase != 2) {
-                    pas::checked_cast<TabW15*>(Obj)->Explode();
+                if (TabW15* abW15 = pas::class_cast_if<TabW15*>(Obj); abW15 != nullptr && abW15->Phase != 2) {
+                    abW15->Explode();
                     break;
                 }
                 Obj = Obj->Next;

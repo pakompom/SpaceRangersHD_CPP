@@ -161,7 +161,7 @@ namespace SE_Sputnik {
 
     void TSputnikSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
     }
 
     void TSputnikSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {

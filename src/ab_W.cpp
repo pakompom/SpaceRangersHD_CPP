@@ -398,161 +398,161 @@ namespace ab_W {
     void ab_Weapon_QueueImageLoad(PabWeapon Weapon, pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {
         switch (Weapon->Kind) {
             case 0: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w01_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w01_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w01a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w01a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w01b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w01b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w01_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w01_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w01a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w01a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w01b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w01b_s"_wref.get());
                 break;
             }
             case 1: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w02_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w02_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w02a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w02a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w02_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w02_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w02a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w02a_s"_wref.get());
                 break;
             }
             case 2: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w03_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w03_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w03a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w03a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w03_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w03_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w03a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w03a_s"_wref.get());
                 break;
             }
             case 3: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04b_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04c_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w04c_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04c_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w04c_s"_wref.get());
                 break;
             }
             case 4: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w05_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w05_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w05a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w05a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w05b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w05b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w05_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w05_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w05a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w05a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w05b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w05b_s"_wref.get());
                 break;
             }
             case 5: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w06_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w06_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w06a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w06a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w06_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w06_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w06a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w06a_s"_wref.get());
                 break;
             }
             case 6: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w07_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w07_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w07a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w07a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w07b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w07b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w07_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w07_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w07a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w07a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w07b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w07b_s"_wref.get());
                 break;
             }
             case 7: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w08_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w08_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w08a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w08a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w08b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w08b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w08_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w08_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w08a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w08a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w08b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w08b_s"_wref.get());
                 break;
             }
             case 8: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09b_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09c_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w09c_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09c_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w09c_s"_wref.get());
                 break;
             }
             case 9: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w10_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w10_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w10a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w10a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w10b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w10b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w10_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w10_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w10a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w10a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w10b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w10b_s"_wref.get());
                 break;
             }
             case 10: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w11_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w11_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w11a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w11a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w11b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w11b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w11_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w11_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w11a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w11a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w11b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w11b_s"_wref.get());
                 break;
             }
             case 11: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w12_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w12_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w12a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w12a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w12b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w12b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w12_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w12_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w12a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w12a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w12b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w12b_s"_wref.get());
                 break;
             }
             case 12: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w13_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w13_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w13a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w13a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w13b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w13b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w13_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w13_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w13a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w13a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w13b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w13b_s"_wref.get());
                 break;
             }
             case 13: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w14_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w14_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w14a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w14a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w14_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w14_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w14a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w14a_s"_wref.get());
                 break;
             }
             case 14: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w15_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w15_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w15a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w15a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w15_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w15_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w15a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w15a_s"_wref.get());
                 break;
             }
             case 15: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16b_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16c_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w16c_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16c_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w16c_s"_wref.get());
                 break;
             }
             case 16: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17a_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17b_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17b_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17c_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w17c_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17b_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17b_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17c_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w17c_s"_wref.get());
                 break;
             }
             case 17: {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w18_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w18_s"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w18a_f"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.AB.w18a_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w18_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w18_s"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w18a_f"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.AB.w18a_s"_wref.get());
                 break;
             }
         }

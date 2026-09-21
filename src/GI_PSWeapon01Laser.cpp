@@ -38,7 +38,7 @@ namespace GI_PSWeapon01Laser {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index)) + 1);
+            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         BeamLaserPalettes.set_length(Count);
         BeamLaserWidths.set_length(Count);
@@ -49,19 +49,19 @@ namespace GI_PSWeapon01Laser {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 2); cpp_range_3.next(ColorIndex); ) {
                     if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)})));
+                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
                         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 2); cpp_range_4.next(PartIndex); ) {
-                            BeamLaserPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(Text, PartIndex, u","_wref.get()));
+                            BeamLaserPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
                         }
                     }
                 }
                 if (PaletteBlock->CountParams(u"Width"_wref.get()) > 0) {
-                    BeamLaserWidths[Index] = EC_Str::ExtractDecimalToSingleW(PaletteBlock->GetParam(u"Width"_wref.get()));
+                    BeamLaserWidths[Index] = EC_Str::ExtractDecimalToSingleW(PaletteBlock->GetParam(u"Width"sv));
                 } else {
                     BeamLaserWidths[Index] = 2.0f;
                 }
                 if (PaletteBlock->CountParams(u"Time"_wref.get()) > 0) {
-                    BeamLaserDurations[Index] = EC_Str::ExtractDigitsToIntW(PaletteBlock->GetParam(u"Time"_wref.get()));
+                    BeamLaserDurations[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Time"sv)));
                 } else {
                     BeamLaserDurations[Index] = 40;
                 }

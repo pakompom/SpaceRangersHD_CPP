@@ -84,4 +84,15 @@ namespace GlobalsV {
         gmfNormalBold = 6,
     };
 
+    // SF_EndGame also accepts arbitrary script-defined integers. Values above four
+    // select FormGameEnd.WinPirateN; keep GameEndReason as Integer.
+    // Ordinary end-of-film death or CustomWin/CustomLose event.
+    inline constexpr std::int32_t gerDefault = 0;
+
+    // Explicit death detected on a planet or during takeoff.
+    inline constexpr std::int32_t gerPlayerDeath = 2;
+
+    // Script exit_end; FormGameEnd.LossConvertToTerron variants.
+    inline constexpr std::int32_t gerTerronConversion = 4;
+
 } // namespace GlobalsV

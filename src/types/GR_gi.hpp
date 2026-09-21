@@ -15,7 +15,11 @@ namespace GR_GraphBuf {
 } // namespace GR_GraphBuf
 
 namespace GR_gi {
+    struct TGaiFrameEntry;
+
     struct TGaiHeader;
+
+    struct TGaiSequenceFrameEntry;
 
     struct TGaiSequenceTableHeader;
 
@@ -25,11 +29,7 @@ namespace GR_gi {
 
     struct TgiPlaneGR;
 
-    struct TGaiFrameEntry;
-
     struct TGaiSequenceDirectoryEntry;
-
-    struct TGaiSequenceFrameEntry;
 
     struct TGaiSequenceDataBlock;
 
@@ -42,13 +42,17 @@ namespace GR_gi {
     // Shared GI/GAI disk structures; ownership inferred from both readers and unit order.
     #pragma pack(push, 1)
     struct TGaiHeader {
-        std::uint8_t cpp_padding[8];
-        // .. and.. metadata remain unresolved.
+        // 'gai' followed by zero.
+        pas::Array<std::uint8_t, 0, 3> Magic;
+        // One in the game resources.
+        std::int32_t Version;
         WindowsSdk::TRect Bounds;
         std::int32_t FrameCount;
         std::uint32_t Flags;
         std::int32_t SequenceTableOffset;
-        std::uint8_t cpp_padding_2[12];
+        // Bytes in the sequence table; zero when absent.
+        std::int32_t SequenceTableSize;
+        std::uint8_t cpp_padding[8];
     };
     #pragma pack(pop)
 
@@ -144,19 +148,14 @@ namespace GR_gi {
     };
     #pragma pack(pop)
 
+    using PGaiFrameEntry = TGaiFrameEntry*;
+
     #pragma pack(push, 1)
     struct TgiPlaneGR {
         std::int32_t DataOffset;
         std::int32_t DataSize;
         WindowsSdk::TRect Bounds;
         std::uint8_t cpp_padding[8];
-    };
-    #pragma pack(pop)
-
-    #pragma pack(push, 1)
-    struct TGaiSequenceDirectoryEntry {
-        std::int32_t SequenceDataOffset;
-        std::uint8_t cpp_padding[4];
     };
     #pragma pack(pop)
 
@@ -172,5 +171,14 @@ namespace GR_gi {
         std::int32_t FrameDelay;
     };
     #pragma pack(pop)
+
+    #pragma pack(push, 1)
+    struct TGaiSequenceDirectoryEntry {
+        std::int32_t SequenceDataOffset;
+        std::uint8_t cpp_padding[4];
+    };
+    #pragma pack(pop)
+
+    using PGaiSequenceFrameEntry = TGaiSequenceFrameEntry*;
 
 } // namespace GR_gi

@@ -35,7 +35,7 @@ namespace EC_Expression {
     pas::WideString TrimScriptString(pas::WideString Text);
 
     // Collects decimal digits while ignoring other characters; negative only for a leading minus.
-    std::int32_t ScriptStringToInt(pas::WideString Text);
+    std::int32_t ScriptStringToInt(const std::u16string_view& Text);
 
     // Uses a dot decimal separator.
     pas::WideString ScriptFloatToString(double Value);
@@ -43,12 +43,12 @@ namespace EC_Expression {
     pas::WideString ScriptDwordToHex(std::uint32_t Value);
 
     // Ignores nonnumeric characters; not a strict literal validator.
-    double ScriptStringToFloat(pas::WideString Text);
+    double ScriptStringToFloat(const std::u16string_view& Text);
 
     // Also accepts empty text and a lone minus.
-    std::uint8_t IsScriptIntegerText(pas::WideString Text);
+    std::uint8_t IsScriptIntegerText(const std::u16string_view& Text);
 
-    std::uint8_t IsNonIntegerScriptText(pas::WideString Text);
+    std::uint8_t IsNonIntegerScriptText(const std::u16string_view& Text);
 
     // Requires a decimal point and fractional digits; supports an exponent suffix. Token advances only on success; Value may change on failure.
     std::uint8_t TryReadFloatLiteral(TCodeAnalyzerUnitEC*& Token, double& Value);

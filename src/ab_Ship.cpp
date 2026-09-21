@@ -53,20 +53,20 @@ namespace ab_Ship {
         if ((ab_Global::ArcadeTickCount & 1) == 0) {
             Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
-                if (pas::class_cast_if<ab_Hit::TabHit*>(Obj) != nullptr && reinterpret_cast<ab_Hit::TabHit*>(Obj)->Health > 0) {
+                if (ab_Hit::TabHit* abHit = pas::class_cast_if<ab_Hit::TabHit*>(Obj); abHit != nullptr && abHit->Health > 0) {
                     if (Obj->Active) {
                         if (!(pas::class_cast_if<abWall::TabWall*>(Obj) != nullptr)) {
                             Other = ab_Object::FirstArcadeObject;
                             while (Other != nullptr) {
-                                if (Obj != Other && pas::class_cast_if<ab_Hit::TabHit*>(Other) != nullptr && reinterpret_cast<ab_Hit::TabHit*>(Other)->Health > 0 && Other->Active && (!(pas::class_cast_if<abWall::TabWall*>(Other) != nullptr) || Other->ZoneRadius > 1.0L)) {
+                                if (Obj != Other && pas::class_cast_if<ab_Hit::TabHit*>(Other) != nullptr && static_cast<ab_Hit::TabHit*>(Other)->Health > 0 && Other->Active && (!(pas::class_cast_if<abWall::TabWall*>(Other) != nullptr) || Other->ZoneRadius > 1.0L)) {
                                     ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, 0.0, Other->State.LongitudeDegrees, Other->State.PolarAngleDegrees, ab_Global::SphereRadius);
                                     if (static_cast<long double>(Obj->ZoneRadius) + Other->ZoneRadius > Distance && Distance > 0.0L) {
                                         Speed = pas::real_max<pas::Extended>(1.0L, pas::real_divide(System::Sqrt(pas::sqr(static_cast<pas::Extended>(Obj->Velocity.X)) + pas::sqr(static_cast<pas::Extended>(Obj->Velocity.Y))), 2.0L));
                                         Bearing = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Bearing + 1.8E+2L));
                                         Obj->Velocity.X = System::Sin(Bearing) * Speed;
                                         Obj->Velocity.Y = -System::Cos(Bearing) * Speed;
-                                        if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
-                                            pas::checked_cast<ab_ShipAI::TabShipAI*>(Obj)->NoticeCollision();
+                                        if (ab_ShipAI::TabShipAI* abShipAI = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj)) {
+                                            abShipAI->NoticeCollision();
                                         }
                                     }
                                 }
@@ -107,8 +107,8 @@ namespace ab_Ship {
         std::int32_t Count{};
         ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
         while (Obj != nullptr) {
-            if (pas::class_cast_if<TabShip*>(Obj) != nullptr) {
-                Ship = pas::checked_cast<TabShip*>(Obj);
+            if (TabShip* abShip = pas::class_cast_if<TabShip*>(Obj)) {
+                Ship = abShip;
                 if (Ship->Enemies != nullptr) {
                     while (true) {
                         Index = pas::list_indexof(Ship->Enemies, reinterpret_cast<void*>(Self));
@@ -129,8 +129,8 @@ namespace ab_Ship {
                         pas::list_put(Ship->TrackedShips, Index, nullptr);
                     }
                 }
-                if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Ship) != nullptr && static_cast<ab_ShipAI::TabShipAI*>(Ship)->TargetShip == Self) {
-                    pas::checked_cast<ab_ShipAI::TabShipAI*>(Ship)->TargetShip = nullptr;
+                if (ab_ShipAI::TabShipAI* abShipAI = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Ship); abShipAI != nullptr && abShipAI->TargetShip == Self) {
+                    abShipAI->TargetShip = nullptr;
                 }
             }
             Obj = Obj->Next;
@@ -161,8 +161,8 @@ namespace ab_Ship {
                 ab_Global::ArcadeEnemiesDefeated = true;
                 Obj = ab_Object::FirstArcadeObject;
                 while (Obj != nullptr) {
-                    if (pas::class_cast_if<abWall::TabWall*>(Obj) != nullptr && reinterpret_cast<abWall::TabWall*>(Obj)->Health > 0) {
-                        reinterpret_cast<abWall::TabWall*>(Obj)->Health = std::min<std::int32_t>(20, reinterpret_cast<abWall::TabWall*>(Obj)->Health);
+                    if (abWall::TabWall* abWall_2 = pas::class_cast_if<abWall::TabWall*>(Obj); abWall_2 != nullptr && abWall_2->Health > 0) {
+                        abWall_2->Health = std::min<std::int32_t>(20, abWall_2->Health);
                     }
                     Obj = Obj->Next;
                 }
@@ -203,7 +203,7 @@ namespace ab_Ship {
 
     void TabShip::CreateShipVisual(const pas::WideString& GraphKey, std::int32_t Diameter) {
         {
-            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), GraphKey, ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, GraphKey, ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> visual = pas::Var<SE_Space::TObjectSE*>(&Visual);
             SE_Space::RetainSpaceObject(visual, createSpaceObjectByName);
         }
@@ -226,7 +226,7 @@ namespace ab_Ship {
 
     void TabShip::CreateRuinsVisual(const pas::WideString& GraphKey, std::int32_t Diameter) {
         {
-            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ruins"_wref.get(), GraphKey, ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ruins"sv, GraphKey, ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> visual = pas::Var<SE_Space::TObjectSE*>(&Visual);
             SE_Space::RetainSpaceObject(visual, createSpaceObjectByName);
         }
@@ -649,8 +649,8 @@ namespace ab_Ship {
                         Visual->AttachToSpace(ab_Global::ArcadeSpaceProcess->Space);
                     }
                     Visual->SetDepth(ab_Global::ShipBackDepth);
-                    if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Visual) != nullptr) {
-                        reinterpret_cast<SE_Ship2::TShip2SE*>(Visual)->SetTailDepth(ab_Global::ShipTailBackDepth);
+                    if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(Visual)) {
+                        ship2SE->SetTailDepth(ab_Global::ShipTailBackDepth);
                     }
                 } else {
                     Alpha = System::Round(255.0L * InvisibilityAlpha * HorizonAlpha);
@@ -660,8 +660,8 @@ namespace ab_Ship {
                         Visual->AttachToSpace(ab_Global::ArcadeSpaceProcess->Space);
                     }
                     Visual->SetDepth(ab_Global::ShipFrontDepth);
-                    if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Visual) != nullptr) {
-                        reinterpret_cast<SE_Ship2::TShip2SE*>(Visual)->SetTailDepth(ab_Global::ShipTailFrontDepth);
+                    if (SE_Ship2::TShip2SE* ship2SE_2 = pas::class_cast_if<SE_Ship2::TShip2SE*>(Visual)) {
+                        ship2SE_2->SetTailDepth(ab_Global::ShipTailFrontDepth);
                     }
                 }
             } else if (this != KellerArcadeShip) {

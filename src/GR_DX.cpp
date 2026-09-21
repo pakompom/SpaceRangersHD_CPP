@@ -66,10 +66,10 @@ namespace GR_DX {
         std::int32_t i = 0;
         while (i < pas::list_count(TextureCaches)) {
             Texture = pas::list_at<pas::Object>(TextureCaches, i);
-            if (pas::class_cast_if<TTextureGR*>(Texture) != nullptr) {
-                LastUsed = reinterpret_cast<TTextureGR*>(Texture)->LastUseTick;
+            if (TTextureGR* textureGR = pas::class_cast_if<TTextureGR*>(Texture)) {
+                LastUsed = textureGR->LastUseTick;
                 if (NowTick - LastUsed > static_cast<std::uint32_t>(TextureIdleSeconds * 1000)) {
-                    reinterpret_cast<TTextureGR*>(Texture)->ReleaseSurfaces();
+                    textureGR->ReleaseSurfaces();
                 }
             }
             ++i;

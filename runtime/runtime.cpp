@@ -143,7 +143,8 @@ char16_t *WideString::alloc(Integer n, const char16_t *source, bool clear) {
   *h = std::uint32_t(n) * 2;
   auto *p = reinterpret_cast<char16_t *>(h + 1);
   if (source) {
-    std::memcpy(p, source, std::size_t(n) * sizeof(char16_t));
+    // PWideChar can point into packed storage; copy from a byte-aligned address.
+    std::memcpy(p, static_cast<const void *>(source), std::size_t(n) * sizeof(char16_t));
     p[n] = 0;
   }
 #endif

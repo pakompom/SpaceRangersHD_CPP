@@ -22,17 +22,17 @@ namespace NoSteamAchievemens {
     // Fills caller-owned strings/counters for a registered local achievement.
     void GetLocalAchievementData(pas::WideString Key, SimpleSteamApi::PAchievementData Data) {
         EC_BlockPar::TBlockParEC* Block{};
-        Block = Achievements::AchievementDefinitions->FindBlock(Key);
+        Block = Achievements::AchievementDefinitions->FindBlock(pas::view(Key));
         if (Block != nullptr) {
-            Data->Achieved = GI_Main::ParseEnabledNameGI(Block->GetParam(u"Achieved"_wref.get()));
+            Data->Achieved = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv)));
             *Data->Name = aConst::LocalizedColorText(pas::concat_wide({u"Achievements.", Key, u".Name"}));
             *Data->Description = aConst::LocalizedColorText(pas::concat_wide({u"Achievements.", Key, u".Description"}));
             Data->Reserved0C = 0;
-            Data->MaxValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxValue"_wref.get())));
+            Data->MaxValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxValue"sv)));
             Data->HasProgress = Data->MaxValue > 0;
-            Data->Value = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Value"_wref.get())));
+            Data->Value = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Value"sv)));
             *Data->IconPath = u"null"_w;
-            Data->Date = SysUtils::StrToInt64(static_cast<pas::AnsiString>(Block->GetParam(u"Date"_wref.get())));
+            Data->Date = SysUtils::StrToInt64(static_cast<pas::AnsiString>(Block->GetParam(u"Date"sv)));
         }
     }
 
@@ -66,7 +66,7 @@ namespace NoSteamAchievemens {
                         std::int32_t cpp_left = cpp_left_2 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(4)), 16);
                         Seed = cpp_left | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(5)), 24);
                     }
-                    Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + 8);
+                    Cursor = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
                     Size = Buffer->DataSize;
                     for (auto cpp_range = pas::for_to<std::int32_t>(8, Size - 1); cpp_range.next(Index); ) {
                         *Cursor = *Cursor ^ static_cast<std::uint8_t>(Seed - 1);
@@ -77,19 +77,19 @@ namespace NoSteamAchievemens {
                         Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
                     }
                     Checksum = 0;
-                    Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + 12);
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(12, Size - 1); cpp_range_2.next(Index); ) {
+                    Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)));
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range_2.next(Index); ) {
                         Checksum += static_cast<std::uint8_t>(*Cursor ^ 0x000000ff);
                         Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
                     }
                     if (Buffer->GetUInt32At(8) != static_cast<std::uint32_t>(Checksum)) {
                         pas::raise(pas::make_exception<pas::Abort>("Error unpacking achievements.dat"_a));
                     }
-                    Buffer->SetPosition(12);
+                    Buffer->SetPosition(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)));
                     Count = EC_Buf::TBufEC_GetInt32(Buffer);
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(Index); ) {
                         Key = Buffer->ReadWideString();
-                        Block = Achievements::AchievementDefinitions->FindBlock(Key);
+                        Block = Achievements::AchievementDefinitions->FindBlock(pas::view(Key));
                         if (Block != nullptr) {
                             if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
                                 Block->SetOrAddParam(u"Achieved"_wref.get(), u"Yes"_wref.get());
@@ -110,7 +110,7 @@ namespace NoSteamAchievemens {
     // Returns true even if already unlocked; absent timestamps allow a fresh unlock.
     std::uint8_t UnlockLocalAchievement(EC_BlockPar::TBlockParEC* Block) {
         std::uint8_t Result = true;
-        if (static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(Block->GetParam(u"Achieved"_wref.get())) ^ 1) || Block->GetParam(u"Date"_wref.get()) == u"0") {
+        if (static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv))) ^ 1) || Block->GetParam(u"Date"sv) == u"0") {
             Block->SetOrAddParam(u"Achieved"_wref.get(), u"Yes"_wref.get());
             Block->SetOrAddParam(u"Date"_wref.get(), pas::wide_int64_to_str(DateUtils::DateTimeToUnix(SysUtilsImports::Now())));
             NoSteamAchievemens::NotifyLocalAchievement(Block);
@@ -126,14 +126,14 @@ namespace NoSteamAchievemens {
         if (Amount <= 0) {
             return Result;
         }
-        if (GI_Main::ParseEnabledNameGI(Block->GetParam(u"Achieved"_wref.get())) && Block->GetParam(u"Date"_wref.get()) != u"0") {
+        if (GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv))) && Block->GetParam(u"Date"sv) != u"0") {
             return Result;
         }
-        std::int32_t MaxValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxValue"_wref.get())));
+        std::int32_t MaxValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxValue"sv)));
         if (MaxValue == 0) {
             return Result;
         }
-        std::int32_t OldValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Value"_wref.get())));
+        std::int32_t OldValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Value"sv)));
         if (OldValue >= MaxValue) {
             return Result;
         }
@@ -151,10 +151,11 @@ namespace NoSteamAchievemens {
 
     // Writes the native checksummed, encoded and compressed achievements.dat format.
     void SaveLocalAchievements() {
+        EC_Buf::TBufEC* Buffer{};
         std::int32_t Index{};
         EC_BlockPar::TBlockParEC* Block{};
         std::int32_t Seed = pas::random(SystemImports::MaxInt, &System::RandSeed);
-        EC_Buf::TBufEC* Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
+        Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         Buffer->AddIntegerValue(0);
         Buffer->AddIntegerValue(0);
         Buffer->AddIntegerValue(0);
@@ -167,19 +168,19 @@ namespace NoSteamAchievemens {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Block = Achievements::AchievementDefinitions->GetBlockByIndex(Index);
             Buffer->AddWideStringZ(Achievements::AchievementDefinitions->GetBlockNameByIndex(Index));
-            Buffer->AddBoolean(GI_Main::ParseEnabledNameGI(Block->GetParam(u"Achieved"_wref.get())));
-            Buffer->AddDWord(SysUtils::StrToInt64(static_cast<pas::AnsiString>(Block->GetParam(u"Date"_wref.get()))));
-            Buffer->AddIntegerValue(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Value"_wref.get()))));
+            Buffer->AddBoolean(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv))));
+            Buffer->AddDWord(SysUtils::StrToInt64(static_cast<pas::AnsiString>(Block->GetParam(u"Date"sv))));
+            Buffer->AddIntegerValue(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Value"sv))));
         }
         std::int32_t Size = Buffer->DataSize;
         std::int32_t Checksum = 0;
-        std::uint8_t* Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + 12);
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(12, Size - 1); cpp_range_2.next(Index); ) {
+        std::uint8_t* Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)));
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range_2.next(Index); ) {
             Checksum += static_cast<std::uint8_t>(*Cursor ^ 0x000000ff);
             Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
         }
         Buffer->SetInt32At(8, Checksum);
-        Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + 8);
+        Cursor = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(8, Size - 1); cpp_range_3.next(Index); ) {
             *Cursor = *Cursor ^ static_cast<std::uint8_t>(Seed - 1);
             Seed = 16807 * (Seed % 127773) - 2836 * (Seed / 127773);
@@ -203,8 +204,8 @@ namespace NoSteamAchievemens {
         pas::WideString ImagePath{};
         if (PopUp::PopupController != nullptr) {
             Text = aConst::LocalizedColorText(u"Achievements.AchievementReceived"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Achievement>"_w, aConst::LocalizedColorText(pas::concat_wide({u"Achievements.", Block->GetParam(u"Id"_wref.get()), u".Name"})), u"<color=0,71,234>"_w);
-            ImagePath = pas::concat_wide({u"GI,Bm.FormAchievements.Img.", Block->GetParam(u"Id"_wref.get())});
+            aMyFunction::ReplaceTextToken(Text, u"<Achievement>"_w, aConst::LocalizedColorText(pas::concat_wide({u"Achievements.", Block->GetParam(u"Id"sv), u".Name"})), u"<color=0,71,234>"_w);
+            ImagePath = pas::concat_wide({u"GI,Bm.FormAchievements.Img.", Block->GetParam(u"Id"sv)});
             PopUp::PopupController->QueueNotification(Text, ImagePath);
         }
     }

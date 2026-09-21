@@ -46,7 +46,7 @@ namespace GI_Line {
 
     void TLineGI::LoadLineProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Color"_wref.get()) > 0) {
-            Color = GI_Main::GetColorGI(Block->GetParam(u"Color"_wref.get()));
+            Color = GI_Main::GetColorGI(pas::view(Block->GetParam(u"Color"sv)));
         }
     }
 

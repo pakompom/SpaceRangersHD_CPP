@@ -9,6 +9,6 @@ namespace ab_Hit {
     static_assert(sizeof(void*) != 4 || offsetof(ab_Hit::TabHit, EffectOriginSpread) == 188);
     static_assert(sizeof(void*) != 4 || offsetof(ab_Hit::TabHit, TurnSpeedScale) == 192);
     static_assert(sizeof(void*) != 4 || offsetof(ab_Hit::TabHit, Effects) == 200);
-    static_assert(sizeof(void*) != 4 || offsetof(ab_Hit::TabHit, StateCC) == 204);
+    static_assert(sizeof(void*) != 4 || offsetof(ab_Hit::TabHit, HealthBarVisible) == 204);
 
 } // namespace ab_Hit

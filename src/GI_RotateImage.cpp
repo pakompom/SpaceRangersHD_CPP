@@ -103,12 +103,12 @@ namespace GI_RotateImage {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Image"_wref.get()) > 0 && Block->CountParams(u"Size"_wref.get()) > 0) {
-            Types::TPoint pointGI = GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get()));
-            pas::WideString param = Block->GetParam(u"Image"_wref.get());
+            Types::TPoint pointGI = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv)));
+            pas::WideString param = Block->GetParam(u"Image"sv);
             Self->SetImage(std::move(param), pointGI);
         }
         if (Block->CountParams(u"Angle"_wref.get()) > 0) {
-            Self->Angle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"_wref.get())));
+            Self->Angle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"sv)));
         }
     }
 
@@ -117,12 +117,12 @@ namespace GI_RotateImage {
         Angle = 1;
         SetAngle(0);
         {
-            Types::TPoint pointGI = GI_Main::GetPointGI(Block->GetParam(u"Size"_wref.get()));
-            pas::WideString param = Block->GetParam(u"Image"_wref.get());
+            Types::TPoint pointGI = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv)));
+            pas::WideString param = Block->GetParam(u"Image"sv);
             SetImage(std::move(param), pointGI);
         }
         if (Block->CountParams(u"Angle"_wref.get()) > 0) {
-            Angle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"_wref.get())));
+            Angle = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Angle"sv)));
         }
     }
 

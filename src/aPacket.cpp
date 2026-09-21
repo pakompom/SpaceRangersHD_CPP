@@ -27,14 +27,14 @@ namespace aPacket {
         EC_HsFile::PackageCollection->CloseAllPackages();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(GR_Main::ModLanguageInstallConfigs) - 1); cpp_range.next(ModIndex); ) {
             Block = pas::list_at<EC_BlockPar::TBlockParEC>(GR_Main::ModLanguageInstallConfigs, ModIndex);
-            Block = Block->GetBlock(u"Packages"_wref.get());
+            Block = Block->GetBlock(u"Packages"sv);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Block->GetParamCount() - 1); cpp_range_2.next(ParamIndex); ) {
                 Pack = pas::construct_call<EC_HsFile::TPackFileEC>(EC_HsFile::TPackFileEC_Create);
                 Pack->SetPackagePath(static_cast<pas::AnsiString>(Block->GetParamValue(ParamIndex)));
                 EC_HsFile::PackageCollection->AddPackToBack(Pack);
             }
         }
-        Block = GR_Main::LanguageInstallConfig->GetBlock(u"Packages"_wref.get());
+        Block = GR_Main::LanguageInstallConfig->GetBlock(u"Packages"sv);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Block->GetParamCount() - 1); cpp_range_3.next(ParamIndex); ) {
             Pack = pas::construct_call<EC_HsFile::TPackFileEC>(EC_HsFile::TPackFileEC_Create);
             Pack->SetPackagePath(static_cast<pas::AnsiString>(Block->GetParamValue(ParamIndex)));
@@ -42,14 +42,14 @@ namespace aPacket {
         }
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(GR_Main::ModInstallConfigs) - 1); cpp_range_4.next(ModIndex); ) {
             Block = pas::list_at<EC_BlockPar::TBlockParEC>(GR_Main::ModInstallConfigs, ModIndex);
-            Block = Block->GetBlock(u"Packages"_wref.get());
+            Block = Block->GetBlock(u"Packages"sv);
             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Block->GetParamCount() - 1); cpp_range_5.next(ParamIndex); ) {
                 Pack = pas::construct_call<EC_HsFile::TPackFileEC>(EC_HsFile::TPackFileEC_Create);
                 Pack->SetPackagePath(static_cast<pas::AnsiString>(Block->GetParamValue(ParamIndex)));
                 EC_HsFile::PackageCollection->AddPackToBack(Pack);
             }
         }
-        Block = GR_Main::InstallConfig->GetBlock(u"Packages"_wref.get());
+        Block = GR_Main::InstallConfig->GetBlock(u"Packages"sv);
         for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Block->GetParamCount() - 1); cpp_range_6.next(ParamIndex); ) {
             Pack = pas::construct_call<EC_HsFile::TPackFileEC>(EC_HsFile::TPackFileEC_Create);
             Pack->SetPackagePath(static_cast<pas::AnsiString>(Block->GetParamValue(ParamIndex)));

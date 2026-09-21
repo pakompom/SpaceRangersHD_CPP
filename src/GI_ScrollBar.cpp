@@ -722,95 +722,95 @@ namespace GI_ScrollBar {
 
     void TScrollBarGI::LoadScrollBarProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Min"_wref.get()) > 0) {
-            Minimum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Min"_wref.get())));
+            Minimum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Min"sv)));
         }
         if (Block->CountParams(u"Max"_wref.get()) > 0) {
-            Maximum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Max"_wref.get())));
+            Maximum = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Max"sv)));
         }
         if (Block->CountParams(u"PageSize"_wref.get()) > 0) {
-            PageSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"PageSize"_wref.get())));
+            PageSize = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"PageSize"sv)));
         }
         if (Block->CountParams(u"LargeChange"_wref.get()) > 0) {
-            LargeChange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"LargeChange"_wref.get())));
+            LargeChange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"LargeChange"sv)));
         }
         if (Block->CountParams(u"SmallChange"_wref.get()) > 0) {
-            SmallChange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmallChange"_wref.get())));
+            SmallChange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SmallChange"sv)));
         }
         if (Block->CountParams(u"Position"_wref.get()) > 0) {
-            Position = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Position"_wref.get())));
+            Position = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Position"sv)));
         }
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            if (Block->GetParam(u"Kind"_wref.get()) == u"x") {
+            if (Block->GetParam(u"Kind"sv) == u"x") {
                 Orientation = 1;
             } else {
                 Orientation = 2;
             }
         }
         if (Block->CountParams(u"KindCalc"_wref.get()) > 0) {
-            CalculationMode = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"KindCalc"_wref.get())));
+            CalculationMode = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"KindCalc"sv)));
         }
         if (Block->CountParams(u"ImageUpN"_wref.get()) > 0) {
-            UpImages[0]->SetImagePath(Block->GetParam(u"ImageUpN"_wref.get()));
+            UpImages[0]->SetImagePath(Block->GetParam(u"ImageUpN"sv));
         }
         if (Block->CountParams(u"ImageUpA"_wref.get()) > 0) {
-            UpImages[1]->SetImagePath(Block->GetParam(u"ImageUpA"_wref.get()));
+            UpImages[1]->SetImagePath(Block->GetParam(u"ImageUpA"sv));
         }
         if (Block->CountParams(u"ImageUpD"_wref.get()) > 0) {
-            UpImages[2]->SetImagePath(Block->GetParam(u"ImageUpD"_wref.get()));
+            UpImages[2]->SetImagePath(Block->GetParam(u"ImageUpD"sv));
         }
         if (Block->CountParams(u"ImageBarN"_wref.get()) > 0) {
-            BeforeThumbBarImages[0]->SetImagePath(Block->GetParam(u"ImageBarN"_wref.get()));
+            BeforeThumbBarImages[0]->SetImagePath(Block->GetParam(u"ImageBarN"sv));
         }
         if (Block->CountParams(u"ImageBarA"_wref.get()) > 0) {
-            BeforeThumbBarImages[1]->SetImagePath(Block->GetParam(u"ImageBarA"_wref.get()));
+            BeforeThumbBarImages[1]->SetImagePath(Block->GetParam(u"ImageBarA"sv));
         }
         if (Block->CountParams(u"ImageBarD"_wref.get()) > 0) {
-            BeforeThumbBarImages[2]->SetImagePath(Block->GetParam(u"ImageBarD"_wref.get()));
+            BeforeThumbBarImages[2]->SetImagePath(Block->GetParam(u"ImageBarD"sv));
         }
         if (Block->CountParams(u"ImageTopN"_wref.get()) > 0) {
-            ThumbTopImages[0]->SetImagePath(Block->GetParam(u"ImageTopN"_wref.get()));
+            ThumbTopImages[0]->SetImagePath(Block->GetParam(u"ImageTopN"sv));
         }
         if (Block->CountParams(u"ImageTopA"_wref.get()) > 0) {
-            ThumbTopImages[1]->SetImagePath(Block->GetParam(u"ImageTopA"_wref.get()));
+            ThumbTopImages[1]->SetImagePath(Block->GetParam(u"ImageTopA"sv));
         }
         if (Block->CountParams(u"ImageTopD"_wref.get()) > 0) {
-            ThumbTopImages[2]->SetImagePath(Block->GetParam(u"ImageTopD"_wref.get()));
+            ThumbTopImages[2]->SetImagePath(Block->GetParam(u"ImageTopD"sv));
         }
         if (Block->CountParams(u"ImageCenterN"_wref.get()) > 0) {
-            ThumbCenterImages[0]->SetImagePath(Block->GetParam(u"ImageCenterN"_wref.get()));
+            ThumbCenterImages[0]->SetImagePath(Block->GetParam(u"ImageCenterN"sv));
         }
         if (Block->CountParams(u"ImageCenterA"_wref.get()) > 0) {
-            ThumbCenterImages[1]->SetImagePath(Block->GetParam(u"ImageCenterA"_wref.get()));
+            ThumbCenterImages[1]->SetImagePath(Block->GetParam(u"ImageCenterA"sv));
         }
         if (Block->CountParams(u"ImageCenterD"_wref.get()) > 0) {
-            ThumbCenterImages[2]->SetImagePath(Block->GetParam(u"ImageCenterD"_wref.get()));
+            ThumbCenterImages[2]->SetImagePath(Block->GetParam(u"ImageCenterD"sv));
         }
         if (Block->CountParams(u"ImageBottomN"_wref.get()) > 0) {
-            ThumbBottomImages[0]->SetImagePath(Block->GetParam(u"ImageBottomN"_wref.get()));
+            ThumbBottomImages[0]->SetImagePath(Block->GetParam(u"ImageBottomN"sv));
         }
         if (Block->CountParams(u"ImageBottomA"_wref.get()) > 0) {
-            ThumbBottomImages[1]->SetImagePath(Block->GetParam(u"ImageBottomA"_wref.get()));
+            ThumbBottomImages[1]->SetImagePath(Block->GetParam(u"ImageBottomA"sv));
         }
         if (Block->CountParams(u"ImageBottomD"_wref.get()) > 0) {
-            ThumbBottomImages[2]->SetImagePath(Block->GetParam(u"ImageBottomD"_wref.get()));
+            ThumbBottomImages[2]->SetImagePath(Block->GetParam(u"ImageBottomD"sv));
         }
         if (Block->CountParams(u"ImageBarN"_wref.get()) > 0) {
-            AfterThumbBarImages[0]->SetImagePath(Block->GetParam(u"ImageBarN"_wref.get()));
+            AfterThumbBarImages[0]->SetImagePath(Block->GetParam(u"ImageBarN"sv));
         }
         if (Block->CountParams(u"ImageBarA"_wref.get()) > 0) {
-            AfterThumbBarImages[1]->SetImagePath(Block->GetParam(u"ImageBarA"_wref.get()));
+            AfterThumbBarImages[1]->SetImagePath(Block->GetParam(u"ImageBarA"sv));
         }
         if (Block->CountParams(u"ImageBarD"_wref.get()) > 0) {
-            AfterThumbBarImages[2]->SetImagePath(Block->GetParam(u"ImageBarD"_wref.get()));
+            AfterThumbBarImages[2]->SetImagePath(Block->GetParam(u"ImageBarD"sv));
         }
         if (Block->CountParams(u"ImageDownN"_wref.get()) > 0) {
-            DownImages[0]->SetImagePath(Block->GetParam(u"ImageDownN"_wref.get()));
+            DownImages[0]->SetImagePath(Block->GetParam(u"ImageDownN"sv));
         }
         if (Block->CountParams(u"ImageDownA"_wref.get()) > 0) {
-            DownImages[1]->SetImagePath(Block->GetParam(u"ImageDownA"_wref.get()));
+            DownImages[1]->SetImagePath(Block->GetParam(u"ImageDownA"sv));
         }
         if (Block->CountParams(u"ImageDownD"_wref.get()) > 0) {
-            DownImages[2]->SetImagePath(Block->GetParam(u"ImageDownD"_wref.get()));
+            DownImages[2]->SetImagePath(Block->GetParam(u"ImageDownD"sv));
         }
         {
             Types::TPoint contentSize = UpImages[0]->GetContentSize();

@@ -52,7 +52,7 @@ namespace ab_Hit {
         Self->Health = 200;
         Self->MaxHealth = 200;
         Self->Effects = pas::make_object<pas::List>();
-        Self->StateCC = true;
+        Self->HealthBarVisible = true;
     }
 
     void TabHit_Destroy(TabHit* Self) {
@@ -79,7 +79,7 @@ namespace ab_Hit {
             if (this != KellerFragments[0] && this != KellerFragments[1] && this != KellerFragments[2] && this != KellerFragments[3]) {
                 if (Source != nullptr) {
                     if (pas::class_cast_if<ab_Ship::TabShip*>(this) != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Source) != nullptr) {
-                        if (pas::list_indexof(pas::checked_cast<ab_Ship::TabShip*>(Source)->Enemies, reinterpret_cast<void*>(this)) < 0) {
+                        if (pas::list_indexof(static_cast<ab_Ship::TabShip*>(Source)->Enemies, reinterpret_cast<void*>(this)) < 0) {
                             Amount = Amount / 4;
                         }
                     }
@@ -125,7 +125,7 @@ namespace ab_Hit {
                 }
                 Animation->SetSequenceFrame(Frame);
                 Animation->CycleCompleteCallback = pas::bind_method<TabHit_KellerBreakupComplete>(this);
-                StateCC = false;
+                HealthBarVisible = false;
             }
             if (Health > 0 || ab_Ship::KellerArcadeShip != this) {
                 if (Health <= 0) {
@@ -266,7 +266,7 @@ namespace ab_Hit {
                 }
                 if (KellerFragments[0] == nullptr) {
                     KellerSplitActive = false;
-                    StateCC = true;
+                    HealthBarVisible = true;
                     Health = MaxHealth;
                     pas::checked_cast<ab_Ship::TabShip*>(this)->AttachVisual();
                     if (KellerDeathPending) {
@@ -283,7 +283,7 @@ namespace ab_Hit {
                         Ship->ZoneDamageEnabled = false;
                         Ship->Collidable = false;
                         Ship->Active = false;
-                        Ship->StateCC = false;
+                        Ship->HealthBarVisible = false;
                         Ship->Velocity.X = 0.0f;
                         Ship->Velocity.Y = 0.0f;
                         Ship->MaxSpeed = 0.0;
@@ -349,7 +349,7 @@ namespace ab_Hit {
         }
         GI_GAI::TgaiGI* Animation = pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(Self)->Visual)->Animation;
         Animation->CycleCompleteCallback = nullptr;
-        pas::checked_cast<ab_Ship::TabShip*>(Self)->DetachVisual();
+        static_cast<ab_Ship::TabShip*>(Self)->DetachVisual();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 3); cpp_range_2.next(Index); ) {
             Ship = pas::construct_call<ab_Ship::TabShip>(ab_Ship::TabShip_Create);
             ab_Object::ab_Object_Add(Ship);
@@ -369,7 +369,7 @@ namespace ab_Hit {
             Ship->ZoneDamageEnabled = false;
             Ship->Collidable = false;
             Ship->Active = false;
-            Ship->StateCC = false;
+            Ship->HealthBarVisible = false;
             Ship->MaxSpeed = 1.0E+1;
             KellerFragments[Index] = Ship;
             if (Index == 0) {

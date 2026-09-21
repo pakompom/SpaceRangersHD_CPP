@@ -69,25 +69,25 @@ namespace fLoad {
             fLoad::RemoveDuplicateCacheLoads(PendingLoads);
         }
         if (GlobalsV::AnimMenuShip) {
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.FormMain3.2ShipA1"_wref.get());
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.FormMain3.2ShipA2"_wref.get());
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.FormMain3.2ShipA3"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.2ShipA1"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.2ShipA2"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.2ShipA3"_wref.get());
         }
         if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600) {
             if (GlobalsV::AnimMenuShip) {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.FormMain3.AnimGaalShip01A"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.FormMain3.AnimGaalShip02A"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), u"Bm.FormMain3.AnimGaalShip03A"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.AnimGaalShip01A"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.AnimGaalShip02A"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.AnimGaalShip03A"_wref.get());
             }
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain3.AnimGaalShip01"_wref.get());
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain3.AnimGaalShip02"_wref.get());
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain3.AnimGaalShip03"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.AnimGaalShip01"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.AnimGaalShip02"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.AnimGaalShip03"_wref.get());
         }
-        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain3.2Ship1"_wref.get());
-        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain3.2Ship2"_wref.get());
-        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain3.2Ship3"_wref.get());
-        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain2.2AnimCaption"_wref.get());
-        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"_wref.get(), u"Bm.FormMain3.2BG"_wref.get());
+        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.2Ship1"_wref.get());
+        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.2Ship2"_wref.get());
+        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.2Ship3"_wref.get());
+        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain2.2AnimCaption"_wref.get());
+        GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.2BG"_wref.get());
         static_cast<void>(Globals::ScreenLoadMode == 4);
     }
 
@@ -100,7 +100,7 @@ namespace fLoad {
             Count = pas::list_count(GlobalsV::SatelliteRenderTemplates);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
                 Template = pas::list_at<Globals::TSputnikTempl>(GlobalsV::SatelliteRenderTemplates, I);
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"PlanetTempl"_wref.get(), Template->MaskName);
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"PlanetTempl"sv, Template->MaskName);
             }
         }
         SE_Gate::TGateSE* Gate = pas::construct_call<SE_Gate::TGateSE>(SE_Gate::TGateSE_Create, u"Gate"_w, ClassesImports::Point(0, 0));
@@ -114,7 +114,7 @@ namespace fLoad {
         {
             const pas::WideString& backgroundImagePath = aGalaxy::PlayerStar->GetBackgroundImagePath(I);
             EC_Cache::TCacheEC* globalCache = GR_Main::GlobalCache;
-            globalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"_wref.get(), backgroundImagePath);
+            globalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, backgroundImagePath);
         }
         fLoad::QueueConfiguredLoadingAssets(PendingLoads, u"Space"_w);
         if (GlobalsV::SoundEnabled) {
@@ -171,7 +171,7 @@ namespace fLoad {
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
             const pas::WideString& paramValue = Block->GetParamValue(I);
             const pas::WideString& paramName = Block->GetParamName(I);
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, paramName, paramValue);
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, pas::view(paramName), paramValue);
         }
     }
 
@@ -242,14 +242,14 @@ namespace fLoad {
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         GR_Main::AppendLogTextThreadSafe("fLoad... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GI_MessageLoop::TObjectGI* Root = GetByName(u""_wref.get());
+        GI_MessageLoop::TObjectGI* Root = GetByName(u""sv);
         Root->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Root->FindByNameRecursive(u"IntroRect"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Root->FindByNameRecursive(u"IntroRect"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         {
-            GI_GAI::TgaiGI* Intro = pas::checked_cast<GI_GAI::TgaiGI*>(Root->FindByNameRecursive(u"Intro"_wref.get()));
+            GI_GAI::TgaiGI* Intro = pas::checked_cast<GI_GAI::TgaiGI*>(Root->FindByNameRecursive(u"Intro"sv));
             Intro->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         }
-        Root->FindByNameRecursive(u"Film"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Root->FindByNameRecursive(u"Film"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         LoadPanel->InitializeLayout(this);
     }
@@ -295,7 +295,7 @@ namespace fLoad {
             Globals::CacheLoader->Start();
             IntroSkipRequest = 0;
             IntroTimer = nullptr;
-            IntroConfig = GR_Main::MainDataConfig->GetBlock(u"Intro"_wref.get());
+            IntroConfig = GR_Main::MainDataConfig->GetBlock(u"Intro"sv);
             StartIntroItem(1);
         }
         GR_Main::CheckPlatformModules();
@@ -303,7 +303,7 @@ namespace fLoad {
 
     void TfLoad::OnClose() {
         {
-            GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+            GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
             Film->ImageClose();
         }
         LoadPanel->OnClose();
@@ -404,7 +404,7 @@ namespace fLoad {
     void TfLoad::StartIntroItem(std::int32_t Index) {
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString ImagePath{};
-        Block = IntroConfig->FindBlock(pas::wide_int_to_str(Index));
+        Block = IntroConfig->FindBlock(pas::view(pas::wide_int_to_str(Index)));
         if (Block == nullptr || IntroSkipRequest > 1) {
             InvalidateViewport();
             IntroPlaying = false;
@@ -415,41 +415,41 @@ namespace fLoad {
             StartIntroItem(Index + 1);
             return;
         }
-        ImagePath = Block->GetParam(u"Image"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
         if (EC_Str::LowerCaseWideString(EC_Str::TrimWideString(EC_Str::ExtractFileExtNoDotW(ImagePath))) == u"vdo") {
             IntroImageKind = 0;
             {
-                GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+                GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
                 if (!Film->ImageOpen(ImagePath, false)) {
                     StartIntroItem(Index + 1);
                     return;
                 }
             }
             if (Block->CountParams(u"Frames"_wref.get()) > 0) {
-                IntroVideoFrameCount = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Frames"_wref.get()));
+                IntroVideoFrameCount = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Frames"sv)));
             }
         } else {
             IntroImageKind = 1;
             {
-                GI_GAI::TgaiGI* Intro = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Intro"_wref.get()));
+                GI_GAI::TgaiGI* Intro = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Intro"sv));
                 Intro->SetImagePath(ImagePath);
                 Intro->SetPosition(ClassesImports::Point(0, 0));
                 Intro->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                 if (Block->CountParams(u"Size"_wref.get()) > 0) {
-                    ImagePath = Block->GetParam(u"Size"_wref.get());
-                    if (EC_Str::CountDelimitedPartsW(ImagePath, u","_wref.get()) > 1) {
+                    ImagePath = Block->GetParam(u"Size"sv);
+                    if (EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u","sv) > 1) {
                         Intro->SetSize(([&] {
-                            std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(ImagePath, 1, u","_wref.get()));
-                            std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(ImagePath, 0, u","_wref.get()));
+                            std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv)));
+                            std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 0, u","sv)));
                             return ClassesImports::Point(extractDigitsToIntW_2, extractDigitsToIntW);
                         }()));
                         Intro->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - Intro->ClientSize.X) / 2, (GR_Main::GameScreenHeight - Intro->ClientSize.Y) / 2));
                         if (Block->CountParams(u"Sme"_wref.get()) > 0) {
-                            ImagePath = Block->GetParam(u"Sme"_wref.get());
-                            if (EC_Str::CountDelimitedPartsW(ImagePath, u","_wref.get()) > 1) {
+                            ImagePath = Block->GetParam(u"Sme"sv);
+                            if (EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u","sv) > 1) {
                                 Intro->SetPosition(([&] {
-                                    std::int32_t cpp_arg = Intro->LocalPosition.Y + EC_Str::ExtractSignedDigitsToIntW(EC_Str::ExtractDelimitedPartW(ImagePath, 1, u","_wref.get()));
-                                    std::int32_t cpp_arg_2 = Intro->LocalPosition.X + EC_Str::ExtractSignedDigitsToIntW(EC_Str::ExtractDelimitedPartW(ImagePath, 0, u","_wref.get()));
+                                    std::int32_t cpp_arg = Intro->LocalPosition.Y + EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv)));
+                                    std::int32_t cpp_arg_2 = Intro->LocalPosition.X + EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 0, u","sv)));
                                     return ClassesImports::Point(cpp_arg_2, cpp_arg);
                                 }()));
                             }
@@ -457,7 +457,7 @@ namespace fLoad {
                     }
                 }
                 if (Block->CountParams(u"Frames"_wref.get()) > 0) {
-                    Intro->LoadFrameSequenceFromText(pas::concat_wide({u"[80,0-", Block->GetParam(u"Frames"_wref.get()), u"]"}));
+                    Intro->LoadFrameSequenceFromText(pas::concat_wide({u"[80,0-", Block->GetParam(u"Frames"sv), u"]"}));
                 }
                 Intro->PrimeImageCaches();
                 Intro->SetActive(true);
@@ -466,11 +466,11 @@ namespace fLoad {
             }
         }
         if (Block->CountParams(u"Time"_wref.get()) > 0) {
-            IntroDurationMs = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Time"_wref.get()));
+            IntroDurationMs = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Time"sv)));
         }
         if (GlobalsV::MusicEnabled) {
             if (Block->CountParams(u"Sound"_wref.get()) > 0) {
-                GR_Main::MusicManager->PlayCategory(Block->GetParam(u"Sound"_wref.get()));
+                GR_Main::MusicManager->PlayCategory(Block->GetParam(u"Sound"sv));
                 while (!GR_Main::MusicManager->IsPlaying()) {
                     SysUtilsImports::Sleep(1u);
                 }
@@ -504,21 +504,21 @@ namespace fLoad {
                 }
             }
             {
-                GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+                GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
                 Film->ImageClose();
             }
             {
-                GI_GAI::TgaiGI* Intro = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Intro"_wref.get()));
+                GI_GAI::TgaiGI* Intro = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Intro"sv));
                 Intro->SetImagePath(u""_wref.get());
             }
             StartIntroItem(IntroItemIndex + 1);
             return;
         }
         if (IntroImageKind == 0) {
-            GI_XviD::TxvidGI* Film_2 = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+            GI_XviD::TxvidGI* Film_2 = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
             Film_2->SetFramePosition(System::Round(static_cast<long double>(IntroVideoFrameCount - 1) * Fraction));
         } else {
-            GI_GAI::TgaiGI* Intro_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Intro"_wref.get()));
+            GI_GAI::TgaiGI* Intro_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Intro"sv));
             Intro_2->SetFramePosition(System::Round(static_cast<long double>(Intro_2->SequenceFrameCount - 1) * Fraction), true);
         }
     }

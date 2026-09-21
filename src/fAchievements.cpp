@@ -35,17 +35,17 @@ namespace fAchievements {
         GR_Main::AppendLogTextThreadSafe("fAchievements... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* cpp_with = GetByName(u""_wref.get());
+            GI_MessageLoop::TObjectGI* cpp_with = GetByName(u""sv);
             cpp_with->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            cpp_with->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            cpp_with->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* MainPanel = cpp_with->FindByNameRecursive(u"MainPanel"_wref.get());
+                GI_MessageLoop::TObjectGI* MainPanel = cpp_with->FindByNameRecursive(u"MainPanel"sv);
                 MainPanel->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - MainPanel->ClientSize.X) / 2, (GR_Main::GameScreenHeight - MainPanel->ClientSize.Y) / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfAchievements::KeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"_wref.get()))->UpCallback = pas::bind_method<&TfAchievements::CloseClicked>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfAchievements::KeyDown>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfAchievements::CloseClicked>(this);
     }
 
     void TfAchievements::OnOpen() {
@@ -53,7 +53,7 @@ namespace fAchievements {
         if (GlobalsV::PreviousScreenId != GlobalsV::screenArcadeBattle && GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         RebuildAchievementList();
     }
 
@@ -84,12 +84,12 @@ namespace fAchievements {
         if (Key == WindowsSdk::VK_ESCAPE) {
             CloseClicked(Sender);
         } else if (Key == WindowsSdk::VK_PRIOR) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot->VerticalScrollBar->Active) {
                 PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->LargeChange);
             }
         } else if (Key == WindowsSdk::VK_NEXT) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot_2->VerticalScrollBar->Active) {
                 PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position + PanelSlot_2->VerticalScrollBar->LargeChange);
             }
@@ -97,7 +97,7 @@ namespace fAchievements {
     }
 
     void TfAchievements::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             if (PanelSlot->VerticalScrollBar->Active) {
                 PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->SmallChange);
@@ -127,7 +127,7 @@ namespace fAchievements {
         GI_Panel::TPanelGI* Row{};
         std::int32_t Index{};
         SimpleSteamApi::PAchievementData Data{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         Panel->FreeOwnedChildren();
         Rows.set_length(0);
         std::int32_t Count = Achievements::GetAvailableAchievementCount();
@@ -208,7 +208,7 @@ namespace fAchievements {
             cpp_with_3->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         }
         if (Rows[Index].Data->HasProgress && static_cast<std::uint8_t>(Rows[Index].Data->Achieved ^ 1)) {
-            TfAchievements::BuildProgressBars(Owner, 0, Rows[Index].Data->MaxValue, Rows[Index].Data->Value, Achievements::GetCurrentAchievementProgress(Rows[Index].Key, Rows[Index].Data->Value));
+            TfAchievements::BuildProgressBars(Owner, 0, Rows[Index].Data->MaxValue, Rows[Index].Data->Value, Achievements::GetCurrentAchievementProgress(pas::view(Rows[Index].Key), Rows[Index].Data->Value));
             {
                 GI_Label::TLabelGI* cpp_with_4 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Owner);
                 cpp_with_4->SetPosition(ClassesImports::Point(600, 45));

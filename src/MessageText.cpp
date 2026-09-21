@@ -25,23 +25,23 @@ namespace MessageText {
         std::int32_t i{};
         pas::WideString Name{};
         Result = Path;
-        std::int32_t PartCount = EC_Str::CountDelimitedPartsW(Path, u"."_wref.get());
+        std::int32_t PartCount = EC_Str::CountDelimitedPartsW(pas::view(Path), u"."sv);
         EC_BlockPar::TBlockParEC* Block = Entries;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, PartCount - 2); cpp_range.next(i); ) {
-            Name = EC_Str::ExtractDelimitedPartW(Path, i, u"."_wref.get());
+            Name = EC_Str::ExtractDelimitedPartW(pas::view(Path), i, u"."sv);
             if (Block->CountBlocks(Name) <= 0) {
                 return Result;
             }
-            Block = Block->GetBlock(Name);
+            Block = Block->GetBlock(pas::view(Name));
         }
-        Name = EC_Str::ExtractDelimitedPartW(Path, PartCount - 1, u"."_wref.get());
-        return Block->GetParam(Name);
+        Name = EC_Str::ExtractDelimitedPartW(pas::view(Path), PartCount - 1, u"."sv);
+        return Block->GetParam(pas::view(Name));
     }
 
     // Looks up a direct parameter; returns Key when absent.
     pas::WideString TQuestMessages::GetTextOrKey(pas::WideString Key) {
         if (Entries->CountParams(Key) > 0) {
-            return Entries->GetParam(Key);
+            return Entries->GetParam(pas::view(Key));
         }
         return Key;
     }

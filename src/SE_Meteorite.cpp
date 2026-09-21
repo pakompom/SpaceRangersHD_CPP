@@ -133,11 +133,11 @@ namespace SE_Meteorite {
     void TMeteoriteSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         EC_Struct::TPointF Range{};
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
-        TimerInterval = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Time"_wref.get()));
-        Range = GI_Main::GetFloatPointGI(Block->GetParam(u"Speed"_wref.get()));
+        ImagePath = Block->GetParam(u"Image"sv);
+        TimerInterval = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Time"sv)));
+        Range = GI_Main::GetFloatPointGI(pas::view(Block->GetParam(u"Speed"sv)));
         Speed = aMyFunction::RandomFloatRange(Range.X, Range.Y);
-        Angle = aMyFunction::HeadingDegreesToRadians(EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Angle"_wref.get())));
+        Angle = aMyFunction::HeadingDegreesToRadians(EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Angle"sv)));
     }
 
     void TMeteoriteSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {

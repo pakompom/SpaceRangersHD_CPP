@@ -106,7 +106,7 @@ namespace fInfo {
             }()) >= 0) {
                 return Result;
             }
-            if (pas::class_cast_if<aItem::THull*>(Item) != nullptr && static_cast<aItem::THull*>(Item)->HullSeries != -1) {
+            if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Item); hull != nullptr && hull->HullSeries != -1) {
                 if (([&] {
                     const pas::WideString& wideLowerCase_2 = SysUtilsImports::WideLowerCase(EC_Str::RemoveTextTagsW(aConst::HullSeriesDefinitions[reinterpret_cast<aItem::THull*>(Item)->HullSeries].Name));
                     const pas::WideString& term_2 = Term;
@@ -115,7 +115,7 @@ namespace fInfo {
                     return Result;
                 }
             }
-            if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && static_cast<aItem::TWeapon*>(Item)->SpecialModuleIndex != 0) {
+            if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); weapon != nullptr && weapon->SpecialModuleIndex != 0) {
                 if (([&] {
                     const pas::WideString& wideLowerCase_3 = SysUtilsImports::WideLowerCase(EC_Str::RemoveTextTagsW(pas::checked_cast<aItem::TWeapon*>(Item)->GetSpecialModuleName()));
                     const pas::WideString& term_3 = Term;
@@ -127,9 +127,9 @@ namespace fInfo {
             return false;
         };
         std::uint8_t Result = false;
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Search, u" "_wref.get());
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Search), u" "sv);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            if (!ItemMatchesInfoSearchTerm(EC_Str::ExtractDelimitedPartW(Search, I, u" "_wref.get()))) {
+            if (!ItemMatchesInfoSearchTerm(EC_Str::ExtractDelimitedPartW(pas::view(Search), I, u" "sv))) {
                 return Result;
             }
         }
@@ -169,13 +169,13 @@ namespace fInfo {
         GR_Main::AppendLogTextThreadSafe("fInfo... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGCity2"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGCity"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity2"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             ExtraHeight = std::min<std::int32_t>(std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0), 432) / 3 * 3;
             {
-                GI_MessageLoop::TObjectGI* ButFormClose = MainPanel->FindByNameRecursive(u"ButFormClose"_wref.get());
+                GI_MessageLoop::TObjectGI* ButFormClose = MainPanel->FindByNameRecursive(u"ButFormClose"sv);
                 ButFormClose->SetPosition(ClassesImports::Point(ButFormClose->LocalPosition.X, ButFormClose->LocalPosition.Y + ExtraHeight));
                 {
                     GI_MessageLoop::TObjectGI* cpp_with_3 = ButFormClose->Parent;
@@ -190,15 +190,15 @@ namespace fInfo {
                         }
                     }
                     {
-                        GI_MessageLoop::TObjectGI* ButSearch = cpp_with_3->FindByNameRecursive(u"ButSearch"_wref.get());
+                        GI_MessageLoop::TObjectGI* ButSearch = cpp_with_3->FindByNameRecursive(u"ButSearch"sv);
                         ButSearch->SetPosition(ClassesImports::Point(ButSearch->LocalPosition.X, ButSearch->LocalPosition.Y + ExtraHeight));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* ButNews = cpp_with_3->FindByNameRecursive(u"ButNews"_wref.get());
+                        GI_MessageLoop::TObjectGI* ButNews = cpp_with_3->FindByNameRecursive(u"ButNews"sv);
                         ButNews->SetPosition(ClassesImports::Point(ButNews->LocalPosition.X, ButNews->LocalPosition.Y + ExtraHeight));
                     }
                     {
-                        GI_PanelScrollBar::TPanelScrollBarGI* PanelInfo = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(cpp_with_3->FindByNameRecursive(u"PanelInfo"_wref.get()));
+                        GI_PanelScrollBar::TPanelScrollBarGI* PanelInfo = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(cpp_with_3->FindByNameRecursive(u"PanelInfo"sv));
                         PanelInfo->SetSize(ClassesImports::Point(PanelInfo->ClientSize.X, PanelInfo->ClientSize.Y + ExtraHeight));
                         PanelInfo->VerticalScrollBar->SetSize(ClassesImports::Point(PanelInfo->VerticalScrollBar->ClientSize.X, PanelInfo->VerticalScrollBar->ClientSize.Y + ExtraHeight));
                     }
@@ -206,10 +206,10 @@ namespace fInfo {
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::EndTurnClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ShipClicked>(this);
-        InfoPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelInfo"_wref.get()));
-        pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"_wref.get()))->ClearFocusOnEnter = false;
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfInfo::EndTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfInfo::ShipClicked>(this);
+        InfoPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelInfo"sv));
+        pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"sv))->ClearFocusOnEnter = false;
     }
 
     void TfInfo::OnOpen() {
@@ -230,7 +230,7 @@ namespace fInfo {
             StationPanel->Show();
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButFormClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButFormClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv));
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 ButFormClose->UpCallback = pas::bind_method<&fPanelPlanet::TfPanelPlanet::PlanetClicked>(PlanetPanel);
             } else {
@@ -238,49 +238,49 @@ namespace fInfo {
             }
         }
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->KeyDownCallback = pas::bind_method<&TfInfo::MainPanelKeyDown>(this);
             MainPanel->KeyUpCallback = pas::bind_static_method<&TfInfo::MainPanelKeyUp>(this);
             MainPanel->LeftButtonDownCallback = pas::bind_method<&TfInfo::MainPanelMouseDown>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"OkSearch"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::SearchClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearchText>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCopy"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::CopySearchText>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPaste"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::PasteSearchText>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M01Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch01Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M02Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch02Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M03Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch03Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M04Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch04Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M05Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch05Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M06Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch06Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M07Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch07Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch09Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M10Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch10Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch11Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch12Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch13Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15Clear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch15Filters>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12ButClear"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::ClearSearch12Name>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12ButCopy"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::CopySearch12Name>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12ButPaste"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::PasteSearch12Name>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15ButCopy"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::CopySearch15Name>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15ButPaste"_wref.get()))->UpCallback = pas::bind_method<&TfInfo::PasteSearch15Name>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S03"_wref.get()))->SetDown(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"OkSearch"sv))->UpCallback = pas::bind_method<&TfInfo::SearchClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearchText>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCopy"sv))->UpCallback = pas::bind_method<&TfInfo::CopySearchText>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPaste"sv))->UpCallback = pas::bind_method<&TfInfo::PasteSearchText>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M01Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch01Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M02Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch02Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M03Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch03Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M04Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch04Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M05Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch05Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M06Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch06Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M07Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch07Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch09Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M10Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch10Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch11Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch12Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch13Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15Clear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch15Filters>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12ButClear"sv))->UpCallback = pas::bind_method<&TfInfo::ClearSearch12Name>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12ButCopy"sv))->UpCallback = pas::bind_method<&TfInfo::CopySearch12Name>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12ButPaste"sv))->UpCallback = pas::bind_method<&TfInfo::PasteSearch12Name>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15ButCopy"sv))->UpCallback = pas::bind_method<&TfInfo::CopySearch15Name>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15ButPaste"sv))->UpCallback = pas::bind_method<&TfInfo::PasteSearch15Name>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S03"sv))->SetDown(true);
         this->MainPanel->RebuildMessageButtons(false);
         SearchMode = false;
         {
-            GI_GraphButton::TGraphButtonGI* ButSearch = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSearch"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButSearch = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSearch"sv));
             ButSearch->UpCallback = pas::bind_method<&TfInfo::ToggleSearchMode>(this);
             ButSearch->SetDisabled(SearchMode);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButNews = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButNews = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"sv));
             ButNews->UpCallback = pas::bind_method<&TfInfo::ToggleSearchMode>(this);
             ButNews->SetDisabled(static_cast<std::uint8_t>(SearchMode ^ 1));
         }
-        GetByName(u"PanelSearch"_wref.get())->SetActive(SearchMode);
+        GetByName(u"PanelSearch"sv)->SetActive(SearchMode);
         {
-            GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"_wref.get()));
+            GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"sv));
             BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase));
             if (BGCity2->Active) {
                 BGCity2->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(I)}));
@@ -290,12 +290,12 @@ namespace fInfo {
             }
         }
         {
-            GI_Image::TImageGI* BGCity = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity"_wref.get()));
+            GI_Image::TImageGI* BGCity = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity"sv));
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 BGCity->SetActive(true);
                 {
                     pas::WideString governmentBackgroundGraph = aPlayer::GetPlayer()->CurrentPlanet->GetGovernmentBackgroundGraph();
-                    GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(BGCity->FindByNameRecursive(u"BGCity"_wref.get()));
+                    GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(BGCity->FindByNameRecursive(u"BGCity"sv));
                     cpp_arg->SetImagePath(std::move(governmentBackgroundGraph));
                 }
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
@@ -315,11 +315,11 @@ namespace fInfo {
             }
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 15); cpp_range.next(I); ) {
-            GI_GraphButton::TGraphButtonGI* cpp_with_7 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"ButMM_", EC_Str::IntToFixedWidthWideString(I, 2)})));
+            GI_GraphButton::TGraphButtonGI* cpp_with_7 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"ButMM_", EC_Str::IntToFixedWidthWideString(I, 2)}))));
             cpp_with_7->StateChangedCallback = pas::bind_method<&TfInfo::CategoryStateChanged>(this);
             cpp_with_7->UpCallback = pas::bind_method<&TfInfo::CategoryClicked>(this);
         }
-        BindFilterLabels(GetByName(u"PanelInfo"_wref.get())->Parent);
+        BindFilterLabels(GetByName(u"PanelInfo"sv)->Parent);
         RefreshNewsAnimation(nullptr);
         SetFocusedControl(nullptr);
         ShowNews();
@@ -360,7 +360,7 @@ namespace fInfo {
             ++I;
         }
         {
-            GI_GAI::TgaiGI* TV = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TV"_wref.get()));
+            GI_GAI::TgaiGI* TV = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TV"sv));
             if (SearchMode) {
                 TV->SetFirstFrameImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), u"FindI"}));
                 TV->SetImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), u"FindA"}));
@@ -420,7 +420,7 @@ namespace fInfo {
 
     void TfInfo::ShipClicked(GI_MessageLoop::TObjectGI* Sender) {
         MainPanel->ShipClicked(Sender);
-        if (Globals::ShipScreen->Flag3BC) {
+        if (Globals::ShipScreen->ShipStateChanged) {
             MainPanel->RebuildMessageButtons(false);
             MainPanel->RefreshMoneyAndCargo();
         }
@@ -438,7 +438,7 @@ namespace fInfo {
         InfoPanel->VerticalScrollBar->SetRange(0, InfoPanel->VerticalScrollBar->Maximum);
         InfoPanel->VerticalScrollBar->SetActive(InfoPanel->ClientSize.Y < InfoContentHeight);
         {
-            std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(Globals::GovernmentScreen->GetByName(u"TalkText"_wref.get()))->GetLineHeight();
+            std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(Globals::GovernmentScreen->GetByName(u"TalkText"sv))->GetLineHeight();
             GI_ScrollBar::TScrollBarGI* verticalScrollBar = InfoPanel->VerticalScrollBar;
             verticalScrollBar->SetSmallChange(lineHeight);
         }
@@ -467,8 +467,8 @@ namespace fInfo {
     // LayoutKind zero centers the heading; nonzero aligns it to the right.
     void TfInfo::AddInfoHeading(pas::WideString Title, pas::WideString BookmarkText, std::int32_t LayoutKind, std::int32_t BookmarkIndex, std::int32_t GoodsReference) {
         GI_GraphButton::TGraphButtonGI* Button{};
-        Title = EC_Str::ReplaceAllWideString(Title, u"<color=255,240,100>"_wref.get(), u"<color=0,0,0>"_wref.get());
-        Title = EC_Str::ReplaceAllWideString(Title, u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"_wref.get());
+        Title = EC_Str::ReplaceAllWideString(Title, u"<color=255,240,100>"_wref.get(), u"<color=0,0,0>"sv);
+        Title = EC_Str::ReplaceAllWideString(Title, u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"sv);
         GI_Image::TImageGI* Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, InfoPanel);
         if (LayoutKind == 0) {
             Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(), u"CaptionL"}));
@@ -558,7 +558,7 @@ namespace fInfo {
     }
 
     void TfInfo::AddInfoText(pas::WideString Text, GI_Main::TTextAlignXGI Alignment, pas::WideString Font) {
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
         GI_Label::TLabelGI* Caption = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, InfoPanel);
         if (Font == u"") {
             if (GlobalsV::FontDialog == 0) {
@@ -585,7 +585,7 @@ namespace fInfo {
     }
 
     void TfInfo::AddInfoImageText(pas::WideString ImagePath, pas::WideString Text) {
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
         std::int32_t Size = GR_Main::GiScalePixels(64);
         GI_GraphBuf::TGraphBufGI* Image = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, InfoPanel, false);
         Image->SetPositionModeW(true);
@@ -614,7 +614,7 @@ namespace fInfo {
 
     void TfInfo::AddPlanetInfoText(aPlanet::TPlanet* Planet, pas::WideString Text) {
         GI_Image::TImageGI* Emblem{};
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
         std::int32_t Size = GR_Main::GiScalePixels(64);
         GI_GraphBuf::TGraphBufGI* Image = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, InfoPanel, false);
         Image->SetPositionModeW(true);
@@ -627,7 +627,7 @@ namespace fInfo {
         } else {
             Image->GraphBuf->RescaleRgba(System::Round(pas::real_divide(Image->ClientSize.Y, static_cast<std::uint32_t>(Image->GraphBuf->Height)) * static_cast<std::uint32_t>(Image->GraphBuf->Width)), Image->ClientSize.Y, 5);
         }
-        if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+        if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
             Emblem = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, InfoPanel);
             Emblem->SetPositionModeW(true);
             Emblem->SetImagePath(aConst::GetFactionEmblemPath(Planet->GetFactionResourceName()));
@@ -654,9 +654,9 @@ namespace fInfo {
 
     void TfInfo::AddItemInfoText(aItem::TItem* Item, pas::WideString Text) {
         GI_Image::TImageGI* Emblem{};
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=0,130,0>"_wref.get());
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,167,84>"_wref.get(), u"<color=240,100,30>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=0,130,0>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,167,84>"_wref.get(), u"<color=240,100,30>"sv);
         std::int32_t Size = GR_Main::GiScalePixels(64);
         GI_GraphBuf::TGraphBufGI* Image = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, InfoPanel, false);
         Image->SetPositionModeW(true);
@@ -709,14 +709,14 @@ namespace fInfo {
                 return aConst::OwnerInfo[aGalaxyStruct::oiUninhabited].InternalName;
             }
         };
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
         std::int32_t Size = GR_Main::GiScalePixels(64);
         GI_GraphBuf::TGraphBufGI* Image = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, InfoPanel, false);
         Image->SetPositionModeW(true);
         Image->SetPosition(ClassesImports::Point(0, InfoContentHeight));
         Image->SetSize(ClassesImports::Point(Size, Size));
         Image->SourceHasPerPixelAlpha = true;
-        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath, 1, u","_wref.get()), Image->GraphBuf);
+        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath), 1, u","sv), Image->GraphBuf);
         if (static_cast<std::uint32_t>(Image->GraphBuf->Width) >= static_cast<std::uint32_t>(Image->GraphBuf->Height)) {
             Image->GraphBuf->RescaleRgba(Image->ClientSize.X, System::Round(pas::real_divide(Image->ClientSize.X, static_cast<std::uint32_t>(Image->GraphBuf->Width)) * static_cast<std::uint32_t>(Image->GraphBuf->Height)), 5);
         } else {
@@ -750,36 +750,36 @@ namespace fInfo {
     void TfInfo::FocusSearchField(std::uint8_t Force) {
         if (SearchMode) {
             if (SelectedSearchCategory == 0) {
-                SetFocusedControl(GetByName(u"TextSearch"_wref.get()));
+                SetFocusedControl(GetByName(u"TextSearch"sv));
             } else if (FocusedControl == nullptr || Force) {
                 if (SelectedSearchCategory == 1) {
-                    SetFocusedControl(GetByName(u"M01Speed"_wref.get()));
+                    SetFocusedControl(GetByName(u"M01Speed"sv));
                 } else if (SelectedSearchCategory == 2) {
-                    SetFocusedControl(GetByName(u"M02Capacity"_wref.get()));
+                    SetFocusedControl(GetByName(u"M02Capacity"sv));
                 } else if (SelectedSearchCategory == 3) {
-                    SetFocusedControl(GetByName(u"M03Range"_wref.get()));
+                    SetFocusedControl(GetByName(u"M03Range"sv));
                 } else if (SelectedSearchCategory == 4) {
-                    SetFocusedControl(GetByName(u"M04Power"_wref.get()));
+                    SetFocusedControl(GetByName(u"M04Power"sv));
                 } else if (SelectedSearchCategory == 5) {
-                    SetFocusedControl(GetByName(u"M05Power"_wref.get()));
+                    SetFocusedControl(GetByName(u"M05Power"sv));
                 } else if (SelectedSearchCategory == 6) {
-                    SetFocusedControl(GetByName(u"M06ObjSize"_wref.get()));
+                    SetFocusedControl(GetByName(u"M06ObjSize"sv));
                 } else if (SelectedSearchCategory == 7) {
-                    SetFocusedControl(GetByName(u"M07Block"_wref.get()));
+                    SetFocusedControl(GetByName(u"M07Block"sv));
                 } else if (SelectedSearchCategory == 8) {
-                    SetFocusedControl(GetByName(u"M08Range"_wref.get()));
+                    SetFocusedControl(GetByName(u"M08Range"sv));
                 } else if (SelectedSearchCategory == 9) {
-                    SetFocusedControl(GetByName(u"M09Const"_wref.get()));
+                    SetFocusedControl(GetByName(u"M09Const"sv));
                 } else if (SelectedSearchCategory == 10) {
-                    SetFocusedControl(GetByName(u"M10Const"_wref.get()));
+                    SetFocusedControl(GetByName(u"M10Const"sv));
                 } else if (SelectedSearchCategory == 11) {
-                    SetFocusedControl(GetByName(u"M11Size"_wref.get()));
+                    SetFocusedControl(GetByName(u"M11Size"sv));
                 } else if (SelectedSearchCategory == 12) {
-                    SetFocusedControl(GetByName(u"M12DamageMin"_wref.get()));
+                    SetFocusedControl(GetByName(u"M12DamageMin"sv));
                 } else if (SelectedSearchCategory == 13) {
-                    SetFocusedControl(GetByName(u"M13Range"_wref.get()));
+                    SetFocusedControl(GetByName(u"M13Range"sv));
                 } else if (SelectedSearchCategory == 15) {
-                    SetFocusedControl(GetByName(u"M15Const"_wref.get()));
+                    SetFocusedControl(GetByName(u"M15Const"sv));
                 }
             }
         } else {
@@ -790,9 +790,9 @@ namespace fInfo {
     void TfInfo::ToggleSearchMode(GI_MessageLoop::TObjectGI* Sender) {
         SearchMode = static_cast<std::uint8_t>(SearchMode ^ 1);
         RefreshNewsAnimation(nullptr);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSearch"_wref.get()))->SetDisabled(SearchMode);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"_wref.get()))->SetDisabled(static_cast<std::uint8_t>(SearchMode ^ 1));
-        GetByName(u"PanelSearch"_wref.get())->SetActive(SearchMode);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButSearch"sv))->SetDisabled(SearchMode);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"sv))->SetDisabled(static_cast<std::uint8_t>(SearchMode ^ 1));
+        GetByName(u"PanelSearch"sv)->SetActive(SearchMode);
         FocusSearchField(true);
         if (!SearchMode) {
             ShowNews();
@@ -865,7 +865,7 @@ namespace fInfo {
                     InfoPanel->SetScrollOffset(ClassesImports::Point(0, 0));
                 }
             } else if (Key == WindowsSdk::VK_SPACE) {
-                if (static_cast<std::uint8_t>(SearchMode ^ 1) && GetByName(u"PM_EndTurn"_wref.get())->Active) {
+                if (static_cast<std::uint8_t>(SearchMode ^ 1) && GetByName(u"PM_EndTurn"sv)->Active) {
                     EndTurnClicked(nullptr);
                 }
             } else if (Key == WindowsSdk::VK_RETURN && SearchMode) {
@@ -919,9 +919,9 @@ namespace fInfo {
             return;
         }
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
-            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
@@ -934,9 +934,9 @@ namespace fInfo {
                 return;
             }
             if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName, u"Pirate"}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         }
     }
@@ -948,15 +948,15 @@ namespace fInfo {
         InfoPanel->SetActive(true);
         InfoPanel->VerticalScrollBar->SetActive(true);
         {
-            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"sv));
             ButPrev->SetActive(false);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"sv));
             ButNext->SetActive(false);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 15); cpp_range.next(I); ) {
-            GI_MessageLoop::TObjectGI* cpp_with_3 = GetByName(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)}));
+            GI_MessageLoop::TObjectGI* cpp_with_3 = GetByName(pas::view(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)})));
             cpp_with_3->SetActive(false);
         }
         ClearInfoContents();
@@ -965,8 +965,8 @@ namespace fInfo {
             Entry = pas::list_at<aGalaxyStruct::TPlanetNews>(aGalaxy::Galaxy->PlanetNews, I);
             // Native retains this empty local string in the heading expression.
             {
-                pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), u"<color=255,240,100>"_w), u"\r\n", u" ", u"\r\n", Entry->Text});
-                pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), Source}), u"<color=255,240,100>"_w);
+                pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(aGalaxy::Galaxy->FormatTurnDate(Entry->Turn)), u"<color=255,240,100>"sv), u"\r\n", u" ", u"\r\n", Entry->Text});
+                pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), Source})), u"<color=255,240,100>"sv);
                 AddInfoHeading(std::move(wrapTextInColor), std::move(cpp_arg), 1, 0, 0);
             }
             AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
@@ -985,30 +985,30 @@ namespace fInfo {
         InfoPanel->SetActive(false);
         InfoPanel->VerticalScrollBar->SetActive(false);
         {
-            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"sv));
             ButPrev->UpCallback = pas::bind_method<&TfInfo::CategoryClicked>(this);
             ButPrev->SetActive(true);
             ButPrev->SetDisabled(true);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"sv));
             ButNext->UpCallback = pas::bind_method<&TfInfo::NextSearchPageClicked>(this);
             ButNext->SetActive(true);
             ButNext->SetDisabled(true);
         }
-        GetByName(u"PanelSearch"_wref.get())->SetActive(true);
+        GetByName(u"PanelSearch"sv)->SetActive(true);
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 15); cpp_range.next(I); ) {
             {
-                GI_MessageLoop::TObjectGI* cpp_with_3 = GetByName(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)}));
+                GI_MessageLoop::TObjectGI* cpp_with_3 = GetByName(pas::view(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)})));
                 cpp_with_3->SetActive(false);
             }
             if (I != 14) {
-                GI_GraphButton::TGraphButtonGI* cpp_with_4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(I, 2), u"Search"})));
+                GI_GraphButton::TGraphButtonGI* cpp_with_4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(I, 2), u"Search"}))));
                 cpp_with_4->UpCallback = pas::bind_method<&TfInfo::SearchClicked>(this);
             }
         }
-        GetByName(u"ImgMM_C1"_wref.get())->SetActive(false);
-        GetByName(u"ImgMM_C2"_wref.get())->SetActive(false);
+        GetByName(u"ImgMM_C1"sv)->SetActive(false);
+        GetByName(u"ImgMM_C2"sv)->SetActive(false);
         ClearInfoContents();
         FinishInfoLayout();
     }
@@ -1097,57 +1097,57 @@ namespace fInfo {
             std::int32_t EffectiveRange{};
             aItem::PExtraSpecial Entry{};
             if (this->SelectedSearchCategory == 1) {
-                if (pas::class_cast_if<aItem::TEngine*>(Value) != nullptr) {
-                    Engine = pas::checked_cast<aItem::TEngine*>(Value);
+                if (aItem::TEngine* engine = pas::class_cast_if<aItem::TEngine*>(Value)) {
+                    Engine = engine;
                     if ((MinSpeed == 0 || MinSpeed <= Engine->Speed) && (RangeFilter == 0 || Engine->JumpRange >= RangeFilter) && (SizeFilter == 0 || SizeFilter >= Engine->Weight) && (MaxCost == 0 || Engine->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Engine->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 2) {
-                if (pas::class_cast_if<aItem::TFuelTanks*>(Value) != nullptr) {
-                    Fuel = pas::checked_cast<aItem::TFuelTanks*>(Value);
+                if (aItem::TFuelTanks* fuelTanks = pas::class_cast_if<aItem::TFuelTanks*>(Value)) {
+                    Fuel = fuelTanks;
                     if ((MinFuel == 0 || Fuel->Capacity >= MinFuel) && (SizeFilter == 0 || Fuel->Weight <= SizeFilter) && (MaxCost == 0 || Fuel->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Fuel->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 3) {
-                if (pas::class_cast_if<aItem::TRadar*>(Value) != nullptr) {
-                    Radar = pas::checked_cast<aItem::TRadar*>(Value);
+                if (aItem::TRadar* radar = pas::class_cast_if<aItem::TRadar*>(Value)) {
+                    Radar = radar;
                     if ((RangeFilter == 0 || Radar->Range >= RangeFilter) && (SizeFilter == 0 || Radar->Weight <= SizeFilter) && (MaxCost == 0 || Radar->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Radar->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 4) {
-                if (pas::class_cast_if<aItem::TScaner*>(Value) != nullptr) {
-                    Scanner = pas::checked_cast<aItem::TScaner*>(Value);
+                if (aItem::TScaner* scaner = pas::class_cast_if<aItem::TScaner*>(Value)) {
+                    Scanner = scaner;
                     if ((MinPower == 0 || Scanner->ScanPower >= MinPower) && (SizeFilter == 0 || Scanner->Weight <= SizeFilter) && (MaxCost == 0 || Scanner->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Scanner->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 5) {
-                if (pas::class_cast_if<aItem::TRepairRobot*>(Value) != nullptr) {
-                    Droid = pas::checked_cast<aItem::TRepairRobot*>(Value);
+                if (aItem::TRepairRobot* repairRobot = pas::class_cast_if<aItem::TRepairRobot*>(Value)) {
+                    Droid = repairRobot;
                     if ((MinPower == 0 || Droid->RepairPoints >= MinPower) && (SizeFilter == 0 || Droid->Weight <= SizeFilter) && (MaxCost == 0 || Droid->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Droid->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 6) {
-                if (pas::class_cast_if<aItem::TCargoHook*>(Value) != nullptr) {
-                    Hook = pas::checked_cast<aItem::TCargoHook*>(Value);
+                if (aItem::TCargoHook* cargoHook = pas::class_cast_if<aItem::TCargoHook*>(Value)) {
+                    Hook = cargoHook;
                     if ((MinPickup == 0 || Hook->PickupPower >= MinPickup) && (SizeFilter == 0 || Hook->Weight <= SizeFilter) && (MaxCost == 0 || Hook->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Hook->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 7) {
-                if (pas::class_cast_if<aItem::TDefGenerator*>(Value) != nullptr) {
-                    Defense = pas::checked_cast<aItem::TDefGenerator*>(Value);
-                    if ((MinDefense == 0 || (aItem::DefenseDamageFactorToPercent(Defense->DamageFactor) & 0x0000007f) >= MinDefense) && (SizeFilter == 0 || Defense->Weight <= SizeFilter) && (MaxCost == 0 || Defense->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Defense->OwnerId)) {
+                if (aItem::TDefGenerator* defGenerator = pas::class_cast_if<aItem::TDefGenerator*>(Value)) {
+                    Defense = defGenerator;
+                    if ((MinDefense == 0 || aItem::DefenseDamageFactorToPercent(Defense->DamageFactor) >= MinDefense) && (SizeFilter == 0 || Defense->Weight <= SizeFilter) && (MaxCost == 0 || Defense->GetConditionAdjustedCost() <= MaxCost) && pas::contains(Owners, Defense->OwnerId)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 8) {
-                if (pas::class_cast_if<aGalaxy::TStar*>(Value) != nullptr) {
-                    CandidateStar = pas::checked_cast<aGalaxy::TStar*>(Value);
+                if (aGalaxy::TStar* star = pas::class_cast_if<aGalaxy::TStar*>(Value)) {
+                    CandidateStar = star;
                     if (CandidateStar->Status.ControlFaction == aGalaxyStruct::sfDominators && static_cast<std::uint8_t>(IncludeDominators ^ 1)) {
                         return;
                     }
@@ -1166,21 +1166,21 @@ namespace fInfo {
                     fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                 }
             } else if (this->SelectedSearchCategory == 9) {
-                if (pas::class_cast_if<aPlanet::TPlanet*>(Value) != nullptr) {
-                    CandidatePlanet = pas::checked_cast<aPlanet::TPlanet*>(Value);
-                    if (CandidatePlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && CandidatePlanet->CurrentStar->Status.CustomFaction == u"" && static_cast<std::uint8_t>(IncludeDominators ^ 1)) {
+                if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Value)) {
+                    CandidatePlanet = planet;
+                    if (CandidatePlanet->OwnerId == aGalaxyStruct::oiDominator && CandidatePlanet->CurrentStar->Status.CustomFaction == u"" && static_cast<std::uint8_t>(IncludeDominators ^ 1)) {
                         return;
                     }
-                    if (pas::in_set<0, 4, 7, 7>(CandidatePlanet->OwnerId) && CandidatePlanet->CurrentStar->Status.CustomFaction == u"" && static_cast<std::uint8_t>(IncludeCoalition ^ 1)) {
+                    if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(CandidatePlanet->OwnerId) && CandidatePlanet->CurrentStar->Status.CustomFaction == u"" && static_cast<std::uint8_t>(IncludeCoalition ^ 1)) {
                         return;
                     }
                     if (CandidatePlanet->CurrentStar->Status.CustomFaction != u"" && (static_cast<std::uint8_t>(IncludeDominators ^ 1) || static_cast<std::uint8_t>(IncludeCoalition ^ 1))) {
                         return;
                     }
-                    if (CandidatePlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && static_cast<std::uint8_t>(IncludeUninhabited ^ 1)) {
+                    if (CandidatePlanet->OwnerId == aGalaxyStruct::oiUninhabited && static_cast<std::uint8_t>(IncludeUninhabited ^ 1)) {
                         return;
                     }
-                    if (CandidatePlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && CandidatePlanet->CurrentStar->Status.CustomFaction == u"" && pas::contains(Owners, CandidatePlanet->OwnerId) && IncludeCoalition || pas::contains(Owners, aConst::RaceToOwner(CandidatePlanet->RaceId)) || CandidatePlanet->CurrentStar->Status.CustomFaction != u"" || static_cast<std::uint8_t>(IncludeDominators ^ 1) && static_cast<std::uint8_t>(IncludeCoalition ^ 1)) {
+                    if (CandidatePlanet->OwnerId == aGalaxyStruct::oiPirate && CandidatePlanet->CurrentStar->Status.CustomFaction == u"" && pas::contains(Owners, CandidatePlanet->OwnerId) && IncludeCoalition || pas::contains(Owners, aConst::RaceToOwner(CandidatePlanet->RaceId)) || CandidatePlanet->CurrentStar->Status.CustomFaction != u"" || static_cast<std::uint8_t>(IncludeDominators ^ 1) && static_cast<std::uint8_t>(IncludeCoalition ^ 1)) {
                         if (RangeFilter != 0 && RangeFilter < System::Round(aMyFunction::PointDistance(CandidatePlanet->CurrentStar->Position, aPlayer::GetPlayer()->CurrentStar->Position))) {
                             return;
                         }
@@ -1202,8 +1202,8 @@ namespace fInfo {
                     }
                 }
             } else if (this->SelectedSearchCategory == 10) {
-                if (pas::class_cast_if<aRuins::TRuins*>(Value) != nullptr) {
-                    CandidateStation = pas::checked_cast<aRuins::TRuins*>(Value);
+                if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Value)) {
+                    CandidateStation = ruins;
                     if (CandidateStation->TypeNameOverrideKey != u"") {
                         if (StationTypes != pas::constant_set<aGalaxyStruct::TShipTypeMask>({})) {
                             return;
@@ -1211,7 +1211,7 @@ namespace fInfo {
                     } else if (!pas::contains(StationTypes, CandidateStation->TypeId)) {
                         return;
                     }
-                    if (CandidateStation->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+                    if (CandidateStation->OwnerId == aGalaxyStruct::oiDominator) {
                         return;
                     }
                     if (CandidateStation->HasIndependentScriptFaction()) {
@@ -1237,15 +1237,15 @@ namespace fInfo {
                     fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                 }
             } else if (this->SelectedSearchCategory == 11) {
-                if (pas::class_cast_if<aItem::THull*>(Value) != nullptr) {
-                    Hull = pas::checked_cast<aItem::THull*>(Value);
+                if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Value)) {
+                    Hull = hull;
                     if (pas::contains(Owners, Hull->OwnerId) && (Hull->HullType != aGalaxyStruct::htRanger || IncludeRangerType) && (Hull->HullType != aGalaxyStruct::htWarrior || IncludeWarriorType) && (Hull->HullType != aGalaxyStruct::htPirate || IncludePirateType) && (Hull->HullType != aGalaxyStruct::htTransport || IncludeTransportType) && (Hull->HullType != aGalaxyStruct::htLiner || IncludeLinerType) && (Hull->HullType != aGalaxyStruct::htDiplomat || IncludeDiplomatType) && (SizeFilter == 0 || Hull->Weight >= SizeFilter) && (MinArmor == 0 || Hull->Armor >= MinArmor) && (MaxCost == 0 || Hull->GetConditionAdjustedCost() <= MaxCost) && (WeaponSlots == 0 || Hull->GetSlotCount(aConst::sskWeapon) >= WeaponSlots) && (ScannerSlots == 0 || Hull->GetSlotCount(aConst::sskScanner) >= ScannerSlots) && (RadarSlots == 0 || Hull->GetSlotCount(aConst::sskRadar) >= RadarSlots) && (DroidSlots == 0 || Hull->GetSlotCount(aConst::sskRepairRobot) >= DroidSlots) && (HookSlots == 0 || Hull->GetSlotCount(aConst::sskCargoHook) >= HookSlots) && (DefenseSlots == 0 || Hull->GetSlotCount(aConst::sskDefGenerator) >= DefenseSlots) && (ArtifactSlots == 0 || Hull->GetSlotCount(aConst::sskArtefact) >= ArtifactSlots) && (AfterburnerSlots == 0 || Hull->GetSlotCount(aConst::sskAfterburner) >= AfterburnerSlots)) {
                         fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                     }
                 }
             } else if (this->SelectedSearchCategory == 12) {
-                if (pas::class_cast_if<aItem::TWeapon*>(Value) != nullptr) {
-                    Weapon = pas::checked_cast<aItem::TWeapon*>(Value);
+                if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Value)) {
+                    Weapon = weapon;
                     if (!pas::contains(Owners, Weapon->OwnerId)) {
                         return;
                     }
@@ -1254,7 +1254,7 @@ namespace fInfo {
                         if (Weapon->ExtraSpecials != nullptr) {
                             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Weapon->ExtraSpecials) - 1); cpp_range.next(I); ) {
                                 Entry = pas::list_at<aItem::TExtraSpecial>(Weapon->ExtraSpecials, I);
-                                EffectiveRange += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t))) * Entry->Count;
+                                EffectiveRange += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonWRadius] * Entry->Count;
                             }
                         }
                         if (pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
@@ -1297,11 +1297,11 @@ namespace fInfo {
                     fInfo::AddInfoSearchResult(Value, this, Ship, ResultCount, Shown, Found, Station, Description, Heading, Planet, Star, Bearing);
                 }
             } else if (this->SelectedSearchCategory == 15) {
-                if (pas::class_cast_if<aShip::TShip*>(Value) != nullptr) {
-                    CandidateShip = pas::checked_cast<aShip::TShip*>(Value);
+                if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Value)) {
+                    CandidateShip = ship;
                     // The native category tests these four TypeId values and the six
                     // checkbox slots directly, including their historical UI mapping.
-                    if (pas::contains(Owners, CandidateShip->OwnerId) && (pas::contains(Owners, aConst::RaceToOwner(CandidateShip->PilotRace)) || Owners == pas::constant_set<aGalaxyStruct::TOwnerMask>({{7}})) && static_cast<std::uint8_t>(CandidateShip->HasScriptStateText() ^ 1) && pas::in_range(CandidateShip->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior) && (CandidateShip->TypeNameOverrideKey == u"" || IncludeRangerType && IncludeWarriorType && IncludePirateType && IncludeTransportType && IncludeLinerType && IncludeDiplomatType) && (CandidateShip->TypeId != aGalaxyStruct::stRanger || IncludeRangerType) && (CandidateShip->TypeId != aGalaxyStruct::stWarrior || IncludeWarriorType) && (CandidateShip->TypeId != aGalaxyStruct::stPirate || IncludePirateType) && (CandidateShip->TypeId != aGalaxyStruct::stTransport || pas::checked_cast<aTransport::TTransport*>(CandidateShip)->TransportType != aTransport::ttTransport || IncludeTransportType) && (CandidateShip->TypeId != aGalaxyStruct::stTransport || pas::checked_cast<aTransport::TTransport*>(CandidateShip)->TransportType != aTransport::ttLiner || IncludeLinerType) && (CandidateShip->TypeId != aGalaxyStruct::stTransport || pas::checked_cast<aTransport::TTransport*>(CandidateShip)->TransportType != aTransport::ttDiplomat || IncludeDiplomatType) && (ConstellationFilter == u"" || ([&] {
+                    if (pas::contains(Owners, CandidateShip->OwnerId) && (pas::contains(Owners, aConst::RaceToOwner(CandidateShip->PilotRace)) || Owners == pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPirate}})) && static_cast<std::uint8_t>(CandidateShip->HasScriptStateText() ^ 1) && pas::in_range(CandidateShip->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior) && (CandidateShip->TypeNameOverrideKey == u"" || IncludeRangerType && IncludeWarriorType && IncludePirateType && IncludeTransportType && IncludeLinerType && IncludeDiplomatType) && (CandidateShip->TypeId != aGalaxyStruct::stRanger || IncludeRangerType) && (CandidateShip->TypeId != aGalaxyStruct::stWarrior || IncludeWarriorType) && (CandidateShip->TypeId != aGalaxyStruct::stPirate || IncludePirateType) && (CandidateShip->TypeId != aGalaxyStruct::stTransport || pas::checked_cast<aTransport::TTransport*>(CandidateShip)->TransportType != aTransport::ttTransport || IncludeTransportType) && (CandidateShip->TypeId != aGalaxyStruct::stTransport || pas::checked_cast<aTransport::TTransport*>(CandidateShip)->TransportType != aTransport::ttLiner || IncludeLinerType) && (CandidateShip->TypeId != aGalaxyStruct::stTransport || pas::checked_cast<aTransport::TTransport*>(CandidateShip)->TransportType != aTransport::ttDiplomat || IncludeDiplomatType) && (ConstellationFilter == u"" || ([&] {
                         const pas::WideString& wideLowerCase_5 = SysUtilsImports::WideLowerCase(CandidateShip->CurrentStar->Constellation->GetName());
                         const pas::WideString& constellationFilter_3 = ConstellationFilter;
                         return fInfo::FindLowercaseInfoText(constellationFilter_3, wideLowerCase_5);
@@ -1326,45 +1326,45 @@ namespace fInfo {
         // Nested in RunSearch; captures the owner filter set.
         auto ReadInfoSearchOwners = [&](std::int32_t Category) -> void {
             Owners = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
-            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Maloc"})))->Down) {
+            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Maloc"}))))->Down) {
                 pas::include_at(&Owners, aGalaxyStruct::oiMaloc);
             }
-            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Peleng"})))->Down) {
+            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Peleng"}))))->Down) {
                 pas::include_at(&Owners, aGalaxyStruct::oiPeleng);
             }
-            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"People"})))->Down) {
+            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"People"}))))->Down) {
                 pas::include_at(&Owners, aGalaxyStruct::oiHuman);
             }
-            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Fei"})))->Down) {
+            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Fei"}))))->Down) {
                 pas::include_at(&Owners, aGalaxyStruct::oiFeyan);
             }
-            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Gaal"})))->Down) {
+            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Gaal"}))))->Down) {
                 pas::include_at(&Owners, aGalaxyStruct::oiGaal);
             }
             if (FindControlByPath(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Pirate"})) != nullptr) {
-                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Pirate"})))->Down) {
+                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"M", EC_Str::IntToFixedWidthWideString(Category, 2), u"Pirate"}))))->Down) {
                     pas::include_at(&Owners, aGalaxyStruct::oiPirate);
                 }
             }
             if (Owners == pas::constant_set<aGalaxyStruct::TOwnerMask>({})) {
-                Owners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{7}});
+                Owners = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPirate}});
             }
         };
         PreviousSearchCategory = SelectedSearchCategory;
         HasSearchResults = true;
         InfoPanel->SetActive(true);
         InfoPanel->VerticalScrollBar->SetActive(true);
-        GetByName(u"PanelSearch"_wref.get())->SetActive(false);
+        GetByName(u"PanelSearch"sv)->SetActive(false);
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 15); cpp_range.next(I); ) {
-            GI_MessageLoop::TObjectGI* cpp_with = GetByName(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)}));
+            GI_MessageLoop::TObjectGI* cpp_with = GetByName(pas::view(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)})));
             cpp_with->SetActive(false);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"sv));
             ButPrev->SetDisabled(false);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"sv));
             ButNext->SetDisabled(true);
         }
         if (aPlayer::GetPlayer()->Money < 3) {
@@ -1387,62 +1387,62 @@ namespace fInfo {
             ResultCount = 0;
             ClearInfoContents();
             AddInfoSpacing(10);
-            SearchText = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"_wref.get()))->Text));
+            SearchText = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"sv))->Text));
             if (SearchText == u"") {
                 SearchText = u"   "_w;
             }
             if (SelectedSearchCategory == 1) {
-                MinSpeed = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Speed"_wref.get()))->Text);
-                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Range"_wref.get()))->Text);
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Cost"_wref.get()))->Text);
+                MinSpeed = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Speed"sv))->Text));
+                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Range"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M01Cost"sv))->Text));
                 ReadInfoSearchOwners(1);
             } else if (SelectedSearchCategory == 2) {
-                MinFuel = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M02Capacity"_wref.get()))->Text);
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M02Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M02Cost"_wref.get()))->Text);
+                MinFuel = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M02Capacity"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M02Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M02Cost"sv))->Text));
                 ReadInfoSearchOwners(2);
             } else if (SelectedSearchCategory == 3) {
-                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M03Range"_wref.get()))->Text);
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M03Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M03Cost"_wref.get()))->Text);
+                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M03Range"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M03Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M03Cost"sv))->Text));
                 ReadInfoSearchOwners(3);
             } else if (SelectedSearchCategory == 4) {
-                MinPower = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M04Power"_wref.get()))->Text);
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M04Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M04Cost"_wref.get()))->Text);
+                MinPower = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M04Power"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M04Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M04Cost"sv))->Text));
                 ReadInfoSearchOwners(4);
             } else if (SelectedSearchCategory == 5) {
-                MinPower = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M05Power"_wref.get()))->Text);
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M05Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M05Cost"_wref.get()))->Text);
+                MinPower = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M05Power"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M05Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M05Cost"sv))->Text));
                 ReadInfoSearchOwners(5);
             } else if (SelectedSearchCategory == 6) {
-                MinPickup = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M06ObjSize"_wref.get()))->Text);
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M06Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M06Cost"_wref.get()))->Text);
+                MinPickup = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M06ObjSize"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M06Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M06Cost"sv))->Text));
                 ReadInfoSearchOwners(6);
             } else if (SelectedSearchCategory == 7) {
-                MinDefense = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M07Block"_wref.get()))->Text);
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M07Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M07Cost"_wref.get()))->Text);
+                MinDefense = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M07Block"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M07Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M07Cost"sv))->Text));
                 ReadInfoSearchOwners(7);
             } else if (SelectedSearchCategory == 8) {
-                IncludeCoalition = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M08CtrlCol"_wref.get()))->Down;
-                IncludeDominators = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M08CtrlDom"_wref.get()))->Down;
-                IncludePirates = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M08CtrlPirate"_wref.get()))->Down;
-                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M08Range"_wref.get()))->Text);
+                IncludeCoalition = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M08CtrlCol"sv))->Down;
+                IncludeDominators = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M08CtrlDom"sv))->Down;
+                IncludePirates = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M08CtrlPirate"sv))->Down;
+                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M08Range"sv))->Text));
             } else if (SelectedSearchCategory == 9) {
-                ConstellationFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M09Const"_wref.get()))->Text));
-                StarFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M09Star"_wref.get()))->Text));
-                IncludeCoalition = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09CtrlCol"_wref.get()))->Down;
-                IncludeDominators = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09CtrlDom"_wref.get()))->Down;
-                IncludeUninhabited = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09CtrlNo"_wref.get()))->Down;
-                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M09Range"_wref.get()))->Text);
+                ConstellationFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M09Const"sv))->Text));
+                StarFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M09Star"sv))->Text));
+                IncludeCoalition = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09CtrlCol"sv))->Down;
+                IncludeDominators = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09CtrlDom"sv))->Down;
+                IncludeUninhabited = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M09CtrlNo"sv))->Down;
+                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M09Range"sv))->Text));
                 ReadInfoSearchOwners(9);
             } else if (SelectedSearchCategory == 10) {
-                ConstellationFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M10Const"_wref.get()))->Text));
-                StarFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M10Star"_wref.get()))->Text));
+                ConstellationFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M10Const"sv))->Text));
+                StarFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M10Star"sv))->Text));
                 StationTypes = pas::constant_set<aGalaxyStruct::TShipTypeMask>({});
                 for (auto cpp_range_2 = pas::for_to<std::uint8_t>(aGalaxyStruct::rstRangerCenter, aGalaxyStruct::rstDominion); cpp_range_2.next(StationType); ) {
                     Control = FindControlByPath(pas::concat_wide({u"M10Type", aConst::ShipTypeNames[StationType].Name}));
@@ -1450,64 +1450,64 @@ namespace fInfo {
                         pas::include_at(&StationTypes, StationType);
                     }
                 }
-                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M10Range"_wref.get()))->Text);
+                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M10Range"sv))->Text));
             } else if (SelectedSearchCategory == 11) {
-                IncludeRangerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeRanger"_wref.get()))->Down;
-                IncludeWarriorType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeWarrior"_wref.get()))->Down;
-                IncludePirateType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypePirat"_wref.get()))->Down;
-                IncludeTransportType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeTransport"_wref.get()))->Down;
-                IncludeLinerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeLiner"_wref.get()))->Down;
-                IncludeDiplomatType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeDiplomat"_wref.get()))->Down;
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M11Size"_wref.get()))->Text);
-                MinArmor = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M11Def"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M11Cost"_wref.get()))->Text);
+                IncludeRangerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeRanger"sv))->Down;
+                IncludeWarriorType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeWarrior"sv))->Down;
+                IncludePirateType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypePirat"sv))->Down;
+                IncludeTransportType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeTransport"sv))->Down;
+                IncludeLinerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeLiner"sv))->Down;
+                IncludeDiplomatType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11TypeDiplomat"sv))->Down;
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M11Size"sv))->Text));
+                MinArmor = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M11Def"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M11Cost"sv))->Text));
                 WeaponSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S01"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S01"sv))->Down) {
                     ++WeaponSlots;
                 }
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S02"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S02"sv))->Down) {
                     ++WeaponSlots;
                 }
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S03"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S03"sv))->Down) {
                     ++WeaponSlots;
                 }
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S04"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S04"sv))->Down) {
                     ++WeaponSlots;
                 }
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S05"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S05"sv))->Down) {
                     ++WeaponSlots;
                 }
                 ScannerSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S08"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S08"sv))->Down) {
                     ++ScannerSlots;
                 }
                 RadarSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S09"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S09"sv))->Down) {
                     ++RadarSlots;
                 }
                 DroidSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S10"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S10"sv))->Down) {
                     ++DroidSlots;
                 }
                 HookSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S11"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S11"sv))->Down) {
                     ++HookSlots;
                 }
                 DefenseSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S12"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S12"sv))->Down) {
                     ++DefenseSlots;
                 }
                 ArtifactSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S13"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S13"sv))->Down) {
                     ++ArtifactSlots;
                 }
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S14"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S14"sv))->Down) {
                     ++ArtifactSlots;
                 }
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S15"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S15"sv))->Down) {
                     ++ArtifactSlots;
                 }
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S16"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S16"sv))->Down) {
                     ++ArtifactSlots;
                 }
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(18, aConst::DefaultHullSlotCounts[aConst::sskArtefact] + 13); cpp_range_3.next(I); ) {
@@ -1517,34 +1517,34 @@ namespace fInfo {
                     }
                 }
                 AfterburnerSlots = 0;
-                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S17"_wref.get()))->Down) {
+                if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M11S17"sv))->Down) {
                     ++AfterburnerSlots;
                 }
                 ReadInfoSearchOwners(11);
             } else if (SelectedSearchCategory == 12) {
-                MinDamage = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12DamageMin"_wref.get()))->Text);
-                MaxDamage = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12DamageMax"_wref.get()))->Text);
-                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Range"_wref.get()))->Text);
-                NameFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"_wref.get()))->Text));
-                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Size"_wref.get()))->Text);
-                MaxCost = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Cost"_wref.get()))->Text);
-                IncludeEnergy = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12TypeEne"_wref.get()))->Down;
-                IncludeSplinter = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12TypeOsk"_wref.get()))->Down;
-                IncludeMissile = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12TypeRak"_wref.get()))->Down;
+                MinDamage = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12DamageMin"sv))->Text));
+                MaxDamage = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12DamageMax"sv))->Text));
+                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Range"sv))->Text));
+                NameFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"sv))->Text));
+                SizeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Size"sv))->Text));
+                MaxCost = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Cost"sv))->Text));
+                IncludeEnergy = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12TypeEne"sv))->Down;
+                IncludeSplinter = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12TypeOsk"sv))->Down;
+                IncludeMissile = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M12TypeRak"sv))->Down;
                 ReadInfoSearchOwners(12);
             } else if (SelectedSearchCategory == 13) {
-                MinGoodsCount = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13Cnt"_wref.get()))->Text);
-                MinSellPrice = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13PriceBuy"_wref.get()))->Text);
-                MaxBuyPrice = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13PriceSell"_wref.get()))->Text);
-                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13Range"_wref.get()))->Text);
-                GoodsSelected[0] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods0"_wref.get()))->Down ^ 1);
-                GoodsSelected[1] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods1"_wref.get()))->Down ^ 1);
-                GoodsSelected[5] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods2"_wref.get()))->Down ^ 1);
-                GoodsSelected[4] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods3"_wref.get()))->Down ^ 1);
-                GoodsSelected[3] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods4"_wref.get()))->Down ^ 1);
-                GoodsSelected[2] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods5"_wref.get()))->Down ^ 1);
-                GoodsSelected[6] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods6"_wref.get()))->Down ^ 1);
-                GoodsSelected[7] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods7"_wref.get()))->Down ^ 1);
+                MinGoodsCount = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13Cnt"sv))->Text));
+                MinSellPrice = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13PriceBuy"sv))->Text));
+                MaxBuyPrice = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13PriceSell"sv))->Text));
+                RangeFilter = EC_Str::ExtractDigitsToIntW(pas::view(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M13Range"sv))->Text));
+                GoodsSelected[0] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods0"sv))->Down ^ 1);
+                GoodsSelected[1] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods1"sv))->Down ^ 1);
+                GoodsSelected[5] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods2"sv))->Down ^ 1);
+                GoodsSelected[4] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods3"sv))->Down ^ 1);
+                GoodsSelected[3] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods4"sv))->Down ^ 1);
+                GoodsSelected[2] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods5"sv))->Down ^ 1);
+                GoodsSelected[6] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods6"sv))->Down ^ 1);
+                GoodsSelected[7] = static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M13Goods7"sv))->Down ^ 1);
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_4.next(I); ) {
                     if (ResultCount >= TfInfo::GetSearchResultLimit()) {
                         break;
@@ -1562,22 +1562,22 @@ namespace fInfo {
                                 break;
                             }
                             Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, Index);
-                            if (pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
+                            if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
                                 Heading = pas::WideString();
                                 for (GoodsIndex = static_cast<std::uint8_t>(0); GoodsIndex <= static_cast<std::uint8_t>(7); ++GoodsIndex) {
                                     Good = aConst::GoodsTextOrder[GoodsIndex];
                                     if ((MinGoodsCount == 0 || Planet->Goods[Good].Count >= MinGoodsCount) && GoodsSelected[Good] && (MaxBuyPrice == 0 || aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Planet) <= MaxBuyPrice) && (MinSellPrice == 0 || aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Planet) >= MinSellPrice)) {
-                                        Heading = pas::concat_wide({Heading, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(GoodsIndex + 1), pas::WideString()), u".", u"</align>"});
-                                        if (aConst::GoodsLegalOnPlanet[Good][Planet->RaceId][Planet->Government] || Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                                        Heading = pas::concat_wide({Heading, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(GoodsIndex + 1)), u""sv), u".", u"</align>"});
+                                        if (aConst::GoodsLegalOnPlanet[Good][Planet->RaceId][Planet->Government] || Planet->OwnerId == aGalaxyStruct::oiPirate) {
                                             SearchText = pas::WideString();
                                         } else {
                                             SearchText = u"<color=255,0,0>"_w;
                                         }
-                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(aConst::GoodsMarket[Good].DisplayName, SearchText), u""});
-                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Planet->Goods[Good].Count), pas::WideString()), u"</align>"});
-                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Planet)), pas::WideString()), u"</align>"});
-                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"_w, pas::WideString()), u"</align>"});
-                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Planet)), pas::WideString()), u"</align>"});
+                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Good].DisplayName), pas::view(SearchText)), u""});
+                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Planet->Goods[Good].Count)), u""sv), u"</align>"});
+                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Planet))), u""sv), u"</align>"});
+                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"sv, u""sv), u"</align>"});
+                                        Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Planet))), u""sv), u"</align>"});
                                     }
                                 }
                                 if (Heading != u"") {
@@ -1593,7 +1593,7 @@ namespace fInfo {
                                     }())});
                                     Description = pas::concat_wide({Description, u"\r\n", Planet->GetInfoText(false)});
                                     Description = pas::concat_wide({Description, Heading});
-                                    Heading = aMyFunction::WrapTextInColor(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(Planet->GetFullName(u" "_w), u"<color=255,240,100>"_w), u" -"}), u"<color=255,240,100>"_w);
+                                    Heading = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(pas::view(Planet->GetFullName(u" "_w)), u"<color=255,240,100>"sv), u" -"})), u"<color=255,240,100>"sv);
                                     AddInfoHeading(Heading, pas::concat_wide({Heading, u"\r\n", Description}), 0, 0, Planet->Id);
                                     AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
                                     AddPlanetInfoText(Planet, Description);
@@ -1605,10 +1605,10 @@ namespace fInfo {
                         Planet = nullptr;
                         for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_6.next(Index); ) {
                             Ship = pas::list_at<aShip::TShip>(Star->Ships, Index);
-                            if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr && (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited))) {
-                                Station = pas::checked_cast<aRuins::TRuins*>(Ship);
+                            if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Ship); ruins != nullptr && (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited)) {
+                                Station = ruins;
                                 // Native exits here, bypassing the later list release and checksum.
-                                if (Station->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || Station->HasIndependentScriptFaction()) {
+                                if (Station->OwnerId == aGalaxyStruct::oiDominator || Station->HasIndependentScriptFaction()) {
                                     return;
                                 }
                                 if (!Station->NoLanding) {
@@ -1616,13 +1616,13 @@ namespace fInfo {
                                     for (GoodsIndex = static_cast<std::uint8_t>(0); GoodsIndex <= static_cast<std::uint8_t>(7); ++GoodsIndex) {
                                         Good = aConst::GoodsTextOrder[GoodsIndex];
                                         if ((MinGoodsCount == 0 || Station->ShopGoods[Good].Count >= MinGoodsCount) && GoodsSelected[Good] && (MaxBuyPrice == 0 || aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Station) <= MaxBuyPrice) && (MinSellPrice == 0 || aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Station) >= MinSellPrice)) {
-                                            Heading = pas::concat_wide({Heading, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(GoodsIndex + 1), pas::WideString()), u".", u"</align>"});
+                                            Heading = pas::concat_wide({Heading, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(GoodsIndex + 1)), u""sv), u".", u"</align>"});
                                             SearchText = pas::WideString();
-                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(aConst::GoodsMarket[Good].DisplayName, SearchText), u""});
-                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Station->ShopGoods[Good].Count), pas::WideString()), u"</align>"});
-                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Station)), pas::WideString()), u"</align>"});
-                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"_w, pas::WideString()), u"</align>"});
-                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Station)), pas::WideString()), u"</align>"});
+                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Good].DisplayName), pas::view(SearchText)), u""});
+                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Station->ShopGoods[Good].Count)), u""sv), u"</align>"});
+                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Station))), u""sv), u"</align>"});
+                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"sv, u""sv), u"</align>"});
+                                            Heading = pas::concat_wide({Heading, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Station))), u""sv), u"</align>"});
                                         }
                                     }
                                     if (Heading != u"") {
@@ -1637,11 +1637,11 @@ namespace fInfo {
                                             return aMyFunction::FormatText1(std::move(localizedText_5), u"<color=255,240,100>"_w, u"<StarName>"_w, name_4.get());
                                         }())});
                                         Description = pas::concat_wide({Description, Heading});
-                                        Heading = aMyFunction::WrapTextInColor(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(Station->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w), u" -"}), u"<color=255,240,100>"_w);
+                                        Heading = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(pas::view(Station->GetFullName(u" "_wref.get())), u"<color=255,240,100>"sv), u" -"})), u"<color=255,240,100>"sv);
                                         AddInfoHeading(Heading, pas::concat_wide({Heading, u"\r\n", Description}), 0, 0, static_cast<std::uint32_t>(Station->Id) | 0x80000000u);
                                         AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
                                         {
-                                            pas::WideString extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(Station->GetShipPortraitImagePath(), 1, u","_wref.get());
+                                            pas::WideString extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(pas::view(Station->GetShipPortraitImagePath()), 1, u","sv);
                                             TfInfo* self_2 = this;
                                             self_2->AddInfoImageText(std::move(extractDelimitedPartW), Description);
                                         }
@@ -1654,15 +1654,15 @@ namespace fInfo {
                     }
                 }
             } else if (SelectedSearchCategory == 15) {
-                NameFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"_wref.get()))->Text));
-                ConstellationFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Const"_wref.get()))->Text));
-                StarFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Star"_wref.get()))->Text));
-                IncludeRangerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeRanger"_wref.get()))->Down;
-                IncludeWarriorType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeWarrior"_wref.get()))->Down;
-                IncludePirateType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypePirat"_wref.get()))->Down;
-                IncludeTransportType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeTransport"_wref.get()))->Down;
-                IncludeLinerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeLiner"_wref.get()))->Down;
-                IncludeDiplomatType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeDiplomat"_wref.get()))->Down;
+                NameFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"sv))->Text));
+                ConstellationFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Const"sv))->Text));
+                StarFilter = EC_Str::TrimWideString(SysUtilsImports::WideLowerCase(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Star"sv))->Text));
+                IncludeRangerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeRanger"sv))->Down;
+                IncludeWarriorType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeWarrior"sv))->Down;
+                IncludePirateType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypePirat"sv))->Down;
+                IncludeTransportType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeTransport"sv))->Down;
+                IncludeLinerType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeLiner"sv))->Down;
+                IncludeDiplomatType = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"M15TypeDiplomat"sv))->Down;
                 ReadInfoSearchOwners(15);
             }
             for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_7.next(I); ) {
@@ -1682,7 +1682,7 @@ namespace fInfo {
                     Planet = nullptr;
                     for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_8.next(Index); ) {
                         Ship = pas::list_at<aShip::TShip>(Star->Ships, Index);
-                        if (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        if (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited) {
                             if (SelectedSearchCategory == 0) {
                                 if (([&] {
                                     const pas::WideString& wideLowerCase_2 = SysUtilsImports::WideLowerCase(Ship->GetFullName(u" "_wref.get()));
@@ -1711,8 +1711,8 @@ namespace fInfo {
                                         }
                                     }
                                 }
-                            } else if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr && Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) && static_cast<std::uint8_t>(reinterpret_cast<aRuins::TRuins*>(Ship)->NoLanding ^ 1)) {
-                                for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, pas::list_count(pas::checked_cast<aRuins::TRuins*>(Ship)->EquipmentShop) - 1); cpp_range_10.next(ItemIndex); ) {
+                            } else if (aRuins::TRuins* ruins_2 = pas::class_cast_if<aRuins::TRuins*>(Ship); ruins_2 != nullptr && Ship->OwnerId != aGalaxyStruct::oiDominator && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1) && static_cast<std::uint8_t>(ruins_2->NoLanding ^ 1)) {
+                                for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, pas::list_count(ruins_2->EquipmentShop) - 1); cpp_range_10.next(ItemIndex); ) {
                                     Item = pas::list_at<aItem::TItem>(reinterpret_cast<aRuins::TRuins*>(Ship)->EquipmentShop, ItemIndex);
                                     if (SelectedSearchCategory == 0) {
                                         if (fInfo::ItemMatchesInfoSearch(Item, SearchText)) {
@@ -1738,7 +1738,7 @@ namespace fInfo {
                         } else {
                             CheckInfoSearchResult(Planet);
                         }
-                        if (Planet->IsCoalitionOwned || Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        if (Planet->IsCoalitionOwned || Planet->OwnerId == aGalaxyStruct::oiPirate) {
                             if (aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet == Planet && fEquipmentShop::TemporaryShopSlots != nullptr) {
                                 for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, pas::list_count(fEquipmentShop::TemporaryShopSlots) - 1); cpp_range_12.next(ItemIndex); ) {
                                     Item = pas::list_at<fEquipmentShop::TShopSlot>(fEquipmentShop::TemporaryShopSlots, ItemIndex)->Item;
@@ -1877,16 +1877,16 @@ namespace fInfo {
             Detail = aMyFunction::FormatText1(aConst::LocalizedText(u"FormInfo.Equipment.Defend"_wref.get()), pas::WideString(), u"<val>"_w, u"<Percent>"_w);
             reinterpret_cast<aItem::TEquipment*>(Item)->ReplaceInfoTokens(Detail, u"<color=255,240,100>"_w, nullptr);
             Text = pas::concat_wide({Text, Detail});
-        } else if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-            if ((std::bit_cast<std::uint32_t>(reinterpret_cast<aItem::TWeapon*>(Item)->GetDamageFlags()) & 0x00100000) != 0) {
+        } else if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item)) {
+            if ((std::bit_cast<std::uint32_t>(weapon->GetDamageFlags()) & 0x00100000) != 0) {
                 Detail = pas::concat_wide({aMyFunction::FormatText1(aConst::LocalizedText(u"FormInfo.Equipment.Damage"_wref.get()), pas::WideString(), u"<min>-<max>"_w, u"<MaxDamage><Bonus>"_w), u", ", aMyFunction::FormatText1(aConst::LocalizedText(u"FormInfo.Equipment.Radius"_wref.get()), pas::WideString(), u"<val>"_w, u"<Radius>"_w)});
             } else {
                 Detail = pas::concat_wide({aMyFunction::FormatText2(aConst::LocalizedText(u"FormInfo.Equipment.Damage"_wref.get()), pas::WideString(), u"<min>"_w, u"<MinDamage>"_w, u"<max>"_w, u"<MaxDamage><Bonus>"_w), u", ", aMyFunction::FormatText1(aConst::LocalizedText(u"FormInfo.Equipment.Radius"_wref.get()), pas::WideString(), u"<val>"_w, u"<Radius>"_w)});
             }
             reinterpret_cast<aItem::TEquipment*>(Item)->ReplaceInfoTokens(Detail, u"<color=255,240,100>"_w, nullptr);
             Text = pas::concat_wide({Text, Detail});
-            if (pas::checked_cast<aItem::TWeapon*>(Item)->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[pas::checked_cast<aItem::TWeapon*>(Item)->SpecialModuleIndex - 1].TextReplace == u"") {
-                Text = pas::concat_wide({Text, u"\r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(reinterpret_cast<aItem::TEquipment*>(Item)->GetSpecialModuleName(), u"<color=255,240,100>"_w)});
+            if (pas::checked_cast<aItem::TWeapon*>(Item)->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[static_cast<aItem::TWeapon*>(Item)->SpecialModuleIndex - 1].TextReplace == u"") {
+                Text = pas::concat_wide({Text, u"\r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(reinterpret_cast<aItem::TEquipment*>(Item)->GetSpecialModuleName()), u"<color=255,240,100>"sv)});
             }
         } else if (pas::class_cast_if<aItem::THull*>(Item) != nullptr) {
             Detail = pas::concat_wide({aMyFunction::FormatText1(aConst::LocalizedText(u"FormInfo.Equipment.Protect"_wref.get()), pas::WideString(), u"<val>"_w, u"<HitProtect>"_w), u"\r\n", aConst::LocalizedText(u"FormInfo.Equipment.Susceptibility"_wref.get())});
@@ -1915,7 +1915,7 @@ namespace fInfo {
         pas::WideString Color{};
         std::uint8_t Good{};
         std::uint8_t GoodIndex{};
-        if (pas::class_cast_if<aShip::TShip*>(Value) != nullptr && Ship != nullptr && static_cast<std::uint8_t>(pas::in_set<0, 4, 7, 7>(Ship->OwnerId) ^ 1)) {
+        if (pas::class_cast_if<aShip::TShip*>(Value) != nullptr && Ship != nullptr && static_cast<std::uint8_t>(pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Ship->OwnerId) ^ 1)) {
             return;
         }
         if (ResultCount < TfInfo::GetSearchResultLimit() && pas::list_indexof(Shown, reinterpret_cast<void*>(Value)) < 0) {
@@ -1932,8 +1932,8 @@ namespace fInfo {
                 }
                 Self->AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
             }
-            if (pas::class_cast_if<aRuins::TRuins*>(Value) != nullptr && static_cast<std::uint8_t>(reinterpret_cast<aRuins::TRuins*>(Value)->NoLanding ^ 1)) {
-                Station = pas::checked_cast<aRuins::TRuins*>(Value);
+            if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Value); ruins != nullptr && static_cast<std::uint8_t>(ruins->NoLanding ^ 1)) {
+                Station = ruins;
                 Description = ([&] {
                     pas::WideString name = Station->CurrentStar->Constellation->GetName();
                     pas::WideString localizedText_2 = aConst::LocalizedText(u"FormInfo.Sector"_wref.get());
@@ -1947,20 +1947,20 @@ namespace fInfo {
                 GoodsText = pas::WideString();
                 for (GoodIndex = static_cast<std::uint8_t>(0); GoodIndex <= static_cast<std::uint8_t>(7); ++GoodIndex) {
                     Good = aConst::GoodsTextOrder[GoodIndex];
-                    GoodsText = pas::concat_wide({GoodsText, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(GoodIndex + 1), pas::WideString()), u".", u"</align>"});
+                    GoodsText = pas::concat_wide({GoodsText, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(GoodIndex + 1)), u""sv), u".", u"</align>"});
                     Color = pas::WideString();
-                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(aConst::GoodsMarket[Good].DisplayName, Color), u""});
-                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Station->ShopGoods[Good].Count), pas::WideString()), u"</align>"});
-                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Station)), pas::WideString()), u"</align>"});
-                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"_w, pas::WideString()), u"</align>"});
-                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Station)), pas::WideString()), u"</align>"});
+                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Good].DisplayName), pas::view(Color)), u""});
+                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Station->ShopGoods[Good].Count)), u""sv), u"</align>"});
+                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Station))), u""sv), u"</align>"});
+                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"sv, u""sv), u"</align>"});
+                    GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Station))), u""sv), u"</align>"});
                 }
                 Description = pas::concat_wide({Description, GoodsText});
-                Heading = aMyFunction::WrapTextInColor(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(Station->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w), u" -"}), u"<color=255,240,100>"_w);
+                Heading = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(pas::view(Station->GetFullName(u" "_wref.get())), u"<color=255,240,100>"sv), u" -"})), u"<color=255,240,100>"sv);
                 Self->AddInfoHeading(Heading, pas::concat_wide({Heading, u"\r\n", Description}), 0, 0, static_cast<std::uint32_t>(Station->Id) | 0x80000000u);
                 Self->AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
                 {
-                    pas::WideString extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(Station->GetShipPortraitImagePath(), 1, u","_wref.get());
+                    pas::WideString extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(pas::view(Station->GetShipPortraitImagePath()), 1, u","sv);
                     TfInfo* self_2 = Self;
                     self_2->AddInfoImageText(std::move(extractDelimitedPartW), Description);
                 }
@@ -1986,11 +1986,11 @@ namespace fInfo {
                     Description = pas::concat_wide({Description, u"\r\n", aConst::LocalizedText(u"FormInfo.InPrison"_wref.get())});
                 }
                 Ship->DaysSincePlayerSeen = 0;
-                Heading = aMyFunction::WrapTextInColor(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(Ship->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w), u" -"}), u"<color=255,240,100>"_w);
+                Heading = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(pas::view(Ship->GetFullName(u" "_wref.get())), u"<color=255,240,100>"sv), u" -"})), u"<color=255,240,100>"sv);
                 Self->AddInfoHeading(Heading, pas::concat_wide({Heading, u"\r\n", Description}), 0, 0, 0);
                 Self->AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
                 {
-                    pas::WideString extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(Ship->GetShipPortraitImagePath(), 1, u","_wref.get());
+                    pas::WideString extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(pas::view(Ship->GetShipPortraitImagePath()), 1, u","sv);
                     TfInfo* self_3 = Self;
                     self_3->AddInfoImageText(std::move(extractDelimitedPartW_2), Description);
                 }
@@ -2007,24 +2007,24 @@ namespace fInfo {
                 }())});
                 Description = pas::concat_wide({Description, u"\r\n", Planet->GetInfoText(true)});
                 GoodsText = pas::WideString();
-                if ((Planet->IsCoalitionOwned || Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) && Planet->CurrentStar->Status.CustomFaction == u"") {
+                if ((Planet->IsCoalitionOwned || Planet->OwnerId == aGalaxyStruct::oiPirate) && Planet->CurrentStar->Status.CustomFaction == u"") {
                     for (GoodIndex = static_cast<std::uint8_t>(0); GoodIndex <= static_cast<std::uint8_t>(7); ++GoodIndex) {
                         Good = aConst::GoodsTextOrder[GoodIndex];
-                        GoodsText = pas::concat_wide({GoodsText, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(GoodIndex + 1), pas::WideString()), u".", u"</align>"});
-                        if (aConst::GoodsLegalOnPlanet[Good][Planet->RaceId][Planet->Government] || Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        GoodsText = pas::concat_wide({GoodsText, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(5)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(GoodIndex + 1)), u""sv), u".", u"</align>"});
+                        if (aConst::GoodsLegalOnPlanet[Good][Planet->RaceId][Planet->Government] || Planet->OwnerId == aGalaxyStruct::oiPirate) {
                             Color = pas::WideString();
                         } else {
                             Color = u"<color=255,0,0>"_w;
                         }
-                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(aConst::GoodsMarket[Good].DisplayName, Color), u""});
-                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Planet->Goods[Good].Count), pas::WideString()), u"</align>"});
-                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Planet)), pas::WideString()), u"</align>"});
-                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"_w, pas::WideString()), u"</align>"});
-                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Planet)), pas::WideString()), u"</align>"});
+                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(15)), u">", u"", aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Good].DisplayName), pas::view(Color)), u""});
+                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(160)), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Planet->Goods[Good].Count)), u""sv), u"</align>"});
+                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(205)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Planet))), u""sv), u"</align>"});
+                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(215)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"sv, u""sv), u"</align>"});
+                        GoodsText = pas::concat_wide({GoodsText, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(255)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Planet))), u""sv), u"</align>"});
                     }
                 }
                 Description = pas::concat_wide({Description, GoodsText});
-                Heading = aMyFunction::WrapTextInColor(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(Planet->GetFullName(u" "_w), u"<color=255,240,100>"_w), u" -"}), u"<color=255,240,100>"_w);
+                Heading = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(pas::view(Planet->GetFullName(u" "_w)), u"<color=255,240,100>"sv), u" -"})), u"<color=255,240,100>"sv);
                 Self->AddInfoHeading(Heading, pas::concat_wide({Heading, u"\r\n", Description}), 0, 0, Planet->Id);
                 Self->AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
                 Self->AddPlanetInfoText(pas::checked_cast<aPlanet::TPlanet*>(Value), Description);
@@ -2126,14 +2126,14 @@ namespace fInfo {
                         pas::WideString localizedText_18 = aConst::LocalizedText(u"FormInfo.Star"_wref.get());
                         return aMyFunction::FormatText1(std::move(localizedText_18), u"<color=255,240,100>"_w, u"<StarName>"_w, name_14.get());
                     }())});
-                    Description = pas::concat_wide({Description, u"\r\n", aMyFunction::WrapTextInColor(Ship->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w)});
+                    Description = pas::concat_wide({Description, u"\r\n", aMyFunction::WrapTextInColor(pas::view(Ship->GetFullName(u" "_wref.get())), u"<color=255,240,100>"sv)});
                 }
-                Heading = aMyFunction::WrapTextInColor(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(EC_Str::RemoveTextTagsW(reinterpret_cast<aItem::TItem*>(Value)->GetDisplayName()), u"<color=255,240,100>"_w), u" [", aMyFunction::WrapTextInColor(pas::wide_int_to_str(reinterpret_cast<aItem::TItem*>(Value)->Weight), u"<color=0,255,0>"_w), u"]", u" -"}), u"<color=255,240,100>"_w);
+                Heading = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({u"- ", aMyFunction::WrapTextInColor(pas::view(EC_Str::RemoveTextTagsW(reinterpret_cast<aItem::TItem*>(Value)->GetDisplayName())), u"<color=255,240,100>"sv), u" [", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(reinterpret_cast<aItem::TItem*>(Value)->Weight)), u"<color=0,255,0>"sv), u"]", u" -"})), u"<color=255,240,100>"sv);
                 Description = pas::concat_wide({Description, u"\r\n", fInfo::GetInfoEquipmentSummary(reinterpret_cast<aItem::TItem*>(Value))});
                 Self->AddInfoHeading(Heading, pas::concat_wide({Heading, u"\r\n", Description}), 0, 0, 0);
                 Self->AddInfoText(u" ."_w, GI_Main::taxCenter, pas::WideString());
-                if (pas::class_cast_if<aItem::THull*>(Value) != nullptr) {
-                    Self->AddEquipmentInfoText(pas::checked_cast<aItem::TItem*>(Value), Description);
+                if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Value)) {
+                    Self->AddEquipmentInfoText(static_cast<aItem::TItem*>(hull), Description);
                 } else {
                     Self->AddItemInfoText(pas::checked_cast<aItem::TItem*>(Value), Description);
                 }
@@ -2145,9 +2145,9 @@ namespace fInfo {
 
     void TfInfo::AddEquipmentInfoText(aItem::TItem* Item, pas::WideString Text) {
         GI_GraphBuf::TGraphBufGI* Slots{};
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=0,130,0>"_wref.get());
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,167,84>"_wref.get(), u"<color=240,100,30>"_wref.get());
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=0,130,0>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,167,84>"_wref.get(), u"<color=240,100,30>"sv);
         std::int32_t Size = GR_Main::GiScalePixels(64);
         std::int32_t Height = Size;
         if (pas::class_cast_if<aItem::THull*>(Item) != nullptr) {
@@ -2207,7 +2207,7 @@ namespace fInfo {
             Finished = false;
             Button = nullptr;
             while (!Finished) {
-                Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(InfoPanel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"MemBtn", SysUtils::IntToStr(I)}))));
+                Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(InfoPanel->FindByNameRecursive(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"MemBtn", SysUtils::IntToStr(I)})))));
                 if (Button == nullptr) {
                     return;
                 }
@@ -2220,7 +2220,7 @@ namespace fInfo {
                 Entry = Globals::FindPlayerBubbleByText(Button->HelpText, false);
                 if (Entry != nullptr) {
                     Globals::RemovePersistentPlayerMessage(Entry, false);
-                    MainPanel->Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+                    MainPanel->Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
                     reinterpret_cast<fPanelMain::TfPanelMain*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(MainPanel)) + 0)))->RebuildMessageButtons(false);
                     Button->SetDisabled(false);
                     GR_Main::SoundManager->PlaySound(u"Sound.DelMsg"_wref.get());
@@ -2240,15 +2240,15 @@ namespace fInfo {
     }
 
     void TfInfo::CategoryStateChanged(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t I = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
+        std::int32_t I = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
         GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender);
         if (I >= 1 && I <= 7) {
-            GI_MessageLoop::TObjectGI* ImgMM_C1 = GetByName(u"ImgMM_C1"_wref.get());
+            GI_MessageLoop::TObjectGI* ImgMM_C1 = GetByName(u"ImgMM_C1"sv);
             ImgMM_C1->Invalidate();
             ImgMM_C1->SetActive(Button->IsHovered());
         }
         if (I >= 8 && I <= 10) {
-            GI_MessageLoop::TObjectGI* ImgMM_C2 = GetByName(u"ImgMM_C2"_wref.get());
+            GI_MessageLoop::TObjectGI* ImgMM_C2 = GetByName(u"ImgMM_C2"sv);
             ImgMM_C2->Invalidate();
             ImgMM_C2->SetActive(Button->IsHovered());
         }
@@ -2257,7 +2257,7 @@ namespace fInfo {
     void TfInfo::CategoryClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t I{};
         if (static_cast<std::uint8_t>(InfoPanel->Active ^ 1) || SelectedSearchCategory == 14) {
-            SelectedSearchCategory = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
+            SelectedSearchCategory = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
             if (SelectedSearchCategory != 0 && SelectedSearchCategory != PreviousSearchCategory) {
                 HasSearchResults = false;
             }
@@ -2268,19 +2268,19 @@ namespace fInfo {
         InfoPanel->SetActive(false);
         InfoPanel->VerticalScrollBar->SetActive(false);
         {
-            GI_MessageLoop::TObjectGI* PanelSearch = GetByName(u"PanelSearch"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelSearch = GetByName(u"PanelSearch"sv);
             PanelSearch->SetActive(SelectedSearchCategory == 0);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 15); cpp_range.next(I); ) {
-            GI_MessageLoop::TObjectGI* cpp_with_2 = GetByName(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)}));
+            GI_MessageLoop::TObjectGI* cpp_with_2 = GetByName(pas::view(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)})));
             cpp_with_2->SetActive(SelectedSearchCategory == I);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"sv));
             ButPrev->SetDisabled(SelectedSearchCategory == 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"sv));
             ButNext->SetDisabled(!(SelectedSearchCategory == 0 && (PreviousSearchCategory != 0 || HasSearchResults) || SelectedSearchCategory != 0 && HasSearchResults));
         }
         FocusSearchField(true);
@@ -2346,21 +2346,21 @@ namespace fInfo {
     void TfInfo::NextSearchPageClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t I{};
         if (SelectedSearchCategory == 0 && PreviousSearchCategory != 0 && PreviousSearchCategory != 14) {
-            CategoryClicked(GetByName(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(PreviousSearchCategory, 2)})));
+            CategoryClicked(GetByName(pas::view(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(PreviousSearchCategory, 2)}))));
         } else {
             InfoPanel->VerticalScrollBar->SetActive(true);
             InfoPanel->SetActive(true);
-            GetByName(u"PanelSearch"_wref.get())->SetActive(false);
+            GetByName(u"PanelSearch"sv)->SetActive(false);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, 15); cpp_range.next(I); ) {
-                GI_MessageLoop::TObjectGI* cpp_with = GetByName(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)}));
+                GI_MessageLoop::TObjectGI* cpp_with = GetByName(pas::view(pas::concat_wide({u"PanelM", EC_Str::IntToFixedWidthWideString(I, 2)})));
                 cpp_with->SetActive(false);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButPrev = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPrev"sv));
                 ButPrev->SetDisabled(false);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButNext = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNext"sv));
                 ButNext->SetDisabled(true);
             }
             FinishInfoLayout();
@@ -2374,8 +2374,8 @@ namespace fInfo {
         std::int32_t X{};
         GI_MessageLoop::TObjectGI* Child = Parent->FirstChild;
         while (Child != nullptr) {
-            if (pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Child) != nullptr) {
-                Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Child);
+            if (GI_GraphButton::TGraphButtonGI* graphButtonGI = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Child)) {
+                Button = graphButtonGI;
                 if (Button->ImageNormal != nullptr && EC_Str::FindTextOffsetW(Button->ImageNormal->GetImagePath(), u"Check"_wref.get(), 0) >= 0) {
                     X = Button->LocalPosition.X + Button->ClientSize.X + GR_Main::GiScalePixels(20);
                     Y = Button->ClientSize.Y / 2 + Button->LocalPosition.Y;
@@ -2419,52 +2419,52 @@ namespace fInfo {
     }
 
     void TfInfo::ClearSearchText(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* TextSearch = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"_wref.get()));
+        GI_Edit::TEditGI* TextSearch = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"sv));
         TextSearch->SetText(pas::WideString());
     }
 
     void TfInfo::CopySearchText(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* TextSearch = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"_wref.get()));
+        GI_Edit::TEditGI* TextSearch = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"sv));
         GR_Main::SetClipboardWideText(TextSearch->Text);
     }
 
     void TfInfo::PasteSearchText(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* TextSearch = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"_wref.get()));
+        GI_Edit::TEditGI* TextSearch = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"TextSearch"sv));
         TextSearch->SetText(GR_Main::GetClipboardWideText());
     }
 
     void TfInfo::ClearSearch12Name(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* M12Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"_wref.get()));
+        GI_Edit::TEditGI* M12Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"sv));
         M12Name->SetText(pas::WideString());
     }
 
     void TfInfo::CopySearch12Name(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* M12Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"_wref.get()));
+        GI_Edit::TEditGI* M12Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"sv));
         GR_Main::SetClipboardWideText(M12Name->Text);
     }
 
     void TfInfo::PasteSearch12Name(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* M12Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"_wref.get()));
+        GI_Edit::TEditGI* M12Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M12Name"sv));
         M12Name->SetText(GR_Main::GetClipboardWideText());
     }
 
     void TfInfo::ClearSearch15Name(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* M15Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"_wref.get()));
+        GI_Edit::TEditGI* M15Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"sv));
         M15Name->SetText(pas::WideString());
     }
 
     void TfInfo::CopySearch15Name(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* M15Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"_wref.get()));
+        GI_Edit::TEditGI* M15Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"sv));
         GR_Main::SetClipboardWideText(M15Name->Text);
     }
 
     void TfInfo::PasteSearch15Name(GI_MessageLoop::TObjectGI* Sender) {
-        GI_Edit::TEditGI* M15Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"_wref.get()));
+        GI_Edit::TEditGI* M15Name = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"M15Name"sv));
         M15Name->SetText(GR_Main::GetClipboardWideText());
     }
 
     void TfInfo::ClearSearchField(pas::WideString Name) {
-        pas::checked_cast<GI_Edit::TEditGI*>(GetByName(Name))->SetText(pas::WideString());
+        pas::checked_cast<GI_Edit::TEditGI*>(GetByName(pas::view(Name)))->SetText(pas::WideString());
     }
 
     void TfInfo::ClearSearch01Filters(GI_MessageLoop::TObjectGI* Sender) {

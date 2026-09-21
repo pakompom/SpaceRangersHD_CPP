@@ -171,14 +171,14 @@ namespace aPlanet {
         double MinOrbitRadius{};
         double MaxOrbitRadius{};
         aGalaxyStruct::TPlanetGovernment GovernmentCandidate{};
-        std::uint8_t ItemOwner{};
-        std::uint8_t OwnerLoop{};
+        aGalaxyStruct::TOwnerId ItemOwner{};
+        aGalaxyStruct::TOwnerId OwnerLoop{};
         pas::WideString BlockName{};
         TSputnik* Satellite{};
         std::int32_t SatelliteCount{};
         EC_BlockPar::TBlockParEC* SatelliteConfig{};
         aItem::TEquipment* Item{};
-        std::uint8_t ItemType{};
+        aConst::TItemType ItemType{};
         std::int32_t Series{};
         std::uint8_t GovernmentRoll{};
         std::uint8_t RingKind{};
@@ -206,8 +206,8 @@ namespace aPlanet {
             IsSolar = false;
         }
         if (IsSolar) {
-            RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
-            Name = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"_wref.get())->GetBlock(u"Solar"_wref.get())->GetParamValue(pas::list_count(Star->Planets));
+            RaceId = aGalaxyStruct::oiHuman;
+            Name = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"sv)->GetBlock(u"Solar"sv)->GetParamValue(pas::list_count(Star->Planets));
             {
                 pas::Extended cpp_left = aMyFunction::NextRandomIntRange(1, 1, RandomState) * 2 - 1;
                 OrbitalVelocity = cpp_left * (4.5L - pas::real_divide(pas::list_count(Star->Planets), 2.0L));
@@ -234,7 +234,7 @@ namespace aPlanet {
             switch (pas::list_count(Star->Planets)) {
                 case 0: {
                     Orbit.Radius = Radius + Star->SystemRadius + 175;
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    OwnerId = aGalaxyStruct::oiUninhabited;
                     Government = aGalaxyStruct::pgAnarchy;
                     Economy = aGalaxyStruct::peAgricultural;
                     break;
@@ -242,7 +242,7 @@ namespace aPlanet {
                 case 1: {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, pas::list_count(Star->Planets) - 1);
                     Orbit.Radius = static_cast<long double>(PreviousPlanet->Orbit.Radius) + PreviousPlanet->Radius + Radius + 2.0E+2L;
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
+                    OwnerId = aGalaxyStruct::oiHuman;
                     Government = aGalaxyStruct::pgDemocracy;
                     Economy = aGalaxyStruct::peAgricultural;
                     Population = CalculateBasePopulation();
@@ -251,7 +251,7 @@ namespace aPlanet {
                 case 2: {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, pas::list_count(Star->Planets) - 1);
                     Orbit.Radius = static_cast<long double>(PreviousPlanet->Orbit.Radius) + PreviousPlanet->Radius + Radius + 2.0E+2L;
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
+                    OwnerId = aGalaxyStruct::oiHuman;
                     Government = aGalaxyStruct::pgDemocracy;
                     Economy = aGalaxyStruct::peIndustrial;
                     Population = 1000000;
@@ -280,7 +280,7 @@ namespace aPlanet {
                 case 3: {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, pas::list_count(Star->Planets) - 1);
                     Orbit.Radius = static_cast<long double>(PreviousPlanet->Orbit.Radius) + PreviousPlanet->Radius + Radius + 2.0E+2L + System::Round(2.0E+2L - aMyFunction::RemapClamped(pas::list_count(Star->Planets), 1.0, 6.0, 0.0, 2.0E+2));
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
+                    OwnerId = aGalaxyStruct::oiHuman;
                     Government = aGalaxyStruct::pgDictatorship;
                     Economy = aGalaxyStruct::peIndustrial;
                     Population = 100000;
@@ -313,7 +313,7 @@ namespace aPlanet {
                 case 4: {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, pas::list_count(Star->Planets) - 1);
                     Orbit.Radius = static_cast<long double>(PreviousPlanet->Orbit.Radius) + PreviousPlanet->Radius + Radius + 2.0E+2L + System::Round(2.0E+2L - aMyFunction::RemapClamped(pas::list_count(Star->Planets), 1.0, 6.0, 0.0, 2.0E+2));
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    OwnerId = aGalaxyStruct::oiUninhabited;
                     Government = aGalaxyStruct::pgAnarchy;
                     Economy = aGalaxyStruct::peAgricultural;
                     SatelliteCount = 4;
@@ -358,7 +358,7 @@ namespace aPlanet {
                 case 5: {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, pas::list_count(Star->Planets) - 1);
                     Orbit.Radius = static_cast<long double>(PreviousPlanet->Orbit.Radius) + PreviousPlanet->Radius + Radius + 2.0E+2L + System::Round(2.0E+2L - aMyFunction::RemapClamped(pas::list_count(Star->Planets), 1.0, 6.0, 0.0, 2.0E+2));
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    OwnerId = aGalaxyStruct::oiUninhabited;
                     Government = aGalaxyStruct::pgRepublic;
                     Economy = aGalaxyStruct::peMixed;
                     Population = 120000;
@@ -368,7 +368,7 @@ namespace aPlanet {
                 case 6: {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, pas::list_count(Star->Planets) - 1);
                     Orbit.Radius = static_cast<long double>(PreviousPlanet->Orbit.Radius) + PreviousPlanet->Radius + Radius + 2.0E+2L + System::Round(2.0E+2L - aMyFunction::RemapClamped(pas::list_count(Star->Planets), 1.0, 6.0, 0.0, 2.0E+2));
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    OwnerId = aGalaxyStruct::oiUninhabited;
                     Government = aGalaxyStruct::pgAnarchy;
                     Economy = aGalaxyStruct::peAgricultural;
                     SatelliteCount = 1;
@@ -414,83 +414,83 @@ namespace aPlanet {
         } else {
             if (InhabitedCountOrSpecialMode > 3) {
                 if (pas::list_count(Star->Planets) == 1 && InhabitedCountOrSpecialMode == 10) {
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
-                    RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
+                    OwnerId = aGalaxyStruct::oiPirate;
+                    RaceId = aGalaxyStruct::oiHuman;
                     IsMainPiratePlanet = true;
                     MainPiratePlanet = this;
                 } else if (InhabitedCountOrSpecialMode == 11 && pas::list_count(Star->Planets) < 5) {
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
-                    RaceId = pas::list_count(Star->Planets);
+                    OwnerId = aGalaxyStruct::oiPirate;
+                    RaceId = static_cast<aGalaxyStruct::TOwnerId>(pas::list_count(Star->Planets));
                 } else {
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    OwnerId = aGalaxyStruct::oiUninhabited;
                 }
             } else {
                 Count = 0;
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_4.next(I); ) {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, I);
-                    if (PreviousPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (PreviousPlanet->OwnerId != aGalaxyStruct::oiUninhabited) {
                         ++Count;
                     }
                 }
                 if (InhabitedCountOrSpecialMode == Count) {
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    OwnerId = aGalaxyStruct::oiUninhabited;
                 } else if (TotalPlanetCount - pas::list_count(Star->Planets) <= InhabitedCountOrSpecialMode - Count || aMyFunction::NextRandomUnitFloat(RandomState) < 0.7L || pas::list_indexof(aGalaxy::Galaxy->Stars, reinterpret_cast<void*>(Star)) < 5 && pas::list_count(Star->Planets) == 0) {
                     switch (aGalaxy::Galaxy->FindConstellationIndexForStar(CurrentStar)) {
                         case 0:
                         case 6: {
-                            OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
-                            RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
+                            OwnerId = aGalaxyStruct::oiMaloc;
+                            RaceId = aGalaxyStruct::oiMaloc;
                             break;
                         }
                         case 1:
                         case 5: {
-                            OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
-                            RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
+                            OwnerId = aGalaxyStruct::oiPeleng;
+                            RaceId = aGalaxyStruct::oiPeleng;
                             break;
                         }
                         case 2:
                         case 7: {
-                            OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
-                            RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
+                            OwnerId = aGalaxyStruct::oiHuman;
+                            RaceId = aGalaxyStruct::oiHuman;
                             break;
                         }
                         case 3:
                         case 8: {
-                            OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
-                            RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
+                            OwnerId = aGalaxyStruct::oiFeyan;
+                            RaceId = aGalaxyStruct::oiFeyan;
                             break;
                         }
                         case 4:
                         case 9: {
-                            OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
-                            RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
+                            OwnerId = aGalaxyStruct::oiGaal;
+                            RaceId = aGalaxyStruct::oiGaal;
                             break;
                         }
                         default: {
                             switch (aMyFunction::NextRandomIntRange(0, 4, RandomState)) {
                                 case 0: {
-                                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
-                                    RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
+                                    OwnerId = aGalaxyStruct::oiMaloc;
+                                    RaceId = aGalaxyStruct::oiMaloc;
                                     break;
                                 }
                                 case 1: {
-                                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
-                                    RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng);
+                                    OwnerId = aGalaxyStruct::oiPeleng;
+                                    RaceId = aGalaxyStruct::oiPeleng;
                                     break;
                                 }
                                 case 2: {
-                                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
-                                    RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiHuman);
+                                    OwnerId = aGalaxyStruct::oiHuman;
+                                    RaceId = aGalaxyStruct::oiHuman;
                                     break;
                                 }
                                 case 3: {
-                                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
-                                    RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiFeyan);
+                                    OwnerId = aGalaxyStruct::oiFeyan;
+                                    RaceId = aGalaxyStruct::oiFeyan;
                                     break;
                                 }
                                 case 4: {
-                                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
-                                    RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiGaal);
+                                    OwnerId = aGalaxyStruct::oiGaal;
+                                    RaceId = aGalaxyStruct::oiGaal;
                                     break;
                                 }
                             }
@@ -498,14 +498,14 @@ namespace aPlanet {
                         }
                     }
                     if ((Count > 0 || aGalaxy::Galaxy->FindConstellationIndexForStar(CurrentStar) > 4) && (aMyFunction::NextRandomUnitFloat(RandomState) < 0.2L || aGalaxy::Galaxy->FindConstellationIndexForStar(CurrentStar) > 9) && pas::list_indexof(aGalaxy::Galaxy->Stars, reinterpret_cast<void*>(Star)) > 4) {
-                        ItemOwner = 0;
+                        ItemOwner = aGalaxyStruct::oiMaloc;
                         LeastOwnerPlanetCount = 10000;
-                        for (OwnerLoop = static_cast<std::uint8_t>(0); OwnerLoop <= static_cast<std::uint8_t>(4); ++OwnerLoop) {
+                        for (auto cpp_range_5 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal); cpp_range_5.next(OwnerLoop); ) {
                             if (CurrentStar->CountDistinctInhabitedPlanetOwners() == 2 && CurrentStar->CountPlanetsByOwner(OwnerLoop) == 0) {
                                 continue;
                             }
                             Count = 0;
-                            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_5.next(I); ) {
+                            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_6.next(I); ) {
                                 PreviousPlanet = pas::list_at<TPlanet>(aGalaxy::Galaxy->Planets, I);
                                 if (PreviousPlanet->OwnerId == OwnerLoop) {
                                     ++Count;
@@ -520,11 +520,11 @@ namespace aPlanet {
                         RaceId = aConst::OwnerToRace(ItemOwner);
                     }
                 } else {
-                    OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                    OwnerId = aGalaxyStruct::oiUninhabited;
                 }
             }
             BlockName = aConst::OwnerToSys(OwnerId);
-            if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (OwnerId != aGalaxyStruct::oiPirate) {
                 Name = pas::WideString();
             } else {
                 if (InhabitedCountOrSpecialMode == 10) {
@@ -532,9 +532,9 @@ namespace aPlanet {
                 } else {
                     Quantity = pas::list_count(Star->Planets) + 1;
                 }
-                Name = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"_wref.get())->GetBlock(BlockName)->GetParamValue(Quantity);
+                Name = GR_Main::LanguageDataConfig->GetBlock(u"PlanetName"sv)->GetBlock(pas::view(BlockName))->GetParamValue(Quantity);
             }
-            if (InhabitedCountOrSpecialMode == 10 && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (InhabitedCountOrSpecialMode == 10 && OwnerId == aGalaxyStruct::oiPirate) {
                 {
                     pas::Extended cpp_left_2 = aMyFunction::NextRandomIntRange(0, 1, RandomState) * 2 - 1;
                     OrbitalVelocity = cpp_left_2 * (4.5L - pas::real_divide(pas::list_count(Star->Planets), 2.0L));
@@ -577,7 +577,7 @@ namespace aPlanet {
                         if (Globals::PlanetSpaceTemplates[Quantity].Radius > 80) {
                             continue;
                         }
-                    } else if (CountPlanetsOfSameRace() == 1 && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    } else if (CountPlanetsOfSameRace() == 1 && OwnerId != aGalaxyStruct::oiUninhabited) {
                         if (Globals::PlanetSpaceTemplates[Quantity].Radius < 100) {
                             continue;
                         }
@@ -588,7 +588,7 @@ namespace aPlanet {
                         }
                     }
                     if (Part < Count) {
-                        for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_6.next(I); ) {
+                        for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_7.next(I); ) {
                             OtherPlanet = pas::list_at<TPlanet>(aGalaxy::Galaxy->Planets, I);
                             if (OtherPlanet->SpriteTemplateIndex == Quantity && (OtherPlanet->CurrentStar == Star || aMyFunction::PointDistanceSquared(OtherPlanet->CurrentStar->Position, Star->Position) < 2.5E+3L)) {
                                 TemplateAvailable = false;
@@ -611,7 +611,7 @@ namespace aPlanet {
                 GraphName = Graphic->GraphKey;
                 AllowRing = true;
                 ExistingRing = 0;
-                for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_7.next(I); ) {
+                for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_8.next(I); ) {
                     PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, I);
                     if (PreviousPlanet->Graphic->RingKind > 0) {
                         if (ExistingRing > 0) {
@@ -621,7 +621,7 @@ namespace aPlanet {
                     }
                 }
                 if (AllowRing && static_cast<std::uint8_t>(IsSolar ^ 1)) {
-                    if (aMyFunction::NextRandomUnitFloat(RandomState) < 0.8L && GraphicRadius > 90 && static_cast<std::uint8_t>(pas::in_set<1, 1, 4, 5>(ExistingRing) ^ 1) && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (aMyFunction::NextRandomUnitFloat(RandomState) < 0.8L && GraphicRadius > 90 && static_cast<std::uint8_t>(pas::in_set<1, 1, 4, 5>(ExistingRing) ^ 1) && OwnerId != aGalaxyStruct::oiUninhabited) {
                         I = 0;
                         do {
                             ++I;
@@ -634,7 +634,7 @@ namespace aPlanet {
                             SE_Planet::TPlanetSE* graphic_11 = Graphic;
                             graphic_11->SetRingKind(nextRandomIntRange_4);
                         }
-                    } else if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && GraphicRadius > 70 && aMyFunction::NextRandomUnitFloat(RandomState) < 0.7L) {
+                    } else if (OwnerId != aGalaxyStruct::oiUninhabited && GraphicRadius > 70 && aMyFunction::NextRandomUnitFloat(RandomState) < 0.7L) {
                         if (!pas::in_range(ExistingRing, 1, 9)) {
                             std::uint8_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(1, 9, RandomState);
                             SE_Planet::TPlanetSE* graphic_12 = Graphic;
@@ -689,7 +689,7 @@ namespace aPlanet {
                     if (pas::list_count(PreviousPlanet->Satellites) > 0) {
                         if (Graphic->RingKind > 0) {
                             SatelliteCount = 0;
-                        } else if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        } else if (OwnerId == aGalaxyStruct::oiUninhabited) {
                             SatelliteCount = 0;
                         } else {
                             SatelliteCount = std::min<std::int32_t>(SatelliteCount, 1);
@@ -698,7 +698,7 @@ namespace aPlanet {
                 }
                 PreviousExtent = 0.0;
                 if (SatelliteCount > 0) {
-                    for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, SatelliteCount - 1); cpp_range_8.next(I); ) {
+                    for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, SatelliteCount - 1); cpp_range_9.next(I); ) {
                         if (SatelliteCount == 1) {
                             SatelliteRadius = MinOrbitRadius;
                         } else {
@@ -749,7 +749,7 @@ namespace aPlanet {
             }
             Government = static_cast<aGalaxyStruct::TPlanetGovernment>(aMyFunction::NextRandomIntRange(0, 4, RandomState));
             GovernmentRoll = aMyFunction::NextRandomIntRange(0, 100, RandomState);
-            for (auto cpp_range_9 = pas::for_downto<aGalaxyStruct::TPlanetGovernment>(aGalaxyStruct::pgDemocracy, aGalaxyStruct::pgAnarchy); cpp_range_9.next(GovernmentCandidate); ) {
+            for (auto cpp_range_10 = pas::for_downto<aGalaxyStruct::TPlanetGovernment>(aGalaxyStruct::pgDemocracy, aGalaxyStruct::pgAnarchy); cpp_range_10.next(GovernmentCandidate); ) {
                 if (aConst::PlanetRaceMarket[RaceId].GovernmentRollThresholds[GovernmentCandidate] <= GovernmentRoll) {
                     Government = GovernmentCandidate;
                     break;
@@ -786,11 +786,11 @@ namespace aPlanet {
         Money = System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0E+4, 1.0E+5));
         HomeRangerCount = 0;
         HomeTransportCount = 0;
-        if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
-            for (ItemType = static_cast<std::uint8_t>(aConst::t_Hull); ItemType <= static_cast<std::uint8_t>(aConst::t_Weapon1); ++ItemType) {
+        if (OwnerId != aGalaxyStruct::oiUninhabited) {
+            for (auto cpp_range_11 = pas::for_to<aConst::TItemType>(aConst::t_Hull, aConst::t_Weapon1); cpp_range_11.next(ItemType); ) {
                 switch (ItemType) {
                     case aConst::t_Hull: {
-                        for (auto cpp_range_10 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 5, RandomState)); cpp_range_10.next(I); ) {
+                        for (auto cpp_range_12 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 5, RandomState)); cpp_range_12.next(I); ) {
                             Item = pas::construct_call<aItem::THull>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             HullType = aMyFunction::NextRandomIntRange(0, 5, RandomState);
@@ -808,11 +808,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_FuelTanks: {
-                        for (auto cpp_range_11 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_11.next(I); ) {
+                        for (auto cpp_range_13 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_13.next(I); ) {
                             Item = pas::construct_call<aItem::TFuelTanks>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId = OwnerId;
                                 std::int32_t round_3 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_4 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(round_4, round_3, RandomState);
@@ -824,11 +824,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Engine: {
-                        for (auto cpp_range_12 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 3, RandomState)); cpp_range_12.next(I); ) {
+                        for (auto cpp_range_14 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 3, RandomState)); cpp_range_14.next(I); ) {
                             Item = pas::construct_call<aItem::TEngine>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_2 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_2 = OwnerId;
                                 std::int32_t round_5 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_6 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(round_6, round_5, RandomState);
@@ -840,11 +840,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Radar: {
-                        for (auto cpp_range_13 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_13.next(I); ) {
+                        for (auto cpp_range_15 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_15.next(I); ) {
                             Item = pas::construct_call<aItem::TRadar>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_3 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_3 = OwnerId;
                                 std::int32_t round_7 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_8 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(round_8, round_7, RandomState);
@@ -856,11 +856,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Scaner: {
-                        for (auto cpp_range_14 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_14.next(I); ) {
+                        for (auto cpp_range_16 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_16.next(I); ) {
                             Item = pas::construct_call<aItem::TScaner>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_4 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_4 = OwnerId;
                                 std::int32_t round_9 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_10 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(round_10, round_9, RandomState);
@@ -872,11 +872,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_RepairRobot: {
-                        for (auto cpp_range_15 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_15.next(I); ) {
+                        for (auto cpp_range_17 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_17.next(I); ) {
                             Item = pas::construct_call<aItem::TRepairRobot>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_5 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_5 = OwnerId;
                                 std::int32_t round_11 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_12 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(round_12, round_11, RandomState);
@@ -888,11 +888,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_CargoHook: {
-                        for (auto cpp_range_16 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_16.next(I); ) {
+                        for (auto cpp_range_18 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_18.next(I); ) {
                             Item = pas::construct_call<aItem::TCargoHook>(aItem::TCargoHook_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_6 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_6 = OwnerId;
                                 std::int32_t round_13 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_14 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_20 = aMyFunction::NextRandomIntRange(round_14, round_13, RandomState);
@@ -904,11 +904,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_DefGenerator: {
-                        for (auto cpp_range_17 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_17.next(I); ) {
+                        for (auto cpp_range_19 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_19.next(I); ) {
                             Item = pas::construct_call<aItem::TDefGenerator>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_7 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_7 = OwnerId;
                                 std::int32_t round_15 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_16 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_22 = aMyFunction::NextRandomIntRange(round_16, round_15, RandomState);
@@ -920,7 +920,7 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Weapon1: {
-                        for (auto cpp_range_18 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(2, InventionLevels[7] + 2, RandomState)); cpp_range_18.next(I); ) {
+                        for (auto cpp_range_20 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(2, InventionLevels[7] + 2, RandomState)); cpp_range_20.next(I); ) {
                             {
                                 std::uint8_t cpp_arg_31 = InventionLevels[7];
                                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 100000);
@@ -928,7 +928,7 @@ namespace aPlanet {
                                 WeaponInfo = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), cpp_arg_31, 1);
                             }
                             GeneratedWeapon = ([&] {
-                                std::uint8_t ownerId_8 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_8 = OwnerId;
                                 std::int32_t nextRandomIntRange_24 = ([&] {
                                     std::int32_t round_17 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[1]);
                                     std::int32_t round_18 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[5]);
@@ -957,8 +957,8 @@ namespace aPlanet {
         if (aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L) {
             ++ProbeOrbitCount;
         }
-        if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && GetUnexploredSurfaceTileCount() > 50) {
-            for (auto cpp_range_19 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_19.next(I); ) {
+        if (OwnerId == aGalaxyStruct::oiUninhabited && GetUnexploredSurfaceTileCount() > 50) {
+            for (auto cpp_range_21 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_21.next(I); ) {
                 if (aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L) {
                     continue;
                 }
@@ -967,15 +967,15 @@ namespace aPlanet {
                 }
                 {
                     std::uint32_t cpp_arg_32 = 767 + aMyFunction::NextRandomIntRange(1, 3000, RandomState);
-                    std::uint8_t raceToOwner = aConst::RaceToOwner(RaceId);
+                    aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(RaceId);
                     Loot = aItem::CreateRandomLootItem(aItem::ilpTreasure, raceToOwner, cpp_arg_32);
                 }
-                if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Loot) != nullptr) {
-                    static_cast<aTranclucator::TTranclucator*>(reinterpret_cast<aItem::TArtefactTranclucator*>(Loot)->Ship)->OwnerShip = nullptr;
+                if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Loot)) {
+                    static_cast<aTranclucator::TTranclucator*>(artefactTranclucator->Ship)->OwnerShip = nullptr;
                 }
                 AddSurfaceLootEntry(Loot);
             }
-            for (auto cpp_range_20 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_20.next(I); ) {
+            for (auto cpp_range_22 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_22.next(I); ) {
                 if (aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L) {
                     continue;
                 }
@@ -992,7 +992,7 @@ namespace aPlanet {
                 Module->Init(ModuleIndex);
                 AddSurfaceLootEntry(Module);
             }
-            for (auto cpp_range_21 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 4.0)))); cpp_range_21.next(I); ) {
+            for (auto cpp_range_23 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 4.0)))); cpp_range_23.next(I); ) {
                 if (I > 1 && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.4L) {
                     continue;
                 }
@@ -1005,7 +1005,7 @@ namespace aPlanet {
                     }
                 }
                 {
-                    std::uint8_t raceToOwner_2 = aConst::RaceToOwner(RaceId);
+                    aGalaxyStruct::TOwnerId raceToOwner_2 = aConst::RaceToOwner(RaceId);
                     std::int32_t nextRandomIntRange_27 = aMyFunction::NextRandomIntRange(0, Count, RandomState);
                     Cistern->Init(nextRandomIntRange_27, Count, raceToOwner_2);
                 }
@@ -1020,7 +1020,7 @@ namespace aPlanet {
             }
             MinSizeFactor = aConst::EquipmentSizeFactors[5];
             MaxSizeFactor = aConst::EquipmentSizeFactors[1];
-            for (auto cpp_range_22 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 3.0)))); cpp_range_22.next(I); ) {
+            for (auto cpp_range_24 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 3.0)))); cpp_range_24.next(I); ) {
                 if (I > 1 && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.75L) {
                     continue;
                 }
@@ -1036,16 +1036,16 @@ namespace aPlanet {
                             return aMyFunction::NextRandomIntRange(round_20, round_19, RandomState);
                         }());
                         Level = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, RandomState);
-                        Item = aItem::CreateGeneratedWeapon(WeaponInfo, Weight, Level, 6);
+                        Item = aItem::CreateGeneratedWeapon(WeaponInfo, Weight, Level, aGalaxyStruct::oiUninhabited);
                     } else {
-                        ItemType = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}}));
+                        ItemType = static_cast<aConst::TItemType>(aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}})));
                         {
                             std::int32_t round_21 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MaxSizeFactor);
                             std::int32_t round_22 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MinSizeFactor);
                             Weight = aMyFunction::NextRandomIntRange(round_22, round_21, RandomState);
                         }
                         Level = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, RandomState);
-                        Item = aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(ItemType), Weight, Level, 6);
+                        Item = aItem::CreateGeneratedEquipment(ItemType, Weight, Level, aGalaxyStruct::oiUninhabited);
                     }
                     if (Item->Cost < 5000 || Item->Cost < 7.5E+3L && Count > 2 || Item->Cost < 10000 && Count > 3 || Count > 4) {
                         break;
@@ -1055,11 +1055,11 @@ namespace aPlanet {
                 Item->ConditionPercent = aMyFunction::SeededRandomFloatRange(Item->Id, 1.0E+1, 1.0E+2);
                 AddSurfaceLootEntry(Item);
             }
-            for (auto cpp_range_23 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 5.0)))); cpp_range_23.next(I); ) {
+            for (auto cpp_range_25 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 5.0)))); cpp_range_25.next(I); ) {
                 if (I > 2 && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.4L) {
                     continue;
                 }
-                ItemType = aMyFunction::NextRandomIntRange(0, 7, RandomState);
+                ItemType = static_cast<aConst::TItemType>(aMyFunction::NextRandomIntRange(0, 7, RandomState));
                 Count = aMyFunction::NextRandomIntRange(std::max<std::int32_t>(1, aConst::GoodsMarket[ItemType].BaseStock / 20), System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, aConst::GoodsMarket[ItemType].BaseStock / 15, aConst::GoodsMarket[ItemType].BaseStock / 7)), RandomState);
                 SavedRandomState = RandomState;
                 if (Count < 10) {
@@ -1067,13 +1067,13 @@ namespace aPlanet {
                 } else {
                     Part = aMyFunction::NextRandomIntRange(1, 4, RandomState);
                 }
-                for (auto cpp_range_24 = pas::for_to<std::int32_t>(1, Part); cpp_range_24.next(Part); ) {
+                for (auto cpp_range_26 = pas::for_to<std::int32_t>(1, Part); cpp_range_26.next(Part); ) {
                     GoodsItem = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                    Quantity = pas::idiv(Count, aMyFunction::SeededRandomIntRange(1, 5, RandomState * Part * ItemType)) + 1;
+                    Quantity = pas::idiv(Count, aMyFunction::SeededRandomIntRange(1, 5, RandomState * Part * static_cast<std::uint8_t>(ItemType))) + 1;
                     RandomState = SavedRandomState;
-                    GoodsItem->Init(static_cast<aConst::TItemType>(ItemType), Quantity);
+                    GoodsItem->Init(ItemType, Quantity);
                     {
-                        std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(2, 5, RandomState * Part * ItemType * 3);
+                        std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(2, 5, RandomState * Part * static_cast<std::uint8_t>(ItemType) * 3);
                         GoodsItem->Cost = pas::idiv(GoodsItem->Cost, cpp_right);
                     }
                     AddSurfaceLootEntry(GoodsItem);
@@ -1083,7 +1083,7 @@ namespace aPlanet {
         }
         HasPlayerLanded = false;
         UpdateOwnerFlags();
-        for (auto cpp_range_25 = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(aGalaxy::Galaxy->CustomRules.ExtraInventions)); cpp_range_25.next(I); ) {
+        for (auto cpp_range_27 = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(aGalaxy::Galaxy->CustomRules.ExtraInventions)); cpp_range_27.next(I); ) {
             CurrentInventionPoints = 101.0f;
             AdvanceInventionProgress();
         }
@@ -1093,7 +1093,7 @@ namespace aPlanet {
     void TPlanet::InitDominatorSpawnProxy(aGalaxy::TStar* Star) {
         std::uint8_t Index{};
         CurrentStar = Star;
-        OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
+        OwnerId = aGalaxyStruct::oiDominator;
         for (Index = static_cast<std::uint8_t>(0); Index <= static_cast<std::uint8_t>(19); ++Index) {
             InventionLevels[Index] = 8;
         }
@@ -1110,13 +1110,13 @@ namespace aPlanet {
         std::uint32_t SavedRandomState{};
         double SatelliteRadius{};
         double MinOrbitRadius{};
-        std::uint8_t ItemOwner{};
+        aGalaxyStruct::TOwnerId ItemOwner{};
         pas::WideString UnusedText{};
         TSputnik* Satellite{};
         std::int32_t SatelliteCount{};
         EC_BlockPar::TBlockParEC* SatelliteConfig{};
         aItem::TEquipment* Item{};
-        std::uint8_t ItemType{};
+        aConst::TItemType ItemType{};
         std::int32_t Series{};
         std::uint8_t HullType{};
         aItem::TEquipmentWithActCode* Loot{};
@@ -1134,8 +1134,8 @@ namespace aPlanet {
         std::int32_t WeaponTechLevel{};
         aItem::TWeapon* GeneratedWeapon{};
         CurrentStar = Star;
-        OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
-        RaceId = static_cast<std::uint8_t>(aGalaxyStruct::oiMaloc);
+        OwnerId = aGalaxyStruct::oiUninhabited;
+        RaceId = aGalaxyStruct::oiMaloc;
         Name = u"New Planet"_w;
         std::int32_t Count = Globals::PlanetSpaceTemplates.length() - 1 + 1;
         std::int32_t Quantity = aMyFunction::RandomIntRange(0, Count - 1);
@@ -1286,11 +1286,11 @@ namespace aPlanet {
         HomeRangerCount = 0;
         HomeTransportCount = 0;
         // Kept even though OwnerId was assigned 6 above: the original emits this stock-generation branch.
-        if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
-            for (ItemType = static_cast<std::uint8_t>(aConst::t_Hull); ItemType <= static_cast<std::uint8_t>(aConst::t_Weapon1); ++ItemType) {
+        if (OwnerId != aGalaxyStruct::oiUninhabited) {
+            for (auto cpp_range_3 = pas::for_to<aConst::TItemType>(aConst::t_Hull, aConst::t_Weapon1); cpp_range_3.next(ItemType); ) {
                 switch (ItemType) {
                     case aConst::t_Hull: {
-                        for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 5, RandomState)); cpp_range_3.next(I); ) {
+                        for (auto cpp_range_4 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 5, RandomState)); cpp_range_4.next(I); ) {
                             Item = pas::construct_call<aItem::THull>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             HullType = aMyFunction::NextRandomIntRange(0, 5, RandomState);
@@ -1308,11 +1308,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_FuelTanks: {
-                        for (auto cpp_range_4 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_4.next(I); ) {
+                        for (auto cpp_range_5 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_5.next(I); ) {
                             Item = pas::construct_call<aItem::TFuelTanks>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId = OwnerId;
                                 std::int32_t round_3 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_4 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(round_4, round_3, RandomState);
@@ -1324,11 +1324,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Engine: {
-                        for (auto cpp_range_5 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 3, RandomState)); cpp_range_5.next(I); ) {
+                        for (auto cpp_range_6 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 3, RandomState)); cpp_range_6.next(I); ) {
                             Item = pas::construct_call<aItem::TEngine>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_2 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_2 = OwnerId;
                                 std::int32_t round_5 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_6 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(round_6, round_5, RandomState);
@@ -1340,11 +1340,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Radar: {
-                        for (auto cpp_range_6 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_6.next(I); ) {
+                        for (auto cpp_range_7 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_7.next(I); ) {
                             Item = pas::construct_call<aItem::TRadar>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_3 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_3 = OwnerId;
                                 std::int32_t round_7 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_8 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(round_8, round_7, RandomState);
@@ -1356,11 +1356,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Scaner: {
-                        for (auto cpp_range_7 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_7.next(I); ) {
+                        for (auto cpp_range_8 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_8.next(I); ) {
                             Item = pas::construct_call<aItem::TScaner>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_4 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_4 = OwnerId;
                                 std::int32_t round_9 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_10 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(round_10, round_9, RandomState);
@@ -1372,11 +1372,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_RepairRobot: {
-                        for (auto cpp_range_8 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_8.next(I); ) {
+                        for (auto cpp_range_9 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_9.next(I); ) {
                             Item = pas::construct_call<aItem::TRepairRobot>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_5 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_5 = OwnerId;
                                 std::int32_t round_11 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_12 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(round_12, round_11, RandomState);
@@ -1388,11 +1388,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_CargoHook: {
-                        for (auto cpp_range_9 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_9.next(I); ) {
+                        for (auto cpp_range_10 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_10.next(I); ) {
                             Item = pas::construct_call<aItem::TCargoHook>(aItem::TCargoHook_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_6 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_6 = OwnerId;
                                 std::int32_t round_13 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_14 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(round_14, round_13, RandomState);
@@ -1404,11 +1404,11 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_DefGenerator: {
-                        for (auto cpp_range_10 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_10.next(I); ) {
+                        for (auto cpp_range_11 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, 2, RandomState)); cpp_range_11.next(I); ) {
                             Item = pas::construct_call<aItem::TDefGenerator>(aItem::TEquipment_Create);
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
-                                std::uint8_t ownerId_7 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_7 = OwnerId;
                                 std::int32_t round_15 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_16 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[5]);
                                 std::int32_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(round_16, round_15, RandomState);
@@ -1420,7 +1420,7 @@ namespace aPlanet {
                         break;
                     }
                     case aConst::t_Weapon1: {
-                        for (auto cpp_range_11 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(2, InventionLevels[7] + 2, RandomState)); cpp_range_11.next(I); ) {
+                        for (auto cpp_range_12 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(2, InventionLevels[7] + 2, RandomState)); cpp_range_12.next(I); ) {
                             {
                                 std::uint8_t cpp_arg_17 = InventionLevels[7];
                                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 100000);
@@ -1428,7 +1428,7 @@ namespace aPlanet {
                                 WeaponInfo = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), cpp_arg_17, 1);
                             }
                             GeneratedWeapon = ([&] {
-                                std::uint8_t ownerId_8 = OwnerId;
+                                aGalaxyStruct::TOwnerId ownerId_8 = OwnerId;
                                 std::int32_t nextRandomIntRange_20 = ([&] {
                                     std::int32_t round_17 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[1]);
                                     std::int32_t round_18 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[5]);
@@ -1457,8 +1457,8 @@ namespace aPlanet {
         if (aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L) {
             ++ProbeOrbitCount;
         }
-        if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && GetUnexploredSurfaceTileCount() > 50) {
-            for (auto cpp_range_12 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_12.next(I); ) {
+        if (OwnerId == aGalaxyStruct::oiUninhabited && GetUnexploredSurfaceTileCount() > 50) {
+            for (auto cpp_range_13 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_13.next(I); ) {
                 if (aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L) {
                     continue;
                 }
@@ -1467,15 +1467,15 @@ namespace aPlanet {
                 }
                 {
                     std::uint32_t cpp_arg_18 = 767 + aMyFunction::NextRandomIntRange(1, 3000, RandomState);
-                    std::uint8_t raceToOwner = aConst::RaceToOwner(RaceId);
+                    aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(RaceId);
                     Loot = aItem::CreateRandomLootItem(aItem::ilpTreasure, raceToOwner, cpp_arg_18);
                 }
-                if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Loot) != nullptr) {
-                    static_cast<aTranclucator::TTranclucator*>(reinterpret_cast<aItem::TArtefactTranclucator*>(Loot)->Ship)->OwnerShip = nullptr;
+                if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Loot)) {
+                    static_cast<aTranclucator::TTranclucator*>(artefactTranclucator->Ship)->OwnerShip = nullptr;
                 }
                 AddSurfaceLootEntry(Loot);
             }
-            for (auto cpp_range_13 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_13.next(I); ) {
+            for (auto cpp_range_14 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(1, System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 1.0, 3.0)), RandomState)); cpp_range_14.next(I); ) {
                 if (aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L) {
                     continue;
                 }
@@ -1492,7 +1492,7 @@ namespace aPlanet {
                 Module->Init(ModuleIndex);
                 AddSurfaceLootEntry(Module);
             }
-            for (auto cpp_range_14 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 4.0)))); cpp_range_14.next(I); ) {
+            for (auto cpp_range_15 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 4.0)))); cpp_range_15.next(I); ) {
                 if (I > 1 && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.4L) {
                     continue;
                 }
@@ -1505,7 +1505,7 @@ namespace aPlanet {
                     }
                 }
                 {
-                    std::uint8_t raceToOwner_2 = aConst::RaceToOwner(RaceId);
+                    aGalaxyStruct::TOwnerId raceToOwner_2 = aConst::RaceToOwner(RaceId);
                     std::int32_t nextRandomIntRange_23 = aMyFunction::NextRandomIntRange(0, Count, RandomState);
                     Cistern->Init(nextRandomIntRange_23, Count, raceToOwner_2);
                 }
@@ -1520,7 +1520,7 @@ namespace aPlanet {
             }
             MinSizeFactor = aConst::EquipmentSizeFactors[5];
             MaxSizeFactor = aConst::EquipmentSizeFactors[1];
-            for (auto cpp_range_15 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 3.0)))); cpp_range_15.next(I); ) {
+            for (auto cpp_range_16 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 3.0)))); cpp_range_16.next(I); ) {
                 if (I > 1 && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.75L) {
                     continue;
                 }
@@ -1536,16 +1536,16 @@ namespace aPlanet {
                             return aMyFunction::NextRandomIntRange(round_20, round_19, RandomState);
                         }());
                         Level = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, RandomState);
-                        Item = aItem::CreateGeneratedWeapon(WeaponInfo, Weight, Level, 6);
+                        Item = aItem::CreateGeneratedWeapon(WeaponInfo, Weight, Level, aGalaxyStruct::oiUninhabited);
                     } else {
-                        ItemType = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}}));
+                        ItemType = static_cast<aConst::TItemType>(aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}})));
                         {
                             std::int32_t round_21 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MaxSizeFactor);
                             std::int32_t round_22 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MinSizeFactor);
                             Weight = aMyFunction::NextRandomIntRange(round_22, round_21, RandomState);
                         }
                         Level = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, RandomState);
-                        Item = aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(ItemType), Weight, Level, 6);
+                        Item = aItem::CreateGeneratedEquipment(ItemType, Weight, Level, aGalaxyStruct::oiUninhabited);
                     }
                     if (Item->Cost < 5000 || Item->Cost < 7.5E+3L && Count > 2 || Item->Cost < 10000 && Count > 3 || Count > 4) {
                         break;
@@ -1555,11 +1555,11 @@ namespace aPlanet {
                 Item->ConditionPercent = aMyFunction::SeededRandomFloatRange(Item->Id, 1.0E+1, 1.0E+2);
                 AddSurfaceLootEntry(Item);
             }
-            for (auto cpp_range_16 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 5.0)))); cpp_range_16.next(I); ) {
+            for (auto cpp_range_17 = pas::for_to<std::int32_t>(1, static_cast<std::int32_t>(System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, 2.0, 5.0)))); cpp_range_17.next(I); ) {
                 if (I > 2 && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.4L) {
                     continue;
                 }
-                ItemType = aMyFunction::NextRandomIntRange(0, 7, RandomState);
+                ItemType = static_cast<aConst::TItemType>(aMyFunction::NextRandomIntRange(0, 7, RandomState));
                 Count = aMyFunction::NextRandomIntRange(std::max<std::int32_t>(1, aConst::GoodsMarket[ItemType].BaseStock / 20), System::Round(aMyFunction::RemapClamped(Radius, 6.0E+1, 1.0E+2, aConst::GoodsMarket[ItemType].BaseStock / 15, aConst::GoodsMarket[ItemType].BaseStock / 7)), RandomState);
                 SavedRandomState = RandomState;
                 if (Count < 10) {
@@ -1567,13 +1567,13 @@ namespace aPlanet {
                 } else {
                     Part = aMyFunction::NextRandomIntRange(1, 4, RandomState);
                 }
-                for (auto cpp_range_17 = pas::for_to<std::int32_t>(1, Part); cpp_range_17.next(Part); ) {
+                for (auto cpp_range_18 = pas::for_to<std::int32_t>(1, Part); cpp_range_18.next(Part); ) {
                     GoodsItem = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                    Quantity = pas::idiv(Count, aMyFunction::SeededRandomIntRange(1, 5, RandomState * Part * ItemType)) + 1;
+                    Quantity = pas::idiv(Count, aMyFunction::SeededRandomIntRange(1, 5, RandomState * Part * static_cast<std::uint8_t>(ItemType))) + 1;
                     RandomState = SavedRandomState;
-                    GoodsItem->Init(static_cast<aConst::TItemType>(ItemType), Quantity);
+                    GoodsItem->Init(ItemType, Quantity);
                     {
-                        std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(2, 5, RandomState * Part * ItemType * 3);
+                        std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(2, 5, RandomState * Part * static_cast<std::uint8_t>(ItemType) * 3);
                         GoodsItem->Cost = pas::idiv(GoodsItem->Cost, cpp_right);
                     }
                     AddSurfaceLootEntry(GoodsItem);
@@ -1581,11 +1581,11 @@ namespace aPlanet {
             }
             NormalizeSurfaceLootEntries();
         }
-        for (auto cpp_range_18 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_18.next(I); ) {
+        for (auto cpp_range_19 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_19.next(I); ) {
             Ranger = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
             pas::list_add(RangerRelations, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(*([&] {
-                auto cpp_index = aConst::RaceToOwner(Ranger->PilotRace) & 0x0000007f;
-                auto* cpp_array = &aConst::OwnerRelations[aConst::RaceToOwner(RaceId) & 0x0000007f];
+                auto cpp_index = aConst::RaceToOwner(Ranger->PilotRace);
+                auto* cpp_array = &aConst::OwnerRelations[aConst::RaceToOwner(RaceId)];
                 return &(*cpp_array)[cpp_index];
             }())))));
         }
@@ -1628,8 +1628,8 @@ namespace aPlanet {
         Buffer->AddDWord(Population);
         Buffer->AddAnsiChar(static_cast<std::uint8_t>(Economy));
         Buffer->AddDWord(Money);
-        Buffer->AddAnsiChar(OwnerId);
-        Buffer->AddAnsiChar(RaceId);
+        Buffer->AddAnsiChar(static_cast<std::uint8_t>(OwnerId));
+        Buffer->AddAnsiChar(static_cast<std::uint8_t>(RaceId));
         Buffer->AddAnsiChar(static_cast<std::uint8_t>(Government));
         for (Kind = static_cast<std::uint8_t>(0); Kind <= static_cast<std::uint8_t>(7); ++Kind) {
             Buffer->AddIntegerValue(Goods[Kind].Count);
@@ -1764,8 +1764,8 @@ namespace aPlanet {
             Self->Population = EC_Buf::TBufEC_GetUInt32(Buffer);
             Self->Economy = static_cast<aGalaxyStruct::TPlanetEconomy>(EC_Buf::TBufEC_GetByte(Buffer));
             Self->Money = EC_Buf::TBufEC_GetUInt32(Buffer);
-            Self->OwnerId = EC_Buf::TBufEC_GetByte(Buffer);
-            Self->RaceId = EC_Buf::TBufEC_GetByte(Buffer);
+            Self->OwnerId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
+            Self->RaceId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
             Self->Government = static_cast<aGalaxyStruct::TPlanetGovernment>(EC_Buf::TBufEC_GetByte(Buffer));
             if (GlobalsV::LoadedSaveVersion < 96) {
                 EC_Buf::TBufEC_GetByte(Buffer);
@@ -1824,7 +1824,7 @@ namespace aPlanet {
             Self->GraphicRadius = EC_Buf::TBufEC_GetWord(Buffer);
             Self->GraphName = Buffer->ReadWideString();
             {
-                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Planet"_wref.get(), Self->GraphName, ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Planet"sv, Self->GraphName, ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> graphic = pas::Var<SE_Space::TObjectSE*>(&Self->Graphic);
                 SE_Space::RetainSpaceObject(graphic, createSpaceObjectByName);
             }
@@ -1910,7 +1910,7 @@ namespace aPlanet {
         Block->AddParam(EC_Str::DecodeTextW(u"OpwRn3ewr"_w), aConst::OwnerInfo[OwnerId].InternalName);
         {
             const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Rja6cEe"_w);
-            const pas::WideString& internalName = aConst::OwnerInfo[aConst::RaceToOwner(RaceId) & 127].InternalName;
+            const pas::WideString& internalName = aConst::OwnerInfo[aConst::RaceToOwner(RaceId)].InternalName;
             Block->AddParam(decodeTextW, internalName);
         }
         Block->AddParam(EC_Str::DecodeTextW(u"Elc0o5neowmWyq"_w), aConst::PlanetEconomyInfo[Economy].InternalName);
@@ -1955,7 +1955,7 @@ namespace aPlanet {
             const pas::WideString& decodeTextW_8 = EC_Str::DecodeTextW(u"CluurtreewnstQIvnhv6eenwtfijo6ntPwoSirn5tts7"_w);
             Block->AddParam(decodeTextW_8, cpp_arg_3);
         }
-        // Decoded: 'EqShop'
+        // 'EqShop'
         {
             EC_BlockPar::TBlockParEC* cpp_with = Block->AddBlockByPath(EC_Str::DecodeTextW(u"EdqeSahloEp"_w));
             if (EquipmentShop != nullptr && pas::list_count(EquipmentShop) > 0) {
@@ -1993,7 +1993,7 @@ namespace aPlanet {
             Text = pas::concat_wide({Text, u",", pas::wide_int_to_str(Goods[aConst::GoodsTextOrder[static_cast<std::uint8_t>(i)]].BaseSalePrice)});
         }
         Block->AddParam(EC_Str::DecodeTextW(u"SihrolpaGloiordesaBruhy"_w), Text);
-        // Decoded: 'Garrison'
+        // 'Garrison'
         {
             EC_BlockPar::TBlockParEC* cpp_with_2 = Block->AddBlockByPath(EC_Str::DecodeTextW(u"GlamrirLihsaoln"_w));
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Warriors) - 1); cpp_range_3.next(i); ) {
@@ -2039,7 +2039,7 @@ namespace aPlanet {
             const pas::WideString& decodeTextW_15 = EC_Str::DecodeTextW(u"OyrebwiftlCknstx"_w);
             Block->AddParam(decodeTextW_15, intToStr_11);
         }
-        // Decoded: 'Storage'
+        // 'Storage'
         {
             EC_BlockPar::TBlockParEC* cpp_with_3 = Block->AddBlockByPath(EC_Str::DecodeTextW(u"Sataokrgalgae"_w));
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range_4.next(i); ) {
@@ -2051,7 +2051,7 @@ namespace aPlanet {
             }
             cpp_with_3->AddParam(EC_Str::DecodeTextW(u"AodEdrIstaelma"_w), u""_wref.get());
         }
-        // Decoded: 'Treasure'
+        // 'Treasure'
         {
             EC_BlockPar::TBlockParEC* cpp_with_4 = Block->AddBlockByPath(EC_Str::DecodeTextW(u"TurieKalsauOrden"_w));
             if (SurfaceLootEntries != nullptr) {
@@ -2096,52 +2096,52 @@ namespace aPlanet {
         std::uint8_t ShipType{};
         aPlayer::PStorageEntry Storage{};
         fEquipmentShop::TShopSlot* Slot{};
-        std::uint8_t OldOwner{};
-        std::uint8_t Owner{};
-        std::uint8_t OldRace{};
+        aGalaxyStruct::TOwnerId OldOwner{};
+        aGalaxyStruct::TOwnerId Owner{};
+        aGalaxyStruct::TOwnerId OldRace{};
         aGalaxyStruct::TDominatorSeries OldSeries{};
         aGalaxyStruct::TDominatorSeries Series{};
-        Name = Block->GetParam(EC_Str::DecodeTextW(u"Pul4awnre2taNgarmEes"_w));
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"OpwRn3ewr"_w));
+        Name = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Pul4awnre2taNgarmEes"_w)));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"OpwRn3ewr"_w)));
         for (i = 0; i <= 7; ++i) {
-            if (Text == aConst::OwnerInfo[static_cast<std::uint8_t>(i)].InternalName) {
-                OwnerId = i;
+            if (Text == aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(i)].InternalName) {
+                OwnerId = static_cast<aGalaxyStruct::TOwnerId>(i);
             }
         }
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"Rja6cEe"_w));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rja6cEe"_w)));
         for (i = 0; i <= 4; ++i) {
-            if (Text == aConst::OwnerInfo[static_cast<std::uint8_t>(i)].InternalName) {
-                RaceId = i;
+            if (Text == aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(i)].InternalName) {
+                RaceId = static_cast<aGalaxyStruct::TOwnerId>(i);
             }
         }
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"Elc0o5neowmWyq"_w));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Elc0o5neowmWyq"_w)));
         for (i = 0; i <= 2; ++i) {
-            if (Text == aConst::PlanetEconomyInfo[static_cast<std::uint8_t>(i)].InternalName) {
+            if (Text == aConst::PlanetEconomyInfo[static_cast<aGalaxyStruct::TPlanetEconomy>(i)].InternalName) {
                 Economy = static_cast<aGalaxyStruct::TPlanetEconomy>(i);
             }
         }
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"GLotvUecrBmnemn7t"_w));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"GLotvUecrBmnemn7t"_w)));
         for (i = 0; i <= 4; ++i) {
-            if (Text == aConst::PlanetGovernmentMarket[static_cast<std::uint8_t>(i)].InternalName) {
+            if (Text == aConst::PlanetGovernmentMarket[static_cast<aGalaxyStruct::TPlanetGovernment>(i)].InternalName) {
                 Government = static_cast<aGalaxyStruct::TPlanetGovernment>(i);
             }
         }
-        Orbit.Radius = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"OcrublietyRnakdlipuns"_w)));
-        Orbit.AngleDegrees = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"OsrabniktuAinegilne"_w)));
-        pas::list_put(RangerRelations, 0, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Rpe7lyamtgi4oendThokP4lWasyfeKry"_w))))))));
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"SihrolpaGloiordesa"_w));
+        Orbit.Radius = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"OcrublietyRnakdlipuns"_w))));
+        Orbit.AngleDegrees = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"OsrabniktuAinegilne"_w))));
+        pas::list_put(RangerRelations, 0, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rpe7lyamtgi4oendThokP4lWasyfeKry"_w)))))))));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SihrolpaGloiordesa"_w)));
         for (i = 0; i <= 7; ++i) {
-            Goods[aConst::GoodsTextOrder[static_cast<std::uint8_t>(i)]].Count = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get())));
+            Goods[aConst::GoodsTextOrder[static_cast<std::uint8_t>(i)]].Count = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv)));
         }
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"SihrolpaGloiordesaSrakloe"_w));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SihrolpaGloiordesaSrakloe"_w)));
         for (i = 0; i <= 7; ++i) {
-            Goods[aConst::GoodsTextOrder[static_cast<std::uint8_t>(i)]].PurchasePrice = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get())));
+            Goods[aConst::GoodsTextOrder[static_cast<std::uint8_t>(i)]].PurchasePrice = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv)));
         }
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"SihrolpaGloiordesaBruhy"_w));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SihrolpaGloiordesaBruhy"_w)));
         for (i = 0; i <= 7; ++i) {
-            Goods[aConst::GoodsTextOrder[static_cast<std::uint8_t>(i)]].BaseSalePrice = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get())));
+            Goods[aConst::GoodsTextOrder[static_cast<std::uint8_t>(i)]].BaseSalePrice = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv)));
         }
-        // Decoded: 'EqShop'
+        // 'EqShop'
         {
             EC_BlockPar::TBlockParEC* cpp_with = Block->GetBlockByPath(EC_Str::DecodeTextW(u"EdqeSahloEp"_w));
             if (EquipmentShop != nullptr && pas::list_count(EquipmentShop) > 0) {
@@ -2162,9 +2162,9 @@ namespace aPlanet {
                     }
                 }
             }
-            Text = cpp_with->GetParam(EC_Str::DecodeTextW(u"AodEdrIstaelma"_w));
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) - 1); cpp_range_3.next(i); ) {
-                Part = EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get());
+            Text = cpp_with->GetParam(pas::view(EC_Str::DecodeTextW(u"AodEdrIstaelma"_w)));
+            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) - 1); cpp_range_3.next(i); ) {
+                Part = EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv);
                 for (auto cpp_range_4 = pas::for_to<aConst::TItemType>(aConst::t_Food, aConst::t_UselessCountableItem); cpp_range_4.next(ItemType); ) {
                     if (aConst::ItemTypeNames[ItemType] == Part) {
                         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
@@ -2184,7 +2184,7 @@ namespace aPlanet {
                 }
             }
         }
-        // Decoded: 'Storage'
+        // 'Storage'
         {
             EC_BlockPar::TBlockParEC* cpp_with_2 = Block->GetBlockByPath(EC_Str::DecodeTextW(u"Sataokrgalgae"_w));
             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range_5.next(i); ) {
@@ -2194,9 +2194,9 @@ namespace aPlanet {
                     Item->virtual_TItem_LoadFromBlock(cpp_with_2->GetBlockByPath(Text));
                 }
             }
-            Text = cpp_with_2->GetParam(EC_Str::DecodeTextW(u"AodEdrIstaelma"_w));
-            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) - 1); cpp_range_6.next(i); ) {
-                Part = EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get());
+            Text = cpp_with_2->GetParam(pas::view(EC_Str::DecodeTextW(u"AodEdrIstaelma"_w)));
+            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) - 1); cpp_range_6.next(i); ) {
+                Part = EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv);
                 for (auto cpp_range_7 = pas::for_to<aConst::TItemType>(aConst::t_Food, aConst::t_UselessCountableItem); cpp_range_7.next(ItemType); ) {
                     if (aConst::ItemTypeNames[ItemType] == Part) {
                         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics)) || pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon)) || pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull), static_cast<std::int32_t>(aConst::t_ArtFastRacks)) || pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Protoplasm), static_cast<std::int32_t>(aConst::t_Satellite))) {
@@ -2215,13 +2215,13 @@ namespace aPlanet {
                 }
             }
         }
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"Toe5cfh2LSexvNejlusw"_w));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Toe5cfh2LSexvNejlusw"_w)));
         for (i = 0; i <= 19; ++i) {
-            InventionLevels[static_cast<std::uint8_t>(i)] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get())));
+            InventionLevels[static_cast<std::uint8_t>(i)] = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv)));
         }
-        CurrentInvention = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"C2u4rrrTeengtyIwnsvgeEn6tjieodn"_w))));
-        CurrentInventionPoints = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"CluurtreewnstQIvnhv6eenwtfijo6ntPwoSirn5tts7"_w)));
-        // Decoded: 'Garrison'
+        CurrentInvention = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"C2u4rrrTeengtyIwnsvgeEn6tjieodn"_w)))));
+        CurrentInventionPoints = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CluurtreewnstQIvnhv6eenwtfijo6ntPwoSirn5tts7"_w))));
+        // 'Garrison'
         {
             EC_BlockPar::TBlockParEC* cpp_with_3 = Block->GetBlockByPath(EC_Str::DecodeTextW(u"GlamrirLihsaoln"_w));
             for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Warriors) - 1); cpp_range_8.next(i); ) {
@@ -2232,14 +2232,14 @@ namespace aPlanet {
                 }
             }
         }
-        WaterTiles = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"WuartTewrfSgpwaQcde"_w))));
-        WaterExplored = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"WbantderrwCSofmgpUlkaltwef"_w))));
-        LandTiles = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"LLagnsd3SwpFascge4"_w))));
-        LandExplored = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"LgaEnwdsCfogmHpjlya5tre"_w))));
-        HillTiles = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"HbiFldleSrptaycue"_w))));
-        HillExplored = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"HninlglnCfodmFpflFastee"_w))));
-        ProbeOrbitCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"OyrebwiftlCknstx"_w))));
-        // Decoded: 'Treasure'
+        WaterTiles = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WuartTewrfSgpwaQcde"_w)))));
+        WaterExplored = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WbantderrwCSofmgpUlkaltwef"_w)))));
+        LandTiles = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"LLagnsd3SwpFascge4"_w)))));
+        LandExplored = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"LgaEnwdsCfogmHpjlya5tre"_w)))));
+        HillTiles = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"HbiFldleSrptaycue"_w)))));
+        HillExplored = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"HninlglnCfodmFpflFastee"_w)))));
+        ProbeOrbitCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"OyrebwiftlCknstx"_w)))));
+        // 'Treasure'
         {
             EC_BlockPar::TBlockParEC* cpp_with_4 = Block->GetBlockByPath(EC_Str::DecodeTextW(u"TurieKalsauOrden"_w));
             if (SurfaceLootEntries != nullptr) {
@@ -2248,8 +2248,8 @@ namespace aPlanet {
                     Text = pas::concat_wide_reverse({pas::wide_int_to_str(i + 1), EC_Str::DecodeTextW(u"HyiIdedfehnjIytrewm"_w)});
                     {
                         EC_BlockPar::TBlockParEC* cpp_with_5 = cpp_with_4->GetBlockByPath(Text);
-                        Entry->TerrainKind = static_cast<TPlanetTerrainKind>(SysUtils::StrToInt(static_cast<pas::AnsiString>(cpp_with_5->GetParam(EC_Str::DecodeTextW(u"LaawnedrTtyhpuei"_w)))));
-                        Entry->SurfaceTileIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(cpp_with_5->GetParam(EC_Str::DecodeTextW(u"DjetpEtwh"_w))));
+                        Entry->TerrainKind = static_cast<TPlanetTerrainKind>(SysUtils::StrToInt(static_cast<pas::AnsiString>(cpp_with_5->GetParam(pas::view(EC_Str::DecodeTextW(u"LaawnedrTtyhpuei"_w))))));
+                        Entry->SurfaceTileIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(cpp_with_5->GetParam(pas::view(EC_Str::DecodeTextW(u"DjetpEtwh"_w)))));
                         {
                             EC_BlockPar::TBlockParEC* blockByPath = cpp_with_5->GetBlockByPath(pas::concat_wide_reverse({pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Entry->Item->Id))), EC_Str::DecodeTextW(u"IrtteEmtIIdy"_w)}));
                             aItem::TItem* item = Entry->Item;
@@ -2258,9 +2258,9 @@ namespace aPlanet {
                     }
                 }
             }
-            Text = cpp_with_4->GetParam(EC_Str::DecodeTextW(u"Cur5erawtre3NregwgHjikdHdgern4IFthejm6"_w));
-            for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) - 1); cpp_range_10.next(i); ) {
-                Part = EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get());
+            Text = cpp_with_4->GetParam(pas::view(EC_Str::DecodeTextW(u"Cur5erawtre3NregwgHjikdHdgern4IFthejm6"_w)));
+            for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) - 1); cpp_range_10.next(i); ) {
+                Part = EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv);
                 for (auto cpp_range_11 = pas::for_to<aConst::TItemType>(aConst::t_Food, aConst::t_UselessCountableItem); cpp_range_11.next(ItemType); ) {
                     if (aConst::ItemTypeNames[ItemType] == Part) {
                         if (pas::in_set<aConst::t_Food, aConst::t_Narcotics, aConst::t_ArtefactHull, aConst::t_Satellite>(ItemType)) {
@@ -2276,24 +2276,24 @@ namespace aPlanet {
                 }
             }
         }
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"CorFedaWtaesNfeTwgShhji6pw"_w));
-        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) - 1); cpp_range_12.next(i); ) {
-            Part = EC_Str::ExtractDelimitedPartW(Text, i, u","_wref.get());
-            ShipName = EC_Str::ExtractDelimitedPartW(Part, 0, u"."_wref.get());
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CorFedaWtaesNfeTwgShhji6pw"_w)));
+        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) - 1); cpp_range_12.next(i); ) {
+            Part = EC_Str::ExtractDelimitedPartW(pas::view(Text), i, u","sv);
+            ShipName = EC_Str::ExtractDelimitedPartW(pas::view(Part), 0, u"."sv);
             OldOwner = OwnerId;
             OldRace = RaceId;
             OldSeries = CurrentStar->Status.DominatorSeries;
-            if (EC_Str::CountDelimitedPartsW(Part, u"."_wref.get()) > 1) {
-                Part = EC_Str::ExtractDelimitedPartW(Part, 1, u"."_wref.get());
+            if (EC_Str::CountDelimitedPartsW(pas::view(Part), u"."sv) > 1) {
+                Part = EC_Str::ExtractDelimitedPartW(pas::view(Part), 1, u"."sv);
                 for (auto cpp_range_13 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_13.next(Series); ) {
                     if (aConst::DominatorSeriesNames[Series] == Part) {
                         CurrentStar->Status.DominatorSeries = Series;
                     }
                 }
-                for (Owner = static_cast<std::uint8_t>(0); Owner <= static_cast<std::uint8_t>(7); ++Owner) {
+                for (auto cpp_range_14 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_14.next(Owner); ) {
                     if (aConst::OwnerInfo[Owner].InternalName == Part) {
                         OwnerId = Owner;
-                        if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), Owner)) {
+                        if (pas::contains(aConst::PlanetOwnerMasks.Coalition, Owner)) {
                             RaceId = aConst::OwnerToRace(Owner);
                         }
                     }
@@ -2334,7 +2334,7 @@ namespace aPlanet {
             if (cpp_first >= 0) {
                 for (i = cpp_first; i >= 0; --i) {
                     Item = pas::list_at<aItem::TItem>(EquipmentShop, i);
-                    if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr && static_cast<aItem::TEquipment*>(Item)->SpecialModuleIndex > 0 && (aConst::MicroModuleTemplates[static_cast<aItem::TEquipment*>(Item)->SpecialModuleIndex - 1].OfferStationTypes & 0x00000080) == 0) {
+                    if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item); equipment != nullptr && equipment->SpecialModuleIndex > 0 && static_cast<std::uint8_t>(pas::contains(aConst::MicroModuleTemplates[equipment->SpecialModuleIndex - 1].OfferStationTypes, aGalaxyStruct::rstPirateBase) ^ 1)) {
                         pas::list_delete(EquipmentShop, i);
                         pas::free(Item);
                     }
@@ -2456,7 +2456,7 @@ namespace aPlanet {
         if (aGalaxy::Galaxy->SpecialSimulationMode != 0) {
             return;
         }
-        if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && Self->CurrentStar->Status.CustomFaction != u"") {
+        if (Self->OwnerId != aGalaxyStruct::oiUninhabited && Self->CurrentStar->Status.CustomFaction != u"") {
             if (aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.7L) {
                 Self->AdvanceInventionProgress();
             }
@@ -2464,7 +2464,7 @@ namespace aPlanet {
         }
         try {
             {
-                std::uint8_t cpp_case = Self->OwnerId;
+                aGalaxyStruct::TOwnerId cpp_case = Self->OwnerId;
                 if (cpp_case >= aGalaxyStruct::oiMaloc && cpp_case <= aGalaxyStruct::oiGaal) {
                     // Native growth adds 300 even when already above the radius-based population.
                     if (Self->CalculateBasePopulation() < Self->Population) {
@@ -2614,23 +2614,23 @@ namespace aPlanet {
                 } else if (cpp_case == aGalaxyStruct::oiPirate) {
                     if (Self->IsMainPiratePlanet && aGalaxy::Galaxy->PirateWinType != 3) {
                         if (([&] {
-                            aGalaxy::TControlPercent cpp_left = aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfPirates);
-                            return cpp_left > static_cast<std::uint32_t>((aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) & 0x0000007f) * 2);
+                            aGalaxyStruct::TPercent cpp_left = aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfPirates);
+                            return cpp_left > static_cast<std::uint32_t>(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) * 2);
                         }()) && aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfPirates) > 10 && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
                             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
                                 Ship = pas::list_at<aShip::TShip>(aGalaxy::Galaxy->Rangers, I);
-                                if (static_cast<std::uint8_t>(reinterpret_cast<aRanger::TRanger*>(Ship)->ExcludedFromRating ^ 1) && Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(aShip::TShip_IsInPrison(Ship) ^ 1)) {
+                                if (static_cast<std::uint8_t>(reinterpret_cast<aRanger::TRanger*>(Ship)->ExcludedFromRating ^ 1) && Ship->OwnerId != aGalaxyStruct::oiPirate && static_cast<std::uint8_t>(aShip::TShip_IsInPrison(Ship) ^ 1)) {
                                     Self->ChangeRelationToRanger(Ship, -1);
                                 }
                             }
                         }
                         if (([&] {
-                            aGalaxy::TControlPercent cpp_left_2 = aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfPirates);
-                            return cpp_left_2 > static_cast<std::uint32_t>((aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) & 0x0000007f) * 4);
+                            aGalaxyStruct::TPercent cpp_left_2 = aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfPirates);
+                            return cpp_left_2 > static_cast<std::uint32_t>(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) * 4);
                         }()) && aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfPirates) > 20 && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
                             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_2.next(I); ) {
                                 Ship = pas::list_at<aShip::TShip>(aGalaxy::Galaxy->Rangers, I);
-                                if (static_cast<std::uint8_t>(reinterpret_cast<aRanger::TRanger*>(Ship)->ExcludedFromRating ^ 1) && Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(aShip::TShip_IsInPrison(Ship) ^ 1)) {
+                                if (static_cast<std::uint8_t>(reinterpret_cast<aRanger::TRanger*>(Ship)->ExcludedFromRating ^ 1) && Ship->OwnerId != aGalaxyStruct::oiPirate && static_cast<std::uint8_t>(aShip::TShip_IsInPrison(Ship) ^ 1)) {
                                     Self->ChangeRelationToRanger(Ship, -1);
                                 }
                             }
@@ -2744,8 +2744,8 @@ namespace aPlanet {
                         PirateKills = 0;
                         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range_4.next(I); ) {
                             Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
-                            if (Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr) {
-                                PirateKills += reinterpret_cast<aNormalShip::TNormalShip*>(Ship)->CurrentSystemKills.Pirate;
+                            if (Ship->OwnerId != aGalaxyStruct::oiPirate && pas::class_cast_if<aNormalShip::TNormalShip*>(Ship) != nullptr) {
+                                PirateKills += static_cast<aNormalShip::TNormalShip*>(Ship)->CurrentSystemKills.Pirate;
                             }
                         }
                         PirateSpawnFactor = PirateSpawnFactor * (1.0L - pas::real_divide(PirateKills, 15.0L));
@@ -2763,7 +2763,7 @@ namespace aPlanet {
                             Self->AdvanceInventionProgress();
                             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range_5.next(I); ) {
                                 Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
-                                if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && Ship->CurrentPlanet == Self && aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.2L) {
+                                if (Ship->OwnerId == aGalaxyStruct::oiDominator && Ship->CurrentPlanet == Self && aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.2L) {
                                     Self->Government = static_cast<aGalaxyStruct::TPlanetGovernment>(aMyFunction::NextRandomIntRange(0, 4, Self->RandomState));
                                 }
                             }
@@ -3077,7 +3077,7 @@ namespace aPlanet {
     }
 
     std::uint8_t IsShipEligible(aShip::TShip*& Ship) {
-        return pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(Ship->OrderAbsolute ^ 1) && Ship->AbsoluteScriptOrder == 0 && Ship->InNormalSpace() && Ship->ScriptShip == nullptr && Ship->PartnerShip == nullptr;
+        return pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == aGalaxyStruct::oiPirate && static_cast<std::uint8_t>(Ship->OrderAbsolute ^ 1) && Ship->AbsoluteScriptOrder == 0 && Ship->InNormalSpace() && Ship->ScriptShip == nullptr && Ship->PartnerShip == nullptr;
     }
 
     // Targets a pirate base in a Coalition system; disabled by pirate endings 3 and 5.
@@ -3093,7 +3093,7 @@ namespace aPlanet {
         std::int32_t DominatorCount{};
         float Score{};
         TPlanet* SpawnPlanet{};
-        std::uint8_t OldOwner{};
+        aGalaxyStruct::TOwnerId OldOwner{};
         pas::WideString MessageText{};
         // Nested in TrySpawnPirateBaseRaid; unused static link is caller-popped. Scores up to ten nearby stars and maps the score to 5..20.
         auto CalculatePirateBaseRaidNeighborhoodThreshold = [&](aGalaxy::TStar* Star) -> float {
@@ -3151,7 +3151,7 @@ namespace aPlanet {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, j);
                 if (pas::is_one_of<aGalaxyStruct::ssDominator, aGalaxyStruct::ssCustom>(Ship->CurrentStanding)) {
                     ++DominatorCount;
-                } else if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                } else if (Ship->OwnerId == aGalaxyStruct::oiPirate) {
                     ++PirateCount;
                 } else if (pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stTransport>(Ship->TypeId)) {
                     ++CivilCount;
@@ -3181,7 +3181,7 @@ namespace aPlanet {
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(6, 8, RandomState)); cpp_range_3.next(i); ) {
             SpawnPlanet = static_cast<TPlanet*>(TargetStar->SelectRandomInhabitedPlanet());
             OldOwner = SpawnPlanet->OwnerId;
-            SpawnPlanet->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+            SpawnPlanet->OwnerId = aGalaxyStruct::oiPirate;
             Ship = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(SpawnPlanet->BuyWarrior(100)));
             Ship->Position = TargetBase->Position;
             Ship->CurrentPlanet = nullptr;
@@ -3313,7 +3313,7 @@ namespace aPlanet {
     }
 
     void TPlanet::UpdateOwnerFlags() {
-        IsCoalitionOwned = pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), OwnerId);
+        IsCoalitionOwned = pas::contains(aConst::PlanetOwnerMasks.Coalition, OwnerId);
     }
 
     void TPlanet_UpdateMarketState(TPlanet* Self) {
@@ -3337,12 +3337,12 @@ namespace aPlanet {
             if (Self->GoodsSurplusTicks[ItemType] > 0) {
                 Self->ForceGoodsSurplus(false, pas::make_set<aGalaxyStruct::TItemTypeMask>({{static_cast<std::int32_t>(ItemType)}}));
             }
-            StoredUnits = aPlayer::GetPlayer()->CountStoredItemUnits(Self, ItemType);
+            StoredUnits = aPlayer::GetPlayer()->CountStoredItemUnits(Self, static_cast<aConst::TItemType>(ItemType));
             if (aPlayer::GetPlayer()->CurrentPlanet == Self && aPlayer::GetPlayer()->ConsecutiveDockedDays > 1) {
                 StoredUnits += aPlayer::GetPlayer()->CargoGoods[ItemType].Count;
             }
             EconomyFactor = pas::load_unaligned<float>(pas::byte_offset(&aConst::GoodsMarket[ItemType].EconomyFactors, Self->Economy * sizeof(float)));
-            if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), Self->OwnerId)) {
+            if (pas::contains(aConst::PlanetOwnerMasks.PirateClan, Self->OwnerId)) {
                 EconomyFactor = static_cast<long double>(EconomyFactor) * aConst::GoodsMarket[ItemType].PirateEconomyFactor;
             }
             TargetStock = System::Round(static_cast<long double>(aConst::GoodsMarket[ItemType].BaseStock) * aConst::PlanetRaceMarket[Self->RaceId].GoodsFactors[ItemType].StockFactor * aConst::PlanetGovernmentMarket[Self->Government].GoodsFactors[ItemType].StockFactor * EconomyFactor * aMyFunction::RemapClamped(Self->Radius, 6.0E+1, 1.0E+2, 0.5, 1.5));
@@ -3442,7 +3442,7 @@ namespace aPlanet {
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_2.next(i); ) {
             Ranger = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, i);
             if (!Ranger->ExcludedFromRating) {
-                ChangeRelationToRanger(Ranger, aConst::PlanetGovernmentMarket[Government].RevolutionRelationDelta[static_cast<std::int32_t>(Ranger->GetDominantCareer()) & 127]);
+                ChangeRelationToRanger(Ranger, aConst::PlanetGovernmentMarket[Government].RevolutionRelationDelta[Ranger->GetDominantCareer()]);
             }
         }
         if (CurrentStar->IsConstellationVisible() && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
@@ -3546,7 +3546,7 @@ namespace aPlanet {
             } else if (([&] {
                 std::int32_t cpp_left_4 = aMyFunction::SeededRandomIntRange(0, 100, aGalaxy::Galaxy->CurrentTurn * static_cast<std::int32_t>(GenerationSeed) * 1217);
                 return cpp_left_4 < EconomicEventChance;
-            }()) && (static_cast<std::uint8_t>(CurrentStar->IsConstellationVisible() ^ 1) || aGalaxy::Galaxy->CountPlanetNewsByType(8) == 0) && pas::is_one_of<aGalaxyStruct::peMixed, aGalaxyStruct::peIndustrial>(Economy) && pas::in_set<0, 0, 2, 3>(aConst::RaceToOwner(RaceId))) {
+            }()) && (static_cast<std::uint8_t>(CurrentStar->IsConstellationVisible() ^ 1) || aGalaxy::Galaxy->CountPlanetNewsByType(8) == 0) && pas::is_one_of<aGalaxyStruct::peMixed, aGalaxyStruct::peIndustrial>(Economy) && pas::is_one_of<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiHuman, aGalaxyStruct::oiFeyan>(aConst::RaceToOwner(RaceId))) {
                 ForceGoodsScarcity(true, pas::constant_set<aGalaxyStruct::TItemTypeMask>({{2}}));
                 ForceGoodsSurplus(true, pas::constant_set<aGalaxyStruct::TItemTypeMask>({{6}}));
                 if (CurrentStar->IsConstellationVisible() && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
@@ -3713,7 +3713,7 @@ namespace aPlanet {
             } else if (([&] {
                 std::int32_t cpp_left_15 = aMyFunction::SeededRandomIntRange(0, 100, aGalaxy::Galaxy->CurrentTurn * static_cast<std::int32_t>(GenerationSeed) * 1917);
                 return cpp_left_15 < EconomicEventChance;
-            }()) && (static_cast<std::uint8_t>(CurrentStar->IsConstellationVisible() ^ 1) || aGalaxy::Galaxy->CountPlanetNewsByType(17) == 0) && pas::is_one_of<aGalaxyStruct::peMixed, aGalaxyStruct::peIndustrial>(Economy) && pas::in_set<2, 2, 4, 4>(aConst::RaceToOwner(RaceId))) {
+            }()) && (static_cast<std::uint8_t>(CurrentStar->IsConstellationVisible() ^ 1) || aGalaxy::Galaxy->CountPlanetNewsByType(17) == 0) && pas::is_one_of<aGalaxyStruct::peMixed, aGalaxyStruct::peIndustrial>(Economy) && pas::is_one_of<aGalaxyStruct::oiHuman, aGalaxyStruct::oiGaal>(aConst::RaceToOwner(RaceId))) {
                 ForceGoodsScarcity(true, pas::constant_set<aGalaxyStruct::TItemTypeMask>({{5}}));
                 if (CurrentStar->IsConstellationVisible() && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
                     pas::WideString formatText2_14 = ([&] {
@@ -3746,8 +3746,8 @@ namespace aPlanet {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Script->Stars) - 1); cpp_range_2.next(j); ) {
                 Star = pas::list_at<aScript::TScriptStar>(Script->Stars, j);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Star->Planets.length() - 1); cpp_range_3.next(k); ) {
-                    if (Star->Planets[k].Planet == this && Star->Planets[k].DefinitionText != u"") {
-                        Choices->Add(Star->Planets[k].DefinitionText);
+                    if (Star->Planets[k].Planet == this && Star->Planets[k].DialogChoiceText != u"") {
+                        Choices->Add(Star->Planets[k].DialogChoiceText);
                         Choices->SetDataAt(Choices->GetCount() - 1, Script);
                     }
                 }
@@ -3764,7 +3764,7 @@ namespace aPlanet {
         aGalaxyStruct::TOwnerMask Owners{};
         std::uint8_t Eligible{};
         std::int32_t Result = -1;
-        if (!pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), OwnerId)) {
+        if (!pas::contains(aConst::PlanetOwnerMasks.Coalition, OwnerId)) {
             return Result;
         }
         if (Graphic->RingKind == 1) {
@@ -3857,7 +3857,7 @@ namespace aPlanet {
         std::int32_t Count = Block->GetParamCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             if (EC_Str::FindTextOffsetW(Block->GetParamValue(Index), u"L"_wref.get(), 0) >= 0) {
-                Faces[FaceCount] = EC_Str::ExtractDigitsToIntW(Block->GetParamName(Index));
+                Faces[FaceCount] = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
                 if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->PortraitFaceId != Faces[FaceCount]) {
                     ++FaceCount;
                 }
@@ -3886,17 +3886,17 @@ namespace aPlanet {
     pas::WideString TPlanet::GetInfoText(std::uint8_t ForMap) {
         pas::WideString Text{};
         if (IsMainPiratePlanet) {
-            if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (OwnerId == aGalaxyStruct::oiPirate) {
                 Text = aConst::LocalizedText(u"Planet.MainPiratePlanet.Info.TextAboutPlanet"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Planet.MainPiratePlanet.Info.TextAboutPlanetAlt"_wref.get());
             }
-        } else if (CustomFaction != u"" && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+        } else if (CustomFaction != u"" && OwnerId != aGalaxyStruct::oiUninhabited) {
             Text = aConst::LocalizedText(pas::concat_wide({u"Planet.", CustomFaction, u".Info.TextAboutPlanet"}));
-        } else if (CurrentStar->Status.CustomFaction != u"" && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+        } else if (CurrentStar->Status.CustomFaction != u"" && OwnerId != aGalaxyStruct::oiUninhabited) {
             Text = aConst::LocalizedText(pas::concat_wide({u"Planet.", CurrentStar->Status.CustomFaction, u".Info.TextAboutPlanet"}));
         } else {
-            std::uint8_t cpp_case = OwnerId;
+            aGalaxyStruct::TOwnerId cpp_case = OwnerId;
             if (cpp_case >= aGalaxyStruct::oiMaloc && cpp_case <= aGalaxyStruct::oiGaal || cpp_case == aGalaxyStruct::oiPirate) {
                 Text = aConst::LocalizedText(u"Planet.Civil.Info.TextAboutPlanet"_wref.get());
             } else if (cpp_case == aGalaxyStruct::oiDominator) {
@@ -3906,11 +3906,11 @@ namespace aPlanet {
             }
         }
         if (aPlayer::GetPlayer() != nullptr) {
-            if (aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && static_cast<std::uint8_t>(ForMap ^ 1)) {
+            if (aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && OwnerId == aGalaxyStruct::oiUninhabited && static_cast<std::uint8_t>(ForMap ^ 1)) {
                 Text = pas::concat_wide({Text, u"\r\n", BuildNonCivilTreasureHintText()});
             }
         }
-        if (ForMap && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
+        if (ForMap && OwnerId == aGalaxyStruct::oiPirate && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
             Text = pas::concat_wide({Text, u"\r\n", u"<color=255,0,0>", aConst::LocalizedText(u"Planet.Civil.Info.TextPlanetControlledByPirates"_wref.get()), u"</color>"});
         }
         if (WaterTiles - WaterExplored > 0) {
@@ -3948,7 +3948,7 @@ namespace aPlanet {
 
     // Localized DisplayName for RaceToOwner(RaceId).
     pas::WideString TPlanet::GetNativeRaceName() {
-        return aConst::OwnerInfo[aConst::RaceToOwner(RaceId) & 127].DisplayName;
+        return aConst::OwnerInfo[aConst::RaceToOwner(RaceId)].DisplayName;
     }
 
     // Faction/series/internal owner identifier used for resource selection.
@@ -3961,7 +3961,7 @@ namespace aPlanet {
             return aConst::DominatorSeriesNames[CurrentStar->Status.DominatorSeries];
         } else if (IsMainPiratePlanet) {
             return aConst::OwnerInfo[OwnerId].InternalName;
-        } else if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        } else if (OwnerId == aGalaxyStruct::oiPirate) {
             return pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::RaceToSys(RaceId)});
         } else {
             return aConst::OwnerInfo[OwnerId].InternalName;
@@ -3980,11 +3980,11 @@ namespace aPlanet {
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range.next(i); ) {
             Planet = pas::list_at<TPlanet>(aGalaxy::Galaxy->Planets, i);
-            if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+            if (OwnerId == aGalaxyStruct::oiUninhabited) {
                 if (OwnerId == Planet->OwnerId) {
                     ++Count;
                 }
-            } else if (Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+            } else if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
                 if (RaceId == Planet->RaceId) {
                     ++Count;
                 }
@@ -4146,7 +4146,7 @@ namespace aPlanet {
 
     // Returns zero unless OwnerId=6.
     std::int32_t TPlanet::GetUnexploredSurfaceTileCount() {
-        if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+        if (OwnerId == aGalaxyStruct::oiUninhabited) {
             return GetTotalSurfaceTileCount() - (WaterExplored + LandExplored + HillExplored);
         }
         return 0;
@@ -4210,7 +4210,7 @@ namespace aPlanet {
         if (CurrentStar->DaysSincePlayerVisit < 720) {
             return Result;
         }
-        if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+        if (OwnerId != aGalaxyStruct::oiUninhabited) {
             return Result;
         }
         if (GetUnexploredSurfaceTileCount() > GetTotalSurfaceTileCount() * 0.4L) {
@@ -4423,7 +4423,7 @@ namespace aPlanet {
         aWarrior::TWarrior* Warrior{};
         aPirate::TPirate* Pirate{};
         std::int32_t Kind{};
-        if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (OwnerId == aGalaxyStruct::oiPirate) {
             Pirate = pas::construct_call<aPirate::TPirate>(aNormalShip::TNormalShip_Create);
             {
                 pas::Extended cpp_left = aMyFunction::RemapClamped(aMyFunction::NextRandomUnitFloat(RandomState), 0.0, 1.0, 0.3, 0.5);
@@ -4434,7 +4434,7 @@ namespace aPlanet {
             }
             {
                 std::int32_t cpp_left_2 = aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfDominators);
-                Budget = System::Round(aMyFunction::RemapClamped(cpp_left_2 + (aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) & 127), 0.0, 1.0E+2, Budget * 0.7L, Budget * 1.2L));
+                Budget = System::Round(aMyFunction::RemapClamped(cpp_left_2 + aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition), 0.0, 1.0E+2, Budget * 0.7L, Budget * 1.2L));
             }
             if (aMyFunction::NextRandomUnitFloat(RandomState) > 0.2L) {
                 Budget = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->WarDeltaWin[2], -5.0, 5.0, Budget * 2, Budget * 0.5L));
@@ -4458,7 +4458,7 @@ namespace aPlanet {
             if (Budget > 900000) {
                 Budget = 900000;
             }
-            Budget = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) & 127, 0.0, 1.0E+2, Budget * 1.2L, Budget * 0.7L));
+            Budget = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition), 0.0, 1.0E+2, Budget * 1.2L, Budget * 0.7L));
             if (aMyFunction::NextRandomUnitFloat(RandomState) > 0.2L) {
                 Budget = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->WarDeltaWin[0], -5.0, 5.0, Budget * 2, Budget * 0.5L));
             }
@@ -4478,7 +4478,7 @@ namespace aPlanet {
         if (Budget > 900000) {
             Budget = 900000;
         }
-        Budget = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition) & 127, 0.0, 1.0E+2, Budget * 1.2L, Budget * 0.7L));
+        Budget = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfCoalition), 0.0, 1.0E+2, Budget * 1.2L, Budget * 0.7L));
         if (aMyFunction::NextRandomUnitFloat(RandomState) > 0.2L) {
             Budget = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->WarDeltaWin[0], -5.0, 5.0, Budget * 2, Budget * 0.5L));
         }
@@ -4545,8 +4545,8 @@ namespace aPlanet {
 
     // Uses group owner/type/equipment constraints; returns nil for a boss request. Temporarily changes planet ownership, star series and global technology.
     void* TPlanet::GenerateShipForScriptGroup(void* Group) {
-        std::uint8_t Owner{};
-        std::uint8_t SelectedOwner{};
+        aGalaxyStruct::TOwnerId Owner{};
+        aGalaxyStruct::TOwnerId SelectedOwner{};
         aGalaxyStruct::TDominatorSeries Series{};
         aGalaxyStruct::TKlingType Kind{};
         std::uint8_t ShipKind{};
@@ -4556,15 +4556,15 @@ namespace aPlanet {
         if (pas::contains(reinterpret_cast<aScript::TScriptGroup*>(Rules)->OwnerMask, OwnerId)) {
             SelectedOwner = OwnerId;
         } else {
-            SelectedOwner = 0;
+            SelectedOwner = aGalaxyStruct::oiMaloc;
             Count = 0;
-            for (Owner = static_cast<std::uint8_t>(0); Owner <= static_cast<std::uint8_t>(7); ++Owner) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range.next(Owner); ) {
                 if (pas::contains(reinterpret_cast<aScript::TScriptGroup*>(Rules)->OwnerMask, Owner)) {
                     ++Count;
                 }
             }
             Count = aMyFunction::NextRandomIntRange(1, Count, RandomState);
-            for (Owner = static_cast<std::uint8_t>(0); Owner <= static_cast<std::uint8_t>(7); ++Owner) {
+            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_2.next(Owner); ) {
                 if (pas::contains(reinterpret_cast<aScript::TScriptGroup*>(Rules)->OwnerMask, Owner)) {
                     --Count;
                     SelectedOwner = Owner;
@@ -4581,8 +4581,8 @@ namespace aPlanet {
         for (ShipKind = static_cast<std::uint8_t>(0); ShipKind <= static_cast<std::uint8_t>(10); ++ShipKind) {
             if (pas::contains(reinterpret_cast<aScript::TScriptGroup*>(Rules)->ShipTypeMask, ShipKind)) {
                 if (ShipKind == 6) {
-                    for (auto cpp_range = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range.next(Kind); ) {
-                        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_2.next(Series); ) {
+                    for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_3.next(Kind); ) {
+                        for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_4.next(Series); ) {
                             if (pas::contains(reinterpret_cast<aScript::TScriptGroup*>(Rules)->DominatorMasks[Kind], static_cast<std::uint8_t>(Series))) {
                                 ++Count;
                             }
@@ -4600,8 +4600,8 @@ namespace aPlanet {
                 continue;
             }
             if (ShipKind == 6) {
-                for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_3.next(Kind); ) {
-                    for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_4.next(Series); ) {
+                for (auto cpp_range_5 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_5.next(Kind); ) {
+                    for (auto cpp_range_6 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_6.next(Series); ) {
                         if (pas::contains(reinterpret_cast<aScript::TScriptGroup*>(Rules)->DominatorMasks[Kind], static_cast<std::uint8_t>(Series))) {
                             --Count;
                             SelectedKind = Kind;
@@ -4630,9 +4630,9 @@ namespace aPlanet {
         if (SelectedShipKind == 6 && SelectedKind == aGalaxyStruct::ktBoss) {
             return Result;
         }
-        std::uint8_t OldOwner = OwnerId;
+        aGalaxyStruct::TOwnerId OldOwner = OwnerId;
         OwnerId = SelectedOwner;
-        std::uint8_t OldRace = RaceId;
+        aGalaxyStruct::TOwnerId OldRace = RaceId;
         if (pas::in_range(OwnerId, static_cast<std::int32_t>(aGalaxyStruct::oiMaloc), static_cast<std::int32_t>(aGalaxyStruct::oiGaal))) {
             RaceId = aConst::OwnerToRace(OwnerId);
         }
@@ -4725,8 +4725,8 @@ namespace aPlanet {
         if (Ship != nullptr && pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
             // Native code complements the Byte before testing the range. Preserve
             // that behavior rather than interpreting it as a negated membership test.
-            if (pas::contains(pas::make_set<pas::Set<0, 255>>({{reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinTraderStatus, reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxTraderStatus}}), ~pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader])) {
-                pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] = (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinTraderStatus + reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxTraderStatus) / 2;
+            if (pas::contains(pas::make_set<pas::Set<0, 255>>({{reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinTraderStatus, reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxTraderStatus}}), ~static_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader])) {
+                static_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] = (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinTraderStatus + reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxTraderStatus) / 2;
                 pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate] = (100 - pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader]) / 2;
                 {
                     std::int32_t cpp_left = 100 - pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader];
@@ -4734,7 +4734,7 @@ namespace aPlanet {
                 }
             }
             if (pas::contains(pas::make_set<pas::Set<0, 255>>({{reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinPirateStatus, reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxPirateStatus}}), ~pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate])) {
-                pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate] = (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinPirateStatus + reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxPirateStatus) / 2;
+                static_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate] = (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinPirateStatus + reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxPirateStatus) / 2;
                 pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] = (100 - pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate]) / 2;
                 {
                     std::int32_t cpp_left_2 = 100 - pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate];
@@ -4742,7 +4742,7 @@ namespace aPlanet {
                 }
             }
             if (pas::contains(pas::make_set<pas::Set<0, 255>>({{reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinWarriorStatus, reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxWarriorStatus}}), ~pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior])) {
-                pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior] = (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinWarriorStatus + reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxWarriorStatus) / 2;
+                static_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior] = (reinterpret_cast<aScript::TScriptGroup*>(Rules)->MinWarriorStatus + reinterpret_cast<aScript::TScriptGroup*>(Rules)->MaxWarriorStatus) / 2;
                 pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] = (100 - pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior]) / 2;
                 {
                     std::int32_t cpp_left_3 = 100 - pas::checked_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior];
@@ -4776,12 +4776,12 @@ namespace aPlanet {
     std::int32_t TPlanet::RelationToRanger(std::int32_t RangerIndex) {
         std::int32_t Result{};
         try {
-            if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) && MainPiratePlanet != nullptr) {
+            if (OwnerId == aGalaxyStruct::oiPirate && static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) && MainPiratePlanet != nullptr) {
                 Result = MainPiratePlanet->RelationToRanger(RangerIndex);
-            } else if (IsMainPiratePlanet && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            } else if (IsMainPiratePlanet && OwnerId != aGalaxyStruct::oiPirate) {
                 Result = 50;
             } else {
-                Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, RangerIndex))) & 127;
+                Result = static_cast<aGalaxyStruct::TPercent>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, RangerIndex))));
             }
         } catch (...) {
             auto cpp_exception = pas::caught_object();
@@ -4827,8 +4827,8 @@ namespace aPlanet {
     void TPlanet::ChangeRelationToRanger(void* Ranger, std::int32_t Amount) {
         std::int32_t Index = pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ranger))));
         std::uint8_t Relation = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, Index)));
-        if (pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ranger))->GetEffectiveSkillLevel(aShip::psCharisma, false) > 0 && Amount > 0) {
-            Amount += System::Round((pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ranger))->GetEffectiveSkillLevel(aShip::psCharisma, false) & 127) * Amount * 0.2L);
+        if (pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ranger))->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma, false) > 0 && Amount > 0) {
+            Amount += System::Round(pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ranger))->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma, false) * Amount * 0.2L);
         }
         if (pas::in_range(Relation + Amount, 0, 100)) {
             Relation += Amount;
@@ -4851,14 +4851,14 @@ namespace aPlanet {
         }
     }
 
-    std::uint8_t TPlanet::RelationToShip(void* Ship) {
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer() == Ship && aPlayer::GetPlayer()->PirateRank == 7 && CurrentStar->Constellation->Id == 20 && static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+    aGalaxyStruct::TPercent TPlanet::RelationToShip(void* Ship) {
+        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer() == Ship && aPlayer::GetPlayer()->PirateRank == 7 && CurrentStar->Constellation->Id == 20 && static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) && OwnerId == aGalaxyStruct::oiPirate) {
             return 100;
         }
-        if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+        if (OwnerId == aGalaxyStruct::oiUninhabited) {
             return 100;
         }
-        std::uint8_t Result = 0;
+        aGalaxyStruct::TPercent Result = 0;
         if (CurrentStar->Status.CustomFaction != u"") {
             if (static_cast<aShip::TShip*>(Ship)->ScriptShip != nullptr) {
                 if (reinterpret_cast<aScript::TScriptShip*>(static_cast<aShip::TShip*>(Ship)->ScriptShip)->StateText == CurrentStar->Status.CustomFaction) {
@@ -4867,12 +4867,12 @@ namespace aPlanet {
             }
             return Result;
         }
-        if (pas::in_set<0, 4, 7, 7>(OwnerId)) {
+        if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(OwnerId)) {
             if (pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->CurrentStar == CurrentStar && (static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) || aPlayer::GetPlayer() != Ship)) {
-                if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), OwnerId) && pas::is_one_of<aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssCoalitionActive>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->CurrentStanding)) {
+                if (pas::contains(aConst::PlanetOwnerMasks.PirateClan, OwnerId) && pas::is_one_of<aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssCoalitionActive>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->CurrentStanding)) {
                     return Result;
                 }
-                if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), OwnerId) && pas::is_one_of<aGalaxyStruct::ssPirateActive, aGalaxyStruct::ssPirateMilitary>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->CurrentStanding)) {
+                if (pas::contains(aConst::PlanetOwnerMasks.Coalition, OwnerId) && pas::is_one_of<aGalaxyStruct::ssPirateActive, aGalaxyStruct::ssPirateMilitary>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->CurrentStanding)) {
                     return Result;
                 }
             }
@@ -4881,20 +4881,20 @@ namespace aPlanet {
                 if (cpp_case == aGalaxyStruct::stRanger) {
                     return RelationToRanger(pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Ship)))));
                 } else if (cpp_case == aGalaxyStruct::stTransport) {
-                    if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), OwnerId)) {
+                    if (pas::contains(aConst::PlanetOwnerMasks.PirateClan, OwnerId)) {
                         return std::min<std::int32_t>(50, static_cast<std::int32_t>(aConst::OwnerRelations[OwnerId][pas::checked_cast<aTransport::TTransport*>(static_cast<pas::Object*>(Ship))->OwnerId]));
                     }
                     return aConst::OwnerRelations[OwnerId][pas::checked_cast<aTransport::TTransport*>(static_cast<pas::Object*>(Ship))->OwnerId];
                 } else if (cpp_case == aGalaxyStruct::stPirate) {
-                    if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), OwnerId)) {
-                        if (static_cast<aShip::TShip*>(Ship)->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                    if (pas::contains(aConst::PlanetOwnerMasks.PirateClan, OwnerId)) {
+                        if (static_cast<aShip::TShip*>(Ship)->OwnerId == aGalaxyStruct::oiPirate) {
                             return 100;
                         }
                         return aConst::OwnerRelations[OwnerId][static_cast<aShip::TShip*>(Ship)->OwnerId];
                     }
                     return std::max<std::int64_t>(static_cast<std::int64_t>(30), std::min<std::int64_t>(static_cast<std::int64_t>(aConst::PlanetRaceMarket[RaceId].PirateRelationCeiling), System::Round(static_cast<long double>(aConst::OwnerRelations[OwnerId][pas::checked_cast<aPirate::TPirate*>(static_cast<pas::Object*>(Ship))->OwnerId]) * aConst::PlanetRaceMarket[RaceId].PirateRelationFactor)));
                 } else if (cpp_case == aGalaxyStruct::stWarrior) {
-                    if (pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), OwnerId)) {
+                    if (pas::contains(aConst::PlanetOwnerMasks.PirateClan, OwnerId)) {
                         return 0;
                     }
                     return 100;
@@ -4906,7 +4906,7 @@ namespace aPlanet {
                     }
                     return 50;
                 } else if (cpp_case >= aGalaxyStruct::rstRangerCenter && cpp_case <= aGalaxyStruct::rstCustomStation) {
-                    if (pas::contains(pas::load_unaligned<aShip::TStationStandingMask>(&aConst::FactionStandingMasks[CurrentStar->Status.ControlFaction]), pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->CurrentStanding)) {
+                    if (pas::contains(aConst::FactionStandingMasks[CurrentStar->Status.ControlFaction], pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->CurrentStanding)) {
                         return 100;
                     }
                     return 0;
@@ -4914,7 +4914,7 @@ namespace aPlanet {
                     return 50;
                 }
             }
-        } else if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        } else if (OwnerId == aGalaxyStruct::oiDominator) {
             if (pas::in_range(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->TypeId, aGalaxyStruct::stKling, aGalaxyStruct::stKling)) {
                 return 100;
             }
@@ -4927,7 +4927,7 @@ namespace aPlanet {
     aGalaxyStruct::TRelationLevel TPlanet::GetRelationLevelToShip(void* Ship) {
         aGalaxyStruct::TRelationLevel Result{};
         {
-            std::int32_t cpp_case = RelationToShip(Ship) & 127;
+            aGalaxyStruct::TPercent cpp_case = RelationToShip(Ship);
             if (cpp_case >= 0 && cpp_case <= 9) {
                 Result = aGalaxyStruct::rlHostile;
             } else if (cpp_case >= 10 && cpp_case <= 29) {
@@ -4949,7 +4949,7 @@ namespace aPlanet {
     }
 
     pas::WideString TPlanet::GetRelationLevelTextToShip(void* Ship) {
-        return aConst::RelationInfo[static_cast<std::int32_t>(GetRelationLevelToShip(Ship)) & 127].DisplayName;
+        return aConst::RelationInfo[GetRelationLevelToShip(Ship)].DisplayName;
     }
 
     pas::WideString TPlanet::GetCivilInfoText() {
@@ -5004,7 +5004,7 @@ namespace aPlanet {
         std::int32_t Count = 0;
         aConst::PMicroModuleTemplate Template = static_cast<aConst::PMicroModuleTemplate>(aConst::MicroModuleTemplates.data());
         for (auto cpp_range = pas::for_to<std::int32_t>(0, aConst::MicroModuleTemplateCount - 1); cpp_range.next(i); ) {
-            if (Template->SpecialOnly && (static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) || pas::constant_set<pas::Set<0, 255>>({{7}, {12}}) * static_cast<pas::Set<0, 255>>(pas::load_unaligned<aGalaxyStruct::TShipTypeMask>(&Template->OfferStationTypes)) != pas::constant_set<pas::Set<0, 255>>({})) && (IsMainPiratePlanet || Template->OnPlanets) && aItem::IsBonusCompatibleWithEquipment(i, Item) && Template->Priority <= Ceiling) {
+            if (Template->SpecialOnly && (static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) || pas::constant_set<pas::Set<0, 255>>({{7}, {12}}) * static_cast<pas::Set<0, 255>>(Template->OfferStationTypes) != pas::constant_set<pas::Set<0, 255>>({})) && (IsMainPiratePlanet || Template->OnPlanets) && aItem::IsBonusCompatibleWithEquipment(i, Item) && Template->Priority <= Ceiling) {
                 if (Count == 0) {
                     Minimum = Template->Priority;
                     Maximum = Template->Priority;
@@ -5048,7 +5048,7 @@ namespace aPlanet {
         std::int32_t Count = 0;
         aConst::PMicroModuleTemplate Template = static_cast<aConst::PMicroModuleTemplate>(aConst::MicroModuleTemplates.data());
         for (auto cpp_range = pas::for_to<std::int32_t>(0, aConst::MicroModuleTemplateCount - 1); cpp_range.next(i); ) {
-            if (Template->SpecialOnly && (static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) || pas::constant_set<pas::Set<0, 255>>({{7}, {12}}) * static_cast<pas::Set<0, 255>>(pas::load_unaligned<aGalaxyStruct::TShipTypeMask>(&Template->OfferStationTypes)) != pas::constant_set<pas::Set<0, 255>>({})) && (IsMainPiratePlanet || Template->OnPlanets) && aItem::IsBonusCompatibleWithHull(i, Hull) && Template->Priority <= Ceiling) {
+            if (Template->SpecialOnly && (static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) || pas::constant_set<pas::Set<0, 255>>({{7}, {12}}) * static_cast<pas::Set<0, 255>>(Template->OfferStationTypes) != pas::constant_set<pas::Set<0, 255>>({})) && (IsMainPiratePlanet || Template->OnPlanets) && aItem::IsBonusCompatibleWithHull(i, Hull) && Template->Priority <= Ceiling) {
                 if (Count == 0) {
                     Minimum = Template->Priority;
                     Maximum = Template->Priority;
@@ -5092,7 +5092,7 @@ namespace aPlanet {
         std::int32_t Count = 0;
         aConst::PMicroModuleTemplate Template = static_cast<aConst::PMicroModuleTemplate>(aConst::MicroModuleTemplates.data());
         for (auto cpp_range = pas::for_to<std::int32_t>(0, aConst::MicroModuleTemplateCount - 1); cpp_range.next(i); ) {
-            if (Template->SpecialOnly && (static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) || pas::constant_set<pas::Set<0, 255>>({{7}, {12}}) * static_cast<pas::Set<0, 255>>(pas::load_unaligned<aGalaxyStruct::TShipTypeMask>(&Template->OfferStationTypes)) != pas::constant_set<pas::Set<0, 255>>({})) && (IsMainPiratePlanet || Template->OnPlanets) && aItem::IsBonusCompatibleWithWeapon(i, Weapon) && Template->Priority <= Ceiling) {
+            if (Template->SpecialOnly && (static_cast<std::uint8_t>(IsMainPiratePlanet ^ 1) || pas::constant_set<pas::Set<0, 255>>({{7}, {12}}) * static_cast<pas::Set<0, 255>>(Template->OfferStationTypes) != pas::constant_set<pas::Set<0, 255>>({})) && (IsMainPiratePlanet || Template->OnPlanets) && aItem::IsBonusCompatibleWithWeapon(i, Weapon) && Template->Priority <= Ceiling) {
                 if (Count == 0) {
                     Minimum = Template->Priority;
                     Maximum = Template->Priority;
@@ -5124,7 +5124,7 @@ namespace aPlanet {
         std::int32_t Index{};
         std::int32_t Attempts{};
         aItem::TEquipment* Item{};
-        std::uint8_t ItemType{};
+        aConst::TItemType ItemType{};
         if (pas::is_one_of<aGalaxyStruct::sumDisabled, aGalaxyStruct::sumGoodsOnly>(static_cast<aGalaxyStruct::TShopUpdateMode>(ShopUpdateMode))) {
             return;
         }
@@ -5149,7 +5149,7 @@ namespace aPlanet {
                 Attempts = 0;
                 do {
                     ++Attempts;
-                    ItemType = aMyFunction::SeededRandomIntRange(42, 52, aGalaxy::Galaxy->CurrentTurn * GenerationSeed * 175 + Attempts);
+                    ItemType = static_cast<aConst::TItemType>(aMyFunction::SeededRandomIntRange(42, 52, aGalaxy::Galaxy->CurrentTurn * GenerationSeed * 175 + Attempts));
                 } while (!(Attempts > 30 || CountEquipmentShopItemsInBucket(ItemType) < aConst::PlanetEquipmentOfferQuotas[RaceId][ItemType - aConst::t_Hull]));
                 Item = aPlanet::TPlanet_GenerateEquipmentOffer(this, aPlayer::GetPlayer(), ItemType);
                 if (Item != nullptr) {
@@ -5183,13 +5183,13 @@ namespace aPlanet {
             if (Government == aGalaxyStruct::pgDictatorship && pas::in_range(HullType, aGalaxyStruct::htLiner, aGalaxyStruct::htDiplomat)) {
                 continue;
             }
-            if (Government == aGalaxyStruct::pgRepublic && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng) && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L && pas::in_range(HullType, aGalaxyStruct::htPirate, aGalaxyStruct::htPirate)) {
+            if (Government == aGalaxyStruct::pgRepublic && OwnerId != aGalaxyStruct::oiPeleng && aMyFunction::SeededRandomUnitFloat(RandomState) < 0.8L && pas::in_range(HullType, aGalaxyStruct::htPirate, aGalaxyStruct::htPirate)) {
                 continue;
             }
-            if (Government == aGalaxyStruct::pgDemocracy && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPeleng) && pas::in_range(HullType, aGalaxyStruct::htPirate, aGalaxyStruct::htPirate)) {
+            if (Government == aGalaxyStruct::pgDemocracy && OwnerId != aGalaxyStruct::oiPeleng && pas::in_range(HullType, aGalaxyStruct::htPirate, aGalaxyStruct::htPirate)) {
                 continue;
             }
-            if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && HullType == aGalaxyStruct::htWarrior) {
+            if (OwnerId == aGalaxyStruct::oiPirate && HullType == aGalaxyStruct::htWarrior) {
                 continue;
             }
             break;
@@ -5248,9 +5248,9 @@ namespace aPlanet {
                 break;
             }
         }
-        std::uint8_t Owner = aConst::RaceToOwner(RaceId);
+        aGalaxyStruct::TOwnerId Owner = aConst::RaceToOwner(RaceId);
         if (aMyFunction::NextRandomUnitFloat(RandomState) < 0.1L || IsMainPiratePlanet) {
-            Owner = aMyFunction::NextRandomIntRange(0, 4, RandomState);
+            Owner = static_cast<aGalaxyStruct::TOwnerId>(aMyFunction::NextRandomIntRange(0, 4, RandomState));
         }
         if (aPlayer::GetPlayer() != Target && IsMainPiratePlanet) {
             Owner = Target->GetHull()->OwnerId;
@@ -5262,7 +5262,7 @@ namespace aPlanet {
         std::int32_t Series = -1;
         std::int32_t ModuleIndex = -1;
         Result->OwnerId = Owner;
-        Result->PirateBuilt = OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+        Result->PirateBuilt = OwnerId == aGalaxyStruct::oiPirate;
         if (Target->CanGenerateSpecialHullModule()) {
             ModuleIndex = SelectHullOfferSpecialMicroModule(Result);
         }
@@ -5273,12 +5273,12 @@ namespace aPlanet {
             Series = aGalaxy::Galaxy->SelectHullSeries(Owner, HullType, 1, 100);
         }
         if (Flagship) {
-            std::uint8_t cpp_arg = OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+            std::uint8_t cpp_arg = OwnerId == aGalaxyStruct::oiPirate;
             std::uint8_t nextRandomIntRange = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, RandomState);
             std::int32_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(MinSize * 2, MaxSize * 2, RandomState);
             Result->Init(nextRandomIntRange_2, nextRandomIntRange, Owner, 10, Series, cpp_arg);
         } else {
-            std::uint8_t cpp_arg_2 = OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+            std::uint8_t cpp_arg_2 = OwnerId == aGalaxyStruct::oiPirate;
             std::uint8_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, RandomState);
             std::int32_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(MinSize, MaxSize, RandomState);
             Result->Init(nextRandomIntRange_4, nextRandomIntRange_3, Owner, HullType, Series, cpp_arg_2);
@@ -5301,20 +5301,20 @@ namespace aPlanet {
         aGalaxyStruct::TWeaponAvailabilityMask Available{};
         aConst::PWeaponInfo Info{};
         std::int32_t ModuleIndex{};
-        std::uint8_t Owner{};
+        aGalaxyStruct::TOwnerId Owner{};
         aItem::TWeapon* Result = nullptr;
         if (Ship == nullptr || !(pas::class_cast_if<aShip::TShip*>(static_cast<pas::Object*>(Ship)) != nullptr)) {
             return Result;
         }
         aShip::TShip* Target = static_cast<aShip::TShip*>(Ship);
         Available = pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}});
-        if (Target->TypeId == aGalaxyStruct::stKling && pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Dominators), OwnerId)) {
+        if (Target->TypeId == aGalaxyStruct::stKling && pas::contains(aConst::PlanetOwnerMasks.Dominators, OwnerId)) {
             Available = Available + pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{4}});
         }
-        if (pas::in_range(Target->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior) && pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), OwnerId)) {
+        if (pas::in_range(Target->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior) && pas::contains(aConst::PlanetOwnerMasks.Coalition, OwnerId)) {
             Available = Available + pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{1}}) + pas::make_set<aGalaxyStruct::TWeaponAvailabilityMask>({{static_cast<std::int32_t>(aConst::OwnerWeaponAvailability[OwnerId])}});
         }
-        if (pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(Target->TypeId) && pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan), OwnerId)) {
+        if (pas::is_one_of<aGalaxyStruct::stRanger, aGalaxyStruct::stPirate>(Target->TypeId) && pas::contains(aConst::PlanetOwnerMasks.PirateClan, OwnerId)) {
             Available = Available + pas::make_set<aGalaxyStruct::TWeaponAvailabilityMask>({{static_cast<std::int32_t>(aConst::OwnerWeaponAvailability[OwnerId])}});
         }
         std::int32_t Attempts = 0;
@@ -5328,7 +5328,7 @@ namespace aPlanet {
             }
             MinSize = System::Round(static_cast<long double>(Info->AverageSize) * aConst::EquipmentSizeFactors[5]);
             MaxSize = System::Round(static_cast<long double>(Info->AverageSize) * aConst::EquipmentSizeFactors[1]);
-            if (pas::class_cast_if<aWarrior::TWarrior*>(Target) != nullptr && static_cast<aWarrior::TWarrior*>(Target)->WarriorType == aWarrior::wtFlagship) {
+            if (aWarrior::TWarrior* warrior = pas::class_cast_if<aWarrior::TWarrior*>(Target); warrior != nullptr && warrior->WarriorType == aWarrior::wtFlagship) {
                 MinSize *= 2;
                 MaxSize *= 2;
             }
@@ -5339,15 +5339,15 @@ namespace aPlanet {
             }
             MinLevel = std::max<std::int32_t>(MinLevel, MaxLevel / 2 - 1);
             Owner = aConst::RaceToOwner(RaceId);
-            if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                Owner = 7;
+            if (OwnerId == aGalaxyStruct::oiPirate) {
+                Owner = aGalaxyStruct::oiPirate;
             }
             {
                 std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, RandomState);
                 std::int32_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(MinSize, MaxSize, RandomState);
                 Result = aItem::CreateGeneratedWeapon(Info, nextRandomIntRange_2, nextRandomIntRange, Owner);
             }
-            if (pas::class_cast_if<aWarrior::TWarrior*>(Target) != nullptr && static_cast<aWarrior::TWarrior*>(Target)->WarriorType == aWarrior::wtFlagship) {
+            if (aWarrior::TWarrior* warrior_2 = pas::class_cast_if<aWarrior::TWarrior*>(Target); warrior_2 != nullptr && warrior_2->WarriorType == aWarrior::wtFlagship) {
                 Result->DetailImprovement = 3;
                 Result->Improve(aItem::ikAny);
             } else if (Target->CanGenerateMicroModuleForLoadout()) {
@@ -5360,7 +5360,7 @@ namespace aPlanet {
         return Result;
     }
 
-    aItem::TEquipment* TPlanet_GenerateEquipmentOffer(TPlanet* Self, void* Ship, std::uint8_t ItemType) {
+    aItem::TEquipment* TPlanet_GenerateEquipmentOffer(TPlanet* Self, void* Ship, aConst::TItemType ItemType) {
         std::int32_t Priority{};
         std::int32_t Attempts{};
         std::int32_t Module{};
@@ -5369,7 +5369,7 @@ namespace aPlanet {
         std::int32_t MinSize{};
         std::int32_t MaxSize{};
         std::int32_t Special{};
-        std::uint8_t Owner{};
+        aGalaxyStruct::TOwnerId Owner{};
         aItem::TEquipment* Result = nullptr;
         if (Ship == nullptr || !(pas::class_cast_if<aShip::TShip*>(static_cast<pas::Object*>(Ship)) != nullptr)) {
             return Result;
@@ -5387,18 +5387,18 @@ namespace aPlanet {
             MinLevel = std::max<std::int32_t>(MinLevel, MaxLevel / 2 - 1);
             MinSize = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * aConst::EquipmentSizeFactors[5]);
             MaxSize = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * aConst::EquipmentSizeFactors[1]);
-            if (pas::class_cast_if<aWarrior::TWarrior*>(Target) != nullptr && static_cast<aWarrior::TWarrior*>(Target)->WarriorType == aWarrior::wtFlagship) {
+            if (aWarrior::TWarrior* warrior = pas::class_cast_if<aWarrior::TWarrior*>(Target); warrior != nullptr && warrior->WarriorType == aWarrior::wtFlagship) {
                 MinSize *= 2;
                 MaxSize *= 2;
             }
             Owner = aConst::RaceToOwner(Self->RaceId);
-            if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
-                Owner = 7;
+            if (Self->OwnerId == aGalaxyStruct::oiPirate) {
+                Owner = aGalaxyStruct::oiPirate;
             }
             {
                 std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(MinLevel, MaxLevel, Self->RandomState);
                 std::int32_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(MinSize, MaxSize, Self->RandomState);
-                Result = aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(ItemType), nextRandomIntRange_2, nextRandomIntRange, Owner);
+                Result = aItem::CreateGeneratedEquipment(ItemType, nextRandomIntRange_2, nextRandomIntRange, Owner);
             }
             if (Target->CanGenerateMicroModuleForLoadout()) {
                 Special = Self->SelectEquipmentOfferSpecialMicroModule(Result);
@@ -5408,7 +5408,7 @@ namespace aPlanet {
             }
         } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             Result = Self->GenerateWeaponOffer(Ship);
-        } else if (ItemType == static_cast<std::uint8_t>(aConst::t_Hull)) {
+        } else if (ItemType == aConst::t_Hull) {
             Result = Self->GenerateHullOffer(Ship);
         }
         if (Result != nullptr) {
@@ -5445,7 +5445,7 @@ namespace aPlanet {
     aMyFunction::TObjectList* TPlanet_BuildEquipmentOfferBatch(TPlanet* Self, void* Ship, std::uint8_t UnusedForceGeneratedOffers) {
         std::int32_t i{};
         std::int32_t j{};
-        std::uint8_t ItemType{};
+        aConst::TItemType ItemType{};
         aItem::TItem* Item{};
         aMyFunction::TObjectList* Offers = pas::make_object<aMyFunction::TObjectList>();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, aConst::PlanetEquipmentOfferQuotas[Self->RaceId][0]); cpp_range.next(j); ) {
@@ -5455,7 +5455,7 @@ namespace aPlanet {
             }
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}}))); cpp_range_2.next(i); ) {
-            ItemType = aConst::GetItemTypeFromMask(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}}), i);
+            ItemType = static_cast<aConst::TItemType>(aConst::GetItemTypeFromMask(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}}), i));
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, aConst::PlanetEquipmentOfferQuotas[Self->RaceId][ItemType - aConst::t_Hull]); cpp_range_3.next(j); ) {
                 Item = aPlanet::TPlanet_GenerateEquipmentOffer(Self, Ship, ItemType);
                 if (Item != nullptr) {
@@ -5489,13 +5489,13 @@ namespace aPlanet {
     }
 
     // Bucket 50 includes all weapon types 50..68; other buckets require an exact type.
-    std::int32_t TPlanet::CountEquipmentShopItemsInBucket(std::uint8_t ItemType) {
+    std::int32_t TPlanet::CountEquipmentShopItemsInBucket(aConst::TItemType ItemType) {
         std::int32_t i{};
         aItem::TItem* Item{};
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(EquipmentShop) - 1); cpp_range.next(i); ) {
             Item = pas::list_at<aItem::TItem>(EquipmentShop, i);
-            if (static_cast<std::uint8_t>(Item->ItemType) == ItemType || pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && ItemType == static_cast<std::uint8_t>(aConst::t_Weapon1)) {
+            if (Item->ItemType == ItemType || pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && ItemType == aConst::t_Weapon1) {
                 ++Count;
             }
         }
@@ -5580,8 +5580,8 @@ namespace aPlanet {
         if (IsMainPiratePlanet) {
             return pas::concat_wide({Result, u"Gov.PirateBG"});
         }
-        Result = pas::concat_wide({Result, u"City.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 127].InternalName});
-        if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        Result = pas::concat_wide({Result, u"City.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName});
+        if (OwnerId == aGalaxyStruct::oiPirate) {
             return pas::concat_wide({Result, u"Pirate"});
         }
         return Result;
@@ -5593,7 +5593,7 @@ namespace aPlanet {
         std::int32_t AverageSize{};
         aItem::TItem* Item{};
         aConst::PWeaponInfo WeaponInfo{};
-        if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) || SurfaceLootEntries == nullptr || pas::list_count(SurfaceLootEntries) == 0) {
+        if (OwnerId != aGalaxyStruct::oiUninhabited || SurfaceLootEntries == nullptr || pas::list_count(SurfaceLootEntries) == 0) {
             return aConst::LocalizedText(u"Planet.NotCivil.Treasure.Nothing"_wref.get());
         }
         double Score = 0.0;
@@ -5601,20 +5601,20 @@ namespace aPlanet {
             Item = pas::list_at<TPlanetSurfaceLootEntry>(SurfaceLootEntries, Index)->Item;
             if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
                 Score = Score + Item->Cost * aConst::GoodsMarket[Item->ItemType].AveragePrice * 1.0E-6L;
-            } else if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+            } else if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                 WeaponInfo = reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo();
                 ItemLevel = reinterpret_cast<aItem::TEquipment*>(Item)->GetLevel();
-                AverageSize = aConst::GetAverageItemSize(static_cast<std::uint8_t>(Item->ItemType));
+                AverageSize = aConst::GetAverageItemSize(Item->ItemType);
                 Score = Score + pas::real_divide(Item->Cost * AverageSize, std::max<std::int32_t>(Item->Weight, 1)) * ItemLevel * WeaponInfo->TechLevel * 2.5E-5L;
-            } else if (pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+            } else if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
                 ItemLevel = reinterpret_cast<aItem::TEquipment*>(Item)->GetLevel();
-                AverageSize = aConst::GetAverageItemSize(static_cast<std::uint8_t>(Item->ItemType));
+                AverageSize = aConst::GetAverageItemSize(Item->ItemType);
                 Score = Score + pas::real_divide(Item->Cost * AverageSize, std::max<std::int32_t>(Item->Weight, 1)) * pas::sqr(ItemLevel) * 2.5E-5L;
-            } else if (pas::class_cast_if<aItem::TMicroModule*>(Item) != nullptr) {
-                Score = Score + pas::real_divide(121.0L, aConst::MicroModuleTemplates[reinterpret_cast<aItem::TMicroModule*>(Item)->MicroModuleIndex - 1].Priority + 20);
+            } else if (aItem::TMicroModule* microModule = pas::class_cast_if<aItem::TMicroModule*>(Item)) {
+                Score = Score + pas::real_divide(121.0L, aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].Priority + 20);
             } else if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
-                Score = Score + (pas::real_divide(aConst::GetAverageItemSize(static_cast<std::uint8_t>(Item->ItemType)) * 0.5L, std::max<std::int32_t>(Item->Weight, 1)) + 0.5L) * 1.0E+1L;
-            } else if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr && reinterpret_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact) {
+                Score = Score + (pas::real_divide(aConst::GetAverageItemSize(Item->ItemType) * 0.5L, std::max<std::int32_t>(Item->Weight, 1)) + 0.5L) * 1.0E+1L;
+            } else if (aItem::TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item); equipmentWithActCode != nullptr && equipmentWithActCode->DisplayAsArtefact) {
                 Score = Score + 1.0E+1L;
             } else if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
                 Score = Score + 1.0L;
@@ -5697,7 +5697,7 @@ namespace aPlanet {
             if (Rules[RuleIndex].PlayerRace != pas::constant_set<aGalaxyStruct::TOwnerMask>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].PlayerRace, aPlayer::GetPlayer()->PilotRace) ^ 1)) {
                 continue;
             }
-            if (Rules[RuleIndex].PlayerStatus != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].PlayerStatus, static_cast<std::uint8_t>(aPlayer::GetPlayer()->GetDominantCareer())) ^ 1)) {
+            if (Rules[RuleIndex].PlayerStatus != pas::constant_set<aGalaxyStruct::TRangerCareerSet>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].PlayerStatus, aPlayer::GetPlayer()->GetDominantCareer()) ^ 1)) {
                 continue;
             }
             if (Rules[RuleIndex].PlayerRating != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].PlayerRating, aPlayer::GetPlayer()->GetRangerRatingBand()) ^ 1)) {
@@ -5718,10 +5718,10 @@ namespace aPlanet {
                 continue;
             }
             if (Rules[RuleIndex].CurPlanetPirateClan != 2) {
-                if (Rules[RuleIndex].CurPlanetPirateClan == 0 && OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (Rules[RuleIndex].CurPlanetPirateClan == 0 && OwnerId != aGalaxyStruct::oiPirate) {
                     continue;
                 }
-                if (Rules[RuleIndex].CurPlanetPirateClan == 1 && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (Rules[RuleIndex].CurPlanetPirateClan == 1 && OwnerId == aGalaxyStruct::oiPirate) {
                     continue;
                 }
             }
@@ -5733,9 +5733,9 @@ namespace aPlanet {
                     continue;
                 }
             }
-            if (Rules[RuleIndex].CurPlanetRelations != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(([&] {
-                std::uint8_t cpp_element = static_cast<std::uint8_t>(GetRelationLevelToShip(aPlayer::GetPlayer()));
-                const Globals::TGreetingMask& cpp_set = Rules[RuleIndex].CurPlanetRelations;
+            if (Rules[RuleIndex].CurPlanetRelations != pas::constant_set<aGalaxyStruct::TRelationLevels>({}) && static_cast<std::uint8_t>(([&] {
+                aGalaxyStruct::TRelationLevel cpp_element = GetRelationLevelToShip(aPlayer::GetPlayer());
+                const aGalaxyStruct::TRelationLevels& cpp_set = Rules[RuleIndex].CurPlanetRelations;
                 return pas::contains(cpp_set, cpp_element);
             }()) ^ 1)) {
                 continue;
@@ -5775,10 +5775,10 @@ namespace aPlanet {
                     continue;
                 }
             }
-            if (Rules[RuleIndex].CurPlanetEconomy != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].CurPlanetEconomy, static_cast<std::uint8_t>(Economy)) ^ 1)) {
+            if (Rules[RuleIndex].CurPlanetEconomy != pas::constant_set<aGalaxyStruct::TPlanetEconomies>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].CurPlanetEconomy, Economy) ^ 1)) {
                 continue;
             }
-            if (Rules[RuleIndex].CurPlanetGovernment != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].CurPlanetGovernment, static_cast<std::uint8_t>(Government)) ^ 1)) {
+            if (Rules[RuleIndex].CurPlanetGovernment != pas::constant_set<aGalaxyStruct::TPlanetGovernments>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].CurPlanetGovernment, Government) ^ 1)) {
                 continue;
             }
             Rejected = false;
@@ -5914,7 +5914,7 @@ namespace aPlanet {
                         if (Planet == this) {
                             continue;
                         }
-                        if (!pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
+                        if (!pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
                             continue;
                         }
                         if (!pas::contains(Rules[RuleIndex].ToPlanetRace, Planet->RaceId)) {
@@ -5936,12 +5936,12 @@ namespace aPlanet {
                                 continue;
                             }
                         }
-                        if (Rules[RuleIndex].ToPlanetRelations != pas::constant_set<Globals::TGreetingMask>({})) {
+                        if (Rules[RuleIndex].ToPlanetRelations != pas::constant_set<aGalaxyStruct::TRelationLevels>({})) {
                             if (static_cast<std::uint8_t>(([&] {
-                                std::uint8_t cpp_element_4 = static_cast<std::uint8_t>(Planet->GetRelationLevelToShip(aPlayer::GetPlayer()));
-                                const Globals::TGreetingMask& cpp_set_4 = Rules[RuleIndex].ToPlanetRelations;
+                                aGalaxyStruct::TRelationLevel cpp_element_4 = Planet->GetRelationLevelToShip(aPlayer::GetPlayer());
+                                const aGalaxyStruct::TRelationLevels& cpp_set_4 = Rules[RuleIndex].ToPlanetRelations;
                                 return pas::contains(cpp_set_4, cpp_element_4);
-                            }()) ^ 1) || Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                            }()) ^ 1) || Planet->OwnerId == aGalaxyStruct::oiPirate) {
                                 continue;
                             }
                         }
@@ -5980,10 +5980,10 @@ namespace aPlanet {
                                 continue;
                             }
                         }
-                        if (Rules[RuleIndex].ToPlanetEconomy != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].ToPlanetEconomy, static_cast<std::uint8_t>(Planet->Economy)) ^ 1)) {
+                        if (Rules[RuleIndex].ToPlanetEconomy != pas::constant_set<aGalaxyStruct::TPlanetEconomies>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].ToPlanetEconomy, Planet->Economy) ^ 1)) {
                             continue;
                         }
-                        if (Rules[RuleIndex].ToPlanetGovernment != pas::constant_set<Globals::TGreetingMask>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].ToPlanetGovernment, static_cast<std::uint8_t>(Planet->Government)) ^ 1)) {
+                        if (Rules[RuleIndex].ToPlanetGovernment != pas::constant_set<aGalaxyStruct::TPlanetGovernments>({}) && static_cast<std::uint8_t>(pas::contains(Rules[RuleIndex].ToPlanetGovernment, Planet->Government) ^ 1)) {
                             continue;
                         }
                         Greeting = aMyFunction::ReplaceColoredToken(Greeting, u"<ToPlanet>"_w, Planet->Name, u"<color=255,240,100>"_w);

@@ -117,16 +117,16 @@ namespace SE_SoundRnd {
         Groups.set_length(Count);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             GroupBlock = Block->GetBlockByIndex(Index);
-            Groups[Index].Weight = EC_Str::ExtractDigitsToIntW(Block->GetBlockNameByIndex(Index));
+            Groups[Index].Weight = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index)));
             TotalGroupWeight += Groups[Index].Weight;
-            Groups[Index].Group = EC_Str::ExtractDigitsToIntW(GroupBlock->GetParam(u"Group"_wref.get()));
-            Text = GroupBlock->GetParam(u"NextTime"_wref.get());
-            Groups[Index].NextTimeMin = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 0, u"-"_wref.get()));
-            Groups[Index].NextTimeMax = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, 1, u"-"_wref.get()));
+            Groups[Index].Group = EC_Str::ExtractDigitsToIntW(pas::view(GroupBlock->GetParam(u"Group"sv)));
+            Text = GroupBlock->GetParam(u"NextTime"sv);
+            Groups[Index].NextTimeMin = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"-"sv)));
+            Groups[Index].NextTimeMax = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u"-"sv)));
             SoundCount = 0;
             ParamCount = GroupBlock->GetParamCount();
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, ParamCount - 1); cpp_range_2.next(ParamIndex); ) {
-                if (EC_Str::IsIntegerTextW(GroupBlock->GetParamName(ParamIndex))) {
+                if (EC_Str::IsIntegerTextW(pas::view(GroupBlock->GetParamName(ParamIndex)))) {
                     ++SoundCount;
                 }
             }
@@ -136,8 +136,8 @@ namespace SE_SoundRnd {
             SoundIndex = 0;
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, ParamCount - 1); cpp_range_3.next(ParamIndex); ) {
                 Text = GroupBlock->GetParamName(ParamIndex);
-                if (EC_Str::IsIntegerTextW(Text)) {
-                    Groups[Index].SoundWeights[SoundIndex] = EC_Str::ExtractDigitsToIntW(Text);
+                if (EC_Str::IsIntegerTextW(pas::view(Text))) {
+                    Groups[Index].SoundWeights[SoundIndex] = EC_Str::ExtractDigitsToIntW(pas::view(Text));
                     Groups[Index].SoundNames[SoundIndex] = GroupBlock->GetParamValue(ParamIndex);
                     Groups[Index].TotalSoundWeight += Groups[Index].SoundWeights[SoundIndex];
                     ++SoundIndex;

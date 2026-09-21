@@ -195,7 +195,7 @@ namespace aConst {
     extern pas::Array<pas::WideString, 0, 42>& EquipmentBonusNames;
 
     // Maps bonSkill1..bonSkill6 to native pilot skills.
-    extern pas::Array<std::uint8_t, 0, 5>& EquipmentBonusSkills;
+    extern pas::Array<aGalaxyStruct::TPilotSkill, 0, 5>& EquipmentBonusSkills;
 
     extern aConst::TEquipmentSizeFactorTable& EquipmentSizeFactors;
 
@@ -468,7 +468,7 @@ namespace aConst {
     // Loaded by the native equipment configuration initializer.
     extern aGalaxyStruct::TEngineLevelStatsTable EngineLevelStats;
 
-    // Native per-technology armor table; remaining fields unresolved.
+    // Per-technology armor and energy/splinter/missile fragility, used by THull getters.
     extern aConst::THullLevelStatsTable HullLevelStats;
 
     // Loaded from mRepair.
@@ -545,15 +545,15 @@ namespace aConst {
 
     void IncrementWordSaturating(pas::Var<std::uint16_t> Value);
 
-    pas::WideString OwnerToSys(std::uint8_t OwnerId);
+    pas::WideString OwnerToSys(aGalaxyStruct::TOwnerId OwnerId);
 
-    std::uint8_t IsKnownOwnerName(const pas::WideString& Name);
+    std::uint8_t IsKnownOwnerName(const std::u16string_view& Name);
 
     // Unrecognized names act as a wildcard.
-    std::uint8_t MatchesOwnerName(std::uint8_t OwnerId, const pas::WideString& Name);
+    std::uint8_t MatchesOwnerName(aGalaxyStruct::TOwnerId OwnerId, const std::u16string_view& Name);
 
     // Case-sensitive substring, Any, or empty string.
-    std::uint8_t MatchesCareerName(std::uint8_t Career, const pas::WideString& Names);
+    std::uint8_t MatchesCareerName(aGalaxyStruct::TRangerCareer Career, const std::u16string_view& Names);
 
     void LoadArtefactConfiguration();
 
@@ -571,36 +571,36 @@ namespace aConst {
 
     void InitializeGameplayConfig();
 
-    TShipSlotKind ItemTypeToSlotKind(std::uint8_t ItemType);
+    TShipSlotKind ItemTypeToSlotKind(TItemType ItemType);
 
     // Missile bit takes precedence over splinter; otherwise energy.
-    TWeaponDamageClass ClassifyWeaponDamageFlags(std::uint32_t Flags);
+    TWeaponDamageClass ClassifyWeaponDamageFlags(aGalaxyStruct::TDamageFlagSet Flags);
 
     // Class/subtype mapping used by hull generation and legacy saves; only TObject RTTI operations precede explicit subclass casts.
     std::uint8_t ShipToHullType(pas::Object* Ship);
 
     // Identity conversion for Coalition races 0..4; raises for all other values.
-    std::uint8_t RaceToOwner(std::uint8_t RaceId);
+    aGalaxyStruct::TOwnerId RaceToOwner(aGalaxyStruct::TOwnerId RaceId);
 
-    std::uint8_t OwnerFromInternalName(const pas::WideString& Name);
+    aGalaxyStruct::TOwnerId OwnerFromInternalName(const std::u16string_view& Name);
 
     // Identity conversion for Coalition owners 0..4; raises for all other values.
-    std::uint8_t OwnerToRace(std::uint8_t OwnerId);
+    aGalaxyStruct::TOwnerId OwnerToRace(aGalaxyStruct::TOwnerId OwnerId);
 
     // Raises outside Coalition races 0..4.
-    pas::WideString RaceToSys(std::uint8_t RaceId);
+    pas::WideString RaceToSys(aGalaxyStruct::TOwnerId RaceId);
 
     // Accepts 0..4; raises otherwise.
-    std::uint8_t NumberToRace(std::int32_t Value);
+    aGalaxyStruct::TOwnerId NumberToRace(std::int32_t Value);
 
     // Case-sensitive lookup; raises for an unknown name.
-    std::uint8_t SysToReward(const pas::WideString& Name);
+    std::uint8_t SysToReward(const std::u16string_view& Name);
 
     // Case-sensitive lookup among 14 ship types; raises for an unknown name.
-    std::uint8_t SysToShipType(const pas::WideString& Name);
+    std::uint8_t SysToShipType(const std::u16string_view& Name);
 
     // Maps owner IDs 0..5 and 7 to fixed RGB colors through CurrentPixelFormat; other values use magenta.
-    std::uint32_t OwnerToFilmColor(std::int8_t OwnerId);
+    std::uint32_t OwnerToFilmColor(aGalaxyStruct::TOwnerId OwnerId);
 
     std::uint32_t CustomFactionToFilmColor(pas::WideString Faction);
 
@@ -608,12 +608,12 @@ namespace aConst {
     std::int32_t GetCustomFactionPlanetIconNumber(pas::WideString Faction);
 
     // Zero, Mini, Small, Average, Big, Huge map to 0..5; unknown tags map to zero.
-    std::uint8_t SizeTagToLevel(const pas::WideString& Tag);
+    std::uint8_t SizeTagToLevel(const std::u16string_view& Tag);
 
     // Seeded variation around a size bucket; unknown nonzero levels use the midpoint.
     std::int32_t GenerateValueForSizeLevel(std::uint8_t Level, std::int32_t Minimum, std::int32_t Maximum, std::uint8_t VariationPercent, std::uint32_t Seed);
 
-    std::int32_t GetAverageItemSize(std::uint8_t ItemType);
+    std::int32_t GetAverageItemSize(TItemType ItemType);
 
     std::uint8_t PickRandomItemType(TItemTypeSelection Mask);
 
@@ -627,7 +627,7 @@ namespace aConst {
     std::uint8_t GetItemTypeFromMask(TItemTypeSelection Mask, std::int32_t Index);
 
     // Only Coalition manufacturers are eligible.
-    std::uint8_t PickRandomEquipmentOwner(std::uint32_t RandomValue);
+    aGalaxyStruct::TOwnerId PickRandomEquipmentOwner(std::uint32_t RandomValue);
 
     pas::WideString LookupNamedColorTag(pas::WideString Name);
 
@@ -657,6 +657,6 @@ namespace aConst {
     pas::WideString GetFactionEmblemPath(pas::WideString Faction);
 
     // First matching template; -1 when absent.
-    std::int32_t FindMicroModuleTemplateByCustomTag(pas::WideString CustomTag);
+    std::int32_t FindMicroModuleTemplateByCustomTag(const std::u16string_view& CustomTag);
 
 } // namespace aConst

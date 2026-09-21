@@ -70,20 +70,20 @@ namespace GI_Frame {
 
     void TFrameGI::LoadFrameProperties(EC_BlockPar::TBlockParEC* Block) {
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
-            if (Block->GetParam(u"Kind"_wref.get()) == u"Hide") {
+            if (Block->GetParam(u"Kind"sv) == u"Hide") {
                 Kind = fkHide;
-            } else if (Block->GetParam(u"Kind"_wref.get()) == u"Rect") {
+            } else if (Block->GetParam(u"Kind"sv) == u"Rect") {
                 Kind = fkRect;
             }
         }
         if (Block->CountParams(u"Color"_wref.get()) > 0) {
-            SetColor(GI_Main::GetColorGI(Block->GetParam(u"Color"_wref.get())));
+            SetColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"Color"sv))));
         }
         if (Block->CountParams(u"ColorFill"_wref.get()) > 0) {
-            SetFillColor(GI_Main::GetColorGI(Block->GetParam(u"ColorFill"_wref.get())));
+            SetFillColor(GI_Main::GetColorGI(pas::view(Block->GetParam(u"ColorFill"sv))));
         }
         if (Block->CountParams(u"Fill"_wref.get()) > 0) {
-            SetFill(GI_Main::ParseEnabledNameGI(Block->GetParam(u"Fill"_wref.get())));
+            SetFill(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Fill"sv))));
         }
     }
 

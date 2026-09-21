@@ -1,4 +1,5 @@
 #pragma once
+#include "types/aConst.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aShip.hpp"
 
@@ -109,12 +110,9 @@ namespace aShip {
     float CompareShipGroupsStrength(pas::List* Ships, pas::List* Opponents);
 
     // Owner six skips racial scaling. Uses active galaxy turn and difficulty.
-    float CalculateFuelCost(std::int32_t Amount, std::uint8_t OwnerId);
+    float CalculateFuelCost(std::int32_t Amount, aGalaxyStruct::TOwnerId OwnerId);
 
-    std::int32_t CalculateRoundedFuelCost(std::int32_t Amount, std::uint8_t OwnerId);
-
-    // Source helper: preserve the native radar-before-clamp evaluation and local order.
-    void ClampMissileWeaponRange(TShip* Ship, std::int32_t TemplateRange, std::int32_t& Range);
+    std::int32_t CalculateRoundedFuelCost(std::int32_t Amount, aGalaxyStruct::TOwnerId OwnerId);
 
     void TShip_Create(TShip* Self);
 
@@ -149,10 +147,10 @@ namespace aShip {
     std::int32_t TShip_ApplyDamage(TShip* Self, pas::Object* Source, std::int32_t Damage, float HitRange, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet DamageFlags);
 
     // Returns ApplyDamage's signed result. Positive FixedDamage bypasses the initial roll/armor stage unless weapon flag 0x800 is already set; later effects still apply.
-    std::int32_t TShip_ApplyWeaponHit(TShip* Self, TShip* Source, aItem::TWeapon* Weapon, float HitRange, std::uint32_t& DamageColor, pas::Var<std::uint32_t> DamageFlags, float DamageScale, std::int32_t FixedDamage);
+    std::int32_t TShip_ApplyWeaponHit(TShip* Self, TShip* Source, aItem::TWeapon* Weapon, float HitRange, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet& DamageFlags, float DamageScale, std::int32_t FixedDamage);
 
     // Requires a TMissile; returns ApplyDamage's signed result.
-    std::int32_t TShip_ApplyMissileHit(TShip* Self, pas::Object* Missile, std::uint32_t& DamageColor, pas::Var<std::uint32_t> DamageFlags);
+    std::int32_t TShip_ApplyMissileHit(TShip* Self, pas::Object* Missile, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet& DamageFlags);
 
     // Ignores non-missile targets; can free the target and nearby missiles.
     void TShip_FireWeaponAtMissile(TShip* Self, aItem::TWeapon* Weapon, pas::Object* Target, std::uint8_t RecordFilm);
@@ -173,7 +171,7 @@ namespace aShip {
     // Returns a combat strength ratio, not a probability.
     double TShip_ChanceToWin(TShip* Self, TShip* Target);
 
-    std::uint8_t TShip_GetWinChancePercent(TShip* Self, TShip* Target);
+    aGalaxyStruct::TPercent TShip_GetWinChancePercent(TShip* Self, TShip* Target);
 
     aGalaxyStruct::TRelationLevel TShip_GetRelationLevelToShip(TShip* Self, TShip* Ship);
 
@@ -201,7 +199,7 @@ namespace aShip {
     // Zero-based template index; true means disallowed. Includes custom faction, Dominator series and pilot-race restrictions.
     std::uint8_t TShip_IsMicroModuleRaciallyRestricted(TShip* Self, std::int32_t ModuleIndex);
 
-    std::int32_t TShip_GetEquipmentStatBonus(TShip* Self, std::uint8_t BonusKind, aItem::TEquipment* Item);
+    std::int32_t TShip_GetEquipmentStatBonus(TShip* Self, aConst::TEquipmentBonusKind BonusKind, aItem::TEquipment* Item);
 
     std::int32_t TShip_GetWeaponRange(TShip* Self, aItem::TWeapon* Weapon);
 
@@ -237,7 +235,7 @@ namespace aShip {
     void TShip_DropAllCargoGoods(TShip* Self);
 
     // Caller detaches Item first. Script action 33 can suppress transfer or free Item; otherwise the moving-drop descriptor takes ownership.
-    void TShip_QueueMovingItemDrop(TShip* Self, aItem::TItem* Item, std::uint8_t UseFlag);
+    void TShip_QueueMovingItemDrop(TShip* Self, aItem::TItem* Item, std::uint8_t DeployTranclucator);
 
     // Normally credits resale value and frees Item; eligible NPC node stacks instead feed DepositCarriedNodes and automatic training.
     void TShip_LiquidateInventoryItem(TShip* Self, aItem::TItem* Item);
@@ -253,7 +251,7 @@ namespace aShip {
 
     void TShip_BuyEquipmentAtLocation(TShip* Self, std::uint8_t ForceGeneratedOffers);
 
-    aItem::THull* TShip_CreateAndEquipHull(TShip* Self, std::uint16_t Capacity, std::uint8_t Level, std::uint8_t Owner, std::int32_t Series, std::uint8_t PirateBuilt);
+    aItem::THull* TShip_CreateAndEquipHull(TShip* Self, std::uint16_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, std::int32_t Series, std::uint8_t PirateBuilt);
 
     // Also checks hook eligibility.
     std::uint8_t TShip_IsItemInPickupRange(TShip* Self, aItem::TItem* Item);
@@ -276,6 +274,6 @@ namespace aShip {
     // Base implementation always returns false.
     std::uint8_t TShip_CanDock(TShip* Self, TShip* Ship);
 
-    std::uint8_t TShip_RelationToShip(TShip* Self, TShip* Ship);
+    aGalaxyStruct::TPercent TShip_RelationToShip(TShip* Self, TShip* Ship);
 
 } // namespace aShip

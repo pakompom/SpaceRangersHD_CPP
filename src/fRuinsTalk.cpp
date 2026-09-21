@@ -156,8 +156,8 @@ namespace fRuinsTalk {
     std::int32_t GetDominionRelocationCost(aGalaxy::TStar* Star) {
         std::uint8_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         return std::min<std::int64_t>(static_cast<std::int64_t>(100000000), ([&] {
-            std::int32_t cpp_arg = aGalaxy::Galaxy->ComputeScaledHugeMoney(2) * 2;
-            std::int32_t cpp_arg_2 = aGalaxy::Galaxy->ComputeScaledHugeMoney(2) / 2;
+            std::int32_t cpp_arg = aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) * 2;
+            std::int32_t cpp_arg_2 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) / 2;
             pas::Extended cpp_right = aMyFunction::SeededRandomIntRange(cpp_arg_2, cpp_arg, Star->GenerationSeed + 1171 + aPlayer::GetPlayer()->DockedTo->CurrentStar->GenerationSeed);
             return System::Round(pas::real_divide(pas::real_divide((aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->DockedTo->CurrentStar->Position, Star->Position) + 6.4E+3L) * cpp_right, 6.4E+3L) * (100 - Discount), 1.0E+2L));
         }()));
@@ -185,9 +185,9 @@ namespace fRuinsTalk {
 
     std::int32_t GetConstructionShopCost() {
         std::int32_t J{};
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         std::int32_t Result = 0;
-        for (Kind = static_cast<std::uint8_t>(42); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
+        for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Hull, aConst::t_DefGenerator); cpp_range.next(Kind); ) {
             if (ConstructionEquipment[Kind].Item != nullptr && ConstructionEquipment[Kind].Source == 2) {
                 Result += ConstructionEquipment[Kind].Item->Cost;
             }
@@ -202,11 +202,11 @@ namespace fRuinsTalk {
 
     std::int32_t GetConstructionFreeSpace() {
         std::int32_t J{};
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         std::int32_t Result = 0;
-        for (Kind = static_cast<std::uint8_t>(42); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
+        for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Hull, aConst::t_DefGenerator); cpp_range.next(Kind); ) {
             if (ConstructionEquipment[Kind].Item != nullptr) {
-                if (Kind == 42) {
+                if (Kind == aConst::t_Hull) {
                     Result += ConstructionEquipment[Kind].Item->Weight;
                 } else {
                     Result -= ConstructionEquipment[Kind].Item->Weight;
@@ -224,8 +224,8 @@ namespace fRuinsTalk {
     void SelectConstructionItem(aItem::TEquipment* Item, std::uint8_t Source) {
         std::int32_t I{};
         if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-            ConstructionEquipment[static_cast<std::uint8_t>(Item->ItemType)].Item = Item;
-            ConstructionEquipment[static_cast<std::uint8_t>(Item->ItemType)].Source = Source;
+            ConstructionEquipment[Item->ItemType].Item = Item;
+            ConstructionEquipment[Item->ItemType].Source = Source;
         } else if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
             I = 1;
             while (I <= 5 && ConstructionWeapons[I].Item != nullptr) {
@@ -244,7 +244,7 @@ namespace fRuinsTalk {
         if (StationBridgeMode > 0) {
             Result = aPlayer::GetPlayer()->RuinsStatusText;
             if (Result == u"") {
-                return GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"CustomBridges.", SysUtils::IntToStr(StationBridgeMode)})))->GetParam(u"BGI"_wref.get());
+                return GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"CustomBridges.", SysUtils::IntToStr(StationBridgeMode)})))->GetParam(u"BGI"sv);
             }
         } else {
             if (aPlayer::GetPlayer() != nullptr) {
@@ -273,104 +273,6 @@ namespace fRuinsTalk {
         StationImprovementDetail = 0;
     }
 
-    void PayDepositMoney() {
-        std::int32_t Payment{};
-        aPlayer::TPlayer* Player = aPlayer::GetPlayer();
-        std::int32_t Remaining = aPlayer::GetPlayer()->Money - aPlayer::GetPlayer()->DepositAmount;
-        if (Remaining < 0) {
-            Payment = 0;
-        } else {
-            Payment = Remaining;
-        }
-        Player->SetMoney(Payment);
-    }
-
-    // Native M_Main reserves four unreferenced bytes after its inline scalar cells.
-    // Keep that gap without moving the named locals or emitting an instruction.
-    void ReserveGreetingFrame() {
-    }
-
-    // Preserve the native clamp cells before the captured money receiver.
-    void PayStationModernization(std::uint32_t QuotedCost) {
-        std::int64_t Payment{};
-        aPlayer::TPlayer* Player = aPlayer::GetPlayer();
-        std::int64_t Remaining = aPlayer::GetPlayer()->Money - System::Trunc(QuotedCost);
-        if (Remaining < 0) {
-            Payment = 0;
-        } else {
-            Payment = Remaining;
-        }
-        Player->SetMoney(Payment);
-    }
-
-    void PayNationalityMoney() {
-        std::int32_t Cost{};
-        std::int32_t Payment{};
-        aPlayer::TPlayer* Player = aPlayer::GetPlayer();
-        std::int32_t QuotedCost = Globals::SelectFaceScreen->AcceptedCost;
-        if (QuotedCost < 0) {
-            Cost = 0;
-        } else {
-            Cost = QuotedCost;
-        }
-        std::int32_t Remaining = aPlayer::GetPlayer()->Money - Cost;
-        if (Remaining < 0) {
-            Payment = 0;
-        } else {
-            Payment = Remaining;
-        }
-        Player->SetMoney(Payment);
-    }
-
-    void PayChameleonMoney(std::int32_t Cost) {
-        std::int32_t Payment{};
-        aPlayer::TPlayer* Player = aPlayer::GetPlayer();
-        std::int32_t Remaining = aPlayer::GetPlayer()->Money - Cost;
-        if (Remaining < 0) {
-            Payment = 0;
-        } else {
-            Payment = Remaining;
-        }
-        Player->SetMoney(Payment);
-    }
-
-    // Native reads the active count before evaluating the rank clamps.
-    void ComputeStimulantOfferLimit(std::uint8_t Rank, std::int32_t Bonus, std::int32_t& Limit) {
-        std::int32_t RankFloor{};
-        std::int32_t BoostedRank{};
-        std::int32_t Maximum{};
-        std::int32_t Active = aPlayer::GetPlayer()->CountActiveStimulants();
-        if (Rank < 2) {
-            RankFloor = 2;
-        } else {
-            RankFloor = Rank;
-        }
-        if (RankFloor + Bonus < 2) {
-            BoostedRank = 2;
-        } else {
-            BoostedRank = RankFloor + Bonus;
-        }
-        std::int32_t Drawn = MathImports::Floor(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->CurrentTurn / 70 * aPlayer::GetPlayer()->DockedTo->Id, 0.0, 1.0)) * (BoostedRank - 1)) + 2;
-        if (Active > Drawn) {
-            Maximum = Active;
-        } else {
-            Maximum = Drawn;
-        }
-        Limit = Maximum;
-    }
-
-    void PayConstructionMoney(std::int32_t Price) {
-        std::int32_t Payment{};
-        aPlayer::TPlayer* Player = aPlayer::GetPlayer();
-        std::int32_t Remaining = aPlayer::GetPlayer()->Money - Price;
-        if (Remaining < 0) {
-            Payment = 0;
-        } else {
-            Payment = Remaining;
-        }
-        Player->SetMoney(Payment);
-    }
-
     void TfRuinsTalk_Create(TfRuinsTalk* Self) {
         fPanelMain::TMessageLoopGIWithMainPanel_Create(Self);
         Self->StationPanel = pas::construct_call<fPanelRuins::TfPanelRuins>(fPanelRuins::TfPanelRuins_Create);
@@ -396,17 +298,17 @@ namespace fRuinsTalk {
         LoadPanel->InitializeLayout(this);
         GR_Main::AppendLogTextThreadSafe("fRuinsTalk... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GI_MessageLoop::TObjectGI* Panel = GetByName(u"MainPanel"_wref.get());
+        GI_MessageLoop::TObjectGI* Panel = GetByName(u"MainPanel"sv);
         Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Panel->FindByNameRecursive(u"ImageBG2"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Panel->FindByNameRecursive(u"ImageBG"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        PortraitFlag100 = false;
-        PortraitFlag101 = false;
+        Panel->FindByNameRecursive(u"ImageBG2"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Panel->FindByNameRecursive(u"ImageBG"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        LargePortraitLayout = false;
+        PortraitTableVisible = false;
         if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1280 && static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 960) {
-            PortraitFlag100 = true;
-            PortraitFlag101 = GlobalsV::UseTablesForGov;
+            LargePortraitLayout = true;
+            PortraitTableVisible = GlobalsV::UseTablesForGov;
         }
-        GI_MessageLoop::TObjectGI* TalkPanel = Panel->FindByNameRecursive(u"PanelTalk"_wref.get());
+        GI_MessageLoop::TObjectGI* TalkPanel = Panel->FindByNameRecursive(u"PanelTalk"sv);
         std::int32_t TextExtra = std::min<std::int32_t>(std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0), 250) / 3;
         std::int32_t ChoiceExtra = TextExtra / 4 * 3;
         TextExtra = TextExtra * 3 - ChoiceExtra;
@@ -419,16 +321,16 @@ namespace fRuinsTalk {
         GI_MessageLoop::TObjectGI* Child = TalkPanel->FirstChild;
         Child->SetPosition(ClassesImports::Point(Child->LocalPosition.X, Child->LocalPosition.Y + TextExtra));
         Child->SetSize(ClassesImports::Point(Child->ClientSize.X, Child->ClientSize.Y + ChoiceExtra));
-        GI_MessageLoop::TObjectGI* AddButton = TalkPanel->FindByNameRecursive(u"UserMsgAdd"_wref.get());
+        GI_MessageLoop::TObjectGI* AddButton = TalkPanel->FindByNameRecursive(u"UserMsgAdd"sv);
         AddButton->SetPosition(ClassesImports::Point(AddButton->LocalPosition.X, AddButton->LocalPosition.Y + TextExtra));
-        GI_MessageLoop::TObjectGI* CloseButton = TalkPanel->FindByNameRecursive(u"ButFormClose"_wref.get());
+        GI_MessageLoop::TObjectGI* CloseButton = TalkPanel->FindByNameRecursive(u"ButFormClose"sv);
         CloseButton->SetPosition(ClassesImports::Point(CloseButton->LocalPosition.X, CloseButton->LocalPosition.Y + TextExtra + ChoiceExtra));
-        GI_PanelScrollBar::TPanelScrollBarGI* TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(TalkPanel->FindByNameRecursive(u"TextScroll"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(TalkPanel->FindByNameRecursive(u"TextScroll"sv));
         TextPanel->SetSize(ClassesImports::Point(TextPanel->ClientSize.X, TextPanel->ClientSize.Y + TextExtra));
         TextPanel->VerticalScrollBar->SetSize(ClassesImports::Point(TextPanel->VerticalScrollBar->ClientSize.X, TextPanel->VerticalScrollBar->ClientSize.Y + TextExtra));
-        GI_MessageLoop::TObjectGI* TextLabel = TextPanel->FindByNameRecursive(u"TalkText"_wref.get());
+        GI_MessageLoop::TObjectGI* TextLabel = TextPanel->FindByNameRecursive(u"TalkText"sv);
         TextLabel->SetSize(ClassesImports::Point(TextLabel->ClientSize.X, TextLabel->ClientSize.Y + TextExtra));
-        GI_PanelScrollBar::TPanelScrollBarGI* ChoicePanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(TalkPanel->FindByNameRecursive(u"TalkPA"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* ChoicePanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(TalkPanel->FindByNameRecursive(u"TalkPA"sv));
         ChoicePanel->SetPosition(ClassesImports::Point(ChoicePanel->LocalPosition.X, ChoicePanel->LocalPosition.Y + TextExtra));
         ChoicePanel->SetSize(ClassesImports::Point(ChoicePanel->ClientSize.X, ChoicePanel->ClientSize.Y + ChoiceExtra));
         ChoicePanel->VerticalScrollBar->SetPosition(ClassesImports::Point(ChoicePanel->VerticalScrollBar->LocalPosition.X, ChoicePanel->VerticalScrollBar->LocalPosition.Y + TextExtra));
@@ -441,14 +343,14 @@ namespace fRuinsTalk {
         Separator->SetPosition(ClassesImports::Point(Separator->LocalPosition.X, Separator->LocalPosition.Y + TextExtra));
         GI_MessageLoop::TObjectGI* Decoration = Separator->NextSibling;
         Decoration->SetPosition(ClassesImports::Point(Decoration->LocalPosition.X, Decoration->LocalPosition.Y + TextExtra));
-        Panel->FindByNameRecursive(u"Film"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Panel->FindByNameRecursive(u"Film"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfRuinsTalk::EndTurnClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->UpCallback = pas::bind_method<&TfRuinsTalk::ShipClicked>(this);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfRuinsTalk::MainPanelKeyDown>(this);
-        GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"_wref.get()));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfRuinsTalk::EndTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfRuinsTalk::ShipClicked>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfRuinsTalk::MainPanelKeyDown>(this);
+        GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv));
         Button->UpCallback = pas::bind_method<&TfRuinsTalk::AddMessageClicked>(this);
-        GI_GraphButton::TGraphButtonGI* CloseFormButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* CloseFormButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv));
         CloseFormButton->UpCallback = pas::bind_static_method<&TfRuinsTalk::CloseRuinsMode>(this);
     }
 
@@ -465,35 +367,35 @@ namespace fRuinsTalk {
         Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         std::int32_t HalfWidth = static_cast<std::uint32_t>(GR_Main::GameScreenWidth) / 2;
         std::int32_t PortraitY = static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 10;
-        std::int32_t TableY = PortraitY + Panel->FindByNameRecursive(u"Panel_Anim0"_wref.get())->ClientSize.Y / 10 * 6;
-        if (Panel->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-            Bottom = TableY + System::Round(pas::real_min<pas::Extended>(Panel->FindByNameRecursive(u"Table"_wref.get())->ClientSize.Y * 0.95L + Panel->FindByNameRecursive(u"Table"_wref.get())->LocalPosition.Y, Panel->FindByNameRecursive(u"Table2"_wref.get())->ClientSize.Y * 0.9L + Panel->FindByNameRecursive(u"Table2"_wref.get())->LocalPosition.Y));
+        std::int32_t TableY = PortraitY + Panel->FindByNameRecursive(u"Panel_Anim0"sv)->ClientSize.Y / 10 * 6;
+        if (Panel->FindByNameRecursive(u"Table2"sv) != nullptr) {
+            Bottom = TableY + System::Round(pas::real_min<pas::Extended>(Panel->FindByNameRecursive(u"Table"sv)->ClientSize.Y * 0.95L + Panel->FindByNameRecursive(u"Table"sv)->LocalPosition.Y, Panel->FindByNameRecursive(u"Table2"sv)->ClientSize.Y * 0.9L + Panel->FindByNameRecursive(u"Table2"sv)->LocalPosition.Y));
         } else {
-            Bottom = TableY + System::Round(Panel->FindByNameRecursive(u"Table"_wref.get())->ClientSize.Y * 0.95L + Panel->FindByNameRecursive(u"Table"_wref.get())->LocalPosition.Y);
+            Bottom = TableY + System::Round(Panel->FindByNameRecursive(u"Table"sv)->ClientSize.Y * 0.95L + Panel->FindByNameRecursive(u"Table"sv)->LocalPosition.Y);
         }
-        std::int32_t DeltaX = Panel->FindByNameRecursive(u"Panel_Anim0"_wref.get())->LocalPosition.X - Panel->FindByNameRecursive(u"Panel_Anim1"_wref.get())->LocalPosition.X;
-        std::int32_t DeltaY = Panel->FindByNameRecursive(u"Panel_Anim0"_wref.get())->ClientSize.Y - Panel->FindByNameRecursive(u"Panel_Anim1"_wref.get())->ClientSize.Y;
+        std::int32_t DeltaX = Panel->FindByNameRecursive(u"Panel_Anim0"sv)->LocalPosition.X - Panel->FindByNameRecursive(u"Panel_Anim1"sv)->LocalPosition.X;
+        std::int32_t DeltaY = Panel->FindByNameRecursive(u"Panel_Anim0"sv)->ClientSize.Y - Panel->FindByNameRecursive(u"Panel_Anim1"sv)->ClientSize.Y;
         if (GR_Main::GameScreenHeight > Bottom) {
             PortraitY = PortraitY + GR_Main::GameScreenHeight - Bottom;
             TableY = TableY + GR_Main::GameScreenHeight - Bottom;
         }
-        GI_MessageLoop::TObjectGI* Table = Panel->FindByNameRecursive(u"Table"_wref.get());
+        GI_MessageLoop::TObjectGI* Table = Panel->FindByNameRecursive(u"Table"sv);
         Table->SetPosition(ClassesImports::Point((HalfWidth - Table->ClientSize.X) / 2 + HalfWidth + Table->LocalPosition.X, Table->LocalPosition.Y + TableY));
-        Table->SetActive(PortraitFlag101);
-        if (Panel->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-            Table2 = Panel->FindByNameRecursive(u"Table2"_wref.get());
+        Table->SetActive(PortraitTableVisible);
+        if (Panel->FindByNameRecursive(u"Table2"sv) != nullptr) {
+            Table2 = Panel->FindByNameRecursive(u"Table2"sv);
             Table2->SetPosition(ClassesImports::Point((HalfWidth - Table2->ClientSize.X) / 2 + HalfWidth + Table2->LocalPosition.X, Table2->LocalPosition.Y + TableY));
             Table2->SetActive(false);
         }
-        std::int32_t PortraitX = HalfWidth / 2 * 3 - Panel->FindByNameRecursive(u"Panel_Anim0"_wref.get())->ClientSize.X / 2;
+        std::int32_t PortraitX = HalfWidth / 2 * 3 - Panel->FindByNameRecursive(u"Panel_Anim0"sv)->ClientSize.X / 2;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 1); cpp_range.next(I); ) {
-            Animation = Panel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"Panel_Anim", SysUtils::IntToStr(I)})));
-            if (!PortraitFlag101) {
+            Animation = Panel->FindByNameRecursive(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Panel_Anim", SysUtils::IntToStr(I)}))));
+            if (!PortraitTableVisible) {
                 Animation->SetPosition(ClassesImports::Point(Animation->LocalPosition.X + GR_Main::ExtraScreenWidth, Animation->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             } else {
                 Animation->SetPosition(ClassesImports::Point(PortraitX - I * DeltaX, PortraitY + I * DeltaY));
             }
-            HdAnimation = Panel->FindByNameRecursive(static_cast<pas::WideString>(pas::concat_ansi({"PanelHD_Anim", SysUtils::IntToStr(I)})));
+            HdAnimation = Panel->FindByNameRecursive(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"PanelHD_Anim", SysUtils::IntToStr(I)}))));
             HdAnimation->SetPosition(ClassesImports::Point((HalfWidth - HdAnimation->ClientSize.X) / 2 + HdAnimation->LocalPosition.X + HalfWidth, HdAnimation->LocalPosition.Y + GR_Main::ExtraScreenHeight));
         }
         StationTransientControl = Panel;
@@ -508,7 +410,7 @@ namespace fRuinsTalk {
 
     // Native diagnostic name: TfRuinsTalk.BeforeRun.
     void TfRuinsTalk::OnOpen() {
-        std::uint8_t Owner{};
+        aGalaxyStruct::TOwnerId Owner{};
         std::uint8_t Kind{};
         std::int32_t Index{};
         EC_BlockPar::TBlockParEC* Block{};
@@ -561,7 +463,7 @@ namespace fRuinsTalk {
             Stage = 7;
             aGalaxy::Galaxy->ReleaseItemGraphics();
             Stage = 8;
-            Background = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG2"_wref.get()));
+            Background = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG2"sv));
             Background->SetActive(StationType == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase));
             if (Background->Active) {
                 Background->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(Index)}));
@@ -571,7 +473,7 @@ namespace fRuinsTalk {
             }
             Stage = 9;
             {
-                GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"_wref.get()));
+                GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv));
                 pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,", fRuinsTalk::GetStationBackgroundPath()});
                 cpp_arg->SetImagePath(std::move(cpp_arg_2));
             }
@@ -580,10 +482,10 @@ namespace fRuinsTalk {
             Stage = 11;
             RestartTextPresentation();
             Stage = 12;
-            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
             Choices->SetVerticalScrollbarEnabled(false);
             Stage = 13;
-            for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(4)); cpp_range.next(Owner); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal); cpp_range.next(Owner); ) {
                 Control = FindControlByPath(pas::concat_wide({u"Panel", aConst::OwnerInfo[Owner].InternalName}));
                 if (Control != nullptr) {
                     Control->SetActive(false);
@@ -601,7 +503,7 @@ namespace fRuinsTalk {
                     Block = GR_Main::GameDataConfig->GetBlockByPath(u"CustomBridges"_wref.get());
                     if (Block->CountBlocks(pas::wide_int_to_str(Index)) != 0) {
                         Block = Block->GetBlockByPath(pas::wide_int_to_str(Index));
-                        Control = FindControlByPath(Block->GetParam(u"PanelName"_wref.get()));
+                        Control = FindControlByPath(Block->GetParam(u"PanelName"sv));
                         if (Control != nullptr) {
                             Control->SetActive(false);
                         }
@@ -611,9 +513,9 @@ namespace fRuinsTalk {
             Stage = 15;
             if (StationBridgeMode != 0) {
                 Control = ([&] {
-                    const pas::WideString& param = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"CustomBridges.", SysUtils::IntToStr(StationBridgeMode)})))->GetParam(u"PanelName"_wref.get());
+                    const pas::WideString& param = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"CustomBridges.", SysUtils::IntToStr(StationBridgeMode)})))->GetParam(u"PanelName"sv);
                     GI_MessageLoop::TMessageLoopGI* self = this;
-                    return self->GetByName(param);
+                    return self->GetByName(pas::view(param));
                 }());
             } else {
                 Control = nullptr;
@@ -636,38 +538,38 @@ namespace fRuinsTalk {
             Stage = 16;
             LayoutStationPortrait(Control);
             Stage = 17;
-            if (StationTransientControl->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-                StationTransientControl->FindByNameRecursive(u"Table2"_wref.get())->SetActive(false);
+            if (StationTransientControl->FindByNameRecursive(u"Table2"sv) != nullptr) {
+                StationTransientControl->FindByNameRecursive(u"Table2"sv)->SetActive(false);
             }
             Stage = 18;
-            StationTransientControl->FindByNameRecursive(u"Table"_wref.get())->SetActive(PortraitFlag100 && PortraitFlag101);
+            StationTransientControl->FindByNameRecursive(u"Table"sv)->SetActive(LargePortraitLayout && PortraitTableVisible);
             Stage = 19;
-            if (PortraitFlag100 && static_cast<std::uint8_t>(PortraitFlag101 ^ 1)) {
+            if (LargePortraitLayout && static_cast<std::uint8_t>(PortraitTableVisible ^ 1)) {
                 Stage = 20;
-                HdNormal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim0"_wref.get()));
+                HdNormal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim0"sv));
                 HdNormal->FirstFrameOnly = GlobalsV::AnimGov == 0;
                 HdNormal->PrimeImageCaches();
                 if (GlobalsV::AnimGov == 2) {
-                    HdAlternate = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim1"_wref.get()));
+                    HdAlternate = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim1"sv));
                     HdAlternate->FirstFrameOnly = GlobalsV::AnimGov == 0;
                     HdAlternate->PrimeImageCaches();
                 }
             } else {
                 Stage = 21;
-                Normal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim0"_wref.get()));
+                Normal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim0"sv));
                 Normal->FirstFrameOnly = GlobalsV::AnimGov == 0;
                 Normal->PrimeImageCaches();
                 if (GlobalsV::AnimGov == 2) {
-                    Alternate = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim1"_wref.get()));
+                    Alternate = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim1"sv));
                     Alternate->FirstFrameOnly = GlobalsV::AnimGov == 0;
                     Alternate->PrimeImageCaches();
                 }
             }
             Stage = 22;
-            CloseButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"_wref.get()));
+            CloseButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv));
             CloseButton->SetDisabled(StationBridgeMode == 0 || aPlayer::GetPlayer()->GetHull()->CapitalShip != StationBridgeMode && aPlayer::GetPlayer()->PendingDockDialogue == 2);
             Stage = 23;
-            TextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()));
+            TextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv));
             if (GlobalsV::FontDialog == 0) {
                 TextLabel->SetFontName(GlobalsV::NormalFontName);
             } else if (GlobalsV::FontDialog == 1) {
@@ -736,7 +638,7 @@ namespace fRuinsTalk {
             Result.Cost = Item->Cost;
             Result.Weight = Item->Weight;
             Result.Priority = 0;
-            if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && Item->EquippedFlag == 0 && Item->NoDropFlag == 0 && Item->CustomFaction == u"" && !(pas::class_cast_if<aItem::THull*>(Item) != nullptr)) {
+            if (Item->OwnerId == aGalaxyStruct::oiDominator && Item->EquippedFlag == 0 && Item->NoDropFlag == 0 && Item->CustomFaction == u"" && !(pas::class_cast_if<aItem::THull*>(Item) != nullptr)) {
                 if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
                     if (static_cast<aGalaxyStruct::TDominatorSeries>(Series) == Item->DominatorSeries) {
                         Result.Priority = 5;
@@ -836,7 +738,7 @@ namespace fRuinsTalk {
             }
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, Index);
             if (Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(Series) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
-                if (pas::checked_cast<aItem::TUselessItem*>(Item)->IsDominatorRemains() && static_cast<std::uint8_t>(TfRuinsTalk::IsResearchItemQuestLetter(Item) ^ 1)) {
+                if (static_cast<aItem::TUselessItem*>(Item)->IsDominatorRemains() && static_cast<std::uint8_t>(TfRuinsTalk::IsResearchItemQuestLetter(Item) ^ 1)) {
                     ++Matches;
                 }
             }
@@ -869,7 +771,7 @@ namespace fRuinsTalk {
         pas::WideString Items{};
         pas::WideString Description{};
         pas::WideString Bonus{};
-        Bonus = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get()), u"<color=255,240,100>"_w)});
+        Bonus = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get())), u"<color=255,240,100>"sv)});
         std::int32_t Number = 0;
         std::int32_t Count = SortResearchItems(Series);
         if (CountResearchRemains(Series, Count) > 0) {
@@ -898,7 +800,7 @@ namespace fRuinsTalk {
             }
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, Index);
             ++Number;
-            Description = pas::concat_wide({aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName())), u" (", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Item->Cost), u"<color=255,240,100>"_w), u" cr)"});
+            Description = pas::concat_wide({aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName())), u" (", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Item->Cost)), u"<color=255,240,100>"sv), u" cr)"});
             if (Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(Series) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
                 Description = pas::concat_wide({Description, Bonus});
             }
@@ -948,7 +850,7 @@ namespace fRuinsTalk {
             return;
         }
         MainPanel->ShipClicked(Sender);
-        if (Globals::ShipScreen->Flag3BC) {
+        if (Globals::ShipScreen->ShipStateChanged) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(300);
             I_Start();
             aGalaxy::Galaxy->PrimeIntegrityChecksum(301);
@@ -958,7 +860,7 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::RememberChoiceScroll() {
-        SavedChoiceScroll = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()))->VerticalScrollBar->Position;
+        SavedChoiceScroll = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv))->VerticalScrollBar->Position;
     }
 
     // Native diagnostic name: TfRuinsTalk.A_Start.
@@ -968,7 +870,7 @@ namespace fRuinsTalk {
         std::int32_t Stage = 0;
         try {
             ChoiceHeight = 0;
-            Panel = GetByName(u"TalkPA"_wref.get());
+            Panel = GetByName(u"TalkPA"sv);
             Stage = 1;
             Child = Panel->FirstChild;
             while (Child != nullptr) {
@@ -1007,7 +909,7 @@ namespace fRuinsTalk {
         if (BlockMode >= 2) {
             return;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
         I = 0;
         while (I < Text.length()) {
             if (Text.read(I + 1) != u'-' && Text.read(I + 1) != u' ') {
@@ -1060,7 +962,7 @@ namespace fRuinsTalk {
             if (!pas::assigned(Callback)) {
                 Text = EC_Str::RemoveTextTagsW(Text);
             }
-            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get())}));
+            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv)}));
             cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             if (!pas::assigned(Choice->Callback)) {
                 cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(127, 127, 127));
@@ -1115,7 +1017,7 @@ namespace fRuinsTalk {
     // Clears the dialogue panel state and restarts its ten-millisecond presentation timer.
     void TfRuinsTalk::RestartTextPresentation() {
         ResetPortraitCycle();
-        pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()))->SetActive(false);
+        pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv))->SetActive(false);
         PresentedTextLength = 0;
         if (TextPresentationTimer != nullptr) {
             CancelCallbackTimer(TextPresentationTimer);
@@ -1128,10 +1030,10 @@ namespace fRuinsTalk {
         GI_PanelScrollBar::TPanelScrollBarGI* Choices{};
         GI_PanelScrollBar::TPanelScrollBarGI* TextPanel{};
         if (PresentedTextLength >= DialogText.length()) {
-            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
             Choices->SetActive(true);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = Choices->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }
@@ -1153,23 +1055,23 @@ namespace fRuinsTalk {
             GR_Main::PostMouseMoveMessage();
         } else {
             DialogText = pas::concat_wide_reverse({EC_Str::TrimWideString(DialogText), aConst::LocalizedTextLinePrefix});
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix}), u"\r\n"_wref.get());
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"\r\n"_wref.get(), pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix}));
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix}), u"\r\n"sv);
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"\r\n"_wref.get(), pas::view(pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix})));
             PresentedTextLength = DialogText.length();
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
-            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()))->SetText(DialogText);
-            TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"_wref.get()));
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->SetText(DialogText);
+            TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
             TextPanel->SetScrollOffset(ClassesImports::Point(0, 0));
             TextPanel->UpdateScrollRanges();
-            TextPanel->VerticalScrollBar->SetActive(pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"_wref.get()))->ClientSize.Y > TextPanel->ClientSize.Y);
+            TextPanel->VerticalScrollBar->SetActive(pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"sv))->ClientSize.Y > TextPanel->ClientSize.Y);
             {
-                std::int32_t lineHeight_2 = pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"_wref.get()))->GetLineHeight();
+                std::int32_t lineHeight_2 = pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar_2 = TextPanel->VerticalScrollBar;
                 verticalScrollBar_2->SetSmallChange(lineHeight_2);
             }
             TextPanel->VerticalScrollBar->SetLargeChange(TextPanel->ClientSize.Y);
             TextPanel->VerticalScrollBar->SetPageSize(TextPanel->ClientSize.Y);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"_wref.get()))->SetDisabled(false);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv))->SetDisabled(false);
         }
     }
 
@@ -1194,8 +1096,8 @@ namespace fRuinsTalk {
         if (GlobalsV::AnimGov != 2) {
             Alternate = false;
         }
-        if (PortraitFlag100 && static_cast<std::uint8_t>(PortraitFlag101 ^ 1)) {
-            HdNormal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim0"_wref.get()));
+        if (LargePortraitLayout && static_cast<std::uint8_t>(PortraitTableVisible ^ 1)) {
+            HdNormal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim0"sv));
             HdNormal->CycleCompleteCallback = pas::bind_method<&TfRuinsTalk::PortraitCycleComplete>(this);
             HdNormal->SetSequenceFrame(0);
             HdNormal->StopAutoPlayback();
@@ -1205,7 +1107,7 @@ namespace fRuinsTalk {
                 HdNormal->StopAutoPlayback();
             }
             HdNormal->SetActive(static_cast<std::uint8_t>(Alternate ^ 1));
-            HdAlternate = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim1"_wref.get()));
+            HdAlternate = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"PanelHD_Anim1"sv));
             HdAlternate->CycleCompleteCallback = pas::bind_method<&TfRuinsTalk::PortraitCycleComplete>(this);
             HdAlternate->SetSequenceFrame(0);
             HdAlternate->StopAutoPlayback();
@@ -1216,7 +1118,7 @@ namespace fRuinsTalk {
             }
             HdAlternate->SetActive(Alternate);
         } else {
-            Normal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim0"_wref.get()));
+            Normal = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim0"sv));
             Normal->CycleCompleteCallback = pas::bind_method<&TfRuinsTalk::PortraitCycleComplete>(this);
             Normal->SetSequenceFrame(0);
             Normal->StopAutoPlayback();
@@ -1226,7 +1128,7 @@ namespace fRuinsTalk {
                 Normal->StopAutoPlayback();
             }
             Normal->SetActive(static_cast<std::uint8_t>(Alternate ^ 1));
-            AlternateAnimation = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim1"_wref.get()));
+            AlternateAnimation = pas::checked_cast<GI_GAI::TgaiGI*>(StationTransientControl->FindByNameRecursive(u"Panel_Anim1"sv));
             AlternateAnimation->CycleCompleteCallback = pas::bind_method<&TfRuinsTalk::PortraitCycleComplete>(this);
             AlternateAnimation->SetSequenceFrame(0);
             AlternateAnimation->StopAutoPlayback();
@@ -1248,9 +1150,9 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
         if (!Panel->ContainsPoint(Point)) {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->SmallChange);
@@ -1264,9 +1166,9 @@ namespace fRuinsTalk {
         if (ExitCode != 0 || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) || LoadPanel->IsAnimatingShutters()) {
             return;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
         if (Key == WindowsSdk::VK_SPACE) {
-            if (GetByName(u"PM_EndTurn"_wref.get())->Active) {
+            if (GetByName(u"PM_EndTurn"sv)->Active) {
                 EndTurnClicked(nullptr);
             }
         } else if (Key == 'S') {
@@ -1280,7 +1182,7 @@ namespace fRuinsTalk {
         } else if (Key == WindowsSdk::VK_NEXT) {
             Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position + Panel->VerticalScrollBar->LargeChange);
         } else if (Key == WindowsSdk::VK_INSERT) {
-            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"_wref.get()));
+            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv));
             AddMessageClicked(Button);
         } else {
             MainPanel->ProcessKeyDown(Key);
@@ -1290,8 +1192,8 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::AddMessageClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString Text{};
-        Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()))->GetText();
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,50,200>"_wref.get(), u"<color=255,240,100>"_wref.get());
+        Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetText();
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,50,200>"_wref.get(), u"<color=255,240,100>"sv);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->SetDisabled(true);
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
         Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
@@ -1306,7 +1208,7 @@ namespace fRuinsTalk {
         if (Progress > 1.0L) {
             Progress = 1.0;
         }
-        GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+        GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
         Film->SetFramePosition(System::Round(3449.0L * Progress));
         if (Progress >= 1.0L) {
             StopScriptVideo(false);
@@ -1325,7 +1227,7 @@ namespace fRuinsTalk {
             CancelCallbackTimer(ScriptVideoTimer);
             ScriptVideoTimer = nullptr;
         }
-        GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"_wref.get()));
+        GI_XviD::TxvidGI* Film = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
         Film->ImageClose();
         Film->SetActive(false);
         InvalidateViewport();
@@ -1358,11 +1260,11 @@ namespace fRuinsTalk {
                 Globals::StarMapScreen->BattleMusicSelected = false;
                 Name = aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey;
                 if (Name != u"") {
-                    if (GR_Main::MainDataConfig->GetBlock(u"Music"_wref.get())->CountBlocks(Name) > 0) {
+                    if (GR_Main::MainDataConfig->GetBlock(u"Music"sv)->CountBlocks(Name) > 0) {
                         GR_Main::MusicManager->PlayCategory(Name);
                     } else if (([&] {
                         const pas::WideString& typeNameKey = aPlayer::GetPlayer()->DockedTo->GetTypeNameKey();
-                        EC_BlockPar::TBlockParEC* block = GR_Main::MainDataConfig->GetBlock(u"Music"_wref.get());
+                        EC_BlockPar::TBlockParEC* block = GR_Main::MainDataConfig->GetBlock(u"Music"sv);
                         return block->CountBlocks(typeNameKey);
                     }()) > 0) {
                         GR_Main::MusicManager->PlayCategory(aPlayer::GetPlayer()->DockedTo->GetTypeNameKey());
@@ -1378,9 +1280,9 @@ namespace fRuinsTalk {
                 GR_Main::MusicManager->RequestFadeOut();
                 return;
             }
-            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
@@ -1540,7 +1442,7 @@ namespace fRuinsTalk {
         aRanger::TRanger* Ranger{};
         pas::Object* SwapEntry{};
         std::uint32_t Seed{};
-        std::uint8_t ItemType{};
+        aConst::TItemType ItemType{};
         std::int32_t Weight{};
         std::int32_t Level{};
         aConst::PWeaponInfo Info{};
@@ -1560,7 +1462,7 @@ namespace fRuinsTalk {
             Stage = 3;
             if (aPlayer::GetPlayer()->DockedTo->ScriptShip != nullptr) {
                 Script = reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip)->Script;
-                Text = reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip)->GetGroup()->DefinitionText;
+                Text = reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip)->GetGroup()->StationDialogVariable;
                 if (Text != u"") {
                     Script->PublishShipContext(reinterpret_cast<aScript::TScriptShip*>(aPlayer::GetPlayer()->DockedTo->ScriptShip));
                     Script->CallDialogByVariable(Text);
@@ -1736,13 +1638,13 @@ namespace fRuinsTalk {
                                 DialogText = aConst::LocalizedColorText(u"FormRuins.WB.FlyToEnemy.WBAfterQuestions"_wref.get());
                                 aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
                             } else {
-                                if (aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aPlayer::GetPlayer()->TryPromoteRank()) {
+                                if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate && aPlayer::GetPlayer()->TryPromoteRank()) {
                                     Stage = 12;
                                     DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.WB.", aConst::CoalitionRankNames[aPlayer::GetPlayer()->Rank], u".NewRank"}));
                                     static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckCommanderAchievement();
                                     aMyFunction::ReplaceTextToken(DialogText, u"<PredPoints>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::CoalitionRankPointThresholds[aPlayer::GetPlayer()->Rank - 1])), u"<color=255,240,100>"_w);
                                     if (aPlayer::GetPlayer()->Rank == 7) {
-                                        ModuleIndex = aConst::FindMicroModuleTemplateByCustomTag(u"AkrinAmplifier"_w);
+                                        ModuleIndex = aConst::FindMicroModuleTemplateByCustomTag(u"AkrinAmplifier"sv);
                                         Item = pas::construct_call<aItem::TMicroModule>(aItem::TEquipment_Create);
                                         if (ModuleIndex >= 0) {
                                             pas::checked_cast<aItem::TMicroModule*>(Item)->Init(ModuleIndex);
@@ -1772,7 +1674,7 @@ namespace fRuinsTalk {
                                         Level = System::Round(aMyFunction::RemapClamped(System::Round(aMyFunction::RemapClamped(static_cast<std::int8_t>(aPlayer::GetPlayer()->Rank * 1), 0.0, 7.0, 1.0, 5.0)), 1.0, 5.0, 3.0, 8.0));
                                         Item = aItem::CreateGeneratedWeapon(Info, Weight, Level, StationOwner);
                                     } else {
-                                        ItemType = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}}));
+                                        ItemType = static_cast<aConst::TItemType>(aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}})));
                                         Seed = aGalaxy::Galaxy->CurrentTurn / 33 * (aPlayer::GetPlayer()->DockedTo->Id * (aPlayer::GetPlayer()->Rank + 17));
                                         {
                                             std::int32_t round_3 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MaximumSizeFactor);
@@ -1780,7 +1682,7 @@ namespace fRuinsTalk {
                                             Weight = aMyFunction::NextRandomIntRange(round_4, round_3, Seed);
                                         }
                                         Level = System::Round(aMyFunction::RemapClamped(static_cast<std::int8_t>(aPlayer::GetPlayer()->Rank * 1), 0.0, 7.0, 3.0, 8.0));
-                                        Item = aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(ItemType), Weight, Level, StationOwner);
+                                        Item = aItem::CreateGeneratedEquipment(ItemType, Weight, Level, StationOwner);
                                     }
                                     if (Item != nullptr) {
                                         pas::WideString displayName = Item->GetDisplayName();
@@ -1793,7 +1695,7 @@ namespace fRuinsTalk {
                                 } else {
                                     DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.WB.", aConst::CoalitionRankNames[aPlayer::GetPlayer()->Rank], u".Greeting"}));
                                 }
-                                if (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                                if (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                                     DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.WB.FlyToEnemy.GreetingAdd"_wref.get())});
                                     aMyFunction::ReplaceTextToken(DialogText, u"<StarEnemy>"_w, pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar->Name, u"<color=255,240,100>"_w);
                                     {
@@ -1870,7 +1772,7 @@ namespace fRuinsTalk {
                 Stage = 18;
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range_2.next(I); ) {
                     Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I);
-                    aScript::TScript_RunAuxiliaryCode(Script);
+                    aScript::TScript_RunDialogCode(Script);
                 }
                 Stage = 19;
                 if (pas::list_count(aScript::ScriptDialogOverrides) > 0) {
@@ -1943,10 +1845,10 @@ namespace fRuinsTalk {
                         Text = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Answer;
                         if (Text != u"") {
                             Prefix = pas::WideString();
-                            Parts = EC_Str::CountDelimitedPartsW(Text, u"~"_wref.get());
+                            Parts = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
                             if (Parts > 1) {
-                                Prefix = EC_Str::ExtractDelimitedPartW(Text, 0, u"~"_wref.get());
-                                Text = EC_Str::ExtractDelimitedRangeW(Text, 1, Parts - 1, u"~"_wref.get());
+                                Prefix = EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"~"sv);
+                                Text = EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, Parts - 1, u"~"sv);
                             }
                             if (Prefix == u"block") {
                                 AddChoice(Text, 0, fTalk::ScriptDialogBlockCallback);
@@ -1975,7 +1877,6 @@ namespace fRuinsTalk {
                     SelectScriptDialog(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Script)));
                 }
             }
-            fRuinsTalk::ReserveGreetingFrame();
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
@@ -2036,7 +1937,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::SelectBridgeBlackHoleDestination(std::int32_t Action) {
         MainPanel->NavigationLocked = true;
-        GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+        GetByName(u"PM_WinMsg"sv)->SetActive(false);
         SetCursorActive(false);
         Present();
         GR_Main::CaptureScreenBackground(true, 0);
@@ -2429,10 +2330,10 @@ namespace fRuinsTalk {
                 }
                 case aGalaxyStruct::rstPirateBase: {
                     AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.PB.ChangeNationality.ChangeNationality"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowPirateBaseNationalityDialog>(this));
-                    if (aPlayer::GetPlayer()->PirateClanReal && aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aGalaxy::Galaxy->PirateWinType != 3) {
+                    if (aPlayer::GetPlayer()->PirateClanReal && aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate && aGalaxy::Galaxy->PirateWinType != 3) {
                         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.ChangeSideToPirate"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowPirateBaseSideChangeDialog>(this));
                     }
-                    if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
+                    if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate && aGalaxy::Galaxy->CoalitionDefeatedTurn == 0) {
                         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.ChangeSideToNormal"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowPirateBaseSideChangeDialog>(this));
                     }
                     AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.PB.Program.PlayerAsk"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowPirateBaseProgramDialog>(this));
@@ -2457,7 +2358,7 @@ namespace fRuinsTalk {
                         ClearChoices();
                         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.WB.FlyToEnemy.PlayerHangar"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::OpenHangar>(this));
                     } else {
-                        if (aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                             AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.WB.WarWithKlingAndPirates.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::I_WarWithKlingAndPirates>(this));
                             if (aPlayer::GetPlayer()->Rank < 6) {
                                 AddChoice(pas::concat_wide({u"- ", ([&] {
@@ -2682,7 +2583,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::RunScriptGameEnd(std::int32_t Answer) {
         aScript::CurrentScript->ExecuteDialogAnswer(Answer);
-        GlobalsV::GameEndReason = 0;
+        GlobalsV::GameEndReason = GlobalsV::gerDefault;
         GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
         RequestClose(1);
     }
@@ -2697,7 +2598,7 @@ namespace fRuinsTalk {
         std::int32_t Cost = 0;
         aRuins::TRuins* Station = pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo);
         if (static_cast<std::uint32_t>(QuotedCost) > 0) {
-            fRuinsTalk::PayStationModernization(QuotedCost);
+            aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - System::Trunc(static_cast<std::uint32_t>(QuotedCost))));
             GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
             Station->ModernizationSponsor = true;
         } else {
@@ -3112,18 +3013,18 @@ namespace fRuinsTalk {
                 }
             }
         }
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyMaloc>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(0)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeleng>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(1)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeople>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(2)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyFei>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(3)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyGaal>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(4)) * Factor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyMaloc>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiMaloc)) * Factor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeleng>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiPeleng)) * Factor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeople>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman)) * Factor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyFei>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiFeyan)) * Factor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyGaal>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiGaal)) * Factor)), u"<color=255,240,100>"_w);
         DialogText = pas::concat_wide({DialogText, Text});
         ClearChoices();
-        std::int32_t A = aGalaxy::Galaxy->ComputeScaledBigMoney(0);
-        std::int32_t B = aGalaxy::Galaxy->ComputeScaledBigMoney(1);
-        std::int32_t C = aGalaxy::Galaxy->ComputeScaledBigMoney(2);
-        std::int32_t D = aGalaxy::Galaxy->ComputeScaledBigMoney(3);
-        std::int32_t E = aGalaxy::Galaxy->ComputeScaledBigMoney(4);
+        std::int32_t A = aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiMaloc);
+        std::int32_t B = aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiPeleng);
+        std::int32_t C = aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman);
+        std::int32_t D = aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiFeyan);
+        std::int32_t E = aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiGaal);
         if (D < E) {
             DE = D;
         } else {
@@ -3178,23 +3079,23 @@ namespace fRuinsTalk {
         Globals::SelectFaceScreen->PlayerRace = aPlayer::GetPlayer()->PilotRace;
         Globals::SelectFaceScreen->CaptainPortraitIndex = aPlayer::GetPlayer()->PortraitFaceId;
         Globals::SelectFaceScreen->PlayerName = aPlayer::GetPlayer()->Name;
-        Globals::SelectFaceScreen->NationalityCosts[0] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(0)) * Factor);
-        Globals::SelectFaceScreen->NationalityCosts[1] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(1)) * Factor);
-        Globals::SelectFaceScreen->NationalityCosts[2] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(2)) * Factor);
-        Globals::SelectFaceScreen->NationalityCosts[3] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(3)) * Factor);
-        Globals::SelectFaceScreen->NationalityCosts[4] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(4)) * Factor);
+        Globals::SelectFaceScreen->NationalityCosts[aGalaxyStruct::oiMaloc] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiMaloc)) * Factor);
+        Globals::SelectFaceScreen->NationalityCosts[aGalaxyStruct::oiPeleng] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiPeleng)) * Factor);
+        Globals::SelectFaceScreen->NationalityCosts[aGalaxyStruct::oiHuman] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman)) * Factor);
+        Globals::SelectFaceScreen->NationalityCosts[aGalaxyStruct::oiFeyan] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiFeyan)) * Factor);
+        Globals::SelectFaceScreen->NationalityCosts[aGalaxyStruct::oiGaal] = System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiGaal)) * Factor);
         Globals::SelectFaceScreen->AvailableMoney = aPlayer::GetPlayer()->Money;
         aGalaxy::Galaxy->PrimeIntegrityChecksum(320);
         if (fSelectFace::RunSelectFaceDialog(this)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(321);
             aPlayer::GetPlayer()->PortraitFaceId = Globals::SelectFaceScreen->CaptainPortraitIndex;
             aPlayer::GetPlayer()->PilotRace = Globals::SelectFaceScreen->PlayerRace;
-            if (aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                 aPlayer::GetPlayer()->OwnerId = aConst::RaceToOwner(Globals::SelectFaceScreen->PlayerRace);
             }
             aPlayer::GetPlayer()->Name = Globals::SelectFaceScreen->PlayerName;
             Globals::LastLoadedPlayerName = aPlayer::GetPlayer()->Name;
-            fRuinsTalk::PayNationalityMoney();
+            aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - std::max<std::int32_t>(0, Globals::SelectFaceScreen->AcceptedCost)));
             aPlayer::GetPlayer()->AddPirateCareerActivity(8);
             ++aPlayer::GetPlayer()->NationalityChangeCount;
             Achievements::TryAddAchievementProgress(u"MANYFACES"_w, 1);
@@ -3206,8 +3107,8 @@ namespace fRuinsTalk {
                     }
                 }
             }
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 70, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 70, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 70, aConst::PlanetOwnerMasks.Coalition);
+            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 70, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), aConst::PlanetOwnerMasks.Coalition);
             if (aPlanet::MainPiratePlanet != nullptr) {
                 RangerIndex = pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(aPlayer::GetPlayer()));
                 Relation = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aPlanet::MainPiratePlanet->RangerRelations, RangerIndex)));
@@ -3215,28 +3116,28 @@ namespace fRuinsTalk {
                     pas::list_put(aPlanet::MainPiratePlanet->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(45))));
                 }
             }
-            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan));
+            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), aConst::PlanetOwnerMasks.PirateClan);
             GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
             Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerChangesNationality"_w, nullptr);
             Event->AddData(aPlayer::GetPlayer()->PilotRace);
             switch (Globals::SelectFaceScreen->PlayerRace) {
-                case 0: {
+                case aGalaxyStruct::oiMaloc: {
                     DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeNationality.AfterOperationMaloc"_wref.get());
                     break;
                 }
-                case 1: {
+                case aGalaxyStruct::oiPeleng: {
                     DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeNationality.AfterOperationPeleng"_wref.get());
                     break;
                 }
-                case 2: {
+                case aGalaxyStruct::oiHuman: {
                     DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeNationality.AfterOperationPeople"_wref.get());
                     break;
                 }
-                case 3: {
+                case aGalaxyStruct::oiFeyan: {
                     DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeNationality.AfterOperationFei"_wref.get());
                     break;
                 }
-                case 4: {
+                case aGalaxyStruct::oiGaal: {
                     DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeNationality.AfterOperationGaal"_wref.get());
                     break;
                 }
@@ -3265,12 +3166,12 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowPirateBaseSideChangeDialog(std::int32_t Action) {
         std::int32_t I{};
-        if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.AnswerChangeSideToNormal"_wref.get());
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.AnswerChangeSideToPirate"_wref.get());
         }
-        StationServiceQuoteCost = aGalaxy::Galaxy->ComputeScaledHugeMoney(2);
+        StationServiceQuoteCost = aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman);
         {
             const std::int32_t cpp_first = pas::list_count(aGalaxy::Galaxy->GalaxyEvents) - 1;
             if (cpp_first >= 0) {
@@ -3310,12 +3211,12 @@ namespace fRuinsTalk {
         static const pas::Set<0, 255> RelationShipTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger}, {aGalaxyStruct::htPirate, aGalaxyStruct::htDiplomat}});
         std::int32_t I{};
         std::uint8_t Relation{};
-        if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
             aPlayer::GetPlayer()->OwnerId = aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace);
         } else {
-            aPlayer::GetPlayer()->OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiPirate);
+            aPlayer::GetPlayer()->OwnerId = aGalaxyStruct::oiPirate;
         }
-        StationServiceQuoteCost = aGalaxy::Galaxy->ComputeScaledHugeMoney(2);
+        StationServiceQuoteCost = aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman);
         {
             const std::int32_t cpp_first = pas::list_count(aGalaxy::Galaxy->GalaxyEvents) - 1;
             if (cpp_first >= 0) {
@@ -3339,31 +3240,31 @@ namespace fRuinsTalk {
         } else {
             Relation = 0;
         }
-        if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
             if (Relation < 45 && aPlanet::MainPiratePlanet != nullptr) {
                 pas::list_put(aPlanet::MainPiratePlanet->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(45))));
             }
-            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan));
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmCapAt, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmCapAt, 20, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), aConst::PlanetOwnerMasks.PirateClan);
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmCapAt, 20, aConst::PlanetOwnerMasks.Coalition);
+            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmCapAt, 20, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), aConst::PlanetOwnerMasks.Coalition);
             DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.AnswerPlayerOkPirate"_wref.get());
         } else {
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 45, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 45, aConst::PlanetOwnerMasks.Coalition);
+            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmRaiseTo, 45, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), aConst::PlanetOwnerMasks.Coalition);
             if (Relation > 20 && aPlanet::MainPiratePlanet != nullptr) {
                 pas::list_put(aPlanet::MainPiratePlanet->RangerRelations, RangerIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(20))));
             }
-            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmCapAt, 20, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.PirateClan));
+            aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmCapAt, 20, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), aConst::PlanetOwnerMasks.PirateClan);
             DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.AnswerPlayerOkNormal"_wref.get());
         }
         aGalaxyEvent::TGalaxyEvent* Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerChangesSide"_w, nullptr);
-        Event->AddData(aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate));
+        Event->AddData(aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate);
         ClearChoices();
         M_Main(true);
     }
 
     void TfRuinsTalk::DeclinePirateBaseSideChange(std::int32_t Action) {
-        if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+        if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.AnswerPlayerNoNormal"_wref.get());
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.PB.ChangeSide.AnswerPlayerNoPirate"_wref.get());
@@ -3423,8 +3324,8 @@ namespace fRuinsTalk {
         std::uint8_t NewStack = true;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TItem>(aPlayer::GetPlayer()->Inventory, I);
-            if (pas::class_cast_if<aItem::TProtoplasm*>(Item) != nullptr) {
-                Stack = pas::checked_cast<aItem::TProtoplasm*>(Item);
+            if (aItem::TProtoplasm* protoplasm = pas::class_cast_if<aItem::TProtoplasm*>(Item)) {
+                Stack = protoplasm;
                 Stack->Init_2(Stack->StackCount + Count, 1);
                 NewStack = false;
                 break;
@@ -3453,15 +3354,15 @@ namespace fRuinsTalk {
         for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range.next(I); ) {
             PirateProgramQuoteCosts[I] = 0;
         }
-        std::int32_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount() & 0x0000007f;
+        std::int32_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         Text = aConst::LocalizedColorText(u"FormRuins.PB.Program.PBStart"_wref.get());
-        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Percent>"_w, aMyFunction::WrapTextInColor(pas::wide_int_to_str(Discount), u"<color=255,240,100>"_w));
-        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<NodTrum>"_w, aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr)), u"<color=255,240,100>"_w));
-        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<NodAcc>"_w, aMyFunction::WrapTextInColor(pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes), u"<color=255,240,100>"_w));
+        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Percent>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Discount)), u"<color=255,240,100>"sv));
+        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<NodTrum>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr))), u"<color=255,240,100>"sv));
+        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<NodAcc>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes)), u"<color=255,240,100>"sv));
         Text = pas::concat_wide({Text, u"\r\n"});
         for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range_2.next(I); ) {
             if (aConst::PirateProgramBatchSizes[I] != 0) {
-                Text = pas::concat_wide({Text, aMyFunction::WrapTextInColor((static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I)), u"<color=255,240,100>"_w), u" - "});
+                Text = pas::concat_wide({Text, aMyFunction::WrapTextInColor(pas::view((static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I))), u"<color=255,240,100>"sv), u" - "});
                 Text = pas::concat_wide({Text, ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aConst::PirateProgramBatchSizes[I]);
                     pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[I], u".Text"}));
@@ -3482,8 +3383,8 @@ namespace fRuinsTalk {
         for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range_3.next(I); ) {
             if (aConst::PirateProgramBatchSizes[I] != 0) {
                 Text = pas::concat_wide({u" - ", aConst::LocalizedColorText(u"FormRuins.PB.Program.PlayerOk"_wref.get())});
-                Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Nod>"_w, aMyFunction::WrapTextInColor(pas::wide_int_to_str(PirateProgramQuoteCosts[I]), u"<color=255,240,100>"_w));
-                Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Text>"_w, aMyFunction::WrapTextInColor((static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I)), u"<color=255,240,100>"_w));
+                Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Nod>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(PirateProgramQuoteCosts[I])), u"<color=255,240,100>"sv));
+                Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Text>"_w, aMyFunction::WrapTextInColor(pas::view((static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I))), u"<color=255,240,100>"sv));
                 if (PirateProgramQuoteCosts[I] <= Nodes) {
                     AddChoice(Text, I, pas::bind_method<&TfRuinsTalk::BuyPirateBaseProgram>(this));
                 } else {
@@ -3539,7 +3440,7 @@ namespace fRuinsTalk {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
-                if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
+                if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); weapon != nullptr && weapon->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
                     if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
                         NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
@@ -3595,7 +3496,7 @@ namespace fRuinsTalk {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
-                if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
+                if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); weapon != nullptr && weapon->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
                     if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
                         NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
@@ -3753,7 +3654,7 @@ namespace fRuinsTalk {
         std::uint8_t Series = Action;
         std::int32_t Cost = PirateChameleonQuoteCosts[Series];
         ++aPlayer::GetPlayer()->ChameleonCharges[Series];
-        fRuinsTalk::PayChameleonMoney(Cost);
+        aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - Cost));
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         DialogText = aConst::LocalizedColorText(u"FormRuins.PB.Chameleon.PBAfterOk"_wref.get());
         ClearChoices();
@@ -3968,8 +3869,8 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::ShowMilitaryBaseWarOperationDialog(std::int32_t Action) {
-        BusinessQuoteSmallAmount = aMyFunction::RoundAndTruncateToTens(aGalaxy::Galaxy->ComputeScaledSmallMoney(2));
-        StationServiceQuoteCost = aMyFunction::RoundAndTruncateToHundreds(aGalaxy::Galaxy->ComputeScaledHugeMoney(2));
+        BusinessQuoteSmallAmount = aMyFunction::RoundAndTruncateToTens(aGalaxy::Galaxy->ComputeScaledSmallMoney(aGalaxyStruct::oiHuman));
+        StationServiceQuoteCost = aMyFunction::RoundAndTruncateToHundreds(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman));
         StationServiceQuoteCost = aMyFunction::RoundAndTruncateToHundreds(static_cast<long double>(StationServiceQuoteCost) * aMyFunction::RemapClamped(aGalaxy::Galaxy->CurrentTurn - aPlayer::GetPlayer()->StationServiceLastUseTurns[aGalaxyStruct::cpWarOperation], 0.0, aConst::StationServiceRepeatPeriods[aGalaxyStruct::cpWarOperation], 7.7, 1.0));
         DialogText = aConst::LocalizedColorText(u"FormRuins.WB.WarOperation.WB"_wref.get());
         aMyFunction::ReplaceTextToken(DialogText, u"<DecMoney>"_w, pas::wide_int_to_str(BusinessQuoteSmallAmount), u"<color=255,240,100>"_w);
@@ -4014,9 +3915,9 @@ namespace fRuinsTalk {
             Group = pas::list_at<aGroup::TGroup>(aGalaxy::Galaxy->LiberationGroups, pas::list_count(aGalaxy::Galaxy->LiberationGroups) - 1);
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
             aPlayer::GetPlayer()->StationServiceLastUseTurns[aGalaxyStruct::cpWarOperation] = aGalaxy::Galaxy->CurrentTurn;
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}}));
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}, {3}, {4}}));
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 25, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 15, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 5, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}}));
             {
                 const std::int32_t cpp_first = pas::list_count(Group->Ships) - 1;
                 if (cpp_first >= 0) {
@@ -4072,12 +3973,12 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::ConfirmMilitaryBaseTravel(std::int32_t Action) {
-        if (PortraitFlag100 && PortraitFlag101 && StationTransientControl->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-            StationTransientControl->FindByNameRecursive(u"Table2"_wref.get())->SetActive(true);
-            StationTransientControl->FindByNameRecursive(u"Table"_wref.get())->SetActive(false);
+        if (LargePortraitLayout && PortraitTableVisible && StationTransientControl->FindByNameRecursive(u"Table2"sv) != nullptr) {
+            StationTransientControl->FindByNameRecursive(u"Table2"sv)->SetActive(true);
+            StationTransientControl->FindByNameRecursive(u"Table"sv)->SetActive(false);
         }
         {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"_wref.get()));
+            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv));
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(), u"WBbg2"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -4107,12 +4008,12 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::ShowMilitaryBaseArrivalDialog(std::int32_t Action) {
-        if (PortraitFlag100 && PortraitFlag101 && StationTransientControl->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-            StationTransientControl->FindByNameRecursive(u"Table2"_wref.get())->SetActive(true);
-            StationTransientControl->FindByNameRecursive(u"Table"_wref.get())->SetActive(false);
+        if (LargePortraitLayout && PortraitTableVisible && StationTransientControl->FindByNameRecursive(u"Table2"sv) != nullptr) {
+            StationTransientControl->FindByNameRecursive(u"Table2"sv)->SetActive(true);
+            StationTransientControl->FindByNameRecursive(u"Table"sv)->SetActive(false);
         }
         {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"_wref.get()));
+            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv));
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(), u"WBbg2"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -4122,12 +4023,12 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::DeclineMilitaryBaseTravel(std::int32_t Action) {
-        if (PortraitFlag100 && PortraitFlag101 && StationTransientControl->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-            StationTransientControl->FindByNameRecursive(u"Table"_wref.get())->SetActive(true);
-            StationTransientControl->FindByNameRecursive(u"Table2"_wref.get())->SetActive(false);
+        if (LargePortraitLayout && PortraitTableVisible && StationTransientControl->FindByNameRecursive(u"Table2"sv) != nullptr) {
+            StationTransientControl->FindByNameRecursive(u"Table"sv)->SetActive(true);
+            StationTransientControl->FindByNameRecursive(u"Table2"sv)->SetActive(false);
         }
         {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"_wref.get()));
+            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv));
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,", fRuinsTalk::GetStationBackgroundPath()});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -4139,12 +4040,12 @@ namespace fRuinsTalk {
         std::int32_t I{};
         aShip::TShip* Ship{};
         pas::WideString Names{};
-        if (PortraitFlag100 && PortraitFlag101 && StationTransientControl->FindByNameRecursive(u"Table2"_wref.get()) != nullptr) {
-            StationTransientControl->FindByNameRecursive(u"Table2"_wref.get())->SetActive(true);
-            StationTransientControl->FindByNameRecursive(u"Table"_wref.get())->SetActive(false);
+        if (LargePortraitLayout && PortraitTableVisible && StationTransientControl->FindByNameRecursive(u"Table2"sv) != nullptr) {
+            StationTransientControl->FindByNameRecursive(u"Table2"sv)->SetActive(true);
+            StationTransientControl->FindByNameRecursive(u"Table"sv)->SetActive(false);
         }
         {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"_wref.get()));
+            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv));
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,", fRuinsTalk::GetStationBackgroundPath()});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -4217,8 +4118,8 @@ namespace fRuinsTalk {
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range_2.next(I); ) {
             Artefact = pas::list_at<aItem::TItem>(aPlayer::GetPlayer()->Artefacts, I);
-            if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Artefact) != nullptr) {
-                Item = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Artefact)->Ship)->GetHull();
+            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Artefact)) {
+                Item = static_cast<aShip::TShip*>(artefactTranclucator->Ship)->GetHull();
                 if (Item->CanImprove()) {
                     ++Count;
                     Text = pas::concat_wide({Text, u"\r\n", pas::wide_int_to_str(Count), u") ", aConst::LocalizedColorText(u"FormRuins.SB.Improvement.ItemReadyForImprovement"_wref.get())});
@@ -4261,7 +4162,7 @@ namespace fRuinsTalk {
         std::int32_t Nodes{};
         Item = reinterpret_cast<aItem::TEquipment*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
         StationImprovementItem = Item;
-        if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Improvement.SBNeedCostImprovementNodes"_wref.get());
             aMyFunction::ReplaceTextToken(DialogText, u"<MinNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMinor) * 0.01L)), u"<color=255,240,100>"_w);
             aMyFunction::ReplaceTextToken(DialogText, u"<AverageNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMedium) * 0.01L)), u"<color=255,240,100>"_w);
@@ -4279,7 +4180,7 @@ namespace fRuinsTalk {
         aMyFunction::ReplaceTextToken(DialogText, u"<Average>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMedium)), u"<color=255,240,100>"_w);
         aMyFunction::ReplaceTextToken(DialogText, u"<Max>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMajor)), u"<color=255,240,100>"_w);
         ClearChoices();
-        if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             Nodes = aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr);
             if (Nodes >= System::Round(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L) && Item->CalculateImprovementCost(aItem::ikMajor) <= aPlayer::GetPlayer()->Money) {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::SelectScienceBaseImprovementKind>(this);
@@ -4339,7 +4240,7 @@ namespace fRuinsTalk {
             if (!(pas::class_cast_if<aItem::TEngine*>(Item) != nullptr) && !(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) && !(pas::class_cast_if<aItem::TCargoHook*>(Item) != nullptr)) {
                 break;
             }
-            if (!(Detail == 2 && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && pas::in_range(reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)))) {
+            if (!(Detail == 2 && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && pas::in_range(static_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)))) {
                 Text = aConst::LocalizedColorText(pas::concat_wide({u"Items.", Item->GetCategoryConfigName(), u".Detail.", pas::wide_int_to_str(Detail)}));
                 if (Text.length() != 0) {
                     if (Detail == 1) {
@@ -4373,14 +4274,14 @@ namespace fRuinsTalk {
         Item = StationImprovementItem;
         aItem::TImprovementKind Kind = StationImprovementKind;
         std::int32_t Cost = Item->CalculateImprovementCost(Kind);
-        if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             Nodes = System::Round(Cost * 0.01L);
         } else {
             Nodes = 0;
         }
         if (aPlayer::GetPlayer()->Money >= Cost && aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) >= Nodes) {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
-            if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Item->OwnerId == aGalaxyStruct::oiDominator) {
                 aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Nodes, nullptr);
             }
             Item->DetailImprovement = StationImprovementDetail;
@@ -4452,7 +4353,7 @@ namespace fRuinsTalk {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
-                if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
+                if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); weapon != nullptr && weapon->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
                     if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
                         NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
@@ -4508,7 +4409,7 @@ namespace fRuinsTalk {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
             if (Item->EquippedFlag != 0) {
-                if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
+                if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); weapon != nullptr && weapon->GetWeaponInfo()->Availability == aGalaxyStruct::waNotSoldAndNodeRepair && Item->NeedsRepair()) {
                     if (aShip::TShip_CanRepairEquipmentTech(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), Item)) {
                         NodeCost += aItem::TEquipment_CalculateRepairCost(Item);
                     }
@@ -4645,7 +4546,7 @@ namespace fRuinsTalk {
                     self_2->AddChoice(std::move(cpp_arg_4), 0, scriptDialogBlockCallback);
                 }
                 aMyFunction::ReplaceTextToken(Info, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[Series].Material), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Info, u"<Speed>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->GetDominatorResearchEfficiency(Series) & 0x0000007f), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Info, u"<Speed>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aGalaxy::Galaxy->GetDominatorResearchEfficiency(Series))), u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(Info, u"<Day>"_w, pas::wide_int64_to_str(System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(1.0E+2L - aGalaxy::Galaxy->DominatorResearch[Series].Progress, aGalaxy::Galaxy->GetDominatorResearchRate(Series))))), u"<color=255,240,100>"_w);
             } else {
                 Info = aConst::LocalizedColorText(u"FormRuins.SB.Scn.SBSectionInfoEnd"_wref.get());
@@ -4729,7 +4630,7 @@ namespace fRuinsTalk {
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
                     Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                    if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(SelectedResearchSeries) && Item->NoDropFlag == 0 && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
+                    if (Item->OwnerId == aGalaxyStruct::oiDominator && Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(SelectedResearchSeries) && Item->NoDropFlag == 0 && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
                         if (static_cast<std::uint8_t>(TfRuinsTalk::IsResearchItemQuestLetter(pas::checked_cast<aItem::TUselessItem*>(Item)) ^ 1) && Item->CustomFaction == u"") {
                             aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material += Item->Weight;
                             Money += 2 * Item->Cost;
@@ -4791,7 +4692,7 @@ namespace fRuinsTalk {
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
                     Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                    if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && !(pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) && Item->EquippedFlag == 0 && Item->NoDropFlag == 0 && Item->ItemType != aConst::t_Protoplasm && Item->ItemType != aConst::t_MicroModule && Item->CustomFaction == u"") {
+                    if (Item->OwnerId == aGalaxyStruct::oiDominator && !(pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) && Item->EquippedFlag == 0 && Item->NoDropFlag == 0 && Item->ItemType != aConst::t_Protoplasm && Item->ItemType != aConst::t_MicroModule && Item->CustomFaction == u"") {
                         aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material += Item->Weight;
                         Money += Item->Cost;
                         pas::list_delete(aPlayer::GetPlayer()->Inventory, I);
@@ -4909,7 +4810,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::BuyScienceBaseResearchProgram(std::int32_t Action) {
         SelectedResearchSeries = Action - 1;
-        std::int32_t Cost = aMyFunction::RoundAndTruncateToHundreds(static_cast<long double>(std::min<std::int32_t>(aGalaxy::Galaxy->ComputeScaledHugeMoney(2) * 2, aPlayer::GetPlayer()->Wealth / 30)) * aConst::ResearchProgramCostFactors[SelectedResearchSeries]);
+        std::int32_t Cost = aMyFunction::RoundAndTruncateToHundreds(static_cast<long double>(std::min<std::int32_t>(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) * 2, aPlayer::GetPlayer()->Wealth / 30)) * aConst::ResearchProgramCostFactors[SelectedResearchSeries]);
         DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.SB.Scn.SBBuyTech", aConst::DominatorSeriesNames[SelectedResearchSeries]}));
         aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
         aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
@@ -5179,7 +5080,7 @@ namespace fRuinsTalk {
         BusinessQuoteLargeAmount = std::min<std::int32_t>(10000000, std::max<std::int32_t>(1000, aPlayer::GetPlayer()->Money));
         BusinessQuoteMediumAmount = std::min<std::int32_t>(10000000, std::max<std::int32_t>(1000, aPlayer::GetPlayer()->Money / 2));
         BusinessQuoteSmallAmount = std::min<std::int32_t>(10000000, std::max<std::int32_t>(1000, aPlayer::GetPlayer()->Money / 4));
-        BusinessDepositQuoteInterestRate = MathImports::RoundTo(aMyFunction::RemapClamped(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfDominators) & 0x0000007f, 5.0, 95.0, 7.0, 1.0), -1);
+        BusinessDepositQuoteInterestRate = MathImports::RoundTo(aMyFunction::RemapClamped(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfDominators), 5.0, 95.0, 7.0, 1.0), -1);
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.BK"_wref.get());
         aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
         aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(BusinessDepositQuoteInterestRate, SysUtilsImports::ffFixed, 1, 1)), u"<color=255,240,100>"_w);
@@ -5236,7 +5137,7 @@ namespace fRuinsTalk {
         aPlayer::GetPlayer()->DepositInterestRate = BusinessDepositQuoteInterestRate;
         aPlayer::GetPlayer()->DepositDayCount = 0;
         aPlayer::GetPlayer()->DepositStartTurn = aGalaxy::Galaxy->CurrentTurn;
-        fRuinsTalk::PayDepositMoney();
+        aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - aPlayer::GetPlayer()->DepositAmount));
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.BKAfterOk"_wref.get());
         aMyFunction::ReplaceTextToken(DialogText, u"<SendMoney>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DepositAmount), u"<color=255,240,100>"_w);
         aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(BusinessDepositQuoteInterestRate, SysUtilsImports::ffFixed, 1, 1)), u"<color=255,240,100>"_w);
@@ -5274,11 +5175,11 @@ namespace fRuinsTalk {
         if (Refresh == 0) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Policy.BK"_wref.get());
             aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(2)), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman)), u"<color=255,240,100>"_w);
             aMyFunction::ReplaceTextToken(DialogText, u"<Year>"_w, pas::wide_int_to_str(5), u"<color=255,240,100>"_w);
         }
         ClearChoices();
-        if (aGalaxy::Galaxy->ComputeScaledAverageMoney(2) <= aPlayer::GetPlayer()->Money) {
+        if (aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman) <= aPlayer::GetPlayer()->Money) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::BuyBusinessCenterMedicalPolicy>(this);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.BK.Policy.PlayerOk"_wref.get())});
             TfRuinsTalk* self = this;
@@ -5307,9 +5208,9 @@ namespace fRuinsTalk {
     void TfRuinsTalk::BuyBusinessCenterMedicalPolicy(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Policy.BKAfterOk"_wref.get());
         aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(2)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman)), u"<color=255,240,100>"_w);
         aMyFunction::ReplaceTextToken(DialogText, u"<Year>"_w, pas::wide_int_to_str(5), u"<color=255,240,100>"_w);
-        aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aGalaxy::Galaxy->ComputeScaledAverageMoney(2));
+        aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman));
         aPlayer::GetPlayer()->MedicalPolicyTicks = 1825;
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         M_Main(true);
@@ -5901,7 +5802,7 @@ namespace fRuinsTalk {
                         for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_8.next(I); ) {
                             aMyFunction::IncrementWrapped(Index, BoundA, BoundB);
                             Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, Index);
-                            if (Planet->IsCoalitionOwned && static_cast<std::uint8_t>(Planet->IsMainPiratePlanet ^ 1) && aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Planet->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 5889) >= 0.9L && Planet->CurrentStar->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Planet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && (Planet->CurrentStar->Status.Battle == 0 || Planet->CurrentStar->CountPirateShips(false) <= 0) && Planet->CurrentStar->DaysSincePlayerVisit >= 30 && Planet->CurrentStar->IsConstellationVisible()) {
+                            if (Planet->IsCoalitionOwned && static_cast<std::uint8_t>(Planet->IsMainPiratePlanet ^ 1) && aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Planet->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 5889) >= 0.9L && Planet->CurrentStar->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Planet->OwnerId != aGalaxyStruct::oiPirate && (Planet->CurrentStar->Status.Battle == 0 || Planet->CurrentStar->CountPirateShips(false) <= 0) && Planet->CurrentStar->DaysSincePlayerVisit >= 30 && Planet->CurrentStar->IsConstellationVisible()) {
                                 {
                                     std::int32_t cpp_right_7 = aMyFunction::SeededRandomIntRange(1, 50, Planet->GenerationSeed);
                                     std::int32_t cpp_left_20 = std::min<std::int32_t>(40, Planet->CurrentStar->DaysSincePlayerVisit) + 200 - cpp_right_7;
@@ -6025,8 +5926,8 @@ namespace fRuinsTalk {
                 aPlayer::GetPlayer()->GainExperience(Experience, 0);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(Experience), u"<color=255,240,100>"_w);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 10, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 40, static_cast<aConst::THullShipTypeMask>(RangerTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 10, aConst::PlanetOwnerMasks.Coalition);
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 40, static_cast<aConst::THullShipTypeMask>(RangerTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
                 break;
             }
@@ -6055,9 +5956,9 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, PirateBase->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, PirateBase->CurrentStar->Name, u"<color=255,240,100>"_w);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}, {4}}));
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}}));
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 20, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}}));
                 break;
             }
             case aGalaxyStruct::cpCreateMilitaryBase: {
@@ -6076,7 +5977,7 @@ namespace fRuinsTalk {
                     galaxy_3->AddPlanetNewsWithPlayerBubble(41, std::move(formatText3_3));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
-                if (aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                     pas::WideString localizedColorText_3 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Text"}));
                     pas::WideString& dialogText_3 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_3, u"<InvestmentText>"_w, std::move(localizedColorText_3), pas::WideString());
@@ -6088,15 +5989,15 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, MilitaryBase->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, MilitaryBase->CurrentStar->Name, u"<color=255,240,100>"_w);
-                if (aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                     RankPoints = aMyFunction::SeededRandomIntRange(50, 200, MilitaryBase->Seed);
                     aPlayer::GetPlayer()->AddRankPoints(RankPoints);
                     aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(RankPoints), u"<color=255,240,100>"_w);
                 }
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 10, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, static_cast<aConst::THullShipTypeMask>(PirateTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, aConst::PlanetOwnerMasks.Coalition);
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 10, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), aConst::PlanetOwnerMasks.Coalition);
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, static_cast<aConst::THullShipTypeMask>(PirateTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
                 break;
             }
@@ -6125,7 +6026,7 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, ScienceBase->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, ScienceBase->CurrentStar->Name, u"<color=255,240,100>"_w);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 25, static_cast<aConst::THullShipTypeMask>(RangerTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 25, static_cast<aConst::THullShipTypeMask>(RangerTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
                 break;
             }
@@ -6154,7 +6055,7 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, BusinessCenter->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, BusinessCenter->CurrentStar->Name, u"<color=255,240,100>"_w);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(TransportTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(TransportTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
                 break;
             }
@@ -6183,7 +6084,7 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, MedicalBase->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, MedicalBase->CurrentStar->Name, u"<color=255,240,100>"_w);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
                 break;
             }
@@ -6305,9 +6206,9 @@ namespace fRuinsTalk {
                 }
                 aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 20, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 20, static_cast<aConst::THullShipTypeMask>(PirateTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, aConst::PlanetOwnerMasks.Coalition);
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 20, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), aConst::PlanetOwnerMasks.Coalition);
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 20, static_cast<aConst::THullShipTypeMask>(PirateTypes), aConst::PlanetOwnerMasks.Coalition);
                 break;
             }
             case aGalaxyStruct::cpWarSubsidy: {
@@ -6339,8 +6240,8 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, InvestmentDefensePlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
                 aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
                 InvestmentDefensePlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 20, pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
-                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, static_cast<aConst::THullShipTypeMask>(PirateTypes), pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 20, aConst::PlanetOwnerMasks.Coalition);
+                aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, static_cast<aConst::THullShipTypeMask>(PirateTypes), aConst::PlanetOwnerMasks.Coalition);
                 break;
             }
         }
@@ -6357,8 +6258,8 @@ namespace fRuinsTalk {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Trade.BK"_wref.get());
         {
             std::int32_t cpp_arg_3 = aPlayer::GetPlayer()->Money / 100;
-            std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledMiniMoney(2);
-            std::int32_t cpp_arg_2 = aGalaxy::Galaxy->ComputeScaledMiniMoney(2) / 2;
+            std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledMiniMoney(aGalaxyStruct::oiHuman);
+            std::int32_t cpp_arg_2 = aGalaxy::Galaxy->ComputeScaledMiniMoney(aGalaxyStruct::oiHuman) / 2;
             std::int32_t seededRandomIntRange = aMyFunction::SeededRandomIntRange(cpp_arg_2, cpp_arg, aGalaxy::Galaxy->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 10);
             NearbyTradeAdviceCost = aMyFunction::RoundAndTruncateToTens(std::min<std::int32_t>(cpp_arg_3, seededRandomIntRange) + 30);
         }
@@ -6537,7 +6438,7 @@ namespace fRuinsTalk {
         pas::WideString IllnessText{};
         pas::WideString Key{};
         if (Refresh == 0) {
-            if (aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                 DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSee"_wref.get());
             } else {
                 DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeePirate"_wref.get());
@@ -6577,7 +6478,7 @@ namespace fRuinsTalk {
                         Cost = ([&] {
                             std::int32_t computeScaledAverageMoney = aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                             std::int32_t computeScaledMiniMoney = aGalaxy::Galaxy->ComputeScaledMiniMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].EffectClass0D, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
+                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
                         }());
                         TotalCost += Cost;
                         aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
@@ -6607,7 +6508,7 @@ namespace fRuinsTalk {
                         Cost = ([&] {
                             std::int32_t computeScaledAverageMoney_2 = aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                             std::int32_t computeScaledMiniMoney_2 = aGalaxy::Galaxy->ComputeScaledMiniMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].EffectClass0D, computeScaledMiniMoney_2, computeScaledAverageMoney_2, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
+                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledMiniMoney_2, computeScaledAverageMoney_2, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
                         }());
                         if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                             Cost = Cost / 2;
@@ -6661,7 +6562,7 @@ namespace fRuinsTalk {
                     TfRuinsTalk* self_5 = this;
                     self_5->AddChoice(std::move(cpp_arg_8), 0, cpp_arg_7);
                 }
-            } else if (aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            } else if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg_9 = pas::bind_method<&TfRuinsTalk::LeaveMedicalCenterTreatment>(this);
                 pas::WideString cpp_arg_10 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.MC.Illnes.PlayerExit"_wref.get())});
                 TfRuinsTalk* self_6 = this;
@@ -6680,7 +6581,7 @@ namespace fRuinsTalk {
                 } else {
                     Key = pas::concat_wide({Key, u"NormalTo"});
                 }
-                if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
                     Key = pas::concat_wide({Key, u"Pirate"});
                 } else {
                     Key = pas::concat_wide({Key, u"Normal"});
@@ -6709,7 +6610,7 @@ namespace fRuinsTalk {
                 Cost = ([&] {
                     std::int32_t computeScaledAverageMoney = aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                     std::int32_t computeScaledMiniMoney = aGalaxy::Galaxy->ComputeScaledMiniMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].EffectClass0D, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
+                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
                 }());
                 if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                     Cost = Cost / 2;
@@ -6766,7 +6667,7 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::LeaveMedicalCenterTreatment(std::int32_t Action) {
-        if (aPlayer::GetPlayer()->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
+        if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeAfterExitPirate"_wref.get());
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeAfterExit"_wref.get());
@@ -6779,7 +6680,6 @@ namespace fRuinsTalk {
         std::int32_t I{};
         std::int32_t Cost{};
         std::int32_t Duration{};
-        std::int32_t MaxStimulants{};
         std::uint32_t Seed{};
         pas::WideString Text{};
         pas::WideString StimulantText{};
@@ -6810,7 +6710,9 @@ namespace fRuinsTalk {
         }
         std::int32_t cpp_left_2 = aPlayer::GetPlayer()->GetTotalStatBonus(aConst::bonStimCapacity);
         std::int32_t Bonus = cpp_left_2 + aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtBio);
-        fRuinsTalk::ComputeStimulantOfferLimit(Rank, Bonus, MaxStimulants);
+        std::int32_t countActiveStimulants = aPlayer::GetPlayer()->CountActiveStimulants();
+        std::int32_t cpp_arg = MathImports::Floor(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->CurrentTurn / 70 * aPlayer::GetPlayer()->DockedTo->Id, 0.0, 1.0)) * (std::max<std::int32_t>(2, std::max<std::int32_t>(2, static_cast<std::int32_t>(Rank)) + Bonus) - 1)) + 2;
+        std::int32_t MaxStimulants = std::max<std::int32_t>(countActiveStimulants, cpp_arg);
         std::int32_t LawStimulants = std::max<std::int32_t>(2, static_cast<std::int32_t>(Rank));
         DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.MC1"_wref.get());
         if (MaxStimulants < LawStimulants) {
@@ -6858,9 +6760,9 @@ namespace fRuinsTalk {
                     Duration = System::Round(pas::real_divide(Duration, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor));
                     aMyFunction::ReplaceTextToken(Text, u"<Month>"_w, pas::wide_int_to_str(Duration / 30), u"<color=255,240,100>"_w);
                     Cost = ([&] {
-                        std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
+                        std::int32_t cpp_arg_2 = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                         std::int32_t computeScaledSmallMoney = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].EffectClass0D, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg_2, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                     }());
                     if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                         Cost = Cost / 2;
@@ -6882,41 +6784,41 @@ namespace fRuinsTalk {
             for (I = 13; I <= 24; ++I) {
                 if (pas::contains(Offers, I)) {
                     Cost = ([&] {
-                        std::int32_t cpp_arg_2 = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
+                        std::int32_t cpp_arg_3 = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                         std::int32_t computeScaledSmallMoney_2 = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].EffectClass0D, computeScaledSmallMoney_2, cpp_arg_2, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney_2, cpp_arg_3, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                     }());
                     if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                         Cost = Cost / 2;
                     }
                     if (aPlayer::GetPlayer()->Money < Cost || aPlayer::GetPlayer()->CaptainHealth[I].Progress == 1.0E+2L) {
                         GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback = fTalk::ScriptDialogBlockCallback;
-                        pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", ([&] {
+                        pas::WideString cpp_arg_4 = pas::concat_wide({u"- ", ([&] {
                             auto name = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
                             pas::WideString intToStr = pas::wide_int_to_str(Cost);
                             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerStim"_wref.get());
                             return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<StimName>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
                         }())});
                         TfRuinsTalk* self = this;
-                        self->AddChoice(std::move(cpp_arg_3), 0, scriptDialogBlockCallback);
+                        self->AddChoice(std::move(cpp_arg_4), 0, scriptDialogBlockCallback);
                     } else {
-                        GI_MessageLoop::TDialogChoiceEventGI cpp_arg_4 = pas::bind_method<&TfRuinsTalk::BuySelectedStimulantAtMedicalCenter>(this);
-                        pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", ([&] {
+                        GI_MessageLoop::TDialogChoiceEventGI cpp_arg_5 = pas::bind_method<&TfRuinsTalk::BuySelectedStimulantAtMedicalCenter>(this);
+                        pas::WideString cpp_arg_6 = pas::concat_wide({u"- ", ([&] {
                             auto name_2 = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
                             pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                             pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerStim"_wref.get());
                             return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<StimName>"_w, name_2.get(), u"<Money>"_w, std::move(intToStr_2));
                         }())});
                         TfRuinsTalk* self_2 = this;
-                        self_2->AddChoice(std::move(cpp_arg_5), I, cpp_arg_4);
+                        self_2->AddChoice(std::move(cpp_arg_6), I, cpp_arg_5);
                     }
                 }
             }
             {
-                GI_MessageLoop::TDialogChoiceEventGI cpp_arg_6 = pas::bind_method<&TfRuinsTalk::DeclineMedicalCenterStimulants>(this);
-                pas::WideString cpp_arg_7 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerNo"_wref.get())});
+                GI_MessageLoop::TDialogChoiceEventGI cpp_arg_7 = pas::bind_method<&TfRuinsTalk::DeclineMedicalCenterStimulants>(this);
+                pas::WideString cpp_arg_8 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerNo"_wref.get())});
                 TfRuinsTalk* self_3 = this;
-                self_3->AddChoice(std::move(cpp_arg_7), 0, cpp_arg_6);
+                self_3->AddChoice(std::move(cpp_arg_8), 0, cpp_arg_7);
             }
         } else {
             ClearChoices();
@@ -6945,7 +6847,7 @@ namespace fRuinsTalk {
                 Cost = ([&] {
                     std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                     std::int32_t computeScaledSmallMoney = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].EffectClass0D, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                 }());
                 if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                     Cost = Cost / 2;
@@ -6988,13 +6890,13 @@ namespace fRuinsTalk {
         aItem::THull* Hull = pas::construct_call<aItem::THull>(aItem::TEquipment_Create);
         if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
             Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
-            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullPB"_w), Hull);
+            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullPB"sv), Hull);
         } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
             Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
-            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullWB"_w), Hull);
+            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullWB"sv), Hull);
         } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstScienceBase)) {
             Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
-            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullSB"_w), Hull);
+            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullSB"sv), Hull);
         } else {
             GR_Main::RaiseWideMessage(u"Ask special ship"_wref.get());
         }
@@ -7115,19 +7017,19 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::BuyStationSpecialShip(std::int32_t Action) {
         static const pas::Set<0, 255> RelationShipTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger}, {aGalaxyStruct::htPirate, aGalaxyStruct::htDiplomat}});
-        static const pas::Set<0, 255> PirateOwners = pas::constant_set<pas::Set<0, 255>>({{1}});
-        static const pas::Set<0, 255> CoalitionOwners = pas::constant_set<pas::Set<0, 255>>({{0}, {2, 4}});
+        static const pas::Set<0, 255> PirateOwners = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::oiPeleng}});
+        static const pas::Set<0, 255> CoalitionOwners = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman, aGalaxyStruct::oiGaal}});
         pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->SpecialServiceActive = false;
         aItem::THull* Hull = pas::construct_call<aItem::THull>(aItem::TEquipment_Create);
         if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
             Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
-            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullPB"_w), Hull);
+            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullPB"sv), Hull);
         } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
             Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
-            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullWB"_w), Hull);
+            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullWB"sv), Hull);
         } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstScienceBase)) {
             Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
-            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullSB"_w), Hull);
+            aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullSB"sv), Hull);
         } else {
             GR_Main::RaiseWideMessage(u"Buy special ship"_wref.get());
         }
@@ -7140,9 +7042,9 @@ namespace fRuinsTalk {
                 aPlayer::GetPlayer()->AddItemToPlayerStorage(Hull, aPlayer::GetPlayer()->DockedTo, -1);
             }
             if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}}));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), static_cast<aGalaxyStruct::TOwnerMask>(PirateOwners));
-                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}, {2}, {3}, {4}}));
+                aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 50, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), static_cast<aGalaxyStruct::TOwnerMask>(CoalitionOwners));
             }
         } else {
@@ -7160,9 +7062,9 @@ namespace fRuinsTalk {
             aScript::ExecuteScriptText(Injection->ActionCode, aScript::CurrentScript->InitCode->LocalVar);
         }
         Text = Injection->Answer;
-        std::int32_t Parts = EC_Str::CountDelimitedPartsW(Text, u"~"_wref.get());
+        std::int32_t Parts = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
         if (Parts > 1) {
-            Text = EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text))), 0, u"~"_wref.get());
+            Text = EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text)))), 0, u"~"sv);
             if (Text == u"snap") {
                 RememberChoiceScroll();
             }
@@ -7202,7 +7104,7 @@ namespace fRuinsTalk {
         aPlayer::GetPlayer()->CloseRuinsModeScreen();
     }
 
-    std::int32_t TfRuinsTalk::BuildConstructionItemChoices(std::uint8_t Kind) {
+    std::int32_t TfRuinsTalk::BuildConstructionItemChoices(aConst::TItemType Kind) {
         std::int32_t I{};
         fEquipmentShop::TShopSlot* Slot{};
         aItem::TEquipment* Item{};
@@ -7214,13 +7116,13 @@ namespace fRuinsTalk {
             if (Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->Name != u"") {
                 return Result;
             }
-            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && static_cast<std::uint8_t>(pas::in_range(static_cast<std::uint8_t>(Item->ItemType), static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1)) {
+            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && static_cast<std::uint8_t>(pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1)) {
                 return Result;
             }
-            if (static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1) && Kind != static_cast<std::uint8_t>(Item->ItemType)) {
+            if (static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1) && Kind != Item->ItemType) {
                 return Result;
             }
-            if (Kind == 42) {
+            if (Kind == aConst::t_Hull) {
                 if (static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::htPirate, aGalaxyStruct::htSpecial>(reinterpret_cast<aItem::THull*>(Item)->HullType) ^ 1) || reinterpret_cast<aItem::THull*>(Item)->GetSlotCount(aConst::sskCargoHook) < 1 || reinterpret_cast<aItem::THull*>(Item)->CapitalShip != 0) {
                     return Result;
                 }
@@ -7228,10 +7130,10 @@ namespace fRuinsTalk {
                     if (Item->SpecialModuleIndex == 0) {
                         return Result;
                     }
-                    if (!pas::contains(pas::load_unaligned<aGalaxyStruct::TShipTypeMask>(&aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].OfferStationTypes), aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                    if (!pas::contains(aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].OfferStationTypes, aPlayer::GetPlayer()->DockedTo->TypeId)) {
                         return Result;
                     }
-                } else if (!pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::PlanetOwnerMasks.Coalition), Item->OwnerId)) {
+                } else if (!pas::contains(aConst::PlanetOwnerMasks.Coalition, Item->OwnerId)) {
                     return Result;
                 }
             }
@@ -7252,10 +7154,10 @@ namespace fRuinsTalk {
             if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
                 Stats = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.StatsWeapon"_wref.get());
             } else {
-                Stats = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.CB.ConstructPirate.Stats", aConst::ItemTypeNames[static_cast<std::uint8_t>(Item->ItemType)]}));
+                Stats = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.CB.ConstructPirate.Stats", aConst::ItemTypeNames[Item->ItemType]}));
             }
             Item->ReplaceInfoTokens(Stats, u"<color=255,240,100>"_w, nullptr);
-            if (pas::class_cast_if<aItem::THull*>(Item) != nullptr && reinterpret_cast<aItem::THull*>(Item)->HullSeries != -1) {
+            if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Item); hull != nullptr && hull->HullSeries != -1) {
                 Stats = pas::concat_wide({Stats, u", ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.StatsSeries"_wref.get())});
                 aMyFunction::ReplaceTextToken(Stats, u"<SeriesName>"_w, pas::concat_wide({u"\"", aConst::HullSeriesDefinitions[reinterpret_cast<aItem::THull*>(Item)->HullSeries].Name, u"\""}), u"<color=255,240,100>"_w);
             }
@@ -7264,17 +7166,17 @@ namespace fRuinsTalk {
                 aMyFunction::ReplaceTextToken(Stats, u"<SeriesName>"_w, Item->GetSpecialModuleName(), u"<color=255,240,100>"_w);
             }
             aMyFunction::ReplaceTextToken(Text, u"<Stats>"_w, Stats, pas::WideString());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=0,130,0>"_wref.get());
+            Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+            Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=0,130,0>"sv);
         };
         std::int32_t Count = 0;
-        if (Kind != 42) {
+        if (Kind != aConst::t_Hull) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
                 if (Item->EquippedFlag == 0 && IsConstructionItemEligible(Item)) {
                     Text = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.InHold"_wref.get());
                     FormatConstructionItem(Text, Item);
-                    if (Kind != 42 && fRuinsTalk::GetConstructionFreeSpace() - Item->Weight < 0) {
+                    if (Kind != aConst::t_Hull && fRuinsTalk::GetConstructionFreeSpace() - Item->Weight < 0) {
                         AddChoice(pas::concat_wide({u"- ", Text}), 0, fTalk::ScriptDialogBlockCallback);
                     } else {
                         AddChoice(pas::concat_wide({u"- ", Text}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Item)), pas::bind_method<&TfRuinsTalk::SelectConstructionHeldItem>(this));
@@ -7291,7 +7193,7 @@ namespace fRuinsTalk {
                     if (IsConstructionItemEligible(Item)) {
                         Text = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.InStorage"_wref.get());
                         FormatConstructionItem(Text, Item);
-                        if (Kind != 42 && fRuinsTalk::GetConstructionFreeSpace() - Item->Weight < 0) {
+                        if (Kind != aConst::t_Hull && fRuinsTalk::GetConstructionFreeSpace() - Item->Weight < 0) {
                             AddChoice(pas::concat_wide({u"- ", Text}), 0, fTalk::ScriptDialogBlockCallback);
                         } else {
                             AddChoice(pas::concat_wide({u"- ", Text}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Item)), pas::bind_method<&TfRuinsTalk::SelectConstructionStoredItem>(this));
@@ -7311,7 +7213,7 @@ namespace fRuinsTalk {
                         FormatConstructionItem(Text, Item);
                         if (Item->Cost + fRuinsTalk::GetConstructionShopCost() > aPlayer::GetPlayer()->Money) {
                             AddChoice(pas::concat_wide({u"- ", Text}), 0, fTalk::ScriptDialogBlockCallback);
-                        } else if (Kind != 42 && fRuinsTalk::GetConstructionFreeSpace() - Item->Weight < 0) {
+                        } else if (Kind != aConst::t_Hull && fRuinsTalk::GetConstructionFreeSpace() - Item->Weight < 0) {
                             AddChoice(pas::concat_wide({u"- ", Text}), 0, fTalk::ScriptDialogBlockCallback);
                         } else {
                             AddChoice(pas::concat_wide({u"- ", Text}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Item)), pas::bind_method<&TfRuinsTalk::SelectConstructionShopItem>(this));
@@ -7321,7 +7223,7 @@ namespace fRuinsTalk {
                 }
             }
         }
-        if (static_cast<std::uint8_t>(pas::in_set<42, 44, 48, 48>(Kind) ^ 1) && (Kind != 50 || ConstructionWeapons[1].Item != nullptr)) {
+        if (static_cast<std::uint8_t>(pas::in_set<aConst::t_Hull, aConst::t_Engine, aConst::t_CargoHook, aConst::t_CargoHook>(Kind) ^ 1) && (Kind != aConst::t_Weapon1 || ConstructionWeapons[1].Item != nullptr)) {
             AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.skip"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::SkipConstructionItem>(this));
         }
         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.cancel"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::DeclineDominionShipConstruction>(this));
@@ -7330,9 +7232,9 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowDominionShipConstructionDialog(std::int32_t Action) {
         std::int32_t J{};
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         ClearChoices();
-        for (Kind = static_cast<std::uint8_t>(42); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
+        for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Hull, aConst::t_DefGenerator); cpp_range.next(Kind); ) {
             ConstructionEquipment[Kind].Item = nullptr;
         }
         for (J = 1; J <= 5; ++J) {
@@ -7343,14 +7245,14 @@ namespace fRuinsTalk {
             AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.WarningConfirm"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ConfirmDominionConstructionLimit>(this));
             AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.cancel"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::DeclineDominionShipConstruction>(this));
         } else {
-            BuildConstructionItemChoices(42);
+            BuildConstructionItemChoices(aConst::t_Hull);
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickHull"_wref.get());
         }
     }
 
     void TfRuinsTalk::ConfirmDominionConstructionLimit(std::int32_t Action) {
         ClearChoices();
-        BuildConstructionItemChoices(42);
+        BuildConstructionItemChoices(aConst::t_Hull);
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickHull"_wref.get());
     }
 
@@ -7380,17 +7282,17 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::AppendConstructionItemList() {
         std::int32_t I{};
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         aItem::TEquipment* Item{};
         pas::WideString Text{};
         DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.ItemList"_wref.get())});
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(42), static_cast<std::uint8_t>(49)); cpp_range.next(Kind); ) {
+        for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Hull, aConst::t_DefGenerator); cpp_range.next(Kind); ) {
             Item = ConstructionEquipment[Kind].Item;
             if (Item != nullptr) {
                 Text = pas::concat_wide({Text, Item->GetShortName(), u" - ", EC_Str::RemoveTextTagsW(Item->GetDisplayName()), u"\r\n"});
             } else {
                 Text = pas::concat_wide({Text, aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[Kind], u".ShortName"})), u" - "});
-                if (reinterpret_cast<aItem::THull*>(ConstructionEquipment[42].Item)->GetSlotCount(aConst::ItemTypeToSlotKind(Kind)) > 0) {
+                if (reinterpret_cast<aItem::THull*>(ConstructionEquipment[aConst::t_Hull].Item)->GetSlotCount(aConst::ItemTypeToSlotKind(Kind)) > 0) {
                     Text = pas::concat_wide({Text, aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.NotInstalled"_wref.get()), u"\r\n"});
                 } else {
                     Text = pas::concat_wide({Text, aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.NotAvailable"_wref.get()), u"\r\n"});
@@ -7402,7 +7304,7 @@ namespace fRuinsTalk {
             Item = ConstructionWeapons[I].Item;
             if (Item != nullptr) {
                 Text = pas::concat_wide({Text, EC_Str::RemoveTextTagsW(Item->GetDisplayName()), u"\r\n"});
-            } else if (reinterpret_cast<aItem::THull*>(ConstructionEquipment[42].Item)->GetSlotCount(aConst::sskWeapon) >= I) {
+            } else if (reinterpret_cast<aItem::THull*>(ConstructionEquipment[aConst::t_Hull].Item)->GetSlotCount(aConst::sskWeapon) >= I) {
                 Text = pas::concat_wide({Text, aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.NotInstalled"_wref.get()), u"\r\n"});
             } else {
                 Text = pas::concat_wide({Text, aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.NotAvailable"_wref.get()), u"\r\n"});
@@ -7424,21 +7326,21 @@ namespace fRuinsTalk {
         aMyFunction::ReplaceTextToken(DialogText, u"<PrevItem>"_w, PreviousItem, u"<color=255,240,100>"_w);
         AppendConstructionItemList();
         ClearChoices();
-        if (ConstructionEquipment[44].Item == nullptr) {
-            BuildConstructionItemChoices(44);
+        if (ConstructionEquipment[aConst::t_Engine].Item == nullptr) {
+            BuildConstructionItemChoices(aConst::t_Engine);
             DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickEngine"_wref.get())});
-        } else if (ConstructionEquipment[43].Item == nullptr) {
-            BuildConstructionItemChoices(43);
+        } else if (ConstructionEquipment[aConst::t_FuelTanks].Item == nullptr) {
+            BuildConstructionItemChoices(aConst::t_FuelTanks);
             DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickFuelTanks"_wref.get())});
-        } else if (ConstructionEquipment[48].Item == nullptr) {
-            BuildConstructionItemChoices(48);
+        } else if (ConstructionEquipment[aConst::t_CargoHook].Item == nullptr) {
+            BuildConstructionItemChoices(aConst::t_CargoHook);
             DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickCargoHook"_wref.get())});
         } else if (ConstructionWeapons[1].Item == nullptr) {
-            BuildConstructionItemChoices(50);
+            BuildConstructionItemChoices(aConst::t_Weapon1);
             DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickWeapon"_wref.get())});
         } else {
             CanAdd = false;
-            Hull = reinterpret_cast<aItem::THull*>(ConstructionEquipment[42].Item);
+            Hull = reinterpret_cast<aItem::THull*>(ConstructionEquipment[aConst::t_Hull].Item);
             if (ConstructionWeapons[Hull->GetSlotCount(aConst::sskWeapon)].Item == nullptr) {
                 CanAdd = true;
                 {
@@ -7448,7 +7350,7 @@ namespace fRuinsTalk {
                     self->AddChoice(std::move(cpp_arg_2), 0, cpp_arg);
                 }
             }
-            if (Hull->GetSlotCount(aConst::sskRadar) > 0 && ConstructionEquipment[45].Item == nullptr) {
+            if (Hull->GetSlotCount(aConst::sskRadar) > 0 && ConstructionEquipment[aConst::t_Radar].Item == nullptr) {
                 CanAdd = true;
                 {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg_3 = pas::bind_method<&TfRuinsTalk::PickConstructionRadar>(this);
@@ -7457,7 +7359,7 @@ namespace fRuinsTalk {
                     self_2->AddChoice(std::move(cpp_arg_4), 0, cpp_arg_3);
                 }
             }
-            if (Hull->GetSlotCount(aConst::sskScanner) > 0 && ConstructionEquipment[46].Item == nullptr) {
+            if (Hull->GetSlotCount(aConst::sskScanner) > 0 && ConstructionEquipment[aConst::t_Scaner].Item == nullptr) {
                 CanAdd = true;
                 {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg_5 = pas::bind_method<&TfRuinsTalk::PickConstructionScanner>(this);
@@ -7466,7 +7368,7 @@ namespace fRuinsTalk {
                     self_3->AddChoice(std::move(cpp_arg_6), 0, cpp_arg_5);
                 }
             }
-            if (Hull->GetSlotCount(aConst::sskRepairRobot) > 0 && ConstructionEquipment[47].Item == nullptr) {
+            if (Hull->GetSlotCount(aConst::sskRepairRobot) > 0 && ConstructionEquipment[aConst::t_RepairRobot].Item == nullptr) {
                 CanAdd = true;
                 {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg_7 = pas::bind_method<&TfRuinsTalk::PickConstructionRepairRobot>(this);
@@ -7475,7 +7377,7 @@ namespace fRuinsTalk {
                     self_4->AddChoice(std::move(cpp_arg_8), 0, cpp_arg_7);
                 }
             }
-            if (Hull->GetSlotCount(aConst::sskDefGenerator) > 0 && ConstructionEquipment[49].Item == nullptr) {
+            if (Hull->GetSlotCount(aConst::sskDefGenerator) > 0 && ConstructionEquipment[aConst::t_DefGenerator].Item == nullptr) {
                 CanAdd = true;
                 {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg_9 = pas::bind_method<&TfRuinsTalk::PickConstructionDefGenerator>(this);
@@ -7508,7 +7410,7 @@ namespace fRuinsTalk {
         DialogText = pas::WideString();
         AppendConstructionItemList();
         ClearChoices();
-        BuildConstructionItemChoices(50);
+        BuildConstructionItemChoices(aConst::t_Weapon1);
         DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickWeapon"_wref.get())});
     }
 
@@ -7516,7 +7418,7 @@ namespace fRuinsTalk {
         DialogText = pas::WideString();
         AppendConstructionItemList();
         ClearChoices();
-        BuildConstructionItemChoices(45);
+        BuildConstructionItemChoices(aConst::t_Radar);
         DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickRadar"_wref.get())});
     }
 
@@ -7524,7 +7426,7 @@ namespace fRuinsTalk {
         DialogText = pas::WideString();
         AppendConstructionItemList();
         ClearChoices();
-        BuildConstructionItemChoices(46);
+        BuildConstructionItemChoices(aConst::t_Scaner);
         DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickScaner"_wref.get())});
     }
 
@@ -7532,7 +7434,7 @@ namespace fRuinsTalk {
         DialogText = pas::WideString();
         AppendConstructionItemList();
         ClearChoices();
-        BuildConstructionItemChoices(47);
+        BuildConstructionItemChoices(aConst::t_RepairRobot);
         DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickRepairRobot"_wref.get())});
     }
 
@@ -7540,12 +7442,12 @@ namespace fRuinsTalk {
         DialogText = pas::WideString();
         AppendConstructionItemList();
         ClearChoices();
-        BuildConstructionItemChoices(49);
+        BuildConstructionItemChoices(aConst::t_DefGenerator);
         DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickDefGenerator"_wref.get())});
     }
 
     void TfRuinsTalk::CompleteDominionConstruction(std::int32_t Action) {
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         std::int32_t J{};
         std::int32_t Months{};
         aItem::TEquipment* Item{};
@@ -7576,13 +7478,13 @@ namespace fRuinsTalk {
         };
         std::int32_t Price = fRuinsTalk::GetConstructionShopCost();
         if (Price > 0) {
-            fRuinsTalk::PayConstructionMoney(Price);
+            aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - Price));
             GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         }
         aPirate::TPirate* Ship = pas::construct_call<aPirate::TPirate>(aNormalShip::TNormalShip_Create);
         aPlanet::TPlanet* Planet = static_cast<aPlanet::TPlanet*>(aPlayer::GetPlayer()->DockedTo->CurrentStar->SelectRandomInhabitedPlanet());
         std::int32_t TotalCost = 0;
-        for (Kind = static_cast<std::uint8_t>(42); Kind <= static_cast<std::uint8_t>(49); ++Kind) {
+        for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Hull, aConst::t_DefGenerator); cpp_range.next(Kind); ) {
             if (ConstructionEquipment[Kind].Item != nullptr) {
                 Item = ConstructionEquipment[Kind].Item;
                 if (ConstructionEquipment[Kind].Source == 0) {
@@ -7670,8 +7572,8 @@ namespace fRuinsTalk {
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range_2.next(I); ) {
             Artefact = pas::list_at<aItem::TItem>(aPlayer::GetPlayer()->Artefacts, I);
-            if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Artefact) != nullptr) {
-                Item = static_cast<aShip::TShip*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Artefact)->Ship)->GetHull();
+            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Artefact)) {
+                Item = static_cast<aShip::TShip*>(artefactTranclucator->Ship)->GetHull();
                 if (Item->CanImprove()) {
                     ++Count;
                     Text = pas::concat_wide({Text, u"\r\n", pas::wide_int_to_str(Count), u") ", aConst::LocalizedColorText(u"FormRuins.CB.Improvement.ItemReadyForImprovement"_wref.get())});
@@ -7715,7 +7617,7 @@ namespace fRuinsTalk {
         std::uint8_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         Item = reinterpret_cast<aItem::TEquipment*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
         std::int32_t NodeCost = 0;
-        if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             Text = aConst::LocalizedColorText(u"FormRuins.CB.Improvement.CBNeedCostImprovementNodes"_wref.get());
             aMyFunction::ReplaceTextToken(Text, u"<Nodes>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L * 1.5L)), u"<color=255,240,100>"_w);
             NodeCost = System::Round(pas::real_divide(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L * 1.5L * (100 - Discount), 1.0E+2L));
@@ -7746,7 +7648,7 @@ namespace fRuinsTalk {
         std::uint8_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         Item = reinterpret_cast<aItem::TEquipment*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
         std::int32_t Cost = Item->CalculateImprovementCost(aItem::ikMajor);
-        if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             Nodes = System::Round(pas::real_divide(Cost * 0.01L * 1.5L * (100 - Discount), 1.0E+2L));
         } else {
             Nodes = 0;
@@ -7754,7 +7656,7 @@ namespace fRuinsTalk {
         Cost = System::Round(pas::real_divide(Cost * (100 - Discount), 1.0E+2L));
         if (aPlayer::GetPlayer()->Money >= Cost && aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) >= Nodes) {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
-            if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Item->OwnerId == aGalaxyStruct::oiDominator) {
                 aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Nodes, nullptr);
             }
             Item->ImproveAtScientificBase();
@@ -7797,7 +7699,7 @@ namespace fRuinsTalk {
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.PirateLicense.CBAnswerProlongate"_wref.get());
         }
-        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(aMyFunction::RemapClamped(aPlayer::GetPlayer()->PirateLicenseTicks, 0.0, 365.0, aGalaxy::Galaxy->ComputeScaledAverageMoney(2), 0.0));
+        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(aMyFunction::RemapClamped(aPlayer::GetPlayer()->PirateLicenseTicks, 0.0, 365.0, aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman), 0.0));
         aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
         aMyFunction::ReplaceTextToken(DialogText, u"<Discount>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), u"<color=255,240,100>"_w);
         Cost = System::Round(pas::real_divide(Cost * (100 - Discount), 1.0E+2L));
@@ -7899,7 +7801,7 @@ namespace fRuinsTalk {
         std::uint8_t Duplicate{};
         std::uint8_t Discount{};
         auto GetDominionTravelQuoteCost = [&](std::int32_t Index) -> std::int32_t {
-            return std::min<std::int64_t>(static_cast<std::int64_t>(100000000), System::Round(pas::real_divide(pas::real_divide(pas::real_divide(aGalaxy::Galaxy->ComputeScaledHugeMoney(2), DominionTravelQuotes[Index].DrawCount) * aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->CurrentStar->Position, DominionTravelQuotes[Index].Star->Position), 1.6E+3L) * (100 - Discount), 1.0E+2L)));
+            return std::min<std::int64_t>(static_cast<std::int64_t>(100000000), System::Round(pas::real_divide(pas::real_divide(pas::real_divide(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman), DominionTravelQuotes[Index].DrawCount) * aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->CurrentStar->Position, DominionTravelQuotes[Index].Star->Position), 1.6E+3L) * (100 - Discount), 1.0E+2L)));
         };
         Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         if (aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.Battle != 0) {
@@ -8246,7 +8148,7 @@ namespace fRuinsTalk {
             BuildDominionWarOptions();
             return;
         }
-        StationServiceQuoteCost = fRuinsTalk::ApplyRecentDominionOrderSurcharge(aGalaxy::Galaxy->ComputeScaledHugeMoney(2));
+        StationServiceQuoteCost = fRuinsTalk::ApplyRecentDominionOrderSurcharge(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman));
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.WarOperation.CBAboutWarOperation"_wref.get());
         aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
         ClearChoices();
@@ -8291,7 +8193,7 @@ namespace fRuinsTalk {
         aGalaxyEvent::TGalaxyEvent* Event{};
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.WarOperation.CBAfterOk"_wref.get());
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
-        StationServiceQuoteCost = fRuinsTalk::ApplyRecentDominionOrderSurcharge(aGalaxy::Galaxy->ComputeScaledHugeMoney(2));
+        StationServiceQuoteCost = fRuinsTalk::ApplyRecentDominionOrderSurcharge(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman));
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
         if (aPlanet::MainPiratePlanet != nullptr) {
             aPlanet::MainPiratePlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 10);
@@ -8309,7 +8211,7 @@ namespace fRuinsTalk {
                     if (Candidate != Origin && Origin->Status.ControlFaction == aGalaxyStruct::sfPirates && Origin->Status.CustomFaction == u"" && Origin->Status.Battle == 0 && Origin->CountForcesByOwnerGroups(Strength, true, true, false, false) <= 0) {
                         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Origin->Ships) - 1); cpp_range_3.next(K); ) {
                             Ship = pas::list_at<aShip::TShip>(Origin->Ships, K);
-                            if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && Ship->PartnerShip == nullptr) {
+                            if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->PartnerShip == nullptr) {
                                 if (!(Ship->GetFuelTanks() == nullptr || Ship->GetEngine() == nullptr || static_cast<long double>(aMyFunction::PointDistance(Origin->Position, Candidate->Position)) > std::min<std::int32_t>(static_cast<std::int32_t>(Ship->GetFuelTanks()->Capacity), static_cast<std::int32_t>(Ship->GetEngine()->JumpRange)) + 10)) {
                                     ++Total;
                                     if (static_cast<std::uint8_t>(Ship->OrderAbsolute ^ 1) && Ship->AbsoluteScriptOrder == 0 && static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1) && Ship->ScriptShip == nullptr) {
@@ -8340,7 +8242,7 @@ namespace fRuinsTalk {
                     if (Origin->Status.ControlFaction == aGalaxyStruct::sfPirates && Origin->Status.CustomFaction == u"" && Origin->Status.Battle == 0 && Origin->CountForcesByOwnerGroups(Strength, true, true, false, false) <= 0) {
                         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Origin->Ships) - 1); cpp_range_5.next(K); ) {
                             Ship = pas::list_at<aShip::TShip>(Origin->Ships, K);
-                            if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && Ship->PartnerShip == nullptr) {
+                            if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->PartnerShip == nullptr) {
                                 if (!(Ship->GetFuelTanks() == nullptr || Ship->GetEngine() == nullptr || static_cast<long double>(aMyFunction::PointDistance(Origin->Position, Target->Position)) > std::min<std::int32_t>(static_cast<std::int32_t>(Ship->GetFuelTanks()->Capacity), static_cast<std::int32_t>(Ship->GetEngine()->JumpRange)) + 10)) {
                                     if (static_cast<std::uint8_t>(Ship->OrderAbsolute ^ 1) && Ship->AbsoluteScriptOrder == 0 && static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1) && Ship->ScriptShip == nullptr) {
                                         if (aMyFunction::NextRandomIntRange(1, 10, aPlayer::GetPlayer()->DockedTo->RandomState) < 3) {
@@ -8469,7 +8371,7 @@ namespace fRuinsTalk {
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(I); ) {
             // Preserve index-before-receiver evaluation under DCC32 O-.
             Ship = pas::list_at<aShip::TShip>(Star->Ships, I * 1);
-            if (static_cast<std::uint8_t>(Ship->InHyperspace ^ 1) && pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && Ship->PartnerShip == nullptr && Ship->ScriptShip == nullptr && static_cast<std::uint8_t>(Ship->HasScriptControl() ^ 1)) {
+            if (static_cast<std::uint8_t>(Ship->InHyperspace ^ 1) && pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->PartnerShip == nullptr && Ship->ScriptShip == nullptr && static_cast<std::uint8_t>(Ship->HasScriptControl() ^ 1)) {
                 ++Count;
             }
         }

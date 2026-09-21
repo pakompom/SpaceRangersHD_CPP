@@ -1,4 +1,6 @@
 #pragma once
+#include "types/aConst.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "types/aRuins.hpp"
 
 namespace aGalaxy {
@@ -27,7 +29,7 @@ namespace aShip {
 } // namespace aShip
 
 namespace aRuins {
-    extern const pas::Array<pas::Array<std::uint8_t, 0, 1>, 6, 12> StationPilotRaces;
+    extern const pas::Array<pas::Array<aGalaxyStruct::TOwnerId, 0, 1>, 6, 12> StationPilotRaces;
 
     extern const pas::Array<aRuins::TStationHullGeneration, 6, 12> StationHullGeneration;
 
@@ -37,7 +39,7 @@ namespace aRuins {
 
     extern const pas::Array<aRuins::TStationWeaponGeneration, 6, 12> StationWeaponGeneration;
 
-    extern const pas::Array<pas::Array<std::uint8_t, 0, 2>, 6, 12> StationWeaponTypes;
+    extern const pas::Array<pas::Array<aConst::TItemType, 0, 2>, 6, 12> StationWeaponTypes;
 
     extern const pas::Array<std::int32_t, 22, 27> StationSkillBonusWeights;
 
@@ -85,7 +87,7 @@ namespace aRuins {
     void TRuins_RefreshCurrentStanding(TRuins* Self);
 
     // Accepts types 42..68; weapon types all select the weapon generator. Does not insert the result into EquipmentShop.
-    aItem::TEquipment* TRuins_GenerateEquipmentOffer(TRuins* Self, pas::Object* Ship, aPlanet::TPlanet* Planet, std::uint8_t ItemType);
+    aItem::TEquipment* TRuins_GenerateEquipmentOffer(TRuins* Self, pas::Object* Ship, aPlanet::TPlanet* Planet, aConst::TItemType ItemType);
 
     // Returns a new owning list of offers. Ignores the Boolean argument.
     aMyFunction::TObjectList* TRuins_GenerateEquipmentOfferBatch(TRuins* Self, aShip::TShip* Ship, std::uint8_t UnusedForceGeneratedOffers);

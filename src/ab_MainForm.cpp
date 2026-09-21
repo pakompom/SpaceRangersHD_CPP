@@ -113,95 +113,95 @@ namespace ab_MainForm {
         GR_Main::AppendLogTextThreadSafe("ab_MainForm... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* Map = MainPanel->FindByNameRecursive(u"Map"_wref.get());
+                GI_MessageLoop::TObjectGI* Map = MainPanel->FindByNameRecursive(u"Map"sv);
                 Map->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                 {
-                    GI_MessageLoop::TObjectGI* SE = Map->FindByNameRecursive(u"SE"_wref.get());
+                    GI_MessageLoop::TObjectGI* SE = Map->FindByNameRecursive(u"SE"sv);
                     SE->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
                     SE->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
                     SE->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* UpdateObj = Map->FindByNameRecursive(u"UpdateObj"_wref.get());
+                    GI_MessageLoop::TObjectGI* UpdateObj = Map->FindByNameRecursive(u"UpdateObj"sv);
                     UpdateObj->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                     {
-                        GI_MessageLoop::TObjectGI* FPS = UpdateObj->FindByNameRecursive(u"FPS"_wref.get());
+                        GI_MessageLoop::TObjectGI* FPS = UpdateObj->FindByNameRecursive(u"FPS"sv);
                         FPS->SetPosition(ClassesImports::Point(FPS->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, FPS->LocalPosition.Y));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* LInfo = UpdateObj->FindByNameRecursive(u"LInfo"_wref.get());
+                        GI_MessageLoop::TObjectGI* LInfo = UpdateObj->FindByNameRecursive(u"LInfo"sv);
                         LInfo->SetPosition(ClassesImports::Point(LInfo->LocalPosition.X, LInfo->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         LInfo->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, LInfo->ClientSize.Y));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* LHelp = UpdateObj->FindByNameRecursive(u"LHelp"_wref.get());
+                        GI_MessageLoop::TObjectGI* LHelp = UpdateObj->FindByNameRecursive(u"LHelp"sv);
                         LHelp->SetPosition(ClassesImports::Point(LHelp->LocalPosition.X, LHelp->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         LHelp->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 10, LHelp->ClientSize.Y));
                     }
                     if (GR_Main::GiResourceVariant() == 2) {
-                        GI_MessageLoop::TObjectGI* ABInfo = UpdateObj->FindByNameRecursive(u"ABInfo"_wref.get());
+                        GI_MessageLoop::TObjectGI* ABInfo = UpdateObj->FindByNameRecursive(u"ABInfo"sv);
                         ABInfo->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, ABInfo->ClientSize.Y));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* PanelWeapon = UpdateObj->FindByNameRecursive(u"PanelWeapon"_wref.get());
+                        GI_MessageLoop::TObjectGI* PanelWeapon = UpdateObj->FindByNameRecursive(u"PanelWeapon"sv);
                         PanelWeapon->SetPosition(ClassesImports::Point(PanelWeapon->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelWeapon->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* PRight = UpdateObj->FindByNameRecursive(u"PRight"_wref.get());
+                        GI_MessageLoop::TObjectGI* PRight = UpdateObj->FindByNameRecursive(u"PRight"sv);
                         PRight->SetPosition(ClassesImports::Point(PRight->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PRight->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* PItem = UpdateObj->FindByNameRecursive(u"PItem"_wref.get());
+                        GI_MessageLoop::TObjectGI* PItem = UpdateObj->FindByNameRecursive(u"PItem"sv);
                         PItem->SetPosition(ClassesImports::Point(PItem->LocalPosition.X, PItem->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     }
                     {
-                        GI_MessageLoop::TObjectGI* PanelWin = UpdateObj->FindByNameRecursive(u"PanelWin"_wref.get());
+                        GI_MessageLoop::TObjectGI* PanelWin = UpdateObj->FindByNameRecursive(u"PanelWin"sv);
                         PanelWin->SetPosition(ClassesImports::Point(PanelWin->LocalPosition.X, PanelWin->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         PanelWin->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelWin->ClientSize.Y));
                         {
-                            GI_MessageLoop::TObjectGI* PanelWinHide = PanelWin->FindByNameRecursive(u"PanelWinHide"_wref.get());
+                            GI_MessageLoop::TObjectGI* PanelWinHide = PanelWin->FindByNameRecursive(u"PanelWinHide"sv);
                             PanelWinHide->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelWinHide->ClientSize.Y));
                             {
-                                GI_MessageLoop::TObjectGI* WinText = PanelWinHide->FindByNameRecursive(u"WinText"_wref.get());
+                                GI_MessageLoop::TObjectGI* WinText = PanelWinHide->FindByNameRecursive(u"WinText"sv);
                                 WinText->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, WinText->ClientSize.Y));
                             }
                             {
-                                GI_MessageLoop::TObjectGI* WinItem = PanelWinHide->FindByNameRecursive(u"WinItem"_wref.get());
+                                GI_MessageLoop::TObjectGI* WinItem = PanelWinHide->FindByNameRecursive(u"WinItem"sv);
                                 WinItem->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 4, WinItem->ClientSize.Y));
                             }
                             {
-                                GI_MessageLoop::TObjectGI* WinShr = PanelWinHide->FindByNameRecursive(u"WinShr"_wref.get());
+                                GI_MessageLoop::TObjectGI* WinShr = PanelWinHide->FindByNameRecursive(u"WinShr"sv);
                                 WinShr->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, WinShr->ClientSize.Y));
                             }
                         }
                     }
                     {
-                        GI_MessageLoop::TObjectGI* PanelMenuLose = UpdateObj->FindByNameRecursive(u"PanelMenuLose"_wref.get());
+                        GI_MessageLoop::TObjectGI* PanelMenuLose = UpdateObj->FindByNameRecursive(u"PanelMenuLose"sv);
                         PanelMenuLose->SetPosition(ClassesImports::Point(PanelMenuLose->LocalPosition.X, PanelMenuLose->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         PanelMenuLose->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelMenuLose->ClientSize.Y));
                         {
-                            GI_MessageLoop::TObjectGI* PanelLoseHide = PanelMenuLose->FindByNameRecursive(u"PanelLoseHide"_wref.get());
+                            GI_MessageLoop::TObjectGI* PanelLoseHide = PanelMenuLose->FindByNameRecursive(u"PanelLoseHide"sv);
                             PanelLoseHide->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelLoseHide->ClientSize.Y));
                             {
-                                GI_MessageLoop::TObjectGI* PanelLose = PanelLoseHide->FindByNameRecursive(u"PanelLose"_wref.get());
+                                GI_MessageLoop::TObjectGI* PanelLose = PanelLoseHide->FindByNameRecursive(u"PanelLose"sv);
                                 PanelLose->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelLose->ClientSize.Y));
                             }
                             {
-                                GI_MessageLoop::TObjectGI* LoseKeyPress = PanelLoseHide->FindByNameRecursive(u"LoseKeyPress"_wref.get());
+                                GI_MessageLoop::TObjectGI* LoseKeyPress = PanelLoseHide->FindByNameRecursive(u"LoseKeyPress"sv);
                                 LoseKeyPress->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 4, LoseKeyPress->ClientSize.Y));
                             }
                             {
-                                GI_MessageLoop::TObjectGI* LoseShr = PanelLoseHide->FindByNameRecursive(u"LoseShr"_wref.get());
+                                GI_MessageLoop::TObjectGI* LoseShr = PanelLoseHide->FindByNameRecursive(u"LoseShr"sv);
                                 LoseShr->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, LoseShr->ClientSize.Y));
                             }
                         }
                     }
                 }
                 {
-                    GI_MessageLoop::TObjectGI* StarField = Map->FindByNameRecursive(u"StarField"_wref.get());
+                    GI_MessageLoop::TObjectGI* StarField = Map->FindByNameRecursive(u"StarField"sv);
                     StarField->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                     StarField->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
                     StarField->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
@@ -212,7 +212,7 @@ namespace ab_MainForm {
         LoadPanel->InitializeLayout(this);
         SetHelpCallback(pas::bind_method<&TfAB::UpdateHelp>(this));
         {
-            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"sv);
             MainPanel_2->KeyDownCallback = pas::bind_method<&TfAB::BattleKeyDown>(this);
             MainPanel_2->KeyUpCallback = pas::bind_method<&TfAB::BattleKeyUp>(this);
             MainPanel_2->LeftButtonDownCallback = pas::bind_method<&TfAB::BattleMouseDown>(this);
@@ -221,32 +221,32 @@ namespace ab_MainForm {
             MainPanel_2->RightButtonUpCallback = pas::bind_method<&TfAB::BattleRightMouseUp>(this);
             MainPanel_2->MouseMoveCallback = pas::bind_method<&TfAB::BattleMouseMove>(this);
         }
-        MapPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"Map"_wref.get()));
-        WorldPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"SE"_wref.get()));
-        this->StarField = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"_wref.get()));
-        StartStarImage = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"StarStart"_wref.get()));
-        EndStarImage = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"StarEnd"_wref.get()));
-        ItemPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PItem"_wref.get()));
-        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoItem"_wref.get()));
-        AutoButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAuto"_wref.get()));
+        MapPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"Map"sv));
+        WorldPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"SE"sv));
+        this->StarField = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"sv));
+        StartStarImage = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"StarStart"sv));
+        EndStarImage = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"StarEnd"sv));
+        ItemPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PItem"sv));
+        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoItem"sv));
+        AutoButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAuto"sv));
         AutoButton->UpCallback = pas::bind_method<&TfAB::ToggleAutopilot>(this);
-        ManualButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButManual"_wref.get()));
+        ManualButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButManual"sv));
         ManualButton->UpCallback = pas::bind_method<&TfAB::ToggleAutopilot>(this);
-        BattleHelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LHelp"_wref.get()));
-        VictoryPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelWin"_wref.get()));
-        DefeatPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelMenuLose"_wref.get()));
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButShip"_wref.get()))->UpCallback = pas::bind_method<&TfAB::OpenShipEquipment>(this);
+        BattleHelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LHelp"sv));
+        VictoryPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelWin"sv));
+        DefeatPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelMenuLose"sv));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButShip"sv))->UpCallback = pas::bind_method<&TfAB::OpenShipEquipment>(this);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 4); cpp_range.next(Index); ) {
-            WeaponButtons[Index] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"F", SysUtils::IntToStr(Index + 1)}))));
+            WeaponButtons[Index] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"F", SysUtils::IntToStr(Index + 1)})))));
             pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(WeaponButtons[Index])->UpCallback = pas::bind_method<&TfAB::WeaponButtonClick>(this);
-            WeaponChargeImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "C"}))));
-            WeaponPrimaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "P"}))));
-            WeaponSecondaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "P2"}))));
-            WeaponIcons[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "I"}))));
+            WeaponChargeImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "C"})))));
+            WeaponPrimaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "P"})))));
+            WeaponSecondaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "P2"})))));
+            WeaponIcons[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "I"})))));
         }
-        PlayButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPlay"_wref.get()));
+        PlayButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPlay"sv));
         PlayButton->UpCallback = pas::bind_method<&TfAB::TogglePause>(this);
-        PauseButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPause"_wref.get()));
+        PauseButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPause"sv));
         PauseButton->UpCallback = pas::bind_method<&TfAB::TogglePause>(this);
         SelectedMapName = pas::WideString();
     }
@@ -288,7 +288,7 @@ namespace ab_MainForm {
             DepartureTurn = aGalaxy::Galaxy->CurrentTurn;
             ArrivalTurn = DepartureTurn + (aPlayer::GetPlayer()->OrderStateData & 0x0000ffff);
         }
-        GetByName(u"LInfo"_wref.get())->SetActive(false);
+        GetByName(u"LInfo"sv)->SetActive(false);
         ShipPath = pas::construct_call<aPath::TSPath>(aPath::TSPath_Create);
         RouteSpaces = pas::make_object<pas::List>();
         if (ab_Global::ArcadeSpaceProcess != nullptr) {
@@ -323,26 +323,26 @@ namespace ab_MainForm {
         WorldCenterY = MapPanel->ClientSize.Y / 2;
         if (aPlayer::GetPlayer() == nullptr) {
             {
-                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), u"Ship.People.Ranger"_wref.get(), ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, u"Ship.People.Ranger"_wref.get(), ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> playerVisual = pas::Var<SE_Space::TObjectSE*>(&PlayerVisual);
                 SE_Space::RetainSpaceObject(playerVisual, createSpaceObjectByName);
             }
             PlayerVisual->SetSize(ClassesImports::Point(GR_Main::GiScalePixels(64), GR_Main::GiScalePixels(64)));
         } else {
             if (pas::class_cast_if<SE_Ship2::TShip2SE*>(aPlayer::GetPlayer()->Graphic) != nullptr) {
-                SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"_wref.get(), aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> playerVisual_2 = pas::Var<SE_Space::TObjectSE*>(&PlayerVisual);
                 SE_Space::RetainSpaceObject(playerVisual_2, createSpaceObjectByName_2);
             } else {
-                SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ruins"_wref.get(), aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ruins"sv, aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> playerVisual_3 = pas::Var<SE_Space::TObjectSE*>(&PlayerVisual);
                 SE_Space::RetainSpaceObject(playerVisual_3, createSpaceObjectByName_3);
             }
             PlayerVisual->SetSize(ClassesImports::Point(aPlayer::GetPlayer()->Graphic->Size.X, aPlayer::GetPlayer()->Graphic->Size.Y));
         }
         PlayerVisual->SetAlpha(255);
-        if (pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual) != nullptr) {
-            reinterpret_cast<SE_Ship2::TShip2SE*>(PlayerVisual)->TailEmitIntervalMs = 10u;
+        if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual)) {
+            ship2SE->TailEmitIntervalMs = 10u;
             if (GlobalsV::ShipTail != 0) {
                 reinterpret_cast<SE_Ship2::TShip2SE*>(PlayerVisual)->SetTailMode(1);
             } else {
@@ -721,7 +721,7 @@ namespace ab_MainForm {
             return;
         }
         if (VirtualKey == WindowsSdk::VK_TAB && VictoryPanel->Active) {
-            GI_MessageLoop::TObjectGI* PanelWinHide = GetByName(u"PanelWinHide"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelWinHide = GetByName(u"PanelWinHide"sv);
             PanelWinHide->SetActive(static_cast<std::uint8_t>(PanelWinHide->Active ^ 1));
         }
         if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
@@ -944,7 +944,7 @@ namespace ab_MainForm {
         if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr && static_cast<std::uint8_t>(ContentPanel->IsOccludedAtPoint(Point) ^ 1)) {
             MapDrag.Active = true;
             pas::store_unaligned<WindowsSdk::TPoint>(&MapDrag.Position, Point);
-            if (IsCursorImageSelected(u"Main"_wref.get())) {
+            if (IsCursorImageSelected(u"Main"sv)) {
                 SetCursorByName(u"Scroll"_wref.get());
             }
         }
@@ -953,7 +953,7 @@ namespace ab_MainForm {
     void TfAB::BattleRightMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         if (ab_Global::ArcadeViewMode == 2 && MapDrag.Active) {
             MapDrag.Active = false;
-            if (IsCursorImageSelected(u"Scroll"_wref.get())) {
+            if (IsCursorImageSelected(u"Scroll"sv)) {
                 SetCursorByName(u"Main"_wref.get());
             }
         }
@@ -968,7 +968,7 @@ namespace ab_MainForm {
         WindowsSdk::TPoint LocalPoint{};
         EC_Struct::TVector3D Position{};
         if (MapDrag.Active) {
-            if (IsCursorImageSelected(u"Main"_wref.get())) {
+            if (IsCursorImageSelected(u"Main"sv)) {
                 SetCursorByName(u"Scroll"_wref.get());
             }
             ab_Global::ArcadeMapViewPosition = ClassesImports::Point(ab_Global::ArcadeMapViewPosition.X + MapDrag.Position.X - Point.X, ab_Global::ArcadeMapViewPosition.Y + MapDrag.Position.Y - Point.Y);
@@ -1010,13 +1010,13 @@ namespace ab_MainForm {
                 LocalPoint = WorldPanel->ToLocalPoint(Point);
                 Obj = ab_Object::FirstArcadeObject;
                 while (Obj != nullptr) {
-                    if (pas::class_cast_if<ab_Item::TabItem*>(Obj) != nullptr) {
+                    if (ab_Item::TabItem* abItem = pas::class_cast_if<ab_Item::TabItem*>(Obj)) {
                         Position = Obj->GetWorldPosition();
                         Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Position));
                         if (ab_Global::IsDepthBeforeSphereHorizon(Position.Z)) {
                             ItemDistance = pas::sqr(static_cast<long double>(LocalPoint.X) - Position.X) + pas::sqr(static_cast<long double>(LocalPoint.Y) - Position.Y);
                             if (ItemDistance < 256.0L) {
-                                ShowItemInfo(reinterpret_cast<ab_Item::TabItem*>(Obj));
+                                ShowItemInfo(abItem);
                                 break;
                             }
                         }
@@ -1027,7 +1027,7 @@ namespace ab_MainForm {
                     CancelCargoPickup();
                 }
             }
-            if (IsCursorImageSelected(u"Scroll"_wref.get())) {
+            if (IsCursorImageSelected(u"Scroll"sv)) {
                 SetCursorByName(u"Main"_wref.get());
             }
         }
@@ -1078,9 +1078,9 @@ namespace ab_MainForm {
         if (ab_Ship::PlayerArcadeShip == nullptr || ab_Ship::PlayerArcadeShip->Health <= 0 || ab_Global::ArcadeViewMode == 5) {
             ClearWeaponPanel();
         } else {
-            GetByName(u"PanelWeapon"_wref.get())->SetActive(true);
+            GetByName(u"PanelWeapon"sv)->SetActive(true);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, 5); cpp_range.next(Value); ) {
-                Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(static_cast<pas::WideString>(pas::concat_ansi({"F", SysUtils::IntToStr(Value)}))));
+                Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"F", SysUtils::IntToStr(Value)})))));
                 Button->HelpText = pas::WideString();
                 Button->SetDisabled(true);
                 Group = 0;
@@ -1137,7 +1137,7 @@ namespace ab_MainForm {
                         cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1)->GetBitmapResourceName(), u"s"}));
                     } else if (Button->UserIndex >= 0) {
                         WeaponIcons[Value - 1]->SetActive(true);
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ab_Ship::PlayerArcadeShip->Weapons[Button->UserIndex].ItemType], u"s"}));
+                        cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[static_cast<aConst::TItemType>(ab_Ship::PlayerArcadeShip->Weapons[Button->UserIndex].ItemType)], u"s"}));
                     } else {
                         WeaponIcons[Value - 1]->SetActive(false);
                     }
@@ -1168,20 +1168,20 @@ namespace ab_MainForm {
                         const pas::WideString& replaceAllWideString = ([&] {
                             const pas::WideString& intToStr = pas::wide_int_to_str(Value + 1);
                             const pas::WideString& lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"Help.ABWeapon2"_wref.get());
-                            return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey, u"<SelectKey>"_wref.get(), intToStr);
+                            return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey, u"<SelectKey>"_wref.get(), pas::view(intToStr));
                         }());
                         const pas::WideString& weaponName = WeaponName;
-                        return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<WeaponName>"_wref.get(), weaponName);
+                        return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<WeaponName>"_wref.get(), pas::view(weaponName));
                     }());
                 } else {
                     WeaponButtons[SlotIndex]->HelpText = ([&] {
                         const pas::WideString& replaceAllWideString_2 = ([&] {
                             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Value + 1);
                             const pas::WideString& lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(u"Help.ABWeapon1"_wref.get());
-                            return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey_2, u"<SelectKey>"_wref.get(), intToStr_2);
+                            return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey_2, u"<SelectKey>"_wref.get(), pas::view(intToStr_2));
                         }());
                         const pas::WideString& weaponName_2 = WeaponName;
-                        return EC_Str::ReplaceAllWideString(replaceAllWideString_2, u"<WeaponName>"_wref.get(), weaponName_2);
+                        return EC_Str::ReplaceAllWideString(replaceAllWideString_2, u"<WeaponName>"_wref.get(), pas::view(weaponName_2));
                     }());
                 }
                 pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(WeaponButtons[SlotIndex])->UpdateStateVisuals();
@@ -1215,7 +1215,7 @@ namespace ab_MainForm {
                 }
                 if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->Down) {
                     Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))), u"OD"}));
-                } else if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->IsHovered()) {
+                } else if (static_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->IsHovered()) {
                     Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))), u"OA"}));
                 } else {
                     Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))), u"ON"}));
@@ -1235,9 +1235,9 @@ namespace ab_MainForm {
     void TfAB::ClearWeaponPanel() {
         std::int32_t Index{};
         {
-            GI_MessageLoop::TObjectGI* PanelWeapon = GetByName(u"PanelWeapon"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelWeapon = GetByName(u"PanelWeapon"sv);
             if (PanelWeapon->Active) {
-                PanelWeapon->FindByNameRecursive(u"PanelWeapon"_wref.get())->SetActive(false);
+                PanelWeapon->FindByNameRecursive(u"PanelWeapon"sv)->SetActive(false);
                 for (Index = 0; Index <= 4; ++Index) {
                     WeaponButtons[Index]->SetActive(false);
                     WeaponIcons[Index]->SetActive(false);
@@ -1896,11 +1896,11 @@ namespace ab_MainForm {
         } else {
             MapBackgroundPath = static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormAB2.2bg", SysUtils::IntToStr(RandomRange(1, 3))}));
         }
-        Config = GR_Main::GameDataConfig->GetBlock(u"ABMap"_wref.get());
+        Config = GR_Main::GameDataConfig->GetBlock(u"ABMap"sv);
         std::int32_t BlockCount = Config->GetBlockCount();
         Weight = 0;
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, BlockCount - 1); cpp_range_4.next(Index); ) {
-            Weight += EC_Str::ExtractDigitsToIntW(Config->GetBlockByIndex(Index)->GetParam(u"Priority"_wref.get()));
+            Weight += EC_Str::ExtractDigitsToIntW(pas::view(Config->GetBlockByIndex(Index)->GetParam(u"Priority"sv)));
         }
         Space = ab_Space::FirstArcadeSpace;
         while (Space != nullptr) {
@@ -1923,13 +1923,13 @@ namespace ab_MainForm {
                     while (true) {
                         Selected = Config->GetBlockByIndex(Index);
                         if (([&] {
-                            const pas::WideString& param = Selected->GetParam(u"Portal"_wref.get());
+                            const pas::WideString& param = Selected->GetParam(u"Portal"sv);
                             const pas::WideString& intToStr = pas::wide_int_to_str(Space->OutgoingCount);
                             return EC_Str::FindTextOffsetW(param, intToStr, 0);
                         }()) >= 0) {
                             Changed = true;
                             Retry = true;
-                            Attempt -= EC_Str::ExtractDigitsToIntW(Selected->GetParam(u"Priority"_wref.get()));
+                            Attempt -= EC_Str::ExtractDigitsToIntW(pas::view(Selected->GetParam(u"Priority"sv)));
                             if (Attempt < 0) {
                                 break;
                             }
@@ -1946,7 +1946,7 @@ namespace ab_MainForm {
                     if (!Changed) {
                         GR_Main::RaiseWideMessage(u"ABMap not found"_wref.get());
                     }
-                    Space->MapPath = Selected->GetParam(u"Path"_wref.get());
+                    Space->MapPath = Selected->GetParam(u"Path"sv);
                 }
                 Space = Space->Next;
             }
@@ -2042,8 +2042,8 @@ namespace ab_MainForm {
         CancelCargoPickup();
         ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
         while (Obj != nullptr) {
-            if (pas::class_cast_if<ab_Ship::TabShip*>(Obj) != nullptr) {
-                pas::checked_cast<ab_Ship::TabShip*>(Obj)->DetachVisual();
+            if (ab_Ship::TabShip* abShip = pas::class_cast_if<ab_Ship::TabShip*>(Obj)) {
+                abShip->DetachVisual();
             }
             Obj = Obj->Next;
         }
@@ -2073,8 +2073,8 @@ namespace ab_MainForm {
         ab_Space::ab_SpaceLink_BuildGeometry();
         PlayerVisual->AttachToSpace(ab_Global::ArcadeSpaceProcess->Space);
         PlayerVisual->SetDepth(ab_Global::ShipFrontDepth);
-        if (pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual) != nullptr) {
-            reinterpret_cast<SE_Ship2::TShip2SE*>(PlayerVisual)->SetTailDepth(ab_Global::ShipTailFrontDepth);
+        if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual)) {
+            ship2SE->SetTailDepth(ab_Global::ShipTailFrontDepth);
         }
         PlayerMapPosition = EC_Struct::PointToPointF(ab_Space::CurrentArcadeSpace->MapPosition);
         PlayerVisual->SetPosition(PlayerMapPosition);
@@ -2102,7 +2102,7 @@ namespace ab_MainForm {
         if (aPlayer::GetPlayer() != nullptr && CampaignTransitionStarted && CampaignLoadStarted && static_cast<std::uint8_t>(CampaignLoadFinished ^ 1)) {
             CacheLoader->ClearFlag18();
         }
-        GetByName(u"PRight"_wref.get())->SetActive(true);
+        GetByName(u"PRight"sv)->SetActive(true);
     }
 
     void TfAB::EnterCurrentSpace() {
@@ -2123,7 +2123,7 @@ namespace ab_MainForm {
         std::int32_t Selection{};
         PArcadeMapColorHeader ColorData{};
         CloseVictory(nullptr, 0u);
-        GetByName(u"PRight"_wref.get())->SetActive(false);
+        GetByName(u"PRight"sv)->SetActive(false);
         HideObjectInfo();
         CancelCargoPickup();
         std::uint8_t HasEnemies = aPlayer::GetPlayer() == nullptr;
@@ -2211,18 +2211,18 @@ namespace ab_MainForm {
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1); cpp_range_4.next(Index); ) {
                 Obj = pas::list_at<ab_Object::TabObject>(ab_Space::CurrentArcadeSpace->Objects, Index);
                 ab_Object::ab_Object_Add(Obj);
-                if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
+                if (ab_ShipAI::TabShipAI* abShipAI = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj)) {
                     if (ActiveArcadeRequest == nullptr) {
-                        Ship = pas::checked_cast<ab_ShipAI::TabShipAI*>(Obj);
+                        Ship = abShipAI;
                         ab_Ship::PlayerArcadeShip->AddEnemy(Ship);
                         Ship->AddEnemy(ab_Ship::PlayerArcadeShip);
                         if (aGalaxy::Galaxy != nullptr) {
                             if (ab_Ship::KellerArcadeShip == nullptr && aGalaxy::Galaxy->IsArcadeBattleRoyaleEnabled()) {
                                 for (auto cpp_range_5 = pas::for_to<std::int32_t>(Index + 1, pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1); cpp_range_5.next(OtherIndex); ) {
                                     Other = pas::list_at<ab_Object::TabObject>(ab_Space::CurrentArcadeSpace->Objects, OtherIndex);
-                                    if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Other) != nullptr && ab_Ship::PlayerArcadeShip != Other) {
-                                        if (Ship->Visual->GraphKey != pas::checked_cast<ab_ShipAI::TabShipAI*>(Other)->Visual->GraphKey) {
-                                            Ship->AddEnemy(pas::checked_cast<ab_ShipAI::TabShipAI*>(Other));
+                                    if (ab_ShipAI::TabShipAI* abShipAI_2 = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Other); abShipAI_2 != nullptr && ab_Ship::PlayerArcadeShip != Other) {
+                                        if (Ship->Visual->GraphKey != abShipAI_2->Visual->GraphKey) {
+                                            Ship->AddEnemy(abShipAI_2);
                                             pas::checked_cast<ab_ShipAI::TabShipAI*>(Other)->AddEnemy(Ship);
                                         }
                                     }
@@ -2254,8 +2254,8 @@ namespace ab_MainForm {
                 }
                 pas::checked_cast<ab_Ship::TabShip*>(Obj)->Visual->SetAlpha(0);
                 pas::checked_cast<ab_Ship::TabShip*>(Obj)->AttachVisual();
-                if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
-                    pas::checked_cast<ab_ShipAI::TabShipAI*>(Obj)->ResetIntent();
+                if (ab_ShipAI::TabShipAI* abShipAI_3 = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj)) {
+                    abShipAI_3->ResetIntent();
                 }
             } else if (pas::class_cast_if<ab_Item::TabItem*>(Obj) != nullptr) {
                 pas::checked_cast<ab_Item::TabItem*>(Obj)->State = ab_Zone::ab_Zone_RandomPosition(ab_Zone::ab_Zone_RandomKind(0));
@@ -2484,7 +2484,7 @@ namespace ab_MainForm {
             } else if (aGalaxy::Galaxy == nullptr && aPlayer::GetPlayer() == nullptr && (ab_Ship::PlayerArcadeShip == nullptr || ab_Ship::PlayerArcadeShip->Health <= 0)) {
                 Stage = 4;
                 if (DefeatCountdownTicks <= 0 && static_cast<std::uint8_t>(DefeatPanel->Active ^ 1)) {
-                    Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"LoseKeyPress"_wref.get()));
+                    Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"LoseKeyPress"sv));
                     Owner->FreeOwnedChildren();
                     LabelControl = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Owner);
                     LabelControl->SetFontName(GlobalsV::NormalFontName);
@@ -2498,9 +2498,9 @@ namespace ab_MainForm {
                     Panel = DefeatPanel;
                     Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, Owner->LocalPosition.Y + Owner->ClientSize.Y + GR_Main::GiScalePixels(20)));
                     Panel->SetActive(true);
-                    Panel = GetByName(u"LoseShr"_wref.get());
+                    Panel = GetByName(u"LoseShr"sv);
                     Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, Owner->LocalPosition.Y + Owner->ClientSize.Y + GR_Main::GiScalePixels(20)));
-                    GetByName(u"PanelLoseHide"_wref.get())->SetActive(true);
+                    GetByName(u"PanelLoseHide"sv)->SetActive(true);
                 }
                 if (DefeatCountdownTicks <= -500) {
                     Globals::ScreenLoadMode = 4;
@@ -2526,7 +2526,7 @@ namespace ab_MainForm {
                 Stage = 7;
                 if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace != nullptr && ShipPath != nullptr && ShipPath->ActiveHead != nullptr) {
                     Stage = 8;
-                    if (IsCursorImageSelected(u"Scroll"_wref.get())) {
+                    if (IsCursorImageSelected(u"Scroll"sv)) {
                         SetCursorByName(u"Main"_wref.get());
                     }
                     MapDrag.Active = false;
@@ -2812,7 +2812,7 @@ namespace ab_MainForm {
                     Stage = 29;
                     Globals::ScriptDialogIndex = -1;
                     reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->Script->PublishShipContext(pas::checked_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip));
-                    aScript::CurrentScript->CallDialogByVariable(reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->State->AuxiliaryText);
+                    aScript::CurrentScript->CallDialogByVariable(reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->State->DialogTextOrVariable);
                     if (Globals::ScriptDialogIndex < 0) {
                         GR_Main::RaiseWideMessage(u"Not found dialog"_wref.get());
                     }
@@ -2862,8 +2862,8 @@ namespace ab_MainForm {
                     Space = Space->Next;
                 }
                 Position = EC_Struct::PointToPointF(EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(PlayerMapPosition), ab_Global::ArcadeMapViewPosition));
-                if (pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual) != nullptr) {
-                    reinterpret_cast<SE_Ship2::TShip2SE*>(PlayerVisual)->OffsetTails(EC_Struct::MakePointF(static_cast<long double>(Position.X) - PlayerVisual->Position.X, static_cast<long double>(Position.Y) - PlayerVisual->Position.Y));
+                if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual)) {
+                    ship2SE->OffsetTails(EC_Struct::MakePointF(static_cast<long double>(Position.X) - PlayerVisual->Position.X, static_cast<long double>(Position.Y) - PlayerVisual->Position.Y));
                 }
                 PlayerVisual->SetPosition(Position);
                 if (ab_Space::NextArcadeSpace == nullptr) {
@@ -2888,7 +2888,7 @@ namespace ab_MainForm {
             }
             Stage = 36;
             if (ab_Global::ArcadeViewMode == 2 && aPlayer::GetPlayer() != nullptr) {
-                DateLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Turn"_wref.get()));
+                DateLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Turn"sv));
                 CameraPos.X = ab_Space::EndArcadeSpace->MapPosition.X - ab_Space::StartArcadeSpace->MapPosition.X;
                 CameraPos.Y = ab_Space::EndArcadeSpace->MapPosition.Y - ab_Space::StartArcadeSpace->MapPosition.Y;
                 TargetPos.X = static_cast<long double>(PlayerMapPosition.X) - ab_Space::StartArcadeSpace->MapPosition.X;
@@ -3019,7 +3019,7 @@ namespace ab_MainForm {
 
     void TfAB::InvalidateFrame() {
         UpdateRectsEnabled = true;
-        GetByName(u"UpdateObj"_wref.get())->InvalidateChildren(true);
+        GetByName(u"UpdateObj"sv)->InvalidateChildren(true);
         WorldPanel->InvalidateChildren(true);
         if (!pas::in_set<2, 2, 5, 5>(ab_Global::ArcadeViewMode)) {
             ab_Polygon::ab_Polygon_QueueUpdateRects();
@@ -3046,12 +3046,12 @@ namespace ab_MainForm {
         Rasterizer = GR_Main::TriangleRasterizer16;
         ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
         while (Obj != nullptr) {
-            if (!(pas::class_cast_if<ab_Ship::TabShip*>(Obj) != nullptr)) {
+            if (ab_Ship::TabShip* abShip = pas::class_cast_if<ab_Ship::TabShip*>(Obj); !(abShip != nullptr)) {
                 Obj = Obj->Next;
             } else {
-                Ship = reinterpret_cast<ab_Ship::TabShip*>(Obj);
+                Ship = abShip;
                 Obj = Obj->Next;
-                if (Ship->Visual != nullptr && Ship->Visual->IsAttachedToSpace() && Ship->Visual->GetDepth() == ab_Global::ShipFrontDepth && Ship->StateCC && (Ship->BonusTicks[ab_Global::abkInvisibility] <= 0 || Ship->RevealTicks > 0 || ab_Ship::PlayerArcadeShip == Ship)) {
+                if (Ship->Visual != nullptr && Ship->Visual->IsAttachedToSpace() && Ship->Visual->GetDepth() == ab_Global::ShipFrontDepth && Ship->HealthBarVisible && (Ship->BonusTicks[ab_Global::abkInvisibility] <= 0 || Ship->RevealTicks > 0 || ab_Ship::PlayerArcadeShip == Ship)) {
                     CenterX = System::Round(Ship->Visual->Position.X) + WorldCenterX;
                     CenterY = System::Round(Ship->Visual->Position.Y) + WorldCenterY;
                     Width = Ship->EffectOriginSpread;
@@ -3184,7 +3184,7 @@ namespace ab_MainForm {
                                     GI_GraphBuf::TGraphBufGI* cpp_with = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(EnemyIcons[Index]);
                                     cpp_with->SourceHasPerPixelAlpha = true;
                                     cpp_with->SetSize(ClassesImports::Point(IconWidth, IconHeight));
-                                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath, 1, u","_wref.get()), cpp_with->GraphBuf);
+                                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath), 1, u","sv), cpp_with->GraphBuf);
                                     if (static_cast<std::uint32_t>(cpp_with->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with->GraphBuf->Height)) {
                                         cpp_with->GraphBuf->RescaleRgba(cpp_with->ClientSize.X, System::Round(pas::real_divide(cpp_with->ClientSize.X, static_cast<std::uint32_t>(cpp_with->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with->GraphBuf->Height)), 5);
                                     } else {
@@ -3227,7 +3227,7 @@ namespace ab_MainForm {
                             {
                                 GI_Image::TImageGI* cpp_with_4 = pas::checked_cast<GI_Image::TImageGI*>(EnemyRewardIcons[Index]);
                                 Item = pas::list_at<ab_ShipAI::TabShipAI>(ab_Ship::PlayerArcadeShip->InitialEnemies, Index)->GetRewardItem(true);
-                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) || static_cast<std::uint8_t>(reinterpret_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
+                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) || static_cast<std::uint8_t>(static_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
                                     pas::free(Item);
                                     Item = nullptr;
                                 }
@@ -3269,7 +3269,7 @@ namespace ab_MainForm {
                                     GI_GraphBuf::TGraphBufGI* cpp_with_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(TrackedShipIcons[Index]);
                                     cpp_with_5->SourceHasPerPixelAlpha = true;
                                     cpp_with_5->SetSize(ClassesImports::Point(IconWidth, IconHeight));
-                                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath, 1, u","_wref.get()), cpp_with_5->GraphBuf);
+                                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath), 1, u","sv), cpp_with_5->GraphBuf);
                                     if (static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height)) {
                                         cpp_with_5->GraphBuf->RescaleRgba(cpp_with_5->ClientSize.X, System::Round(pas::real_divide(cpp_with_5->ClientSize.X, static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height)), 5);
                                     } else {
@@ -3324,7 +3324,7 @@ namespace ab_MainForm {
                             } else {
                                 cpp_with_7->SetPosition(ClassesImports::Point(PosX + GR_Main::GiScalePixels(31), PosY + GR_Main::GiScalePixels(60)));
                                 Item = Ship->GetRewardItem(true);
-                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) || static_cast<std::uint8_t>(reinterpret_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
+                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) || static_cast<std::uint8_t>(static_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
                                     pas::free(Item);
                                     Item = nullptr;
                                 }
@@ -3389,7 +3389,7 @@ namespace ab_MainForm {
             SysUtilsImports::Sleep(10u);
         }
         InvalidateFrame();
-        GI_StarField::TStarFieldGI* Background = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"_wref.get()));
+        GI_StarField::TStarFieldGI* Background = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"sv));
         std::uint8_t PreviousSkipRestore = GlobalsV::SkipSavedPixelRestore;
         Background->UpdateBackgroundBounds();
         GlobalsV::SkipSavedPixelRestore = GlobalsV::SkipSavedPixelRestore || PreviousSkipRestore;
@@ -3654,7 +3654,7 @@ namespace ab_MainForm {
         std::int32_t Index{};
         ab_Space::TabSpace* Space{};
         if (ShipPath->ActiveHead != nullptr) {
-            Images = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"_wref.get()));
+            Images = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"sv));
             if (pas::list_count(Images->Images) < 1) {
                 Images->AddImage(u"Bm.PI.Path1"_w);
                 Images->AddImage(u"Bm.PI.Path2"_w);
@@ -3693,7 +3693,7 @@ namespace ab_MainForm {
                 First = Last->Next;
             }
             {
-                GI_GAI::TgaiGI* ShipPathEnd = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"_wref.get()));
+                GI_GAI::TgaiGI* ShipPathEnd = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"sv));
                 ShipPathEnd->SetActive(true);
                 ShipPathEnd->SetOrigin(EC_Struct::HalfPoint(ShipPathEnd->GetContentSize()));
                 ShipPathEnd->SetPosition(EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(ShipPath->ActiveTail->Position), ab_Global::ArcadeMapViewPosition));
@@ -3707,7 +3707,7 @@ namespace ab_MainForm {
         GI_MultiImage::TMultiImageUnitGI* Item{};
         if (ShipPath->ActiveHead != nullptr) {
             {
-                GI_MultiImage::TMultiImageGI* ShipPath = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"_wref.get()));
+                GI_MultiImage::TMultiImageGI* ShipPath = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"sv));
                 Item = ShipPath->FirstUnit;
                 while (Item != nullptr) {
                     Node = static_cast<aPath::PSPathNode>(Item->UserData);
@@ -3716,7 +3716,7 @@ namespace ab_MainForm {
                 }
             }
             {
-                GI_GAI::TgaiGI* ShipPathEnd = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"_wref.get()));
+                GI_GAI::TgaiGI* ShipPathEnd = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"sv));
                 ShipPathEnd->SetActive(true);
                 ShipPathEnd->SetOrigin(EC_Struct::HalfPoint(ShipPathEnd->GetContentSize()));
                 ShipPathEnd->SetPosition(EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(this->ShipPath->ActiveTail->Position), ab_Global::ArcadeMapViewPosition));
@@ -3726,8 +3726,8 @@ namespace ab_MainForm {
     }
 
     void TfAB::ClearShipPath() {
-        pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"_wref.get()))->ClearUnits();
-        pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"_wref.get()))->SetActive(false);
+        pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"sv))->ClearUnits();
+        pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"sv))->SetActive(false);
     }
 
     void TfAB::BeginKellerDialogTransition() {
@@ -3788,27 +3788,27 @@ namespace ab_MainForm {
         aGalaxy::TStar* Star{};
         GI_Panel::TPanelGI* Owner{};
         pas::List* Objects{};
-        std::uint8_t OwnerId{};
+        aGalaxyStruct::TOwnerId OwnerId{};
         if (Space == nullptr) {
             HideObjectInfo();
-        } else if (InfoObject != Space) {
-            InfoObject = Space;
+        } else if (InfoSpace != Space) {
+            InfoSpace = Space;
             if (aPlayer::GetPlayer() != nullptr && (ab_Space::StartArcadeSpace == Space || ab_Space::EndArcadeSpace == Space)) {
-                GetByName(u"InfoStar"_wref.get())->SetActive(true);
+                GetByName(u"InfoStar"sv)->SetActive(true);
                 if (ab_Space::StartArcadeSpace == Space) {
                     Star = aPlayer::GetPlayer()->TransitOriginStar;
                 } else {
                     Star = aPlayer::GetPlayer()->CurrentStar;
                 }
                 {
-                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(Star->Name, u"<color=255,240,100>"_w);
-                    GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"_wref.get()));
+                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(Star->Name), u"<color=255,240,100>"sv);
+                    GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"sv));
                     cpp_arg->SetText(wrapTextInColor);
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"sv));
                     InfoStarImage->SourceHasPerPixelAlpha = true;
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath, 1, u","_wref.get()), InfoStarImage->GraphBuf);
+                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath), 1, u","sv), InfoStarImage->GraphBuf);
                     if (static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) {
                         InfoStarImage->GraphBuf->RescaleBilinearRgba(InfoStarImage->ClientSize.X, System::Round(pas::real_divide(InfoStarImage->ClientSize.X, static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)));
                     } else {
@@ -3817,7 +3817,7 @@ namespace ab_MainForm {
                     InfoStarImage->SetImageKindX(GI_Main::ikxCenter);
                     InfoStarImage->SetImageKindY(GI_Main::ikyCenter);
                 }
-                Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"_wref.get()));
+                Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"sv));
                 Owner->FreeOwnedChildren();
                 Objects = pas::make_object<pas::List>();
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range.next(Index); ) {
@@ -3867,9 +3867,9 @@ namespace ab_MainForm {
                             cpp_with_3->GraphBuf->RescaleBilinearRgba(cpp_with_3->ClientSize.X, cpp_with_3->ClientSize.Y);
                         } else {
                             if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic) != nullptr) {
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic)->StaticImagePath, 1, u","_wref.get()), cpp_with_3->GraphBuf);
+                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic)->StaticImagePath), 1, u","sv), cpp_with_3->GraphBuf);
                             } else {
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic)->AlternateImagePath, 1, u","_wref.get()), cpp_with_3->GraphBuf);
+                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic)->AlternateImagePath), 1, u","sv), cpp_with_3->GraphBuf);
                             }
                             if (static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height)) {
                                 cpp_with_3->GraphBuf->RescaleRgba(cpp_with_3->ClientSize.X, System::Round(pas::real_divide(cpp_with_3->ClientSize.X, static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height)), 5);
@@ -3885,13 +3885,13 @@ namespace ab_MainForm {
                     } else {
                         OwnerId = pas::list_at<aShip::TShip>(Objects, Index)->OwnerId;
                     }
-                    if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (OwnerId != aGalaxyStruct::oiUninhabited) {
                         GI_GraphBuf::TGraphBufGI* cpp_with_4 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Owner, false);
                         cpp_with_4->SourceHasPerPixelAlpha = true;
                         if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) != nullptr) {
-                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(aConst::GetFactionEmblemPath(pas::list_at<aPlanet::TPlanet>(Objects, Index)->GetFactionResourceName()), 1, u","_wref.get()), u"?RGBA"}));
+                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aPlanet::TPlanet>(Objects, Index)->GetFactionResourceName())), 1, u","sv), u"?RGBA"}));
                         } else {
-                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(aConst::GetFactionEmblemPath(pas::list_at<aShip::TShip>(Objects, Index)->GetFactionNameKey()), 1, u","_wref.get()), u"?RGBA"}));
+                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aShip::TShip>(Objects, Index)->GetFactionNameKey())), 1, u","sv), u"?RGBA"}));
                         }
                         cpp_with_4->SetPosition(ClassesImports::Point(Owner->ClientSize.X / 2 + 15 + 5 + RowHeight + 5 + 1, RowHeight * Index + 1));
                         cpp_with_4->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
@@ -3906,27 +3906,27 @@ namespace ab_MainForm {
                 }
                 Owner->SetSize(ClassesImports::Point(Owner->ClientSize.X, pas::list_count(Objects) * RowHeight));
                 {
-                    GI_Window::TWindowGI* InfoStar = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoStar"_wref.get()));
+                    GI_Window::TWindowGI* InfoStar = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoStar"sv));
                     InfoStar->SetSize(ClassesImports::Point(InfoStar->ClientSize.X, InfoStar->WorkSubRect.Top + InfoStar->WorkSubRect.Bottom + pas::list_count(Objects) * RowHeight));
                     InfoStar->UpdateAutoGeometry();
                 }
                 pas::free(Objects);
-                GetByName(u"InfoPanel"_wref.get())->SetActive(false);
+                GetByName(u"InfoPanel"sv)->SetActive(false);
             } else {
-                GetByName(u"InfoStar"_wref.get())->SetActive(false);
-                GetByName(u"InfoPanel"_wref.get())->SetActive(true);
+                GetByName(u"InfoStar"sv)->SetActive(false);
+                GetByName(u"InfoPanel"sv)->SetActive(true);
                 {
-                    const pas::WideString& wrapTextInColor_2 = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"FormAB.InfoName"_wref.get()), u"<color=255,240,100>"_w);
-                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"_wref.get()));
+                    const pas::WideString& wrapTextInColor_2 = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormAB.InfoName"_wref.get())), u"<color=255,240,100>"sv);
+                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv));
                     cpp_arg_2->SetText(wrapTextInColor_2);
                 }
                 {
                     const pas::WideString& intToStr = pas::wide_int_to_str(Space->OutgoingCount);
-                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoExit"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoExit"sv));
                     cpp_arg_3->SetText(intToStr);
                 }
                 Text = Space->GetDangerText();
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoDanger"_wref.get()))->SetText(Text);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoDanger"sv))->SetText(Text);
                 ShipCount = 0;
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Space->Objects) - 1); cpp_range_4.next(Index); ) {
                     Obj = pas::list_at<pas::Object>(Space->Objects, Index);
@@ -3939,9 +3939,9 @@ namespace ab_MainForm {
                 } else {
                     Text = aConst::LocalizedColorText(u"FormAB.Unknow"_wref.get());
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPirate"_wref.get()))->SetText(Text);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPirate"sv))->SetText(Text);
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoPlanetImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoPlanetImage"sv));
                     InfoPlanetImage->SetActive(true);
                     InfoPlanetImage->SourceHasPerPixelAlpha = true;
                     if (ab_Space::StartArcadeSpace == Space) {
@@ -3973,12 +3973,12 @@ namespace ab_MainForm {
     }
 
     void TfAB::HideObjectInfo() {
-        if (InfoObject != nullptr) {
-            GetByName(u"InfoPanel"_wref.get())->SetActive(false);
-            GetByName(u"InfoStar"_wref.get())->SetActive(false);
+        if (InfoSpace != nullptr) {
+            GetByName(u"InfoPanel"sv)->SetActive(false);
+            GetByName(u"InfoStar"sv)->SetActive(false);
             HideHelp();
         }
-        InfoObject = nullptr;
+        InfoSpace = nullptr;
     }
 
     void TfAB::ShowItemInfo(ab_Item::TabItem* Item) {
@@ -4000,15 +4000,15 @@ namespace ab_MainForm {
         CargoPickupItem = Item;
         // The native routine retains this branch after the earlier bonus rejection.
         if (Item->BonusKind >= 0) {
-            if (!IsCursorImageSelected(u"Take"_wref.get())) {
+            if (!IsCursorImageSelected(u"Take"sv)) {
                 SetCursorByName(u"Take"_wref.get());
             }
         } else {
             if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && ab_Ship::PlayerArcadeShip->DistanceTo(Item) < ab_Global::ManualCargoPickupDistance && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) && aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) >= Item->Item->Weight) {
-                if (!IsCursorImageSelected(u"Take"_wref.get())) {
+                if (!IsCursorImageSelected(u"Take"sv)) {
                     SetCursorByName(u"Take"_wref.get());
                 }
-            } else if (!IsCursorImageSelected(u"Main"_wref.get())) {
+            } else if (!IsCursorImageSelected(u"Main"sv)) {
                 SetCursorByName(u"Main"_wref.get());
             }
             Instance = Item->Item;
@@ -4022,7 +4022,7 @@ namespace ab_MainForm {
             }
             ItemInfoWindow->SetActive(true);
             {
-                GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemImage"_wref.get()));
+                GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemImage"sv));
                 if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
                     InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(Instance->ItemType)}));
                 } else {
@@ -4038,44 +4038,44 @@ namespace ab_MainForm {
             }
             if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
                 {
-                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(aConst::GoodsMarket[Instance->ItemType].DisplayName, aMyFunction::InfoNameColorTag);
-                    GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Instance->ItemType].DisplayName), pas::view(aMyFunction::InfoNameColorTag));
+                    GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                     cpp_arg->SetText(wrapTextInColor);
                 }
                 {
                     const pas::WideString& localizedText = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text.", SysUtils::IntToStr(Instance->ItemType + 1)})));
-                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
                     cpp_arg_2->SetText(localizedText);
                 }
             } else {
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()))->SetText(u""_wref.get());
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv))->SetText(u""_wref.get());
                 {
                     const pas::WideString& wrapTextInColor_2 = ([&] {
                         pas::WideString displayName = Instance->GetDisplayName();
                         pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(displayName), std::move(infoNameColorTag));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag)));
                     }());
-                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                     cpp_arg_3->SetText(wrapTextInColor_2);
                 }
                 {
                     const pas::WideString& infoText = Instance->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
-                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
                     cpp_arg_4->SetText(infoText);
                 }
             }
             {
                 const pas::WideString& intToStr = pas::wide_int_to_str(Instance->Weight);
-                GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"sv));
                 cpp_arg_5->SetText(intToStr);
             }
             {
                 const pas::WideString& intToStr_2 = pas::wide_int_to_str(Instance->Cost);
-                GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"sv));
                 cpp_arg_6->SetText(intToStr_2);
             }
             {
-                GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"_wref.get()));
+                GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"sv));
                 if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
                     InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(aConst::OwnerInfo[aGalaxyStruct::oiUninhabited].InternalName));
                 } else {
@@ -4086,25 +4086,25 @@ namespace ab_MainForm {
             }
             if (!(pas::contains(pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}}), static_cast<std::uint8_t>(Instance->ItemType)) || Instance->ItemType == aConst::t_Hull)) {
                 {
-                    GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                    GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                     InfoDurable->Parent->Parent->SetActive(false);
                 }
                 MinimumWidth = 0;
             } else {
-                if (pas::class_cast_if<aItem::THull*>(Instance) != nullptr) {
-                    pas::Extended cpp_right = pas::real_max<float>(0.1f, pas::checked_cast<aItem::THull*>(Instance)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Instance)) {
+                    pas::Extended cpp_right = pas::real_max<float>(0.1f, hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
                     Width = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Instance->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
                 } else {
                     Width = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, pas::checked_cast<aItem::TEquipment*>(Instance)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
                 }
                 Width = std::min<std::int32_t>(192, std::max<std::int32_t>(32, Width));
                 {
-                    GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"_wref.get()));
+                    GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
                     LeftWidth = InfoDurableLeft->GetContentSize().X;
                     MinimumWidth = LeftWidth * 2 + Width + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + InfoDurableLeft->Parent->Parent->LocalPosition.X * 2;
                 }
                 {
-                    GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                    GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                     InfoDurable_2->Parent->Parent->SetActive(true);
                     InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(LeftWidth * 2 + Width, InfoDurable_2->Parent->Parent->ClientSize.Y));
                     InfoDurable_2->Parent->SetSize(ClassesImports::Point(Width + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
@@ -4122,7 +4122,7 @@ namespace ab_MainForm {
                     }
                 }
                 {
-                    GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"_wref.get()));
+                    GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
                     {
                         std::int32_t cpp_arg_9 = Width + LeftWidth - InfoDurableRight->GetContentSize().X;
                         std::int32_t y_3 = InfoDurableRight->LocalPosition.Y;
@@ -4132,7 +4132,7 @@ namespace ab_MainForm {
                     InfoDurableRight->Parent->SetSize(ClassesImports::Point(Width + LeftWidth, InfoDurableRight->Parent->ClientSize.Y));
                 }
                 {
-                    GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"_wref.get()));
+                    GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
                     {
                         std::int32_t cpp_arg_10 = Width + 1 - InfoDurableBack->GetContentSize().X;
                         std::int32_t y_4 = InfoDurableBack->LocalPosition.Y;
@@ -4142,13 +4142,13 @@ namespace ab_MainForm {
                 }
             }
             {
-                GI_Label::TLabelGI* cpp_arg_11 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
-                GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_11 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
+                GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                 fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, cpp_arg_12, cpp_arg_11, true, true, MinimumWidth);
             }
-            GetByName(u"InfoItemSize"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
-            GetByName(u"InfoItemPrice"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
-            GetByName(u"InfoItemEmRace"_wref.get())->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
+            GetByName(u"InfoItemSize"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
+            GetByName(u"InfoItemPrice"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
+            GetByName(u"InfoItemEmRace"sv)->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
         }
         if (CargoPickupZone == nullptr) {
             CargoPickupZone = ab_Zone::ab_Zone_Add();
@@ -4164,7 +4164,7 @@ namespace ab_MainForm {
 
     void TfAB::CancelCargoPickup() {
         if (CargoPickupItem != nullptr) {
-            if (!IsCursorImageSelected(u"Main"_wref.get())) {
+            if (!IsCursorImageSelected(u"Main"sv)) {
                 SetCursorByName(u"Main"_wref.get());
             }
             ItemInfoWindow->SetActive(false);
@@ -4275,21 +4275,21 @@ namespace ab_MainForm {
         Instance->ReleaseGraphObject();
         Item->Item = nullptr;
         ab_Object::ab_Object_Delete(Item);
-        if (pas::class_cast_if<aItem::TArtefact*>(Instance) != nullptr) {
-            pas::checked_cast<aItem::TEquipment*>(Instance)->EquippedFlag = 0;
+        if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(Instance)) {
+            static_cast<aItem::TEquipment*>(artefact)->EquippedFlag = 0;
             pas::list_add(aPlayer::GetPlayer()->Artefacts, reinterpret_cast<void*>(Instance));
-            if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Instance) != nullptr) {
-                pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Instance)->Ship))->OwnerShip = aPlayer::GetPlayer();
+            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Instance)) {
+                pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(artefactTranclucator->Ship))->OwnerShip = aPlayer::GetPlayer();
             }
-        } else if (pas::class_cast_if<aItem::TCountableItem*>(Instance) != nullptr) {
-            reinterpret_cast<aItem::TCountableItem*>(Instance)->DropFlag = 0;
-            pas::checked_cast<aItem::TEquipment*>(Instance)->EquippedFlag = 0;
+        } else if (aItem::TCountableItem* countableItem = pas::class_cast_if<aItem::TCountableItem*>(Instance)) {
+            countableItem->DropFlag = 0;
+            static_cast<aItem::TEquipment*>(countableItem)->EquippedFlag = 0;
             Index = 0;
             Other = nullptr;
             Count = pas::list_count(aPlayer::GetPlayer()->Inventory);
             while (Index < Count) {
                 Other = pas::list_at<pas::Object>(aPlayer::GetPlayer()->Inventory, Index);
-                if (aItem::TCountableItem_CanMerge(pas::checked_cast<aItem::TCountableItem*>(Instance), Other)) {
+                if (aItem::TCountableItem_CanMerge(countableItem, Other)) {
                     break;
                 }
                 ++Index;
@@ -4300,13 +4300,13 @@ namespace ab_MainForm {
             } else {
                 pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Instance));
             }
-        } else if (pas::class_cast_if<aItem::TEquipment*>(Instance) != nullptr) {
-            pas::checked_cast<aItem::TEquipment*>(Instance)->EquippedFlag = 0;
+        } else if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Instance)) {
+            equipment->EquippedFlag = 0;
             pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Instance));
-        } else if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
+        } else if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Instance)) {
             {
-                std::int32_t& cpp_target = aPlayer::GetPlayer()->CargoGoods[pas::checked_cast<aItem::TGoods*>(Instance)->ItemType].Count;
-                std::int32_t cpp_step = pas::checked_cast<aItem::TGoods*>(Instance)->Quantity;
+                std::int32_t& cpp_target = aPlayer::GetPlayer()->CargoGoods[goods->ItemType].Count;
+                std::int32_t cpp_step = goods->Quantity;
                 cpp_target += cpp_step;
             }
             {
@@ -4360,8 +4360,8 @@ namespace ab_MainForm {
         std::int32_t Index{};
         GI_Label::TLabelGI* Heading{};
         GI_Label::TLabelGI* ItemLabel{};
-        GetByName(u"WinItem"_wref.get())->FreeOwnedChildren();
-        GI_Panel::TPanelGI* ItemsPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"WinItem"_wref.get()));
+        GetByName(u"WinItem"sv)->FreeOwnedChildren();
+        GI_Panel::TPanelGI* ItemsPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"WinItem"sv));
         ItemsPanel->FreeOwnedChildren();
         Index = 0;
         if (pas::list_count(ListedObjects) <= 0) {
@@ -4400,9 +4400,9 @@ namespace ab_MainForm {
         GI_MessageLoop::TObjectGI* Panel = VictoryPanel;
         Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, ItemsPanel->LocalPosition.Y + ItemsPanel->ClientSize.Y + GR_Main::GiScalePixels(20)));
         Panel->SetActive(true);
-        Panel = GetByName(u"WinShr"_wref.get());
+        Panel = GetByName(u"WinShr"sv);
         Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, ItemsPanel->LocalPosition.Y + ItemsPanel->ClientSize.Y + GR_Main::GiScalePixels(20)));
-        GetByName(u"PanelWinHide"_wref.get())->SetActive(true);
+        GetByName(u"PanelWinHide"sv)->SetActive(true);
         if (aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr && static_cast<std::uint8_t>(ab_Ship::PlayerArcadeShip->HasFiredWeapon ^ 1)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(630);
             static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckNoShotsArcadeVictoryAchievement();
@@ -4412,7 +4412,7 @@ namespace ab_MainForm {
 
     void TfAB::CloseVictory(GI_MessageLoop::TObjectGI* Sender, std::uint32_t VirtualKey) {
         VictoryPanel->SetActive(false);
-        GetByName(u"WinItem"_wref.get())->FreeOwnedChildren();
+        GetByName(u"WinItem"sv)->FreeOwnedChildren();
         DefeatPanel->SetActive(false);
         if (VictoryTimer != nullptr) {
             CancelCallbackTimer(VictoryTimer);

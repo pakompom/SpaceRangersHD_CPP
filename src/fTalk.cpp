@@ -127,7 +127,7 @@ namespace fTalk {
         std::int32_t Result = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-            if ((!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair) && Item->ItemType != aConst::t_Hull && Item->EquippedFlag != 0 && aShip::TShip_CanRepairEquipmentTech(Globals::TalkShip, Item) && Item->ConditionPercent < 9.0E+1L) {
+            if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); (!(weapon != nullptr) || weapon->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair) && Item->ItemType != aConst::t_Hull && Item->EquippedFlag != 0 && aShip::TShip_CanRepairEquipmentTech(Globals::TalkShip, Item) && Item->ConditionPercent < 9.0E+1L) {
                 Result += System::Round(aItem::TEquipment_CalculateRepairCost(Item));
             }
         }
@@ -144,7 +144,7 @@ namespace fTalk {
     std::uint8_t RunTalk(GI_MessageLoop::TMessageLoopGI* ParentLoop) {
         std::uint8_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
-        ParentLoop->RootUiObject->NativeHook50();
+        ParentLoop->RootUiObject->OnModalSuspend();
         ParentLoop->CaptureCursorState(&State);
         ParentLoop->SetCursorActive(false);
         ParentLoop->DrawQueuedUpdateRects();
@@ -173,32 +173,8 @@ namespace fTalk {
         ParentLoop->InvalidateViewport();
         ParentLoop->RestoreCursorState(&State);
         ParentLoop->UpdateCursorPosition();
-        ParentLoop->RootUiObject->NativeHook48();
+        ParentLoop->RootUiObject->OnModalResume();
         return Result;
-    }
-
-    void PayPartnerGiftMoney() {
-        std::int32_t Payment{};
-        aPlayer::TPlayer* Player = aPlayer::GetPlayer();
-        std::int32_t Remaining = aPlayer::GetPlayer()->Money - PartnerGiftAmount;
-        if (Remaining < 0) {
-            Payment = 0;
-        } else {
-            Payment = Remaining;
-        }
-        Player->SetMoney(Payment);
-    }
-
-    void PayPiratePartnerGiftMoney() {
-        std::int32_t Payment{};
-        aPlayer::TPlayer* Player = aPlayer::GetPlayer();
-        std::int32_t Remaining = aPlayer::GetPlayer()->Money - PartnerGiftAmount;
-        if (Remaining < 0) {
-            Payment = 0;
-        } else {
-            Payment = Remaining;
-        }
-        Player->SetMoney(Payment);
     }
 
     void TfTalkA_Create(TfTalkA* Self) {
@@ -212,36 +188,36 @@ namespace fTalk {
     void TfTalk::InitializeLayout() {
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GI_MessageLoop::TObjectGI* Panel = GetByName(u"MainPanel"_wref.get());
+        GI_MessageLoop::TObjectGI* Panel = GetByName(u"MainPanel"sv);
         Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Panel->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* MapPanel = Panel->FindByNameRecursive(u"MapPanel"_wref.get());
+        Panel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        GI_MessageLoop::TObjectGI* MapPanel = Panel->FindByNameRecursive(u"MapPanel"sv);
         MapPanel->SetPosition(ClassesImports::Point(MapPanel->LocalPosition.X + GR_Main::ExtraScreenWidth, MapPanel->LocalPosition.Y));
         GI_MessageLoop::TObjectGI* Sibling = MapPanel->NextSibling;
         Sibling->SetPosition(ClassesImports::Point(Sibling->LocalPosition.X + GR_Main::ExtraScreenWidth, Sibling->LocalPosition.Y));
-        GI_MessageLoop::TObjectGI* CenterPlayer = Panel->FindByNameRecursive(u"CenterPlayer"_wref.get());
+        GI_MessageLoop::TObjectGI* CenterPlayer = Panel->FindByNameRecursive(u"CenterPlayer"sv);
         CenterPlayer->SetPosition(ClassesImports::Point(CenterPlayer->LocalPosition.X + GR_Main::ExtraScreenWidth, CenterPlayer->LocalPosition.Y));
-        GI_MessageLoop::TObjectGI* TalkPanel = Panel->FindByNameRecursive(u"PanelTalk"_wref.get());
+        GI_MessageLoop::TObjectGI* TalkPanel = Panel->FindByNameRecursive(u"PanelTalk"sv);
         TalkPanel->SetPosition(ClassesImports::Point(TalkPanel->LocalPosition.X + GR_Main::ExtraScreenWidth, TalkPanel->LocalPosition.Y));
         Globals::ScriptDialogIndex = -1;
-        MainPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
+        MainPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
         MainPanel->MouseMoveCallback = pas::bind_method<&TfTalk::MainPanelMouseMove>(this);
         MainPanel->KeyDownCallback = pas::bind_method<&TfTalk::MainPanelKeyDown>(this);
         MainPanel->RightButtonDownCallback = pas::bind_method<&TfTalk::MainPanelMouseDown>(this);
         MainPanel->RightButtonUpCallback = pas::bind_method<&TfTalk::MainPanelMouseUp>(this);
-        DialogPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelTalk"_wref.get()));
+        DialogPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelTalk"sv));
         DialogPanelLeft = DialogPanel->LocalPosition.X;
-        GI_Label::TLabelGI* LabelControl = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()));
+        GI_Label::TLabelGI* LabelControl = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv));
         LabelControl->CreateEmbeddedControl = pas::bind_method<&TfTalk::CreateDialogObject>(this);
-        GI_GraphButton::TGraphButtonGI* AddButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* AddButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv));
         AddButton->UpCallback = pas::bind_method<&TfTalk::AddMessageClicked>(this);
-        GI_GraphButton::TGraphButtonGI* CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"sv));
         CenterShipButton->UpCallback = pas::bind_method<&TfTalk::CenterShipClicked>(this);
-        GI_GraphButton::TGraphButtonGI* CenterPlayerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterPlayer"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* CenterPlayerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterPlayer"sv));
         CenterPlayerButton->UpCallback = pas::bind_method<&TfTalk::CenterShipClicked>(this);
-        GI_GraphBuf::TGraphBufGI* MapBuffer = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"MapPanel"_wref.get()));
+        GI_GraphBuf::TGraphBufGI* MapBuffer = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"MapPanel"sv));
         MapBuffer->BindExternalGraphBuf(GR_Main::RenderScratchBuffer);
-        GI_GraphButton::TGraphButtonGI* CloseButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* CloseButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"sv));
         CloseButton->UpCallback = pas::bind_method<&TfTalk::CloseClicked>(this);
     }
 
@@ -257,7 +233,7 @@ namespace fTalk {
         if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(false, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         if (SlideTimer != nullptr) {
             CancelCallbackTimer(SlideTimer);
             SlideTimer = nullptr;
@@ -265,20 +241,20 @@ namespace fTalk {
         SavedChoiceScroll = -1;
         MinimapEnabled = false;
         ChoiceMousePressed = false;
-        if (Flag128 != 0 && MapDragging) {
-            if (!IsCursorImageSelected(u"Scroll"_wref.get())) {
+        if (ModalTransition != tmtNone && MapDragging) {
+            if (!IsCursorImageSelected(u"Scroll"sv)) {
                 SetCursorByName(u"Scroll"_wref.get());
             }
-        } else if (!IsCursorImageSelected(u"Main"_wref.get())) {
+        } else if (!IsCursorImageSelected(u"Main"sv)) {
             SetCursorByName(u"Main"_wref.get());
         }
-        GI_GraphButton::TGraphButtonGI* CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"sv));
         CenterShipButton->SetActive(aPlayer::GetPlayer()->InNormalSpace());
-        GI_GraphButton::TGraphButtonGI* CenterPlayerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterPlayer"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* CenterPlayerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterPlayer"sv));
         CenterPlayerButton->SetActive(aPlayer::GetPlayer()->InNormalSpace());
         ClearDialogEffects();
         if (aPlayer::GetPlayer()->InNormalSpace()) {
-            if (Flag128 == 0) {
+            if (ModalTransition == tmtNone) {
                 if (Globals::TalkShip != nullptr) {
                     Position = EC_Struct::TruncatePointF(Globals::TalkShip->Position);
                 } else {
@@ -289,10 +265,10 @@ namespace fTalk {
                 AddDialogEffect(EC_Struct::PointToPointF(Position), pas::concat_wide({u"Bm.SI.", GR_Main::GiResourceSuffix(), u"Ring"}), 200);
                 AddDialogEffect(EC_Struct::PointToPointF(Position), pas::concat_wide({u"Bm.SI.", GR_Main::GiResourceSuffix(), u"Ring"}), 400);
             } else if (RequestedMapCenter != nullptr) {
-                if (pas::class_cast_if<aShip::TShip*>(RequestedMapCenter) != nullptr) {
-                    Position = EC_Struct::TruncatePointF(pas::checked_cast<aShip::TShip*>(RequestedMapCenter)->Position);
-                } else if (pas::class_cast_if<aItem::TItem*>(RequestedMapCenter) != nullptr) {
-                    Position = EC_Struct::TruncatePointF(pas::checked_cast<aItem::TItem*>(RequestedMapCenter)->Position);
+                if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(RequestedMapCenter)) {
+                    Position = EC_Struct::TruncatePointF(ship->Position);
+                } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(RequestedMapCenter)) {
+                    Position = EC_Struct::TruncatePointF(item->Position);
                 } else {
                     Position = EC_Struct::TruncatePointF(pas::checked_cast<aPlanet::TPlanet*>(RequestedMapCenter)->GetPosition());
                 }
@@ -303,25 +279,25 @@ namespace fTalk {
             }
         }
         RequestedMapCenter = nullptr;
-        if (Flag128 != 0) {
-            ExistingAnimation = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
+        if (ModalTransition != tmtNone) {
+            ExistingAnimation = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"sv));
             ExistingAnimation->RestartPlayback();
-            Flag128 = 0;
+            ModalTransition = tmtNone;
             MinimapEnabled = true;
-            if (Flag12C) {
+            if (ReturnedFromTrade) {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.AfterTrade"_wref.get());
                 BuildStandardChoices(true);
                 RestartTextPresentation();
             }
-            Flag12C = false;
+            ReturnedFromTrade = false;
         } else {
             MapDragging = false;
             if (aPlayer::GetPlayer()->InNormalSpace()) {
-                Globals::SpaceProcess->BindMinimap(GetByName(u"MapPanel"_wref.get()));
-                GetByName(u"MapPanel"_wref.get())->SetActive(true);
+                Globals::SpaceProcess->BindMinimap(GetByName(u"MapPanel"sv));
+                GetByName(u"MapPanel"sv)->SetActive(true);
                 Globals::SpaceProcess->Space->ScrollChangedCallback = pas::bind_method<&TfTalk::MinimapScrolled>(this);
             } else {
-                MapControl = GetByName(u"MapPanel"_wref.get());
+                MapControl = GetByName(u"MapPanel"sv);
                 MapControl->LeftButtonDownCallback = nullptr;
                 MapControl->RightButtonDownCallback = nullptr;
                 MapControl->MouseEnterCallback = nullptr;
@@ -332,14 +308,14 @@ namespace fTalk {
             if (!GlobalsV::MusicInSpaceEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
             }
-            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()))->SetText(u""_wref.get());
+            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->SetText(u""_wref.get());
             if (Globals::TalkShip != nullptr) {
                 const pas::WideString& formatText1 = ([&] {
                     pas::WideString fullName = Globals::TalkShip->GetFullName(u"\r\n"_wref.get());
                     pas::WideString localizedText = aConst::LocalizedText(u"Talk.ShipSay"_wref.get());
                     return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Name>"_w, std::move(fullName));
                 }());
-                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShip"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShip"sv));
                 cpp_arg->SetText(formatText1);
             } else if (Globals::TalkPlanet != nullptr) {
                 const pas::WideString& formatText1_2 = ([&] {
@@ -347,29 +323,29 @@ namespace fTalk {
                     pas::WideString localizedText_2 = aConst::LocalizedText(u"Talk.PlanetSay"_wref.get());
                     return aMyFunction::FormatText1(std::move(localizedText_2), pas::WideString(), u"<Name>"_w, std::move(fullName_2));
                 }());
-                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShip"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShip"sv));
                 cpp_arg_2->SetText(formatText1_2);
             } else {
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShip"_wref.get()))->SetText(u""_wref.get());
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShip"sv))->SetText(u""_wref.get());
             }
             if (Globals::TalkShip != nullptr && Globals::TalkShip->TypeId == aGalaxyStruct::stRanger) {
                 const pas::WideString& characterName = pas::checked_cast<aRanger::TRanger*>(Globals::TalkShip)->GetCharacterName();
-                GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"sv));
                 cpp_arg_3->SetText(characterName);
             } else if (Globals::TalkShip != nullptr && pas::class_cast_if<aRuins::TRuins*>(Globals::TalkShip) != nullptr) {
                 const pas::WideString& localizedText_3 = aConst::LocalizedText(u"ShipType.TypeName.Ruins"_wref.get());
-                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"sv));
                 cpp_arg_4->SetText(localizedText_3);
             } else if (Globals::TalkShip != nullptr) {
                 const pas::WideString& localizedTypeName = Globals::TalkShip->GetLocalizedTypeName();
-                GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"sv));
                 cpp_arg_5->SetText(localizedTypeName);
             } else if (Globals::TalkPlanet != nullptr) {
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"_wref.get()))->SetText(aConst::PlanetEconomyInfo[Globals::TalkPlanet->Economy].DisplayName);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"sv))->SetText(aConst::PlanetEconomyInfo[Globals::TalkPlanet->Economy].DisplayName);
             } else {
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"_wref.get()))->SetText(u""_wref.get());
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkShipChar"sv))->SetText(u""_wref.get());
             }
-            Portrait = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()));
+            Portrait = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv));
             if (Globals::TalkShip != nullptr) {
                 Portrait->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"i"}));
             } else if (Globals::TalkPlanet != nullptr) {
@@ -380,7 +356,7 @@ namespace fTalk {
             Portrait->SetImageKindX(GI_Main::ikxCenter);
             Portrait->SetImageKindY(GI_Main::ikyCenter);
             Portrait->SetActive(true);
-            Animation = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
+            Animation = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"sv));
             Animation->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
             if (Globals::TalkShip != nullptr) {
                 Animation->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"a"}));
@@ -395,7 +371,7 @@ namespace fTalk {
             Animation->SetImageKindY(GI_Main::ikyCenter);
             Animation->SetActive(true);
             Animation->RestartPlayback();
-            TextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()));
+            TextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv));
             if (GlobalsV::FontDialog == 0) {
                 TextLabel->SetFontName(GlobalsV::NormalFontName);
             } else if (GlobalsV::FontDialog == 1) {
@@ -407,14 +383,14 @@ namespace fTalk {
             }
             CodeMsgOut(false);
             RestartTextPresentation();
-            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
             Choices->SetVerticalScrollbarEnabled(false);
             SlideProgress = 0.0f;
             SlideTimer = ScheduleCallbackTimer(30, 30, pas::bind_method<&TfTalk::AdvanceSlide>(this), 0);
             UpdateSlidePosition();
             MinimapEnabled = true;
-            Flag128 = 0;
-            Flag12C = false;
+            ModalTransition = tmtNone;
+            ReturnedFromTrade = false;
         }
     }
 
@@ -444,7 +420,7 @@ namespace fTalk {
             CancelCallbackTimer(SlideTimer);
             SlideTimer = nullptr;
         }
-        if (Flag128 == 0) {
+        if (ModalTransition == tmtNone) {
             RequestedMapCenter = nullptr;
             ClearChoices(false);
             Count = aPlayer::GetPlayer()->ProgramCounts[aGalaxyStruct::prgIntercom];
@@ -483,11 +459,11 @@ namespace fTalk {
     }
 
     void TfTalk::RememberChoiceScroll() {
-        SavedChoiceScroll = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()))->VerticalScrollBar->Position;
+        SavedChoiceScroll = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv))->VerticalScrollBar->Position;
     }
 
     void TfTalk::EnableCloseButton() {
-        GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"_wref.get()));
+        GI_GraphButton::TGraphButtonGI* Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"sv));
         Button->SetDisabled(false);
     }
 
@@ -496,9 +472,9 @@ namespace fTalk {
     }
 
     void TfTalk::ClearChoices(std::uint8_t AllowClose) {
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"_wref.get()))->SetDisabled(static_cast<std::uint8_t>(AllowClose ^ 1));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"sv))->SetDisabled(static_cast<std::uint8_t>(AllowClose ^ 1));
         ChoiceHeight = 0;
-        GI_MessageLoop::TObjectGI* Panel = GetByName(u"TalkPA"_wref.get());
+        GI_MessageLoop::TObjectGI* Panel = GetByName(u"TalkPA"sv);
         GI_MessageLoop::TObjectGI* Child = Panel->FirstChild;
         while (Child != nullptr) {
             pas::free(reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Child->UserValue))));
@@ -528,7 +504,7 @@ namespace fTalk {
         if (pas::load_unaligned<void*>(pas::byte_offset(&Callback, offsetof(SystemImports::TMethod, Code))) == ExitCallback.Code) {
             EnableCloseButton();
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
         I = 0;
         while (I < Text.length()) {
             if (Text.read(I + 1) != u'-' && Text.read(I + 1) != u' ') {
@@ -582,7 +558,7 @@ namespace fTalk {
             if (!pas::assigned(Callback)) {
                 Text = EC_Str::RemoveTextTagsW(Text);
             }
-            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get())}));
+            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv)}));
             cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             if (!pas::assigned(Choice->Callback)) {
                 cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(127, 127, 127));
@@ -642,7 +618,7 @@ namespace fTalk {
         if (TextPresentationTimer != nullptr || SlideTimer != nullptr) {
             return;
         }
-        if (GetByName(u"CenterPlayer"_wref.get()) == Sender) {
+        if (GetByName(u"CenterPlayer"sv) == Sender) {
             RequestedMapCenter = aPlayer::GetPlayer();
         } else if (Globals::TalkPlanet != nullptr) {
             RequestedMapCenter = Globals::TalkShip;
@@ -674,7 +650,7 @@ namespace fTalk {
                     starMapScreen->SetMapCenter(point);
                 }
                 MapDragPoint = Point;
-            } else if (pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"_wref.get()))->HitTestPixel(Point) || pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBGB"_wref.get()))->HitTestPixel(Point) || pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()))->ContainsPoint(Point)) {
+            } else if (pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv))->HitTestPixel(Point) || pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBGB"sv))->HitTestPixel(Point) || pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv))->ContainsPoint(Point)) {
                 RequestedMapHover = nullptr;
                 if (MapSelectionTimer == nullptr) {
                     MapSelectionTimer = ScheduleCallbackTimer(100, 100, pas::bind_method<&TfTalk::ApplyMapSelection>(this), 0);
@@ -703,10 +679,10 @@ namespace fTalk {
 
     void TfTalk::MainPanelMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && TextPresentationTimer == nullptr && SlideTimer == nullptr) {
-            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"_wref.get()))->HitTestPixel(Point) ^ 1) && static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBGB"_wref.get()))->HitTestPixel(Point) ^ 1) && static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()))->ContainsPoint(Point) ^ 1)) {
+            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv))->HitTestPixel(Point) ^ 1) && static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBGB"sv))->HitTestPixel(Point) ^ 1) && static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv))->ContainsPoint(Point) ^ 1)) {
                 MapDragging = true;
                 MapDragPoint = Point;
-                if (!IsCursorImageSelected(u"Scroll"_wref.get())) {
+                if (!IsCursorImageSelected(u"Scroll"sv)) {
                     SetCursorByName(u"Scroll"_wref.get());
                 }
             }
@@ -716,7 +692,7 @@ namespace fTalk {
     void TfTalk::MainPanelMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
         if (!aPlayer::GetPlayer()->InHyperspace) {
             MapDragging = false;
-            if (!IsCursorImageSelected(u"Main"_wref.get())) {
+            if (!IsCursorImageSelected(u"Main"sv)) {
                 SetCursorByName(u"Main"_wref.get());
             }
             GR_Main::PostMouseMoveMessage();
@@ -724,9 +700,9 @@ namespace fTalk {
     }
 
     void TfTalk::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
         if (!Panel->ContainsPoint(Point)) {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->SmallChange);
@@ -772,7 +748,7 @@ namespace fTalk {
     }
 
     void TfTalk::RestartTextPresentation() {
-        pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()))->SetActive(false);
+        pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv))->SetActive(false);
         PresentedTextLength = 0;
         if (TextPresentationTimer != nullptr) {
             CancelCallbackTimer(TextPresentationTimer);
@@ -785,10 +761,10 @@ namespace fTalk {
         GI_PanelScrollBar::TPanelScrollBarGI* Choices{};
         GI_PanelScrollBar::TPanelScrollBarGI* TextPanel{};
         if (PresentedTextLength >= DialogText.length()) {
-            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+            Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
             Choices->SetActive(true);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = Choices->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }
@@ -810,20 +786,20 @@ namespace fTalk {
             GR_Main::PostMouseMoveMessage();
         } else {
             PresentedTextLength = DialogText.length();
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"_wref.get());
-            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()))->SetText(DialogText);
-            TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"_wref.get()));
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->SetText(DialogText);
+            TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
             TextPanel->SetScrollOffset(ClassesImports::Point(0, 0));
             TextPanel->UpdateScrollRanges();
-            TextPanel->VerticalScrollBar->SetActive(pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"_wref.get()))->ClientSize.Y > TextPanel->ClientSize.Y);
+            TextPanel->VerticalScrollBar->SetActive(pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"sv))->ClientSize.Y > TextPanel->ClientSize.Y);
             {
-                std::int32_t lineHeight_2 = pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"_wref.get()))->GetLineHeight();
+                std::int32_t lineHeight_2 = pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar_2 = TextPanel->VerticalScrollBar;
                 verticalScrollBar_2->SetSmallChange(lineHeight_2);
             }
             TextPanel->VerticalScrollBar->SetLargeChange(TextPanel->ClientSize.Y);
             TextPanel->VerticalScrollBar->SetPageSize(TextPanel->ClientSize.Y);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"_wref.get()))->SetDisabled(false);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv))->SetDisabled(false);
         }
     }
 
@@ -883,11 +859,11 @@ namespace fTalk {
                 CurrentMapCenter = Globals::TalkPlanet;
             }
             if (CurrentMapCenter != nullptr && pas::class_cast_if<aShip::TShip*>(CurrentMapCenter) != nullptr) {
-                Globals::StarMapScreen->CenterMapForTalk(pas::checked_cast<aShip::TShip*>(CurrentMapCenter)->Position);
+                Globals::StarMapScreen->CenterMapForTalk(static_cast<aShip::TShip*>(CurrentMapCenter)->Position);
             } else if (CurrentMapCenter != nullptr && pas::class_cast_if<aPlanet::TPlanet*>(CurrentMapCenter) != nullptr) {
-                Globals::StarMapScreen->CenterMapForTalk(pas::checked_cast<aPlanet::TPlanet*>(CurrentMapCenter)->GetPosition());
+                Globals::StarMapScreen->CenterMapForTalk(static_cast<aPlanet::TPlanet*>(CurrentMapCenter)->GetPosition());
             } else if (CurrentMapCenter != nullptr && pas::class_cast_if<aItem::TItem*>(CurrentMapCenter) != nullptr) {
-                Globals::StarMapScreen->CenterMapForTalk(pas::checked_cast<aItem::TItem*>(CurrentMapCenter)->Position);
+                Globals::StarMapScreen->CenterMapForTalk(static_cast<aItem::TItem*>(CurrentMapCenter)->Position);
             }
             Globals::StarMapScreen->ShowObjectInfo(nullptr);
             Globals::StarMapScreen->ShowFilmObjectInfo(nullptr, 0u);
@@ -896,7 +872,7 @@ namespace fTalk {
                 MapSelectionTimer = nullptr;
             }
             if (Previous != CurrentMapCenter) {
-                Flag128 = 1;
+                ModalTransition = tmtReopen;
                 GlobalsV::RequestedScreenId = GlobalsV::TalkReturnScreenId;
                 if (Globals::TalkScripted) {
                     Globals::StarMapScreen->ResumeMode = fStarMap::smrWaitForTurn;
@@ -918,7 +894,7 @@ namespace fTalk {
                 MapSelectionTimer = nullptr;
             }
             if (Previous != CurrentMapHover) {
-                Flag128 = 1;
+                ModalTransition = tmtReopen;
                 GlobalsV::RequestedScreenId = GlobalsV::TalkReturnScreenId;
                 if (Globals::TalkScripted) {
                     Globals::StarMapScreen->ResumeMode = fStarMap::smrWaitForTurn;
@@ -930,10 +906,10 @@ namespace fTalk {
 
     void TfTalk::AddMessageClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString Text{};
-        Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"_wref.get()))->GetText();
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,50,200>"_wref.get(), u"<color=255,240,100>"_wref.get());
-        Text = EC_Str::RemoveMatchingTextTagsW(Text, u"object"_wref.get(), u"OBJECT"_wref.get());
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"_wref.get()))->SetDisabled(true);
+        Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetText();
+        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,50,200>"_wref.get(), u"<color=255,240,100>"sv);
+        Text = EC_Str::RemoveMatchingTextTagsW(Text, u"object"sv, u"OBJECT"sv);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv))->SetDisabled(true);
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
         Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
         if (!aPlayer::GetPlayer()->InHyperspace) {
@@ -942,9 +918,9 @@ namespace fTalk {
     }
 
     void TfTalk::MinimapScrolled() {
-        if (MinimapEnabled && Flag128 == 0 && aPlayer::GetPlayer()->InNormalSpace()) {
+        if (MinimapEnabled && ModalTransition == tmtNone && aPlayer::GetPlayer()->InNormalSpace()) {
             Globals::SpaceProcess->Space->DrawMinimap();
-            GetByName(u"MapPanel"_wref.get())->Invalidate();
+            GetByName(u"MapPanel"sv)->Invalidate();
             if (MinimapRefreshTimer == nullptr) {
                 MinimapRefreshTimer = ScheduleCallbackTimer(1, 1, pas::bind_method<&TfTalk::FlushMinimapRefresh>(this), 0);
             }
@@ -957,7 +933,7 @@ namespace fTalk {
                 CancelCallbackTimer(MinimapRefreshTimer);
                 MinimapRefreshTimer = nullptr;
             }
-            Flag128 = 1;
+            ModalTransition = tmtReopen;
             GlobalsV::RequestedScreenId = GlobalsV::TalkReturnScreenId;
             if (Globals::TalkScripted) {
                 Globals::StarMapScreen->ResumeMode = fStarMap::smrWaitForTurn;
@@ -998,10 +974,10 @@ namespace fTalk {
     void TfTalk::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
         GI_PanelScrollBar::TPanelScrollBarGI* Panel{};
         if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
             if (Key == 'C') {
-                CenterShipClicked(GetByName(u"CenterPlayer"_wref.get()));
-            } else if (Key == WindowsSdk::VK_ESCAPE && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"_wref.get()))->Disabled ^ 1)) {
+                CenterShipClicked(GetByName(u"CenterPlayer"sv));
+            } else if (Key == WindowsSdk::VK_ESCAPE && static_cast<std::uint8_t>(pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"sv))->Disabled ^ 1)) {
                 CloseClicked(nullptr);
             } else if (Key == WindowsSdk::VK_UP) {
                 Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->SmallChange);
@@ -1060,7 +1036,7 @@ namespace fTalk {
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(I); ) {
             Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I);
-            aScript::TScript_RunAuxiliaryCode(Script);
+            aScript::TScript_RunDialogCode(Script);
         }
         if (pas::list_count(aScript::ScriptDialogOverrides) > 0) {
             Selected = 0;
@@ -1124,7 +1100,7 @@ namespace fTalk {
                 if (!pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->ReplaceGreeting) {
                     Text = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Text;
                     if (Text != u"") {
-                        if (ReplacedGreeting | static_cast<std::uint8_t>(KeepGreeting ^ 1)) {
+                        if (static_cast<std::uint8_t>(KeepGreeting ^ 1) || ReplacedGreeting) {
                             DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
                         }
                     }
@@ -1132,10 +1108,10 @@ namespace fTalk {
                 Text = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Answer;
                 if (Text != u"") {
                     Mode = pas::WideString();
-                    PartCount = EC_Str::CountDelimitedPartsW(Text, u"~"_wref.get());
+                    PartCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
                     if (PartCount > 1) {
-                        Mode = EC_Str::ExtractDelimitedPartW(Text, 0, u"~"_wref.get());
-                        Text = EC_Str::ExtractDelimitedRangeW(Text, 1, PartCount - 1, u"~"_wref.get());
+                        Mode = EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"~"sv);
+                        Text = EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, PartCount - 1, u"~"sv);
                     }
                     if (Mode == u"block") {
                         AddChoice(Text, 0, ScriptDialogBlockCallback, 0);
@@ -1195,11 +1171,11 @@ namespace fTalk {
                 case aGalaxyStruct::tkAttack: {
                     AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerOk"_wref.get())}), 0, pas::bind_method<&TfTalk::AcceptScriptedConversation>(this), 0);
                     if (Globals::TalkShip->EnemyShip != nullptr && (aShip::TShip_RelationToShip(Globals::TalkShip->EnemyShip, aPlayer::GetPlayer()) >= 80 || aShip::TShip_RelationToShip(Globals::TalkShip->EnemyShip, aPlayer::GetPlayer()) >= 60 && aPlayer::GetPlayer()->GetDominantCareer() != aGalaxyStruct::rcPirate)) {
-                        if (!(pas::class_cast_if<aTranclucator::TTranclucator*>(Globals::TalkShip->EnemyShip) != nullptr)) {
+                        if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Globals::TalkShip->EnemyShip); !(tranclucator != nullptr)) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerWeFriends"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
-                        } else if (aPlayer::GetPlayer() == reinterpret_cast<aTranclucator::TTranclucator*>(Globals::TalkShip->EnemyShip)->OwnerShip) {
+                        } else if (aPlayer::GetPlayer() == tranclucator->OwnerShip) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerItsMyTranc"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
-                        } else if (reinterpret_cast<aTranclucator::TTranclucator*>(Globals::TalkShip->EnemyShip)->OwnerShip == Globals::TalkShip) {
+                        } else if (tranclucator->OwnerShip == Globals::TalkShip) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerItsYourTranc"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
                         } else {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerWeFriendsTranc"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
@@ -1222,14 +1198,14 @@ namespace fTalk {
                 }
                 case aGalaxyStruct::tkPartnerEnd: {
                     if (Globals::TalkShip->TypeId == aGalaxyStruct::stPirate) {
-                        std::int32_t cpp_left = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psLeadership, false);
+                        std::int32_t cpp_left = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psLeadership, false);
                         if (cpp_left > aPlayer::GetPlayer()->CountWingmen()) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.AnswerLiderTheEnd"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
                         } else {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.AnswerLiderTheEndLowLeadership"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
                         }
                     } else {
-                        std::int32_t cpp_left_2 = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psLeadership, false);
+                        std::int32_t cpp_left_2 = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psLeadership, false);
                         if (cpp_left_2 > aPlayer::GetPlayer()->CountWingmen()) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.AnswerLiderTheEnd"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
                         } else {
@@ -1261,7 +1237,7 @@ namespace fTalk {
             }
             PartnerOfferAmount = std::min<std::int32_t>(aPlayer::GetPlayer()->Money, Globals::TalkShip->Wealth / 8);
             PartnerGiftAmount = std::min<std::int32_t>(aPlayer::GetPlayer()->Money, Globals::TalkShip->Wealth / 32);
-            if ((aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip || static_cast<std::uint8_t>(pas::in_range(Globals::TalkShip->TypeId, aGalaxyStruct::stPirate, aGalaxyStruct::stPirate) ^ 1)) && RecognizesPlayer & pas::in_range(Globals::TalkShip->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior)) {
+            if ((aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip || static_cast<std::uint8_t>(pas::in_range(Globals::TalkShip->TypeId, aGalaxyStruct::stPirate, aGalaxyStruct::stPirate) ^ 1)) && (pas::in_range(Globals::TalkShip->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior) && RecognizesPlayer)) {
                 if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip) {
                     AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Truce.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowTruceOffer>(this), 0);
                     if (aPlayer::GetPlayer()->IsHealthEffectActive(5)) {
@@ -1380,7 +1356,7 @@ namespace fTalk {
                 }
                 case aGalaxyStruct::stPirate: {
                     if (aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip) {
-                        if (Globals::TalkShip->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || reinterpret_cast<aPirate::TPirate*>(Globals::TalkShip)->PirateType == 0) {
+                        if (Globals::TalkShip->OwnerId != aGalaxyStruct::oiPirate || reinterpret_cast<aPirate::TPirate*>(Globals::TalkShip)->PirateType == 0) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowPiratePartnerOffer>(this), 0);
                         }
                         AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Trade.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowTrade>(this), 0);
@@ -1438,7 +1414,7 @@ namespace fTalk {
                                 }())}), ProgramIndex, pas::bind_method<&TfTalk::RunDominatorProgram>(this), 0);
                             }
                         }
-                        if (RecognizesPlayer || aPlayer::GetPlayer()->ChameleonDetected[pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->DominatorSeries] || pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->DominatorSeries != aPlayer::GetPlayer()->ChameleonSeries) {
+                        if (RecognizesPlayer || aPlayer::GetPlayer()->ChameleonDetected[pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->DominatorSeries] || static_cast<aKling::TKling*>(Globals::TalkShip)->DominatorSeries != aPlayer::GetPlayer()->ChameleonSeries) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Dominator.HiPlayer"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowDominatorGreeting>(this), 0);
                             if (Globals::TalkShip->CurrentStar->Id != aGalaxy::Galaxy->KellerResearchTargetStarId || aKling::KellerShip == nullptr) {
                                 AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Dominator.PeacePlayer"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowDominatorPeace>(this), 0);
@@ -1454,7 +1430,7 @@ namespace fTalk {
                         AddImmediateAttackChoices();
                         AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerOffersAttack"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowAttackTargets>(this), 0);
                         if (pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip)->GetCargoHook() != nullptr) {
-                            if (pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip)->SeekItems) {
+                            if (static_cast<aTranclucator::TTranclucator*>(Globals::TalkShip)->SeekItems) {
                                 AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Tranclucator.SeekItems.PlayerCancel"_wref.get())}), 0, pas::bind_method<&TfTalk::CancelTranclucatorSeekItems>(this), 0);
                             } else {
                                 AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Tranclucator.SeekItems.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfTalk::OrderTranclucatorSeekItems>(this), 0);
@@ -1467,7 +1443,7 @@ namespace fTalk {
                         if (pas::in_range(aPlayer::GetPlayer()->Order, static_cast<std::int32_t>(aShip::soLand), static_cast<std::int32_t>(aShip::soLand)) && aPlayer::GetPlayer()->OrderTarget != Globals::TalkShip->OrderTarget) {
                             TargetName = pas::WideString();
                             if (pas::class_cast_if<aPlanet::TPlanet*>(aPlayer::GetPlayer()->OrderTarget) != nullptr) {
-                                if (pas::in_set<0, 4, 7, 7>(pas::checked_cast<aPlanet::TPlanet*>(aPlayer::GetPlayer()->OrderTarget)->OwnerId)) {
+                                if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(pas::checked_cast<aPlanet::TPlanet*>(aPlayer::GetPlayer()->OrderTarget)->OwnerId)) {
                                     TargetName = pas::checked_cast<aPlanet::TPlanet*>(aPlayer::GetPlayer()->OrderTarget)->Name;
                                 }
                             } else if (pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->OrderTarget) != nullptr) {
@@ -1532,9 +1508,9 @@ namespace fTalk {
             reinterpret_cast<aScript::TScriptShip*>(Globals::TalkShip->ScriptShip)->Script->PublishShipContext(pas::checked_cast<aScript::TScriptShip*>(Globals::TalkShip->ScriptShip));
             if (Globals::ScriptDialogIndex < 0) {
                 Binding = reinterpret_cast<aScript::TScriptShip*>(Globals::TalkShip->ScriptShip);
-                if (Binding->State->AuxiliaryCode != nullptr) {
+                if (Binding->State->DialogCode != nullptr) {
                     try {
-                        EC_Expression::TCodeEC_Run(Binding->State->AuxiliaryCode, aScript::ScriptProcess);
+                        EC_Expression::TCodeEC_Run(Binding->State->DialogCode, aScript::ScriptProcess);
                     } catch (...) {
                         auto cpp_exception = pas::caught_object();
                         if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -1547,8 +1523,8 @@ namespace fTalk {
                         }
                     }
                     BuildStandardChoices(false);
-                } else if (Binding->State->AuxiliaryText != u"" && Binding->Script->InitCode->LocalVar->GetVarNE(Binding->State->AuxiliaryText) != nullptr) {
-                    aScript::CurrentScript->CallDialogByVariable(Binding->State->AuxiliaryText);
+                } else if (Binding->State->DialogTextOrVariable != u"" && Binding->Script->InitCode->LocalVar->GetVarNE(Binding->State->DialogTextOrVariable) != nullptr) {
+                    aScript::CurrentScript->CallDialogByVariable(Binding->State->DialogTextOrVariable);
                     if (Globals::ScriptDialogIndex < 0) {
                         if (!KeepGreeting) {
                             if (Globals::TalkScripted) {
@@ -1640,7 +1616,7 @@ namespace fTalk {
     }
 
     void TfTalk::ReturnToMap(std::int32_t Action) {
-        Flag128 = 1;
+        ModalTransition = tmtReopen;
         GlobalsV::RequestedScreenId = GlobalsV::TalkReturnScreenId;
         if (Globals::TalkScripted) {
             Globals::StarMapScreen->ResumeMode = fStarMap::smrWaitForTurn;
@@ -1689,7 +1665,7 @@ namespace fTalk {
     }
 
     void TfTalk::OpenTrade(std::int32_t Action) {
-        Flag128 = 2;
+        ModalTransition = tmtTrade;
         GlobalsV::RequestedScreenId = GlobalsV::TalkReturnScreenId;
         if (Globals::TalkScripted) {
             Globals::StarMapScreen->ResumeMode = fStarMap::smrWaitForTurn;
@@ -1781,7 +1757,7 @@ namespace fTalk {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Truce.WeAlreadyHavePact"_wref.get());
             ClearChoices(false);
             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Exit"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
-        } else if (Globals::TalkShip->UnknownVirtualC0(aPlayer::GetPlayer())) {
+        } else if (Globals::TalkShip->RefusesFactionNegotiation(aPlayer::GetPlayer())) {
             ClearChoices(false);
             BuildStandardChoices(true);
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.Refuse.", Globals::TalkShip->GetTypeNameKey()}));
@@ -1866,8 +1842,8 @@ namespace fTalk {
         } else if (Globals::TalkShip->HasLockedOrFollowOrder() && aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip && Globals::TalkShip->TypeId != aGalaxyStruct::stWarrior) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.Attack.", Globals::TalkShip->GetTypeNameKey(), u"HaveBusiness"}));
             AllowTargets = false;
-        } else if (pas::class_cast_if<aShip::TShip*>(Globals::TalkShip->OrderTarget) != nullptr) {
-            Ship = pas::checked_cast<aShip::TShip*>(Globals::TalkShip->OrderTarget);
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Globals::TalkShip->OrderTarget)) {
+            Ship = ship;
             if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, Ship) == aGalaxyStruct::rlHostile && aPlayer::GetPlayer()->CanSelectShipTarget(Ship) && static_cast<std::uint8_t>(pas::in_set<1, 2>(Ship->TargetingRestriction) ^ 1)) {
                 DialogText = ([&] {
                     pas::WideString cpp_arg = pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Ship, false), Ship->GetFullName(u" "_wref.get())});
@@ -1892,7 +1868,7 @@ namespace fTalk {
         } else {
             SavedText = DialogText;
             BuildStandardChoices(true);
-            DialogText = SavedText;
+            DialogText = std::move(SavedText);
         }
     }
 
@@ -1987,7 +1963,7 @@ namespace fTalk {
             return;
         }
         aShip::TShip* Target = reinterpret_cast<aShip::TShip*>(Globals::TalkShip->OrderTarget);
-        if (Globals::TalkShip->UnknownVirtualC0(Target)) {
+        if (Globals::TalkShip->RefusesFactionNegotiation(Target)) {
             if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile) {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Protect.ComputerNotFearAndWar"_wref.get());
             } else {
@@ -2002,7 +1978,7 @@ namespace fTalk {
             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Exit"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
             return;
         }
-        if (Globals::TalkShip->EvaluateAllyRelationAndStrength(aPlayer::GetPlayer())) {
+        if (Globals::TalkShip->AcceptsAppealFrom(aPlayer::GetPlayer())) {
             CanEscape = Target->CanEscapePursuer(Globals::TalkShip);
             FearsAttacker = Target->virtual_TShip_AcceptsRansomDemandFrom(Globals::TalkShip);
             {
@@ -2108,7 +2084,7 @@ namespace fTalk {
         std::int32_t I{};
         if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && static_cast<std::uint8_t>(Globals::TalkShip->virtual_TShip_RecomputeFearState() ^ 1)) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.PreserveItems.ComputerNotFearAndWar"_wref.get());
-        } else if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) >= aGalaxyStruct::rlGood || Globals::TalkShip->EvaluateAllyRelationAndStrength(aPlayer::GetPlayer())) {
+        } else if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) >= aGalaxyStruct::rlGood || Globals::TalkShip->AcceptsAppealFrom(aPlayer::GetPlayer())) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.PreserveItems.", Globals::TalkShip->GetTypeNameKey(), u"Ok"}));
             if (aPlayer::GetPlayer()->PickupTargets != nullptr) {
                 const std::int32_t cpp_last = static_cast<std::int32_t>(Globals::TalkShip->WeaponCount);
@@ -2146,7 +2122,7 @@ namespace fTalk {
             }());
             BuildStandardChoices(true);
         } else {
-            std::int32_t cpp_left = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psLeadership, false);
+            std::int32_t cpp_left = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psLeadership, false);
             if (cpp_left <= aPlayer::GetPlayer()->CountWingmen()) {
                 DialogText = ([&] {
                     auto name_3 = pas::borrow(aPlayer::GetPlayer()->Name);
@@ -2154,7 +2130,7 @@ namespace fTalk {
                     return aMyFunction::FormatText1(std::move(lookupTalkText_3), u"<color=255,240,100>"_w, u"<Ranger>"_w, name_3.get());
                 }());
                 BuildStandardChoices(true);
-            } else if (pas::checked_cast<aRanger::TRanger*>(Globals::TalkShip)->Rank > aPlayer::GetPlayer()->Rank) {
+            } else if (static_cast<aRanger::TRanger*>(Globals::TalkShip)->Rank > aPlayer::GetPlayer()->Rank) {
                 DialogText = ([&] {
                     auto name_4 = pas::borrow(aPlayer::GetPlayer()->Name);
                     pas::WideString lookupTalkText_4 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.YouNeedInMoreRank"_wref.get());
@@ -2328,7 +2304,7 @@ namespace fTalk {
         std::int32_t Change = System::Round(pas::real_divide(150 * PartnerGiftAmount, std::max<std::int32_t>(1, Globals::TalkShip->Wealth + aPlayer::GetPlayer()->Wealth)) * aConst::PlanetRaceMarket[Globals::TalkShip->PilotRace].FriendlyRelationScale);
         Change = std::max<std::int32_t>(0, std::min<std::int32_t>(100, Change));
         Globals::TalkShip->ChangeRelationToRanger(aPlayer::GetPlayer(), Change);
-        fTalk::PayPartnerGiftMoney();
+        aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - PartnerGiftAmount));
         Globals::TalkShip->SetMoney(Globals::TalkShip->Money + PartnerGiftAmount);
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.FinancesGotGift"_wref.get());
         aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), u"<color=255,240,100>"_w);
@@ -2427,10 +2403,10 @@ namespace fTalk {
             std::int32_t Value{};
             pas::WideString Caption{};
             if (Ship->GetCollectionPermission(static_cast<aTranclucator::TTranclucatorCollectionKind>(Kind))) {
-                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectNo"_wref.get()), u"<color=255,0,0>"_w);
+                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectNo"_wref.get())), u"<color=255,0,0>"sv);
                 Value = Kind * 10;
             } else {
-                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectYes"_wref.get()), u"<color=45,105,45>"_w);
+                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectYes"_wref.get())), u"<color=45,105,45>"sv);
                 Value = Kind * 10 + 1;
             }
             AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Item>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Collect", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
@@ -2452,10 +2428,10 @@ namespace fTalk {
             std::int32_t Value{};
             pas::WideString Caption{};
             if (Ship->GetStoragePermission(static_cast<aTranclucator::TTranclucatorStorageKind>(Kind))) {
-                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandNo"_wref.get()), u"<color=255,0,0>"_w);
+                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandNo"_wref.get())), u"<color=255,0,0>"sv);
                 Value = Kind * 1000;
             } else {
-                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandYes"_wref.get()), u"<color=45,105,45>"_w);
+                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandYes"_wref.get())), u"<color=45,105,45>"sv);
                 Value = Kind * 1000 + 100;
             }
             AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Land>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Land", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
@@ -2477,10 +2453,10 @@ namespace fTalk {
             std::int32_t Value{};
             pas::WideString Caption{};
             if (Ship->AutoArrange) {
-                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeNo"_wref.get()), u"<color=255,0,0>"_w);
+                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeNo"_wref.get())), u"<color=255,0,0>"sv);
                 Value = 10000;
             } else {
-                Caption = aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeYes"_wref.get()), u"<color=45,105,45>"_w);
+                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeYes"_wref.get())), u"<color=45,105,45>"sv);
                 Value = 20000;
             }
             AddChoice(pas::concat_wide({u"- ", Caption}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
@@ -2614,7 +2590,7 @@ namespace fTalk {
         std::int32_t I{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Globals::TalkShip->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(Globals::TalkShip->CurrentStar->Ships, I);
-            if (pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr && Ship != Globals::TalkShip && static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer() && Ship->InNormalSpace()) {
+            if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Ship); tranclucator != nullptr && Ship != Globals::TalkShip && tranclucator->OwnerShip == aPlayer::GetPlayer() && Ship->InNormalSpace()) {
                 AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Tranclucator.OrderForAll"_wref.get())}), 0, pas::bind_method<&TfTalk::ApplyOrderToAllTranclucators>(this), 0);
                 break;
             }
@@ -2628,8 +2604,8 @@ namespace fTalk {
         aTranclucator::TTranclucator* Current = pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Current->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(Current->CurrentStar->Ships, I);
-            if (pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr && Ship != Current && static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer() && Ship->InNormalSpace()) {
-                Target = reinterpret_cast<aTranclucator::TTranclucator*>(Ship);
+            if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Ship); tranclucator != nullptr && Ship != Current && tranclucator->OwnerShip == aPlayer::GetPlayer() && Ship->InNormalSpace()) {
+                Target = tranclucator;
                 Target->FollowOwner = Current->FollowOwner;
                 Target->SeekItems = Current->SeekItems;
                 Target->StoreOnLanding = Current->StoreOnLanding;
@@ -2666,9 +2642,9 @@ namespace fTalk {
             }());
             BuildStandardChoices(true);
         } else if (aPlayer::GetPlayer()->GetMaxPiratePartners() <= pas::list_count(aPlayer::GetPlayer()->PiratePartners) || ([&] {
-            std::int32_t cpp_left = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aShip::psLeadership, false);
+            std::int32_t cpp_left = aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psLeadership, false);
             return cpp_left <= aPlayer::GetPlayer()->CountWingmen();
-        }()) || pas::class_cast_if<aPirate::TPirate*>(Globals::TalkShip) != nullptr && Globals::TalkShip->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && static_cast<aPirate::TPirate*>(Globals::TalkShip)->PirateRank > aPlayer::GetPlayer()->PirateRank) {
+        }()) || pas::class_cast_if<aPirate::TPirate*>(Globals::TalkShip) != nullptr && Globals::TalkShip->OwnerId == aGalaxyStruct::oiPirate && static_cast<aPirate::TPirate*>(Globals::TalkShip)->PirateRank > aPlayer::GetPlayer()->PirateRank) {
             DialogText = ([&] {
                 auto name_2 = pas::borrow(aPlayer::GetPlayer()->Name);
                 pas::WideString lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.NeedPirate"_wref.get());
@@ -2738,7 +2714,7 @@ namespace fTalk {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
             if ((Globals::TalkShip->OrderTarget != Ship || Globals::TalkShip->Order != aShip::soFollowShip || Globals::TalkShip->OrderStateData == FollowMode) && aPlayer::GetPlayer() != Ship && Globals::TalkShip != Ship && aPlayer::GetPlayer() != Ship->PartnerShip && Ship->InNormalSpace()) {
-                if (static_cast<long double>(RadarRangeSquared) > aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Ship->Position) && static_cast<std::uint8_t>(pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) ^ 1) && (Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || Globals::TalkShip->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && aGalaxy::Galaxy->CoalitionDefeatedTurn != 0)) {
+                if (static_cast<long double>(RadarRangeSquared) > aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Ship->Position) && static_cast<std::uint8_t>(pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) ^ 1) && (Ship->OwnerId != aGalaxyStruct::oiDominator || Globals::TalkShip->OwnerId == aGalaxyStruct::oiPirate && aGalaxy::Galaxy->CoalitionDefeatedTurn != 0)) {
                     AddChoice(pas::concat_wide({u"- ", Ship->GetFullName(u" "_wref.get()), aGalaxy::GetLocalObjectLink(Ship, false)}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfTalk::OrderPiratePartnerAttack>(this), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)));
                 }
             }
@@ -2807,7 +2783,7 @@ namespace fTalk {
     }
 
     void TfTalk::OrderPiratePartnerJump(std::int32_t Action) {
-        if (pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->CountPlanetsByOwner(aGalaxyStruct::oiDominator) > 0 && (Globals::TalkShip->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) || aGalaxy::Galaxy->CoalitionDefeatedTurn == 0)) {
+        if (pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->CountPlanetsByOwner(aGalaxyStruct::oiDominator) > 0 && (Globals::TalkShip->OwnerId != aGalaxyStruct::oiPirate || aGalaxy::Galaxy->CoalitionDefeatedTurn == 0)) {
             DialogText = ([&] {
                 auto name = pas::borrow(pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->Name);
                 pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerDisagreeFlyToStar"_wref.get());
@@ -2878,7 +2854,7 @@ namespace fTalk {
         }
         Change = std::max<std::int32_t>(0, std::min<std::int32_t>(100, Change));
         Globals::TalkShip->ChangeRelationToRanger(aPlayer::GetPlayer(), Change);
-        fTalk::PayPiratePartnerGiftMoney();
+        aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - PartnerGiftAmount));
         Globals::TalkShip->SetMoney(Globals::TalkShip->Money + PartnerGiftAmount);
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.FinancesGotGift"_wref.get());
         aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), u"<color=255,240,100>"_w);
@@ -3090,9 +3066,9 @@ namespace fTalk {
             FastExit(0);
         } else {
             Text = Injection->Answer;
-            PartCount = EC_Str::CountDelimitedPartsW(Text, u"~"_wref.get());
+            PartCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
             if (PartCount > 1) {
-                Text = EC_Str::ExtractDelimitedPartW(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text))), 0, u"~"_wref.get());
+                Text = EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text)))), 0, u"~"sv);
                 if (Text == u"snap") {
                     RememberChoiceScroll();
                 }
@@ -3283,7 +3259,7 @@ namespace fTalk {
         aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Action, nullptr);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-            if ((!(pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) || reinterpret_cast<aItem::TWeapon*>(Item)->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair) && Item->ItemType != aConst::t_Hull && Item->EquippedFlag != 0 && aShip::TShip_CanRepairEquipmentTech(Globals::TalkShip, Item) && Item->ConditionPercent < 9.0E+1L) {
+            if (aItem::TWeapon* weapon = pas::class_cast_if<aItem::TWeapon*>(Item); (!(weapon != nullptr) || weapon->GetWeaponInfo()->Availability != aGalaxyStruct::waNotSoldAndNodeRepair) && Item->ItemType != aConst::t_Hull && Item->EquippedFlag != 0 && aShip::TShip_CanRepairEquipmentTech(Globals::TalkShip, Item) && Item->ConditionPercent < 9.0E+1L) {
                 Item->ConditionPercent = aMyFunction::RemapClamped(Fraction, 0.0, 1.0, Item->ConditionPercent, 1.0E+2);
                 if (Item->ConditionPercent > 0.0L) {
                     Item->BrokenFlag = 0;
@@ -3303,7 +3279,7 @@ namespace fTalk {
         std::int32_t Cost = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-            if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && static_cast<std::uint8_t>(fTalk::IsMilitaryProtectedQuestItem(Item) ^ 1)) {
+            if (Item->OwnerId == aGalaxyStruct::oiDominator && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && static_cast<std::uint8_t>(fTalk::IsMilitaryProtectedQuestItem(Item) ^ 1)) {
                 ++Count;
                 if (aGalaxy::Galaxy->DominatorResearch[Item->DominatorSeries].Progress < 1.0E+2L && aGalaxy::Galaxy->IsDominatorSeriesUnresolved(Item->DominatorSeries)) {
                     Cost += System::Round(Item->Cost * 1.5L);
@@ -3350,7 +3326,7 @@ namespace fTalk {
             if (cpp_first >= 1) {
                 for (I = cpp_first; I >= 1; --I) {
                     Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                    if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && static_cast<std::uint8_t>(fTalk::IsMilitaryProtectedQuestItem(Item) ^ 1)) {
+                    if (Item->OwnerId == aGalaxyStruct::oiDominator && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && static_cast<std::uint8_t>(fTalk::IsMilitaryProtectedQuestItem(Item) ^ 1)) {
                         pas::list_delete(aPlayer::GetPlayer()->Inventory, I);
                         if (aGalaxy::Galaxy->DominatorResearch[Item->DominatorSeries].Progress < 1.0E+2L && aGalaxy::Galaxy->IsDominatorSeriesUnresolved(Item->DominatorSeries)) {
                             Cost += System::Round(Item->Cost * 1.5L);
@@ -3393,18 +3369,18 @@ namespace fTalk {
         }
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerSellSomeRemains"_wref.get());
         ClearChoices(true);
-        BonusCaption = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(GR_Main::LookupLocalizedTextOrEmpty(u"Talk.MilitarySupport.ItemsCool"_wref.get()), u"<color=255,240,100>"_w)});
+        BonusCaption = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"Talk.MilitarySupport.ItemsCool"_wref.get())), u"<color=255,240,100>"sv)});
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-            if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && static_cast<std::uint8_t>(fTalk::IsMilitaryProtectedQuestItem(Item) ^ 1)) {
+            if (Item->OwnerId == aGalaxyStruct::oiDominator && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr && static_cast<std::uint8_t>(fTalk::IsMilitaryProtectedQuestItem(Item) ^ 1)) {
                 ++Count;
                 if (aGalaxy::Galaxy->DominatorResearch[Item->DominatorSeries].Progress < 1.0E+2L && aGalaxy::Galaxy->IsDominatorSeriesUnresolved(Item->DominatorSeries)) {
                     Cost = System::Round(Item->Cost * 1.5L);
                 } else {
                     Cost = Item->Cost;
                 }
-                Caption = pas::concat_wide({Item->GetDisplayName(), u" (", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w), u" cr)"});
+                Caption = pas::concat_wide({Item->GetDisplayName(), u" (", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Cost)), u"<color=255,240,100>"sv), u" cr)"});
                 if (aGalaxy::Galaxy->DominatorResearch[Item->DominatorSeries].Progress < 1.0E+2L && aGalaxy::Galaxy->IsDominatorSeriesUnresolved(Item->DominatorSeries)) {
                     Caption = pas::concat_wide({Caption, BonusCaption});
                 }

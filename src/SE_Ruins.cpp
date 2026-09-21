@@ -23,9 +23,9 @@
 // Native class and methods:.
 namespace SE_Ruins {
     void TRuinsSE_Create(TRuinsSE* Self, pas::WideString GraphKey, Types::TPoint UnusedPosition) {
-        if (EC_Str::CountDelimitedPartsW(GraphKey, u","_wref.get()) > 1) {
-            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(GraphKey, 0, u","_wref.get()), UnusedPosition);
-            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(GraphKey, 1, u","_wref.get()));
+        if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1) {
+            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv), UnusedPosition);
+            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 1, u","sv)));
         } else {
             SE_Space::TObjectSE_Create(Self, GraphKey, UnusedPosition);
             Self->AlphaLimit = 255;
@@ -37,8 +37,8 @@ namespace SE_Ruins {
 
     void TRuinsSE::AttachToSpace(SE_Space::TSpaceSE* ASpace) {
         if (!IsAttachedToSpace()) {
-            ConfigureLoopSound(pas::concat_wide({u"Ruins.", EC_Str::ExtractDelimitedPartW(ImagePath, EC_Str::CountDelimitedPartsW(ImagePath, u"."_wref.get()) - 1, u"."_wref.get())}));
-            ConfigureRandomSound(pas::concat_wide({u"Ruins.", EC_Str::ExtractDelimitedPartW(ImagePath, EC_Str::CountDelimitedPartsW(ImagePath, u"."_wref.get()) - 1, u"."_wref.get())}));
+            ConfigureLoopSound(pas::concat_wide({u"Ruins.", EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u"."sv) - 1, u"."sv)}));
+            ConfigureRandomSound(pas::concat_wide({u"Ruins.", EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u"."sv) - 1, u"."sv)}));
             SE_Space::TObjectSE::AttachToSpace(ASpace);
             if (GlobalsV::AnimShipFull || GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle) {
                 Animation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
@@ -285,33 +285,33 @@ namespace SE_Ruins {
 
     void TRuinsSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         std::int32_t Index{};
-        auto ParseRuinsPoint = [&](pas::WideString PointText) -> Types::TPoint {
+        auto ParseRuinsPoint = [&](const std::u16string_view& PointText) -> Types::TPoint {
             Types::TPoint Result{};
-            if (EC_Str::CountDelimitedPartsW(PointText, u","_wref.get()) < 2) {
+            if (EC_Str::CountDelimitedPartsW(PointText, u","sv) < 2) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetPointGI. tstr=", PointText}))));
             }
             Result = ([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 1, u","_wref.get())));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 0, u","_wref.get())));
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 0, u","sv)));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }());
             return Result;
         };
-        auto ParseRuinsEnabled = [&](pas::WideString Name) -> std::uint8_t {
-            return Name == u"Yes" || Name == u"yes" || Name == u"True" || Name == u"true" || Name == u"TRUE" || Name == u"1";
+        auto ParseRuinsEnabled = [&](const std::u16string_view& Name) -> std::uint8_t {
+            return Name == u"Yes"sv || Name == u"yes"sv || Name == u"True"sv || Name == u"true"sv || Name == u"TRUE"sv || Name == u"1"sv;
         };
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
-        StaticImagePath = Block->GetParam(u"ImageI"_wref.get());
-        MinimapImagePath = Block->GetParam(u"ImageMap"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
+        StaticImagePath = Block->GetParam(u"ImageI"sv);
+        MinimapImagePath = Block->GetParam(u"ImageMap"sv);
         HasTransitionImages = GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({ImagePath, u"To"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({ImagePath, u"From"}));
         if (Block->CountParams(u"PanelPartnerImage"_wref.get()) > 0) {
-            PanelPartnerImage = Block->GetParam(u"PanelPartnerImage"_wref.get());
+            PanelPartnerImage = Block->GetParam(u"PanelPartnerImage"sv);
         } else {
             PanelPartnerImage = pas::WideString();
         }
         if (Block->CountParams(u"HideOnStarInfo"_wref.get()) > 0) {
-            HideOnStarInfo = ParseRuinsEnabled(Block->GetParam(u"HideOnStarInfo"_wref.get()));
+            HideOnStarInfo = ParseRuinsEnabled(pas::view(Block->GetParam(u"HideOnStarInfo"sv)));
         } else {
             HideOnStarInfo = false;
         }
@@ -320,7 +320,7 @@ namespace SE_Ruins {
             if (Block->CountParams(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)})) <= 0) {
                 break;
             }
-            WeaponPorts[Index] = EC_Struct::PointToPointF(ParseRuinsPoint(Block->GetParam(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))));
+            WeaponPorts[Index] = EC_Struct::PointToPointF(ParseRuinsPoint(pas::view(Block->GetParam(pas::view(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))))));
             ++WeaponPortCount;
         }
     }

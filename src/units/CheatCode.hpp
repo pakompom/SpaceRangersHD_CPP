@@ -152,6 +152,7 @@ namespace CheatCode {
     void TCheatList_Destroy(TCheatList* Self);
 
     // Compiler unit entry registers the native command order.
+    // 'INFOS'
     void UnitInitialize();
 
     // Compiler unit entry calls the virtual destructor directly.

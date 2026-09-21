@@ -12,6 +12,7 @@
 #include "types/GR_Music.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Str.hpp"
 #include "units/GI_MessageBox.hpp"
@@ -27,7 +28,7 @@ namespace fSelectFace {
     std::uint8_t RunSelectFaceDialog(GI_MessageLoop::TMessageLoopGI* Parent) {
         GI_MessageLoop::TCursorStateGI State{};
         std::uint8_t Result = false;
-        Parent->RootUiObject->NativeHook50();
+        Parent->RootUiObject->OnModalSuspend();
         Parent->CaptureCursorState(&State);
         Parent->SetCursorActive(false);
         Parent->DrawQueuedUpdateRects();
@@ -41,7 +42,7 @@ namespace fSelectFace {
         Parent->InvalidateViewport();
         Parent->RestoreCursorState(&State);
         Parent->UpdateCursorPosition();
-        Parent->RootUiObject->NativeHook48();
+        Parent->RootUiObject->OnModalResume();
         Parent->Present();
         GR_Main::PostMouseMoveMessage();
         return Result;
@@ -50,9 +51,9 @@ namespace fSelectFace {
     void TfSelectFace::InitializeLayout() {
         std::int32_t I{};
         pas::WideString Face{};
-        std::uint8_t Race{};
+        aGalaxyStruct::TOwnerId Race{};
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(4)); cpp_range.next(Race); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal); cpp_range.next(Race); ) {
             I = -1;
             do {
                 ++I;
@@ -61,7 +62,7 @@ namespace fSelectFace {
                     Face = pas::concat_wide({u"0", Face});
                 }
             } while (!(([&] {
-                EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"StyleFace", aConst::OwnerInfo[aConst::RaceToOwner(Race) & 0x0000007f].InternalName}));
+                EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"StyleFace", aConst::OwnerInfo[aConst::RaceToOwner(Race)].InternalName}));
                 const pas::WideString& face = Face;
                 return blockByPath->CountParams(face);
             }()) <= 0));
@@ -70,11 +71,11 @@ namespace fSelectFace {
         GR_Main::AppendLogTextThreadSafe("fSelectFace... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* PlayerName_Parent = MainPanel->FindByNameRecursive(u"PlayerName"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* PlayerName_Parent = MainPanel->FindByNameRecursive(u"PlayerName"sv)->Parent;
                 PlayerName_Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
         }
@@ -84,23 +85,23 @@ namespace fSelectFace {
             Control->SetPosition(ClassesImports::Point(0, GR_Main::ExtraScreenHeight));
             Control->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight - GR_Main::ExtraScreenHeight));
         }
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfSelectFace::MainPanelKeyDown>(this);
-        GetByName(u"MainPanel"_wref.get())->LeftButtonDownCallback = pas::bind_method<&TfSelectFace::PlayerNameMouseDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceLeft"_wref.get()))->DownCallback = pas::bind_method<&TfSelectFace::PreviousPortraitClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceRight"_wref.get()))->DownCallback = pas::bind_method<&TfSelectFace::NextPortraitClicked>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfSelectFace::MainPanelKeyDown>(this);
+        GetByName(u"MainPanel"sv)->LeftButtonDownCallback = pas::bind_method<&TfSelectFace::PlayerNameMouseDown>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceLeft"sv))->DownCallback = pas::bind_method<&TfSelectFace::PreviousPortraitClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"FaceRight"sv))->DownCallback = pas::bind_method<&TfSelectFace::NextPortraitClicked>(this);
         for (I = 0; I <= 4; ++I) {
             Face = aConst::OwnerToSys(aConst::RaceToOwner(aConst::NumberToRace(I)));
             {
-                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::concat_wide({u"Race", Face})));
+                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"Race", Face}))));
                 cpp_with_3->DownCallback = pas::bind_method<&TfSelectFace::RaceClicked>(this);
                 cpp_with_3->UpCallback = pas::bind_method<&TfSelectFace::RaceClicked>(this);
                 cpp_with_3->UserValue = I;
             }
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->UpCallback = pas::bind_method<&TfSelectFace::ApplyClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"_wref.get()))->UpCallback = pas::bind_method<&TfSelectFace::CancelClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->UpCallback = pas::bind_method<&TfSelectFace::ApplyClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"sv))->UpCallback = pas::bind_method<&TfSelectFace::CancelClicked>(this);
         {
-            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             PlayerName->ChangedCallback = pas::bind_method<&TfSelectFace::PlayerNameChanged>(this);
             PlayerName->MaxLength = 13;
         }
@@ -108,9 +109,9 @@ namespace fSelectFace {
 
     void TfSelectFace::OnOpen() {
         GR_Main::CaptureScreenBackground(true, 0);
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
-        SelectRace(GetByName(pas::concat_wide({u"Race", aConst::OwnerToSys(aConst::RaceToOwner(PlayerRace))})));
-        pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->SetText(PlayerName);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        SelectRace(GetByName(pas::view(pas::concat_wide({u"Race", aConst::OwnerToSys(aConst::RaceToOwner(PlayerRace))}))));
+        pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->SetText(PlayerName);
         RefreshPact();
         PlayerNameEdited = false;
         RefreshPortrait();
@@ -120,7 +121,7 @@ namespace fSelectFace {
     }
 
     void TfSelectFace::PlayerNameMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        SetFocusedControl(GetByName(u"PlayerName"_wref.get()));
+        SetFocusedControl(GetByName(u"PlayerName"sv));
     }
 
     void TfSelectFace::RefreshPortrait() {
@@ -130,9 +131,9 @@ namespace fSelectFace {
             CaptainPortraitIndex = 0;
         }
         {
-            GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"_wref.get()));
+            GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv));
             if (LastPortraitByRace[PlayerRace] >= 0) {
-                CaptainI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace) & 0x0000007f].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"i"}));
+                CaptainI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace)].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"i"}));
                 CaptainI->SetImageKindX(GI_Main::ikxCenter);
                 CaptainI->SetImageKindY(GI_Main::ikyCenter);
                 CaptainI->SetActive(true);
@@ -141,10 +142,10 @@ namespace fSelectFace {
             }
         }
         {
-            GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"_wref.get()));
+            GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"sv));
             CaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
             if (LastPortraitByRace[PlayerRace] >= 0) {
-                CaptainA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace) & 0x0000007f].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"a"}));
+                CaptainA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace)].InternalName, pas::wide_int_to_str(CaptainPortraitIndex), u"a"}));
                 CaptainA->SequenceIndex = 0;
                 CaptainA->UpdateAutoGeometry();
                 CaptainA->SetImageKindX(GI_Main::ikxCenter);
@@ -168,21 +169,21 @@ namespace fSelectFace {
     }
 
     void TfSelectFace::SelectRace(GI_MessageLoop::TObjectGI* Sender) {
-        PlayerRace = Sender->UserValue;
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceMaloc"_wref.get()))->SetDown(PlayerRace == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeleng"_wref.get()))->SetDown(PlayerRace == 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeople"_wref.get()))->SetDown(PlayerRace == 2);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceFei"_wref.get()))->SetDown(PlayerRace == 3);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceGaal"_wref.get()))->SetDown(PlayerRace == 4);
+        PlayerRace = static_cast<aGalaxyStruct::TOwnerId>(Sender->UserValue);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceMaloc"sv))->SetDown(PlayerRace == aGalaxyStruct::oiMaloc);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeleng"sv))->SetDown(PlayerRace == aGalaxyStruct::oiPeleng);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RacePeople"sv))->SetDown(PlayerRace == aGalaxyStruct::oiHuman);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceFei"sv))->SetDown(PlayerRace == aGalaxyStruct::oiFeyan);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"RaceGaal"sv))->SetDown(PlayerRace == aGalaxyStruct::oiGaal);
     }
 
     void TfSelectFace::RaceClicked(GI_MessageLoop::TObjectGI* Sender) {
         SelectRace(Sender);
         CaptainPortraitIndex = 0;
         RefreshPortrait();
-        SetFocusedControl(GetByName(u"PlayerName"_wref.get()));
+        SetFocusedControl(GetByName(u"PlayerName"sv));
         {
-            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             PlayerName->SetCaretPosition(PlayerName->Text.length());
         }
         PlayerNameChanged(nullptr);
@@ -192,11 +193,11 @@ namespace fSelectFace {
         pas::WideString Text{};
         std::int32_t Cost = 0;
         switch (PlayerRace) {
-            case 0: Cost = NationalityCosts[0]; break;
-            case 1: Cost = NationalityCosts[1]; break;
-            case 2: Cost = NationalityCosts[2]; break;
-            case 3: Cost = NationalityCosts[3]; break;
-            case 4: Cost = NationalityCosts[4]; break;
+            case aGalaxyStruct::oiMaloc: Cost = NationalityCosts[aGalaxyStruct::oiMaloc]; break;
+            case aGalaxyStruct::oiPeleng: Cost = NationalityCosts[aGalaxyStruct::oiPeleng]; break;
+            case aGalaxyStruct::oiHuman: Cost = NationalityCosts[aGalaxyStruct::oiHuman]; break;
+            case aGalaxyStruct::oiFeyan: Cost = NationalityCosts[aGalaxyStruct::oiFeyan]; break;
+            case aGalaxyStruct::oiGaal: Cost = NationalityCosts[aGalaxyStruct::oiGaal]; break;
         }
         if (Cost <= AvailableMoney) {
             AcceptedCost = Cost;
@@ -227,7 +228,7 @@ namespace fSelectFace {
         pas::WideString Text{};
         Text = aConst::LocalizedColorText(u"FormRuins.PB.ChangeNationality.PactText"_wref.get());
         aMyFunction::ReplaceTextToken(Text, u"<CurName>"_w, PlayerName, u"<color=247,148,29>"_w);
-        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Pact"_wref.get()))->SetText(Text);
+        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Pact"sv))->SetText(Text);
     }
 
     void TfSelectFace::PlayerNameChanged(GI_MessageLoop::TObjectGI* Sender) {
@@ -235,20 +236,20 @@ namespace fSelectFace {
             PlayerNameEdited = true;
         }
         {
-            std::uint8_t cpp_arg = static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text) ^ 1);
-            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()));
+            std::uint8_t cpp_arg = static_cast<std::uint8_t>(ValidatePlayerName(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text) ^ 1);
+            GI_GraphButton::TGraphButtonGI* cpp_arg_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
             cpp_arg_2->SetDisabled(cpp_arg);
         }
-        PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()))->Text;
+        PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text;
         RefreshPact();
     }
 
     std::uint8_t TfSelectFace::ValidatePlayerName(pas::WideString Name) {
         std::int32_t I{};
         std::uint8_t Result = false;
-        Name = EC_Str::RemoveWideStringChars(Name, u"<>{}"_w);
+        Name = EC_Str::RemoveWideStringChars(pas::view(Name), u"<>{}"_w);
         {
-            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             if (PlayerName->Text != Name) {
                 I = PlayerName->CaretPosition;
                 PlayerName->SetText(Name);
@@ -264,7 +265,7 @@ namespace fSelectFace {
             return Result;
         }
         {
-            GI_Edit::TEditGI* PlayerName_2 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"_wref.get()));
+            GI_Edit::TEditGI* PlayerName_2 = pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv));
             {
                 const std::int32_t cpp_last = Name.length() - 1;
                 if (0 <= cpp_last) {
@@ -282,7 +283,7 @@ namespace fSelectFace {
     void TfSelectFace::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
         if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
             if (Key == WindowsSdk::VK_RETURN) {
-                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->Disabled) {
+                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->Disabled) {
                     ApplyClicked(nullptr);
                 }
             } else if (Key == WindowsSdk::VK_ESCAPE) {

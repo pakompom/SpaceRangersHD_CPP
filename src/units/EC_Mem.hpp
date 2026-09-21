@@ -25,6 +25,8 @@ namespace EC_Mem {
     void* ReAllocFromHeapREC(std::uint32_t Heap, void* Data, std::int32_t ByteCount);
 
     // These stack-ABI accessors are handwritten assembly in the native unit.
+    // Integer(@PRecord(ByteOffset).Field) in callers derives a relative field offset
+    // without reading memory, preserving these native calls and their argument order.
     inline void* AddPointerOffset(void* Data, std::int32_t ByteOffset);
 
     inline void WriteByteEC(void* Dest, std::uint8_t Value);

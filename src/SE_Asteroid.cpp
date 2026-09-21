@@ -112,8 +112,8 @@ namespace SE_Asteroid {
 
     void TAsteroidSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {
         SE_Space::TObjectSE::LoadTemplate(Block);
-        ImagePath = Block->GetParam(u"Image"_wref.get());
-        MapImagePath = Block->GetParam(u"ImageMap"_wref.get());
+        ImagePath = Block->GetParam(u"Image"sv);
+        MapImagePath = Block->GetParam(u"ImageMap"sv);
     }
 
     void TAsteroidSE::ApplyConfig(EC_BlockPar::TBlockParEC* Block) {

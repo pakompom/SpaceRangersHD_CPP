@@ -70,7 +70,7 @@ namespace aKling {
         std::uint8_t GetGreetingShipCategory() override;
         // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
-        std::uint8_t GetStrengthScaledPirateStatus() override;
+        aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Checks the stored active flag and ID; expiration is handled by the daily ship update.
         std::uint8_t IsProgramActive(std::uint8_t ProgramId);
@@ -85,7 +85,7 @@ namespace aKling {
         std::uint8_t virtual_TShip_RecomputeFearState() override;
         std::uint8_t virtual_TShip_AcceptsRansomDemandFrom(aShip::TShip* Ship) override;
         std::uint8_t virtual_TShip_TrustsAttackRequester(aShip::TShip* Ship) override;
-        std::uint8_t EvaluateAllyRelationAndStrength(aShip::TShip* Ship) override;
+        std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         void AssignWeaponTargetsInStar() override;
         // Marks this series as aware of the player's camouflage and reports a matching active disguise.
         void DetectAttackingPlayer(aShip::TShip* Attacker);

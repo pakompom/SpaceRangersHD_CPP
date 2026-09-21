@@ -148,7 +148,7 @@ namespace fStarMap {
     WindowsSdk::TPoint TfStarMap::GetMapCenter() {
         WindowsSdk::TPoint Result{};
         if (MapControls == nullptr) {
-            MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
+            MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
         }
         Result = MapControls->ScrollOffset;
         return Result;
@@ -157,7 +157,7 @@ namespace fStarMap {
     // Disables automatic film-camera following.
     void TfStarMap::SetMapCenterManually(WindowsSdk::TPoint Point) {
         if (MapControls == nullptr) {
-            MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
+            MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
         }
         MapControls->SetScrollOffset(Point);
         if (Globals::SpaceProcess->IsSpaceOpen()) {
@@ -168,7 +168,7 @@ namespace fStarMap {
 
     void TfStarMap::SetMapCenter(WindowsSdk::TPoint Center) {
         if (MapControls == nullptr) {
-            MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
+            MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
         }
         MapControls->SetScrollOffset(Center);
         if (Globals::SpaceProcess->IsSpaceOpen()) {
@@ -194,30 +194,30 @@ namespace fStarMap {
         GR_Main::AppendLogTextThreadSafe("fStarMap... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             MainPanel->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
             MainPanel->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* CircleActionShr = MainPanel->FindByNameRecursive(u"CircleActionShr"_wref.get());
+                GI_MessageLoop::TObjectGI* CircleActionShr = MainPanel->FindByNameRecursive(u"CircleActionShr"sv);
                 CircleActionShr->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                 CircleActionShr->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
             }
             {
-                GI_MessageLoop::TObjectGI* LargeHelp = MainPanel->FindByNameRecursive(u"LargeHelp"_wref.get());
+                GI_MessageLoop::TObjectGI* LargeHelp = MainPanel->FindByNameRecursive(u"LargeHelp"sv);
                 LargeHelp->SetPosition(ClassesImports::Point(LargeHelp->LocalPosition.X, LargeHelp->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* MapPanel = MainPanel->FindByNameRecursive(u"MapPanel"_wref.get());
+                GI_MessageLoop::TObjectGI* MapPanel = MainPanel->FindByNameRecursive(u"MapPanel"sv);
                 MapPanel->SetPosition(ClassesImports::Point(MapPanel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, MapPanel->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* CenterShip = MainPanel->FindByNameRecursive(u"CenterShip"_wref.get());
+                GI_MessageLoop::TObjectGI* CenterShip = MainPanel->FindByNameRecursive(u"CenterShip"sv);
                 CenterShip->SetPosition(ClassesImports::Point(CenterShip->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, CenterShip->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* MapPanelA = MainPanel->FindByNameRecursive(u"MapPanelA"_wref.get());
+                GI_MessageLoop::TObjectGI* MapPanelA = MainPanel->FindByNameRecursive(u"MapPanelA"sv);
                 MapPanelA->SetPosition(ClassesImports::Point(MapPanelA->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, MapPanelA->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
                 {
                     GI_MessageLoop::TObjectGI* cpp_with_7 = MapPanelA->NextSibling;
@@ -225,153 +225,153 @@ namespace fStarMap {
                 }
             }
             {
-                GI_MessageLoop::TObjectGI* FPS = MainPanel->FindByNameRecursive(u"FPS"_wref.get());
+                GI_MessageLoop::TObjectGI* FPS = MainPanel->FindByNameRecursive(u"FPS"sv);
                 FPS->SetPosition(ClassesImports::Point(FPS->LocalPosition.X, FPS->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* Mods = MainPanel->FindByNameRecursive(u"Mods"_wref.get());
+                GI_MessageLoop::TObjectGI* Mods = MainPanel->FindByNameRecursive(u"Mods"sv);
                 Mods->SetPosition(ClassesImports::Point(Mods->LocalPosition.X, Mods->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
-            MainPanel->FindByNameRecursive(u"PanelMain"_wref.get())->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
+            MainPanel->FindByNameRecursive(u"PanelMain"sv)->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
             {
-                GI_MessageLoop::TObjectGI* PanelSpace = MainPanel->FindByNameRecursive(u"PanelSpace"_wref.get());
+                GI_MessageLoop::TObjectGI* PanelSpace = MainPanel->FindByNameRecursive(u"PanelSpace"sv);
                 PanelSpace->SetPosition(ClassesImports::Point(PanelSpace->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelSpace->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             if (GR_Main::GiResourceVariant() == 2) {
-                MainPanel->FindByNameRecursive(u"PanelLoad"_wref.get())->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
+                MainPanel->FindByNameRecursive(u"PanelLoad"sv)->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
             } else if (GR_Main::GiResourceVariant() == 1) {
-                MainPanel->FindByNameRecursive(u"PanelLoad"_wref.get())->SetPosition(ClassesImports::Point(-400, -300));
+                MainPanel->FindByNameRecursive(u"PanelLoad"sv)->SetPosition(ClassesImports::Point(-400, -300));
             }
             {
-                GI_MessageLoop::TObjectGI* MapPartnerDuty_Parent = MainPanel->FindByNameRecursive(u"MapPartnerDuty"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* MapPartnerDuty_Parent = MainPanel->FindByNameRecursive(u"MapPartnerDuty"sv)->Parent;
                 MapPartnerDuty_Parent->SetPosition(ClassesImports::Point(MapPartnerDuty_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, MapPartnerDuty_Parent->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* CircleActionColor = MainPanel->FindByNameRecursive(u"CircleActionColor"_wref.get());
+                GI_MessageLoop::TObjectGI* CircleActionColor = MainPanel->FindByNameRecursive(u"CircleActionColor"sv);
                 CircleActionColor->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
                 CircleActionColor->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* CircleActionWeaponColor = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor"_wref.get());
+                GI_MessageLoop::TObjectGI* CircleActionWeaponColor = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor"sv);
                 CircleActionWeaponColor->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
                 CircleActionWeaponColor->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* CircleActionWeaponColor2 = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor2"_wref.get());
+                GI_MessageLoop::TObjectGI* CircleActionWeaponColor2 = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor2"sv);
                 CircleActionWeaponColor2->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
                 CircleActionWeaponColor2->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* CircleActionWeaponColor3 = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor3"_wref.get());
+                GI_MessageLoop::TObjectGI* CircleActionWeaponColor3 = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor3"sv);
                 CircleActionWeaponColor3->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
                 CircleActionWeaponColor3->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* CircleActionWeaponColor4 = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor4"_wref.get());
+                GI_MessageLoop::TObjectGI* CircleActionWeaponColor4 = MainPanel->FindByNameRecursive(u"CircleActionWeaponColor4"sv);
                 CircleActionWeaponColor4->SetPosition(ClassesImports::Point(-pas::shr(GR_Main::GameScreenWidth, 1), -pas::shr(GR_Main::GameScreenHeight, 1)));
                 CircleActionWeaponColor4->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* SpaceImg = MainPanel->FindByNameRecursive(u"SpaceImg"_wref.get());
+                GI_MessageLoop::TObjectGI* SpaceImg = MainPanel->FindByNameRecursive(u"SpaceImg"sv);
                 SpaceImg->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
                 SpaceImg->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* StarField = MainPanel->FindByNameRecursive(u"StarField"_wref.get());
+                GI_MessageLoop::TObjectGI* StarField = MainPanel->FindByNameRecursive(u"StarField"sv);
                 StarField->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
                 StarField->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* StarFieldImg = MainPanel->FindByNameRecursive(u"StarFieldImg"_wref.get());
+                GI_MessageLoop::TObjectGI* StarFieldImg = MainPanel->FindByNameRecursive(u"StarFieldImg"sv);
                 StarFieldImg->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
                 StarFieldImg->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* StarFieldM = MainPanel->FindByNameRecursive(u"StarFieldM"_wref.get());
+                GI_MessageLoop::TObjectGI* StarFieldM = MainPanel->FindByNameRecursive(u"StarFieldM"sv);
                 StarFieldM->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
                 StarFieldM->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* Info = MainPanel->FindByNameRecursive(u"Info"_wref.get());
+                GI_MessageLoop::TObjectGI* Info = MainPanel->FindByNameRecursive(u"Info"sv);
                 Info->SetPosition(ClassesImports::Point(Info->LocalPosition.X - GR_Main::ExtraScreenWidth / 2, Info->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* InfoStd = MainPanel->FindByNameRecursive(u"InfoStd"_wref.get());
+                GI_MessageLoop::TObjectGI* InfoStd = MainPanel->FindByNameRecursive(u"InfoStd"sv);
                 InfoStd->SetPosition(ClassesImports::Point(InfoStd->LocalPosition.X - GR_Main::ExtraScreenWidth / 2, InfoStd->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* InfoShip = MainPanel->FindByNameRecursive(u"InfoShip"_wref.get());
+                GI_MessageLoop::TObjectGI* InfoShip = MainPanel->FindByNameRecursive(u"InfoShip"sv);
                 InfoShip->SetPosition(ClassesImports::Point(InfoShip->LocalPosition.X - GR_Main::ExtraScreenWidth / 2, InfoShip->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* InfoPlanet = MainPanel->FindByNameRecursive(u"InfoPlanet"_wref.get());
+                GI_MessageLoop::TObjectGI* InfoPlanet = MainPanel->FindByNameRecursive(u"InfoPlanet"sv);
                 InfoPlanet->SetPosition(ClassesImports::Point(InfoPlanet->LocalPosition.X - GR_Main::ExtraScreenWidth / 2, InfoPlanet->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* InfoStar = MainPanel->FindByNameRecursive(u"InfoStar"_wref.get());
+                GI_MessageLoop::TObjectGI* InfoStar = MainPanel->FindByNameRecursive(u"InfoStar"sv);
                 InfoStar->SetPosition(ClassesImports::Point(InfoStar->LocalPosition.X - GR_Main::ExtraScreenWidth / 2, InfoStar->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
             {
-                GI_MessageLoop::TObjectGI* InfoItem = MainPanel->FindByNameRecursive(u"InfoItem"_wref.get());
+                GI_MessageLoop::TObjectGI* InfoItem = MainPanel->FindByNameRecursive(u"InfoItem"sv);
                 InfoItem->SetPosition(ClassesImports::Point(InfoItem->LocalPosition.X - GR_Main::ExtraScreenWidth / 2, InfoItem->LocalPosition.Y - GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"_wref.get()));
-        PartnerPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MapPartner"_wref.get()));
-        SecondaryPartnerPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MapPartner2"_wref.get()));
-        InfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"Info"_wref.get()));
-        InfoTextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"_wref.get()));
-        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoItem"_wref.get()));
-        ShipInfoPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoShip"_wref.get()));
-        PlanetInfoPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoPlanet"_wref.get()));
-        StarInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoStar"_wref.get()));
-        StandardInfoPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStd"_wref.get()));
-        this->StarField = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"_wref.get()));
-        ActionCircle = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"CircleActionShr"_wref.get()));
-        ActionColorCircle = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionColor"_wref.get()));
-        WeaponColorCircles[0] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor"_wref.get()));
-        WeaponColorCircles[1] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor2"_wref.get()));
-        WeaponColorCircles[2] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor3"_wref.get()));
-        WeaponColorCircles[3] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor4"_wref.get()));
-        WeaponButtons[0] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W0"_wref.get()));
-        WeaponButtons[1] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W1"_wref.get()));
-        WeaponButtons[2] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W2"_wref.get()));
-        WeaponButtons[3] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W3"_wref.get()));
-        WeaponButtons[4] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W4"_wref.get()));
-        WeaponImages[0] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W0I"_wref.get()));
-        WeaponImages[1] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W1I"_wref.get()));
-        WeaponImages[2] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W2I"_wref.get()));
-        WeaponImages[3] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W3I"_wref.get()));
-        WeaponImages[4] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W4I"_wref.get()));
-        AllWeaponsButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_WA"_wref.get()));
-        HideSpacePanelButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Hide"_wref.get()));
-        ShowSpacePanelButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Show"_wref.get()));
-        ScannerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Scaner"_wref.get()));
-        TalkButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Talk"_wref.get()));
-        TurnFilmButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Film"_wref.get()));
+        MapControls = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MainPanel"sv));
+        PartnerPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MapPartner"sv));
+        SecondaryPartnerPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"MapPartner2"sv));
+        InfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"Info"sv));
+        InfoTextLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv));
+        ItemInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoItem"sv));
+        ShipInfoPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoShip"sv));
+        PlanetInfoPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoPlanet"sv));
+        StarInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoStar"sv));
+        StandardInfoPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStd"sv));
+        this->StarField = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"sv));
+        ActionCircle = pas::checked_cast<GI_Circle::TCircleGI*>(GetByName(u"CircleActionShr"sv));
+        ActionColorCircle = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionColor"sv));
+        WeaponColorCircles[0] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor"sv));
+        WeaponColorCircles[1] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor2"sv));
+        WeaponColorCircles[2] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor3"sv));
+        WeaponColorCircles[3] = pas::checked_cast<GI_SpaceCircle::TSpaceCircleGI*>(GetByName(u"CircleActionWeaponColor4"sv));
+        WeaponButtons[0] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W0"sv));
+        WeaponButtons[1] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W1"sv));
+        WeaponButtons[2] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W2"sv));
+        WeaponButtons[3] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W3"sv));
+        WeaponButtons[4] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_W4"sv));
+        WeaponImages[0] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W0I"sv));
+        WeaponImages[1] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W1I"sv));
+        WeaponImages[2] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W2I"sv));
+        WeaponImages[3] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W3I"sv));
+        WeaponImages[4] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_W4I"sv));
+        AllWeaponsButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_WA"sv));
+        HideSpacePanelButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Hide"sv));
+        ShowSpacePanelButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Show"sv));
+        ScannerButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Scaner"sv));
+        TalkButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Talk"sv));
+        TurnFilmButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Film"sv));
         MapControls->KeyDownCallback = pas::bind_method<&TfStarMap::MapKeyDown>(this);
         MapControls->KeyUpCallback = pas::bind_method<&TfStarMap::MapKeyUp>(this);
         MapControls->SetDragScrollingEnabled(true);
         MapControls->ScrollType = GI_Panel::pstSimple;
-        WeaponBackgroundImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_ImageWeaponBG"_wref.get()));
-        SpaceBackgroundImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_ImageBG"_wref.get()));
-        LargeHelpBuffer = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"LargeHelp"_wref.get()));
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"_wref.get()))->UpCallback = pas::bind_method<&TfStarMap::ShipClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"_wref.get()))->UpCallback = pas::bind_method<&TfStarMap::GalaxyClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Film"_wref.get()))->UpCallback = pas::bind_method<&TfStarMap::OpenFilmHistoryClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfStarMap::EndTurnClicked>(this);
-        CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"_wref.get()));
+        WeaponBackgroundImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_ImageWeaponBG"sv));
+        SpaceBackgroundImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PS_ImageBG"sv));
+        LargeHelpBuffer = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"LargeHelp"sv));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfStarMap::ShipClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"sv))->UpCallback = pas::bind_method<&TfStarMap::GalaxyClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PS_Film"sv))->UpCallback = pas::bind_method<&TfStarMap::OpenFilmHistoryClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfStarMap::EndTurnClicked>(this);
+        CenterShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"CenterShip"sv));
         AllWeaponsButton->UpCallback = pas::bind_method<&TfStarMap::AllWeaponsClicked>(this);
         ScannerButton->UpCallback = pas::bind_method<&TfStarMap::ScannerClicked>(this);
         TalkButton->UpCallback = pas::bind_method<&TfStarMap::TalkClicked>(this);
         HideSpacePanelButton->UpCallback = pas::bind_method<&TfStarMap::ToggleWeaponPanelClicked>(this);
         ShowSpacePanelButton->UpCallback = pas::bind_method<&TfStarMap::ToggleWeaponPanelClicked>(this);
-        WeaponPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PS_Up"_wref.get()));
+        WeaponPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PS_Up"sv));
         WeaponPanelRestTop = WeaponPanel->LocalPosition.Y;
-        SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelSpace"_wref.get()));
+        SpacePanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelSpace"sv));
         SpacePanelRestTop = SpacePanel->LocalPosition.Y;
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"MapPanel"_wref.get()))->BindExternalGraphBuf(GR_Main::RenderScratchBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"MapPanel"sv))->BindExternalGraphBuf(GR_Main::RenderScratchBuffer);
         BattleMusicSelected = false;
         EndTurnAfterOpen = false;
     }
@@ -391,7 +391,7 @@ namespace fStarMap {
             return;
         }
         EC_Cache::EvictMainMenuShipCachesWhenAddressSpaceHigh();
-        if (!Globals::ShipScreen->FlagD4) {
+        if (!Globals::ShipScreen->ReopenRequested) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(1116);
         } else {
             aGalaxy::TGalaxy::ClearIntegrityStatus();
@@ -406,7 +406,7 @@ namespace fStarMap {
             aMyFunction::ReplaceTextToken(StartText, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(StartText);
             StartText = pas::concat_wide({pas::wide_int_to_str(1), StartText});
-            StartText = pas::concat_wide({pas::wide_int_to_str(std::min<std::int32_t>(aGalaxy::Galaxy->GetDifficultyTierIndex() & 0x0000007f, 3) + 1), StartText});
+            StartText = pas::concat_wide({pas::wide_int_to_str(std::min<std::int32_t>(static_cast<std::int32_t>(aGalaxy::Galaxy->GetDifficultyTierIndex()), 3) + 1), StartText});
             StartText = pas::concat_wide({pas::wide_int_to_str(6), StartText});
             WinText = Globals::RobotMapDefinitions[MapIndex].RobotsWin;
             aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
@@ -477,12 +477,12 @@ namespace fStarMap {
             {
                 aPlayer::TPlanetBattleHistoryEntry& cpp_with = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                 cpp_with.MapId = PlanetBattleMapId;
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 0 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[0]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 1 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[1]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 2 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[2]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 3 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[3]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 4 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[4]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with.Statistics, 5 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[5]);
+                cpp_with.Statistics.SignedTimeMs = Robot::RobotBattleStatistics.SignedTimeMs;
+                cpp_with.Statistics.RobotsBuilt = Robot::RobotBattleStatistics.RobotsBuilt;
+                cpp_with.Statistics.RobotsDestroyed = Robot::RobotBattleStatistics.RobotsDestroyed;
+                cpp_with.Statistics.TurretsBuilt = Robot::RobotBattleStatistics.TurretsBuilt;
+                cpp_with.Statistics.TurretsDestroyed = Robot::RobotBattleStatistics.TurretsDestroyed;
+                cpp_with.Statistics.BuildingsDestroyed = Robot::RobotBattleStatistics.BuildingsDestroyed;
                 cpp_with.ResultCode = 1;
                 cpp_with.CompletionMode = PlanetBattleState;
                 cpp_with.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -523,12 +523,12 @@ namespace fStarMap {
             {
                 aPlayer::TPlanetBattleHistoryEntry& cpp_with_2 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                 cpp_with_2.MapId = PlanetBattleMapId;
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 0 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[0]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 1 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[1]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 2 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[2]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 3 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[3]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 4 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[4]);
-                pas::store_unaligned<std::int32_t>(pas::byte_offset(&cpp_with_2.Statistics, 5 * sizeof(std::int32_t)), Robot::RobotBattleStatistics[5]);
+                cpp_with_2.Statistics.SignedTimeMs = Robot::RobotBattleStatistics.SignedTimeMs;
+                cpp_with_2.Statistics.RobotsBuilt = Robot::RobotBattleStatistics.RobotsBuilt;
+                cpp_with_2.Statistics.RobotsDestroyed = Robot::RobotBattleStatistics.RobotsDestroyed;
+                cpp_with_2.Statistics.TurretsBuilt = Robot::RobotBattleStatistics.TurretsBuilt;
+                cpp_with_2.Statistics.TurretsDestroyed = Robot::RobotBattleStatistics.TurretsDestroyed;
+                cpp_with_2.Statistics.BuildingsDestroyed = Robot::RobotBattleStatistics.BuildingsDestroyed;
                 cpp_with_2.ResultCode = 1;
                 cpp_with_2.CompletionMode = PlanetBattleState;
                 cpp_with_2.DateTurn = aGalaxy::Galaxy->CurrentTurn;
@@ -536,7 +536,7 @@ namespace fStarMap {
             ++aPlayer::GetPlayer()->PlanetBattles;
             PlanetBattleState = 0;
             Globals::LoadRobotScreen->LoadCompletionData();
-            Globals::LoadRobotScreen->RecordCompletion(PlanetBattleMapId, -Robot::RobotBattleStatistics[0] / 1000, 2);
+            Globals::LoadRobotScreen->RecordCompletion(PlanetBattleMapId, -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 2);
             Globals::LoadRobotScreen->SaveCompletionData();
             Achievements::TryAddAchievementProgress(u"IRONMAN"_w, 1);
             if (aKling::TerronShip != nullptr) {
@@ -573,31 +573,31 @@ namespace fStarMap {
             RequestClose(1);
         } else {
             PlanetBattleState = 0;
-            if (!Globals::ShipScreen->FlagD4) {
+            if (!Globals::ShipScreen->ReopenRequested) {
                 aPlayer::GetPlayer()->CancelInvalidTravelOrder();
             }
             ClearMapAnimations();
-            GetByName(u"FPS"_wref.get())->SetActive(GR_Main::ShowFrameRate);
+            GetByName(u"FPS"sv)->SetActive(GR_Main::ShowFrameRate);
             RefreshScoreModsLabel();
             SetMapCenter(EC_Struct::TruncatePointF(Globals::SpaceViewPosition));
             MainPanel->OnOpen();
             MainPanel->Hide();
-            GetByName(u"PanelSpace"_wref.get())->SetActive(false);
+            GetByName(u"PanelSpace"sv)->SetActive(false);
             UpdateRectsEnabled = true;
             MapControls->Invalidate();
             UpdateRectsEnabled = false;
-            aGalaxy::PlayerStar->OpenSpaceScene(MapControls, GetByName(u"MapPanel"_wref.get()), this);
+            aGalaxy::PlayerStar->OpenSpaceScene(MapControls, GetByName(u"MapPanel"sv), this);
             if (ResumeMode != smrTurnFilm) {
                 aGalaxy::PlayerStar->RefreshSpaceObjectPositions();
             }
             {
-                GI_SpaceImg::TSpaceImgGI* cpp_arg = pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"_wref.get()));
-                GI_StarField::TStarFieldGI* cpp_arg_2 = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"_wref.get()));
+                GI_SpaceImg::TSpaceImgGI* cpp_arg = pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"sv));
+                GI_StarField::TStarFieldGI* cpp_arg_2 = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"sv));
                 TfStarMap::BuildSpaceBackground(cpp_arg_2, cpp_arg, aGalaxy::PlayerStar->GenerationSeed, aGalaxy::PlayerStar->BackgroundImage);
             }
             MapScrollTimer = ScheduleCallbackTimer(GlobalsV::ScrollTime, GlobalsV::ScrollTime, pas::bind_method<&TfStarMap::ScrollMap>(this), 0);
             {
-                GI_StarFieldImg::TStarFieldImgGI* StarFieldImg = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(GetByName(u"StarFieldImg"_wref.get()));
+                GI_StarFieldImg::TStarFieldImgGI* StarFieldImg = pas::checked_cast<GI_StarFieldImg::TStarFieldImgGI*>(GetByName(u"StarFieldImg"sv));
                 StarFieldImg->SetActive(GlobalsV::Wind >= 2);
                 if (StarFieldImg->StarCount <= 0) {
                     StarFieldImg->SeedStars();
@@ -624,8 +624,8 @@ namespace fStarMap {
                 StartOrderMode();
             }
             ResumeMode = smrNormal;
-            GetByName(u"MapPanelA"_wref.get())->SetActive(aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(1));
-            if (Globals::ShipScreen->FlagD4) {
+            GetByName(u"MapPanelA"sv)->SetActive(aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(1));
+            if (Globals::ShipScreen->ReopenRequested) {
                 SetCursorActive(false);
                 MainPanel->RefreshMoneyAndCargo();
                 GR_Main::FullFrameRedrawRequested = true;
@@ -658,7 +658,7 @@ namespace fStarMap {
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(1117);
                 if (EndTurnAfterOpen) {
                     EndTurnAfterOpen = false;
-                    Globals::ShipScreen->FlagD4 = false;
+                    Globals::ShipScreen->ReopenRequested = false;
                     EndTurnClicked(nullptr);
                 }
             }
@@ -711,7 +711,7 @@ namespace fStarMap {
                 Globals::SecondaryFilm->ReleaseWeaponSceneObjects();
             }
             Stage = 9;
-            pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"_wref.get()))->FreeOwnedChildren();
+            pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"sv))->FreeOwnedChildren();
             Stage = 10;
             MainPanel->OnClose();
             Stage = 11;
@@ -867,18 +867,18 @@ namespace fStarMap {
             Text = ([&] {
                 const pas::WideString& cpp_arg_4 = static_cast<pas::WideString>(pas::concat_ansi({"0", SysUtils::IntToStr(BackgroundIndex)}));
                 EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"StyleNebula"_wref.get());
-                return blockByPath->GetParam(cpp_arg_4);
+                return blockByPath->GetParam(pas::view(cpp_arg_4));
             }());
         } else {
             Text = ([&] {
                 const pas::WideString& intToStr = pas::wide_int_to_str(BackgroundIndex);
                 EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(u"StyleNebula"_wref.get());
-                return blockByPath_2->GetParam(intToStr);
+                return blockByPath_2->GetParam(pas::view(intToStr));
             }());
         }
-        Index = aMyFunction::SeededRandomIntRange(0, EC_Str::CountDelimitedPartsW(Text, u","_wref.get()) - 1, Seed);
+        Index = aMyFunction::SeededRandomIntRange(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) - 1, Seed);
         Seed = aMyFunction::StepRandomSeed(Seed);
-        std::int32_t Kind = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Text, Index, u","_wref.get()));
+        std::int32_t Kind = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), Index, u","sv)));
         SpaceImage->ClearImages();
         if (GlobalsV::SpaceImage > 0) {
             for (auto cpp_range_8 = pas::for_to<std::int32_t>(1, Count); cpp_range_8.next(Index); ) {
@@ -935,7 +935,7 @@ namespace fStarMap {
                 Image = SpaceImage->AddImage(aGalaxy::Galaxy->SpaceBackgroundEntries[Index].ImageIndex, aGalaxy::Galaxy->SpaceBackgroundEntries[Index].Position.X, aGalaxy::Galaxy->SpaceBackgroundEntries[Index].Position.Y, aGalaxy::Galaxy->SpaceBackgroundEntries[Index].Position.Z);
                 pas::store_unaligned<EC_Struct::TVector3D>(&Image->OrbitCenter, aGalaxy::Galaxy->SpaceBackgroundEntries[Index].OrbitCenter);
                 Image->OrbitStepDegrees = aGalaxy::Galaxy->SpaceBackgroundEntries[Index].OrbitStepDegrees;
-                Image->Unknown70 = aGalaxy::Galaxy->SpaceBackgroundEntries[Index].ImageIndex;
+                Image->SavedTemplateIndex = aGalaxy::Galaxy->SpaceBackgroundEntries[Index].ImageIndex;
                 Image->FrameIndex = aGalaxy::Galaxy->SpaceBackgroundEntries[Index].FrameIndex;
                 GI_SpaceImg::TSpaceImgGI::UpdateImageOrbitAndFrame(Image);
             }
@@ -959,7 +959,7 @@ namespace fStarMap {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, SpaceImage->ImageCount - 1); cpp_range.next(Index); ) {
             Image = SpaceImage->GetImage(Index);
             if (Image->TemplateIndex >= 100) {
-                aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].ImageIndex = Image->Unknown70;
+                aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].ImageIndex = Image->SavedTemplateIndex;
                 pas::store_unaligned<EC_Struct::TVector3D>(&aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].OrbitCenter, Image->OrbitCenter);
                 pas::store_unaligned<EC_Struct::TVector3D>(&aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].Position, EC_Struct::MakeVector3D(Image->X, Image->Y, Image->Depth));
                 pas::store_unaligned<EC_Struct::TVector3D>(&aGalaxy::Galaxy->SpaceBackgroundEntries[SavedCount].Unknown38, Image->Unknown38);
@@ -972,7 +972,7 @@ namespace fStarMap {
     }
 
     void TfStarMap::SaveSpaceBackground() {
-        TfStarMap::SaveSpaceImageState(pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"_wref.get())));
+        TfStarMap::SaveSpaceImageState(pas::checked_cast<GI_SpaceImg::TSpaceImgGI*>(GetByName(u"SpaceImg"sv)));
     }
 
     void TfStarMap::DeferredEndTurn(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
@@ -987,7 +987,7 @@ namespace fStarMap {
         std::uint32_t WaitResult{};
         pas::Array<WindowsImports::THandle, 0, 1> Events{};
         void* EventList{};
-        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1)) {
+        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->ReopenRequested ^ 1)) {
             if (Globals::TrailingFilmEffects != nullptr) {
                 Globals::TrailingFilmEffects->RemoveLinkedWeaponEffects();
             }
@@ -1032,7 +1032,7 @@ namespace fStarMap {
                         RunTalkDialogs();
                         WaitForTurnOrTalk();
                     }
-                    pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"_wref.get()))->SetHovered(false);
+                    pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"sv))->SetHovered(false);
                     GR_Main::PostMouseMoveMessage();
                 }
             }
@@ -1040,7 +1040,7 @@ namespace fStarMap {
     }
 
     void TfStarMap::MapKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
-        if (MainPanel->NavigationLocked || Globals::ShipScreen->FlagD4) {
+        if (MainPanel->NavigationLocked || Globals::ShipScreen->ReopenRequested) {
             return;
         }
         if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && Key == WindowsSdk::VK_ADD) {
@@ -1144,11 +1144,11 @@ namespace fStarMap {
                     CenterOnDominator(2);
                 }
             } else if (Mode == smmOrders && Key == WindowsSdk::VK_SPACE) {
-                if (GetByName(u"PM_EndTurn"_wref.get())->Active) {
+                if (GetByName(u"PM_EndTurn"sv)->Active) {
                     EndTurnClicked(nullptr);
                 }
             } else if (Mode == smmTurnFilm && Key == WindowsSdk::VK_SPACE) {
-                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"_wref.get()))->Disabled) {
+                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"sv))->Disabled) {
                     BreakTurnClicked(nullptr);
                 }
             }
@@ -1184,7 +1184,7 @@ namespace fStarMap {
     void TfStarMap::RefreshScoreModsLabel() {
         pas::WideString Text{};
         {
-            GI_Label::TLabelGI* Mods = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Mods"_wref.get()));
+            GI_Label::TLabelGI* Mods = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Mods"sv));
             if (aGalaxy::Galaxy->HasVisibleScoreModFlags()) {
                 Text = EC_Str::DecodeTextW(aGalaxy::Galaxy->FinalizationNameEncoded);
                 if (Text.length() == 0 && GR_Main::CCInterface->GetEditableStateApplied()) {
@@ -1329,8 +1329,8 @@ namespace fStarMap {
                 Ship->BuildPlanetLandingPath();
                 LandingTurns = Ship->GetMovementPathTurnCount();
                 Ship->BuildFullPathTo(EC_Struct::AddPointsF(pas::checked_cast<aPlanet::TPlanet*>(Ship->OrderTarget)->GetPosition(), Ship->OrderDestination));
-            } else if (pas::class_cast_if<aShip::TShip*>(Ship->OrderTarget) != nullptr) {
-                Ship->BuildFullPathTo(EC_Struct::AddPointsF(pas::checked_cast<aShip::TShip*>(Ship->OrderTarget)->Position, Ship->OrderDestination));
+            } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Ship->OrderTarget)) {
+                Ship->BuildFullPathTo(EC_Struct::AddPointsF(ship->Position, Ship->OrderDestination));
             } else {
                 Ship->BuildFullPathTo(EC_Struct::AddPointsF(pas::checked_cast<aPlanet::TPlanet*>(Ship->OrderTarget)->GetPosition(), Ship->OrderDestination));
             }
@@ -1353,9 +1353,9 @@ namespace fStarMap {
         }
         if (Ship->MovementPath->ActiveHead != nullptr) {
             if (Ship == aPlayer::GetPlayer()) {
-                PathImages = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"PlayerPath"_wref.get()));
+                PathImages = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"PlayerPath"sv));
             } else {
-                PathImages = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"_wref.get()));
+                PathImages = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"sv));
             }
             if (pas::list_count(PathImages->Images) < 1) {
                 PathImages->AddImage(u"Bm.PI.Path1"_w);
@@ -1403,8 +1403,8 @@ namespace fStarMap {
                 Node = LastNode->Next;
             }
             if (Ship->Order == aShip::soLand && !(Ship == aPlayer::GetPlayer() && aRanger::PendingPlayerFollowTarget != nullptr)) {
-                if (pas::class_cast_if<aShip::TShip*>(Ship->OrderTarget) != nullptr) {
-                    EndPosition = EC_Struct::TruncatePointF(EC_Struct::AddPointsF(pas::checked_cast<aShip::TShip*>(Ship->OrderTarget)->Position, Ship->OrderDestination));
+                if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Ship->OrderTarget)) {
+                    EndPosition = EC_Struct::TruncatePointF(EC_Struct::AddPointsF(ship_2->Position, Ship->OrderDestination));
                 } else {
                     EndPosition = EC_Struct::TruncatePointF(EC_Struct::AddPointsF(pas::checked_cast<aPlanet::TPlanet*>(Ship->OrderTarget)->GetPosition(), Ship->OrderDestination));
                 }
@@ -1416,7 +1416,7 @@ namespace fStarMap {
                 if (aRanger::PendingPlayerFollowTarget != nullptr && Ship == aPlayer::GetPlayer()) {
                     EndImage->SetImagePath(u"Bm.PI.PathEndAutoBattle"_wref.get());
                 } else if (Ship->Order == aShip::soFollowShip) {
-                    if (pas::class_cast_if<aKling::TKling*>(Ship) != nullptr && pas::checked_cast<aKling::TKling*>(Ship)->ShouldKamikaze()) {
+                    if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && kling->ShouldKamikaze()) {
                         EndImage->SetImagePath(u"Bm.PI.PathEndKamikaze"_wref.get());
                     } else if (Ship->GetFollowMode() == 3) {
                         EndImage->SetImagePath(u"Bm.PI.PathEndKamikaze"_wref.get());
@@ -1551,10 +1551,10 @@ namespace fStarMap {
             }
         }
         if (PlayerPath) {
-            GI_MultiImage::TMultiImageGI* PlayerPath_2 = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"PlayerPath"_wref.get()));
+            GI_MultiImage::TMultiImageGI* PlayerPath_2 = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"PlayerPath"sv));
             PlayerPath_2->ClearUnits();
         } else {
-            GI_MultiImage::TMultiImageGI* ShipPath = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"_wref.get()));
+            GI_MultiImage::TMultiImageGI* ShipPath = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"sv));
             ShipPath->ClearUnits();
         }
         if (MinimapPathKind == smpShip) {
@@ -1674,23 +1674,23 @@ namespace fStarMap {
                         GI_GraphButton::TGraphButtonGI* cpp_with = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, SecondaryPartnerPanel);
                         cpp_with->SetKind(GI_GraphButton::gbkDisable);
                         Portrait = pas::WideString();
-                        if (Ship->Graphic != nullptr && pas::class_cast_if<SE_Ship2::TShip2SE*>(Ship->Graphic) != nullptr && reinterpret_cast<SE_Ship2::TShip2SE*>(Ship->Graphic)->PanelPartnerImage != u"") {
-                            Portrait = reinterpret_cast<SE_Ship2::TShip2SE*>(Ship->Graphic)->PanelPartnerImage;
-                        } else if (Ship->Graphic != nullptr && pas::class_cast_if<SE_Ruins::TRuinsSE*>(Ship->Graphic) != nullptr && reinterpret_cast<SE_Ruins::TRuinsSE*>(Ship->Graphic)->PanelPartnerImage != u"") {
-                            Portrait = reinterpret_cast<SE_Ruins::TRuinsSE*>(Ship->Graphic)->PanelPartnerImage;
+                        if (Ship->Graphic != nullptr && pas::class_cast_if<SE_Ship2::TShip2SE*>(Ship->Graphic) != nullptr && static_cast<SE_Ship2::TShip2SE*>(Ship->Graphic)->PanelPartnerImage != u"") {
+                            Portrait = static_cast<SE_Ship2::TShip2SE*>(Ship->Graphic)->PanelPartnerImage;
+                        } else if (Ship->Graphic != nullptr && pas::class_cast_if<SE_Ruins::TRuinsSE*>(Ship->Graphic) != nullptr && static_cast<SE_Ruins::TRuinsSE*>(Ship->Graphic)->PanelPartnerImage != u"") {
+                            Portrait = static_cast<SE_Ruins::TRuinsSE*>(Ship->Graphic)->PanelPartnerImage;
                         } else if (Ship->IsFemaleHumanPilot() && Ship->TypeId == aGalaxyStruct::stRanger && Ship->GetHull()->HullType == aGalaxyStruct::htSpecial && Ship->GetHull()->GetSpecialKindGraph() == u"J") {
                             Portrait = u"Female"_w;
                         } else if (Ship->TypeId == aGalaxyStruct::stRanger && Ship->UsesVeteranHumanRangerAppearance()) {
                             Portrait = u"PeopleO"_w;
-                        } else if (pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr) {
+                        } else if (aPirate::TPirate* pirate = pas::class_cast_if<aPirate::TPirate*>(Ship)) {
                             Portrait = pas::concat_wide({Portrait, u"P"});
-                            if (Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
-                                Portrait = pas::concat_wide({aConst::OwnerInfo[aConst::RaceToOwner(Ship->PilotRace) & 0x0000007f].InternalName, Portrait, u"C"});
+                            if (Ship->OwnerId == aGalaxyStruct::oiPirate && pirate->PirateType != 0) {
+                                Portrait = pas::concat_wide({aConst::OwnerInfo[aConst::RaceToOwner(Ship->PilotRace)].InternalName, Portrait, u"C"});
                             } else {
-                                Portrait = pas::concat_wide({aConst::OwnerInfo[aConst::RaceToOwner(Ship->PilotRace) & 0x0000007f].InternalName, Portrait});
+                                Portrait = pas::concat_wide({aConst::OwnerInfo[aConst::RaceToOwner(Ship->PilotRace)].InternalName, Portrait});
                             }
                         } else {
-                            Portrait = aConst::OwnerInfo[aConst::RaceToOwner(Ship->PilotRace) & 0x0000007f].InternalName;
+                            Portrait = aConst::OwnerInfo[aConst::RaceToOwner(Ship->PilotRace)].InternalName;
                         }
                         cpp_with->SetImageNormalPath(pas::concat_wide({u"GI,Bm.PanelSpace2.", GR_Main::GiResourceSuffix(), Portrait, u"N"}));
                         cpp_with->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.PanelSpace2.", GR_Main::GiResourceSuffix(), Portrait, u"A"}));
@@ -1721,11 +1721,11 @@ namespace fStarMap {
                         PartnerPanel->SetSize(ClassesImports::Point(std::min<std::int32_t>(GR_Main::GiScalePixelsEx(12, 10) + PlacedCount * GR_Main::GiScalePixels(25) + GR_Main::GiScalePixelsEx(22, 18), PartnerPanel->Parent->ClientSize.X - 10), PartnerPanel->ClientSize.Y));
                         PartnerPanel->SetPosition(ClassesImports::Point(PartnerPanel->Parent->ClientSize.X - PartnerPanel->ClientSize.X, 0));
                         {
-                            GI_MessageLoop::TObjectGI* MapPartnerBG2 = GetByName(u"MapPartnerBG2"_wref.get());
+                            GI_MessageLoop::TObjectGI* MapPartnerBG2 = GetByName(u"MapPartnerBG2"sv);
                             MapPartnerBG2->SetPosition(ClassesImports::Point(PartnerPanel->ClientSize.X - MapPartnerBG2->ClientSize.X, 0));
                         }
                         {
-                            GI_MessageLoop::TObjectGI* MapPartnerDuty = GetByName(u"MapPartnerDuty"_wref.get());
+                            GI_MessageLoop::TObjectGI* MapPartnerDuty = GetByName(u"MapPartnerDuty"sv);
                             MapPartnerDuty->SetPosition(ClassesImports::Point(PartnerPanel->LocalPosition.X - 5, MapPartnerDuty->LocalPosition.Y));
                         }
                     }
@@ -1739,7 +1739,7 @@ namespace fStarMap {
         aEFilm::TEFilmObj* FilmObject{};
         pas::Object* Instance{};
         if (Mode == smmTurnFilm) {
-            FilmObject = Globals::SecondaryFilm->FindObjectById(u"Ship2"_wref.get(), Sender->UserValue);
+            FilmObject = Globals::SecondaryFilm->FindObjectById(u"Ship2"sv, Sender->UserValue);
             if (FilmObject == nullptr || FilmObject->SceneObject == nullptr) {
                 return;
             }
@@ -2127,7 +2127,7 @@ namespace fStarMap {
             Stage = 10;
             DrawQueuedControlRects();
             Stage = 11;
-            if (static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1) && Globals::TalkScreen->Flag128 == 0 && static_cast<std::uint8_t>(Globals::GoodsShopScreen->FlagEC ^ 1)) {
+            if (static_cast<std::uint8_t>(Globals::ShipScreen->ReopenRequested ^ 1) && Globals::TalkScreen->ModalTransition == fTalk::tmtNone && static_cast<std::uint8_t>(Globals::GoodsShopScreen->ReopenRequested ^ 1)) {
                 if (!GR_Main::BeginFramePresentation()) {
                     GlobalsV::RequestedScreenId = GlobalsV::screenNone;
                     GlobalsV::PostLoadScreenId = GlobalsV::FormToId(this);
@@ -2184,18 +2184,18 @@ namespace fStarMap {
         while (true) {
             if (Trading == 0) {
                 fTalk::RunTalk(this);
-                if (Globals::TalkScreen->Flag128 == 2) {
+                if (Globals::TalkScreen->ModalTransition == fTalk::tmtTrade) {
                     Trading = 1;
                 }
             } else {
                 fGoodsShop2::RunGoodsShop(this);
-                Globals::TalkScreen->Flag12C = true;
-                if (!Globals::GoodsShopScreen->FlagEC) {
+                Globals::TalkScreen->ReturnedFromTrade = true;
+                if (!Globals::GoodsShopScreen->ReopenRequested) {
                     Trading = 0;
                 }
             }
             MainPanel->RefreshMoneyAndCargo();
-            if (Globals::TalkScreen->Flag128 == 0 && static_cast<std::uint8_t>(Globals::GoodsShopScreen->FlagEC ^ 1)) {
+            if (Globals::TalkScreen->ModalTransition == fTalk::tmtNone && static_cast<std::uint8_t>(Globals::GoodsShopScreen->ReopenRequested ^ 1)) {
                 MainPanel->RebuildMessageButtons(false);
             } else if (Trading == 0) {
                 MainPanel->RebuildMessageButtons(false);
@@ -2209,7 +2209,7 @@ namespace fStarMap {
             SetCursorActive(false);
             Present();
             SetCursorActive(true);
-            if (Globals::TalkScreen->Flag128 == 0 && static_cast<std::uint8_t>(Globals::GoodsShopScreen->FlagEC ^ 1)) {
+            if (Globals::TalkScreen->ModalTransition == fTalk::tmtNone && static_cast<std::uint8_t>(Globals::GoodsShopScreen->ReopenRequested ^ 1)) {
                 break;
             }
             SetCursorActive(false);
@@ -2217,7 +2217,7 @@ namespace fStarMap {
             SetCursorActive(true);
         }
         if (Globals::SpaceProcess != nullptr && Globals::SpaceProcess->Space != nullptr) {
-            Globals::SpaceProcess->BindMinimap(GetByName(u"MapPanel"_wref.get()));
+            Globals::SpaceProcess->BindMinimap(GetByName(u"MapPanel"sv));
             if (Mode == smmOrders) {
                 Globals::SpaceProcess->Space->ScrollChangedCallback = pas::bind_method<&TfStarMap::MapScrollChanged>(this);
             } else {
@@ -2230,7 +2230,7 @@ namespace fStarMap {
         }
         RestorePendingSceneObjects();
         ResumeMode = smrNormal;
-        if (GlobalsV::GameEndReason == 4) {
+        if (GlobalsV::GameEndReason == GlobalsV::gerTerronConversion) {
             GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
             GR_DX::ReleaseAllTextureSurfaces();
             RequestClose(1);
@@ -2240,9 +2240,9 @@ namespace fStarMap {
     void TfStarMap::GalaxyClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (aGalaxy::Galaxy->SpecialSimulationMode == 0) {
             MainPanel->NavigationLocked = true;
-            if (!Globals::ShipScreen->FlagD4) {
+            if (!Globals::ShipScreen->ReopenRequested) {
                 HideLargeHelp();
-                GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+                GetByName(u"PM_WinMsg"sv)->SetActive(false);
                 SetCursorActive(false);
                 Present();
                 GR_Main::CaptureScreenBackground(true, 0);
@@ -2258,7 +2258,7 @@ namespace fStarMap {
     void TfStarMap::ShipClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (aGalaxy::Galaxy->SpecialSimulationMode == 0) {
             MainPanel->NavigationLocked = true;
-            if (!Globals::ShipScreen->FlagD4) {
+            if (!Globals::ShipScreen->ReopenRequested) {
                 aGalaxy::Galaxy->CheckIntegrityChecksum(13131);
                 HideLargeHelp();
                 ShowObjectInfo(nullptr);
@@ -2372,9 +2372,9 @@ namespace fStarMap {
             CenterShipMouseLeave(nullptr);
             CenterShipMouseEnter(nullptr);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"_wref.get()))->SetHovered(false);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->SetHovered(false);
         GR_Main::PostMouseMoveMessage();
-        if (GlobalsV::GameEndReason == 4) {
+        if (GlobalsV::GameEndReason == GlobalsV::gerTerronConversion) {
             GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
             GR_DX::ReleaseAllTextureSurfaces();
             RequestClose(1);
@@ -2591,7 +2591,7 @@ namespace fStarMap {
         if (MainPanel->NavigationLocked) {
             return;
         }
-        if (Globals::ShipScreen->FlagD4) {
+        if (Globals::ShipScreen->ReopenRequested) {
             return;
         }
         HideLargeHelp();
@@ -2615,22 +2615,22 @@ namespace fStarMap {
         if (CustomSelectionActive && CursorObject != nullptr && !(pas::class_cast_if<aGalaxy::THole*>(CursorObject) != nullptr)) {
             TargetPosition.X = 0.0f;
             TargetPosition.Y = 0.0f;
-            if (pas::class_cast_if<aShip::TShip*>(CursorObject) != nullptr) {
-                TargetPosition = reinterpret_cast<aShip::TShip*>(CursorObject)->Position;
-            } else if (pas::class_cast_if<aMissile::TMissile*>(CursorObject) != nullptr) {
-                TargetPosition = reinterpret_cast<aMissile::TMissile*>(CursorObject)->Position;
-            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(CursorObject) != nullptr) {
-                TargetPosition = reinterpret_cast<aAsteroid::TAsteroid*>(CursorObject)->Position;
-            } else if (pas::class_cast_if<aItem::TItem*>(CursorObject) != nullptr) {
-                TargetPosition = reinterpret_cast<aItem::TItem*>(CursorObject)->Position;
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(CursorObject) != nullptr) {
-                TargetPosition = reinterpret_cast<aPlanet::TPlanet*>(CursorObject)->GetPosition();
-            } else if (pas::class_cast_if<aGalaxy::THole*>(CursorObject) != nullptr) {
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(CursorObject)) {
+                TargetPosition = ship->Position;
+            } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(CursorObject)) {
+                TargetPosition = missile->Position;
+            } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(CursorObject)) {
+                TargetPosition = asteroid->Position;
+            } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(CursorObject)) {
+                TargetPosition = item->Position;
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(CursorObject)) {
+                TargetPosition = planet->GetPosition();
+            } else if (aGalaxy::THole* hole = pas::class_cast_if<aGalaxy::THole*>(CursorObject)) {
                 // Kept by the native routine despite the outer hole exclusion.
-                if (reinterpret_cast<aGalaxy::THole*>(CursorObject)->Star1 == aGalaxy::PlayerStar) {
-                    TargetPosition = reinterpret_cast<aGalaxy::THole*>(CursorObject)->Position1;
+                if (hole->Star1 == aGalaxy::PlayerStar) {
+                    TargetPosition = hole->Position1;
                 } else {
-                    TargetPosition = reinterpret_cast<aGalaxy::THole*>(CursorObject)->Position2;
+                    TargetPosition = hole->Position2;
                 }
             }
             if (static_cast<long double>(aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, TargetPosition)) > CustomSelectionRadius * CustomSelectionRadius) {
@@ -2702,22 +2702,22 @@ namespace fStarMap {
             return;
         }
         if (CursorObject != nullptr) {
-            if (pas::class_cast_if<aPlanet::TPlanet*>(CursorObject) != nullptr && static_cast<aPlanet::TPlanet*>(CursorObject)->NoLanding) {
+            if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(CursorObject); planet_2 != nullptr && planet_2->NoLanding) {
                 CursorObject = nullptr;
-            } else if (pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr) {
+            } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(CursorObject)) {
                 if (HadWeapons || InterceptorSelectionActive) {
-                    if (!aPlayer::GetPlayer()->CanSelectShipTarget(pas::checked_cast<aRuins::TRuins*>(CursorObject))) {
+                    if (!aPlayer::GetPlayer()->CanSelectShipTarget(ruins)) {
                         CursorObject = nullptr;
                     }
                 }
                 if (static_cast<std::uint8_t>(HadWeapons ^ 1) && static_cast<std::uint8_t>(InterceptorSelectionActive ^ 1)) {
-                    if (!pas::checked_cast<aRuins::TRuins*>(CursorObject)->CheckDockingPermission(aPlayer::GetPlayer(), Response)) {
+                    if (!static_cast<aRuins::TRuins*>(CursorObject)->CheckDockingPermission(aPlayer::GetPlayer(), Response)) {
                         ShowLargeHelp(Response);
                         CursorObject = nullptr;
                     }
                 }
-            } else if (pas::class_cast_if<aGalaxy::THole*>(CursorObject) != nullptr) {
-                if (aPlayer::GetPlayer()->NoJump || pas::checked_cast<aGalaxy::THole*>(CursorObject)->ArcadeMapName == u"NoEntry") {
+            } else if (aGalaxy::THole* hole_2 = pas::class_cast_if<aGalaxy::THole*>(CursorObject)) {
+                if (aPlayer::GetPlayer()->NoJump || hole_2->ArcadeMapName == u"NoEntry") {
                     CursorObject = nullptr;
                 }
             }
@@ -2761,12 +2761,12 @@ namespace fStarMap {
                 }
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum(28);
-        } else if (pas::class_cast_if<aPlanet::TPlanet*>(CursorObject) != nullptr) {
-            Location = pas::checked_cast<aPlanet::TPlanet*>(CursorObject);
+        } else if (aPlanet::TPlanet* planet_3 = pas::class_cast_if<aPlanet::TPlanet*>(CursorObject)) {
+            Location = planet_3;
             ClearPathOverlay(true);
             aGalaxy::Galaxy->CheckIntegrityChecksum(33);
             aRanger::PendingPlayerFollowTarget = nullptr;
-            if (!(aPlayer::GetPlayer()->Order == aShip::soLand && aPlayer::GetPlayer()->OrderTarget == Location || pas::checked_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || aPlayer::GetPlayer()->CurrentStar->Status.CustomFaction != u"" && pas::checked_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited))) {
+            if (!(aPlayer::GetPlayer()->Order == aShip::soLand && aPlayer::GetPlayer()->OrderTarget == Location || pas::checked_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId == aGalaxyStruct::oiDominator || aPlayer::GetPlayer()->CurrentStar->Status.CustomFaction != u"" && static_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId != aGalaxyStruct::oiUninhabited)) {
                 aPlayer::GetPlayer()->OrderLanding(Location, false);
                 aPlayer::GetPlayer()->OrderDestination = EC_Struct::SubtractPointsF(Destination, reinterpret_cast<aPlanet::TPlanet*>(Location)->GetPosition());
                 {
@@ -2780,8 +2780,8 @@ namespace fStarMap {
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum(34);
             BuildShipPathOverlay(aPlayer::GetPlayer(), false, pas::WideString());
-        } else if (pas::class_cast_if<aGalaxy::THole*>(CursorObject) != nullptr) {
-            Hole = pas::checked_cast<aGalaxy::THole*>(CursorObject);
+        } else if (aGalaxy::THole* hole_3 = pas::class_cast_if<aGalaxy::THole*>(CursorObject)) {
+            Hole = hole_3;
             ClearPathOverlay(true);
             aGalaxy::Galaxy->CheckIntegrityChecksum(35);
             aRanger::PendingPlayerFollowTarget = nullptr;
@@ -2832,13 +2832,13 @@ namespace fStarMap {
                 RebuildTargetMarkers();
             } else if (InterceptorSelectionActive && aPlayer::GetPlayer() != CursorObject) {
                 if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position) <= 1.0E+3L && pas::checked_cast<aRuins::TRuins*>(CursorObject)->InterceptorPassesRemaining == 0) {
-                    aPlayer::GetPlayer()->GetHull()->InterceptorTarget = pas::checked_cast<aRuins::TRuins*>(CursorObject);
+                    aPlayer::GetPlayer()->GetHull()->InterceptorTarget = static_cast<aRuins::TRuins*>(CursorObject);
                     {
                         const pas::WideString& lookupLocalizedTextByKey_7 = GR_Main::LookupLocalizedTextByKey(u"Help.InterceptorsSet"_wref.get());
                         TfStarMap* self_8 = this;
                         self_8->ShowLargeHelp(lookupLocalizedTextByKey_7);
                     }
-                } else if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position) > 1.0E+3L) {
+                } else if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, static_cast<aShip::TShip*>(CursorObject)->Position) > 1.0E+3L) {
                     const pas::WideString& lookupLocalizedTextByKey_8 = GR_Main::LookupLocalizedTextByKey(u"Help.InterceptorsOutRange"_wref.get());
                     TfStarMap* self_9 = this;
                     self_9->ShowLargeHelp(lookupLocalizedTextByKey_8);
@@ -2859,14 +2859,14 @@ namespace fStarMap {
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum(38);
             BuildShipPathOverlay(aPlayer::GetPlayer(), false, pas::WideString());
-        } else if (pas::class_cast_if<aShip::TShip*>(CursorObject) != nullptr) {
-            Ship = pas::checked_cast<aShip::TShip*>(CursorObject);
+        } else if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(CursorObject)) {
+            Ship = ship_2;
             if (ScannerSelectionActive) {
                 if (([&] {
                     pas::Extended cpp_left = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
                     return cpp_left <= aPlayer::GetPlayer()->GetRadarRange();
                 }()) && aPlayer::GetPlayer() != CursorObject && (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanScanShip(Ship)) && (aGalaxy::Galaxy->UltraScanModEnabled != 0 || aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || Ship->TypeId == aGalaxyStruct::stTranclucator)) {
-                    if (pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr && static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer()) {
+                    if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Ship); tranclucator != nullptr && tranclucator->OwnerShip == aPlayer::GetPlayer()) {
                         ShipToInspect = Ship;
                         ShipClicked(nullptr);
                     } else {
@@ -2900,7 +2900,7 @@ namespace fStarMap {
                             self_11->ShowLargeHelp(lookupLocalizedTextByKey_10);
                         }
                     } else if (aPlayer::GetPlayer() != CursorObject && !(pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr)) {
-                        if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(CursorObject) ^ 1) && pas::checked_cast<aShip::TShip*>(CursorObject)->TypeId != aGalaxyStruct::stTranclucator) {
+                        if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->CanResolveObjectWithScanner(CursorObject) ^ 1) && static_cast<aShip::TShip*>(CursorObject)->TypeId != aGalaxyStruct::stTranclucator) {
                             ScanUnresolved = false;
                             {
                                 const pas::WideString& lookupLocalizedTextByKey_11 = GR_Main::LookupLocalizedTextByKey(u"Help.ScanPowerLow"_wref.get());
@@ -2912,7 +2912,7 @@ namespace fStarMap {
                 }
             } else if (TalkSelectionActive) {
                 if (([&] {
-                    pas::Extended cpp_left_3 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position);
+                    pas::Extended cpp_left_3 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
                     return cpp_left_3 <= aPlayer::GetPlayer()->GetRadarRange();
                 }()) && aPlayer::GetPlayer() != CursorObject && !(pas::class_cast_if<aKling::TKling*>(CursorObject) != nullptr && static_cast<aKling::TKling*>(CursorObject)->IsProgramActive(aGalaxyStruct::prgDisconnection))) {
                     HideLargeHelp();
@@ -2928,7 +2928,7 @@ namespace fStarMap {
                     aGalaxy::Galaxy->PrimeIntegrityChecksum(40);
                     BuildShipPathOverlay(aPlayer::GetPlayer(), false, pas::WideString());
                 } else {
-                    pas::Extended cpp_left_4 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position);
+                    pas::Extended cpp_left_4 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
                     if (cpp_left_4 > aPlayer::GetPlayer()->GetRadarRange()) {
                         TalkUnresolved = false;
                         {
@@ -2939,14 +2939,14 @@ namespace fStarMap {
                     }
                 }
             } else if (InterceptorSelectionActive && aPlayer::GetPlayer() != CursorObject) {
-                if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position) <= 1.0E+3L && pas::checked_cast<aShip::TShip*>(CursorObject)->InterceptorPassesRemaining == 0) {
-                    aPlayer::GetPlayer()->GetHull()->InterceptorTarget = pas::checked_cast<aShip::TShip*>(CursorObject);
+                if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position) <= 1.0E+3L && Ship->InterceptorPassesRemaining == 0) {
+                    aPlayer::GetPlayer()->GetHull()->InterceptorTarget = Ship;
                     {
                         const pas::WideString& lookupLocalizedTextByKey_13 = GR_Main::LookupLocalizedTextByKey(u"Help.InterceptorsSet"_wref.get());
                         TfStarMap* self_14 = this;
                         self_14->ShowLargeHelp(lookupLocalizedTextByKey_13);
                     }
-                } else if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aShip::TShip*>(CursorObject)->Position) > 1.0E+3L) {
+                } else if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position) > 1.0E+3L) {
                     const pas::WideString& lookupLocalizedTextByKey_14 = GR_Main::LookupLocalizedTextByKey(u"Help.InterceptorsOutRange"_wref.get());
                     TfStarMap* self_15 = this;
                     self_15->ShowLargeHelp(lookupLocalizedTextByKey_14);
@@ -2988,7 +2988,7 @@ namespace fStarMap {
                 aGalaxy::Galaxy->CheckIntegrityChecksum(43);
                 aPlayer::GetPlayer()->OrderNone(false);
                 if (aPlayer::GetPlayer()->CanSelectShipTarget(pas::checked_cast<aShip::TShip*>(CursorObject))) {
-                    aRanger::PendingPlayerFollowTarget = pas::checked_cast<aShip::TShip*>(CursorObject);
+                    aRanger::PendingPlayerFollowTarget = static_cast<aShip::TShip*>(CursorObject);
                 }
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(44);
                 BuildShipPathOverlay(aPlayer::GetPlayer(), false, pas::WideString());
@@ -3107,7 +3107,7 @@ namespace fStarMap {
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(52);
                 BuildShipPathOverlay(aPlayer::GetPlayer(), false, pas::WideString());
             }
-        } else if (pas::class_cast_if<aItem::TItem*>(CursorObject) != nullptr) {
+        } else if (aItem::TItem* item_2 = pas::class_cast_if<aItem::TItem*>(CursorObject)) {
             if (HadWeapons) {
                 Mode = 0;
                 aGalaxy::Galaxy->CheckIntegrityChecksum(53);
@@ -3138,8 +3138,8 @@ namespace fStarMap {
                     self_23->ShowLargeHelp(lookupLocalizedTextByKey_22);
                 }
                 RebuildTargetMarkers();
-            } else if (aItem::CanCargoHookHandleItem(reinterpret_cast<aItem::TItem*>(CursorObject), aPlayer::GetPlayer())) {
-                if (!aPlayer::GetPlayer()->IsRecentlyDroppedItem(reinterpret_cast<aItem::TItem*>(CursorObject))) {
+            } else if (aItem::CanCargoHookHandleItem(item_2, aPlayer::GetPlayer())) {
+                if (!aPlayer::GetPlayer()->IsRecentlyDroppedItem(item_2)) {
                     aGalaxy::Galaxy->CheckIntegrityChecksum(55);
                     if (aPlayer::GetPlayer()->HasPickupTarget(reinterpret_cast<aItem::TItem*>(CursorObject))) {
                         aPlayer::GetPlayer()->RemovePickupTarget(reinterpret_cast<aItem::TItem*>(CursorObject));
@@ -3253,10 +3253,10 @@ namespace fStarMap {
         aGalaxy::THole* Hole{};
         EC_Struct::TPointF Destination{};
         std::int32_t FollowMode{};
-        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1) && static_cast<std::uint8_t>(IsMapPointBlocked(Sender, Point) ^ 1)) {
+        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->ReopenRequested ^ 1) && static_cast<std::uint8_t>(IsMapPointBlocked(Sender, Point) ^ 1)) {
             Destination = EC_Struct::PointToPointF(MapControls->ToLocalPoint(Point));
-            if (pas::class_cast_if<aGalaxy::THole*>(CursorObject) != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->NoJump ^ 1) && static_cast<aGalaxy::THole*>(CursorObject)->ArcadeMapName != u"NoEntry") {
-                Hole = pas::checked_cast<aGalaxy::THole*>(CursorObject);
+            if (aGalaxy::THole* hole = pas::class_cast_if<aGalaxy::THole*>(CursorObject); hole != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->NoJump ^ 1) && hole->ArcadeMapName != u"NoEntry") {
+                Hole = hole;
                 ClearPathOverlay(true);
                 aGalaxy::Galaxy->CheckIntegrityChecksum(61);
                 aRanger::PendingPlayerFollowTarget = nullptr;
@@ -3264,7 +3264,7 @@ namespace fStarMap {
                 aPlayer::GetPlayer()->OrderDestination = Destination;
                 aPlayer::GetPlayer()->BuildOrderMovementPath(999999);
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(62);
-            } else if (CursorObject != nullptr && (pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && pas::checked_cast<aRuins::TRuins*>(CursorObject)->virtual_TShip_CanDock(aPlayer::GetPlayer()) || CursorObject == aKling::TerronShip && aGalaxy::Galaxy->TerronLandingLockTurn > 0)) {
+            } else if (CursorObject != nullptr && (pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && static_cast<aRuins::TRuins*>(CursorObject)->virtual_TShip_CanDock(aPlayer::GetPlayer()) || CursorObject == aKling::TerronShip && aGalaxy::Galaxy->TerronLandingLockTurn > 0)) {
                 Ship = pas::checked_cast<aShip::TShip*>(CursorObject);
                 ClearPathOverlay(true);
                 aGalaxy::Galaxy->CheckIntegrityChecksum(63);
@@ -3324,11 +3324,11 @@ namespace fStarMap {
                 }
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(66);
             } else if (CursorObject != nullptr && pas::class_cast_if<aPlanet::TPlanet*>(CursorObject) != nullptr && static_cast<std::uint8_t>(static_cast<aPlanet::TPlanet*>(CursorObject)->NoLanding ^ 1)) {
-                Planet = pas::checked_cast<aPlanet::TPlanet*>(CursorObject);
+                Planet = static_cast<aPlanet::TPlanet*>(CursorObject);
                 ClearPathOverlay(true);
                 aGalaxy::Galaxy->CheckIntegrityChecksum(67);
                 aRanger::PendingPlayerFollowTarget = nullptr;
-                if (pas::checked_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && (aPlayer::GetPlayer()->CurrentStar->Status.CustomFaction == u"" || pas::checked_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited))) {
+                if (pas::checked_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId != aGalaxyStruct::oiDominator && (aPlayer::GetPlayer()->CurrentStar->Status.CustomFaction == u"" || static_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId == aGalaxyStruct::oiUninhabited)) {
                     aPlayer::GetPlayer()->OrderLanding(Planet, false);
                     aPlayer::GetPlayer()->OrderDestination = EC_Struct::SubtractPointsF(Destination, Planet->GetPosition());
                 } else {
@@ -3337,14 +3337,14 @@ namespace fStarMap {
                 }
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(68);
             } else if (CursorObject != nullptr && pas::class_cast_if<aItem::TItem*>(CursorObject) != nullptr) {
-                Vector.X = static_cast<long double>(aPlayer::GetPlayer()->Position.X) - reinterpret_cast<aItem::TItem*>(CursorObject)->Position.X;
-                Vector.Y = static_cast<long double>(aPlayer::GetPlayer()->Position.Y) - reinterpret_cast<aItem::TItem*>(CursorObject)->Position.Y;
+                Vector.X = static_cast<long double>(aPlayer::GetPlayer()->Position.X) - static_cast<aItem::TItem*>(CursorObject)->Position.X;
+                Vector.Y = static_cast<long double>(aPlayer::GetPlayer()->Position.Y) - static_cast<aItem::TItem*>(CursorObject)->Position.Y;
                 {
                     pas::Extended cpp_left = pas::real_divide(aPlayer::GetPlayer()->GetCargoHookRange(), 4.0L);
                     Scale = cpp_left * pas::real_divide(1.0L, System::Sqrt(static_cast<long double>(Vector.X) * Vector.X + static_cast<long double>(Vector.Y) * Vector.Y));
                 }
-                Vector.X = System::Round(reinterpret_cast<aItem::TItem*>(CursorObject)->Position.X + static_cast<long double>(Scale) * Vector.X);
-                Vector.Y = System::Round(reinterpret_cast<aItem::TItem*>(CursorObject)->Position.Y + static_cast<long double>(Scale) * Vector.Y);
+                Vector.X = System::Round(static_cast<aItem::TItem*>(CursorObject)->Position.X + static_cast<long double>(Scale) * Vector.X);
+                Vector.Y = System::Round(static_cast<aItem::TItem*>(CursorObject)->Position.Y + static_cast<long double>(Scale) * Vector.Y);
                 aGalaxy::Galaxy->CheckIntegrityChecksum(69);
                 aRanger::PendingPlayerFollowTarget = nullptr;
                 aPlayer::GetPlayer()->OrderMove(Vector, false);
@@ -3375,7 +3375,7 @@ namespace fStarMap {
         std::int32_t Index{};
         std::int32_t FollowMode{};
         aShip::TShip* Ship{};
-        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1)) {
+        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->ReopenRequested ^ 1)) {
             HideLargeHelp();
             ScannerSelectionActive = false;
             TalkSelectionActive = false;
@@ -3388,11 +3388,11 @@ namespace fStarMap {
             if (CursorObject == aPlayer::GetPlayer()) {
                 ShipToInspect = aPlayer::GetPlayer();
                 ShipClicked(nullptr);
-            } else if (pas::class_cast_if<aTranclucator::TTranclucator*>(CursorObject) != nullptr && static_cast<aTranclucator::TTranclucator*>(CursorObject)->OwnerShip == aPlayer::GetPlayer()) {
-                ShipToInspect = pas::checked_cast<aShip::TShip*>(CursorObject);
+            } else if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(CursorObject); tranclucator != nullptr && tranclucator->OwnerShip == aPlayer::GetPlayer()) {
+                ShipToInspect = static_cast<aShip::TShip*>(tranclucator);
                 ShipClicked(nullptr);
-            } else if (pas::class_cast_if<aShip::TShip*>(CursorObject) != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr)) {
-                Ship = pas::checked_cast<aShip::TShip*>(CursorObject);
+            } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(CursorObject); ship != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr)) {
+                Ship = ship;
                 if (Ship != aPlayer::GetPlayer() && static_cast<std::uint8_t>(ScannerSelectionActive ^ 1) && static_cast<std::uint8_t>(TalkSelectionActive ^ 1)) {
                     if (GlobalsV::RightClickOnShip == 0 && (aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetScanner()) && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetRadar()) || aGalaxy::Galaxy->UltraScanModEnabled == 1)) {
                         if (([&] {
@@ -3533,11 +3533,11 @@ namespace fStarMap {
                         BuildShipPathOverlay(aPlayer::GetPlayer(), false, pas::WideString());
                     }
                 }
-            } else if (pas::class_cast_if<aPlanet::TPlanet*>(CursorObject) != nullptr && pas::in_set<0, 4, 7, 7>(static_cast<aPlanet::TPlanet*>(CursorObject)->OwnerId) && static_cast<aPlanet::TPlanet*>(CursorObject)->CurrentStar->Status.CustomFaction == u"" && ([&] {
-                pas::Extended cpp_left_5 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, static_cast<aPlanet::TPlanet*>(CursorObject)->GetPosition());
+            } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(CursorObject); planet != nullptr && pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(planet->OwnerId) && planet->CurrentStar->Status.CustomFaction == u"" && ([&] {
+                pas::Extended cpp_left_5 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, planet->GetPosition());
                 return cpp_left_5 <= aPlayer::GetPlayer()->GetRadarRange();
-            }()) || pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && pas::checked_cast<aRuins::TRuins*>(CursorObject)->virtual_TShip_CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(pas::checked_cast<aRuins::TRuins*>(CursorObject)->NoTalk ^ 1) && ([&] {
-                pas::Extended cpp_left_6 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, pas::checked_cast<aRuins::TRuins*>(CursorObject)->Position);
+            }()) || pas::class_cast_if<aRuins::TRuins*>(CursorObject) != nullptr && static_cast<aRuins::TRuins*>(CursorObject)->virtual_TShip_CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(pas::checked_cast<aRuins::TRuins*>(CursorObject)->NoTalk ^ 1) && ([&] {
+                pas::Extended cpp_left_6 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, static_cast<aRuins::TRuins*>(CursorObject)->Position);
                 return cpp_left_6 <= aPlayer::GetPlayer()->GetRadarRange();
             }())) {
                 {
@@ -3556,7 +3556,7 @@ namespace fStarMap {
     }
 
     void TfStarMap::MapMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1)) {
+        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->ReopenRequested ^ 1)) {
             RefreshActionRanges();
             if (TypesImports::PtInRect(GR_Main::ScrollInteriorRect, Point)) {
                 UpdateActionCursor(false);
@@ -3565,13 +3565,13 @@ namespace fStarMap {
                 if ((KeyState & WindowsSdk::MK_RBUTTON) == WindowsSdk::MK_RBUTTON) {
                     ShowObjectInfo(FindObjectAtCursor());
                 } else if (!TypesImports::PtInRect(GR_Main::ScrollInteriorRect, Point)) {
-                    if (!IsCursorImageSelected(u"Scroll"_wref.get())) {
+                    if (!IsCursorImageSelected(u"Scroll"sv)) {
                         SetCursorByName(u"Scroll"_wref.get());
                     }
                     ShowObjectInfo(nullptr);
                 } else if (static_cast<std::uint8_t>(ScrollLeftHeld ^ 1) && static_cast<std::uint8_t>(ScrollRightHeld ^ 1) && static_cast<std::uint8_t>(ScrollUpHeld ^ 1) && static_cast<std::uint8_t>(ScrollDownHeld ^ 1)) {
                     ShowObjectInfo(FindObjectAtCursor());
-                } else if (!IsCursorImageSelected(u"Main"_wref.get())) {
+                } else if (!IsCursorImageSelected(u"Main"sv)) {
                     SetCursorByName(u"Main"_wref.get());
                 }
             }
@@ -3583,7 +3583,7 @@ namespace fStarMap {
         aItem::TWeapon* Weapon{};
         std::uint8_t CanAfterburn{};
         aScript::TScriptShip* Binding{};
-        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
+        if (static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->ReopenRequested ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
             DisplayedObject = nullptr;
             if (Key == 'I') {
                 ScannerClicked(nullptr);
@@ -3597,7 +3597,7 @@ namespace fStarMap {
                 InterceptorSelectionActive = false;
                 CustomSelectionActive = false;
                 Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
-                if (static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1) || pas::in_range(static_cast<std::uint8_t>(Weapon->GetWeaponInfo()->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
+                if (static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1) || pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && Weapon->Ammo <= 0) {
                     SelectedWeapons[Index] = false;
                 } else {
                     Weapon->Target = nullptr;
@@ -3723,7 +3723,7 @@ namespace fStarMap {
 
     void TfStarMap::OrderKeyUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
         // The native body retains these guard reads despite having no guarded action.
-        static_cast<void>(static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->FlagD4 ^ 1));
+        static_cast<void>(static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(Globals::ShipScreen->ReopenRequested ^ 1));
     }
 
     void TfStarMap::SelectAllUsableWeapons() {
@@ -3769,7 +3769,7 @@ namespace fStarMap {
         std::int32_t DetailWidth{};
         std::int32_t StatusCount{};
         float Distance{};
-        std::uint8_t OwnerId{};
+        aGalaxyStruct::TOwnerId OwnerId{};
         pas::WideString ImagePath{};
         pas::WideString Text{};
         pas::WideString ColorTag{};
@@ -3794,13 +3794,13 @@ namespace fStarMap {
             HitObjectPosition = ClassesImports::Point(cpp_arg_2, cpp_arg);
         }
         if (Obj != nullptr && pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-            ShowAsteroidPath(pas::checked_cast<aAsteroid::TAsteroid*>(Obj));
+            ShowAsteroidPath(static_cast<aAsteroid::TAsteroid*>(Obj));
         } else {
             ClearAsteroidPath();
         }
         if (Obj == nullptr || DisplayedObject != Obj) {
             if (Obj != nullptr && pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                reinterpret_cast<aShip::TShip*>(Obj)->ScriptItemsAct(aConst::satOnShowingShipInfo, nullptr, nullptr, 0);
+                static_cast<aShip::TShip*>(Obj)->ScriptItemsAct(aConst::satOnShowingShipInfo, nullptr, nullptr, 0);
             }
             if (Obj != nullptr && pas::class_cast_if<aGalaxy::TStar*>(Obj) != nullptr && aPlayer::GetPlayer() != nullptr) {
                 aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnShowingStarInfo, Obj, nullptr, 0);
@@ -3816,16 +3816,16 @@ namespace fStarMap {
                 ClearPathOverlay(false);
                 DisplayedObject = nullptr;
             } else if (aPlayer::GetPlayer() == nullptr || pas::class_cast_if<aItem::TItem*>(Obj) != nullptr && ([&] {
-                pas::Extended cpp_left_3 = aMyFunction::PointDistance(reinterpret_cast<aItem::TItem*>(Obj)->Position, aPlayer::GetPlayer()->Position);
+                pas::Extended cpp_left_3 = aMyFunction::PointDistance(static_cast<aItem::TItem*>(Obj)->Position, aPlayer::GetPlayer()->Position);
                 return cpp_left_3 > aPlayer::GetPlayer()->GetRadarRange();
-            }()) || pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && (aPlayer::GetPlayer()->CurrentStar != reinterpret_cast<aShip::TShip*>(Obj)->CurrentStar || reinterpret_cast<aShip::TShip*>(Obj)->InHyperspace && Obj != aKling::TerronShip || ([&] {
-                pas::Extended cpp_left_4 = aMyFunction::PointDistance(reinterpret_cast<aShip::TShip*>(Obj)->Position, aPlayer::GetPlayer()->Position);
+            }()) || pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && (aPlayer::GetPlayer()->CurrentStar != static_cast<aShip::TShip*>(Obj)->CurrentStar || static_cast<aShip::TShip*>(Obj)->InHyperspace && Obj != aKling::TerronShip || ([&] {
+                pas::Extended cpp_left_4 = aMyFunction::PointDistance(static_cast<aShip::TShip*>(Obj)->Position, aPlayer::GetPlayer()->Position);
                 return cpp_left_4 > aPlayer::GetPlayer()->GetRadarRange();
             }())) || pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr && ([&] {
-                pas::Extended cpp_left_5 = aMyFunction::PointDistance(reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->Position, aPlayer::GetPlayer()->Position);
+                pas::Extended cpp_left_5 = aMyFunction::PointDistance(static_cast<aAsteroid::TAsteroid*>(Obj)->Position, aPlayer::GetPlayer()->Position);
                 return cpp_left_5 > aPlayer::GetPlayer()->GetRadarRange();
             }()) || pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr && ([&] {
-                pas::Extended cpp_left_6 = aMyFunction::PointDistance(reinterpret_cast<aMissile::TMissile*>(Obj)->Position, aPlayer::GetPlayer()->Position);
+                pas::Extended cpp_left_6 = aMyFunction::PointDistance(static_cast<aMissile::TMissile*>(Obj)->Position, aPlayer::GetPlayer()->Position);
                 return cpp_left_6 > aPlayer::GetPlayer()->GetRadarRange();
             }()) || pas::class_cast_if<aGalaxy::THole*>(Obj) != nullptr || pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
                 InfoWindow->SetActive(false);
@@ -3834,9 +3834,9 @@ namespace fStarMap {
                 PlanetInfoPanel->SetActive(false);
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(true);
-                if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
+                if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
                     if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
-                        ItemObject = pas::checked_cast<aItem::TItem*>(Obj);
+                        ItemObject = item;
                         if (ItemObject->ScriptItem != nullptr) {
                             reinterpret_cast<aScript::TScriptItem*>(ItemObject->ScriptItem)->RunActionCode(aConst::satOnShowingItemInfo, nullptr, aGalaxy::PlayerStar, nullptr, 0);
                         }
@@ -3844,12 +3844,12 @@ namespace fStarMap {
                             aScript::RunItemConfigActionCode(ItemObject, aConst::satOnShowingItemInfo, nullptr, aGalaxy::PlayerStar, nullptr, 0);
                         }
                     }
-                    GetByName(u"InfoStdGB"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdGB"sv)->SetActive(false);
                     {
-                        GI_Image::TImageGI* InfoStdImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoStdImage"_wref.get()));
+                        GI_Image::TImageGI* InfoStdImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoStdImage"sv));
                         InfoStdImage->SetActive(true);
-                        if (pas::class_cast_if<aItem::TGoods*>(Obj) != nullptr) {
-                            InfoStdImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(reinterpret_cast<aItem::TItem*>(Obj)->ItemType)}));
+                        if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Obj)) {
+                            InfoStdImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aItem::TItem*>(goods)->ItemType)}));
                         } else {
                             InfoStdImage->SetImagePath(pas::concat_wide({u"GI,", reinterpret_cast<aItem::TItem*>(Obj)->GetBitmapResourceName(), u"s"}));
                         }
@@ -3861,15 +3861,15 @@ namespace fStarMap {
                             InfoStdImage->SetPosition(EC_Struct::SubtractPoints(itemImageCenter, visualCenter));
                         }
                     }
-                    if (pas::class_cast_if<aItem::TGoods*>(Obj) != nullptr) {
+                    if (aItem::TGoods* goods_2 = pas::class_cast_if<aItem::TGoods*>(Obj)) {
                         {
-                            const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(aConst::GoodsMarket[reinterpret_cast<aItem::TItem*>(Obj)->ItemType].DisplayName, aMyFunction::InfoNameColorTag);
-                            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                            const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[static_cast<aItem::TItem*>(goods_2)->ItemType].DisplayName), pas::view(aMyFunction::InfoNameColorTag));
+                            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             cpp_arg_3->SetText(wrapTextInColor);
                         }
                         {
                             const pas::WideString& localizedText = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text.", SysUtils::IntToStr(reinterpret_cast<aItem::TItem*>(Obj)->ItemType + 1)})));
-                            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                             cpp_arg_4->SetText(localizedText);
                         }
                     } else {
@@ -3877,35 +3877,35 @@ namespace fStarMap {
                             const pas::WideString& wrapTextInColor_2 = ([&] {
                                 pas::WideString localizedText_2 = aConst::LocalizedText(u"FormInfo.ContainerName"_wref.get());
                                 pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                                return aMyFunction::WrapTextInColor(std::move(localizedText_2), std::move(infoNameColorTag));
+                                return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText_2)), pas::view(std::move(infoNameColorTag)));
                             }());
-                            GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             cpp_arg_5->SetText(wrapTextInColor_2);
                         }
                         {
                             const pas::WideString& localizedText_3 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                            GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                             cpp_arg_6->SetText(localizedText_3);
                         }
                     }
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"_wref.get()))->SetText(u"???"_wref.get());
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"_wref.get()))->SetText(u"???"_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"sv))->SetText(u"???"_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"sv))->SetText(u"???"_wref.get());
                     {
-                        GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_9 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_9, cpp_arg_8, cpp_arg_7, true, true, 0);
                     }
-                } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    if (pas::class_cast_if<SE_Ship2::TShip2SE*>(pas::checked_cast<aShip::TShip*>(Obj)->Graphic) != nullptr) {
-                        GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    if (pas::class_cast_if<SE_Ship2::TShip2SE*>(ship->Graphic) != nullptr) {
+                        GetByName(u"InfoStdImage"sv)->SetActive(false);
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoStdGB = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoStdGB = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                             ImagePath = pas::checked_cast<aShip::TShip*>(Obj)->GetShipPortraitImagePath();
                             InfoStdGB->SetActive(ImagePath != u"");
                             if (InfoStdGB->Active) {
                                 InfoStdGB->SourceHasPerPixelAlpha = true;
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(ImagePath, 1, u","_wref.get()), InfoStdGB->GraphBuf);
+                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv), InfoStdGB->GraphBuf);
                                 if (InfoStdGB->ClientSize.X < InfoStdGB->GraphBuf->Width || InfoStdGB->ClientSize.Y < InfoStdGB->GraphBuf->Height) {
                                     if (static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Height)) {
                                         InfoStdGB->GraphBuf->RescaleRgba(InfoStdGB->ClientSize.X, System::Round(pas::real_divide(InfoStdGB->ClientSize.X, static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Height)), 5);
@@ -3923,12 +3923,12 @@ namespace fStarMap {
                             }
                         }
                     } else {
-                        GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                        GetByName(u"InfoStdImage"sv)->SetActive(false);
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoStdGB_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoStdGB_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                             InfoStdGB_2->SetActive(true);
                             InfoStdGB_2->SourceHasPerPixelAlpha = true;
-                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<aShip::TShip*>(Obj)->Graphic)->StaticImagePath, 1, u","_wref.get()), InfoStdGB_2->GraphBuf);
+                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<aShip::TShip*>(Obj)->Graphic)->StaticImagePath), 1, u","sv), InfoStdGB_2->GraphBuf);
                             if (InfoStdGB_2->ClientSize.X < InfoStdGB_2->GraphBuf->Width || InfoStdGB_2->ClientSize.Y < InfoStdGB_2->GraphBuf->Height) {
                                 if (static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Height)) {
                                     InfoStdGB_2->GraphBuf->RescaleRgba(InfoStdGB_2->ClientSize.X, System::Round(pas::real_divide(InfoStdGB_2->ClientSize.X, static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Height)), 5);
@@ -3947,33 +3947,33 @@ namespace fStarMap {
                         const pas::WideString& wrapTextInColor_3 = ([&] {
                             pas::WideString fullName = pas::checked_cast<aShip::TShip*>(Obj)->GetFullName(u" "_wref.get());
                             pas::WideString infoNameColorTag_2 = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(fullName), std::move(infoNameColorTag_2));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)), pas::view(std::move(infoNameColorTag_2)));
                         }());
-                        GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         cpp_arg_10->SetText(wrapTextInColor_3);
                     }
-                    if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                        if (pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer()) {
-                            const pas::WideString& cpp_arg_11 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get()), u"<color=255,240,100>"_w)});
-                            GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                        if (ship_2->PartnerShip == aPlayer::GetPlayer()) {
+                            const pas::WideString& cpp_arg_11 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get())), u"<color=255,240,100>"sv)});
+                            GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             cpp_arg_12->SetText(cpp_arg_11);
                         }
                     }
                     {
                         const pas::WideString& localizedText_4 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                        GI_Label::TLabelGI* cpp_arg_13 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_13 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_13->SetText(localizedText_4);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_16 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_16, cpp_arg_15, cpp_arg_14, true, true, 0);
                     }
                 } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                    GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdImage"sv)->SetActive(false);
                     {
-                        GI_GraphBuf::TGraphBufGI* InfoStdGB_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                        GI_GraphBuf::TGraphBufGI* InfoStdGB_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                         InfoStdGB_3->SetActive(true);
                         InfoStdGB_3->SourceHasPerPixelAlpha = true;
                         GI_GAI::LoadGaiFrameToGraphBuf(reinterpret_cast<SE_Asteroid::TAsteroidSE*>(reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->GraphObject)->ImagePath, InfoStdGB_3->GraphBuf, reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->Id);
@@ -3994,26 +3994,26 @@ namespace fStarMap {
                         const pas::WideString& wrapTextInColor_4 = ([&] {
                             pas::WideString displayName = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->GetDisplayName();
                             pas::WideString infoNameColorTag_3 = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(displayName), std::move(infoNameColorTag_3));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag_3)));
                         }());
-                        GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         cpp_arg_17->SetText(wrapTextInColor_4);
                     }
                     {
                         const pas::WideString& localizedText_5 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                        GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_18->SetText(localizedText_5);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_19 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_20 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_19 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_20 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_21 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_21, cpp_arg_20, cpp_arg_19, true, true, 0);
                     }
                 } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                    GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdImage"sv)->SetActive(false);
                     {
-                        GI_GraphBuf::TGraphBufGI* InfoStdGB_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                        GI_GraphBuf::TGraphBufGI* InfoStdGB_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                         InfoStdGB_4->SetActive(true);
                         InfoStdGB_4->SourceHasPerPixelAlpha = true;
                         GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.Missile.w", pas::checked_cast<aMissile::TMissile*>(Obj)->GetGraphSuffix(), u"_", GR_Main::GiResourceSuffix(), u"i"}), InfoStdGB_4->GraphBuf);
@@ -4027,26 +4027,26 @@ namespace fStarMap {
                         const pas::WideString& wrapTextInColor_5 = ([&] {
                             pas::WideString displayName_2 = pas::checked_cast<aMissile::TMissile*>(Obj)->GetDisplayName();
                             pas::WideString infoNameColorTag_4 = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(displayName_2), std::move(infoNameColorTag_4));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(displayName_2)), pas::view(std::move(infoNameColorTag_4)));
                         }());
-                        GI_Label::TLabelGI* cpp_arg_22 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_22 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         cpp_arg_22->SetText(wrapTextInColor_5);
                     }
                     {
                         const pas::WideString& localizedText_6 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                        GI_Label::TLabelGI* cpp_arg_23 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_23 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_23->SetText(localizedText_6);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_24 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_25 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_24 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_25 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_26 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_26, cpp_arg_25, cpp_arg_24, true, true, 0);
                     }
                 } else if (pas::class_cast_if<aGalaxy::THole*>(Obj) != nullptr) {
-                    GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdImage"sv)->SetActive(false);
                     {
-                        GI_GraphBuf::TGraphBufGI* InfoStdGB_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                        GI_GraphBuf::TGraphBufGI* InfoStdGB_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                         InfoStdGB_5->SetActive(true);
                         InfoStdGB_5->SourceHasPerPixelAlpha = true;
                         GI_GAI::LoadGaiFrameToGraphBuf(reinterpret_cast<SE_Hole::THoleSE*>(reinterpret_cast<aGalaxy::THole*>(Obj)->Graphic)->ImagePath, InfoStdGB_5->GraphBuf, 32u);
@@ -4067,45 +4067,45 @@ namespace fStarMap {
                         const pas::WideString& wrapTextInColor_6 = ([&] {
                             pas::WideString localizedText_7 = aConst::LocalizedText(reinterpret_cast<SE_Hole::THoleSE*>(reinterpret_cast<aGalaxy::THole*>(Obj)->Graphic)->NameTextPath);
                             pas::WideString infoNameColorTag_5 = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(localizedText_7), std::move(infoNameColorTag_5));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText_7)), pas::view(std::move(infoNameColorTag_5)));
                         }());
-                        GI_Label::TLabelGI* cpp_arg_27 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_27 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         cpp_arg_27->SetText(wrapTextInColor_6);
                     }
                     {
                         const pas::WideString& localizedText_8 = aConst::LocalizedText(reinterpret_cast<SE_Hole::THoleSE*>(reinterpret_cast<aGalaxy::THole*>(Obj)->Graphic)->InfoTextPath);
-                        GI_Label::TLabelGI* cpp_arg_28 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_28 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_28->SetText(localizedText_8);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_29 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_30 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_29 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_30 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_31 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_31, cpp_arg_30, cpp_arg_29, true, true, 0);
                     }
-                } else if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-                    if (pas::in_set<0, 4, 7, 7>(pas::checked_cast<aPlanet::TPlanet*>(Obj)->OwnerId) && static_cast<std::uint8_t>(pas::checked_cast<aPlanet::TPlanet*>(Obj)->IsMainPiratePlanet ^ 1) && reinterpret_cast<aPlanet::TPlanet*>(Obj)->CurrentStar->Status.CustomFaction == u"") {
+                } else if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+                    if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(planet->OwnerId) && static_cast<std::uint8_t>(planet->IsMainPiratePlanet ^ 1) && planet->CurrentStar->Status.CustomFaction == u"") {
                         if (DisplayedObject == Obj) {
                             return;
                         }
                         PlanetInfoPanel->SetActive(true);
                         StandardInfoPanel->SetActive(false);
                         {
-                            const pas::WideString& wrapTextInColor_7 = aMyFunction::WrapTextInColor(pas::checked_cast<aPlanet::TPlanet*>(Obj)->Name, aMyFunction::InfoNameColorTag);
-                            GI_Label::TLabelGI* cpp_arg_32 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"_wref.get()));
+                            const pas::WideString& wrapTextInColor_7 = aMyFunction::WrapTextInColor(pas::view(pas::checked_cast<aPlanet::TPlanet*>(Obj)->Name), pas::view(aMyFunction::InfoNameColorTag));
+                            GI_Label::TLabelGI* cpp_arg_32 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"sv));
                             cpp_arg_32->SetText(wrapTextInColor_7);
                         }
-                        if (pas::in_set<0, 4, 7, 7>(reinterpret_cast<aPlanet::TPlanet*>(Obj)->OwnerId) && reinterpret_cast<aPlanet::TPlanet*>(Obj)->CurrentStar->Status.CustomFaction == u"") {
-                            GI_Image::TImageGI* InfoPlanetEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoPlanetEmRace"_wref.get()));
+                        if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(reinterpret_cast<aPlanet::TPlanet*>(Obj)->OwnerId) && reinterpret_cast<aPlanet::TPlanet*>(Obj)->CurrentStar->Status.CustomFaction == u"") {
+                            GI_Image::TImageGI* InfoPlanetEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoPlanetEmRace"sv));
                             InfoPlanetEmRace->SetImagePath(aConst::GetFactionEmblemPath(pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetFactionResourceName()));
                             InfoPlanetEmRace->SetImageKindX(GI_Main::ikxCenter);
                             InfoPlanetEmRace->SetImageKindY(GI_Main::ikyCenter);
                             InfoPlanetEmRace->SetActive(true);
                         } else {
-                            GetByName(u"InfoPlanetEmRace"_wref.get())->SetActive(false);
+                            GetByName(u"InfoPlanetEmRace"sv)->SetActive(false);
                         }
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoPlanetImage"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoPlanetImage"sv));
                             InfoPlanetImage->SourceHasPerPixelAlpha = true;
                             pas::checked_cast<aPlanet::TPlanet*>(Obj)->Graphic->RenderToBuffer(this, InfoPlanetImage->GraphBuf, false);
                             if (InfoPlanetImage->ClientSize.X < InfoPlanetImage->GraphBuf->Width || InfoPlanetImage->ClientSize.Y < InfoPlanetImage->GraphBuf->Height) {
@@ -4117,54 +4117,54 @@ namespace fStarMap {
                             }
                         }
                         if (pas::checked_cast<aPlanet::TPlanet*>(Obj)->IsMainPiratePlanet) {
-                            GI_Label::TLabelGI* cpp_arg_33 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"_wref.get()));
-                            const pas::WideString& displayName_3 = aConst::OwnerInfo[pas::checked_cast<aPlanet::TPlanet*>(Obj)->OwnerId].DisplayName;
+                            GI_Label::TLabelGI* cpp_arg_33 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"sv));
+                            const pas::WideString& displayName_3 = aConst::OwnerInfo[static_cast<aPlanet::TPlanet*>(Obj)->OwnerId].DisplayName;
                             cpp_arg_33->SetText(displayName_3);
                         } else {
-                            const pas::WideString& nativeRaceName = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetNativeRaceName();
-                            GI_Label::TLabelGI* cpp_arg_34 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"_wref.get()));
+                            const pas::WideString& nativeRaceName = static_cast<aPlanet::TPlanet*>(Obj)->GetNativeRaceName();
+                            GI_Label::TLabelGI* cpp_arg_34 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"sv));
                             cpp_arg_34->SetText(nativeRaceName);
                         }
                         {
                             const pas::WideString& int64ToStr = pas::wide_int64_to_str(System::Round(pas::real_divide(pas::checked_cast<aPlanet::TPlanet*>(Obj)->Population, 1.0E+3L)));
-                            GI_Label::TLabelGI* cpp_arg_35 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_35 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"sv));
                             cpp_arg_35->SetText(int64ToStr);
                         }
                         {
-                            GI_Label::TLabelGI* cpp_arg_36 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_36 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"sv));
                             const pas::WideString& displayName_4 = aConst::PlanetEconomyInfo[pas::checked_cast<aPlanet::TPlanet*>(Obj)->Economy].DisplayName;
                             cpp_arg_36->SetText(displayName_4);
                         }
                         {
                             const pas::WideString& governmentName = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetGovernmentName();
-                            GI_Label::TLabelGI* cpp_arg_37 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_37 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"sv));
                             cpp_arg_37->SetText(governmentName);
                         }
                         {
                             const pas::WideString& relationLevelTextToShip = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetRelationLevelTextToShip(aPlayer::GetPlayer());
-                            GI_Label::TLabelGI* cpp_arg_38 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_38 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"sv));
                             cpp_arg_38->SetText(relationLevelTextToShip);
                         }
                         {
-                            GI_Label::TLabelGI* cpp_arg_39 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPOwner"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_40 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_41 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPPop"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_42 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_43 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPEco"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_44 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_45 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPGov"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_46 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_47 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPRel"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_48 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"_wref.get()));
-                            GI_MessageLoop::TObjectGI* byName = GetByName(u"InfoPlanetEmRace"_wref.get());
-                            GI_Label::TLabelGI* cpp_arg_49 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_39 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPOwner"sv));
+                            GI_Label::TLabelGI* cpp_arg_40 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"sv));
+                            GI_Label::TLabelGI* cpp_arg_41 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPPop"sv));
+                            GI_Label::TLabelGI* cpp_arg_42 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"sv));
+                            GI_Label::TLabelGI* cpp_arg_43 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPEco"sv));
+                            GI_Label::TLabelGI* cpp_arg_44 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"sv));
+                            GI_Label::TLabelGI* cpp_arg_45 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPGov"sv));
+                            GI_Label::TLabelGI* cpp_arg_46 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"sv));
+                            GI_Label::TLabelGI* cpp_arg_47 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPRel"sv));
+                            GI_Label::TLabelGI* cpp_arg_48 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"sv));
+                            GI_MessageLoop::TObjectGI* byName = GetByName(u"InfoPlanetEmRace"sv);
+                            GI_Label::TLabelGI* cpp_arg_49 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"sv));
                             GI_Window::TWindowGI* cpp_arg_50 = pas::checked_cast<GI_Window::TWindowGI*>(PlanetInfoPanel);
                             Globals::ShipScreen->LayoutObjectInfo(cpp_arg_50, cpp_arg_49, cpp_arg_39, cpp_arg_40, cpp_arg_41, cpp_arg_42, cpp_arg_43, cpp_arg_44, cpp_arg_45, cpp_arg_46, cpp_arg_47, cpp_arg_48, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, byName, true, 0);
                         }
                     } else {
-                        GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                        GetByName(u"InfoStdImage"sv)->SetActive(false);
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoStdGB_6 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoStdGB_6 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                             InfoStdGB_6->SetActive(true);
                             InfoStdGB_6->SourceHasPerPixelAlpha = true;
                             pas::checked_cast<aPlanet::TPlanet*>(Obj)->Graphic->RenderToBuffer(this, InfoStdGB_6->GraphBuf, false);
@@ -4182,18 +4182,18 @@ namespace fStarMap {
                             }
                         }
                         {
-                            const pas::WideString& wrapTextInColor_8 = aMyFunction::WrapTextInColor(pas::checked_cast<aPlanet::TPlanet*>(Obj)->Name, aMyFunction::InfoNameColorTag);
-                            GI_Label::TLabelGI* cpp_arg_51 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                            const pas::WideString& wrapTextInColor_8 = aMyFunction::WrapTextInColor(pas::view(pas::checked_cast<aPlanet::TPlanet*>(Obj)->Name), pas::view(aMyFunction::InfoNameColorTag));
+                            GI_Label::TLabelGI* cpp_arg_51 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             cpp_arg_51->SetText(wrapTextInColor_8);
                         }
                         {
                             const pas::WideString& infoText = pas::checked_cast<aPlanet::TPlanet*>(Obj)->GetInfoText(false);
-                            GI_Label::TLabelGI* cpp_arg_52 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_52 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                             cpp_arg_52->SetText(infoText);
                         }
                         {
-                            GI_Label::TLabelGI* cpp_arg_53 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_54 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_53 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                            GI_Label::TLabelGI* cpp_arg_54 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             GI_Window::TWindowGI* cpp_arg_55 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                             fShip2::TfShip2::LayoutItemInfo(cpp_arg_55, cpp_arg_54, cpp_arg_53, true, true, 0);
                         }
@@ -4217,9 +4217,9 @@ namespace fStarMap {
                     }
                 }
                 {
-                    GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemImage"_wref.get()));
-                    if (pas::class_cast_if<aItem::TGoods*>(Obj) != nullptr) {
-                        InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(reinterpret_cast<aItem::TItem*>(Obj)->ItemType)}));
+                    GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemImage"sv));
+                    if (aItem::TGoods* goods_3 = pas::class_cast_if<aItem::TGoods*>(Obj)) {
+                        InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aItem::TItem*>(goods_3)->ItemType)}));
                     } else {
                         InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", reinterpret_cast<aItem::TItem*>(Obj)->GetBitmapResourceName(), u"s"}));
                     }
@@ -4231,71 +4231,71 @@ namespace fStarMap {
                         InfoItemImage->SetPosition(EC_Struct::SubtractPoints(itemImageCenter_8, visualCenter_8));
                     }
                 }
-                if (pas::class_cast_if<aItem::TGoods*>(Obj) != nullptr) {
+                if (aItem::TGoods* goods_4 = pas::class_cast_if<aItem::TGoods*>(Obj)) {
                     {
-                        const pas::WideString& wrapTextInColor_9 = aMyFunction::WrapTextInColor(aConst::GoodsMarket[reinterpret_cast<aItem::TItem*>(Obj)->ItemType].DisplayName, aMyFunction::InfoNameColorTag);
-                        GI_Label::TLabelGI* cpp_arg_56 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                        const pas::WideString& wrapTextInColor_9 = aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[static_cast<aItem::TItem*>(goods_4)->ItemType].DisplayName), pas::view(aMyFunction::InfoNameColorTag));
+                        GI_Label::TLabelGI* cpp_arg_56 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                         cpp_arg_56->SetText(wrapTextInColor_9);
                     }
                     {
                         const pas::WideString& localizedText_9 = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text.", SysUtils::IntToStr(reinterpret_cast<aItem::TItem*>(Obj)->ItemType + 1)})));
-                        GI_Label::TLabelGI* cpp_arg_57 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_57 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
                         cpp_arg_57->SetText(localizedText_9);
                     }
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()))->SetText(u""_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv))->SetText(u""_wref.get());
                     {
                         const pas::WideString& wrapTextInColor_10 = ([&] {
                             pas::WideString displayName_5 = reinterpret_cast<aItem::TItem*>(Obj)->GetDisplayName();
                             pas::WideString infoNameColorTag_6 = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(displayName_5), std::move(infoNameColorTag_6));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(displayName_5)), pas::view(std::move(infoNameColorTag_6)));
                         }());
-                        GI_Label::TLabelGI* cpp_arg_58 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_58 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                         cpp_arg_58->SetText(wrapTextInColor_10);
                     }
                     {
                         const pas::WideString& infoText_2 = reinterpret_cast<aItem::TItem*>(Obj)->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
-                        GI_Label::TLabelGI* cpp_arg_59 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_59 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
                         cpp_arg_59->SetText(infoText_2);
                     }
                 }
                 {
                     const pas::WideString& intToStr = pas::wide_int_to_str(reinterpret_cast<aItem::TItem*>(Obj)->Weight);
-                    GI_Label::TLabelGI* cpp_arg_60 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_60 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"sv));
                     cpp_arg_60->SetText(intToStr);
                 }
                 {
                     const pas::WideString& intToStr_2 = pas::wide_int_to_str(reinterpret_cast<aItem::TItem*>(Obj)->Cost);
-                    GI_Label::TLabelGI* cpp_arg_61 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_61 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"sv));
                     cpp_arg_61->SetText(intToStr_2);
                 }
                 {
-                    GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"_wref.get()));
+                    GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"sv));
                     InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(pas::checked_cast<aItem::TItem*>(Obj))));
                     InfoItemEmRace->SetImageKindX(GI_Main::ikxCenter);
                     InfoItemEmRace->SetImageKindY(GI_Main::ikyCenter);
                 }
-                if (!(pas::contains(WearableItemTypes, static_cast<std::uint8_t>(pas::checked_cast<aItem::TItem*>(Obj)->ItemType)) || pas::checked_cast<aItem::TItem*>(Obj)->ItemType == aConst::t_Hull)) {
+                if (!(pas::contains(WearableItemTypes, static_cast<std::uint8_t>(pas::checked_cast<aItem::TItem*>(Obj)->ItemType)) || static_cast<aItem::TItem*>(Obj)->ItemType == aConst::t_Hull)) {
                     {
-                        GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                        GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                         InfoDurable->Parent->Parent->SetActive(false);
                     }
                     MinimumWidth = 0;
                 } else {
-                    if (pas::class_cast_if<aItem::THull*>(Obj) != nullptr) {
-                        pas::Extended cpp_right = pas::real_max<float>(0.1f, pas::checked_cast<aItem::THull*>(Obj)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-                        BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(pas::checked_cast<aItem::TItem*>(Obj)->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
+                    if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
+                        pas::Extended cpp_right = pas::real_max<float>(0.1f, hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                        BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(static_cast<aItem::TItem*>(hull)->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
                     } else {
                         BarWidth = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, pas::checked_cast<aItem::TEquipment*>(Obj)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
                     }
                     BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
                     {
-                        GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
                         CapWidth = InfoDurableLeft->GetContentSize().X;
                         MinimumWidth = CapWidth * 2 + BarWidth + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + InfoDurableLeft->Parent->Parent->LocalPosition.X * 2;
                     }
                     {
-                        GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                        GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                         InfoDurable_2->Parent->Parent->SetActive(true);
                         InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(CapWidth * 2 + BarWidth, InfoDurable_2->Parent->Parent->ClientSize.Y));
                         InfoDurable_2->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
@@ -4313,7 +4313,7 @@ namespace fStarMap {
                         }
                     }
                     {
-                        GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
                         {
                             std::int32_t cpp_arg_64 = BarWidth + CapWidth - InfoDurableRight->GetContentSize().X;
                             std::int32_t y_3 = InfoDurableRight->LocalPosition.Y;
@@ -4323,7 +4323,7 @@ namespace fStarMap {
                         InfoDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableRight->Parent->ClientSize.Y));
                     }
                     {
-                        GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
                         {
                             std::int32_t cpp_arg_65 = BarWidth + 1 - InfoDurableBack->GetContentSize().X;
                             std::int32_t y_4 = InfoDurableBack->LocalPosition.Y;
@@ -4333,16 +4333,16 @@ namespace fStarMap {
                     }
                 }
                 {
-                    GI_Label::TLabelGI* cpp_arg_66 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_67 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_66 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
+                    GI_Label::TLabelGI* cpp_arg_67 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                     fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, cpp_arg_67, cpp_arg_66, true, true, MinimumWidth);
                 }
-                GetByName(u"InfoItemSize"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
-                GetByName(u"InfoItemPrice"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
-                GetByName(u"InfoItemEmRace"_wref.get())->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
+                GetByName(u"InfoItemSize"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
+                GetByName(u"InfoItemPrice"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
+                GetByName(u"InfoItemEmRace"sv)->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
                 {
-                    GI_Label::TLabelGI* cpp_arg_68 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_69 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_68 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
+                    GI_Label::TLabelGI* cpp_arg_69 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                     fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, cpp_arg_69, cpp_arg_68, true, true, 0);
                 }
                 DisplayedObject = Obj;
@@ -4358,48 +4358,48 @@ namespace fStarMap {
                         const pas::WideString& wrapTextInColor_11 = ([&] {
                             pas::WideString fullName_2 = pas::checked_cast<aShip::TShip*>(Obj)->GetFullName(u" "_wref.get());
                             pas::WideString infoNameColorTag_7 = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(fullName_2), std::move(infoNameColorTag_7));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(fullName_2)), pas::view(std::move(infoNameColorTag_7)));
                         }());
-                        GI_Label::TLabelGI* cpp_arg_70 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_70 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                         cpp_arg_70->SetText(wrapTextInColor_11);
                     }
-                    if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                        if (pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer()) {
-                            const pas::WideString& cpp_arg_71 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get()), u"<color=255,240,100>"_w)});
-                            GI_Label::TLabelGI* cpp_arg_72 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()));
+                    if (aShip::TShip* ship_3 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                        if (ship_3->PartnerShip == aPlayer::GetPlayer()) {
+                            const pas::WideString& cpp_arg_71 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get())), u"<color=255,240,100>"sv)});
+                            GI_Label::TLabelGI* cpp_arg_72 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                             cpp_arg_72->SetText(cpp_arg_71);
                         }
                     }
-                    if (pas::class_cast_if<aKling::TKling*>(Obj) != nullptr && static_cast<aKling::TKling*>(Obj)->ActiveProgramAppliedTurn > 0 && pas::in_range(static_cast<aKling::TKling*>(Obj)->ActiveProgramId, 6, 11)) {
-                        const pas::WideString& cpp_arg_73 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Obj)->ActiveProgramId], u".AddToShipInfo"})), u"<color=255,0,0>"_w)});
-                        GI_Label::TLabelGI* cpp_arg_74 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()));
+                    if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Obj); kling != nullptr && kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId, 6, 11)) {
+                        const pas::WideString& cpp_arg_73 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Obj)->ActiveProgramId], u".AddToShipInfo"}))), u"<color=255,0,0>"sv)});
+                        GI_Label::TLabelGI* cpp_arg_74 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                         cpp_arg_74->SetText(cpp_arg_73);
                     }
                 } else {
                     const pas::WideString& wrapTextInColor_12 = ([&] {
                         pas::WideString fullName_3 = pas::checked_cast<aShip::TShip*>(Obj)->GetFullName(u" "_wref.get());
                         pas::WideString infoNameColorTag_8 = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(fullName_3), std::move(infoNameColorTag_8));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(fullName_3)), pas::view(std::move(infoNameColorTag_8)));
                     }());
-                    GI_Label::TLabelGI* cpp_arg_75 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_75 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                     cpp_arg_75->SetText(wrapTextInColor_12);
                 }
                 if (reinterpret_cast<aShip::TShip*>(Obj)->GetFactionNameKey() != u"None") {
-                    GI_Image::TImageGI* InfoShipEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipEmRace"_wref.get()));
+                    GI_Image::TImageGI* InfoShipEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipEmRace"sv));
                     InfoShipEmRace->SetImagePath(aConst::GetFactionEmblemPath(pas::checked_cast<aShip::TShip*>(Obj)->GetFactionNameKey()));
                     InfoShipEmRace->SetImageKindX(GI_Main::ikxCenter);
                     InfoShipEmRace->SetImageKindY(GI_Main::ikyCenter);
                     InfoShipEmRace->SetActive(true);
                 } else {
-                    GetByName(u"InfoShipEmRace"_wref.get())->SetActive(false);
+                    GetByName(u"InfoShipEmRace"sv)->SetActive(false);
                 }
                 if (pas::class_cast_if<SE_Ship2::TShip2SE*>(pas::checked_cast<aShip::TShip*>(Obj)->Graphic) != nullptr) {
-                    GI_GraphBuf::TGraphBufGI* InfoShipImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"_wref.get()));
-                    ImagePath = pas::checked_cast<aShip::TShip*>(Obj)->GetShipPortraitImagePath();
+                    GI_GraphBuf::TGraphBufGI* InfoShipImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"sv));
+                    ImagePath = static_cast<aShip::TShip*>(Obj)->GetShipPortraitImagePath();
                     InfoShipImage2->SetActive(ImagePath != u"");
                     if (InfoShipImage2->Active) {
                         InfoShipImage2->SourceHasPerPixelAlpha = true;
-                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(ImagePath, 1, u","_wref.get()), InfoShipImage2->GraphBuf);
+                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv), InfoShipImage2->GraphBuf);
                         if (InfoShipImage2->ClientSize.X < InfoShipImage2->GraphBuf->Width || InfoShipImage2->ClientSize.Y < InfoShipImage2->GraphBuf->Height) {
                             if (static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)) {
                                 InfoShipImage2->GraphBuf->RescaleRgba(InfoShipImage2->ClientSize.X, System::Round(pas::real_divide(InfoShipImage2->ClientSize.X, static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)), 5);
@@ -4416,13 +4416,13 @@ namespace fStarMap {
                         }
                     }
                 } else {
-                    GI_GraphBuf::TGraphBufGI* InfoShipImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoShipImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"sv));
                     InfoShipImage2_2->SetActive(true);
                     InfoShipImage2_2->SourceHasPerPixelAlpha = true;
                     if (Obj == aKling::TerronShip && aGalaxy::Galaxy->TerronToStarTurn >= 0x40000000) {
-                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(reinterpret_cast<SE_Star::TStarSE*>(aKling::TerronShip->CurrentStar->Graphic)->StaticImagePath, 1, u","_wref.get()), InfoShipImage2_2->GraphBuf);
+                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(aKling::TerronShip->CurrentStar->Graphic)->StaticImagePath), 1, u","sv), InfoShipImage2_2->GraphBuf);
                     } else {
-                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<aShip::TShip*>(Obj)->Graphic)->StaticImagePath, 1, u","_wref.get()), InfoShipImage2_2->GraphBuf);
+                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<aShip::TShip*>(Obj)->Graphic)->StaticImagePath), 1, u","sv), InfoShipImage2_2->GraphBuf);
                     }
                     if (InfoShipImage2_2->ClientSize.X < InfoShipImage2_2->GraphBuf->Width || InfoShipImage2_2->ClientSize.Y < InfoShipImage2_2->GraphBuf->Height) {
                         if (static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)) {
@@ -4438,29 +4438,29 @@ namespace fStarMap {
                     }
                 }
                 if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"_wref.get()))->SetActive(false);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"sv))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv))->SetActive(false);
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"_wref.get()))->SetActive(true);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"sv))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv))->SetActive(true);
                     if (pas::class_cast_if<aRanger::TRanger*>(Obj) != nullptr) {
                         const pas::WideString& characterName = pas::checked_cast<aRanger::TRanger*>(Obj)->GetCharacterName();
-                        GI_Label::TLabelGI* cpp_arg_76 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_76 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv));
                         cpp_arg_76->SetText(characterName);
                     } else {
                         const pas::WideString& localizedTypeName = pas::checked_cast<aShip::TShip*>(Obj)->GetLocalizedTypeName();
-                        GI_Label::TLabelGI* cpp_arg_77 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_77 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv));
                         cpp_arg_77->SetText(localizedTypeName);
                     }
                 }
                 {
                     const pas::WideString& intToStr_3 = pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->CalculateSpeed());
-                    GI_Label::TLabelGI* cpp_arg_78 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_78 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"sv));
                     cpp_arg_78->SetText(intToStr_3);
                 }
                 {
-                    const pas::WideString& wrapTextInColor_13 = aMyFunction::WrapTextInColor(u"???"_w, pas::WideString());
-                    GI_Label::TLabelGI* cpp_arg_79 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"_wref.get()));
+                    const pas::WideString& wrapTextInColor_13 = aMyFunction::WrapTextInColor(u"???"sv, u""sv);
+                    GI_Label::TLabelGI* cpp_arg_79 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv));
                     cpp_arg_79->SetText(wrapTextInColor_13);
                 }
                 {
@@ -4471,46 +4471,46 @@ namespace fStarMap {
                         ColorTag = pas::WideString();
                     }
                 }
-                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
-                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->HullPoints), ColorTag), u"/", pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->Weight)});
+                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || static_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
+                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->HullPoints)), pas::view(ColorTag)), u"/", pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->Weight)});
                     if (aPlayer::GetPlayer()->HasScannerArtefact(pas::checked_cast<aShip::TShip*>(Obj))) {
                         {
-                            const pas::WideString& weaponDamageSummary = aShip::TShip_GetWeaponDamageSummary(pas::checked_cast<aShip::TShip*>(Obj));
-                            GI_Label::TLabelGI* cpp_arg_80 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"_wref.get()));
+                            const pas::WideString& weaponDamageSummary = aShip::TShip_GetWeaponDamageSummary(static_cast<aShip::TShip*>(Obj));
+                            GI_Label::TLabelGI* cpp_arg_80 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv));
                             cpp_arg_80->SetText(weaponDamageSummary);
                         }
-                        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(aShip::TShip_GetRepairPointsSummary(pas::checked_cast<aShip::TShip*>(Obj)), pas::WideString())});
+                        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::view(aShip::TShip_GetRepairPointsSummary(pas::checked_cast<aShip::TShip*>(Obj))), u""sv)});
                     }
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()))->SetText(Text);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv))->SetText(Text);
                 } else {
-                    const pas::WideString& wrapTextInColor_14 = aMyFunction::WrapTextInColor(u"???"_w, ColorTag);
-                    GI_Label::TLabelGI* cpp_arg_81 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()));
+                    const pas::WideString& wrapTextInColor_14 = aMyFunction::WrapTextInColor(u"???"sv, pas::view(ColorTag));
+                    GI_Label::TLabelGI* cpp_arg_81 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv));
                     cpp_arg_81->SetText(wrapTextInColor_14);
                 }
-                Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(pas::checked_cast<aShip::TShip*>(Obj)->GetDefensePercent() & 0x0000007f), "%"}));
-                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
-                    Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetArmor()), pas::WideString())});
+                Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(pas::checked_cast<aShip::TShip*>(Obj)->GetDefensePercent()), "%"}));
+                if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || static_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
+                    Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(pas::checked_cast<aShip::TShip*>(Obj)->GetArmor())), u""sv)});
                     if (aPlayer::GetPlayer()->HasScannerArtefact(pas::checked_cast<aShip::TShip*>(Obj))) {
-                        Text = pas::concat_wide({pas::checked_cast<aShip::TShip*>(Obj)->GetManeuverabilitySummary(), Text});
+                        Text = pas::concat_wide({static_cast<aShip::TShip*>(Obj)->GetManeuverabilitySummary(), Text});
                     }
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"_wref.get()))->SetText(Text);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"sv))->SetText(Text);
                 {
                     const pas::WideString& relationLevelTextToShip_2 = aShip::TShip_GetRelationLevelTextToShip(pas::checked_cast<aShip::TShip*>(Obj), aPlayer::GetPlayer());
-                    GI_Label::TLabelGI* cpp_arg_82 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_82 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"sv));
                     cpp_arg_82->SetText(relationLevelTextToShip_2);
                 }
                 if (aPlayer::GetPlayer() != Obj && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj)) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()))->SetActive(true);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(true);
                     {
-                        const pas::WideString& cpp_arg_83 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), pas::checked_cast<aShip::TShip*>(Obj)) & 0x0000007f), "%"}));
-                        GI_Label::TLabelGI* cpp_arg_84 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()));
+                        const pas::WideString& cpp_arg_83 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), pas::checked_cast<aShip::TShip*>(Obj))), "%"}));
+                        GI_Label::TLabelGI* cpp_arg_84 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv));
                         cpp_arg_84->SetText(cpp_arg_83);
                     }
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()))->SetActive(false);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(false);
                 }
                 {
                     pas::Extended cpp_right_2 = pas::real_max<float>(0.1f, pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
@@ -4518,13 +4518,13 @@ namespace fStarMap {
                 }
                 BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
                 {
-                    GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableLeft"_wref.get()));
+                    GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableLeft"sv));
                     CapWidth = InfoShipDurableLeft->GetContentSize().X;
                     MinimumWidth = CapWidth * 2 + BarWidth + InfoShipDurableLeft->LocalPosition.X + InfoShipDurableLeft->Parent->LocalPosition.X + InfoShipDurableLeft->Parent->Parent->LocalPosition.X * 2;
                 }
                 {
-                    GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"_wref.get()));
-                    if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || pas::checked_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
+                    GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"sv));
+                    if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Obj) || aPlayer::GetPlayer() == Obj || pas::checked_cast<aShip::TShip*>(Obj)->PartnerShip == aPlayer::GetPlayer() || static_cast<aShip::TShip*>(Obj)->TypeId == aGalaxyStruct::stTranclucator) {
                         pas::Extended cpp_left_12 = pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->HullPoints;
                         std::int64_t cpp_left_11 = System::Round(pas::real_divide(cpp_left_12, pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->Weight) * BarWidth);
                         std::int32_t cpp_arg_85 = cpp_left_11 - (InfoShipDurable->GetContentSize().X - 5);
@@ -4544,7 +4544,7 @@ namespace fStarMap {
                     InfoShipDurable->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoShipDurable->Parent->Parent->ClientSize.Y));
                 }
                 {
-                    GI_Image::TImageGI* InfoShipDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableRight"_wref.get()));
+                    GI_Image::TImageGI* InfoShipDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableRight"sv));
                     {
                         std::int32_t cpp_arg_87 = BarWidth + CapWidth - InfoShipDurableRight->GetContentSize().X;
                         std::int32_t y_7 = InfoShipDurableRight->LocalPosition.Y;
@@ -4554,7 +4554,7 @@ namespace fStarMap {
                     InfoShipDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoShipDurableRight->Parent->ClientSize.Y));
                 }
                 {
-                    GI_Image::TImageGI* InfoShipDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableBack"_wref.get()));
+                    GI_Image::TImageGI* InfoShipDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableBack"sv));
                     {
                         std::int32_t cpp_arg_88 = BarWidth + 1 - InfoShipDurableBack->GetContentSize().X;
                         std::int32_t y_8 = InfoShipDurableBack->LocalPosition.Y;
@@ -4562,8 +4562,8 @@ namespace fStarMap {
                     }
                     InfoShipDurableBack->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoShipDurableBack->Parent->ClientSize.Y));
                 }
-                DamageName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDamage"_wref.get()));
-                DamageValue = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"_wref.get()));
+                DamageName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDamage"sv));
+                DamageValue = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv));
                 if (aPlayer::GetPlayer()->HasScannerArtefact(pas::checked_cast<aShip::TShip*>(Obj))) {
                     DamageName->SetActive(true);
                     DamageValue->SetActive(true);
@@ -4575,9 +4575,9 @@ namespace fStarMap {
                 }
                 Text = pas::checked_cast<aShip::TShip*>(Obj)->GetCombatStatusDescription(StatusCount, false);
                 if (StatusCount > 0) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"_wref.get()))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"sv))->SetActive(true);
                     {
-                        GI_Label::TLabelGI* InfoShipEffects = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"_wref.get()));
+                        GI_Label::TLabelGI* InfoShipEffects = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"sv));
                         if (aPlayer::GetPlayer()->HasScannerArtefact(pas::checked_cast<aShip::TShip*>(Obj))) {
                             InfoShipEffects->SetText(pas::checked_cast<aShip::TShip*>(Obj)->GetCombatStatusDescription(StatusCount, true));
                         } else {
@@ -4592,32 +4592,32 @@ namespace fStarMap {
                         InfoShipEffects->SetActive(true);
                     }
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"_wref.get()))->SetActive(false);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"_wref.get()))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"sv))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"sv))->SetActive(false);
                 }
                 {
-                    GI_Label::TLabelGI* cpp_arg_90 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_91 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_92 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSpeed"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_93 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_94 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSize"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_95 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_96 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDef"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_97 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_98 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISRel"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_99 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_100 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_101 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_102 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_103 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"_wref.get()));
-                    GI_MessageLoop::TObjectGI* byName_2 = GetByName(u"InfoShipEmRace"_wref.get());
-                    GI_Label::TLabelGI* cpp_arg_104 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_90 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"sv));
+                    GI_Label::TLabelGI* cpp_arg_91 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv));
+                    GI_Label::TLabelGI* cpp_arg_92 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSpeed"sv));
+                    GI_Label::TLabelGI* cpp_arg_93 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"sv));
+                    GI_Label::TLabelGI* cpp_arg_94 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSize"sv));
+                    GI_Label::TLabelGI* cpp_arg_95 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv));
+                    GI_Label::TLabelGI* cpp_arg_96 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDef"sv));
+                    GI_Label::TLabelGI* cpp_arg_97 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"sv));
+                    GI_Label::TLabelGI* cpp_arg_98 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISRel"sv));
+                    GI_Label::TLabelGI* cpp_arg_99 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"sv));
+                    GI_Label::TLabelGI* cpp_arg_100 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv));
+                    GI_Label::TLabelGI* cpp_arg_101 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv));
+                    GI_Label::TLabelGI* cpp_arg_102 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"sv));
+                    GI_Label::TLabelGI* cpp_arg_103 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"sv));
+                    GI_MessageLoop::TObjectGI* byName_2 = GetByName(u"InfoShipEmRace"sv);
+                    GI_Label::TLabelGI* cpp_arg_104 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                     GI_Window::TWindowGI* cpp_arg_105 = pas::checked_cast<GI_Window::TWindowGI*>(ShipInfoPanel);
                     Globals::ShipScreen->LayoutObjectInfo(cpp_arg_105, cpp_arg_104, cpp_arg_90, cpp_arg_91, cpp_arg_92, cpp_arg_93, cpp_arg_94, cpp_arg_95, cpp_arg_96, cpp_arg_97, DamageName, DamageValue, cpp_arg_98, cpp_arg_99, cpp_arg_100, cpp_arg_101, cpp_arg_102, cpp_arg_103, byName_2, true, MinimumWidth);
                 }
                 DisplayedObject = Obj;
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    BuildShipPathOverlay(pas::checked_cast<aShip::TShip*>(Obj), false, pas::WideString());
+                if (aShip::TShip* ship_4 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    BuildShipPathOverlay(ship_4, false, pas::WideString());
                 } else {
                     ClearPathOverlay(false);
                 }
@@ -4630,9 +4630,9 @@ namespace fStarMap {
                 StarInfoWindow->SetActive(true);
                 StandardInfoPanel->SetActive(false);
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"sv));
                     InfoStarImage->SourceHasPerPixelAlpha = true;
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(reinterpret_cast<SE_Star::TStarSE*>(pas::checked_cast<aGalaxy::TStar*>(Obj)->Graphic)->StaticImagePath, 1, u","_wref.get()), InfoStarImage->GraphBuf);
+                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(pas::checked_cast<aGalaxy::TStar*>(Obj)->Graphic)->StaticImagePath), 1, u","sv), InfoStarImage->GraphBuf);
                     if (InfoStarImage->ClientSize.X < InfoStarImage->GraphBuf->Width || InfoStarImage->ClientSize.Y < InfoStarImage->GraphBuf->Height) {
                         if (static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) {
                             InfoStarImage->GraphBuf->RescaleRgba(InfoStarImage->ClientSize.X, System::Round(pas::real_divide(InfoStarImage->ClientSize.X, static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)), 5);
@@ -4643,7 +4643,7 @@ namespace fStarMap {
                     InfoStarImage->SetImageKindX(GI_Main::ikxCenter);
                     InfoStarImage->SetImageKindY(GI_Main::ikyCenter);
                 }
-                Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"_wref.get()));
+                Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"sv));
                 Panel->FreeOwnedChildren();
                 Panel->SetSize(ClassesImports::Point(StarInfoWindow->ClientSize.X - StarInfoWindow->WorkSubRect.Left - StarInfoWindow->WorkSubRect.Right, Panel->ClientSize.Y));
                 Objects = pas::make_object<pas::List>();
@@ -4714,8 +4714,8 @@ namespace fStarMap {
                 }
                 Child = Panel->FirstChild;
                 while (Child != nullptr) {
-                    if (pas::class_cast_if<GI_Label::TLabelGI*>(Child) != nullptr) {
-                        GI_Label::TLabelGI* cpp_with_27 = pas::checked_cast<GI_Label::TLabelGI*>(Child);
+                    if (GI_Label::TLabelGI* labelGI = pas::class_cast_if<GI_Label::TLabelGI*>(Child)) {
+                        GI_Label::TLabelGI* cpp_with_27 = labelGI;
                         cpp_with_27->SetTextAlignX(GI_Main::taxRight);
                         cpp_with_27->SetSize(ClassesImports::Point(NameWidth, RowHeight));
                     }
@@ -4752,9 +4752,9 @@ namespace fStarMap {
                             }
                         } else if (pas::class_cast_if<aRuins::TRuins*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                             if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, I)->Graphic) != nullptr) {
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, I)->Graphic)->StaticImagePath, 1, u","_wref.get()), cpp_with_28->GraphBuf);
+                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, I)->Graphic)->StaticImagePath), 1, u","sv), cpp_with_28->GraphBuf);
                             } else {
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aShip::TShip>(Objects, I)->Graphic)->AlternateImagePath, 1, u","_wref.get()), cpp_with_28->GraphBuf);
+                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aShip::TShip>(Objects, I)->Graphic)->AlternateImagePath), 1, u","sv), cpp_with_28->GraphBuf);
                             }
                             if (cpp_with_28->ClientSize.X < cpp_with_28->GraphBuf->Width || cpp_with_28->ClientSize.Y < cpp_with_28->GraphBuf->Height) {
                                 if (static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Height)) {
@@ -4779,7 +4779,7 @@ namespace fStarMap {
                     } else if (pas::class_cast_if<aRuins::TRuins*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                         OwnerId = pas::list_at<aShip::TShip>(Objects, I)->OwnerId;
                     } else {
-                        OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                        OwnerId = aGalaxyStruct::oiUninhabited;
                     }
                     if (pas::class_cast_if<aRuins::TRuins*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                         GI_Label::TLabelGI* cpp_with_29 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
@@ -4798,23 +4798,23 @@ namespace fStarMap {
                         DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_29->ClientSize.X + GR_Main::GiScalePixels(35));
                     } else if (pas::class_cast_if<aGalaxy::TCustomSystemInfo*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                         CustomInfo = pas::list_at<aGalaxy::TCustomSystemInfo>(Objects, I);
-                        if (EC_Str::CountDelimitedPartsW(CustomInfo->Info, u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 0, u":"_wref.get()) == u"Image") {
-                            Images = EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 1, u":"_wref.get());
+                        if (EC_Str::CountDelimitedPartsW(pas::view(CustomInfo->Info), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 0, u":"sv) == u"Image") {
+                            Images = EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 1, u":"sv);
                             RowX = NameWidth + 5 + RowHeight + 5 + 1;
-                            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Images, u","_wref.get()) - 1); cpp_range_6.next(J); ) {
+                            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Images), u","sv) - 1); cpp_range_6.next(J); ) {
                                 GI_Image::TImageGI* cpp_with_30 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
-                                cpp_with_30->SetImagePath(pas::concat_wide({u"GI,", EC_Str::ExtractDelimitedPartW(Images, J, u","_wref.get())}));
+                                cpp_with_30->SetImagePath(pas::concat_wide({u"GI,", EC_Str::ExtractDelimitedPartW(pas::view(Images), J, u","sv)}));
                                 cpp_with_30->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                                 cpp_with_30->SetPosition(ClassesImports::Point(RowX, RowHeight * I + 1));
                                 RowX = RowX + RowHeight + 2;
                             }
-                        } else if (EC_Str::CountDelimitedPartsW(CustomInfo->Info, u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 0, u":"_wref.get()) == u"RGBA") {
-                            Images = EC_Str::ExtractDelimitedPartW(CustomInfo->Info, 1, u":"_wref.get());
+                        } else if (EC_Str::CountDelimitedPartsW(pas::view(CustomInfo->Info), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 0, u":"sv) == u"RGBA") {
+                            Images = EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Info), 1, u":"sv);
                             RowX = NameWidth + 5 + RowHeight + 5 + 1;
-                            for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Images, u","_wref.get()) - 1); cpp_range_7.next(J); ) {
+                            for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Images), u","sv) - 1); cpp_range_7.next(J); ) {
                                 GI_GraphBuf::TGraphBufGI* cpp_with_31 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Panel, false);
                                 cpp_with_31->SourceHasPerPixelAlpha = true;
-                                cpp_with_31->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(Images, J, u","_wref.get()), u"?RGBA"}));
+                                cpp_with_31->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(Images), J, u","sv), u"?RGBA"}));
                                 cpp_with_31->SetPosition(ClassesImports::Point(RowX, RowHeight * I + 1));
                                 cpp_with_31->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                                 if (cpp_with_31->ClientSize.X < cpp_with_31->GraphBuf->Width || cpp_with_31->ClientSize.Y < cpp_with_31->GraphBuf->Height) {
@@ -4844,11 +4844,11 @@ namespace fStarMap {
                             cpp_with_32->SetText(CustomInfo->Info);
                             DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_32->ClientSize.X + GR_Main::GiScalePixels(35));
                         }
-                    } else if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    } else if (OwnerId != aGalaxyStruct::oiUninhabited) {
                         if (!(pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) || static_cast<std::uint8_t>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->IsMainPiratePlanet ^ 1)) {
                             GI_GraphBuf::TGraphBufGI* cpp_with_33 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Panel, false);
                             cpp_with_33->SourceHasPerPixelAlpha = true;
-                            cpp_with_33->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(aConst::GetFactionEmblemPath(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->GetFactionResourceName()), 1, u","_wref.get()), u"?RGBA"}));
+                            cpp_with_33->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->GetFactionResourceName())), 1, u","sv), u"?RGBA"}));
                             cpp_with_33->SetPosition(ClassesImports::Point(NameWidth + 5 + RowHeight + 5 + 1, RowHeight * I + 1));
                             cpp_with_33->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                             if (cpp_with_33->ClientSize.X < cpp_with_33->GraphBuf->Width || cpp_with_33->ClientSize.Y < cpp_with_33->GraphBuf->Height) {
@@ -4862,7 +4862,7 @@ namespace fStarMap {
                             cpp_with_33->SetImageKindY(GI_Main::ikyCenter);
                         }
                     }
-                    if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I)) != nullptr && pas::in_set<0, 4, 7, 7>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->OwnerId) && static_cast<std::uint8_t>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->IsMainPiratePlanet ^ 1) && pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->CurrentStar->Status.CustomFaction == u"") {
+                    if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I)) != nullptr && pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->OwnerId) && static_cast<std::uint8_t>(pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->IsMainPiratePlanet ^ 1) && pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->CurrentStar->Status.CustomFaction == u"") {
                         RowX = NameWidth + 5 + RowHeight + 5 + 1;
                         {
                             GI_Image::TImageGI* cpp_with_34 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
@@ -4924,7 +4924,7 @@ namespace fStarMap {
                         cpp_with_36->SetText(EC_Str::LowerCaseWideString(aConst::LocalizedText(u"ShipType.TypeName.PB"_wref.get())));
                         DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_36->ClientSize.X + GR_Main::GiScalePixels(35));
                     } else if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
-                        if (pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        if (pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->OwnerId == aGalaxyStruct::oiUninhabited) {
                             if (pas::checked_cast<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, I))->GetUnexploredSurfaceTileCount() == 0) {
                                 GI_Label::TLabelGI* cpp_with_37 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
                                 cpp_with_37->SetFontName(GlobalsV::MiniFontName);
@@ -4945,8 +4945,8 @@ namespace fStarMap {
                 StarInfoWindow->SetSize(ClassesImports::Point(Panel->ClientSize.X + StarInfoWindow->WorkSubRect.Left + StarInfoWindow->WorkSubRect.Right, StarInfoWindow->WorkSubRect.Top + StarInfoWindow->WorkSubRect.Bottom + RowHeight * pas::list_count(Objects)));
                 StarInfoWindow->UpdateAutoGeometry();
                 {
-                    GI_Label::TLabelGI* InfoStarName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"_wref.get()));
-                    InfoStarName->SetText(aMyFunction::WrapTextInColor(pas::checked_cast<aGalaxy::TStar*>(Obj)->Name, aMyFunction::InfoNameColorTag));
+                    GI_Label::TLabelGI* InfoStarName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"sv));
+                    InfoStarName->SetText(aMyFunction::WrapTextInColor(pas::view(pas::checked_cast<aGalaxy::TStar*>(Obj)->Name), pas::view(aMyFunction::InfoNameColorTag)));
                     InfoStarName->SetSize(ClassesImports::Point(StarInfoWindow->ClientSize.X - StarInfoWindow->WorkSubRect.Right - InfoStarName->LocalPosition.X - 15, InfoStarName->ClientSize.Y));
                 }
                 pas::free(Objects);
@@ -4958,9 +4958,9 @@ namespace fStarMap {
                 PlanetInfoPanel->SetActive(false);
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(true);
-                GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                GetByName(u"InfoStdImage"sv)->SetActive(false);
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStdGB_7 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoStdGB_7 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                     InfoStdGB_7->SetActive(true);
                     InfoStdGB_7->SourceHasPerPixelAlpha = true;
                     GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.Missile.w", pas::checked_cast<aMissile::TMissile*>(Obj)->GetGraphSuffix(), u"_", GR_Main::GiResourceSuffix(), u"i"}), InfoStdGB_7->GraphBuf);
@@ -4974,19 +4974,19 @@ namespace fStarMap {
                     const pas::WideString& wrapTextInColor_15 = ([&] {
                         pas::WideString displayName_6 = pas::checked_cast<aMissile::TMissile*>(Obj)->GetDisplayName();
                         pas::WideString infoNameColorTag_9 = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(displayName_6), std::move(infoNameColorTag_9));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(displayName_6)), pas::view(std::move(infoNameColorTag_9)));
                     }());
-                    GI_Label::TLabelGI* cpp_arg_106 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_106 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     cpp_arg_106->SetText(wrapTextInColor_15);
                 }
                 {
                     const pas::WideString& infoText_3 = pas::checked_cast<aMissile::TMissile*>(Obj)->GetInfoText();
-                    GI_Label::TLabelGI* cpp_arg_107 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_107 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                     cpp_arg_107->SetText(infoText_3);
                 }
                 {
-                    GI_Label::TLabelGI* cpp_arg_108 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_109 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_108 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                    GI_Label::TLabelGI* cpp_arg_109 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     GI_Window::TWindowGI* cpp_arg_110 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                     fShip2::TfShip2::LayoutItemInfo(cpp_arg_110, cpp_arg_109, cpp_arg_108, true, true, 0);
                 }
@@ -4998,9 +4998,9 @@ namespace fStarMap {
                 PlanetInfoPanel->SetActive(false);
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(true);
-                GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                GetByName(u"InfoStdImage"sv)->SetActive(false);
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStdGB_8 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoStdGB_8 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                     InfoStdGB_8->SetActive(true);
                     InfoStdGB_8->SourceHasPerPixelAlpha = true;
                     GI_GAI::LoadGaiFrameToGraphBuf(reinterpret_cast<SE_Asteroid::TAsteroidSE*>(reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->GraphObject)->ImagePath, InfoStdGB_8->GraphBuf, reinterpret_cast<aAsteroid::TAsteroid*>(Obj)->Id);
@@ -5021,19 +5021,19 @@ namespace fStarMap {
                     const pas::WideString& wrapTextInColor_16 = ([&] {
                         pas::WideString displayName_7 = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->GetDisplayName();
                         pas::WideString infoNameColorTag_10 = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(std::move(displayName_7), std::move(infoNameColorTag_10));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(displayName_7)), pas::view(std::move(infoNameColorTag_10)));
                     }());
-                    GI_Label::TLabelGI* cpp_arg_111 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_111 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     cpp_arg_111->SetText(wrapTextInColor_16);
                 }
                 {
                     const pas::WideString& infoText_4 = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->GetInfoText();
-                    GI_Label::TLabelGI* cpp_arg_112 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_112 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                     cpp_arg_112->SetText(infoText_4);
                 }
                 {
-                    GI_Label::TLabelGI* cpp_arg_113 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_114 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_113 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                    GI_Label::TLabelGI* cpp_arg_114 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     GI_Window::TWindowGI* cpp_arg_115 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                     fShip2::TfShip2::LayoutItemInfo(cpp_arg_115, cpp_arg_114, cpp_arg_113, true, true, 0);
                 }
@@ -5054,13 +5054,13 @@ namespace fStarMap {
                 InfoWindow->UpdateAutoGeometry();
                 InfoTextLabel->SetPosition(ClassesImports::Point(InfoWindow->WorkSubRect.Left, InfoWindow->WorkSubRect.Top));
                 DisplayedObject = Obj;
-                if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                    ShowAsteroidPath(pas::checked_cast<aAsteroid::TAsteroid*>(Obj));
+                if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                    ShowAsteroidPath(asteroid);
                 } else {
                     ClearAsteroidPath();
                 }
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    BuildShipPathOverlay(pas::checked_cast<aShip::TShip*>(Obj), false, pas::WideString());
+                if (aShip::TShip* ship_5 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    BuildShipPathOverlay(ship_5, false, pas::WideString());
                 } else {
                     ClearPathOverlay(false);
                 }
@@ -5130,12 +5130,12 @@ namespace fStarMap {
 
     pas::WideString TfStarMap::GetPriceSnapshotKey(pas::Object* Obj) {
         pas::WideString Result{};
-        if (pas::class_cast_if<aPlanet::TPlanet*>(Obj) != nullptr) {
-            Result = pas::checked_cast<aPlanet::TPlanet*>(Obj)->Name;
-        } else if (pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) {
-            Result = pas::checked_cast<aRuins::TRuins*>(Obj)->Name;
-        } else if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-            Result = pas::checked_cast<aShip::TShip*>(Obj)->Name;
+        if (aPlanet::TPlanet* planet = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
+            Result = planet->Name;
+        } else if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
+            Result = ruins->Name;
+        } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj)) {
+            Result = ship->Name;
         } else {
             Result = pas::WideString();
         }
@@ -5149,7 +5149,7 @@ namespace fStarMap {
         std::uint8_t Added = false;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Planets) - 1); cpp_range.next(Index); ) {
             Planet = pas::list_at<aPlanet::TPlanet>(aPlayer::GetPlayer()->CurrentStar->Planets, Index);
-            if (pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
+            if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
                 pas::Extended cpp_left = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Planet->GetPosition());
                 if (cpp_left <= aPlayer::GetPlayer()->GetRadarRange()) {
                     {
@@ -5164,8 +5164,8 @@ namespace fStarMap {
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range_2.next(Index); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, Index);
-            if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) {
-                if (pas::checked_cast<aRuins::TRuins*>(Ship)->virtual_TShip_CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(Ship->NoTalk ^ 1)) {
+            if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Ship)) {
+                if (ruins->virtual_TShip_CanDock(aPlayer::GetPlayer()) && static_cast<std::uint8_t>(Ship->NoTalk ^ 1)) {
                     pas::Extended cpp_left_2 = aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Ship->Position);
                     if (cpp_left_2 <= aPlayer::GetPlayer()->GetRadarRange()) {
                         {
@@ -5345,7 +5345,7 @@ namespace fStarMap {
     }
 
     void TfStarMap::WeaponButtonDown(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t Index = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
+        std::int32_t Index = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
         GI_Image::TImageGI* Image = WeaponImages[Index];
         Image->SetPosition(ClassesImports::Point(Image->LocalPosition.X, 0));
     }
@@ -5355,7 +5355,7 @@ namespace fStarMap {
         aItem::TWeapon* Weapon{};
         if (Mode == smmOrders) {
             DisplayedObject = nullptr;
-            Index = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
+            Index = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
             aGalaxy::Galaxy->CheckIntegrityChecksum(87);
             Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
             TalkSelectionActive = false;
@@ -5384,7 +5384,7 @@ namespace fStarMap {
         GI_GraphButton::TGraphButtonGI* Button{};
         GI_Image::TImageGI* Image{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 4); cpp_range.next(Slot); ) {
-            Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Slot));
+            Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Slot));
             Button = WeaponButtons[Slot];
             Button->SetDisabled(aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon) <= Slot || static_cast<std::uint8_t>(aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Weapon) ^ 1));
             if (aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon) <= Slot) {
@@ -5424,7 +5424,7 @@ namespace fStarMap {
                 Image->SetPosition(ClassesImports::Point(Image->LocalPosition.X, -2));
             }
             if (Weapon != nullptr) {
-                WeaponButtons[Slot]->HelpText = pas::concat_wide({Weapon->GetDisplayName(), u" (", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Slot + 1), u"<color=255,240,100>"_w), u")"});
+                WeaponButtons[Slot]->HelpText = pas::concat_wide({Weapon->GetDisplayName(), u" (", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Slot + 1)), u"<color=255,240,100>"sv), u")"});
             }
         }
     }
@@ -5490,7 +5490,7 @@ namespace fStarMap {
             MaxRange = -999999999;
             for (Slot = 0; Slot <= 4; ++Slot) {
                 if (SelectedWeapons[Slot]) {
-                    Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Slot));
+                    Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Slot));
                     if (aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon) < MinRange) {
                         MinRange = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                     }
@@ -5565,8 +5565,8 @@ namespace fStarMap {
         if (AnyWeapon) {
             for (Slot = 0; Slot <= 4; ++Slot) {
                 if (SelectedWeapons[Slot]) {
-                    Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Slot));
-                    if (!pas::in_range(static_cast<std::uint8_t>(Weapon->GetWeaponInfo()->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                    Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Slot));
+                    if (!pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
                         RangeValue = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                         if (DirectRange > RangeValue) {
                             RangeMaximum = DirectRange;
@@ -5681,14 +5681,14 @@ namespace fStarMap {
                     Weapon = aPlayer::GetPlayer()->Weapons[I];
                     if (Weapon->Target != nullptr) {
                         if (pas::class_cast_if<aItem::TItem*>(Weapon->Target) != nullptr || pas::class_cast_if<aAsteroid::TAsteroid*>(Weapon->Target) != nullptr || pas::class_cast_if<aMissile::TMissile*>(Weapon->Target) != nullptr || pas::class_cast_if<aShip::TShip*>(Weapon->Target) != nullptr && static_cast<aShip::TShip*>(Weapon->Target)->InNormalSpace()) {
-                            if (pas::class_cast_if<aItem::TItem*>(Weapon->Target) != nullptr) {
-                                Point = pas::checked_cast<aItem::TItem*>(Weapon->Target)->Position;
-                            } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Weapon->Target) != nullptr) {
-                                Point = pas::checked_cast<aAsteroid::TAsteroid*>(Weapon->Target)->Position;
-                            } else if (pas::class_cast_if<aMissile::TMissile*>(Weapon->Target) != nullptr) {
-                                Point = pas::checked_cast<aMissile::TMissile*>(Weapon->Target)->Position;
-                            } else if (pas::class_cast_if<aShip::TShip*>(Weapon->Target) != nullptr) {
-                                Point = pas::checked_cast<aShip::TShip*>(Weapon->Target)->Position;
+                            if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Weapon->Target)) {
+                                Point = item->Position;
+                            } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Weapon->Target)) {
+                                Point = asteroid->Position;
+                            } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Weapon->Target)) {
+                                Point = missile->Position;
+                            } else if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Weapon->Target)) {
+                                Point = ship->Position;
                             }
                             Point = EC_Struct::AddPointsF(Point, EC_Struct::MakePointF(-4.0E+1f, -4.0E+1f));
                             for (auto cpp_range = pas::for_to<std::int32_t>(1, I - 1); cpp_range.next(J); ) {
@@ -5804,44 +5804,44 @@ namespace fStarMap {
         }
         if (ScannerSelectionActive) {
             Obj = FindObjectAtCursor();
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) && !(pas::class_cast_if<aKling::TKling*>(Obj) != nullptr)) {
+            if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Obj); ship != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr) && !(pas::class_cast_if<aKling::TKling*>(Obj) != nullptr)) {
                 pas::Extended cpp_left = pas::sqr(aPlayer::GetPlayer()->GetRadarRange());
-                if (cpp_left >= aMyFunction::PointDistanceSquared(pas::checked_cast<aShip::TShip*>(Obj)->Position, aPlayer::GetPlayer()->Position)) {
-                    if (!IsCursorImageSelected(u"ScanFull"_wref.get())) {
+                if (cpp_left >= aMyFunction::PointDistanceSquared(ship->Position, aPlayer::GetPlayer()->Position)) {
+                    if (!IsCursorImageSelected(u"ScanFull"sv)) {
                         SetCursorByName(u"ScanFull"_wref.get());
                     }
-                } else if (!IsCursorImageSelected(u"ScanSmall"_wref.get())) {
+                } else if (!IsCursorImageSelected(u"ScanSmall"sv)) {
                     SetCursorByName(u"ScanSmall"_wref.get());
                 }
-            } else if (!IsCursorImageSelected(u"ScanSmall"_wref.get())) {
+            } else if (!IsCursorImageSelected(u"ScanSmall"sv)) {
                 SetCursorByName(u"ScanSmall"_wref.get());
             }
         } else if (TalkSelectionActive) {
             Obj = FindObjectAtCursor();
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr)) {
+            if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj); ship_2 != nullptr && !(pas::class_cast_if<aRuins::TRuins*>(Obj) != nullptr)) {
                 pas::Extended cpp_left_2 = pas::sqr(aPlayer::GetPlayer()->GetRadarRange());
-                if (cpp_left_2 >= aMyFunction::PointDistanceSquared(pas::checked_cast<aShip::TShip*>(Obj)->Position, aPlayer::GetPlayer()->Position)) {
-                    if (!IsCursorImageSelected(u"TalkFull"_wref.get())) {
+                if (cpp_left_2 >= aMyFunction::PointDistanceSquared(ship_2->Position, aPlayer::GetPlayer()->Position)) {
+                    if (!IsCursorImageSelected(u"TalkFull"sv)) {
                         SetCursorByName(u"TalkFull"_wref.get());
                     }
-                } else if (!IsCursorImageSelected(u"TalkSmall"_wref.get())) {
+                } else if (!IsCursorImageSelected(u"TalkSmall"sv)) {
                     SetCursorByName(u"TalkSmall"_wref.get());
                 }
-            } else if (!IsCursorImageSelected(u"TalkSmall"_wref.get())) {
+            } else if (!IsCursorImageSelected(u"TalkSmall"sv)) {
                 SetCursorByName(u"TalkSmall"_wref.get());
             }
         } else if (InterceptorSelectionActive) {
             Obj = FindObjectAtCursor();
-            if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                Point = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-                if (aMyFunction::PointDistanceSquared(Point, aPlayer::GetPlayer()->Position) <= 1.0E+6L && pas::checked_cast<aShip::TShip*>(Obj)->InterceptorPassesRemaining == 0) {
-                    if (!IsCursorImageSelected(u"InterceptorsFull"_wref.get())) {
+            if (aShip::TShip* ship_3 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                Point = ship_3->Position;
+                if (aMyFunction::PointDistanceSquared(Point, aPlayer::GetPlayer()->Position) <= 1.0E+6L && ship_3->InterceptorPassesRemaining == 0) {
+                    if (!IsCursorImageSelected(u"InterceptorsFull"sv)) {
                         SetCursorByName(u"InterceptorsFull"_wref.get());
                     }
-                } else if (!IsCursorImageSelected(u"InterceptorsSmall"_wref.get())) {
+                } else if (!IsCursorImageSelected(u"InterceptorsSmall"sv)) {
                     SetCursorByName(u"InterceptorsSmall"_wref.get());
                 }
-            } else if (!IsCursorImageSelected(u"InterceptorsSmall"_wref.get())) {
+            } else if (!IsCursorImageSelected(u"InterceptorsSmall"sv)) {
                 SetCursorByName(u"InterceptorsSmall"_wref.get());
             }
         } else if (CustomSelectionActive) {
@@ -5867,7 +5867,7 @@ namespace fStarMap {
                 }
             }
             if (static_cast<long double>(aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Point)) > CustomSelectionRadius * CustomSelectionRadius) {
-                if (!IsCursorImageSelected(CustomSelectionDeniedCursor)) {
+                if (!IsCursorImageSelected(pas::view(CustomSelectionDeniedCursor))) {
                     SetCursorByName(CustomSelectionDeniedCursor);
                 }
             } else {
@@ -5889,10 +5889,10 @@ namespace fStarMap {
                     }
                 }
                 if (ActionResult > 0) {
-                    if (!IsCursorImageSelected(CustomSelectionAllowedCursor)) {
+                    if (!IsCursorImageSelected(pas::view(CustomSelectionAllowedCursor))) {
                         SetCursorByName(CustomSelectionAllowedCursor);
                     }
-                } else if (!IsCursorImageSelected(CustomSelectionDeniedCursor)) {
+                } else if (!IsCursorImageSelected(pas::view(CustomSelectionDeniedCursor))) {
                     SetCursorByName(CustomSelectionDeniedCursor);
                 }
             }
@@ -5902,42 +5902,42 @@ namespace fStarMap {
                 Range = -999999999;
                 for (Index = 0; Index <= 4; ++Index) {
                     if (SelectedWeapons[Index]) {
-                        Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(0x00000032, Index));
+                        Weapon = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Index));
                         if (aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon) > Range) {
                             Range = aShip::TShip_GetWeaponActionRange(aPlayer::GetPlayer(), Weapon);
                         }
                     }
                 }
-                if (pas::class_cast_if<aShip::TShip*>(Obj) != nullptr) {
-                    Point = pas::checked_cast<aShip::TShip*>(Obj)->Position;
-                } else if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr) {
-                    Point = pas::checked_cast<aItem::TItem*>(Obj)->Position;
-                } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Obj) != nullptr) {
-                    Point = pas::checked_cast<aAsteroid::TAsteroid*>(Obj)->Position;
-                } else if (pas::class_cast_if<aMissile::TMissile*>(Obj) != nullptr) {
-                    Point = pas::checked_cast<aMissile::TMissile*>(Obj)->Position;
+                if (aShip::TShip* ship_4 = pas::class_cast_if<aShip::TShip*>(Obj)) {
+                    Point = ship_4->Position;
+                } else if (aItem::TItem* item = pas::class_cast_if<aItem::TItem*>(Obj)) {
+                    Point = item->Position;
+                } else if (aAsteroid::TAsteroid* asteroid = pas::class_cast_if<aAsteroid::TAsteroid*>(Obj)) {
+                    Point = asteroid->Position;
+                } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Obj)) {
+                    Point = missile->Position;
                 }
                 if (static_cast<long double>(aMyFunction::PointDistanceSquared(Point, aPlayer::GetPlayer()->Position)) <= pas::sqr(Range)) {
-                    if (!IsCursorImageSelected(u"FireFull"_wref.get())) {
+                    if (!IsCursorImageSelected(u"FireFull"sv)) {
                         SetCursorByName(u"FireFull"_wref.get());
                     }
-                } else if (!IsCursorImageSelected(u"FireSmall"_wref.get())) {
+                } else if (!IsCursorImageSelected(u"FireSmall"sv)) {
                     SetCursorByName(u"FireSmall"_wref.get());
                 }
-            } else if (!IsCursorImageSelected(u"FireSmall"_wref.get())) {
+            } else if (!IsCursorImageSelected(u"FireSmall"sv)) {
                 SetCursorByName(u"FireSmall"_wref.get());
             }
         } else {
             Obj = FindObjectAtCursor();
-            if (pas::class_cast_if<aItem::TItem*>(Obj) != nullptr && aItem::CanCargoHookHandleItem(static_cast<aItem::TItem*>(Obj), aPlayer::GetPlayer()) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsRecentlyDroppedItem(reinterpret_cast<aItem::TItem*>(Obj)) ^ 1)) {
-                if (!IsCursorImageSelected(u"Take"_wref.get())) {
+            if (aItem::TItem* item_2 = pas::class_cast_if<aItem::TItem*>(Obj); item_2 != nullptr && aItem::CanCargoHookHandleItem(item_2, aPlayer::GetPlayer()) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->IsRecentlyDroppedItem(item_2) ^ 1)) {
+                if (!IsCursorImageSelected(u"Take"sv)) {
                     SetCursorByName(u"Take"_wref.get());
                 }
             } else if (MapControls->Dragging) {
-                if (!IsCursorImageSelected(u"Scroll"_wref.get())) {
+                if (!IsCursorImageSelected(u"Scroll"sv)) {
                     SetCursorByName(u"Scroll"_wref.get());
                 }
-            } else if (!IsCursorImageSelected(u"Main"_wref.get())) {
+            } else if (!IsCursorImageSelected(u"Main"sv)) {
                 SetCursorByName(u"Main"_wref.get());
             }
         }
@@ -6115,7 +6115,7 @@ namespace fStarMap {
         CenterShipButton->MouseEnterCallback = pas::bind_method<&TfStarMap::CenterFilmShipMouseEnter>(this);
         CenterShipButton->MouseLeaveCallback = pas::bind_method<&TfStarMap::CenterFilmShipMouseLeave>(this);
         {
-            GI_GraphButton::TGraphButtonGI* PM_Break = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* PM_Break = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"sv));
             PM_Break->SetActive(true);
             PM_Break->SetDisabled(false);
             PM_Break->UpCallback = pas::bind_method<&TfStarMap::BreakTurnClicked>(this);
@@ -6149,7 +6149,7 @@ namespace fStarMap {
         FilmCameraMoving = false;
         AdvanceFilmFrame(nullptr, 0);
         ReservedFilmState1A0 = 0;
-        if (!IsCursorImageSelected(u"Main"_wref.get())) {
+        if (!IsCursorImageSelected(u"Main"sv)) {
             SetCursorByName(u"Main"_wref.get());
         }
         if (CenterShipButton->IsHovered()) {
@@ -6160,7 +6160,7 @@ namespace fStarMap {
     void TfStarMap::StopTurnFilm(std::uint8_t StopTurnProcessing) {
         DisplayedFilmObject = nullptr;
         Mode = smmInactive;
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"_wref.get()))->SetDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"sv))->SetDisabled(true);
         if (StopTurnProcessing && ContinueTurnCalculation) {
             aCalc::WaitForTurnCalculationUI();
         }
@@ -6190,7 +6190,7 @@ namespace fStarMap {
         FilmProgressTimer = ScheduleCallbackTimer(50, 50, pas::bind_method<&TfStarMap::UpdateTurnCalculation>(this), 0);
         ContinueTurnCalculation = false;
         BreakRequested = BreakOnNextFilm;
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"_wref.get()))->UpCallback = pas::bind_method<&TfStarMap::BreakTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"sv))->UpCallback = pas::bind_method<&TfStarMap::BreakTurnClicked>(this);
         Globals::SwapTurnFilms();
         MainPanel->SetDateRange(Globals::SecondaryFilm->Turn, Globals::SecondaryFilm->Turn + 1);
         NextFilmCommand = Globals::SecondaryFilm->FirstCommand;
@@ -6260,7 +6260,7 @@ namespace fStarMap {
                         if (NextFilmCommand->Kind == aEFilm::efcBeginTrailingEffects) {
                             break;
                         }
-                        if (!(NextFilmCommand->Kind == aEFilm::efcAttachObject && (aGalaxy::Galaxy->TerronToStarTurn & 0x40000000) != 0 && reinterpret_cast<aEFilm::PEFilmObjectCommand>(NextFilmCommand)->Obj->GraphKey == u"Ruins.Terron")) {
+                        if (!(NextFilmCommand->Kind == aEFilm::efcAttachObject && (aGalaxy::Galaxy->TerronToStarTurn & 0x40000000) != 0 && NextFilmCommand->Obj->GraphKey == u"Ruins.Terron")) {
                             if (NextFilmCommand->StepIndex > FilmStepIndex) {
                                 break;
                             }
@@ -6285,7 +6285,7 @@ namespace fStarMap {
                 if (TrailingEffectSteps <= 0) {
                     Stage = 10;
                     StopTurnFilm(true);
-                    GlobalsV::GameEndReason = 0;
+                    GlobalsV::GameEndReason = GlobalsV::gerDefault;
                     GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
                     GR_DX::ReleaseAllTextureSurfaces();
                     RequestClose(1);
@@ -6343,7 +6343,7 @@ namespace fStarMap {
                     if (static_cast<std::uint8_t>(aCalc::IsTurnCalculationRunningUI() ^ 1) && aCalc::TurnCalculationPhase == ThreadCalc::tcpPlayerStarFinished) {
                         aCalc::QueueGalaxyTurnCalculation();
                     }
-                    if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiUninhabited) {
                         if (aPlayer::GetPlayer()->GetEngine() != nullptr) {
                             double cpp_arg = aMyFunction::NextRandomUnitFloat(aPlayer::GetPlayer()->RandomState) * 15.0L;
                             aItem::TEquipment* engine = aPlayer::GetPlayer()->GetEngine();
@@ -6518,7 +6518,7 @@ namespace fStarMap {
     void TfStarMap::BreakTurnClicked(GI_MessageLoop::TObjectGI* Sender) {
         ShowLargeHelp(GR_Main::LookupLocalizedTextByKey(u"Help.MoveBreak"_wref.get()));
         BreakRequested = true;
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"_wref.get()))->SetDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Break"sv))->SetDisabled(true);
     }
 
     void TfStarMap::UpdateFilmCamera() {
@@ -6727,13 +6727,13 @@ namespace fStarMap {
         Obj = Globals::SecondaryFilm->FirstObject;
         while (Obj != nullptr) {
             if (Obj->SceneObject != nullptr && pas::class_cast_if<SE_Planet::TPlanetSE*>(Obj->SceneObject) != nullptr) {
-                if (pas::checked_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->IsRuins) {
+                if (static_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->IsRuins) {
                     if (Obj->SceneObject->HitTestCursor()) {
                         Result = Obj->SceneObject;
                         ObjectId = Obj->ObjectId;
                         return Result;
                     }
-                } else if (pas::sqr(static_cast<long double>(Point.X) - Obj->SceneObject->Position.X) + pas::sqr(static_cast<long double>(Point.Y) - Obj->SceneObject->Position.Y) < pas::sqr(pas::checked_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->Radius)) {
+                } else if (pas::sqr(static_cast<long double>(Point.X) - Obj->SceneObject->Position.X) + pas::sqr(static_cast<long double>(Point.Y) - Obj->SceneObject->Position.Y) < pas::sqr(static_cast<SE_Planet::TPlanetSE*>(Obj->SceneObject)->Radius)) {
                     Result = Obj->SceneObject;
                     ObjectId = Obj->ObjectId;
                     return Result;
@@ -6755,7 +6755,7 @@ namespace fStarMap {
         Obj = Globals::SecondaryFilm->FirstObject;
         while (Obj != nullptr) {
             if (Obj->SceneObject != nullptr && pas::class_cast_if<SE_Hole::THoleSE*>(Obj->SceneObject) != nullptr) {
-                if (static_cast<long double>(aMyFunction::PointDistanceSquared(Obj->SceneObject->Position, EC_Struct::PointToPointF(Point))) < pas::sqr(reinterpret_cast<SE_Hole::THoleSE*>(Obj->SceneObject)->HitRadius)) {
+                if (static_cast<long double>(aMyFunction::PointDistanceSquared(Obj->SceneObject->Position, EC_Struct::PointToPointF(Point))) < pas::sqr(static_cast<SE_Hole::THoleSE*>(Obj->SceneObject)->HitRadius)) {
                     Result = Obj->SceneObject;
                     ObjectId = Obj->ObjectId;
                     return Result;
@@ -6790,7 +6790,7 @@ namespace fStarMap {
         pas::List* Objects{};
         pas::List* Records{};
         float Distance{};
-        std::uint8_t OwnerId{};
+        aGalaxyStruct::TOwnerId OwnerId{};
         aEObjInfo::TEObjInfo* Snapshot{};
         aEFilm::TEFilmObj* FilmObject{};
         pas::WideString ImagePath{};
@@ -6860,9 +6860,9 @@ namespace fStarMap {
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(true);
                 if (pas::class_cast_if<SE_Container::TContainerSE*>(Obj) != nullptr) {
-                    GetByName(u"InfoStdGB"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdGB"sv)->SetActive(false);
                     {
-                        GI_Image::TImageGI* InfoStdImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoStdImage"_wref.get()));
+                        GI_Image::TImageGI* InfoStdImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoStdImage"sv));
                         InfoStdImage->SetActive(true);
                         InfoStdImage->SetImagePath(Item->ImagePath);
                         InfoStdImage->SetImageKindX(GI_Main::ikxCenter);
@@ -6874,42 +6874,42 @@ namespace fStarMap {
                         }
                     }
                     if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
-                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()))->SetText(Item->Name);
-                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()))->SetText(Item->InfoText);
+                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv))->SetText(Item->Name);
+                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv))->SetText(Item->InfoText);
                     } else {
                         {
                             const pas::WideString& wrapTextInColor = ([&] {
                                 pas::WideString localizedText = aConst::LocalizedText(u"FormInfo.ContainerName"_wref.get());
                                 pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                                return aMyFunction::WrapTextInColor(std::move(localizedText), std::move(infoNameColorTag));
+                                return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText)), pas::view(std::move(infoNameColorTag)));
                             }());
-                            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             cpp_arg_3->SetText(wrapTextInColor);
                         }
                         {
                             const pas::WideString& localizedText_2 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                             cpp_arg_4->SetText(localizedText_2);
                         }
                     }
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"_wref.get()))->SetText(u"???"_wref.get());
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"_wref.get()))->SetText(u"???"_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"sv))->SetText(u"???"_wref.get());
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"sv))->SetText(u"???"_wref.get());
                     {
-                        GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_7 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_7, cpp_arg_6, cpp_arg_5, true, true, 0);
                     }
                 } else if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Obj) != nullptr || pas::class_cast_if<SE_Ruins::TRuinsSE*>(Obj) != nullptr) {
                     if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Obj) != nullptr) {
-                        GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                        GetByName(u"InfoStdImage"sv)->SetActive(false);
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoStdGB = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoStdGB = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                             ImagePath = Ship->PortraitImage;
                             InfoStdGB->SetActive(ImagePath != u"");
                             if (InfoStdGB->Active) {
                                 InfoStdGB->SourceHasPerPixelAlpha = true;
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(ImagePath, 1, u","_wref.get()), InfoStdGB->GraphBuf);
+                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv), InfoStdGB->GraphBuf);
                                 if (InfoStdGB->ClientSize.X < InfoStdGB->GraphBuf->Width || InfoStdGB->ClientSize.Y < InfoStdGB->GraphBuf->Height) {
                                     if (static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Height)) {
                                         InfoStdGB->GraphBuf->RescaleRgba(InfoStdGB->ClientSize.X, System::Round(pas::real_divide(InfoStdGB->ClientSize.X, static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStdGB->GraphBuf->Height)), 5);
@@ -6927,12 +6927,12 @@ namespace fStarMap {
                             }
                         }
                     } else {
-                        GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                        GetByName(u"InfoStdImage"sv)->SetActive(false);
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoStdGB_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoStdGB_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                             InfoStdGB_2->SetActive(true);
                             InfoStdGB_2->SourceHasPerPixelAlpha = true;
-                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(Obj)->StaticImagePath, 1, u","_wref.get()), InfoStdGB_2->GraphBuf);
+                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Obj)->StaticImagePath), 1, u","sv), InfoStdGB_2->GraphBuf);
                             if (InfoStdGB_2->ClientSize.X < InfoStdGB_2->GraphBuf->Width || InfoStdGB_2->ClientSize.Y < InfoStdGB_2->GraphBuf->Height) {
                                 if (static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Height)) {
                                     InfoStdGB_2->GraphBuf->RescaleRgba(InfoStdGB_2->ClientSize.X, System::Round(pas::real_divide(InfoStdGB_2->ClientSize.X, static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStdGB_2->GraphBuf->Height)), 5);
@@ -6947,22 +6947,22 @@ namespace fStarMap {
                             }
                         }
                     }
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()))->SetText(Ship->FullName);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv))->SetText(Ship->FullName);
                     {
                         const pas::WideString& localizedText_3 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                        GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_8->SetText(localizedText_3);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_11 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_11, cpp_arg_10, cpp_arg_9, true, true, 0);
                     }
                 } else if (pas::class_cast_if<SE_Planet::TPlanetSE*>(Obj) != nullptr) {
-                    IsCivilized = pas::in_set<0, 4, 7, 7>(Planet->OwnerId) && (aPlanet::MainPiratePlanet == nullptr || Planet->Id != aPlanet::MainPiratePlanet->Id);
+                    IsCivilized = pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId) && (aPlanet::MainPiratePlanet == nullptr || Planet->Id != aPlanet::MainPiratePlanet->Id);
                     if (IsCivilized) {
-                        if (Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        if (Planet->OwnerId == aGalaxyStruct::oiPirate) {
                             IsCivilized = Planet->Faction == pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::RaceToSys(Planet->RaceId)});
                         } else {
                             IsCivilized = Planet->Faction == aConst::OwnerInfo[Planet->OwnerId].InternalName;
@@ -6976,21 +6976,21 @@ namespace fStarMap {
                         StarInfoWindow->SetActive(false);
                         StandardInfoPanel->SetActive(false);
                         {
-                            const pas::WideString& wrapTextInColor_2 = aMyFunction::WrapTextInColor(Planet->Name, aMyFunction::InfoNameColorTag);
-                            GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"_wref.get()));
+                            const pas::WideString& wrapTextInColor_2 = aMyFunction::WrapTextInColor(pas::view(Planet->Name), pas::view(aMyFunction::InfoNameColorTag));
+                            GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"sv));
                             cpp_arg_12->SetText(wrapTextInColor_2);
                         }
-                        if (pas::in_set<0, 4, 7, 7>(Planet->OwnerId)) {
-                            GI_Image::TImageGI* InfoPlanetEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoPlanetEmRace"_wref.get()));
+                        if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
+                            GI_Image::TImageGI* InfoPlanetEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoPlanetEmRace"sv));
                             InfoPlanetEmRace->SetImagePath(aConst::GetFactionEmblemPath(Planet->Faction));
                             InfoPlanetEmRace->SetImageKindX(GI_Main::ikxCenter);
                             InfoPlanetEmRace->SetImageKindY(GI_Main::ikyCenter);
                             InfoPlanetEmRace->SetActive(true);
                         } else {
-                            GetByName(u"InfoPlanetEmRace"_wref.get())->SetActive(false);
+                            GetByName(u"InfoPlanetEmRace"sv)->SetActive(false);
                         }
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoPlanetImage"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoPlanetImage"sv));
                             InfoPlanetImage->SourceHasPerPixelAlpha = true;
                             pas::checked_cast<SE_Planet::TPlanetSE*>(Obj)->RenderToBuffer(this, InfoPlanetImage->GraphBuf, false);
                             if (InfoPlanetImage->ClientSize.X < InfoPlanetImage->GraphBuf->Width || InfoPlanetImage->ClientSize.Y < InfoPlanetImage->GraphBuf->Height) {
@@ -7002,40 +7002,40 @@ namespace fStarMap {
                             }
                         }
                         if (aPlanet::MainPiratePlanet != nullptr && Planet->Id == aPlanet::MainPiratePlanet->Id) {
-                            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"_wref.get()))->SetText(aConst::OwnerInfo[Planet->OwnerId].DisplayName);
+                            pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"sv))->SetText(aConst::OwnerInfo[Planet->OwnerId].DisplayName);
                         } else {
-                            GI_Label::TLabelGI* cpp_arg_13 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"_wref.get()));
-                            const pas::WideString& displayName = aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(aConst::RaceToOwner(Planet->RaceId))].DisplayName;
+                            GI_Label::TLabelGI* cpp_arg_13 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"sv));
+                            const pas::WideString& displayName = aConst::OwnerInfo[aConst::RaceToOwner(Planet->RaceId)].DisplayName;
                             cpp_arg_13->SetText(displayName);
                         }
                         {
                             const pas::WideString& int64ToStr = pas::wide_int64_to_str(System::Round(pas::real_divide(Planet->Population, 1.0E+3L)));
-                            GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"sv));
                             cpp_arg_14->SetText(int64ToStr);
                         }
-                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"_wref.get()))->SetText(aConst::PlanetEconomyInfo[Planet->Economy].DisplayName);
-                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"_wref.get()))->SetText(aConst::PlanetGovernmentMarket[Planet->Government].DisplayName);
-                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"_wref.get()))->SetText(aConst::RelationInfo[Planet->Relation].DisplayName);
+                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"sv))->SetText(aConst::PlanetEconomyInfo[Planet->Economy].DisplayName);
+                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"sv))->SetText(aConst::PlanetGovernmentMarket[Planet->Government].DisplayName);
+                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"sv))->SetText(aConst::RelationInfo[Planet->Relation].DisplayName);
                         {
-                            GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPOwner"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_16 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPPop"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_19 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPEco"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_20 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_21 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPGov"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_22 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_23 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPRel"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_24 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"_wref.get()));
-                            GI_MessageLoop::TObjectGI* byName = GetByName(u"InfoPlanetEmRace"_wref.get());
-                            GI_Label::TLabelGI* cpp_arg_25 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPOwner"sv));
+                            GI_Label::TLabelGI* cpp_arg_16 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetOwner"sv));
+                            GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPPop"sv));
+                            GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetPop"sv));
+                            GI_Label::TLabelGI* cpp_arg_19 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPEco"sv));
+                            GI_Label::TLabelGI* cpp_arg_20 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetEco"sv));
+                            GI_Label::TLabelGI* cpp_arg_21 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPGov"sv));
+                            GI_Label::TLabelGI* cpp_arg_22 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetGov"sv));
+                            GI_Label::TLabelGI* cpp_arg_23 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPRel"sv));
+                            GI_Label::TLabelGI* cpp_arg_24 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetRel"sv));
+                            GI_MessageLoop::TObjectGI* byName = GetByName(u"InfoPlanetEmRace"sv);
+                            GI_Label::TLabelGI* cpp_arg_25 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPlanetName"sv));
                             GI_Window::TWindowGI* cpp_arg_26 = pas::checked_cast<GI_Window::TWindowGI*>(PlanetInfoPanel);
                             Globals::ShipScreen->LayoutObjectInfo(cpp_arg_26, cpp_arg_25, cpp_arg_15, cpp_arg_16, cpp_arg_17, cpp_arg_18, cpp_arg_19, cpp_arg_20, cpp_arg_21, cpp_arg_22, cpp_arg_23, cpp_arg_24, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, byName, true, 0);
                         }
                     } else {
-                        GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                        GetByName(u"InfoStdImage"sv)->SetActive(false);
                         {
-                            GI_GraphBuf::TGraphBufGI* InfoStdGB_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                            GI_GraphBuf::TGraphBufGI* InfoStdGB_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                             InfoStdGB_3->SetActive(true);
                             InfoStdGB_3->SourceHasPerPixelAlpha = true;
                             pas::checked_cast<SE_Planet::TPlanetSE*>(Obj)->RenderToBuffer(this, InfoStdGB_3->GraphBuf, false);
@@ -7053,11 +7053,11 @@ namespace fStarMap {
                             }
                         }
                         {
-                            const pas::WideString& wrapTextInColor_3 = aMyFunction::WrapTextInColor(Planet->Name, aMyFunction::InfoNameColorTag);
-                            GI_Label::TLabelGI* cpp_arg_27 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                            const pas::WideString& wrapTextInColor_3 = aMyFunction::WrapTextInColor(pas::view(Planet->Name), pas::view(aMyFunction::InfoNameColorTag));
+                            GI_Label::TLabelGI* cpp_arg_27 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             cpp_arg_27->SetText(wrapTextInColor_3);
                         }
-                        if (Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                        if (Planet->OwnerId == aGalaxyStruct::oiUninhabited) {
                             Text = aConst::LocalizedText(u"Planet.NotCivil.Info.TextAboutPlanet"_wref.get());
                             if (Planet->UnexploredWater > 0) {
                                 aMyFunction::ReplaceTextToken(Text, u"<Water>"_w, pas::wide_int_to_str(Planet->UnexploredWater), u"<color=255,240,100>"_w);
@@ -7080,13 +7080,13 @@ namespace fStarMap {
                                 }
                             }
                         } else if (aPlanet::MainPiratePlanet != nullptr && Planet->Id == aPlanet::MainPiratePlanet->Id) {
-                            if (Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                            if (Planet->OwnerId == aGalaxyStruct::oiPirate) {
                                 Text = aConst::LocalizedText(u"Planet.MainPiratePlanet.Info.TextAboutPlanet"_wref.get());
                             } else {
                                 Text = aConst::LocalizedText(u"Planet.MainPiratePlanet.Info.TextAboutPlanetAlt"_wref.get());
                             }
                         } else {
-                            IsCivilized = Planet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
+                            IsCivilized = Planet->OwnerId == aGalaxyStruct::oiDominator;
                             if (IsCivilized) {
                                 IsCivilized = Planet->Faction == aConst::DominatorSeriesNames[0] || Planet->Faction == aConst::DominatorSeriesNames[2] || Planet->Faction == aConst::DominatorSeriesNames[1];
                             }
@@ -7095,20 +7095,20 @@ namespace fStarMap {
                             } else {
                                 Text = aConst::LocalizedText(pas::concat_wide({u"Planet.", Planet->Faction, u".Info.TextAboutPlanet"}));
                             }
-                            aMyFunction::ReplaceTextToken(Text, u"<Race>"_w, aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(aConst::RaceToOwner(Planet->RaceId))].DisplayName, u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(Text, u"<Race>"_w, aConst::OwnerInfo[aConst::RaceToOwner(Planet->RaceId)].DisplayName, u"<color=255,240,100>"_w);
                         }
-                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()))->SetText(Text);
+                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv))->SetText(Text);
                         {
-                            GI_Label::TLabelGI* cpp_arg_28 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                            GI_Label::TLabelGI* cpp_arg_29 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                            GI_Label::TLabelGI* cpp_arg_28 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                            GI_Label::TLabelGI* cpp_arg_29 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                             GI_Window::TWindowGI* cpp_arg_30 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                             fShip2::TfShip2::LayoutItemInfo(cpp_arg_30, cpp_arg_29, cpp_arg_28, true, true, 0);
                         }
                     }
                 } else if (pas::class_cast_if<SE_Asteroid::TAsteroidSE*>(Obj) != nullptr) {
-                    GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdImage"sv)->SetActive(false);
                     {
-                        GI_GraphBuf::TGraphBufGI* InfoStdGB_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                        GI_GraphBuf::TGraphBufGI* InfoStdGB_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                         InfoStdGB_4->SetActive(true);
                         InfoStdGB_4->SourceHasPerPixelAlpha = true;
                         GI_GAI::LoadGaiFrameToGraphBuf(pas::checked_cast<SE_Asteroid::TAsteroidSE*>(Obj)->ImagePath, InfoStdGB_4->GraphBuf, ObjectId);
@@ -7126,25 +7126,25 @@ namespace fStarMap {
                         }
                     }
                     {
-                        const pas::WideString& wrapTextInColor_4 = aMyFunction::WrapTextInColor(Asteroid->Name, aMyFunction::InfoNameColorTag);
-                        GI_Label::TLabelGI* cpp_arg_31 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        const pas::WideString& wrapTextInColor_4 = aMyFunction::WrapTextInColor(pas::view(Asteroid->Name), pas::view(aMyFunction::InfoNameColorTag));
+                        GI_Label::TLabelGI* cpp_arg_31 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         cpp_arg_31->SetText(wrapTextInColor_4);
                     }
                     {
                         const pas::WideString& localizedText_4 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                        GI_Label::TLabelGI* cpp_arg_32 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_32 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_32->SetText(localizedText_4);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_33 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_34 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_33 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_34 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_35 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_35, cpp_arg_34, cpp_arg_33, true, true, 0);
                     }
                 } else if (pas::class_cast_if<SE_Missile::TMissileSE*>(Obj) != nullptr) {
-                    GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdImage"sv)->SetActive(false);
                     {
-                        GI_GraphBuf::TGraphBufGI* InfoStdGB_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                        GI_GraphBuf::TGraphBufGI* InfoStdGB_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                         InfoStdGB_5->SetActive(true);
                         InfoStdGB_5->SourceHasPerPixelAlpha = true;
                         GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.", Obj->GraphKey, u"_", GR_Main::GiResourceSuffix(), u"i"}), InfoStdGB_5->GraphBuf);
@@ -7155,25 +7155,25 @@ namespace fStarMap {
                         }
                     }
                     {
-                        const pas::WideString& wrapTextInColor_5 = aMyFunction::WrapTextInColor(Missile->Name, aMyFunction::InfoNameColorTag);
-                        GI_Label::TLabelGI* cpp_arg_36 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        const pas::WideString& wrapTextInColor_5 = aMyFunction::WrapTextInColor(pas::view(Missile->Name), pas::view(aMyFunction::InfoNameColorTag));
+                        GI_Label::TLabelGI* cpp_arg_36 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         cpp_arg_36->SetText(wrapTextInColor_5);
                     }
                     {
                         const pas::WideString& localizedText_5 = aConst::LocalizedText(u"FormInfo.ObjOutOfRange"_wref.get());
-                        GI_Label::TLabelGI* cpp_arg_37 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_37 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_37->SetText(localizedText_5);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_38 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_39 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_38 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_39 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_40 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_40, cpp_arg_39, cpp_arg_38, true, true, 0);
                     }
                 } else if (pas::class_cast_if<SE_Hole::THoleSE*>(Obj) != nullptr) {
-                    GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                    GetByName(u"InfoStdImage"sv)->SetActive(false);
                     {
-                        GI_GraphBuf::TGraphBufGI* InfoStdGB_6 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                        GI_GraphBuf::TGraphBufGI* InfoStdGB_6 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                         InfoStdGB_6->SetActive(true);
                         InfoStdGB_6->SourceHasPerPixelAlpha = true;
                         GI_GAI::LoadGaiFrameToGraphBuf(pas::checked_cast<SE_Hole::THoleSE*>(Obj)->ImagePath, InfoStdGB_6->GraphBuf, 32u);
@@ -7194,19 +7194,19 @@ namespace fStarMap {
                         const pas::WideString& wrapTextInColor_6 = ([&] {
                             pas::WideString localizedText_6 = aConst::LocalizedText(reinterpret_cast<SE_Hole::THoleSE*>(Obj)->NameTextPath);
                             pas::WideString infoNameColorTag_2 = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(std::move(localizedText_6), std::move(infoNameColorTag_2));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText_6)), pas::view(std::move(infoNameColorTag_2)));
                         }());
-                        GI_Label::TLabelGI* cpp_arg_41 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_41 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         cpp_arg_41->SetText(wrapTextInColor_6);
                     }
                     {
                         const pas::WideString& localizedText_7 = aConst::LocalizedText(reinterpret_cast<SE_Hole::THoleSE*>(Obj)->InfoTextPath);
-                        GI_Label::TLabelGI* cpp_arg_42 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_42 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
                         cpp_arg_42->SetText(localizedText_7);
                     }
                     {
-                        GI_Label::TLabelGI* cpp_arg_43 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                        GI_Label::TLabelGI* cpp_arg_44 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_43 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                        GI_Label::TLabelGI* cpp_arg_44 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                         GI_Window::TWindowGI* cpp_arg_45 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                         fShip2::TfShip2::LayoutItemInfo(cpp_arg_45, cpp_arg_44, cpp_arg_43, true, true, 0);
                     }
@@ -7231,7 +7231,7 @@ namespace fStarMap {
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(false);
                 {
-                    GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemImage"_wref.get()));
+                    GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemImage"sv));
                     InfoItemImage->SetImagePath(Item->ImagePath);
                     InfoItemImage->SetImageKindX(GI_Main::ikxCenter);
                     InfoItemImage->SetImageKindY(GI_Main::ikyCenter);
@@ -7241,27 +7241,27 @@ namespace fStarMap {
                         InfoItemImage->SetPosition(EC_Struct::SubtractPoints(itemImageCenter_8, visualCenter_8));
                     }
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()))->SetText(Item->Name);
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()))->SetText(Item->InfoText);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv))->SetText(Item->Name);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv))->SetText(Item->InfoText);
                 {
                     const pas::WideString& intToStr = pas::wide_int_to_str(Item->Weight);
-                    GI_Label::TLabelGI* cpp_arg_48 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_48 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemSize"sv));
                     cpp_arg_48->SetText(intToStr);
                 }
                 {
                     const pas::WideString& intToStr_2 = pas::wide_int_to_str(Item->Cost);
-                    GI_Label::TLabelGI* cpp_arg_49 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_49 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemPrice"sv));
                     cpp_arg_49->SetText(intToStr_2);
                 }
                 {
-                    GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"_wref.get()));
+                    GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"sv));
                     InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(Item->Faction));
                     InfoItemEmRace->SetImageKindX(GI_Main::ikxCenter);
                     InfoItemEmRace->SetImageKindY(GI_Main::ikyCenter);
                 }
                 if (!(pas::contains(WearableItemTypes, static_cast<std::uint8_t>(Item->ItemType)) || Item->ItemType == aConst::t_Hull)) {
                     {
-                        GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                        GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                         InfoDurable->Parent->Parent->SetActive(false);
                     }
                     MinimumWidth = 0;
@@ -7276,12 +7276,12 @@ namespace fStarMap {
                     }
                     BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
                     {
-                        GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
                         CapWidth = InfoDurableLeft->GetContentSize().X;
                         MinimumWidth = CapWidth * 2 + BarWidth + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + InfoDurableLeft->Parent->Parent->LocalPosition.X * 2;
                     }
                     {
-                        GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"_wref.get()));
+                        GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
                         InfoDurable_2->Parent->Parent->SetActive(true);
                         InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(CapWidth * 2 + BarWidth, InfoDurable_2->Parent->Parent->ClientSize.Y));
                         InfoDurable_2->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
@@ -7295,7 +7295,7 @@ namespace fStarMap {
                         }()));
                     }
                     {
-                        GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
                         {
                             std::int32_t cpp_arg_51 = BarWidth + CapWidth - InfoDurableRight->GetContentSize().X;
                             std::int32_t y_2 = InfoDurableRight->LocalPosition.Y;
@@ -7305,7 +7305,7 @@ namespace fStarMap {
                         InfoDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableRight->Parent->ClientSize.Y));
                     }
                     {
-                        GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"_wref.get()));
+                        GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
                         {
                             std::int32_t cpp_arg_52 = BarWidth + 1 - InfoDurableBack->GetContentSize().X;
                             std::int32_t y_3 = InfoDurableBack->LocalPosition.Y;
@@ -7315,16 +7315,16 @@ namespace fStarMap {
                     }
                 }
                 {
-                    GI_Label::TLabelGI* cpp_arg_53 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_54 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_53 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
+                    GI_Label::TLabelGI* cpp_arg_54 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                     fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, cpp_arg_54, cpp_arg_53, true, true, MinimumWidth);
                 }
-                GetByName(u"InfoItemSize"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
-                GetByName(u"InfoItemPrice"_wref.get())->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
-                GetByName(u"InfoItemEmRace"_wref.get())->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
+                GetByName(u"InfoItemSize"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
+                GetByName(u"InfoItemPrice"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
+                GetByName(u"InfoItemEmRace"sv)->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
                 {
-                    GI_Label::TLabelGI* cpp_arg_55 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_56 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_55 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
+                    GI_Label::TLabelGI* cpp_arg_56 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                     fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, cpp_arg_56, cpp_arg_55, true, true, 0);
                 }
             }
@@ -7345,23 +7345,23 @@ namespace fStarMap {
                 PlanetInfoPanel->SetActive(false);
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(false);
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()))->SetText(Ship->FullName);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->SetText(Ship->FullName);
                 if (Ship->Faction != u"None") {
-                    GI_Image::TImageGI* InfoShipEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipEmRace"_wref.get()));
+                    GI_Image::TImageGI* InfoShipEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipEmRace"sv));
                     InfoShipEmRace->SetImagePath(aConst::GetFactionEmblemPath(Ship->Faction));
                     InfoShipEmRace->SetImageKindX(GI_Main::ikxCenter);
                     InfoShipEmRace->SetImageKindY(GI_Main::ikyCenter);
                     InfoShipEmRace->SetActive(true);
                 } else {
-                    GetByName(u"InfoShipEmRace"_wref.get())->SetActive(false);
+                    GetByName(u"InfoShipEmRace"sv)->SetActive(false);
                 }
                 if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Obj) != nullptr) {
-                    GI_GraphBuf::TGraphBufGI* InfoShipImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoShipImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"sv));
                     ImagePath = Ship->PortraitImage;
                     InfoShipImage2->SetActive(ImagePath != u"");
                     if (InfoShipImage2->Active) {
                         InfoShipImage2->SourceHasPerPixelAlpha = true;
-                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(ImagePath, 1, u","_wref.get()), InfoShipImage2->GraphBuf);
+                        GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv), InfoShipImage2->GraphBuf);
                         if (InfoShipImage2->ClientSize.X < InfoShipImage2->GraphBuf->Width || InfoShipImage2->ClientSize.Y < InfoShipImage2->GraphBuf->Height) {
                             if (static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)) {
                                 InfoShipImage2->GraphBuf->RescaleRgba(InfoShipImage2->ClientSize.X, System::Round(pas::real_divide(InfoShipImage2->ClientSize.X, static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)), 5);
@@ -7378,10 +7378,10 @@ namespace fStarMap {
                         }
                     }
                 } else {
-                    GI_GraphBuf::TGraphBufGI* InfoShipImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoShipImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"sv));
                     InfoShipImage2_2->SetActive(true);
                     InfoShipImage2_2->SourceHasPerPixelAlpha = true;
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Ruins::TRuinsSE*>(Obj)->StaticImagePath, 1, u","_wref.get()), InfoShipImage2_2->GraphBuf);
+                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Obj)->StaticImagePath), 1, u","sv), InfoShipImage2_2->GraphBuf);
                     if (InfoShipImage2_2->ClientSize.X < InfoShipImage2_2->GraphBuf->Width || InfoShipImage2_2->ClientSize.Y < InfoShipImage2_2->GraphBuf->Height) {
                         if (static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)) {
                             InfoShipImage2_2->GraphBuf->RescaleRgba(InfoShipImage2_2->ClientSize.X, System::Round(pas::real_divide(InfoShipImage2_2->ClientSize.X, static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)), 5);
@@ -7395,17 +7395,17 @@ namespace fStarMap {
                         InfoShipImage2_2->SetPosition(EC_Struct::SubtractPoints(itemImageCenter_10, visualCenter_10));
                     }
                 }
-                if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(Obj) != nullptr && Ship->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"_wref.get()))->SetActive(false);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()))->SetActive(false);
+                if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(Obj) != nullptr && Ship->OwnerId != aGalaxyStruct::oiDominator) {
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"sv))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv))->SetActive(false);
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"_wref.get()))->SetActive(true);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()))->SetActive(true);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()))->SetText(Ship->TypeName);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"sv))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv))->SetText(Ship->TypeName);
                 }
                 {
                     const pas::WideString& intToStr_3 = pas::wide_int_to_str(Ship->Speed);
-                    GI_Label::TLabelGI* cpp_arg_59 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_59 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"sv));
                     cpp_arg_59->SetText(intToStr_3);
                 }
                 if (Ship->HullPoints <= pas::real_divide(Ship->HullCapacity, 2.0L)) {
@@ -7414,30 +7414,30 @@ namespace fStarMap {
                     ColorTag = pas::WideString();
                 }
                 if (Ship->ScannerResolved) {
-                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->HullPoints), ColorTag), u"/", pas::wide_int_to_str(Ship->HullCapacity)});
+                    Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Ship->HullPoints)), pas::view(ColorTag)), u"/", pas::wide_int_to_str(Ship->HullCapacity)});
                     if (Ship->RepairPoints >= 0) {
-                        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Ship->RepairPoints), pas::WideString())});
+                        Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Ship->RepairPoints)), u""sv)});
                     }
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()))->SetText(Text);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv))->SetText(Text);
                 } else {
-                    const pas::WideString& wrapTextInColor_7 = aMyFunction::WrapTextInColor(u"???"_w, ColorTag);
-                    GI_Label::TLabelGI* cpp_arg_60 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()));
+                    const pas::WideString& wrapTextInColor_7 = aMyFunction::WrapTextInColor(u"???"sv, pas::view(ColorTag));
+                    GI_Label::TLabelGI* cpp_arg_60 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv));
                     cpp_arg_60->SetText(wrapTextInColor_7);
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"_wref.get()))->SetText(Ship->DefenseText);
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"_wref.get()))->SetText(Ship->DamageText);
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"_wref.get()))->SetText(aConst::RelationInfo[Ship->Relation].DisplayName);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"sv))->SetText(Ship->DefenseText);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv))->SetText(Ship->DamageText);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"sv))->SetText(aConst::RelationInfo[Ship->Relation].DisplayName);
                 if (Ship->WinChance >= 0) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()))->SetActive(true);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(true);
                     {
                         const pas::WideString& cpp_arg_61 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Ship->WinChance), "%"}));
-                        GI_Label::TLabelGI* cpp_arg_62 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()));
+                        GI_Label::TLabelGI* cpp_arg_62 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv));
                         cpp_arg_62->SetText(cpp_arg_61);
                     }
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()))->SetActive(false);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(false);
                 }
                 BarWidth = System::Round(System::Sqrt(([&] {
                     pas::Extended cpp_right_2 = pas::real_max<double>(0.1, Ship->HullFragility);
@@ -7445,12 +7445,12 @@ namespace fStarMap {
                 }())) * 64.0L);
                 BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
                 {
-                    GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableLeft"_wref.get()));
+                    GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableLeft"sv));
                     CapWidth = InfoShipDurableLeft->GetContentSize().X;
                     MinimumWidth = CapWidth * 2 + BarWidth + InfoShipDurableLeft->LocalPosition.X + InfoShipDurableLeft->Parent->LocalPosition.X + InfoShipDurableLeft->Parent->Parent->LocalPosition.X * 2;
                 }
                 {
-                    GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"_wref.get()));
+                    GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"sv));
                     if (Ship->ScannerResolved) {
                         InfoShipDurable->SetPosition(([&] {
                             std::int32_t cpp_arg_63 = ([&] {
@@ -7474,7 +7474,7 @@ namespace fStarMap {
                     InfoShipDurable->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoShipDurable->Parent->Parent->ClientSize.Y));
                 }
                 {
-                    GI_Image::TImageGI* InfoShipDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableRight"_wref.get()));
+                    GI_Image::TImageGI* InfoShipDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableRight"sv));
                     {
                         std::int32_t cpp_arg_65 = BarWidth + CapWidth - InfoShipDurableRight->GetContentSize().X;
                         std::int32_t y_6 = InfoShipDurableRight->LocalPosition.Y;
@@ -7484,7 +7484,7 @@ namespace fStarMap {
                     InfoShipDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoShipDurableRight->Parent->ClientSize.Y));
                 }
                 {
-                    GI_Image::TImageGI* InfoShipDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableBack"_wref.get()));
+                    GI_Image::TImageGI* InfoShipDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableBack"sv));
                     {
                         std::int32_t cpp_arg_66 = BarWidth + 1 - InfoShipDurableBack->GetContentSize().X;
                         std::int32_t y_7 = InfoShipDurableBack->LocalPosition.Y;
@@ -7492,8 +7492,8 @@ namespace fStarMap {
                     }
                     InfoShipDurableBack->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoShipDurableBack->Parent->ClientSize.Y));
                 }
-                DamageName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDamage"_wref.get()));
-                DamageValue = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"_wref.get()));
+                DamageName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDamage"sv));
+                DamageValue = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv));
                 if (Ship->DamageText.length() > 0) {
                     DamageName->SetActive(true);
                     DamageValue->SetActive(true);
@@ -7505,9 +7505,9 @@ namespace fStarMap {
                 }
                 StatusCount = Ship->CombatStatusCount;
                 if (StatusCount > 0) {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"_wref.get()))->SetActive(true);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"sv))->SetActive(true);
                     {
-                        GI_Label::TLabelGI* InfoShipEffects = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"_wref.get()));
+                        GI_Label::TLabelGI* InfoShipEffects = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"sv));
                         InfoShipEffects->SetText(Ship->CombatStatusText);
                         {
                             std::int32_t cpp_arg_67 = StatusCount * InfoShipEffects->GetLineHeight() + 2;
@@ -7517,26 +7517,26 @@ namespace fStarMap {
                         InfoShipEffects->SetActive(true);
                     }
                 } else {
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"_wref.get()))->SetActive(false);
-                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"_wref.get()))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"sv))->SetActive(false);
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"sv))->SetActive(false);
                 }
                 {
-                    GI_Label::TLabelGI* cpp_arg_68 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_69 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_70 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSpeed"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_71 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_72 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSize"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_73 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_74 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDef"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_75 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_76 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISRel"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_77 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_78 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_79 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_80 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_81 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"_wref.get()));
-                    GI_MessageLoop::TObjectGI* byName_2 = GetByName(u"InfoShipEmRace"_wref.get());
-                    GI_Label::TLabelGI* cpp_arg_82 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_68 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISType"sv));
+                    GI_Label::TLabelGI* cpp_arg_69 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipType"sv));
+                    GI_Label::TLabelGI* cpp_arg_70 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSpeed"sv));
+                    GI_Label::TLabelGI* cpp_arg_71 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSpeed"sv));
+                    GI_Label::TLabelGI* cpp_arg_72 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISSize"sv));
+                    GI_Label::TLabelGI* cpp_arg_73 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv));
+                    GI_Label::TLabelGI* cpp_arg_74 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDef"sv));
+                    GI_Label::TLabelGI* cpp_arg_75 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"sv));
+                    GI_Label::TLabelGI* cpp_arg_76 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISRel"sv));
+                    GI_Label::TLabelGI* cpp_arg_77 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"sv));
+                    GI_Label::TLabelGI* cpp_arg_78 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv));
+                    GI_Label::TLabelGI* cpp_arg_79 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv));
+                    GI_Label::TLabelGI* cpp_arg_80 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISEffects"sv));
+                    GI_Label::TLabelGI* cpp_arg_81 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipEffects"sv));
+                    GI_MessageLoop::TObjectGI* byName_2 = GetByName(u"InfoShipEmRace"sv);
+                    GI_Label::TLabelGI* cpp_arg_82 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                     GI_Window::TWindowGI* cpp_arg_83 = pas::checked_cast<GI_Window::TWindowGI*>(ShipInfoPanel);
                     Globals::ShipScreen->LayoutObjectInfo(cpp_arg_83, cpp_arg_82, cpp_arg_68, cpp_arg_69, cpp_arg_70, cpp_arg_71, cpp_arg_72, cpp_arg_73, cpp_arg_74, cpp_arg_75, DamageName, DamageValue, cpp_arg_76, cpp_arg_77, cpp_arg_78, cpp_arg_79, cpp_arg_80, cpp_arg_81, byName_2, true, MinimumWidth);
                 }
@@ -7559,14 +7559,14 @@ namespace fStarMap {
                 StarInfoWindow->SetActive(true);
                 StandardInfoPanel->SetActive(false);
                 {
-                    const pas::WideString& wrapTextInColor_8 = aMyFunction::WrapTextInColor(pas::checked_cast<aEObjInfo::TEObjInfo*>(Globals::SecondaryFilm->ObjectInfo)->StarName, aMyFunction::InfoNameColorTag);
-                    GI_Label::TLabelGI* cpp_arg_86 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"_wref.get()));
+                    const pas::WideString& wrapTextInColor_8 = aMyFunction::WrapTextInColor(pas::view(pas::checked_cast<aEObjInfo::TEObjInfo*>(Globals::SecondaryFilm->ObjectInfo)->StarName), pas::view(aMyFunction::InfoNameColorTag));
+                    GI_Label::TLabelGI* cpp_arg_86 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"sv));
                     cpp_arg_86->SetText(wrapTextInColor_8);
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"sv));
                     InfoStarImage->SourceHasPerPixelAlpha = true;
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::checked_cast<SE_Star::TStarSE*>(Obj)->StaticImagePath, 1, u","_wref.get()), InfoStarImage->GraphBuf);
+                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Star::TStarSE*>(Obj)->StaticImagePath), 1, u","sv), InfoStarImage->GraphBuf);
                     if (InfoStarImage->ClientSize.X < InfoStarImage->GraphBuf->Width || InfoStarImage->ClientSize.Y < InfoStarImage->GraphBuf->Height) {
                         if (static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) {
                             InfoStarImage->GraphBuf->RescaleRgba(InfoStarImage->ClientSize.X, System::Round(pas::real_divide(InfoStarImage->ClientSize.X, static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)), 5);
@@ -7577,7 +7577,7 @@ namespace fStarMap {
                     InfoStarImage->SetImageKindX(GI_Main::ikxCenter);
                     InfoStarImage->SetImageKindY(GI_Main::ikyCenter);
                 }
-                Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"_wref.get()));
+                Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"sv));
                 Panel->FreeOwnedChildren();
                 Objects = pas::make_object<pas::List>();
                 Records = pas::make_object<pas::List>();
@@ -7597,7 +7597,7 @@ namespace fStarMap {
                 FilmObject = Globals::SecondaryFilm->FirstObject;
                 while (FilmObject != nullptr) {
                     if (FilmObject->SceneObject != nullptr) {
-                        if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(FilmObject->SceneObject) != nullptr && static_cast<std::uint8_t>(reinterpret_cast<SE_Ruins::TRuinsSE*>(FilmObject->SceneObject)->HideOnStarInfo ^ 1) || pas::class_cast_if<SE_Ship2::TShip2SE*>(FilmObject->SceneObject) != nullptr && static_cast<SE_Ship2::TShip2SE*>(FilmObject->SceneObject)->AlternateImagePath != u"") {
+                        if (SE_Ruins::TRuinsSE* ruinsSE = pas::class_cast_if<SE_Ruins::TRuinsSE*>(FilmObject->SceneObject); ruinsSE != nullptr && static_cast<std::uint8_t>(ruinsSE->HideOnStarInfo ^ 1) || pas::class_cast_if<SE_Ship2::TShip2SE*>(FilmObject->SceneObject) != nullptr && static_cast<SE_Ship2::TShip2SE*>(FilmObject->SceneObject)->AlternateImagePath != u"") {
                             if (FilmObject->SceneObject->GraphKey != u"Ruins.Blazer" && FilmObject->SceneObject->GraphKey != u"Ruins.Keller" && FilmObject->SceneObject->GraphKey != u"Ruins.Terron" && FilmObject->SceneObject->GraphKey != u"Ruins.FighterSwarm") {
                                 Ship = Snapshot->FindShip(FilmObject->ObjectId);
                                 if (Ship != nullptr) {
@@ -7662,8 +7662,8 @@ namespace fStarMap {
                 }
                 Child = Panel->FirstChild;
                 while (Child != nullptr) {
-                    if (pas::class_cast_if<GI_Label::TLabelGI*>(Child) != nullptr) {
-                        GI_Label::TLabelGI* cpp_with_27 = pas::checked_cast<GI_Label::TLabelGI*>(Child);
+                    if (GI_Label::TLabelGI* labelGI = pas::class_cast_if<GI_Label::TLabelGI*>(Child)) {
+                        GI_Label::TLabelGI* cpp_with_27 = labelGI;
                         cpp_with_27->SetTextAlignX(GI_Main::taxRight);
                         cpp_with_27->SetSize(ClassesImports::Point(NameWidth, RowHeight));
                     }
@@ -7708,7 +7708,7 @@ namespace fStarMap {
                                 }
                             }
                         } else if (pas::class_cast_if<SE_Ship2::TShip2SE*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
-                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::list_at<SE_Ship2::TShip2SE>(Objects, I)->AlternateImagePath, 1, u","_wref.get()), cpp_with_28->GraphBuf);
+                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::list_at<SE_Ship2::TShip2SE>(Objects, I)->AlternateImagePath), 1, u","sv), cpp_with_28->GraphBuf);
                             if (cpp_with_28->ClientSize.X < cpp_with_28->GraphBuf->Width || cpp_with_28->ClientSize.Y < cpp_with_28->GraphBuf->Height) {
                                 if (static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Height)) {
                                     cpp_with_28->GraphBuf->RescaleRgba(cpp_with_28->ClientSize.X, System::Round(pas::real_divide(cpp_with_28->ClientSize.X, static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Height)), 5);
@@ -7717,7 +7717,7 @@ namespace fStarMap {
                                 }
                             }
                         } else {
-                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::list_at<SE_Ruins::TRuinsSE>(Objects, I)->StaticImagePath, 1, u","_wref.get()), cpp_with_28->GraphBuf);
+                            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::list_at<SE_Ruins::TRuinsSE>(Objects, I)->StaticImagePath), 1, u","sv), cpp_with_28->GraphBuf);
                             if (cpp_with_28->ClientSize.X < cpp_with_28->GraphBuf->Width || cpp_with_28->ClientSize.Y < cpp_with_28->GraphBuf->Height) {
                                 if (static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Height)) {
                                     cpp_with_28->GraphBuf->RescaleRgba(cpp_with_28->ClientSize.X, System::Round(pas::real_divide(cpp_with_28->ClientSize.X, static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_28->GraphBuf->Height)), 5);
@@ -7730,7 +7730,7 @@ namespace fStarMap {
                         cpp_with_28->SetImageKindY(GI_Main::ikyCenter);
                     }
                     if (pas::list_get(Objects, I) == nullptr) {
-                        OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+                        OwnerId = aGalaxyStruct::oiUninhabited;
                     } else if (pas::class_cast_if<SE_Planet::TPlanetSE*>(pas::list_at<pas::Object>(Objects, I)) != nullptr) {
                         OwnerId = pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->OwnerId;
                     } else {
@@ -7738,23 +7738,23 @@ namespace fStarMap {
                     }
                     if (pas::list_get(Objects, I) == nullptr) {
                         CustomInfo = pas::list_at<aEObjInfo::TEOTCustomStarInfo>(Records, I);
-                        if (EC_Str::CountDelimitedPartsW(CustomInfo->Text, u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(CustomInfo->Text, 0, u":"_wref.get()) == u"Image") {
-                            Images = EC_Str::ExtractDelimitedPartW(CustomInfo->Text, 1, u":"_wref.get());
+                        if (EC_Str::CountDelimitedPartsW(pas::view(CustomInfo->Text), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Text), 0, u":"sv) == u"Image") {
+                            Images = EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Text), 1, u":"sv);
                             RowX = NameWidth + 5 + RowHeight + 5 + 1;
-                            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Images, u","_wref.get()) - 1); cpp_range_4.next(J); ) {
+                            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Images), u","sv) - 1); cpp_range_4.next(J); ) {
                                 GI_Image::TImageGI* cpp_with_29 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
-                                cpp_with_29->SetImagePath(pas::concat_wide({u"GI,", EC_Str::ExtractDelimitedPartW(Images, J, u","_wref.get())}));
+                                cpp_with_29->SetImagePath(pas::concat_wide({u"GI,", EC_Str::ExtractDelimitedPartW(pas::view(Images), J, u","sv)}));
                                 cpp_with_29->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                                 cpp_with_29->SetPosition(ClassesImports::Point(RowX, RowHeight * I + 1));
                                 RowX = RowX + RowHeight + 2;
                             }
-                        } else if (EC_Str::CountDelimitedPartsW(CustomInfo->Text, u":"_wref.get()) > 1 && EC_Str::ExtractDelimitedPartW(CustomInfo->Text, 0, u":"_wref.get()) == u"RGBA") {
-                            Images = EC_Str::ExtractDelimitedPartW(CustomInfo->Text, 1, u":"_wref.get());
+                        } else if (EC_Str::CountDelimitedPartsW(pas::view(CustomInfo->Text), u":"sv) > 1 && EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Text), 0, u":"sv) == u"RGBA") {
+                            Images = EC_Str::ExtractDelimitedPartW(pas::view(CustomInfo->Text), 1, u":"sv);
                             RowX = NameWidth + 5 + RowHeight + 5 + 1;
-                            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(Images, u","_wref.get()) - 1); cpp_range_5.next(J); ) {
+                            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(Images), u","sv) - 1); cpp_range_5.next(J); ) {
                                 GI_GraphBuf::TGraphBufGI* cpp_with_30 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Panel, false);
                                 cpp_with_30->SourceHasPerPixelAlpha = true;
-                                cpp_with_30->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(Images, J, u","_wref.get()), u"?RGBA"}));
+                                cpp_with_30->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(Images), J, u","sv), u"?RGBA"}));
                                 cpp_with_30->SetPosition(ClassesImports::Point(RowX, RowHeight * I + 1));
                                 cpp_with_30->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                                 if (cpp_with_30->ClientSize.X < cpp_with_30->GraphBuf->Width || cpp_with_30->ClientSize.Y < cpp_with_30->GraphBuf->Height) {
@@ -7799,11 +7799,11 @@ namespace fStarMap {
                         cpp_with_32->SetTextAlignY(GI_Main::tayCenterEx);
                         cpp_with_32->SetText(EC_Str::LowerCaseWideString(pas::list_at<aEObjInfo::TEOTShip>(Records, I)->TypeName));
                         DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_32->ClientSize.X + GR_Main::GiScalePixels(35));
-                    } else if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                    } else if (OwnerId != aGalaxyStruct::oiUninhabited) {
                         if (pas::class_cast_if<SE_Planet::TPlanetSE*>(pas::list_at<pas::Object>(Objects, I)) != nullptr && (aPlanet::MainPiratePlanet == nullptr || pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Id != aPlanet::MainPiratePlanet->Id)) {
                             GI_GraphBuf::TGraphBufGI* cpp_with_33 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Panel, false);
                             cpp_with_33->SourceHasPerPixelAlpha = true;
-                            cpp_with_33->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(aConst::GetFactionEmblemPath(pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Faction), 1, u","_wref.get()), u"?RGBA"}));
+                            cpp_with_33->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Faction)), 1, u","sv), u"?RGBA"}));
                             cpp_with_33->SetPosition(ClassesImports::Point(NameWidth + 5 + RowHeight + 5 + 1, RowHeight * I + 1));
                             cpp_with_33->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
                             if (cpp_with_33->ClientSize.X < cpp_with_33->GraphBuf->Width || cpp_with_33->ClientSize.Y < cpp_with_33->GraphBuf->Height) {
@@ -7817,10 +7817,10 @@ namespace fStarMap {
                             cpp_with_33->SetImageKindY(GI_Main::ikyCenter);
                         }
                     }
-                    IsCivilized = pas::class_cast_if<SE_Planet::TPlanetSE*>(pas::list_at<pas::Object>(Objects, I)) != nullptr && pas::in_set<0, 4, 7, 7>(pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->OwnerId) && (aPlanet::MainPiratePlanet == nullptr || pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Id != aPlanet::MainPiratePlanet->Id);
+                    IsCivilized = pas::class_cast_if<SE_Planet::TPlanetSE*>(pas::list_at<pas::Object>(Objects, I)) != nullptr && pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->OwnerId) && (aPlanet::MainPiratePlanet == nullptr || pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->Id != aPlanet::MainPiratePlanet->Id);
                     if (IsCivilized) {
                         ListedPlanet = pas::list_at<aEObjInfo::TEOTPlanet>(Records, I);
-                        if (ListedPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                        if (ListedPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                             IsCivilized = ListedPlanet->Faction == pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::RaceToSys(ListedPlanet->RaceId)});
                         } else {
                             IsCivilized = ListedPlanet->Faction == aConst::OwnerInfo[ListedPlanet->OwnerId].InternalName;
@@ -7887,7 +7887,7 @@ namespace fStarMap {
                         cpp_with_36->SetTextAlignY(GI_Main::tayCenterEx);
                         cpp_with_36->SetText(EC_Str::LowerCaseWideString(aConst::LocalizedText(u"ShipType.TypeName.PB"_wref.get())));
                         DetailWidth = std::max<std::int32_t>(DetailWidth, cpp_with_36->ClientSize.X + GR_Main::GiScalePixels(35));
-                    } else if (pas::class_cast_if<SE_Planet::TPlanetSE*>(pas::list_at<pas::Object>(Objects, I)) != nullptr && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->UnexploredWater == 0 && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->UnexploredLand == 0 && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->UnexploredHills == 0) {
+                    } else if (pas::class_cast_if<SE_Planet::TPlanetSE*>(pas::list_at<pas::Object>(Objects, I)) != nullptr && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->OwnerId == aGalaxyStruct::oiUninhabited && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->UnexploredWater == 0 && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->UnexploredLand == 0 && pas::list_at<aEObjInfo::TEOTPlanet>(Records, I)->UnexploredHills == 0) {
                         GI_Label::TLabelGI* cpp_with_37 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
                         if (GR_Main::GiResourceVariant() == 2) {
                             cpp_with_37->SetFontName(GlobalsV::MiniFontName);
@@ -7927,9 +7927,9 @@ namespace fStarMap {
                 PlanetInfoPanel->SetActive(false);
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(true);
-                GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                GetByName(u"InfoStdImage"sv)->SetActive(false);
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStdGB_7 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoStdGB_7 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                     InfoStdGB_7->SetActive(true);
                     InfoStdGB_7->SourceHasPerPixelAlpha = true;
                     GI_GAI::LoadGaiFrameToGraphBuf(pas::checked_cast<SE_Asteroid::TAsteroidSE*>(Obj)->ImagePath, InfoStdGB_7->GraphBuf, ObjectId);
@@ -7947,14 +7947,14 @@ namespace fStarMap {
                     }
                 }
                 {
-                    const pas::WideString& wrapTextInColor_9 = aMyFunction::WrapTextInColor(Asteroid->Name, aMyFunction::InfoNameColorTag);
-                    GI_Label::TLabelGI* cpp_arg_89 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    const pas::WideString& wrapTextInColor_9 = aMyFunction::WrapTextInColor(pas::view(Asteroid->Name), pas::view(aMyFunction::InfoNameColorTag));
+                    GI_Label::TLabelGI* cpp_arg_89 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     cpp_arg_89->SetText(wrapTextInColor_9);
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()))->SetText(Asteroid->InfoText);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv))->SetText(Asteroid->InfoText);
                 {
-                    GI_Label::TLabelGI* cpp_arg_90 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_91 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_90 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                    GI_Label::TLabelGI* cpp_arg_91 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     GI_Window::TWindowGI* cpp_arg_92 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                     fShip2::TfShip2::LayoutItemInfo(cpp_arg_92, cpp_arg_91, cpp_arg_90, true, true, 0);
                 }
@@ -7976,9 +7976,9 @@ namespace fStarMap {
                 PlanetInfoPanel->SetActive(false);
                 StarInfoWindow->SetActive(false);
                 StandardInfoPanel->SetActive(true);
-                GetByName(u"InfoStdImage"_wref.get())->SetActive(false);
+                GetByName(u"InfoStdImage"sv)->SetActive(false);
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStdGB_8 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"_wref.get()));
+                    GI_GraphBuf::TGraphBufGI* InfoStdGB_8 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStdGB"sv));
                     InfoStdGB_8->SetActive(true);
                     InfoStdGB_8->SourceHasPerPixelAlpha = true;
                     GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.", Obj->GraphKey, u"_", GR_Main::GiResourceSuffix(), u"i"}), InfoStdGB_8->GraphBuf);
@@ -7989,14 +7989,14 @@ namespace fStarMap {
                     }
                 }
                 {
-                    const pas::WideString& wrapTextInColor_10 = aMyFunction::WrapTextInColor(Missile->Name, aMyFunction::InfoNameColorTag);
-                    GI_Label::TLabelGI* cpp_arg_95 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    const pas::WideString& wrapTextInColor_10 = aMyFunction::WrapTextInColor(pas::view(Missile->Name), pas::view(aMyFunction::InfoNameColorTag));
+                    GI_Label::TLabelGI* cpp_arg_95 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     cpp_arg_95->SetText(wrapTextInColor_10);
                 }
-                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()))->SetText(Missile->InfoText);
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv))->SetText(Missile->InfoText);
                 {
-                    GI_Label::TLabelGI* cpp_arg_96 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"_wref.get()));
-                    GI_Label::TLabelGI* cpp_arg_97 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_96 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdText"sv));
+                    GI_Label::TLabelGI* cpp_arg_97 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStdName"sv));
                     GI_Window::TWindowGI* cpp_arg_98 = pas::checked_cast<GI_Window::TWindowGI*>(StandardInfoPanel);
                     fShip2::TfShip2::LayoutItemInfo(cpp_arg_98, cpp_arg_97, cpp_arg_96, true, true, 0);
                 }
@@ -8134,7 +8134,7 @@ namespace fStarMap {
                 aKling::TerronShip->CurrentStar->Graphic->DetachFromSpace();
                 SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&aKling::TerronShip->CurrentStar->Graphic));
                 {
-                    SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Star"_wref.get(), u"Star.TerronAfter"_wref.get(), ClassesImports::Point(0, 0));
+                    SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Star"sv, u"Star.TerronAfter"_wref.get(), ClassesImports::Point(0, 0));
                     pas::Var<SE_Space::TObjectSE*> graphic = pas::Var<SE_Space::TObjectSE*>(&aKling::TerronShip->CurrentStar->Graphic);
                     SE_Space::RetainSpaceObject(graphic, createSpaceObjectByName);
                 }
@@ -8142,10 +8142,10 @@ namespace fStarMap {
             } else {
                 Obj = Globals::SpaceProcess->Space->FirstObject;
                 while (Obj != nullptr) {
-                    if (pas::class_cast_if<SE_Star::TStarSE*>(Obj) != nullptr) {
-                        if (!pas::assigned(reinterpret_cast<SE_Star::TStarSE*>(Obj)->Animation->CycleCompleteCallback)) {
+                    if (SE_Star::TStarSE* starSE = pas::class_cast_if<SE_Star::TStarSE*>(Obj)) {
+                        if (!pas::assigned(starSE->Animation->CycleCompleteCallback)) {
                             aGalaxy::Galaxy->TerronToStarTurn = 0x40000000;
-                            reinterpret_cast<SE_Star::TStarSE*>(Obj)->Animation->CycleCompleteCallback = pas::bind_method<&TfStarMap::TerronTransformationStarted>(this);
+                            starSE->Animation->CycleCompleteCallback = pas::bind_method<&TfStarMap::TerronTransformationStarted>(this);
                             Obj = Globals::SpaceProcess->Space->FirstObject;
                             while (Obj != nullptr) {
                                 if (aKling::TerronShip->Graphic == Obj) {
@@ -8191,24 +8191,24 @@ namespace fStarMap {
         float Progress{};
         if (aKling::TerronShip != nullptr && pas::checked_cast<GI_GAI::TgaiGI*>(Sender)->SequenceFrame != 0 && TerronFadeImage != nullptr) {
             {
-                pas::Extended cpp_left = pas::checked_cast<GI_GAI::TgaiGI*>(Sender)->SequenceFrame;
-                Progress = pas::real_divide(cpp_left, pas::checked_cast<GI_GAI::TgaiGI*>(Sender)->SequenceFrameCount - 1);
+                pas::Extended cpp_left = static_cast<GI_GAI::TgaiGI*>(Sender)->SequenceFrame;
+                Progress = pas::real_divide(cpp_left, static_cast<GI_GAI::TgaiGI*>(Sender)->SequenceFrameCount - 1);
             }
             Progress = Progress * 2.0L;
             if (Progress > 1.0L) {
                 Progress = 1.0f;
             }
             Alpha = System::Round((1.0L - Progress) * 255.0L);
-            if (pas::class_cast_if<GI_GAI::TgaiGI*>(TerronFadeImage) != nullptr) {
-                if (pas::checked_cast<GI_GAI::TgaiGI*>(TerronFadeImage)->Alpha > Alpha) {
-                    pas::checked_cast<GI_GAI::TgaiGI*>(TerronFadeImage)->SetAlpha(Alpha);
+            if (GI_GAI::TgaiGI* gaiGI = pas::class_cast_if<GI_GAI::TgaiGI*>(TerronFadeImage)) {
+                if (gaiGI->Alpha > Alpha) {
+                    gaiGI->SetAlpha(Alpha);
                     if (pas::checked_cast<GI_GAI::TgaiGI*>(TerronFadeImage)->Alpha <= 0) {
                         pas::free(TerronFadeImage);
                         TerronFadeImage = nullptr;
                     }
                 }
             } else if (pas::checked_cast<GI_Image::TImageGI*>(TerronFadeImage)->GetAlpha() > Alpha) {
-                pas::checked_cast<GI_Image::TImageGI*>(TerronFadeImage)->SetAlpha(Alpha);
+                static_cast<GI_Image::TImageGI*>(TerronFadeImage)->SetAlpha(Alpha);
                 if (pas::checked_cast<GI_Image::TImageGI*>(TerronFadeImage)->GetAlpha() <= 0) {
                     pas::free(TerronFadeImage);
                     TerronFadeImage = nullptr;
@@ -8232,7 +8232,7 @@ namespace fStarMap {
         if (MainPanel->NavigationLocked) {
             return;
         }
-        if (Globals::ShipScreen->FlagD4) {
+        if (Globals::ShipScreen->ReopenRequested) {
             return;
         }
         if (GR_Main::ExitScreenLoop) {

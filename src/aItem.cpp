@@ -46,9 +46,8 @@ namespace aItem {
 
     pas::Array<std::int32_t, 1, 2> TreasureMapRuleLengths = pas::Array<std::int32_t, 1, 2>{{76, 98}};
 
-    // Nested native helpers include the caller's saved EBP explicitly in the IDA ABI.
     // Selects across built-in artefacts, custom artefacts and configured useless items. Pool must be nonempty; AnyAvailable is the union of the three eligibility flags.
-    TEquipmentWithActCode* CreateRandomLootItem(TItemLootPool Pool, std::uint8_t Owner, std::uint32_t Seed) {
+    TEquipmentWithActCode* CreateRandomLootItem(TItemLootPool Pool, aGalaxyStruct::TOwnerId Owner, std::uint32_t Seed) {
         TEquipmentWithActCode* Result{};
         std::int32_t Count = aConst::ArtefactLootPools[Pool].length();
         std::int32_t Index = Count + aConst::CustomArtefactLootPools[Pool].length() + aConst::UselessItemLootPools[Pool].length();
@@ -119,7 +118,7 @@ namespace aItem {
         return static_cast<aConst::TItemType>(ItemType);
     }
 
-    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, std::uint8_t HullType, std::uint8_t Owner, void* Ship) {
+    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, std::uint8_t HullType, aGalaxyStruct::TOwnerId Owner, void* Ship) {
         std::int32_t Result = 0;
         switch (HullType) {
             case aGalaxyStruct::htRanger: return aConst::RangerHullSlots[Owner][Kind];
@@ -150,7 +149,7 @@ namespace aItem {
         }
     }
 
-    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, std::uint8_t Owner, std::uint8_t HullType) {
+    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner, std::uint8_t HullType) {
         aConst::TShipSlotKind Kind{};
         double Factor = 1.0;
         if (pas::in_range(HullType, aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat)) {
@@ -215,31 +214,31 @@ namespace aItem {
         return System::Round(pas::real_divide(Weight, aConst::FuelTanksBaseSize) * 2.0E+1L + aConst::FuelCapacityByLevel[Level]);
     }
 
-    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner) {
         return aMyFunction::RoundAndTruncateToTens(pas::real_divide(Weight, aConst::FuelTanksBaseSize) * static_cast<std::uint32_t>(Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
-    std::int32_t CalculateGeneratedEngineCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedEngineCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::EngineBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
-    std::int32_t CalculateGeneratedRadarCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedRadarCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::RadarBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
-    std::int32_t CalculateGeneratedScanerCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedScanerCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::ScannerBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
-    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::RepairRobotBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
-    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::CargoHookBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
-    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::DefGeneratorBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
 
@@ -247,7 +246,7 @@ namespace aItem {
         return aConst::DefGeneratorLevelFactors[Level];
     }
 
-    std::uint8_t DefenseDamageFactorToPercent(double Factor) {
+    aGalaxyStruct::TPercent DefenseDamageFactorToPercent(double Factor) {
         return System::Round((1.0L - Factor) * 1.0E+2L);
     }
 
@@ -266,7 +265,7 @@ namespace aItem {
         Result = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[ModuleIndex].ConfigName, u".Text"}));
         for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range.next(Kind); ) {
             if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::bonExtraAkrinEff), static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty))) {
-                Value = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Index - 1].StatBonuses, Kind * sizeof(std::int32_t)));
+                Value = aConst::MicroModuleTemplates[Index - 1].StatBonuses[Kind];
                 if (Value == 0) {
                     aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), u"--"_w, ColorTag);
                 } else {
@@ -286,7 +285,7 @@ namespace aItem {
                     aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), Text, ColorTag);
                 }
             } else {
-                Value = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Index - 1].StatBonuses, Kind * sizeof(std::int32_t)));
+                Value = aConst::MicroModuleTemplates[Index - 1].StatBonuses[Kind];
                 if (Value > 0) {
                     pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
                     pas::WideString cpp_arg_2 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"});
@@ -342,7 +341,7 @@ namespace aItem {
     }
 
     // Returns nil outside item types 10..41.
-    TArtefact* CreateConfiguredArtefactByItemType(aConst::TItemType ItemType, std::uint8_t Owner) {
+    TArtefact* CreateConfiguredArtefactByItemType(aConst::TItemType ItemType, aGalaxyStruct::TOwnerId Owner) {
         TArtefact* Item{};
         TArtefact* Result = nullptr;
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
@@ -359,7 +358,7 @@ namespace aItem {
         return Result;
     }
 
-    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         float LevelCost = static_cast<long double>(aMyFunction::RemapClamped(Level, 1.0, 8.0, 1.0, 4.0)) * Info->CostFactor;
         return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(Info->AverageSize, Weight), 0.5, 2.0, 1.0, 2.0)) * LevelCost * 2.5E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
     }
@@ -407,7 +406,7 @@ namespace aItem {
         TItem* Result{};
         TItem* Item{};
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
-            return aItem::CreateConfiguredArtefactByItemType(ItemType, 6);
+            return aItem::CreateConfiguredArtefactByItemType(ItemType, aGalaxyStruct::oiUninhabited);
         } else if (ItemType == aConst::t_Hull) {
             Item = aItem::CreateItemByType(ItemType);
             reinterpret_cast<THull*>(Item)->Init(250, 1, aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace), 0, -1, false);
@@ -415,7 +414,7 @@ namespace aItem {
         } else if (ItemType == aConst::t_CustomWeapon) {
             return nullptr;
         } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-            return aItem::CreateGeneratedEquipment(ItemType, 20, 1, 6);
+            return aItem::CreateGeneratedEquipment(ItemType, 20, 1, aGalaxyStruct::oiUninhabited);
         } else {
             Item = aItem::CreateItemByType(ItemType);
             Result = Item;
@@ -427,11 +426,14 @@ namespace aItem {
                         return Result;
                     }
                     case aConst::t_MicroModule: reinterpret_cast<TMicroModule*>(Item)->Init(1); return Result;
-                    case aConst::t_Cistern: reinterpret_cast<TCistern*>(Item)->Init(10, 10, 6); return Result;
+                    case aConst::t_Cistern: {
+                        reinterpret_cast<TCistern*>(Item)->Init(10, 10, aGalaxyStruct::oiUninhabited);
+                        return Result;
+                    }
                     case aConst::t_Satellite: {
                         {
                             std::uint32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(1, 10000, aGalaxy::Galaxy->RandomState);
-                            std::uint8_t ownerId = aPlayer::GetPlayer()->OwnerId;
+                            aGalaxyStruct::TOwnerId ownerId = aPlayer::GetPlayer()->OwnerId;
                             reinterpret_cast<TSatellite*>(Item)->InitGenerated(1, ownerId, nextRandomIntRange);
                         }
                         return Result;
@@ -451,7 +453,7 @@ namespace aItem {
     }
 
     // Clamps Level to 1..8; custom weapons require CreateGeneratedWeapon.
-    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level, std::uint8_t Owner) {
+    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner) {
         TItem* Item{};
         std::uint8_t ActualLevel{};
         std::int32_t MinimumLevel = std::max<std::int32_t>(1, Level);
@@ -511,7 +513,7 @@ namespace aItem {
         return Result;
     }
 
-    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level, std::uint8_t Owner) {
+    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner) {
         TWeapon* Result = reinterpret_cast<TWeapon*>(aItem::CreateItemByType(Info->ItemType));
         if (pas::in_range(Info->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
             Result->Init(Info->ItemType, Weight, Level, Owner);
@@ -530,19 +532,19 @@ namespace aItem {
         if (Item->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].BlocksMicroModuleSlot) {
             return Result;
         }
-        if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[ModuleIndex].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t))) != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonExtraAkrinEff] != 0 && Item->SpecialModuleIndex == 0) {
             return Result;
         }
-        if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[ModuleIndex].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t))) != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonExtraAkrinPenalty] != 0 && Item->SpecialModuleIndex == 0) {
             return Result;
         }
         if (aConst::MicroModuleTemplates[ModuleIndex].SpecialOnly) {
             return Result;
         }
-        if (pas::class_cast_if<TWeapon*>(Item) != nullptr) {
-            return aItem::IsBonusCompatibleWithWeapon(ModuleIndex, reinterpret_cast<TWeapon*>(Item));
-        } else if (pas::class_cast_if<THull*>(Item) != nullptr) {
-            return aItem::IsBonusCompatibleWithHull(ModuleIndex, reinterpret_cast<THull*>(Item));
+        if (TWeapon* weapon = pas::class_cast_if<TWeapon*>(Item)) {
+            return aItem::IsBonusCompatibleWithWeapon(ModuleIndex, weapon);
+        } else if (THull* hull = pas::class_cast_if<THull*>(Item)) {
+            return aItem::IsBonusCompatibleWithHull(ModuleIndex, hull);
         } else {
             return aItem::IsBonusCompatibleWithEquipment(ModuleIndex, Item);
         }
@@ -550,19 +552,19 @@ namespace aItem {
 
     std::uint8_t IsBonusCompatibleWithEquipment(std::int32_t ModuleIndex, TEquipment* Item) {
         std::uint8_t Result = false;
-        if (!pas::contains(pas::load_unaligned<aGalaxyStruct::TItemTypeMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes), static_cast<std::uint8_t>(Item->ItemType))) {
+        if (!pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes, static_cast<std::uint8_t>(Item->ItemType))) {
             return Result;
         }
         if (Item->CustomFaction != u"") {
             if (pas::pos(pas::concat_wide({u"<", Item->CustomFaction, u">"}), aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0) {
                 return true;
             }
-            if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) || Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::load_unaligned<aGalaxy::TDominatorSeriesMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask) != pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0, 2}})) {
+            if (Item->OwnerId == aGalaxyStruct::oiUninhabited || Item->OwnerId == aGalaxyStruct::oiDominator && aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask != pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0, 2}})) {
                 return Result;
             }
         }
-        Result = pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask), Item->OwnerId);
-        if (Item->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && static_cast<std::uint8_t>(pas::contains(pas::load_unaligned<aGalaxy::TDominatorSeriesMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask), static_cast<std::uint8_t>(Item->DominatorSeries)) ^ 1)) {
+        Result = pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Item->OwnerId);
+        if (Item->OwnerId == aGalaxyStruct::oiDominator && static_cast<std::uint8_t>(pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, static_cast<std::uint8_t>(Item->DominatorSeries)) ^ 1)) {
             return false;
         }
         return Result;
@@ -570,18 +572,18 @@ namespace aItem {
 
     std::uint8_t IsBonusCompatibleWithHull(std::int32_t ModuleIndex, THull* Hull) {
         std::uint8_t Result = false;
-        if (!pas::contains(pas::load_unaligned<aGalaxyStruct::TItemTypeMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes), aConst::t_Hull)) {
+        if (!pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes, aConst::t_Hull)) {
             return Result;
         }
         if (Hull->CustomFaction != u"") {
             if (pas::pos(pas::concat_wide({u"<", Hull->CustomFaction, u">"}), aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0) {
                 return true;
             }
-            if (Hull->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) || Hull->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::load_unaligned<aGalaxy::TDominatorSeriesMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask) != pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0, 2}})) {
+            if (Hull->OwnerId == aGalaxyStruct::oiUninhabited || Hull->OwnerId == aGalaxyStruct::oiDominator && aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask != pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0, 2}})) {
                 return Result;
             }
         }
-        if ((pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask), Hull->OwnerId) || Hull->PirateBuilt && pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask), aGalaxyStruct::oiPirate)) && (Hull->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || pas::contains(pas::load_unaligned<aGalaxy::TDominatorSeriesMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask), static_cast<std::uint8_t>(Hull->DominatorSeries)))) {
+        if ((pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Hull->OwnerId) || Hull->PirateBuilt && pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, aGalaxyStruct::oiPirate)) && (Hull->OwnerId != aGalaxyStruct::oiDominator || pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, static_cast<std::uint8_t>(Hull->DominatorSeries)))) {
             return true;
         }
         return Result;
@@ -591,9 +593,9 @@ namespace aItem {
         pas::WideString AllowedTypes{};
         aConst::PWeaponInfo Info{};
         std::uint8_t Result = false;
-        if (Weapon->CustomFaction != u"" && pas::pos(pas::concat_wide({u"<", Weapon->CustomFaction, u">"}), aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0 || pas::contains(pas::load_unaligned<aGalaxyStruct::TOwnerMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask), Weapon->OwnerId) && (Weapon->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || pas::contains(pas::load_unaligned<aGalaxy::TDominatorSeriesMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask), static_cast<std::uint8_t>(Weapon->DominatorSeries))) && (Weapon->CustomFaction == u"" || Weapon->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited) && (Weapon->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) || pas::load_unaligned<aGalaxy::TDominatorSeriesMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask) == pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0, 2}})))) {
+        if (Weapon->CustomFaction != u"" && pas::pos(pas::concat_wide({u"<", Weapon->CustomFaction, u">"}), aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0 || pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Weapon->OwnerId) && (Weapon->OwnerId != aGalaxyStruct::oiDominator || pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, static_cast<std::uint8_t>(Weapon->DominatorSeries))) && (Weapon->CustomFaction == u"" || Weapon->OwnerId != aGalaxyStruct::oiUninhabited && (Weapon->OwnerId != aGalaxyStruct::oiDominator || aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask == pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0, 2}})))) {
             if (pas::in_range(Weapon->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
-                if (pas::contains(pas::load_unaligned<aGalaxyStruct::TItemTypeMask>(&aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes), static_cast<std::uint8_t>(Weapon->ItemType))) {
+                if (pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes, static_cast<std::uint8_t>(Weapon->ItemType))) {
                     return true;
                 }
                 return Result;
@@ -602,11 +604,11 @@ namespace aItem {
                 AllowedTypes = aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomWeaponTypes;
                 if (AllowedTypes == u"Any") {
                     return true;
-                } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Info->DamageFlags), aGalaxyStruct::dkMissile) && pas::pos(u"<WMissile>", AllowedTypes) > 0) {
+                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkMissile) && pas::pos(u"<WMissile>", AllowedTypes) > 0) {
                     return true;
-                } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Info->DamageFlags), aGalaxyStruct::dkSplinter) && pas::pos(u"<WSplinter>", AllowedTypes) > 0) {
+                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkSplinter) && pas::pos(u"<WSplinter>", AllowedTypes) > 0) {
                     return true;
-                } else if (pas::contains(pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&Info->DamageFlags), aGalaxyStruct::dkEnergy) && pas::pos(u"<WEnergy>", AllowedTypes) > 0) {
+                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkEnergy) && pas::pos(u"<WEnergy>", AllowedTypes) > 0) {
                     return true;
                 } else if (pas::pos(pas::concat_wide({u"<", Info->ConfigName, u">"}), AllowedTypes) > 0) {
                     return true;
@@ -622,7 +624,7 @@ namespace aItem {
 
     // Does not check compatibility or remove an existing module; -1 or nil returns False.
     std::uint8_t ApplyMicroModule(std::int32_t ModuleIndex, TEquipment* Item) {
-        std::uint8_t BonusKind{};
+        aConst::TEquipmentBonusKind BonusKind{};
         if (ModuleIndex == -1 || Item == nullptr) {
             return false;
         }
@@ -632,58 +634,58 @@ namespace aItem {
         Item->Cost = std::min<std::int64_t>(static_cast<std::int64_t>(100000000), System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Cost, 1.0E+2L) * aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].CostPercent)));
         switch (Item->ItemType) {
             case aConst::t_Hull: {
-                pas::checked_cast<THull*>(Item)->Armor += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t)));
-                pas::checked_cast<THull*>(Item)->HullPoints = std::min<std::int32_t>(Item->Weight, pas::checked_cast<THull*>(Item)->HullPoints);
+                pas::checked_cast<THull*>(Item)->Armor += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
+                static_cast<THull*>(Item)->HullPoints = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
                 return Result;
             }
             case aConst::t_FuelTanks: {
-                pas::checked_cast<TFuelTanks*>(Item)->Capacity += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t)));
+                pas::checked_cast<TFuelTanks*>(Item)->Capacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
                 return Result;
             }
             case aConst::t_Engine: {
-                pas::checked_cast<TEngine*>(Item)->Speed += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonSpeed * sizeof(std::int32_t)));
-                pas::checked_cast<TEngine*>(Item)->JumpRange += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonJump * sizeof(std::int32_t)));
+                pas::checked_cast<TEngine*>(Item)->Speed += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed];
+                static_cast<TEngine*>(Item)->JumpRange += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonJump];
                 return Result;
             }
             case aConst::t_Radar: {
-                pas::checked_cast<TRadar*>(Item)->Range += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t)));
+                pas::checked_cast<TRadar*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
                 return Result;
             }
             case aConst::t_Scaner: {
-                pas::checked_cast<TScaner*>(Item)->ScanPower += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonScan * sizeof(std::int32_t)));
+                pas::checked_cast<TScaner*>(Item)->ScanPower += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonScan];
                 return Result;
             }
             case aConst::t_RepairRobot: {
-                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t)));
+                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
                 return Result;
             }
             case aConst::t_CargoHook: {
-                pas::checked_cast<TCargoHook*>(Item)->PickupPower += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t)));
-                pas::checked_cast<TCargoHook*>(Item)->Range += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t)));
+                pas::checked_cast<TCargoHook*>(Item)->PickupPower += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
+                static_cast<TCargoHook*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
                 {
-                    auto& cpp_target = pas::checked_cast<TCargoHook*>(Item)->MinPullSpeed;
-                    cpp_target = static_cast<long double>(pas::checked_cast<TCargoHook*>(Item)->MinPullSpeed) + pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHookMinSpeed * sizeof(std::int32_t)));
+                    auto& cpp_target = static_cast<TCargoHook*>(Item)->MinPullSpeed;
+                    cpp_target = static_cast<long double>(static_cast<TCargoHook*>(Item)->MinPullSpeed) + aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMinSpeed];
                 }
                 {
-                    auto& cpp_target_2 = pas::checked_cast<TCargoHook*>(Item)->MaxPullSpeed;
-                    cpp_target_2 = static_cast<long double>(pas::checked_cast<TCargoHook*>(Item)->MaxPullSpeed) + pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHookMaxSpeed * sizeof(std::int32_t)));
+                    auto& cpp_target_2 = static_cast<TCargoHook*>(Item)->MaxPullSpeed;
+                    cpp_target_2 = static_cast<long double>(static_cast<TCargoHook*>(Item)->MaxPullSpeed) + aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMaxSpeed];
                 }
                 return Result;
             }
             case aConst::t_DefGenerator: {
-                if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t))) != 0) {
+                if (aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef] != 0) {
                     auto& cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor;
-                    cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor - (1.0L - aItem::DefensePercentToDamageFactor(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t)))));
+                    cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor - (1.0L - aItem::DefensePercentToDamageFactor(aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef]));
                 }
                 return Result;
             }
             default: {
                 if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                     BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-                    pas::checked_cast<TWeapon*>(Item)->MaxDamage += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
-                    pas::checked_cast<TWeapon*>(Item)->Range += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
-                    if (pas::in_range(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                        pas::checked_cast<TWeapon*>(Item)->AmmoCapacity += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
+                    pas::checked_cast<TWeapon*>(Item)->MaxDamage += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[BonusKind];
+                    static_cast<TWeapon*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonWRadius];
+                    if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                        static_cast<TWeapon*>(Item)->AmmoCapacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
                     }
                 } else {
                     pas::make_exception<pas::Exception>("\314\350\352\360\356\354\356\344\363\353\374 \342 \356\341\356\360\363\344\356\342\340\355\350\345 \365\356\362\345\353\350 \342\361\362\340\342\350\362\374, \342 \352\356\362\356\360\356\345 \342\361\362\340\342\350\362\374 \354\350\352\360\356\354\356\344\363\353\374 \355\345\353\374\347\377!"_a);
@@ -694,7 +696,7 @@ namespace aItem {
     }
 
     void ApplySpecialMicroModule(std::int32_t ModuleIndex, TEquipment* Item) {
-        std::uint8_t BonusKind{};
+        aConst::TEquipmentBonusKind BonusKind{};
         if (ModuleIndex == -1 || Item == nullptr || Item->SpecialModuleIndex != 0) {
             GR_Main::RaiseWideMessage(u"SpecialToEquipment"_wref.get());
             return;
@@ -704,17 +706,17 @@ namespace aItem {
         Item->Cost = std::min<std::int32_t>(100000000, aMyFunction::RoundAndTruncateToTens(pas::real_max<pas::Extended>(1.0E+1L, pas::real_divide(Item->Cost, 1.0E+2L) * aConst::MicroModuleTemplates[ModuleIndex].CostPercent)));
         if (Item->ItemType == aConst::t_Hull) {
             pas::checked_cast<THull*>(Item)->HullType = aGalaxyStruct::htSpecial;
-            pas::checked_cast<THull*>(Item)->HullPoints = Item->Weight;
+            static_cast<THull*>(Item)->HullPoints = Item->Weight;
             if (Item->Cost < 0 || Item->Cost > 100000000) {
                 Item->Cost = 100000000;
             }
         }
         if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-            pas::checked_cast<TWeapon*>(Item)->MaxDamage += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[ModuleIndex].StatBonuses, BonusKind * sizeof(std::int32_t)));
-            pas::checked_cast<TWeapon*>(Item)->Range += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[ModuleIndex].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
-            if (pas::in_range(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                pas::checked_cast<TWeapon*>(Item)->AmmoCapacity += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[ModuleIndex].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
+            pas::checked_cast<TWeapon*>(Item)->MaxDamage += aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[BonusKind];
+            static_cast<TWeapon*>(Item)->Range += aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonWRadius];
+            if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                static_cast<TWeapon*>(Item)->AmmoCapacity += aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonAmmo];
             }
         }
         if (aConst::MicroModuleTemplates[ModuleIndex].CustomFaction != u"") {
@@ -723,7 +725,7 @@ namespace aItem {
     }
 
     void RemoveMicroModule(TEquipment* Item) {
-        std::uint8_t BonusKind{};
+        aConst::TEquipmentBonusKind BonusKind{};
         if (Item == nullptr || Item->MicroModuleIndex == 0) {
             return;
         }
@@ -731,58 +733,58 @@ namespace aItem {
         Item->Cost = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Cost, aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].CostPercent) * 1.0E+2L));
         switch (Item->ItemType) {
             case aConst::t_Hull: {
-                pas::checked_cast<THull*>(Item)->Armor -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t)));
-                pas::checked_cast<THull*>(Item)->HullPoints = std::min<std::int32_t>(Item->Weight, pas::checked_cast<THull*>(Item)->HullPoints);
+                pas::checked_cast<THull*>(Item)->Armor -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
+                static_cast<THull*>(Item)->HullPoints = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
                 break;
             }
             case aConst::t_FuelTanks: {
-                pas::checked_cast<TFuelTanks*>(Item)->Capacity -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t)));
+                pas::checked_cast<TFuelTanks*>(Item)->Capacity -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
                 break;
             }
             case aConst::t_Engine: {
-                pas::checked_cast<TEngine*>(Item)->Speed -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonSpeed * sizeof(std::int32_t)));
-                pas::checked_cast<TEngine*>(Item)->JumpRange -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonJump * sizeof(std::int32_t)));
+                pas::checked_cast<TEngine*>(Item)->Speed -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed];
+                static_cast<TEngine*>(Item)->JumpRange -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonJump];
                 break;
             }
             case aConst::t_Radar: {
-                pas::checked_cast<TRadar*>(Item)->Range -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t)));
+                pas::checked_cast<TRadar*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
                 break;
             }
             case aConst::t_Scaner: {
-                pas::checked_cast<TScaner*>(Item)->ScanPower -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonScan * sizeof(std::int32_t)));
+                pas::checked_cast<TScaner*>(Item)->ScanPower -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonScan];
                 break;
             }
             case aConst::t_RepairRobot: {
-                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t)));
+                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
                 break;
             }
             case aConst::t_CargoHook: {
-                pas::checked_cast<TCargoHook*>(Item)->PickupPower -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t)));
-                pas::checked_cast<TCargoHook*>(Item)->Range -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t)));
+                pas::checked_cast<TCargoHook*>(Item)->PickupPower -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
+                static_cast<TCargoHook*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
                 {
-                    auto& cpp_target = pas::checked_cast<TCargoHook*>(Item)->MinPullSpeed;
-                    cpp_target = static_cast<long double>(pas::checked_cast<TCargoHook*>(Item)->MinPullSpeed) - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHookMinSpeed * sizeof(std::int32_t)));
+                    auto& cpp_target = static_cast<TCargoHook*>(Item)->MinPullSpeed;
+                    cpp_target = static_cast<long double>(static_cast<TCargoHook*>(Item)->MinPullSpeed) - aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMinSpeed];
                 }
                 {
-                    auto& cpp_target_2 = pas::checked_cast<TCargoHook*>(Item)->MaxPullSpeed;
-                    cpp_target_2 = static_cast<long double>(pas::checked_cast<TCargoHook*>(Item)->MaxPullSpeed) - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonHookMaxSpeed * sizeof(std::int32_t)));
+                    auto& cpp_target_2 = static_cast<TCargoHook*>(Item)->MaxPullSpeed;
+                    cpp_target_2 = static_cast<long double>(static_cast<TCargoHook*>(Item)->MaxPullSpeed) - aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMaxSpeed];
                 }
                 break;
             }
             case aConst::t_DefGenerator: {
-                if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t))) != 0) {
+                if (aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef] != 0) {
                     auto& cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor;
-                    cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor + (1.0L - aItem::DefensePercentToDamageFactor(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t)))));
+                    cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor + (1.0L - aItem::DefensePercentToDamageFactor(aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef]));
                 }
                 break;
             }
             default: {
                 if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                     BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-                    pas::checked_cast<TWeapon*>(Item)->MaxDamage -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
-                    pas::checked_cast<TWeapon*>(Item)->Range -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
-                    if (pas::in_range(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                        pas::checked_cast<TWeapon*>(Item)->AmmoCapacity -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
+                    pas::checked_cast<TWeapon*>(Item)->MaxDamage -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[BonusKind];
+                    static_cast<TWeapon*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonWRadius];
+                    if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                        static_cast<TWeapon*>(Item)->AmmoCapacity -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
                     }
                 }
                 break;
@@ -792,7 +794,7 @@ namespace aItem {
     }
 
     void RemoveSpecialMicroModule(TEquipment* Item) {
-        std::uint8_t BonusKind{};
+        aConst::TEquipmentBonusKind BonusKind{};
         if (Item == nullptr || Item->SpecialModuleIndex == 0) {
             return;
         }
@@ -806,10 +808,10 @@ namespace aItem {
         }
         if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-            pas::checked_cast<TWeapon*>(Item)->MaxDamage -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
-            pas::checked_cast<TWeapon*>(Item)->Range -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
-            if (pas::in_range(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                pas::checked_cast<TWeapon*>(Item)->AmmoCapacity -= pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses, aConst::bonAmmo * sizeof(std::int32_t)));
+            pas::checked_cast<TWeapon*>(Item)->MaxDamage -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[BonusKind];
+            static_cast<TWeapon*>(Item)->Range -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[aConst::bonWRadius];
+            if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                static_cast<TWeapon*>(Item)->AmmoCapacity -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[aConst::bonAmmo];
             }
         }
         if (Item->CustomFaction != u"" && aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].CustomFaction == Item->CustomFaction) {
@@ -827,7 +829,7 @@ namespace aItem {
         if (aShip::TShip_CalculateCargoHookPower(Owner, Owner->GetCargoHook()) < Item->Weight) {
             return Result;
         }
-        if (pas::class_cast_if<TUselessItem*>(Item) != nullptr && reinterpret_cast<TUselessItem*>(Item)->ConfigBlockName == u"ExampleAsteroid") {
+        if (TUselessItem* uselessItem = pas::class_cast_if<TUselessItem*>(Item); uselessItem != nullptr && uselessItem->ConfigBlockName == u"ExampleAsteroid") {
             return Result;
         }
         if (aPlayer::GetPlayer() != Owner) {
@@ -865,19 +867,6 @@ namespace aItem {
         return aItem::GetStackableItemTypeName(Item->ItemType);
     }
 
-    // Preserve the native evaluation order: select the percentage before clamping
-    // capacity. The inline helper also retains the compiler's separate temporaries.
-    void CalculateHullCapacityIncrease(THull* Hull, std::int32_t LowPercent, std::int32_t HighPercent, std::int32_t& Increase) {
-        std::int32_t Capacity{};
-        std::int32_t Percent = aMyFunction::SeededRandomIntRange(LowPercent, HighPercent, Hull->Id * 214571);
-        if (Hull->Weight > 500) {
-            Capacity = Hull->Weight;
-        } else {
-            Capacity = 500;
-        }
-        Increase = System::Round(Percent * Capacity * 0.01L);
-    }
-
     void TItem_Create(TItem* Self) {
         EC_Struct::TObjectEx_Create(Self);
         if (aGalaxy::Galaxy != nullptr) {
@@ -908,7 +897,7 @@ namespace aItem {
         Buffer->AddSingle(Position.X);
         Buffer->AddSingle(Position.Y);
         Buffer->AddIntegerValue(Weight);
-        Buffer->AddAnsiChar(OwnerId);
+        Buffer->AddAnsiChar(static_cast<std::uint8_t>(OwnerId));
         Buffer->AddDWord(Cost);
         Buffer->AddIntegerValue(DestroyFlag);
         if (NameOverride == u"") {
@@ -930,7 +919,7 @@ namespace aItem {
         Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
         Position.Y = EC_Buf::TBufEC_GetSingle(Buffer);
         Weight = EC_Buf::TBufEC_GetInt32(Buffer);
-        OwnerId = EC_Buf::TBufEC_GetByte(Buffer);
+        OwnerId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
         Cost = EC_Buf::TBufEC_GetUInt32(Buffer);
         DestroyFlag = EC_Buf::TBufEC_GetInt32(Buffer);
         if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
@@ -970,15 +959,15 @@ namespace aItem {
     void TItem_LoadFromBlock(TItem* Self, EC_BlockPar::TBlockParEC* Block) {
         std::int32_t I{};
         pas::WideString Text{};
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"OpwRn3ewr"_w));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"OpwRn3ewr"_w)));
         for (I = 0; I <= 7; ++I) {
-            if (Text == aConst::OwnerInfo[static_cast<std::uint8_t>(I)].InternalName) {
-                Self->OwnerId = I;
+            if (Text == aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(I)].InternalName) {
+                Self->OwnerId = static_cast<aGalaxyStruct::TOwnerId>(I);
             }
         }
-        Self->Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"SaiRzoe"_w))));
-        Self->Cost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"CfoTsat"_w))));
-        Text = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"NeonDarlokpl"_w)))));
+        Self->Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SaiRzoe"_w)))));
+        Self->Cost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CfoTsat"_w)))));
+        Text = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"NeonDarlokpl"_w))))));
         if (Text == u"false") {
             Self->NoDropFlag = 0;
         } else if (Text == u"true") {
@@ -986,15 +975,15 @@ namespace aItem {
         } else {
             Self->NoDropFlag = SysUtils::StrToInt(static_cast<pas::AnsiString>(Text));
         }
-        if (pas::class_cast_if<TGoods*>(Self) != nullptr) {
-            pas::checked_cast<TGoods*>(Self)->Quantity = Self->Weight;
+        if (TGoods* goods = pas::class_cast_if<TGoods*>(Self)) {
+            goods->Quantity = Self->Weight;
         }
         if (pas::class_cast_if<TCountableItem*>(Self) != nullptr) {
             std::int32_t cpp_right = pas::checked_cast<TCountableItem*>(Self)->GetUnitSize();
             pas::checked_cast<TCountableItem*>(Self)->StackCount = pas::idiv(Self->Weight, cpp_right);
         }
         if (Self->ItemType == aConst::t_ArtefactTranclucator && pas::checked_cast<TArtefactTranclucator*>(Self)->Ship != nullptr) {
-            static_cast<aTranclucator::TTranclucator*>(pas::checked_cast<TArtefactTranclucator*>(Self)->Ship)->ArtefactSize = Self->Weight;
+            static_cast<aTranclucator::TTranclucator*>(static_cast<TArtefactTranclucator*>(Self)->Ship)->ArtefactSize = Self->Weight;
         }
     }
 
@@ -1008,16 +997,16 @@ namespace aItem {
 
     // Applies the trading-skill percentage to Cost minus repair cost; equipment has a minimum value of 1. Goods use Cost directly.
     std::int32_t TItem::CalculateResaleValue(std::uint8_t TradingSkill) {
-        if (pas::class_cast_if<TEquipment*>(this) != nullptr) {
-            return std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round((Cost - aItem::TEquipment_CalculateRepairCost(pas::checked_cast<TEquipment*>(this))) * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]));
+        if (TEquipment* equipment = pas::class_cast_if<TEquipment*>(this)) {
+            return std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round((Cost - aItem::TEquipment_CalculateRepairCost(equipment)) * 0.01L * aConst::PilotSkillEffects[TradingSkill][aGalaxyStruct::psTrading]));
         }
-        return System::Round(Cost * 0.01L * aConst::PilotSkillEffects[TradingSkill][aShip::psTrading]);
+        return System::Round(Cost * 0.01L * aConst::PilotSkillEffects[TradingSkill][aGalaxyStruct::psTrading]);
     }
 
     // Equipment deducts repair cost, with a minimum result of 1; goods return Cost unchanged.
     std::int32_t TItem::GetConditionAdjustedCost() {
-        if (pas::class_cast_if<TEquipment*>(this) != nullptr) {
-            return std::max<std::int32_t>(1, Cost - aItem::TEquipment_CalculateRepairCost(pas::checked_cast<TEquipment*>(this)));
+        if (TEquipment* equipment = pas::class_cast_if<TEquipment*>(this)) {
+            return std::max<std::int32_t>(1, Cost - aItem::TEquipment_CalculateRepairCost(equipment));
         }
         return Cost;
     }
@@ -1045,20 +1034,20 @@ namespace aItem {
     SE_Space::TObjectSE* TItem::GetGraphObject() {
         // Captures the item at ParentFrame-4; caller removes ParentFrame.
         auto CreateContainer = [&](pas::WideString GraphKey) -> void {
-            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"_wref.get(), pas::concat_wide({u"Item.", GraphKey}), ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"sv, pas::concat_wide({u"Item.", GraphKey}), ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> graphObject = pas::Var<SE_Space::TObjectSE*>(&this->GraphObject);
             SE_Space::RetainSpaceObject(graphObject, createSpaceObjectByName);
         };
         if (GraphObject == nullptr) {
-            if (pas::class_cast_if<TMicroModule*>(this) != nullptr) {
-                if (aConst::MicroModuleTemplates[pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1].KindGraph != u"" && ([&] {
-                    const pas::WideString& cpp_arg = pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1].KindGraph});
-                    EC_BlockPar::TBlockParEC* block = GR_Main::GameDataConfig->GetBlock(u"SE"_wref.get())->GetBlock(u"Item"_wref.get());
-                    return block->FindBlock(cpp_arg);
+            if (TMicroModule* microModule = pas::class_cast_if<TMicroModule*>(this)) {
+                if (aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph != u"" && ([&] {
+                    const pas::WideString& cpp_arg = pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph});
+                    EC_BlockPar::TBlockParEC* block = GR_Main::GameDataConfig->GetBlock(u"SE"sv)->GetBlock(u"Item"sv);
+                    return block->FindBlock(pas::view(cpp_arg));
                 }()) != nullptr) {
-                    CreateContainer(pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1].KindGraph}));
+                    CreateContainer(pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph}));
                 } else {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"mm_", SysUtils::IntToStr(aItem::GetMicroModulePriorityColorTier(pas::checked_cast<TMicroModule*>(this)->MicroModuleIndex - 1))})));
+                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"mm_", SysUtils::IntToStr(aItem::GetMicroModulePriorityColorTier(microModule->MicroModuleIndex - 1))})));
                 }
             } else if (ItemType == aConst::t_ArtefactBomb) {
                 CreateContainer(u"Bomb"_w);
@@ -1070,7 +1059,7 @@ namespace aItem {
                 CreateContainer(reinterpret_cast<TUselessItem*>(this)->ConfigBlockName);
             } else if (pas::class_cast_if<TCistern*>(this) != nullptr) {
                 CreateContainer(u"Cistern"_w);
-            } else if (pas::class_cast_if<TGoods*>(this) != nullptr && static_cast<TGoods*>(this)->NaturalFlag) {
+            } else if (TGoods* goods = pas::class_cast_if<TGoods*>(this); goods != nullptr && goods->NaturalFlag) {
                 if (Weight <= 29) {
                     CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m0_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
                 } else if (Weight <= 59) {
@@ -1078,7 +1067,7 @@ namespace aItem {
                 } else {
                     CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m2_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
                 }
-            } else if (pas::class_cast_if<TProtoplasm*>(this) != nullptr && static_cast<TProtoplasm*>(this)->DropFlag != 0) {
+            } else if (TProtoplasm* protoplasm = pas::class_cast_if<TProtoplasm*>(this); protoplasm != nullptr && protoplasm->DropFlag != 0) {
                 if (Weight <= 29) {
                     CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n0_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
                 } else if (Weight <= 59) {
@@ -1088,28 +1077,28 @@ namespace aItem {
                 } else {
                     CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n3_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
                 }
-            } else if (pas::class_cast_if<TCountableItem*>(this) != nullptr && static_cast<TCountableItem*>(this)->DropFlag != 0) {
+            } else if (TCountableItem* countableItem = pas::class_cast_if<TCountableItem*>(this); countableItem != nullptr && countableItem->DropFlag != 0) {
                 if (Weight <= 29) {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"0_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"0_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 59) {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"1_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"1_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 99) {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"2_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"2_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TCountableItem*>(this)->ConfigBlockName, u"3_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"3_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 }
-            } else if (pas::class_cast_if<TEquipment*>(this) != nullptr && static_cast<TEquipment*>(this)->CustomFaction != u"") {
+            } else if (TEquipment* equipment = pas::class_cast_if<TEquipment*>(this); equipment != nullptr && equipment->CustomFaction != u"") {
                 if (Weight <= 29) {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"0"}));
+                    CreateContainer(pas::concat_wide({equipment->CustomFaction, u"0"}));
                 } else if (Weight <= 59) {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"1"}));
+                    CreateContainer(pas::concat_wide({equipment->CustomFaction, u"1"}));
                 } else if (Weight <= 99) {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"2"}));
+                    CreateContainer(pas::concat_wide({equipment->CustomFaction, u"2"}));
                 } else {
-                    CreateContainer(pas::concat_wide({pas::checked_cast<TEquipment*>(this)->CustomFaction, u"3"}));
+                    CreateContainer(pas::concat_wide({equipment->CustomFaction, u"3"}));
                 }
-            } else if (pas::class_cast_if<TEquipment*>(this) != nullptr && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
-                if (pas::checked_cast<TEquipment*>(this)->DominatorSeries == aGalaxyStruct::dsBlazer) {
+            } else if (TEquipment* equipment_2 = pas::class_cast_if<TEquipment*>(this); equipment_2 != nullptr && OwnerId == aGalaxyStruct::oiDominator) {
+                if (equipment_2->DominatorSeries == aGalaxyStruct::dsBlazer) {
                     if (Weight <= 29) {
                         CreateContainer(u"db0"_w);
                     } else if (Weight <= 59) {
@@ -1119,7 +1108,7 @@ namespace aItem {
                     } else {
                         CreateContainer(u"db3"_w);
                     }
-                } else if (pas::checked_cast<TEquipment*>(this)->DominatorSeries == aGalaxyStruct::dsKeller) {
+                } else if (equipment_2->DominatorSeries == aGalaxyStruct::dsKeller) {
                     if (Weight <= 29) {
                         CreateContainer(u"dk0"_w);
                     } else if (Weight <= 59) {
@@ -1129,7 +1118,7 @@ namespace aItem {
                     } else {
                         CreateContainer(u"dk3"_w);
                     }
-                } else if (pas::checked_cast<TEquipment*>(this)->DominatorSeries == aGalaxyStruct::dsTerron) {
+                } else if (equipment_2->DominatorSeries == aGalaxyStruct::dsTerron) {
                     if (Weight <= 29) {
                         CreateContainer(u"dt0"_w);
                     } else if (Weight <= 59) {
@@ -1168,9 +1157,9 @@ namespace aItem {
             return aConst::OwnerInfo[aGalaxyStruct::oiUninhabited].InternalName;
         } else if (reinterpret_cast<TEquipment*>(Self)->CustomFaction != u"") {
             return reinterpret_cast<TEquipment*>(Self)->CustomFaction;
-        } else if (Self->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::class_cast_if<TEquipment*>(Self) != nullptr) {
-            return aConst::DominatorSeriesNames[reinterpret_cast<TEquipment*>(Self)->DominatorSeries];
-        } else if (pas::class_cast_if<THull*>(Self) != nullptr && static_cast<THull*>(Self)->PirateBuilt) {
+        } else if (Self->OwnerId == aGalaxyStruct::oiDominator && pas::class_cast_if<TEquipment*>(Self) != nullptr) {
+            return aConst::DominatorSeriesNames[static_cast<TEquipment*>(Self)->DominatorSeries];
+        } else if (THull* hull = pas::class_cast_if<THull*>(Self); hull != nullptr && hull->PirateBuilt) {
             return pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::OwnerToSys(Self->OwnerId)});
         } else {
             return aConst::OwnerInfo[Self->OwnerId].InternalName;
@@ -1454,11 +1443,11 @@ namespace aItem {
         std::int32_t I{};
         pas::WideString Text{};
         aItem::TItem_LoadFromBlock(Self, Block);
-        Self->ConditionPercent = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"DyuRrdawbRiblNijtSyp"_w)));
-        Self->BrokenFlag = SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"BorYorkNeln"_w)))) == "true";
-        Self->MicroModuleIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"BrognWulso"_w))));
-        Self->SpecialModuleIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"SrpeeIcjigaEl4"_w))));
-        Text = Block->GetParam(EC_Str::DecodeTextW(u"D9o5meScewr3iwegs4"_w));
+        Self->ConditionPercent = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"DyuRrdawbRiblNijtSyp"_w))));
+        Self->BrokenFlag = SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BorYorkNeln"_w))))) == "true";
+        Self->MicroModuleIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BrognWulso"_w)))));
+        Self->SpecialModuleIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SrpeeIcjigaEl4"_w)))));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"D9o5meScewr3iwegs4"_w)));
         for (I = 0; I <= 2; ++I) {
             if (Text == aConst::DominatorSeriesNames[static_cast<std::uint8_t>(I)]) {
                 Self->DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(I);
@@ -1474,7 +1463,7 @@ namespace aItem {
         if (ScriptItem != nullptr) {
             reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->RunActionCode(aConst::satOnItemEquip, nullptr, nullptr, nullptr, 0);
         }
-        if (pas::class_cast_if<TEquipmentWithActCode*>(this) != nullptr) {
+        if (TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<TEquipmentWithActCode*>(this)) {
             aScript::RunItemConfigActionCode(this, aConst::satOnItemEquip, nullptr, nullptr, nullptr, 0);
         }
     }
@@ -1487,7 +1476,7 @@ namespace aItem {
         if (ScriptItem != nullptr) {
             reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->RunActionCode(aConst::satOnItemDeEquip, nullptr, nullptr, nullptr, 0);
         }
-        if (pas::class_cast_if<TEquipmentWithActCode*>(this) != nullptr) {
+        if (TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<TEquipmentWithActCode*>(this)) {
             aScript::RunItemConfigActionCode(this, aConst::satOnItemDeEquip, nullptr, nullptr, nullptr, 0);
         }
     }
@@ -1520,9 +1509,9 @@ namespace aItem {
                 std::int32_t cpp_left = pas::checked_cast<THull*>(Self)->Weight;
                 if (cpp_left - pas::checked_cast<THull*>(Self)->HullPoints != 0) {
                     {
-                        std::int32_t cpp_left_2 = pas::checked_cast<THull*>(Self)->Weight;
-                        pas::Extended cpp_right = cpp_left_2 - pas::checked_cast<THull*>(Self)->HullPoints;
-                        DamagePercent = pas::real_divide(1.0E+2L, pas::checked_cast<THull*>(Self)->Weight) * cpp_right;
+                        std::int32_t cpp_left_2 = static_cast<THull*>(Self)->Weight;
+                        pas::Extended cpp_right = cpp_left_2 - static_cast<THull*>(Self)->HullPoints;
+                        DamagePercent = pas::real_divide(1.0E+2L, static_cast<THull*>(Self)->Weight) * cpp_right;
                     }
                     return aMyFunction::RoundAndTruncateToTens(pas::real_divide(Self->Cost / 40, 1.0E+2L) * DamagePercent + 1.0E+1L);
                 }
@@ -1569,36 +1558,36 @@ namespace aItem {
             Prefix = pas::WideString();
         }
         if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), this) ^ 1)) {
-            return aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())}), u"<color=255,0,0>"_w);
+            return aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())})), u"<color=255,0,0>"sv);
         }
         if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), this) ^ 1) && BrokenFlag != 0 && static_cast<std::uint8_t>(pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_Engine)) ^ 1)) {
-            return aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())}), u"<color=255,0,0>"_w);
+            return aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())})), u"<color=255,0,0>"sv);
         }
         if (BrokenFlag != 0) {
             if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Broken"}))}), u"<color=255,0,0>"_w);
+                Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Broken"}))})), u"<color=255,0,0>"sv);
             } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Weapon.Broken"_wref.get())}), u"<color=255,0,0>"_w);
+                Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Weapon.Broken"_wref.get())})), u"<color=255,0,0>"sv);
             } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".Broken"}))}), u"<color=255,0,0>"_w);
+                Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".Broken"}))})), u"<color=255,0,0>"sv);
             } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Broken"}))}), u"<color=255,0,0>"_w);
+                Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Broken"}))})), u"<color=255,0,0>"sv);
             } else if (ItemType == aConst::t_Satellite) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Satellite.Broken"_wref.get())}), u"<color=255,0,0>"_w);
+                Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Satellite.Broken"_wref.get())})), u"<color=255,0,0>"sv);
             } else {
                 Result = pas::WideString();
             }
         } else if (pas::class_cast_if<TArtefact*>(this) != nullptr) {
             // Native retains this transmitter branch despite the initial supported-type set.
             if (ItemType == aConst::t_ArtefactTransmitter && pas::checked_cast<TArtefactTransmitter*>(this)->Power < aConst::MinTransmitterPower) {
-                Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Artefacts.ArtTransmitter.Broken"_wref.get())}), u"<color=254,217,7>"_w);
+                Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Artefacts.ArtTransmitter.Broken"_wref.get())})), u"<color=254,217,7>"sv);
             } else {
                 Result = pas::WideString();
             }
         } else if (ConditionPercent < 2.0E+1L) {
-            Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.SmallDuration"_wref.get())}), u"<color=254,217,7>"_w);
+            Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.SmallDuration"_wref.get())})), u"<color=254,217,7>"sv);
         } else if (ConditionPercent < 5.0E+1L) {
-            Result = aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.AverageDuration"_wref.get())}), u"<color=127,127,127>"_w);
+            Result = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.AverageDuration"_wref.get())})), u"<color=127,127,127>"sv);
         } else {
             Result = pas::WideString();
         }
@@ -1606,7 +1595,7 @@ namespace aItem {
             if (!PrefixNewLine) {
                 Result = pas::WideString();
             }
-            return pas::concat_wide({aMyFunction::WrapTextInColor(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeRepaired"_wref.get())}), u"<color=127,127,127>"_w), Result});
+            return pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeRepaired"_wref.get())})), u"<color=127,127,127>"sv), Result});
         }
         return Result;
     }
@@ -1697,7 +1686,7 @@ namespace aItem {
     }
 
     pas::WideString TEquipment::GetDescriptionText() {
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator)) && OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator)) && OwnerId == aGalaxyStruct::oiDominator) {
             return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".KlingDescription.", pas::wide_int_to_str(GetLevel())}));
         }
         return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Description.", pas::wide_int_to_str(GetLevel())}));
@@ -1712,13 +1701,13 @@ namespace aItem {
             Result = ([&] {
                 pas::WideString microModuleTextColorTag = aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1);
                 pas::WideString specialModuleName = GetSpecialModuleName();
-                return aMyFunction::WrapTextInColor(std::move(specialModuleName), std::move(microModuleTextColorTag));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(specialModuleName)), pas::view(std::move(microModuleTextColorTag)));
             }());
         } else if (CustomFaction != u"") {
             Result = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".", CustomFaction, u"Name"}));
         }
         if (Result == u"") {
-            if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (OwnerId != aGalaxyStruct::oiDominator) {
                 TypeName = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Type.", pas::wide_int_to_str(GetLevel())}));
                 Result = aMyFunction::ReplaceColoredToken(aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Name"})), u"<Type>"_w, TypeName, pas::WideString());
             } else {
@@ -1729,7 +1718,7 @@ namespace aItem {
             return pas::concat_wide({Result, u" ", ([&] {
                 pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
                 pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
-                return aMyFunction::WrapTextInColor(std::move(microModuleQuotedName), std::move(microModuleNameColorTag));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)), pas::view(std::move(microModuleNameColorTag)));
             }())});
         }
         return Result;
@@ -1738,7 +1727,7 @@ namespace aItem {
     pas::WideString TEquipment::GetShortName() {
         if (NameOverride != u"") {
             return NameOverride;
-        } else if (OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        } else if (OwnerId != aGalaxyStruct::oiDominator) {
             return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".ShortName"}));
         } else {
             return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".KlingName"}));
@@ -1817,7 +1806,7 @@ namespace aItem {
             }
         }
         if (Result == u"") {
-            if (OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (OwnerId == aGalaxyStruct::oiDominator) {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], u"Kling0"});
             }
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], pas::wide_int_to_str(GetLevel() - 1)});
@@ -1861,7 +1850,7 @@ namespace aItem {
         std::int32_t SpecialBonus{};
         PExtraSpecial Entry{};
         if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity, aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0) {
-            Result = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
+            Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         } else {
             Result = 0;
         }
@@ -1869,21 +1858,21 @@ namespace aItem {
             return Result;
         }
         if (SpecialModuleIndex != 0) {
-            SpecialBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
+            SpecialBonus = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[BonusKind];
         } else {
             SpecialBonus = 0;
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                SpecialBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, BonusKind * sizeof(std::int32_t))) * Entry->Count;
+                SpecialBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
             }
         }
         if (SpecialBonus != 0 && MicroModuleIndex != 0 && static_cast<std::uint8_t>(pas::is_one_of<aConst::bonExtraAkrinEff, aConst::bonExtraAkrinPenalty>(BonusKind) ^ 1)) {
             if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == SpecialBonus > 0) {
-                SpecialBonus += System::Round(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t))) * SpecialBonus * 1.0E-4L);
+                SpecialBonus += System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] * SpecialBonus * 1.0E-4L);
             } else {
-                SpecialBonus += System::Round(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t))) * SpecialBonus * 1.0E-4L);
+                SpecialBonus += System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff] * SpecialBonus * 1.0E-4L);
             }
         }
         Result += SpecialBonus;
@@ -1898,7 +1887,7 @@ namespace aItem {
         std::int32_t PenaltyPercent{};
         PExtraSpecial Entry{};
         if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity, aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0 && static_cast<std::uint8_t>(aConst::MicroModuleTemplates[MicroModuleIndex - 1].SeparatedNumbers ^ 1)) {
-            Result = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
+            Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         } else {
             Result = 0;
         }
@@ -1910,24 +1899,24 @@ namespace aItem {
         std::int32_t ExtraSeparatedBonus = 0;
         if (SpecialModuleIndex != 0) {
             if (aConst::MicroModuleTemplates[SpecialModuleIndex - 1].SeparatedNumbers) {
-                SeparatedBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
+                SeparatedBonus = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[BonusKind];
             } else {
-                CombinedBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
+                CombinedBonus = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[BonusKind];
             }
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(Index); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, Index);
                 if (aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].SeparatedNumbers) {
-                    ExtraSeparatedBonus = CombinedBonus + pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, BonusKind * sizeof(std::int32_t))) * Entry->Count;
+                    ExtraSeparatedBonus = CombinedBonus + aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
                 } else {
-                    CombinedBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, BonusKind * sizeof(std::int32_t))) * Entry->Count;
+                    CombinedBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
                 }
             }
         }
         if (MicroModuleIndex != 0) {
-            EffectPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t)));
-            PenaltyPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t)));
+            EffectPercent = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff];
+            PenaltyPercent = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty];
         } else {
             EffectPercent = 0;
             PenaltyPercent = 0;
@@ -1964,17 +1953,17 @@ namespace aItem {
         std::int32_t Index{};
         std::int32_t ModuleIndexPlusOne{};
         // Uses the parent description, bonus multipliers and color. RET 4 removes Result; the caller removes ParentFrame. Count 0 suppresses numeric bonuses.
-        auto ExpandModuleTokens = [&](pas::WideString Text, std::int32_t ModuleIndexPlusOne, std::int32_t Count) -> pas::WideString {
+        auto ExpandModuleTokens = [&](const std::u16string_view& Text, std::int32_t ModuleIndexPlusOne, std::int32_t Count) -> pas::WideString {
             pas::WideString Result{};
-            std::uint8_t BonusIndex{};
+            aConst::TEquipmentBonusKind BonusIndex{};
             std::int32_t Value{};
             // The native helper reads the captured description; Text remains an unused managed parameter.
             Result = Description;
-            for (BonusIndex = static_cast<std::uint8_t>(0); BonusIndex <= static_cast<std::uint8_t>(42); ++BonusIndex) {
-                Value = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].StatBonuses, BonusIndex * sizeof(std::int32_t)));
+            for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range.next(BonusIndex); ) {
+                Value = aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].StatBonuses[BonusIndex];
                 Value *= Count;
-                if (Count != 0 && EffectPercent != 0 && static_cast<std::uint8_t>(pas::in_range(BonusIndex, 29, 30) ^ 1)) {
-                    if (pas::in_range(BonusIndex, 28, 28) == Value > 0) {
+                if (Count != 0 && EffectPercent != 0 && static_cast<std::uint8_t>(pas::in_range(BonusIndex, static_cast<std::int32_t>(aConst::bonExtraAkrinEff), static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty)) ^ 1)) {
+                    if (pas::in_range(BonusIndex, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == Value > 0) {
                         Value += System::Round(Value * PenaltyPercent * 1.0E-4L);
                     } else {
                         Value += System::Round(Value * EffectPercent * 1.0E-4L);
@@ -1996,8 +1985,8 @@ namespace aItem {
         };
         Result = pas::WideString();
         if (Self->MicroModuleIndex != 0) {
-            EffectPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t)));
-            PenaltyPercent = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t)));
+            EffectPercent = aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff];
+            PenaltyPercent = aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty];
         } else {
             EffectPercent = 0;
             PenaltyPercent = 0;
@@ -2005,24 +1994,24 @@ namespace aItem {
         if (Self->SpecialModuleIndex != 0) {
             Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].ConfigName, u".Text"}));
             if (aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].SeparatedNumbers) {
-                Description = ExpandModuleTokens(Description, Self->SpecialModuleIndex, 1);
+                Description = ExpandModuleTokens(pas::view(Description), Self->SpecialModuleIndex, 1);
             }
             if (pas::class_cast_if<TWeapon*>(Self) != nullptr && aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].TextReplace == u"" && Self->GetSpecialModuleName() != u"") {
-                Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(Self->GetSpecialModuleName(), u"<color=255,240,100>"_w)});
+                Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(Self->GetSpecialModuleName()), u"<color=255,240,100>"sv)});
                 if (Description != u"") {
-                    Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1))});
+                    Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1)))});
                 }
             } else if (Description != u"") {
-                Result = pas::concat_wide({u"\r\n \r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1))});
+                Result = pas::concat_wide({u"\r\n \r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1)))});
             }
         }
         if (Self->MicroModuleIndex != 0) {
             Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].ConfigName, u".ExText"}));
             if (Description != u"") {
                 if (aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].SeparatedNumbers) {
-                    Description = ExpandModuleTokens(Description, Self->MicroModuleIndex, 0);
+                    Description = ExpandModuleTokens(pas::view(Description), Self->MicroModuleIndex, 0);
                 }
-                Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(Self->MicroModuleIndex - 1))});
+                Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(Self->MicroModuleIndex - 1)))});
             }
         }
         if (Self->ExtraSpecials != nullptr) {
@@ -2033,9 +2022,9 @@ namespace aItem {
                     if (Description != u"") {
                         aMyFunction::ReplaceTextToken(Description, u"<ExCount>"_w, pas::wide_int_to_str(pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count), ColorTag);
                         if (aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
-                            Description = ExpandModuleTokens(Description, ModuleIndexPlusOne, pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count);
+                            Description = ExpandModuleTokens(pas::view(Description), ModuleIndexPlusOne, pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count);
                         }
-                        Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(Description, aItem::GetMicroModuleTextColorTag(ModuleIndexPlusOne - 1))});
+                        Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(ModuleIndexPlusOne - 1)))});
                     }
                 }
             }
@@ -2064,7 +2053,7 @@ namespace aItem {
         return HasStandardStats() && (SpecialModuleIndex == 0 || static_cast<std::uint8_t>(aConst::MicroModuleTemplates[SpecialModuleIndex - 1].BlocksSpecialSlot ^ 1));
     }
 
-    void THull::Init(std::int32_t Capacity, std::uint8_t Level, std::uint8_t Owner, std::uint8_t HullType, std::int32_t Series, std::uint8_t PirateBuilt) {
+    void THull::Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, std::uint8_t HullType, std::int32_t Series, std::uint8_t PirateBuilt) {
         ItemType = aConst::t_Hull;
         OwnerShip = nullptr;
         Weight = Capacity;
@@ -2283,12 +2272,12 @@ namespace aItem {
 
     void THull_LoadFromBlock(THull* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->HullPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Hristophorisnotuse"_w))));
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->Armor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Alrumuotr"_w))));
-        Self->HullType = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"SohtiEprTtyopwec"_w))));
-        Self->HullSeries = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Stearoidess"_w))));
-        Self->PirateBuilt = SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"BlueivlitoBuyAPIinroaLtte"_w)))) == "true";
+        Self->HullPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Hristophorisnotuse"_w)))));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->Armor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Alrumuotr"_w)))));
+        Self->HullType = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SohtiEprTtyopwec"_w)))));
+        Self->HullSeries = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Stearoidess"_w)))));
+        Self->PirateBuilt = SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BlueivlitoBuyAPIinroaLtte"_w))))) == "true";
     }
 
     std::int8_t THull::CalculateGeneratedArmor() {
@@ -2324,9 +2313,21 @@ namespace aItem {
         if (HullType == aGalaxyStruct::htTranclucator) {
             ExtraCapacity = 0;
             switch (Kind) {
-                case ikMinor: aItem::CalculateHullCapacityIncrease(this, 3, 7, ExtraCapacity); break;
-                case ikMedium: aItem::CalculateHullCapacityIncrease(this, 8, 12, ExtraCapacity); break;
-                case ikMajor: aItem::CalculateHullCapacityIncrease(this, 13, 17, ExtraCapacity); break;
+                case ikMinor: {
+                    std::int32_t cpp_left = aMyFunction::SeededRandomIntRange(3, 7, Id * 214571);
+                    ExtraCapacity = System::Round(cpp_left * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    break;
+                }
+                case ikMedium: {
+                    std::int32_t cpp_left_2 = aMyFunction::SeededRandomIntRange(8, 12, Id * 214571);
+                    ExtraCapacity = System::Round(cpp_left_2 * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    break;
+                }
+                case ikMajor: {
+                    std::int32_t cpp_left_3 = aMyFunction::SeededRandomIntRange(13, 17, Id * 214571);
+                    ExtraCapacity = System::Round(cpp_left_3 * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    break;
+                }
             }
             Weight += ExtraCapacity;
             HullPoints += ExtraCapacity;
@@ -2335,10 +2336,10 @@ namespace aItem {
     }
 
     std::uint8_t THull::HasStandardStats() {
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] == 0) {
             return CalculateGeneratedArmor() == Armor;
         }
-        return CalculateGeneratedArmor() == Armor - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t)));
+        return CalculateGeneratedArmor() == Armor - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
     }
 
     pas::WideString THull::GetDisplayName() {
@@ -2351,7 +2352,7 @@ namespace aItem {
             Result = ([&] {
                 pas::WideString microModuleTextColorTag = aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1);
                 pas::WideString specialModuleName = GetSpecialModuleName();
-                return aMyFunction::WrapTextInColor(std::move(specialModuleName), std::move(microModuleTextColorTag));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(specialModuleName)), pas::view(std::move(microModuleTextColorTag)));
             }());
             aMyFunction::ReplaceTextToken(Result, u"<Type>"_w, aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Hull.Type.", SysUtils::IntToStr(TechLevel)}))), pas::WideString());
         } else {
@@ -2393,7 +2394,7 @@ namespace aItem {
             return pas::concat_wide({Result, u" ", ([&] {
                 pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
                 pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
-                return aMyFunction::WrapTextInColor(std::move(microModuleQuotedName), std::move(microModuleNameColorTag));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)), pas::view(std::move(microModuleNameColorTag)));
             }())});
         }
         return Result;
@@ -2456,19 +2457,19 @@ namespace aItem {
         aMyFunction::ReplaceTextToken(Text, u"<FragilityE>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkEnergy}})) * 1.0E+2L)), ColorTag);
         aMyFunction::ReplaceTextToken(Text, u"<FragilityS>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkSplinter}})) * 1.0E+2L)), ColorTag);
         aMyFunction::ReplaceTextToken(Text, u"<FragilityM>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkMissile}})) * 1.0E+2L)), ColorTag);
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] == 0) {
             BonusText = pas::WideString();
-        } else if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t))) > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t))))})), u"<color=0,255,0>"_w);
+        } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] > 0) {
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull])}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t)))), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull])), u"<color=255,0,0>"sv);
         }
         std::int32_t StatBonus = GetStatBonus(aConst::bonHull);
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (OwnerShip != nullptr) {
@@ -2478,22 +2479,22 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (MicroModuleIndex == 0) {
             BaseArmor = Armor;
         } else {
-            BaseArmor = Armor - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHull * sizeof(std::int32_t)));
+            BaseArmor = Armor - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
         }
         if (CalculateGeneratedArmor() == BaseArmor) {
             aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({pas::wide_int_to_str(BaseArmor), BonusText}), ColorTag);
         } else if (CalculateGeneratedArmor() < BaseArmor) {
-            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseArmor), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseArmor)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseArmor), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseArmor)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
     }
 
@@ -2524,7 +2525,7 @@ namespace aItem {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_J_alt_"});
             } else if (HullType == aGalaxyStruct::htRanger && SpecialModuleIndex == 0 && Ship->UsesVeteranHumanRangerAppearance()) {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_People_ROld_"});
-            } else if (Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate) && pas::checked_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
+            } else if (Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == aGalaxyStruct::oiPirate && pas::checked_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_PC_"});
             } else {
                 return Result;
@@ -2554,20 +2555,20 @@ namespace aItem {
         std::int32_t Maximum = aConst::DefaultHullSlotCounts[Kind];
         std::int32_t Minimum = aConst::MinimumHullSlotCounts[Kind];
         if (SpecialModuleIndex != 0) {
-            Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)))));
+            Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[BonusKind]));
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, BonusKind * sizeof(std::int32_t))) * Entry->Count;
+                Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
             }
             Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result));
         }
         if (HullSeries != -1) {
-            Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::HullSeriesDefinitions[HullSeries].SlotBonuses, Kind * sizeof(std::int32_t)))));
+            Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + aConst::HullSeriesDefinitions[HullSeries].SlotBonuses[Kind]));
         }
         if (MicroModuleIndex != 0) {
-            return std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)))));
+            return std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind]));
         }
         return Result;
     }
@@ -2591,21 +2592,21 @@ namespace aItem {
             }
             return pas::real_divide(Result, 3.0L);
         }
-        DamageClass = aConst::ClassifyWeaponDamageFlags(pas::load_unaligned<std::uint32_t>(&DamageFlags));
+        DamageClass = aConst::ClassifyWeaponDamageFlags(DamageFlags);
         Result = static_cast<long double>(aConst::HullFragilityByType[HullType]) * pas::load_unaligned<float>(pas::byte_offset(&aConst::HullLevelStats[TechLevel].Fragility, DamageClass * sizeof(float))) * aConst::HullFragilityByOwner[DamageClass][OwnerId];
         if (PirateBuilt) {
-            Result = static_cast<long double>(Result) * aConst::HullFragilityByOwner[DamageClass][7];
+            Result = static_cast<long double>(Result) * aConst::HullFragilityByOwner[DamageClass][aGalaxyStruct::oiPirate];
         }
         if (MicroModuleIndex != 0) {
-            Result = static_cast<long double>(Result) * pas::load_unaligned<float>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].FragilityFactorByDamageClass, DamageClass * sizeof(float)));
+            Result = static_cast<long double>(Result) * aConst::MicroModuleTemplates[MicroModuleIndex - 1].FragilityFactorByDamageClass[DamageClass];
         }
         if (SpecialModuleIndex != 0) {
-            Result = static_cast<long double>(Result) * pas::load_unaligned<float>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].FragilityFactorByDamageClass, DamageClass * sizeof(float)));
+            Result = static_cast<long double>(Result) * aConst::MicroModuleTemplates[SpecialModuleIndex - 1].FragilityFactorByDamageClass[DamageClass];
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range_2.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Factor = pas::load_unaligned<float>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].FragilityFactorByDamageClass, DamageClass * sizeof(float)));
+                Factor = aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].FragilityFactorByDamageClass[DamageClass];
                 if (std::fabs(Factor - 1.0L) > 1.0E-6L) {
                     if (Entry->Count == 1) {
                         Result = static_cast<long double>(Result) * Factor;
@@ -2616,7 +2617,7 @@ namespace aItem {
             }
         }
         if (HullSeries != -1) {
-            return static_cast<long double>(Result) * pas::load_unaligned<float>(pas::byte_offset(&aConst::HullSeriesDefinitions[HullSeries].FragilityByDamageClass, DamageClass * sizeof(float)));
+            return static_cast<long double>(Result) * aConst::HullSeriesDefinitions[HullSeries].FragilityByDamageClass[DamageClass];
         }
         return Result;
     }
@@ -2653,7 +2654,7 @@ namespace aItem {
         return Result;
     }
 
-    void TFuelTanks::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TFuelTanks::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_FuelTanks;
         this->Weight = Weight;
         TechLevel = Level;
@@ -2700,9 +2701,9 @@ namespace aItem {
 
     void TFuelTanks_LoadFromBlock(TFuelTanks* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->Fuel = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"FiuNeol"_w)))));
-        Self->Capacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"CraspiaNcliotay"_w))));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->Fuel = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"FiuNeol"_w))))));
+        Self->Capacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CraspiaNcliotay"_w)))));
     }
 
     std::uint8_t TFuelTanks::CalculateGeneratedCapacity() {
@@ -2743,10 +2744,10 @@ namespace aItem {
     std::uint8_t TFuelTanks::HasStandardStats() {
         std::int32_t BaseCapacity{};
         std::int32_t SizePercent{};
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] == 0) {
             BaseCapacity = Capacity;
         } else {
-            BaseCapacity = Capacity - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t)));
+            BaseCapacity = Capacity - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
         }
         std::int32_t ExpectedWeight = System::Round(pas::real_divide((BaseCapacity - aConst::FuelCapacityByLevel[TechLevel]) * aConst::FuelTanksBaseSize, 2.0E+1L));
         if (MicroModuleIndex != 0) {
@@ -2778,7 +2779,7 @@ namespace aItem {
             Text = aConst::LocalizedText(pas::concat_wide({u"Items.FuelTanks.", Self->CustomFaction, u"Text"}));
         }
         if (Text == u"") {
-            if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Self->OwnerId != aGalaxyStruct::oiDominator) {
                 Text = aConst::LocalizedText(u"Items.FuelTanks.Text"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Items.FuelTanks.KlingText"_wref.get());
@@ -2797,17 +2798,17 @@ namespace aItem {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
         std::int32_t SizePercent{};
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] == 0) {
             BonusText = pas::WideString();
-        } else if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t))) > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t))))})), u"<color=0,255,0>"_w);
+        } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] > 0) {
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel])}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t)))), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel])), u"<color=255,0,0>"sv);
         }
         if (MicroModuleIndex == 0) {
             BaseValue = Capacity;
         } else {
-            BaseValue = Capacity - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonFuel * sizeof(std::int32_t)));
+            BaseValue = Capacity - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
         }
         std::int32_t ExpectedWeight = System::Round(pas::real_divide((BaseValue - aConst::FuelCapacityByLevel[TechLevel]) * aConst::FuelTanksBaseSize, 2.0E+1L));
         if (MicroModuleIndex != 0) {
@@ -2829,13 +2830,13 @@ namespace aItem {
         if (pas::abs(ExpectedWeight - Weight) <= 1) {
             aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (ExpectedWeight > Weight) {
-            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
     }
 
-    void TEngine::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TEngine::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_Engine;
         MicroModuleIndex = 0;
         this->Weight = Weight;
@@ -2890,9 +2891,9 @@ namespace aItem {
 
     void TEngine_LoadFromBlock(TEngine* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->Speed = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Sapreneld"_w)))));
-        Self->JumpRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"JiuOmipa"_w))));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->Speed = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Sapreneld"_w))))));
+        Self->JumpRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"JiuOmipa"_w)))));
     }
 
     std::int32_t TEngine::CalculateGeneratedSpeed() {
@@ -2986,15 +2987,15 @@ namespace aItem {
     std::uint8_t TEngine::HasStandardStats() {
         std::uint8_t StandardSpeed{};
         std::uint8_t StandardJump{};
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonSpeed * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed] == 0) {
             StandardSpeed = CalculateGeneratedSpeed() == Speed;
         } else {
-            StandardSpeed = CalculateGeneratedSpeed() == Speed - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonSpeed * sizeof(std::int32_t)));
+            StandardSpeed = CalculateGeneratedSpeed() == Speed - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed];
         }
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonJump * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonJump] == 0) {
             StandardJump = CalculateGeneratedJumpRange() == JumpRange;
         } else {
-            StandardJump = CalculateGeneratedJumpRange() == JumpRange - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonJump * sizeof(std::int32_t)));
+            StandardJump = CalculateGeneratedJumpRange() == JumpRange - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonJump];
         }
         return StandardSpeed && StandardJump;
     }
@@ -3009,7 +3010,7 @@ namespace aItem {
             Text = aConst::LocalizedText(pas::concat_wide({u"Items.Engine.", Self->CustomFaction, u"Text"}));
         }
         if (Text == u"") {
-            if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Self->OwnerId != aGalaxyStruct::oiDominator) {
                 Text = aConst::LocalizedText(u"Items.Engine.Text"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Items.Engine.KlingText"_wref.get());
@@ -3029,23 +3030,23 @@ namespace aItem {
         if (MicroModuleIndex == 0) {
             StatBonus = 0;
         } else {
-            StatBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonSpeed * sizeof(std::int32_t)));
+            StatBonus = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed];
         }
         std::int32_t BaseValue = std::max<std::int32_t>(0, Speed - StatBonus);
         StatBonus = std::max<std::int32_t>(0, Speed) - BaseValue;
         if (StatBonus == 0) {
             BonusText = pas::WideString();
         } else if (StatBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=0,255,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,0,0>"sv);
         }
         StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, Speed), GetStatBonus(aConst::bonSpeed));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -3055,38 +3056,38 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (CalculateGeneratedSpeed() == BaseValue) {
             aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedSpeed() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
         if (MicroModuleIndex == 0) {
             StatBonus = 0;
         } else {
-            StatBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonJump * sizeof(std::int32_t)));
+            StatBonus = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonJump];
         }
         BaseValue = std::max<std::int32_t>(0, JumpRange - StatBonus);
         StatBonus = std::max<std::int32_t>(0, static_cast<std::int32_t>(JumpRange)) - BaseValue;
         if (StatBonus == 0) {
             BonusText = pas::WideString();
         } else if (StatBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=0,255,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,0,0>"sv);
         }
         StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(JumpRange)), GetStatBonus(aConst::bonJump));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -3096,21 +3097,21 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (CalculateGeneratedJumpRange() == BaseValue) {
             aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedJumpRange() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
     }
 
-    void TRadar::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TRadar::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_Radar;
         this->Weight = Weight;
         TechLevel = Level;
@@ -3149,8 +3150,8 @@ namespace aItem {
 
     void TRadar_LoadFromBlock(TRadar* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Rialdoinurs"_w)))));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_w))))));
     }
 
     std::int32_t TRadar::CalculateGeneratedRange() {
@@ -3195,10 +3196,10 @@ namespace aItem {
     }
 
     std::uint8_t TRadar::HasStandardStats() {
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] == 0) {
             return CalculateGeneratedRange() == Range;
         }
-        return CalculateGeneratedRange() == Range - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t)));
+        return CalculateGeneratedRange() == Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
     }
 
     pas::WideString TRadar_GetInfoText(TRadar* Self, pas::WideString ColorTag, void* Ship) {
@@ -3211,7 +3212,7 @@ namespace aItem {
             Text = aConst::LocalizedText(pas::concat_wide({u"Items.Radar.", Self->CustomFaction, u"Text"}));
         }
         if (Text == u"") {
-            if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Self->OwnerId != aGalaxyStruct::oiDominator) {
                 Text = aConst::LocalizedText(u"Items.Radar.Text"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Items.Radar.KlingText"_wref.get());
@@ -3228,19 +3229,19 @@ namespace aItem {
     void TRadar::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] == 0) {
             BonusText = pas::WideString();
-        } else if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t))) > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t))))})), u"<color=0,255,0>"_w);
+        } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] > 0) {
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar])}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t)))), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar])), u"<color=255,0,0>"sv);
         }
         std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, Range), GetStatBonus(aConst::bonRadar));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -3250,26 +3251,26 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (MicroModuleIndex == 0) {
             BaseValue = Range;
         } else {
-            BaseValue = Range - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonRadar * sizeof(std::int32_t)));
+            BaseValue = Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
         }
         if (HasStandardStats()) {
             aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedRange() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
     }
 
-    void TScaner::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TScaner::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_Scaner;
         this->Weight = Weight;
         TechLevel = Level;
@@ -3311,12 +3312,12 @@ namespace aItem {
 
     void TScaner_LoadFromBlock(TScaner* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->ScanPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Prouwseor"_w))));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->ScanPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w)))));
     }
 
     std::int32_t TScaner::CalculateGeneratedScanPower() {
-        return (aItem::DefenseDamageFactorToPercent(aItem::GetGeneratedDefenseDamageFactor(TechLevel)) & 0x0000007f) + 1;
+        return aItem::DefenseDamageFactorToPercent(aItem::GetGeneratedDefenseDamageFactor(TechLevel)) + 1;
     }
 
     std::int32_t TScaner::CalculateGeneratedCost() {
@@ -3354,10 +3355,10 @@ namespace aItem {
     }
 
     std::uint8_t TScaner::HasStandardStats() {
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonScan * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonScan] == 0) {
             return CalculateGeneratedScanPower() == ScanPower;
         }
-        return CalculateGeneratedScanPower() == ScanPower - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonScan * sizeof(std::int32_t)));
+        return CalculateGeneratedScanPower() == ScanPower - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonScan];
     }
 
     pas::WideString TScaner_GetInfoText(TScaner* Self, pas::WideString ColorTag, void* Ship) {
@@ -3370,7 +3371,7 @@ namespace aItem {
             Text = aConst::LocalizedText(pas::concat_wide({u"Items.Scaner.", Self->CustomFaction, u"Text"}));
         }
         if (Text == u"") {
-            if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Self->OwnerId != aGalaxyStruct::oiDominator) {
                 Text = aConst::LocalizedText(u"Items.Scaner.Text"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Items.Scaner.KlingText"_wref.get());
@@ -3390,23 +3391,23 @@ namespace aItem {
         if (MicroModuleIndex == 0) {
             StatBonus = 0;
         } else {
-            StatBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonScan * sizeof(std::int32_t)));
+            StatBonus = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonScan];
         }
         std::int32_t BaseValue = std::max<std::int32_t>(0, ScanPower - StatBonus);
         StatBonus = std::max<std::int32_t>(0, static_cast<std::int32_t>(ScanPower)) - BaseValue;
         if (StatBonus == 0) {
             BonusText = pas::WideString();
         } else if (StatBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=0,255,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,0,0>"sv);
         }
         StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(ScanPower)), GetStatBonus(aConst::bonScan));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -3416,21 +3417,21 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (CalculateGeneratedScanPower() == BaseValue) {
             aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedScanPower() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
     }
 
-    void TRepairRobot::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TRepairRobot::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_RepairRobot;
         this->Weight = Weight;
         TechLevel = Level;
@@ -3455,7 +3456,7 @@ namespace aItem {
             if (TechLevel < 5) {
                 RepairPoints += 5;
             }
-            if (MicroModuleIndex != 0 && pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t))) != 0) {
+            if (MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] != 0) {
                 switch (aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber) {
                     case 122: RepairPoints += 7; break;
                     case 21: RepairPoints += 4; break;
@@ -3485,8 +3486,8 @@ namespace aItem {
 
     void TRepairRobot_LoadFromBlock(TRepairRobot* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->RepairPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Raenplavikr"_w))));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->RepairPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Raenplavikr"_w)))));
     }
 
     std::uint8_t TRepairRobot::CalculateGeneratedRepairPoints() {
@@ -3528,10 +3529,10 @@ namespace aItem {
     }
 
     std::uint8_t TRepairRobot::HasStandardStats() {
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] == 0) {
             return CalculateGeneratedRepairPoints() == RepairPoints;
         }
-        return CalculateGeneratedRepairPoints() == RepairPoints - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t)));
+        return CalculateGeneratedRepairPoints() == RepairPoints - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
     }
 
     pas::WideString TRepairRobot_GetInfoText(TRepairRobot* Self, pas::WideString ColorTag, void* Ship) {
@@ -3544,7 +3545,7 @@ namespace aItem {
             Text = aConst::LocalizedText(pas::concat_wide({u"Items.RepairRobot.", Self->CustomFaction, u"Text"}));
         }
         if (Text == u"") {
-            if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Self->OwnerId != aGalaxyStruct::oiDominator) {
                 Text = aConst::LocalizedText(u"Items.RepairRobot.Text"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Items.RepairRobot.KlingText"_wref.get());
@@ -3561,19 +3562,19 @@ namespace aItem {
     void TRepairRobot::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] == 0) {
             BonusText = pas::WideString();
-        } else if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t))) > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t))))})), u"<color=0,255,0>"_w);
+        } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] > 0) {
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid])}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t)))), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid])), u"<color=255,0,0>"sv);
         }
         std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(RepairPoints)), GetStatBonus(aConst::bonDroid));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -3583,22 +3584,22 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (MicroModuleIndex == 0) {
             BaseValue = RepairPoints;
         } else {
-            BaseValue = RepairPoints - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDroid * sizeof(std::int32_t)));
+            BaseValue = RepairPoints - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
         }
         if (HasStandardStats()) {
             aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedRepairPoints() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
     }
 
@@ -3606,7 +3607,7 @@ namespace aItem {
         aItem::TEquipment_Create(Self);
     }
 
-    void TCargoHook::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TCargoHook::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_CargoHook;
         this->Weight = Weight;
         TechLevel = Level;
@@ -3669,11 +3670,11 @@ namespace aItem {
 
     void TCargoHook_LoadFromBlock(TCargoHook* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->PickupPower = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Prouwseor"_w)))));
-        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Rialdoinurs"_w)))));
-        Self->MinPullSpeed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"SapperenduMaidno"_w)));
-        Self->MaxPullSpeed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"Suplexe2d3Moarxi"_w)));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->PickupPower = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w))))));
+        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_w))))));
+        Self->MinPullSpeed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SapperenduMaidno"_w))));
+        Self->MaxPullSpeed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Suplexe2d3Moarxi"_w))));
     }
 
     std::int32_t TCargoHook::CalculateGeneratedPickupPower() {
@@ -3781,15 +3782,15 @@ namespace aItem {
     std::uint8_t TCargoHook::HasStandardStats() {
         std::uint8_t StandardPower{};
         std::uint8_t StandardRange{};
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] == 0) {
             StandardPower = CalculateGeneratedPickupPower() == PickupPower;
         } else {
-            StandardPower = CalculateGeneratedPickupPower() == PickupPower - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t)));
+            StandardPower = CalculateGeneratedPickupPower() == PickupPower - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
         }
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius] == 0) {
             StandardRange = CalculateGeneratedRange() == Range;
         } else {
-            StandardRange = CalculateGeneratedRange() == Range - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t)));
+            StandardRange = CalculateGeneratedRange() == Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
         }
         return StandardPower && StandardRange;
     }
@@ -3804,7 +3805,7 @@ namespace aItem {
             Text = aConst::LocalizedText(pas::concat_wide({u"Items.CargoHook.", Self->CustomFaction, u"Text"}));
         }
         if (Text == u"") {
-            if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Self->OwnerId != aGalaxyStruct::oiDominator) {
                 Text = aConst::LocalizedText(u"Items.CargoHook.Text"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Items.CargoHook.KlingText"_wref.get());
@@ -3821,19 +3822,19 @@ namespace aItem {
     void TCargoHook::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] == 0) {
             BonusText = pas::WideString();
-        } else if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t))) > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t))))})), u"<color=0,255,0>"_w);
+        } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] > 0) {
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook])}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t)))), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook])), u"<color=255,0,0>"sv);
         }
         std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, PickupPower), GetStatBonus(aConst::bonHook));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -3843,36 +3844,36 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (MicroModuleIndex == 0) {
             BaseValue = PickupPower;
         } else {
-            BaseValue = PickupPower - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHook * sizeof(std::int32_t)));
+            BaseValue = PickupPower - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
         }
         if (CalculateGeneratedPickupPower() == BaseValue) {
             aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedPickupPower() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius] == 0) {
             BonusText = pas::WideString();
-        } else if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t))) > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t))))})), u"<color=0,255,0>"_w);
+        } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius] > 0) {
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius])}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t)))), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius])), u"<color=255,0,0>"sv);
         }
         StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, Range), GetStatBonus(aConst::bonHookRadius));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -3882,28 +3883,28 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (MicroModuleIndex == 0) {
             BaseValue = Range;
         } else {
-            BaseValue = Range - pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonHookRadius * sizeof(std::int32_t)));
+            BaseValue = Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
         }
         if (CalculateGeneratedRange() == BaseValue) {
             aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), u"<color=255,240,100>"_w);
         } else if (CalculateGeneratedRange() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseValue), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
         aMyFunction::ReplaceTextToken(Text, u"<SpeedMin>"_w, pas::wide_int64_to_str(System::Round(aConst::CargoHookLevelStats[TechLevel].MinPullSpeed)), u"<color=255,240,100>"_w);
         aMyFunction::ReplaceTextToken(Text, u"<SpeedMax>"_w, pas::wide_int64_to_str(System::Round(aConst::CargoHookLevelStats[TechLevel].MaxPullSpeed)), u"<color=255,240,100>"_w);
     }
 
-    void TDefGenerator::Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TDefGenerator::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_DefGenerator;
         this->Weight = Weight;
         TechLevel = Level;
@@ -3942,8 +3943,8 @@ namespace aItem {
 
     void TDefGenerator_LoadFromBlock(TDefGenerator* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->DamageFactor = 1.0L - EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"Prouwseor"_w)));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->DamageFactor = 1.0L - EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w))));
     }
 
     float TDefGenerator::CalculateGeneratedDamageFactor() {
@@ -3977,10 +3978,10 @@ namespace aItem {
     std::uint8_t TDefGenerator::HasStandardStats() {
         std::int32_t ActualPercent = System::Round(DamageFactor * 1.0E+2L);
         std::int32_t GeneratedPercent = System::Round(CalculateGeneratedDamageFactor() * 1.0E+2L);
-        if (MicroModuleIndex == 0 || pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t))) == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef] == 0) {
             return ActualPercent == GeneratedPercent;
         }
-        std::int32_t BonusPercent = System::Round(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t))));
+        std::int32_t BonusPercent = System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef]);
         return ActualPercent + BonusPercent == GeneratedPercent;
     }
 
@@ -3994,7 +3995,7 @@ namespace aItem {
             Text = aConst::LocalizedText(pas::concat_wide({u"Items.DefGenerator.", Self->CustomFaction, u"Text"}));
         }
         if (Text == u"") {
-            if (Self->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+            if (Self->OwnerId != aGalaxyStruct::oiDominator) {
                 Text = aConst::LocalizedText(u"Items.DefGenerator.Text"_wref.get());
             } else {
                 Text = aConst::LocalizedText(u"Items.DefGenerator.KlingText"_wref.get());
@@ -4012,22 +4013,22 @@ namespace aItem {
         pas::WideString BonusText{};
         std::int32_t ModuleBonus = 0;
         if (MicroModuleIndex != 0) {
-            ModuleBonus = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t)));
+            ModuleBonus = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef];
         }
         std::uint8_t DisplayPercent = aItem::DefenseDamageFactorToPercent(DamageFactor);
         if (ModuleBonus == 0) {
             BonusText = pas::WideString();
         } else if (ModuleBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)})), u"<color=0,255,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)}))), u"<color=0,255,0>"sv);
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(ModuleBonus), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)), u"<color=255,0,0>"sv);
         }
         std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(DisplayPercent)), GetStatBonus(aConst::bonDef));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(StatBonus), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), u"<color=255,167,84>"sv)});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
@@ -4037,22 +4038,22 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         std::int32_t ActualFactorPercent = System::Round(DamageFactor * 1.0E+2L);
         std::int32_t GeneratedFactorPercent = System::Round(CalculateGeneratedDamageFactor() * 1.0E+2L);
-        if (MicroModuleIndex != 0 && pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t))) != 0) {
-            ActualFactorPercent += System::Round(pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonDef * sizeof(std::int32_t))));
+        if (MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef] != 0) {
+            ActualFactorPercent += System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef]);
         }
         if (HasStandardStats()) {
             aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({pas::wide_int_to_str(DisplayPercent - ModuleBonus), BonusText}), ColorTag);
         } else if (ActualFactorPercent < GeneratedFactorPercent) {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(DisplayPercent - ModuleBonus), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(DisplayPercent - ModuleBonus)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(DisplayPercent - ModuleBonus), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(DisplayPercent - ModuleBonus)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
         }
     }
 
@@ -4060,7 +4061,7 @@ namespace aItem {
         aItem::TEquipment_Destroy(Self);
     }
 
-    void TWeapon::Init(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TWeapon::Init(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         Target = nullptr;
         this->ItemType = ItemType;
         this->Weight = Weight;
@@ -4078,7 +4079,7 @@ namespace aItem {
         MicroModuleIndex = 0;
     }
 
-    void TCustomWeapon::InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner) {
+    void TCustomWeapon::InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         Target = nullptr;
         ItemType = aConst::t_CustomWeapon;
         CustomInfo = Info;
@@ -4156,7 +4157,7 @@ namespace aItem {
         if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
             Ammo = EC_Buf::TBufEC_GetUInt32(Buffer);
             AmmoCapacity = EC_Buf::TBufEC_GetUInt32(Buffer);
-            if (GlobalsV::LoadedSaveVersion < 118 && MicroModuleIndex != 0 && pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonWMissile * sizeof(std::int32_t))) != 0) {
+            if (GlobalsV::LoadedSaveVersion < 118 && MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWMissile] != 0) {
                 switch (aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber) {
                     case 204: MaxDamage += 10; break;
                     case 210: MaxDamage += 15; break;
@@ -4165,7 +4166,7 @@ namespace aItem {
                     case 18: MaxDamage += 4; break;
                     case 119: MaxDamage -= 2; break;
                     default: {
-                        MaxDamage += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonWMissile * sizeof(std::int32_t))) / 2;
+                        MaxDamage += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWMissile] / 2;
                         break;
                     }
                 }
@@ -4219,16 +4220,16 @@ namespace aItem {
 
     void TWeapon_LoadFromBlock(TWeapon* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w))));
-        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Rialdoinurs"_w)))));
-        Self->MinDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"MailnoDrakmoarglen"_w))));
-        Self->MaxDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"MianxaDoarmuavgre"_w))));
-        Self->Ammo = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Almamuo"_w))));
-        Self->AmmoCapacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"MraixoAsmImGod"_w))));
+        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
+        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_w))))));
+        Self->MinDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MailnoDrakmoarglen"_w)))));
+        Self->MaxDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MianxaDoarmuavgre"_w)))));
+        Self->Ammo = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Almamuo"_w)))));
+        Self->AmmoCapacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MraixoAsmImGod"_w)))));
     }
 
     void TCustomWeapon_LoadFromBlock(TCustomWeapon* Self, EC_BlockPar::TBlockParEC* Block) {
-        Self->CustomInfo = aGalaxy::Galaxy->RequireCustomWeaponInfo(Block->GetParam(EC_Str::DecodeTextW(u"CrulsitroimaTryspie"_w)));
+        Self->CustomInfo = aGalaxy::Galaxy->RequireCustomWeaponInfo(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CrulsitroimaTryspie"_w))));
         aItem::TWeapon_LoadFromBlock(Self, Block);
     }
 
@@ -4271,12 +4272,12 @@ namespace aItem {
     // Generated maximum plus ordinary and special module damage bonuses; used by HasStandardStats.
     std::int32_t TWeapon::CalculateStandardMaxDamage() {
         std::int32_t Result = CalculateGeneratedMaxDamage();
-        std::uint8_t BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags)].BonusKind;
+        aConst::TEquipmentBonusKind BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags)].BonusKind;
         if (MicroModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         }
         if (SpecialModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, BonusKind * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[BonusKind];
         }
         return Result;
     }
@@ -4285,10 +4286,10 @@ namespace aItem {
     std::int32_t TWeapon::CalculateStandardRange() {
         std::int32_t Result = CalculateGeneratedRange();
         if (MicroModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWRadius];
         }
         if (SpecialModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[aConst::bonWRadius];
         }
         return Result;
     }
@@ -4310,8 +4311,8 @@ namespace aItem {
         }
         std::int32_t CurrentDamage = MaxDamage;
         std::int32_t BaseDamage = Info->MaxDamage;
-        if (pas::in_range(static_cast<std::uint8_t>(Info->ShotType), static_cast<std::int32_t>(aGalaxyStruct::wstMissile), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && MicroModuleIndex > 0 && static_cast<std::uint8_t>(aGalaxy::Galaxy->AreOldMissileBonusesEnabled() ^ 1)) {
-            ModuleDamage = pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(Info->DamageFlags)].BonusKind * sizeof(std::int32_t)));
+        if (pas::in_range(Info->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstMissile), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && MicroModuleIndex > 0 && static_cast<std::uint8_t>(aGalaxy::Galaxy->AreOldMissileBonusesEnabled() ^ 1)) {
+            ModuleDamage = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(Info->DamageFlags)].BonusKind];
             CurrentDamage = MathImports::Ceil(CurrentDamage - (1.0L - pas::real_divide(1.0L, GetShotCount())) * ModuleDamage);
         }
         if (DetailImprovement == 1) {
@@ -4444,7 +4445,7 @@ namespace aItem {
             return pas::concat_wide({Result, u" ", ([&] {
                 pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
                 pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
-                return aMyFunction::WrapTextInColor(std::move(microModuleQuotedName), std::move(microModuleNameColorTag));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)), pas::view(std::move(microModuleNameColorTag)));
             }())});
         }
         return Result;
@@ -4496,29 +4497,29 @@ namespace aItem {
         std::int32_t ShipBonus{};
         std::int32_t MissileRange{};
         // Native flag displays the maximum as the minimum too.
-        if ((std::bit_cast<std::uint32_t>(GetDamageFlags()) & 0x00100000) != 0) {
+        if ((std::bit_cast<std::uint32_t>(GetDamageFlags()) & aGalaxyStruct::DamageNoDeltaMask) != 0) {
             aMyFunction::ReplaceTextToken(Text, u"<MinDamage>"_w, pas::wide_int_to_str(std::max<std::int32_t>(MaxDamage, MinDamage)), ColorTag);
         } else {
             aMyFunction::ReplaceTextToken(Text, u"<MinDamage>"_w, pas::wide_int_to_str(MinDamage), ColorTag);
         }
         std::int32_t ModuleBonus = 0;
-        std::uint8_t DamageClass = static_cast<std::uint8_t>(aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags));
+        aConst::TWeaponDamageClass DamageClass = aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags);
         if (MicroModuleIndex != 0) {
-            ModuleBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::WeaponDamageClasses[DamageClass].BonusKind * sizeof(std::int32_t)));
+            ModuleBonus += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::WeaponDamageClasses[DamageClass].BonusKind];
         }
         std::int32_t BaseDamage = std::max<std::int32_t>(MaxDamage, MinDamage) - ModuleBonus;
         std::int32_t ExpectedDamage = CalculateGeneratedMaxDamage();
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                BaseDamage += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, aConst::WeaponDamageClasses[DamageClass].BonusKind * sizeof(std::int32_t))) * Entry->Count;
+                BaseDamage += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::WeaponDamageClasses[DamageClass].BonusKind] * Entry->Count;
             }
         }
         if (ModuleBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)})), u"<color=0,255,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)}))), u"<color=0,255,0>"sv);
         }
         if (ModuleBonus < 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(ModuleBonus), u"<color=255,0,0>"_w);
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)), u"<color=255,0,0>"sv);
         }
         if (Ship != nullptr && EquippedFlag != 0) {
             ShipBonus = static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::WeaponDamageClasses[DamageClass].BonusKind);
@@ -4527,17 +4528,17 @@ namespace aItem {
         }
         if (ShipBonus != 0) {
             if (ShipBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(ShipBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(ShipBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(ShipBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(ShipBonus), ")"}))), u"<color=255,167,84>"sv)});
             }
         }
         if (BaseDamage == ExpectedDamage) {
             aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, pas::wide_int_to_str(BaseDamage), ColorTag);
         } else if (BaseDamage > ExpectedDamage) {
-            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseDamage), u"<color=0,255,0>"_w), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseDamage)), u"<color=0,255,0>"sv), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseDamage), u"<color=255,0,0>"_w), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseDamage)), u"<color=255,0,0>"sv), ColorTag);
         }
         aMyFunction::ReplaceTextToken(Text, u"<Bonus>"_w, BonusText, ColorTag);
         if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
@@ -4545,13 +4546,13 @@ namespace aItem {
             if (ExtraSpecials != nullptr) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range_2.next(I); ) {
                     Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                    ModuleBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t))) * Entry->Count;
+                    ModuleBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonWRadius] * Entry->Count;
                 }
             }
             ExpectedRange = CalculateGeneratedRange() + ModuleBonus;
             CurrentRange = Range + ModuleBonus;
             if (MicroModuleIndex != 0) {
-                ModuleBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
+                ModuleBonus += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWRadius];
             } else {
                 ModuleBonus = 0;
             }
@@ -4559,12 +4560,12 @@ namespace aItem {
             MissileRange = GetWeaponInfo()->MissileRange;
             EffectiveBonus = std::max<std::int32_t>(CurrentRange, MissileRange) - std::max<std::int32_t>(BaseRange, MissileRange);
             if (ModuleBonus > 0) {
-                BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(EffectiveBonus)})), u"<color=0,255,0>"_w);
+                BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(EffectiveBonus)}))), u"<color=0,255,0>"sv);
             } else if (ModuleBonus < 0) {
                 if (EffectiveBonus < 0) {
-                    BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(EffectiveBonus), u"<color=255,0,0>"_w);
+                    BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(EffectiveBonus)), u"<color=255,0,0>"sv);
                 } else {
-                    BonusText = aMyFunction::WrapTextInColor(u"-0"_w, u"<color=255,0,0>"_w);
+                    BonusText = aMyFunction::WrapTextInColor(u"-0"sv, u"<color=255,0,0>"sv);
                 }
             } else {
                 BonusText = pas::WideString();
@@ -4576,21 +4577,21 @@ namespace aItem {
             }
             EffectiveBonus = std::max<std::int32_t>(CurrentRange + ShipBonus, MissileRange) - std::max<std::int32_t>(CurrentRange, MissileRange);
             if (ShipBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(EffectiveBonus), ")"})), u"<color=255,167,84>"_w)});
+                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(EffectiveBonus), ")"}))), u"<color=255,167,84>"sv)});
             } else if (ShipBonus < 0) {
                 // Native negative branch omits the opening parenthesis.
                 if (EffectiveBonus < 0) {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(EffectiveBonus), ")"})), u"<color=255,167,84>"_w)});
+                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(EffectiveBonus), ")"}))), u"<color=255,167,84>"sv)});
                 } else {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(u"(-0)"_w, u"<color=255,167,84>"_w)});
+                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(u"(-0)"sv, u"<color=255,167,84>"sv)});
                 }
             }
             if (BaseRange == ExpectedRange) {
                 aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange)), BonusText}), ColorTag);
             } else if (BaseRange > ExpectedRange) {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange)), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange))), u"<color=0,255,0>"sv), BonusText}), ColorTag);
             } else {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange)), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange))), u"<color=255,0,0>"sv), BonusText}), ColorTag);
             }
             aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Ammo), ColorTag);
             aMyFunction::ReplaceTextToken(Text, u"<MaxCount>"_w, pas::wide_int_to_str(AmmoCapacity), ColorTag);
@@ -4600,21 +4601,21 @@ namespace aItem {
             if (ExtraSpecials != nullptr) {
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range_3.next(I); ) {
                     Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                    ModuleBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t))) * Entry->Count;
+                    ModuleBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonWRadius] * Entry->Count;
                 }
             }
             ExpectedRange = CalculateGeneratedRange() + ModuleBonus;
             CurrentRange = Range + ModuleBonus;
             if (MicroModuleIndex != 0) {
-                ModuleBonus += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonWRadius * sizeof(std::int32_t)));
+                ModuleBonus += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWRadius];
             } else {
                 ModuleBonus = 0;
             }
             BaseRange = CurrentRange - ModuleBonus;
             if (ModuleBonus > 0) {
-                BonusText = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)})), u"<color=0,255,0>"_w);
+                BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)}))), u"<color=0,255,0>"sv);
             } else if (ModuleBonus < 0) {
-                BonusText = aMyFunction::WrapTextInColor(pas::wide_int_to_str(ModuleBonus), u"<color=255,0,0>"_w);
+                BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)), u"<color=255,0,0>"sv);
             } else {
                 BonusText = pas::WideString();
             }
@@ -4625,17 +4626,17 @@ namespace aItem {
             }
             if (ShipBonus != 0) {
                 if (ShipBonus > 0) {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ShipBonus)})), u"<color=255,167,84>"_w)});
+                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ShipBonus)}))), u"<color=255,167,84>"sv)});
                 } else {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::wide_int_to_str(ShipBonus), u"<color=255,167,84>"_w)});
+                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ShipBonus)), u"<color=255,167,84>"sv)});
                 }
             }
             if (BaseRange == ExpectedRange) {
                 aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(BaseRange), BonusText}), ColorTag);
             } else if (BaseRange > ExpectedRange) {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseRange), u"<color=0,255,0>"_w), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseRange)), u"<color=0,255,0>"sv), BonusText}), ColorTag);
             } else {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::wide_int_to_str(BaseRange), u"<color=255,0,0>"_w), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseRange)), u"<color=255,0,0>"sv), BonusText}), ColorTag);
             }
         }
         aMyFunction::ReplaceTextToken(Text, u"<CntAttacks>"_w, pas::wide_int_to_str(GetAttackCount()), ColorTag);
@@ -4650,15 +4651,15 @@ namespace aItem {
         PExtraSpecial Entry{};
         std::int32_t SpeedPercent = GetWeaponInfo()->ShotSpeedPercent;
         if (MicroModuleIndex != 0) {
-            SpeedPercent += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonShotSpeed * sizeof(std::int32_t)));
+            SpeedPercent += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonShotSpeed];
         }
         if (SpecialModuleIndex != 0) {
-            SpeedPercent += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, aConst::bonShotSpeed * sizeof(std::int32_t)));
+            SpeedPercent += aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[aConst::bonShotSpeed];
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                SpeedPercent += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, aConst::bonShotSpeed * sizeof(std::int32_t))) * Entry->Count;
+                SpeedPercent += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonShotSpeed] * Entry->Count;
             }
         }
         SpeedPercent = std::max<std::int32_t>(0, std::min<std::int32_t>(100, SpeedPercent));
@@ -4722,17 +4723,17 @@ namespace aItem {
         aGalaxyStruct::TDamageFlagSet Result{};
         std::int32_t I{};
         PExtraSpecial Entry{};
-        Result = pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&GetWeaponInfo()->DamageFlags);
+        Result = GetWeaponInfo()->DamageFlags;
         if (SpecialModuleIndex != 0) {
-            Result = Result + pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].WeaponDamageFlags);
+            Result = Result + aConst::MicroModuleTemplates[SpecialModuleIndex - 1].WeaponDamageFlags;
         }
         if (MicroModuleIndex != 0) {
-            Result = Result + pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].WeaponDamageFlags);
+            Result = Result + aConst::MicroModuleTemplates[MicroModuleIndex - 1].WeaponDamageFlags;
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result = Result + pas::load_unaligned<aGalaxyStruct::TDamageFlagSet>(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].WeaponDamageFlags);
+                Result = Result + aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].WeaponDamageFlags;
             }
         }
         return Result;
@@ -4746,15 +4747,15 @@ namespace aItem {
             return Result;
         }
         if (SpecialModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, aConst::bonShots * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[aConst::bonShots];
         }
         if (MicroModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonShots * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonShots];
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, aConst::bonShots * sizeof(std::int32_t))) * Entry->Count;
+                Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonShots] * Entry->Count;
             }
         }
         return std::max<std::int32_t>(Result, 1);
@@ -4765,15 +4766,15 @@ namespace aItem {
         PExtraSpecial Entry{};
         std::int32_t Result = GetWeaponInfo()->AttackCount;
         if (SpecialModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses, aConst::bonAttacks * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[aConst::bonAttacks];
         }
         if (MicroModuleIndex != 0) {
-            Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonAttacks * sizeof(std::int32_t)));
+            Result += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonAttacks];
         }
         if (ExtraSpecials != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
                 Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result += pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses, aConst::bonAttacks * sizeof(std::int32_t))) * Entry->Count;
+                Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonAttacks] * Entry->Count;
             }
         }
         return std::max<std::int32_t>(Result, 1);
@@ -4825,7 +4826,7 @@ namespace aItem {
     pas::WideString TGoods_GetInfoText(TGoods* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Text{};
         Text = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text", SysUtils::IntToStr(Self->ItemType + 1)})));
-        return pas::concat_wide({aMyFunction::WrapTextInColor(Self->GetDisplayName(), ColorTag), Text});
+        return pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(Self->GetDisplayName()), pas::view(ColorTag)), Text});
     }
 
     pas::WideString TGoods::GetDescriptionText() {
@@ -4855,7 +4856,7 @@ namespace aItem {
         StackCount = Count;
         Weight = GetUnitSize() * Count;
         Cost = Count;
-        OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+        OwnerId = aGalaxyStruct::oiUninhabited;
         EquippedFlag = 0;
         ConditionPercent = 0.0;
         BrokenFlag = 1;
@@ -4903,7 +4904,7 @@ namespace aItem {
         if (ItemType != aConst::t_Protoplasm) {
             Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Items.CustomCountables.", ConfigBlockName}));
             if (Block->CountParams(u"UnitSize"_wref.get()) > 0) {
-                return EC_Str::ExtractDigitsToIntW(Block->GetParam(u"UnitSize"_wref.get()));
+                return EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"UnitSize"sv)));
             }
         }
         return Result;
@@ -4976,10 +4977,10 @@ namespace aItem {
         if (Self == Other) {
             return Result;
         }
-        if (reinterpret_cast<TItem*>(Other)->ItemType != Self->ItemType) {
+        if (static_cast<TItem*>(Other)->ItemType != Self->ItemType) {
             return Result;
         }
-        TCountableItem* OtherStack = reinterpret_cast<TCountableItem*>(Other);
+        TCountableItem* OtherStack = static_cast<TCountableItem*>(Other);
         if (pas::class_cast_if<TProtoplasm*>(Self) != nullptr) {
             if (OtherStack->DominatorSeries != Self->DominatorSeries) {
                 return Result;
@@ -5013,7 +5014,7 @@ namespace aItem {
         StackCount = Count;
         Weight = Count;
         Cost = Count * 10;
-        OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
+        OwnerId = aGalaxyStruct::oiDominator;
         this->DropFlag = DropFlag;
         EquippedFlag = 0;
         ConditionPercent = 0.0;
@@ -5099,9 +5100,9 @@ namespace aItem {
             CheckIfWeDisplayAsArtefact();
         }
         if (ConfigName == u"Remains") {
-            OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiDominator);
+            OwnerId = aGalaxyStruct::oiDominator;
         } else {
-            OwnerId = aConst::OwnerFromInternalName(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Owner"})));
+            OwnerId = aConst::OwnerFromInternalName(pas::view(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Owner"}))));
         }
         Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Size"}))));
         Weight = std::max<std::int64_t>(static_cast<std::int64_t>(1), ([&] {
@@ -5113,7 +5114,7 @@ namespace aItem {
             pas::Extended cpp_left_3 = ([&] {
                 pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Cost"}));
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                return aGalaxy::TGalaxy::ResolveMoneySizeTag(std::move(lookupLocalizedTextByKey_2), 2);
+                return aGalaxy::TGalaxy::ResolveMoneySizeTag(pas::view(std::move(lookupLocalizedTextByKey_2)), aGalaxyStruct::oiHuman);
             }());
             return cpp_left_3 * aMyFunction::SeededRandomFloatRange(Id * 13567157, 0.5, 1.2);
         }()));
@@ -5165,14 +5166,14 @@ namespace aItem {
 
     void TUselessItem_LoadFromBlock(TUselessItem* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->ConfigBlockName = Block->GetParam(EC_Str::DecodeTextW(u"SoyIsaNoarmoed"_w));
+        Self->ConfigBlockName = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SoyIsaNoarmoed"_w)));
         Self->CheckIfWeDisplayAsArtefact();
     }
 
     pas::WideString TUselessItem::GetDisplayName() {
         if (NameOverride != u"") {
             return NameOverride;
-        } else if (GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"_wref.get())->CountBlocks(ConfigBlockName) <= 0) {
+        } else if (GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"sv)->CountBlocks(ConfigBlockName) <= 0) {
             return pas::WideString();
         } else {
             return aConst::LocalizedText(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Name"}));
@@ -5183,7 +5184,7 @@ namespace aItem {
         pas::WideString Result{};
         Result = Self->CustomText;
         if (Result == u"") {
-            if (GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"_wref.get())->CountBlocks(Self->ConfigBlockName) > 0) {
+            if (GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"sv)->CountBlocks(Self->ConfigBlockName) > 0) {
                 Result = aConst::LocalizedText(pas::concat_wide({u"UselessItems.", Self->ConfigBlockName, u".Text"}));
             }
         }
@@ -5194,7 +5195,7 @@ namespace aItem {
     }
 
     pas::WideString TUselessItem::GetDescriptionText() {
-        if (GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"_wref.get())->CountBlocks(ConfigBlockName) <= 0) {
+        if (GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"sv)->CountBlocks(ConfigBlockName) <= 0) {
             return pas::WideString();
         }
         return aConst::LocalizedText(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Description"}));
@@ -5218,7 +5219,7 @@ namespace aItem {
 
     // Owner is Dominator and ConfigBlockName starts with Remains_.
     std::uint8_t TUselessItem::IsDominatorRemains() {
-        return OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator) && pas::pos(u"Remains_", ConfigBlockName) == 1;
+        return OwnerId == aGalaxyStruct::oiDominator && pas::pos(u"Remains_", ConfigBlockName) == 1;
     }
 
     void TUselessItem::CheckIfWeDisplayAsArtefact() {
@@ -5239,9 +5240,9 @@ namespace aItem {
 
     pas::WideString TUselessItem::GetOnUseCodeText() {
         pas::WideString Result{};
-        EC_BlockPar::TBlockParEC* Block = GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"_wref.get())->FindBlock(ConfigBlockName);
+        EC_BlockPar::TBlockParEC* Block = GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"sv)->FindBlock(pas::view(ConfigBlockName));
         if (Block != nullptr) {
-            Block = Block->FindBlock(u"OnUseCode"_wref.get());
+            Block = Block->FindBlock(u"OnUseCode"sv);
             if (Block != nullptr) {
                 return Block->ConcatenateValues();
             }
@@ -5255,7 +5256,7 @@ namespace aItem {
         }
         ActCodeInitialized = true;
         void* Result = nullptr;
-        EC_BlockPar::TBlockParEC* Config = GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"_wref.get())->FindBlock(ConfigBlockName);
+        EC_BlockPar::TBlockParEC* Config = GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"sv)->FindBlock(pas::view(ConfigBlockName));
         if (Config != nullptr) {
             ActionCode = aScript::GetCachedActionCode(aScript::UselessItemScriptCache, ConfigBlockName, Config);
             return ActionCode;
@@ -5263,7 +5264,7 @@ namespace aItem {
         return Result;
     }
 
-    void TCistern::Init(std::int32_t Fuel, std::uint8_t Capacity, std::uint8_t Owner) {
+    void TCistern::Init(std::int32_t Fuel, std::uint8_t Capacity, aGalaxyStruct::TOwnerId Owner) {
         ItemType = aConst::t_Cistern;
         this->Capacity = Capacity;
         Weight = Capacity;
@@ -5302,8 +5303,8 @@ namespace aItem {
 
     void TCistern_LoadFromBlock(TCistern* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->Fuel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"FiuNeol"_w))));
-        Self->Capacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"CraspiaNcliotay"_w))));
+        Self->Fuel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"FiuNeol"_w)))));
+        Self->Capacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CraspiaNcliotay"_w)))));
     }
 
     pas::WideString TCistern::GetDisplayName() {
@@ -5333,7 +5334,7 @@ namespace aItem {
     }
 
     // Clears deployment state.
-    void TSatellite::InitGenerated(std::uint8_t TypeId, std::uint8_t Owner, std::uint32_t Seed) {
+    void TSatellite::InitGenerated(std::uint8_t TypeId, aGalaxyStruct::TOwnerId Owner, std::uint32_t Seed) {
         pas::WideString SpeedText{};
         ItemType = aConst::t_Satellite;
         SatelliteTypeId = TypeId;
@@ -5341,9 +5342,9 @@ namespace aItem {
         TargetPlanet = nullptr;
         TrajectoryIndex = 0;
         SpeedText = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Speed"})));
-        WaterExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(SpeedText, 0, u","_wref.get())));
-        LandExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(SpeedText, 1, u","_wref.get())));
-        HillExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(SpeedText, 2, u","_wref.get())));
+        WaterExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(SpeedText), 0, u","sv)));
+        LandExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(SpeedText), 1, u","sv)));
+        HillExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(SpeedText), 2, u","sv)));
         float Roll = aMyFunction::NextRandomUnitFloat(Seed);
         if (Roll < 0.2L) {
             ++WaterExplorationRate;
@@ -5363,7 +5364,7 @@ namespace aItem {
             pas::Extended cpp_left_3 = ([&] {
                 pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Cost"})));
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                return aGalaxy::TGalaxy::ResolveMoneySizeTag(std::move(lookupLocalizedTextByKey), 2);
+                return aGalaxy::TGalaxy::ResolveMoneySizeTag(pas::view(std::move(lookupLocalizedTextByKey)), aGalaxyStruct::oiHuman);
             }());
             return cpp_left_3 * aMyFunction::NextRandomFloatRange(1.0, 2.0, Seed);
         }()));
@@ -5374,7 +5375,7 @@ namespace aItem {
             pas::Extended cpp_left_4 = pas::real_divide(cpp_left_5, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestMoneyFactor);
             Cost = aMyFunction::RoundAndTruncateToTens(cpp_left_4 + Cost);
         }
-        std::uint8_t WearLevel = aConst::SizeTagToLevel(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Wear"}))));
+        std::uint8_t WearLevel = aConst::SizeTagToLevel(pas::view(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Wear"})))));
         WearPerTurn = aConst::GenerateValueForSizeLevel(WearLevel, 1, 10, 30, Seed * 0xe73fe205u) * 0.1L;
         Repair();
     }
@@ -5436,11 +5437,11 @@ namespace aItem {
 
     void TSatellite_LoadFromBlock(TSatellite* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->SatelliteTypeId = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"ToyIprey"_w))));
-        Self->WaterExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"WuartTewrf"_w))));
-        Self->LandExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"LLagnsd3"_w))));
-        Self->HillExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"HbiFldle"_w))));
-        Self->WearPerTurn = EC_Str::ExtractDecimalToSingleW(Block->GetParam(EC_Str::DecodeTextW(u"WoeIamrr"_w)));
+        Self->SatelliteTypeId = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"ToyIprey"_w)))));
+        Self->WaterExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WuartTewrf"_w)))));
+        Self->LandExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"LLagnsd3"_w)))));
+        Self->HillExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"HbiFldle"_w)))));
+        Self->WearPerTurn = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WoeIamrr"_w))));
     }
 
     void TSatellite::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
@@ -5618,25 +5619,25 @@ namespace aItem {
                 return pas::WideString();
             }
         };
-        Rule = aMyFunction::WrapTextInColor(static_cast<pas::WideString>(SystemImports::StringOfChar('-', TreasureMapRuleLengths[PageIndex])), u"<color=127,127,127>"_w);
+        Rule = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(SystemImports::StringOfChar('-', TreasureMapRuleLengths[PageIndex]))), u"<color=127,127,127>"sv);
         Caption = ([&] {
             auto name = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet))->Name);
             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGS.PlanetInfo"_wref.get());
             return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Planet>"_w, name.get());
         }());
         Header = pas::concat_wide({Header, u"\r\n", u"<td=", pas::wide_int_to_str(0), u">", u"<align=left>", Caption, u"</align>"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3] / 2), u">", u"<align=center>", aMyFunction::WrapTextInColor(aConst::LocalizedText(u"Items.TreasureMap.Name"_wref.get()), u"<color=0,255,0>"_w), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3] / 2), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(u"Items.TreasureMap.Name"_wref.get())), u"<color=0,255,0>"sv), u"</align>"});
         Caption = ([&] {
             auto name_2 = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet))->CurrentStar->Name);
             pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormGS.StarInfo"_wref.get());
             return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Star>"_w, name_2.get());
         }());
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(Caption, pas::WideString()), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(Caption), u""sv), u"</align>"});
         Header = pas::concat_wide({Header, u"\r\n", Rule, u"\r\n"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">", u"<align=right>", aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"FormGS.ColumnNumber"_wref.get()), u"<color=255,240,100>"_w), u"</align>"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]), u">", aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"FormGS.ColumnName"_wref.get()), u"<color=255,240,100>"_w)});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]), u">", u"<align=right>", aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"FormShip.StorageInfo.Size"_wref.get()), u"<color=255,240,100>"_w), u"</align>"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(aConst::LocalizedColorText(u"FormShip.StorageInfo.Cost"_wref.get()), u"<color=255,240,100>"_w), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormGS.ColumnNumber"_wref.get())), u"<color=255,240,100>"sv), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]), u">", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormGS.ColumnName"_wref.get())), u"<color=255,240,100>"sv)});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormShip.StorageInfo.Size"_wref.get())), u"<color=255,240,100>"sv), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormShip.StorageInfo.Cost"_wref.get())), u"<color=255,240,100>"sv), u"</align>"});
         Header = pas::concat_wide({Header, u"\r\n", Rule});
         if (Planet != nullptr) {
             if (pas::class_cast_if<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet)) != nullptr) {
@@ -5649,14 +5650,14 @@ namespace aItem {
                         if (Entry->Item != nullptr) {
                             if ((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessSurfaceLootItem(Entry->Item)) && !(pas::class_cast_if<TGoods*>(Entry->Item) != nullptr) && !(pas::class_cast_if<TCistern*>(Entry->Item) != nullptr)) {
                                 Rows = pas::concat_wide({Rows, u"\r\n"});
-                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Number), pas::WideString()), u"</align>"});
+                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Number)), u""sv), u"</align>"});
                                 Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]), u">", u"", ([&] {
                                     pas::WideString itemColorTag = ItemColorTag(Entry->Item);
                                     pas::WideString displayName = Entry->Item->GetDisplayName();
-                                    return aMyFunction::WrapTextInColor(std::move(displayName), std::move(itemColorTag));
+                                    return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(itemColorTag)));
                                 }()), u""});
-                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Entry->Item->Weight), u"<color=0,255,0>"_w), u"</align>"});
-                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::wide_int_to_str(Entry->Item->Cost), u"<color=0,255,255>"_w), u"</align>"});
+                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Entry->Item->Weight)), u"<color=0,255,0>"sv), u"</align>"});
+                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Entry->Item->Cost)), u"<color=0,255,255>"sv), u"</align>"});
                                 ++Number;
                             }
                         }
@@ -5671,13 +5672,13 @@ namespace aItem {
     // ModuleIndex is zero-based and must identify an existing template.
     void TMicroModule::Init(std::int32_t ModuleIndex) {
         ItemType = aConst::t_MicroModule;
-        OwnerId = static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited);
+        OwnerId = aGalaxyStruct::oiUninhabited;
         MicroModuleIndex = ModuleIndex + 1;
         Repair();
         Weight = 1;
         Cost = aMyFunction::RoundAndTruncateToTens(([&] {
             pas::Extended cpp_right = aMyFunction::SeededRandomFloatRange(Id * 1367, 0.5, 1.2);
-            return pas::real_divide(100 * aGalaxy::Galaxy->ComputeScaledSmallMoney(2), aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority + 20) * cpp_right;
+            return pas::real_divide(100 * aGalaxy::Galaxy->ComputeScaledSmallMoney(aGalaxyStruct::oiHuman), aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority + 20) * cpp_right;
         }()));
         {
             pas::Extended cpp_left_3 = aMyFunction::SeededRandomIntRange(150, 200, Id * 13567157);
@@ -5709,13 +5710,13 @@ namespace aItem {
         }
         Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].NamePrefix;
         if (Result == u"") {
-            Result = aMyFunction::WrapTextInColor(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get()), pas::WideString());
+            Result = aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get())), u""sv);
         }
         Text = aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name;
         if (EC_Str::FindTextOffsetW(Text, u"\""_wref.get(), 0) < 0) {
             Text = pas::concat_wide({u"\"", Text, u"\""});
         }
-        return pas::concat_wide({Result, u" ", aMyFunction::WrapTextInColor(Text, aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1))});
+        return pas::concat_wide({Result, u" ", aMyFunction::WrapTextInColor(pas::view(Text), pas::view(aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1)))});
     }
 
     pas::WideString TMicroModule::GetPlainName() {
@@ -5726,7 +5727,7 @@ namespace aItem {
         }
         Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].NamePrefix;
         if (Result == u"") {
-            Result = aMyFunction::WrapTextInColor(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get()), pas::WideString());
+            Result = aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get())), u""sv);
         }
         Text = aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name;
         if (EC_Str::FindTextOffsetW(Text, u"\""_wref.get(), 0) < 0) {
@@ -5785,7 +5786,7 @@ namespace aItem {
 
     // Template name wrapped in the standard yellow highlight color.
     pas::WideString TMicroModule::GetHighlightedName() {
-        return aMyFunction::WrapTextInColor(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name, u"<color=255,240,100>"_w);
+        return aMyFunction::WrapTextInColor(pas::view(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name), u"<color=255,240,100>"sv);
     }
 
     // Uses this micromodule item's template and checks slot blockers and equipment compatibility.
@@ -5797,16 +5798,16 @@ namespace aItem {
         if (Item->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].BlocksMicroModuleSlot) {
             return Result;
         }
-        if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinEff * sizeof(std::int32_t))) != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff] != 0 && Item->SpecialModuleIndex == 0) {
             return Result;
         }
-        if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses, aConst::bonExtraAkrinPenalty * sizeof(std::int32_t))) != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] != 0 && Item->SpecialModuleIndex == 0) {
             return Result;
         }
-        if (pas::class_cast_if<TWeapon*>(Item) != nullptr) {
-            return aItem::IsBonusCompatibleWithWeapon(MicroModuleIndex - 1, reinterpret_cast<TWeapon*>(Item));
-        } else if (pas::class_cast_if<THull*>(Item) != nullptr) {
-            return aItem::IsBonusCompatibleWithHull(MicroModuleIndex - 1, reinterpret_cast<THull*>(Item));
+        if (TWeapon* weapon = pas::class_cast_if<TWeapon*>(Item)) {
+            return aItem::IsBonusCompatibleWithWeapon(MicroModuleIndex - 1, weapon);
+        } else if (THull* hull = pas::class_cast_if<THull*>(Item)) {
+            return aItem::IsBonusCompatibleWithHull(MicroModuleIndex - 1, hull);
         } else {
             return aItem::IsBonusCompatibleWithEquipment(MicroModuleIndex - 1, Item);
         }
@@ -5832,7 +5833,7 @@ namespace aItem {
         }
     }
 
-    void TArtefact::Init(std::uint8_t Owner, aConst::TItemType ItemType) {
+    void TArtefact::Init(aGalaxyStruct::TOwnerId Owner, aConst::TItemType ItemType) {
         float MinWeightScale{};
         float MaxWeightScale{};
         float MinCostScale{};
@@ -6243,7 +6244,7 @@ namespace aItem {
     }
 
     pas::WideString TArtefact_GetInfoText(TArtefact* Self, pas::WideString ColorTag, void* Ship) {
-        if (Self->ConfigBlockName != u"" && GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"_wref.get())->CountBlocks(Self->ConfigBlockName) > 0) {
+        if (Self->ConfigBlockName != u"" && GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->CountBlocks(Self->ConfigBlockName) > 0) {
             return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", Self->ConfigBlockName, u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
         }
         return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
@@ -6258,9 +6259,9 @@ namespace aItem {
         pas::WideString Result{};
         EC_BlockPar::TBlockParEC* Block{};
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-            Block = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"_wref.get())->GetBlock(u"CustomArtefacts"_wref.get())->GetBlock(ConfigBlockName)->FindBlock(u"OnUseCode"_wref.get());
+            Block = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(u"CustomArtefacts"sv)->GetBlock(pas::view(ConfigBlockName))->FindBlock(u"OnUseCode"sv);
         } else {
-            Block = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"_wref.get())->GetBlock(aConst::ItemTypeNames[ItemType])->FindBlock(u"OnUseCode"_wref.get());
+            Block = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(pas::view(aConst::ItemTypeNames[ItemType]))->FindBlock(u"OnUseCode"sv);
         }
         if (Block != nullptr) {
             return Block->ConcatenateValues();
@@ -6277,9 +6278,9 @@ namespace aItem {
         void* Result = nullptr;
         ActCodeInitialized = true;
         if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-            Config = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"_wref.get())->GetBlock(u"CustomArtefacts"_wref.get())->GetBlock(ConfigBlockName);
+            Config = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(u"CustomArtefacts"sv)->GetBlock(pas::view(ConfigBlockName));
         } else {
-            Config = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"_wref.get())->GetBlock(aConst::ItemTypeNames[ItemType]);
+            Config = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(pas::view(aConst::ItemTypeNames[ItemType]));
         }
         if (Config != nullptr) {
             if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
@@ -6300,7 +6301,7 @@ namespace aItem {
         return ItemType;
     }
 
-    void TArtefactTransmitter::InitTransmitter(std::uint8_t Owner) {
+    void TArtefactTransmitter::InitTransmitter(aGalaxyStruct::TOwnerId Owner) {
         Init(Owner, aConst::t_ArtefactTransmitter);
         Power = aMyFunction::RoundAndTruncateToTens(aMyFunction::SeededRandomIntRange(aConst::MinTransmitterPower, aConst::AverageTransmitterPower, Id * 317321));
     }
@@ -6326,7 +6327,7 @@ namespace aItem {
 
     void TArtefactTransmitter_LoadFromBlock(TArtefactTransmitter* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->Power = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(u"Prouwseor"_w))));
+        Self->Power = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w)))));
     }
 
     pas::WideString TArtefactTransmitter_GetInfoText(TArtefactTransmitter* Self, pas::WideString ColorTag, void* Ship) {
@@ -6351,7 +6352,7 @@ namespace aItem {
     }
 
     // Takes ownership of ExistingShip, or creates a ship when nil.
-    void TArtefactTranclucator::InitTranclucator(std::uint8_t Owner, void* OwnerShip, void* ExistingShip) {
+    void TArtefactTranclucator::InitTranclucator(aGalaxyStruct::TOwnerId Owner, void* OwnerShip, void* ExistingShip) {
         aTranclucator::TTranclucator* Companion{};
         std::int32_t I{};
         aItem::TItem* Item{};
@@ -6442,7 +6443,7 @@ namespace aItem {
         pas::WideString Name{};
         aConst::TItemType Kind{};
         Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName}));
-        if (Block->CountParams(u"NoWear"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(Block->GetParam(u"NoWear"_wref.get())) != 0) {
+        if (Block->CountParams(u"NoWear"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"NoWear"sv))) != 0) {
             ItemType = aConst::t_Artefact2;
         } else {
             ItemType = aConst::t_Artefact;
@@ -6451,14 +6452,14 @@ namespace aItem {
             if (Block->CountParams(u"Size"_wref.get()) <= 0) {
                 Weight = 10;
             } else {
-                Weight = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"Size"_wref.get()));
+                Weight = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Size"sv)));
             }
         }
         CountsAsItemType = aConst::t_Artefact;
         SharedUse = false;
         SharedEffect = false;
         if (Block->CountParams(u"CountsAs"_wref.get()) > 0) {
-            Name = Block->GetParam(u"CountsAs"_wref.get());
+            Name = Block->GetParam(u"CountsAs"sv);
             for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Food, aConst::t_UselessCountableItem); cpp_range.next(Kind); ) {
                 if (pas::in_set<aConst::t_Artefact, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtDefToArms1, aConst::t_ArtFastRacks>(Kind) && static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2)) ^ 1) && aConst::ItemTypeNames[Kind] == Name) {
                     CountsAsItemType = Kind;
@@ -6467,10 +6468,10 @@ namespace aItem {
             }
             if (CountsAsItemType != aConst::t_Artefact) {
                 if (Block->CountParams(u"SharedUse"_wref.get()) > 0) {
-                    SharedUse = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"SharedUse"_wref.get())) != 0;
+                    SharedUse = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"SharedUse"sv))) != 0;
                 }
                 if (Block->CountParams(u"SharedEffect"_wref.get()) > 0) {
-                    SharedEffect = EC_Str::ExtractDigitsToIntW(Block->GetParam(u"SharedEffect"_wref.get())) != 0;
+                    SharedEffect = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"SharedEffect"sv))) != 0;
                 }
             }
         }
@@ -6541,9 +6542,9 @@ namespace aItem {
 
     void TArtefactCustom_LoadFromBlock(TArtefactCustom* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->Data[1] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(1)}))))));
-        Self->Data[2] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(2)}))))));
-        Self->Data[3] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(3)}))))));
+        Self->Data[1] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(1)})))))));
+        Self->Data[2] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(2)})))))));
+        Self->Data[3] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(3)})))))));
     }
 
     pas::WideString TArtefactCustom_GetInfoText(TArtefactCustom* Self, pas::WideString ColorTag, void* Ship) {

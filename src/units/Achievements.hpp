@@ -12,7 +12,7 @@ namespace Achievements {
 
     extern EC_BlockPar::TBlockParEC* AchievementDefinitions;
 
-    std::int32_t GetCurrentAchievementProgress(pas::WideString Key, std::int32_t StoredValue);
+    std::int32_t GetCurrentAchievementProgress(const std::u16string_view& Key, std::int32_t StoredValue);
 
     // 1=Steam, 2=Steam without achievement support, 3=local.
     std::uint8_t GetAchievementBackend();

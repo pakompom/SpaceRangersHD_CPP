@@ -66,41 +66,41 @@ namespace fPanelMain {
         this->Screen = Screen;
         GR_Main::AppendLogTextThreadSafe("fPanelMain... "_a);
         {
-            GI_MessageLoop::TObjectGI* PanelMain = this->Screen->GetByName(u"PanelMain"_wref.get());
+            GI_MessageLoop::TObjectGI* PanelMain = this->Screen->GetByName(u"PanelMain"sv);
             PanelMain->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* PM_PanelMsg = PanelMain->FindByNameRecursive(u"PM_PanelMsg"_wref.get());
+                GI_MessageLoop::TObjectGI* PM_PanelMsg = PanelMain->FindByNameRecursive(u"PM_PanelMsg"sv);
                 PM_PanelMsg->SetSize(ClassesImports::Point(PM_PanelMsg->ClientSize.X + GR_Main::ExtraScreenWidth, PM_PanelMsg->ClientSize.Y));
                 PM_PanelMsg->SetPosition(ClassesImports::Point(PM_PanelMsg->LocalPosition.X, PM_PanelMsg->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* PM_WinMsg = PanelMain->FindByNameRecursive(u"PM_WinMsg"_wref.get());
+                GI_MessageLoop::TObjectGI* PM_WinMsg = PanelMain->FindByNameRecursive(u"PM_WinMsg"sv);
                 PM_WinMsg->SetSize(ClassesImports::Point(PM_WinMsg->ClientSize.X + GR_Main::ExtraScreenWidth, PM_WinMsg->ClientSize.Y));
                 PM_WinMsg->SetPosition(ClassesImports::Point(PM_WinMsg->LocalPosition.X, PM_WinMsg->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
-                GI_MessageLoop::TObjectGI* PM_Ship_Parent = PanelMain->FindByNameRecursive(u"PM_Ship"_wref.get())->Parent;
+                GI_MessageLoop::TObjectGI* PM_Ship_Parent = PanelMain->FindByNameRecursive(u"PM_Ship"sv)->Parent;
                 PM_Ship_Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PM_Ship_Parent->ClientSize.Y));
                 PM_Ship_Parent->SetPosition(ClassesImports::Point(PM_Ship_Parent->LocalPosition.X, PM_Ship_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 {
-                    GI_Image::TImageGI* PM_ImageBG = pas::checked_cast<GI_Image::TImageGI*>(PM_Ship_Parent->FindByNameRecursive(u"PM_ImageBG"_wref.get()));
+                    GI_Image::TImageGI* PM_ImageBG = pas::checked_cast<GI_Image::TImageGI*>(PM_Ship_Parent->FindByNameRecursive(u"PM_ImageBG"sv));
                     PM_ImageBG->SetPosition(ClassesImports::Point(0, 0));
                     PM_ImageBG->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PM_ImageBG->ClientSize.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_Ship = PM_Ship_Parent->FindByNameRecursive(u"PM_Ship"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_Ship = PM_Ship_Parent->FindByNameRecursive(u"PM_Ship"sv);
                     PM_Ship->SetPosition(ClassesImports::Point(PM_Ship->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_Ship->LocalPosition.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_Gal = PM_Ship_Parent->FindByNameRecursive(u"PM_Gal"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_Gal = PM_Ship_Parent->FindByNameRecursive(u"PM_Gal"sv);
                     PM_Gal->SetPosition(ClassesImports::Point(PM_Gal->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_Gal->LocalPosition.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_Quest = PM_Ship_Parent->FindByNameRecursive(u"PM_Quest"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_Quest = PM_Ship_Parent->FindByNameRecursive(u"PM_Quest"sv);
                     PM_Quest->SetPosition(ClassesImports::Point(PM_Quest->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_Quest->LocalPosition.Y));
                 }
                 {
-                    GI_GraphButton::TGraphButtonGI* PM_EndTurn = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(PM_Ship_Parent->FindByNameRecursive(u"PM_EndTurn"_wref.get()));
+                    GI_GraphButton::TGraphButtonGI* PM_EndTurn = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(PM_Ship_Parent->FindByNameRecursive(u"PM_EndTurn"sv));
                     if (GR_Main::GiResourceVariant() == 2) {
                         PM_EndTurn->SetPosition(ClassesImports::Point(899 + GR_Main::ExtraScreenWidth, 33));
                     } else {
@@ -108,7 +108,7 @@ namespace fPanelMain {
                     }
                 }
                 {
-                    GI_GraphButton::TGraphButtonGI* PM_Break = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(PM_Ship_Parent->FindByNameRecursive(u"PM_Break"_wref.get()));
+                    GI_GraphButton::TGraphButtonGI* PM_Break = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(PM_Ship_Parent->FindByNameRecursive(u"PM_Break"sv));
                     if (GR_Main::GiResourceVariant() == 2) {
                         PM_Break->SetPosition(ClassesImports::Point(899 + GR_Main::ExtraScreenWidth, 33));
                     } else {
@@ -116,7 +116,7 @@ namespace fPanelMain {
                     }
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_Logo = PM_Ship_Parent->FindByNameRecursive(u"PM_Logo"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_Logo = PM_Ship_Parent->FindByNameRecursive(u"PM_Logo"sv);
                     if (GR_Main::GiResourceVariant() == 2) {
                         PM_Logo->SetPosition(ClassesImports::Point(0, 42));
                     } else {
@@ -124,49 +124,49 @@ namespace fPanelMain {
                     }
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_WarningSpace = PM_Ship_Parent->FindByNameRecursive(u"PM_WarningSpace"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_WarningSpace = PM_Ship_Parent->FindByNameRecursive(u"PM_WarningSpace"sv);
                     PM_WarningSpace->SetPosition(ClassesImports::Point(PM_WarningSpace->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_WarningSpace->LocalPosition.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_WarningMoney = PM_Ship_Parent->FindByNameRecursive(u"PM_WarningMoney"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_WarningMoney = PM_Ship_Parent->FindByNameRecursive(u"PM_WarningMoney"sv);
                     PM_WarningMoney->SetPosition(ClassesImports::Point(PM_WarningMoney->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_WarningMoney->LocalPosition.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_Money = PM_Ship_Parent->FindByNameRecursive(u"PM_Money"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_Money = PM_Ship_Parent->FindByNameRecursive(u"PM_Money"sv);
                     PM_Money->SetPosition(ClassesImports::Point(PM_Money->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_Money->LocalPosition.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_FreeSpace = PM_Ship_Parent->FindByNameRecursive(u"PM_FreeSpace"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_FreeSpace = PM_Ship_Parent->FindByNameRecursive(u"PM_FreeSpace"sv);
                     PM_FreeSpace->SetPosition(ClassesImports::Point(PM_FreeSpace->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_FreeSpace->LocalPosition.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_Help = PM_Ship_Parent->FindByNameRecursive(u"PM_Help"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_Help = PM_Ship_Parent->FindByNameRecursive(u"PM_Help"sv);
                     PM_Help->SetSize(ClassesImports::Point(PM_Help->ClientSize.X + GR_Main::ExtraScreenWidth, PM_Help->ClientSize.Y));
                 }
                 {
-                    GI_MessageLoop::TObjectGI* PM_PanelDate = PM_Ship_Parent->FindByNameRecursive(u"PM_PanelDate"_wref.get());
+                    GI_MessageLoop::TObjectGI* PM_PanelDate = PM_Ship_Parent->FindByNameRecursive(u"PM_PanelDate"sv);
                     PM_PanelDate->SetPosition(ClassesImports::Point(PM_PanelDate->LocalPosition.X + GR_Main::ExtraScreenWidth, PM_PanelDate->LocalPosition.Y));
                 }
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        MessagePanel = pas::checked_cast<GI_Panel::TPanelGI*>(this->Screen->GetByName(u"PM_PanelMsg"_wref.get()));
+        MessagePanel = pas::checked_cast<GI_Panel::TPanelGI*>(this->Screen->GetByName(u"PM_PanelMsg"sv));
         MessagePanelRestTop = MessagePanel->LocalPosition.Y;
-        HelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PM_Help"_wref.get()));
-        BackgroundImage = pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(u"PM_ImageBG"_wref.get()));
-        ShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Ship"_wref.get()));
-        GalaxyButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Gal"_wref.get()));
-        QuestButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Quest"_wref.get()));
-        EndTurnButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_EndTurn"_wref.get()));
-        MenuButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Logo"_wref.get()));
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_EndTurn"_wref.get()))->UpCallback = pas::bind_method<&TfPanelMain::EndTurnClicked>(this);
+        HelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PM_Help"sv));
+        BackgroundImage = pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(u"PM_ImageBG"sv));
+        ShipButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Ship"sv));
+        GalaxyButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Gal"sv));
+        QuestButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Quest"sv));
+        EndTurnButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_EndTurn"sv));
+        MenuButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_Logo"sv));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfPanelMain::EndTurnClicked>(this);
         ShipButton->UpCallback = pas::bind_method<&TfPanelMain::ShipClicked>(this);
         QuestButton->UpCallback = pas::bind_method<&TfPanelMain::QuestClicked>(this);
         GalaxyButton->UpCallback = pas::bind_method<&TfPanelMain::GalaxyClicked>(this);
         MenuButton->UpCallback = pas::bind_method<&TfPanelMain::MenuClicked>(this);
-        DateLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PM_Date"_wref.get()));
-        DateNextImage = pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(u"PM_DateNextImage"_wref.get()));
-        NextDateLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PM_DateNew"_wref.get()));
+        DateLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PM_Date"sv));
+        DateNextImage = pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(u"PM_DateNextImage"sv));
+        NextDateLabel = pas::checked_cast<GI_Label::TLabelGI*>(this->Screen->GetByName(u"PM_DateNew"sv));
         this->Screen->SetHelpCallback(pas::bind_method<&TfPanelMain::ShowControlHelp>(this));
         CurrentDateColor = GR_Main::GetStyleColorGI(u"PanelMain.TextColor"_w, 200, 240, 255);
         AdvancingDateColor = GR_Main::GetStyleColorGI(u"PanelMain.DateTransitionColor"_w, 6, 166, 198);
@@ -192,7 +192,7 @@ namespace fPanelMain {
         }
         StatusTimer = Screen->ScheduleCallbackTimer(200, 200, pas::bind_method<&TfPanelMain::RefreshStatusTimer>(this), 0);
         MessagePanel->SetPosition(ClassesImports::Point(MessagePanel->LocalPosition.X, MessagePanelRestTop));
-        Screen->GetByName(u"PM_Help"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PM_Help"sv)->SetActive(false);
         EnableNavigationButtons();
         DisplayedShipId = 0u;
         DisplayedPlanetId = 0u;
@@ -235,13 +235,13 @@ namespace fPanelMain {
     }
 
     void TfPanelMain::Show() {
-        Screen->GetByName(u"PanelMain"_wref.get())->SetActive(true);
-        Screen->GetByName(u"PM_Help"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PanelMain"sv)->SetActive(true);
+        Screen->GetByName(u"PM_Help"sv)->SetActive(false);
         EnableNavigationButtons();
     }
 
     void TfPanelMain::Hide() {
-        Screen->GetByName(u"PanelMain"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PanelMain"sv)->SetActive(false);
     }
 
     void TfPanelMain::RefreshMoneyAndCargo() {
@@ -255,41 +255,41 @@ namespace fPanelMain {
         }
         if (aPlayer::GetPlayer() != nullptr) {
             if (MoneyWarningActive && (MoneyWarningTicks & 1) == 0) {
-                Screen->GetByName(u"PM_WarningMoney"_wref.get())->SetActive(true);
+                Screen->GetByName(u"PM_WarningMoney"sv)->SetActive(true);
                 {
                     std::uint32_t packRgbBytes = GR_Main::CurrentPixelFormat->PackRgbBytes(255, 128, 61);
-                    GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"sv));
                     cpp_arg->SetTextColor(packRgbBytes);
                 }
             } else {
-                Screen->GetByName(u"PM_WarningMoney"_wref.get())->SetActive(false);
-                pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"_wref.get()))->SetTextColor(CurrentDateColor);
+                Screen->GetByName(u"PM_WarningMoney"sv)->SetActive(false);
+                pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"sv))->SetTextColor(CurrentDateColor);
             }
             {
                 const pas::WideString& intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->Money);
-                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"sv));
                 cpp_arg_2->SetText(intToStr);
             }
             FreeSpace = aPlayer::GetPlayer()->GetCargoFreeSpace();
             if (CargoWarningActive && (CargoWarningTicks & 1) == 0 || FreeSpace < 0 && static_cast<std::uint8_t>(CargoWarningActive ^ 1)) {
-                Screen->GetByName(u"PM_WarningSpace"_wref.get())->SetActive(true);
+                Screen->GetByName(u"PM_WarningSpace"sv)->SetActive(true);
                 {
                     std::uint32_t packRgbBytes_2 = GR_Main::CurrentPixelFormat->PackRgbBytes(255, 128, 61);
-                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"_wref.get()));
+                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"sv));
                     cpp_arg_3->SetTextColor(packRgbBytes_2);
                 }
             } else {
-                Screen->GetByName(u"PM_WarningSpace"_wref.get())->SetActive(false);
-                pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"_wref.get()))->SetTextColor(CurrentDateColor);
+                Screen->GetByName(u"PM_WarningSpace"sv)->SetActive(false);
+                pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"sv))->SetTextColor(CurrentDateColor);
             }
             {
                 const pas::WideString& intToStr_2 = pas::wide_int_to_str(FreeSpace);
-                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"_wref.get()));
+                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"sv));
                 cpp_arg_4->SetText(intToStr_2);
             }
         } else {
-            pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"_wref.get()))->SetText(u""_wref.get());
-            pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"_wref.get()))->SetText(u""_wref.get());
+            pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_Money"sv))->SetText(u""_wref.get());
+            pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_FreeSpace"sv))->SetText(u""_wref.get());
         }
     }
 
@@ -381,7 +381,7 @@ namespace fPanelMain {
         if (aPlayer::GetPlayer() == nullptr) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiDominator) {
             return;
         }
         if (aPlayer::GetPlayer()->QueuedTravelTarget != nullptr) {
@@ -416,10 +416,10 @@ namespace fPanelMain {
                 aCalc::CalculateGalaxyTurnAndWait();
             }
         }
-        if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiDominator)) {
+        if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiDominator) {
             Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerDeath"_w, nullptr);
             Event->AddTextData(u"PlanetCaptured"_w);
-            GlobalsV::GameEndReason = 2;
+            GlobalsV::GameEndReason = GlobalsV::gerPlayerDeath;
             GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
             Screen->RequestClose(1);
         } else {
@@ -427,7 +427,7 @@ namespace fPanelMain {
             if (aPlayer::GetPlayer()->PendingDockDialogue > 0 && aPlayer::GetPlayer()->DockedTo != nullptr) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenRuinsTalk;
                 reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
-            } else if (aPlayer::GetPlayer()->PendingDockDialogue > 0 && aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+            } else if (aPlayer::GetPlayer()->PendingDockDialogue > 0 && aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenGovernment;
                 reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
             }
@@ -450,7 +450,7 @@ namespace fPanelMain {
         if (Screen->ExitCode != 0) {
             return;
         }
-        Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
         Screen->SetCursorActive(false);
         Screen->Present();
         GR_Main::CaptureScreenBackground(true, 0);
@@ -463,12 +463,12 @@ namespace fPanelMain {
             fShip2::RunShipEquipment(Screen);
             RebuildMessageButtons(false);
             TfPanelMain::PostMouseMove();
-            if (Globals::ShipScreen->Flag3BC) {
+            if (Globals::ShipScreen->ShipStateChanged) {
                 Changed = true;
             }
             RefreshMoneyAndCargo();
             RebuildMessageButtons(false);
-            if (!Globals::ShipScreen->FlagD4) {
+            if (!Globals::ShipScreen->ReopenRequested) {
                 break;
             }
             Screen->SetCursorActive(false);
@@ -479,7 +479,7 @@ namespace fPanelMain {
             Screen->SetCursorActive(true);
         }
         aGalaxy::Galaxy->PrimeIntegrityChecksum(110);
-        Globals::ShipScreen->Flag3BC = Changed;
+        Globals::ShipScreen->ShipStateChanged = Changed;
         if (aPlayer::GetPlayer()->IsOnPlanet() && Screen != Globals::GovernmentScreen) {
             if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenGovernment;
@@ -504,7 +504,7 @@ namespace fPanelMain {
         if (Screen->ParentLoop != nullptr && Sender == nullptr) {
             return;
         }
-        Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
         Screen->SetCursorActive(false);
         Screen->Present();
         GR_Main::CaptureScreenBackground(true, 0);
@@ -533,7 +533,7 @@ namespace fPanelMain {
         if (Screen->ExitCode != 0) {
             return;
         }
-        Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
         Screen->SetCursorActive(false);
         Screen->Present();
         GR_Main::CaptureScreenBackground(true, 0);
@@ -563,7 +563,7 @@ namespace fPanelMain {
         if (Screen->ParentLoop != nullptr && Sender == nullptr) {
             return;
         }
-        Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
         Screen->SetCursorActive(false);
         Screen->Present();
         GR_Main::CaptureScreenBackground(true, 0);
@@ -750,12 +750,12 @@ namespace fPanelMain {
                     MessageEntry = reinterpret_cast<Globals::TMessagePlayer*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Control->UserValue)));
                     if (Globals::IsPersistentPlayerMessageQueued(MessageEntry, true) && MessageEntry->Button == Control) {
                         Stage = 3;
-                        if (pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control) != nullptr) {
+                        if (GI_GraphButton::TGraphButtonGI* graphButtonGI = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control)) {
                             Stage = 4;
                             if (pas::in_set<0, 0, 6, 6>(MessageEntry->Kind) && static_cast<std::uint8_t>(MessageEntry->WasRead ^ 1)) {
                                 Stage = 5;
                                 {
-                                    GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control);
+                                    GI_GraphButton::TGraphButtonGI* cpp_with = graphButtonGI;
                                     GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.MsgPlayer.", GR_Main::GiResourceSuffix(), MessageEntry->GetNormalImageName()}), cpp_with->ImageNormal->GraphBufControl->GraphBuf);
                                     Stage = 6;
                                     GR_GraphBuf::TGraphBufGR_ScaleAlpha(cpp_with->ImageNormal->GraphBufControl->GraphBuf, ClassesImports::Rect(0, 0, cpp_with->ImageNormal->GraphBufControl->GraphBuf->Width, cpp_with->ImageNormal->GraphBufControl->GraphBuf->Height), Alpha);
@@ -764,11 +764,11 @@ namespace fPanelMain {
                                     cpp_with->Invalidate();
                                     Stage = 8;
                                 }
-                            } else if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control)->ImageNormal != nullptr && pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control)->ImageNormal->GraphBufControl != nullptr) {
+                            } else if (graphButtonGI->ImageNormal != nullptr && graphButtonGI->ImageNormal->GraphBufControl != nullptr) {
                                 Stage = 9;
                                 {
                                     pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.MsgPlayer.", GR_Main::GiResourceSuffix(), MessageEntry->GetNormalImageName()});
-                                    GI_Image::TImageGI* imageNormal = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control)->ImageNormal;
+                                    GI_Image::TImageGI* imageNormal = graphButtonGI->ImageNormal;
                                     imageNormal->SetImagePath(std::move(cpp_arg));
                                 }
                                 Stage = 10;
@@ -799,22 +799,22 @@ namespace fPanelMain {
     }
 
     void TfPanelMain::DisableNavigationButtons() {
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Ship"_wref.get()))->SetDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Gal"_wref.get()))->SetDisabled(true);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Quest"_wref.get()))->SetDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Ship"sv))->SetDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Gal"sv))->SetDisabled(true);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Quest"sv))->SetDisabled(true);
         EndTurnButton->SetActive(false);
-        GI_MessageLoop::TObjectGI* Control = Screen->GetByName(u"PM_Break"_wref.get());
+        GI_MessageLoop::TObjectGI* Control = Screen->GetByName(u"PM_Break"sv);
         Control->HelpCallback = pas::bind_method<&TfPanelMain::ShowControlHelp>(this);
         Control->SetActive(true);
         MenuButton->SetDisabled(true);
     }
 
     void TfPanelMain::EnableNavigationButtons() {
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Ship"_wref.get()))->SetDisabled(false);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Gal"_wref.get()))->SetDisabled(false);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Quest"_wref.get()))->SetDisabled(false);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Ship"sv))->SetDisabled(false);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Gal"sv))->SetDisabled(false);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Screen->GetByName(u"PM_Quest"sv))->SetDisabled(false);
         EndTurnButton->SetActive(true);
-        GI_MessageLoop::TObjectGI* Control = Screen->GetByName(u"PM_Break"_wref.get());
+        GI_MessageLoop::TObjectGI* Control = Screen->GetByName(u"PM_Break"sv);
         Control->HelpCallback = nullptr;
         Control->SetActive(false);
         MenuButton->SetDisabled(false);
@@ -836,16 +836,16 @@ namespace fPanelMain {
             pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
             std::exception_ptr cpp_error{};
             try {
-                Screen->GetByName(u"PM_Help"_wref.get())->SetActive(false);
+                Screen->GetByName(u"PM_Help"sv)->SetActive(false);
                 if (Globals::FirstPersistentPlayerMessage == nullptr) {
                     cpp_flow = pas::FinallyFlow::Return;
                     goto cpp_cleanup;
                 }
                 DisplayedShipId = 0u;
                 DisplayedPlanetId = 0u;
-                Panel = pas::checked_cast<GI_Panel::TPanelGI*>(Screen->GetByName(u"PM_PanelMsg"_wref.get()));
+                Panel = pas::checked_cast<GI_Panel::TPanelGI*>(Screen->GetByName(u"PM_PanelMsg"sv));
                 Panel->SetActive(true);
-                Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+                Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
                 MessageEntry = Globals::LastPersistentPlayerMessage;
                 Count = 0;
                 MaxCount = (Panel->ClientSize.X - 44) / 22;
@@ -920,10 +920,10 @@ namespace fPanelMain {
             Screen->CancelCallbackTimer(MessagePulseTimer);
             MessagePulseTimer = nullptr;
         }
-        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(Screen->GetByName(u"PM_PanelMsg"_wref.get()));
+        GI_Panel::TPanelGI* Panel = pas::checked_cast<GI_Panel::TPanelGI*>(Screen->GetByName(u"PM_PanelMsg"sv));
         Panel->SetActive(false);
         Panel->FreeOwnedChildren();
-        Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
         Globals::TMessagePlayer* MessageEntry = Globals::LastPersistentPlayerMessage;
         while (MessageEntry != nullptr) {
             MessageEntry->Button = nullptr;
@@ -955,9 +955,9 @@ namespace fPanelMain {
             if (!Globals::IsPersistentPlayerMessageQueued(MessageEntry, true)) {
                 return;
             }
-            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(Screen->GetByName(u"PM_PanelMsg"_wref.get()));
-            Window = pas::checked_cast<GI_Window::TWindowGI*>(Screen->GetByName(u"PM_WinMsg"_wref.get()));
-            LabelControl = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_LabelMsg"_wref.get()));
+            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(Screen->GetByName(u"PM_PanelMsg"sv));
+            Window = pas::checked_cast<GI_Window::TWindowGI*>(Screen->GetByName(u"PM_WinMsg"sv));
+            LabelControl = pas::checked_cast<GI_Label::TLabelGI*>(Screen->GetByName(u"PM_LabelMsg"sv));
             LabelControl->SetTextAlignY(GI_Main::tayAuto);
             LabelControl->SetText(MessageEntry->Text);
             LabelControl->SetTextAlignY(GI_Main::tayCenterEx);
@@ -978,7 +978,7 @@ namespace fPanelMain {
     }
 
     void TfPanelMain::MessageMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
-        Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+        Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
     }
 
     void TfPanelMain::DeleteMessage(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point, std::uint8_t SkipLock) {
@@ -1013,7 +1013,7 @@ namespace fPanelMain {
                         pas::list_add(AuxiliaryItems, reinterpret_cast<void*>(MessageEntry));
                     }
                 } else {
-                    Screen->GetByName(u"PM_WinMsg"_wref.get())->SetActive(false);
+                    Screen->GetByName(u"PM_WinMsg"sv)->SetActive(false);
                     GR_Main::SoundManager->PlaySound(u"Sound.DelMsg"_wref.get());
                     Sender->SetActive(false);
                     Animation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, MessagePanel);
@@ -1067,7 +1067,7 @@ namespace fPanelMain {
             Control = Control->NextSibling;
         }
         if (([&] {
-            std::int32_t cpp_left_2 = (Screen->GetByName(u"PM_PanelMsg"_wref.get())->ClientSize.X - 22) / 22;
+            std::int32_t cpp_left_2 = (Screen->GetByName(u"PM_PanelMsg"sv)->ClientSize.X - 22) / 22;
             return cpp_left_2 < Globals::CountPersistentPlayerMessages();
         }())) {
             Control = DeletedButton->PrevSibling;
@@ -1240,7 +1240,7 @@ namespace fPanelMain {
                             break;
                         }
                     } else {
-                        FilmObject = Globals::SecondaryFilm->FindObjectById(u"Ship2"_wref.get(), DisplayedShipId);
+                        FilmObject = Globals::SecondaryFilm->FindObjectById(u"Ship2"sv, DisplayedShipId);
                         if (FilmObject != nullptr && FilmObject->SceneObject != nullptr) {
                             Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(FilmObject->SceneObject->Position));
                             break;
@@ -1269,7 +1269,7 @@ namespace fPanelMain {
                             break;
                         }
                     } else {
-                        FilmObject = Globals::SecondaryFilm->FindObjectById(u"Planet"_wref.get(), DisplayedPlanetId);
+                        FilmObject = Globals::SecondaryFilm->FindObjectById(u"Planet"sv, DisplayedPlanetId);
                         if (FilmObject != nullptr && FilmObject->SceneObject != nullptr) {
                             Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(FilmObject->SceneObject->Position));
                             break;

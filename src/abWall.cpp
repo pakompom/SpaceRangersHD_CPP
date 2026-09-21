@@ -26,8 +26,8 @@ namespace abWall {
     TabWall* ab_Wall_FindZone(ab_Zone::PabZone Zone) {
         ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
         while (Obj != nullptr) {
-            if (pas::class_cast_if<TabWall*>(Obj) != nullptr && reinterpret_cast<TabWall*>(Obj)->Zone == Zone) {
-                return pas::checked_cast<TabWall*>(Obj);
+            if (TabWall* abWall_2 = pas::class_cast_if<TabWall*>(Obj); abWall_2 != nullptr && abWall_2->Zone == Zone) {
+                return abWall_2;
             }
             Obj = Obj->Next;
         }
@@ -42,8 +42,8 @@ namespace abWall {
         auto FindStopPoint = [&](ab_StopLine::PabStopPoint Point) -> TabWall* {
             ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
-                if (pas::class_cast_if<TabWall*>(Obj) != nullptr && reinterpret_cast<TabWall*>(Obj)->StopPoint == Point) {
-                    return pas::checked_cast<TabWall*>(Obj);
+                if (TabWall* abWall_2 = pas::class_cast_if<TabWall*>(Obj); abWall_2 != nullptr && abWall_2->StopPoint == Point) {
+                    return abWall_2;
                 }
                 Obj = Obj->Next;
             }
@@ -109,8 +109,8 @@ namespace abWall {
         if (Value->Name != u"") {
             WorldImage = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), pas::concat_wide({u"GAI,Bm.ABWall.", GR_Main::GiResourceSuffix(), u".", Value->Name}), u""_wref.get(), true);
             ab_WorldImage::ab_WorldImage_SetDepth(WorldImage, ab_Global::WorldImageFrontDepth, ab_Global::WorldImageBackDepth);
-            DirectionFrameCount = EC_Str::CountDelimitedPartsW(Value->Name, u"_"_wref.get());
-            DirectionFrameCount = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(Value->Name, DirectionFrameCount - 1, u"_"_wref.get()));
+            DirectionFrameCount = EC_Str::CountDelimitedPartsW(pas::view(Value->Name), u"_"sv);
+            DirectionFrameCount = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Value->Name), DirectionFrameCount - 1, u"_"sv)));
         }
         DirectionFrameCount = 32;
         EffectOriginSpread = GR_Main::GiScalePixels(20);

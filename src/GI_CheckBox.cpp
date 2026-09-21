@@ -85,7 +85,7 @@ namespace GI_CheckBox {
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"Checked"_wref.get()) > 0) {
-            if (EC_Str::TrimWideString(Block->GetParam(u"Checked"_wref.get())) == u"True") {
+            if (EC_Str::TrimWideString(Block->GetParam(u"Checked"sv)) == u"True") {
                 Self->Checked = true;
             } else {
                 Self->Checked = false;
@@ -96,7 +96,7 @@ namespace GI_CheckBox {
     void TCheckBoxGI::LoadFromBlock(EC_BlockPar::TBlockParEC* Block) {
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         if (Block->CountParams(u"Checked"_wref.get()) > 0) {
-            if (EC_Str::TrimWideString(Block->GetParam(u"Checked"_wref.get())) == u"True") {
+            if (EC_Str::TrimWideString(Block->GetParam(u"Checked"sv)) == u"True") {
                 Checked = true;
             } else {
                 Checked = false;

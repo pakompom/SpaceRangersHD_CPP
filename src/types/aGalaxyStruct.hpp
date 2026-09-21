@@ -4,6 +4,8 @@
 namespace aGalaxyStruct {
     struct TGoodsTradePriceEntry;
 
+    struct TPlanetBattleStatistics;
+
     struct TGalaxyCustomRules;
 
     struct TEngineLevelStats;
@@ -73,6 +75,14 @@ namespace aGalaxyStruct {
     };
     #pragma pack(pop)
 
+    enum TStarFaction : std::uint8_t {
+        sfCoalition = 0,
+        sfDominators = 1,
+        sfPirates = 2,
+    };
+
+    using TPercent = std::uint8_t;
+
     enum TDominatorSeries : std::uint8_t {
         dsBlazer = 0,
         dsKeller = 1,
@@ -87,13 +97,20 @@ namespace aGalaxyStruct {
         qtDefendShip = 4,
     };
 
-    enum TStarFaction : std::uint8_t {
-        sfCoalition = 0,
-        sfDominators = 1,
-        sfPirates = 2,
-    };
-
     using TWeaponAvailabilityMask = pas::Set<0, 15>;
+
+    // OwnerToSys () and RaceToSys () establish these IDs.
+    // RaceId and PilotRace use the same Coalition values 0..4.
+    enum TOwnerId : std::uint8_t {
+        oiMaloc = 0,
+        oiPeleng = 1,
+        oiHuman = 2,
+        oiFeyan = 3,
+        oiGaal = 4,
+        oiDominator = 5,
+        oiUninhabited = 6,
+        oiPirate = 7,
+    };
 
     enum TStationType : std::uint8_t {
         rstRangerCenter = 6,
@@ -104,6 +121,13 @@ namespace aGalaxyStruct {
         rstMedicalBase = 11,
         rstDominion = 12,
         rstCustomStation = 13,
+    };
+
+    // Shared ship career category; non-ranger implementations can return a fixed career.
+    enum TRangerCareer : std::uint8_t {
+        rcTrader = 0,
+        rcPirate = 1,
+        rcWarrior = 2,
     };
 
     using TFactionStrengthValues = pas::Array<float, 0, 2>;
@@ -123,7 +147,7 @@ namespace aGalaxyStruct {
         TDominatorSeries DominatorSeries;
         TStarFaction PreviousControlFaction;
         std::uint8_t cpp_padding_2[1];
-        // Coalition, Dominators/custom, pirates; indexed by Ord(TStarFaction).
+        // Coalition, Dominators/custom, pirates; indexed by TStarFaction.
         TFactionStrengthValues CachedFactionStrength;
         std::int32_t FactionStrengthCacheTurn;
     };
@@ -181,7 +205,6 @@ namespace aGalaxyStruct {
     using TItemTypeMask = pas::Set<0, 79>;
 
     // Native record RTTI.
-    #pragma pack(push, 1)
     struct TPlanetNews {
         std::uint32_t Id;
         std::int32_t Turn;
@@ -189,7 +212,8 @@ namespace aGalaxyStruct {
         std::uint8_t cpp_padding[3];
         pas::WideString Text;
     };
-    #pragma pack(pop)
+
+    using TDamageFlagSet = pas::Set<0, 19>;
 
     // Shared scalar configuration identifiers. Managed configuration records live in aConst.
     enum TWeaponShotType : std::uint8_t {
@@ -217,18 +241,44 @@ namespace aGalaxyStruct {
         waSystemOnly = 10,
     };
 
-    using TDamageFlagSet = pas::Set<0, 19>;
+    // The script singleton constructor proves an enum spanning three bytes.
+    // Four-byte masks use bits 0..20; the exact enum upper bound within 19..23 is unresolved.
+    // Bits 3..18 have semantic aliases below; their original enum spellings are not recovered.
+    // Bit 19 blocks the repair droid in TShip.ApplyDamage.
+    enum TDamageKind : std::uint8_t {
+        dkEnergy = 0,
+        dkSplinter = 1,
+        dkMissile = 2,
+        dkDroidBlock = 19,
+    };
+
+    using TStationStandingMask = pas::Set<0, 15>;
 
     using PGoodsTradePriceEntry = TGoodsTradePriceEntry*;
 
-    // Shared ship career category; non-ranger implementations can return a fixed career.
-    enum TRangerCareer : std::uint8_t {
-        rcTrader = 0,
-        rcPirate = 1,
-        rcWarrior = 2,
+    enum TPilotSkill : std::uint8_t {
+        psAccuracy = 0,
+        psManeuverability = 1,
+        psTechnical = 2,
+        psTrading = 3,
+        psCharisma = 4,
+        psLeadership = 5,
     };
 
     using TQuestTypes = pas::Set<0, 4>;
+
+    // MatrixGame's SRobotGameState / CGame.SaveResult ABI, also stored in battle history.
+    #pragma pack(push, 1)
+    struct TPlanetBattleStatistics {
+        // Elapsed milliseconds; MatrixGame negates the winning side's time.
+        std::int32_t SignedTimeMs;
+        std::int32_t RobotsBuilt;
+        std::int32_t RobotsDestroyed;
+        std::int32_t TurretsBuilt;
+        std::int32_t TurretsDestroyed;
+        std::int32_t BuildingsDestroyed;
+    };
+    #pragma pack(pop)
 
     enum TShopUpdateMode : std::uint8_t {
         sumNormal = 0,
@@ -237,18 +287,10 @@ namespace aGalaxyStruct {
         sumGoodsOnly = 3,
     };
 
-    // OwnerToSys () and RaceToSys () establish these IDs.
-    // RaceId and PilotRace use the same Coalition values 0..4.
-    enum TOwnerId : std::uint8_t {
-        oiMaloc = 0,
-        oiPeleng = 1,
-        oiHuman = 2,
-        oiFeyan = 3,
-        oiGaal = 4,
-        oiDominator = 5,
-        oiUninhabited = 6,
-        oiPirate = 7,
-    };
+    using PPlanetBattleStatistics = TPlanetBattleStatistics*;
+
+    // Preserve the full byte for native membership checks; selected series are 0..2.
+    using TDominatorSeriesMask = pas::Set<0, 7>;
 
     // Native record RTTI.
     #pragma pack(push, 1)
@@ -261,16 +303,6 @@ namespace aGalaxyStruct {
 
     using TEngineLevelStatsTable = pas::Array<TEngineLevelStats, 1, 8>;
 
-    // The script singleton constructor proves an enum spanning three bytes.
-    // Four-byte masks use bits 0..20; the exact enum upper bound within 19..23 is unresolved.
-    // Other enumerator names remain unknown. Bit 19 blocks the repair droid in TShip.ApplyDamage.
-    enum TDamageKind : std::uint8_t {
-        dkEnergy = 0,
-        dkSplinter = 1,
-        dkMissile = 2,
-        dkDroidBlock = 19,
-    };
-
     #pragma pack(push, 1)
     struct TCargoHookLevelStats {
         std::int32_t PickupPower;
@@ -281,6 +313,12 @@ namespace aGalaxyStruct {
     #pragma pack(pop)
 
     using TCargoHookLevelStatsTable = pas::Array<TCargoHookLevelStats, 1, 8>;
+
+    using TRelationLevels = pas::Set<0, 4>;
+
+    using TPlanetEconomies = pas::Set<0, 2>;
+
+    using TPlanetGovernments = pas::Set<0, 4>;
 
     using TGreetingCountMask = pas::Set<0, 15>;
 
@@ -296,10 +334,10 @@ namespace aGalaxyStruct {
         // Indexed by DifficultyLevels[7].
         float ArcadeRewardScale;
         float QuestMoneyFactor;
-        // Extrapolated geometrically; gameplay meaning unresolved.
-        std::int32_t DifficultyValue18;
-        // Extrapolated linearly and rounded; gameplay meaning unresolved.
-        std::uint8_t DifficultyValue1C;
+        // DifficultyLevels[1]; passed to InitializePlayerAtPlanet and ApplyCharacterPreset.
+        std::int32_t StartingPlayerMoney;
+        // DifficultyLevels[0]; sets the initial pirate-system selection count before placement exclusions.
+        std::uint8_t InitialPirateControlPercent;
         std::uint8_t cpp_padding[3];
         float MarketPriceBandSqueeze;
         // Roll 0..maximum; zero creates a hole when other conditions allow.
@@ -313,8 +351,8 @@ namespace aGalaxyStruct {
         std::uint8_t cpp_padding_2[2];
         // Indexed by DifficultyLevels[6].
         float ArcadeDamageTakenScale;
-        // Extrapolated geometrically; gameplay meaning unresolved.
-        float DifficultyFactor34;
+        // DifficultyLevels[0]; normalizes the system-count ratio for daily WarDeltaWin adjustments.
+        float CoalitionToPirateBalanceRatio;
     };
     #pragma pack(pop)
 
@@ -326,6 +364,8 @@ namespace aGalaxyStruct {
         double StockFactor;
     };
     #pragma pack(pop)
+
+    using TByteMask = pas::Set<0, 7>;
 
     using TQuestExperienceTable = pas::Array<std::int32_t, 0, 4>;
 
@@ -342,12 +382,12 @@ namespace aGalaxyStruct {
 
     #pragma pack(push, 1)
     struct TPlanetOwnerMasks {
-        // OwnerId bits 0..4 (0x1F).
-        std::uint8_t Coalition;
-        // OwnerId bit 5 (0x20).
-        std::uint8_t Dominators;
-        // OwnerId bit 7 (0x80).
-        std::uint8_t PirateClan;
+        // Coalition owner IDs 0..4.
+        TOwnerMask Coalition;
+        // Dominator owner ID 5.
+        TOwnerMask Dominators;
+        // Pirate Clan owner ID 7.
+        TOwnerMask PirateClan;
     };
     #pragma pack(pop)
 
@@ -379,7 +419,7 @@ namespace aGalaxyStruct {
 
     using TPlanetRaceMarketTable = pas::Array<TPlanetRaceMarketInfo, 0, 4>;
 
-    using TFactionStandingMasks = pas::Array<std::uint16_t, 0, 2>;
+    using TFactionStandingMasks = pas::Array<TStationStandingMask, 0, 2>;
 
     // Native record RTTI.
     // Native record RTTI.
@@ -388,7 +428,11 @@ namespace aGalaxyStruct {
 
     using TPlanetEquipmentOfferQuotaTable = pas::Array<TPlanetEquipmentOfferQuotaRow, 0, 4>;
 
+    using TGalaxyDifficultyIndex = std::uint8_t;
+
     using TGoodsTextOrder = pas::Array<std::uint8_t, 0, 7>;
+
+    using TProgramIndex = std::uint8_t;
 
     // TShip.TypeId names from ShipTypeNames (initialized by the table
     // at) and the subclass initializers.

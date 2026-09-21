@@ -25,32 +25,6 @@
 #include "units/fShip2.hpp"
 
 namespace ab_ShipAI {
-    // Source helper: preserve the native full-width load before a Byte stack argument.
-    // Passing the local directly lets DCC32 narrow MOV EAX to MOV AL. This identity
-    // inlines without a call, extra assignment or temporary in ApplyDamage.
-    std::int32_t RewardTechArgument(std::int32_t Value) {
-        return Value;
-    }
-
-    // Source helper: keep the seed evaluation before both clamps, with their
-    // temporaries preceding the seed slot in the native frame.
-    void SelectArcadeRewardWeapon(TabShipAI* Ship, std::int32_t Tech, aConst::PWeaponInfo& Info) {
-        std::int32_t MaximumTech{};
-        std::int32_t MinimumTech{};
-        std::uint32_t Seed = Ship->RandomRange(1, 100000);
-        if (Tech + 1 < 8) {
-            MaximumTech = Tech + 1;
-        } else {
-            MaximumTech = 8;
-        }
-        if (Tech - 1 < 1) {
-            MinimumTech = 1;
-        } else {
-            MinimumTech = Tech - 1;
-        }
-        Info = aGalaxy::Galaxy->SelectWeaponInfo(Seed, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), ab_ShipAI::RewardTechArgument(MaximumTech), ab_ShipAI::RewardTechArgument(MinimumTech));
-    }
-
     void TabShipAI_Create(TabShipAI* Self) {
         ab_Ship::TabShip_Create(Self);
         Self->CombatManeuver = amUnselected;
@@ -80,8 +54,8 @@ namespace ab_ShipAI {
         aItem::TItem* Result = nullptr;
         if (aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr) {
             if (RewardObject != nullptr) {
-                if (pas::class_cast_if<aItem::TArtefact*>(RewardObject) != nullptr && static_cast<std::uint8_t>(Preview ^ 1)) {
-                    Result = reinterpret_cast<aItem::TItem*>(RewardObject);
+                if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(RewardObject); artefact != nullptr && static_cast<std::uint8_t>(Preview ^ 1)) {
+                    Result = static_cast<aItem::TItem*>(artefact);
                     RewardObject = nullptr;
                 }
                 return Result;
@@ -141,7 +115,7 @@ namespace ab_ShipAI {
                 if (aPlayer::ArcadeKellerDefeats == 0 && static_cast<std::uint8_t>(KellerPresent ^ 1) && aPlayer::GetPlayer()->Order == aShip::soJumpHole && (LivingEnemies == 0 || Preview) && (LivingEnemies + aPlayer::GetPlayer()->BlackHoleKillCount < 20 || RandomRange(0, 100) > RepeatPenalty + 30)) {
                     while (Reward == nullptr) {
                         ++Index;
-                        Reward = aItem::CreateRandomLootItem(aItem::ilpArcadeBattle, 6, aMyFunction::AdvanceRandomSeed(RandomState));
+                        Reward = aItem::CreateRandomLootItem(aItem::ilpArcadeBattle, aGalaxyStruct::oiUninhabited, aMyFunction::AdvanceRandomSeed(RandomState));
                         if (aPlayer::GetPlayer()->HasMatchingArtefactOrCustomItem(Reward) && Index < 5) {
                             pas::free(Reward);
                             Reward = nullptr;
@@ -154,8 +128,8 @@ namespace ab_ShipAI {
                             break;
                         }
                     }
-                    if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Reward) != nullptr) {
-                        pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Reward)->Ship))->OwnerShip = aPlayer::GetPlayer();
+                    if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Reward)) {
+                        pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(artefactTranclucator->Ship))->OwnerShip = aPlayer::GetPlayer();
                     }
                 }
                 RandomState = SavedRandomState;
@@ -185,7 +159,7 @@ namespace ab_ShipAI {
         float RewardScale{};
         std::uint32_t SavedNextItemId{};
         aGalaxyEvent::TGalaxyEvent* Event{};
-        std::uint8_t ItemType{};
+        aConst::TItemType ItemType{};
         std::int32_t Weight{};
         std::int32_t Level{};
         aConst::PWeaponInfo Info{};
@@ -226,7 +200,7 @@ namespace ab_ShipAI {
                 } else {
                     ++aPlayer::GetPlayer()->HyperspaceKillCount;
                     Achievements::TryAddAchievementProgress(u"HOLEMAN"_w, 1);
-                    if (aPlayer::GetPlayer()->InHyperspace && aPlayer::GetPlayer()->OwnerId != static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+                    if (aPlayer::GetPlayer()->InHyperspace && aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                         aPlayer::GetPlayer()->AddRankPoints(2);
                     }
                 }
@@ -286,23 +260,27 @@ namespace ab_ShipAI {
                     while (true) {
                         if (RandomRange(1, 110) > 70) {
                             WeaponTech = RandomRange(std::max<std::int32_t>(1, aGalaxy::Galaxy->TechLevel - 1), std::min<std::int32_t>(8, aGalaxy::Galaxy->TechLevel + 1));
-                            ab_ShipAI::SelectArcadeRewardWeapon(this, WeaponTech, Info);
+                            {
+                                std::uint32_t randomRange = RandomRange(1, 100000);
+                                aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
+                                Info = galaxy->SelectWeaponInfo(randomRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), std::min<std::int32_t>(WeaponTech + 1, 8), std::max<std::int32_t>(1, WeaponTech - 1));
+                            }
                             Weight = ([&] {
                                 std::int32_t round = System::Round(static_cast<long double>(Info->AverageSize) * MaxSize);
                                 std::int32_t round_2 = System::Round(static_cast<long double>(Info->AverageSize) * MinSize);
                                 return RandomRange(round_2, round);
                             }());
                             Level = RandomRange(MinLevel, MaxLevel);
-                            Item = aItem::CreateGeneratedWeapon(Info, Weight, Level, 6);
+                            Item = aItem::CreateGeneratedWeapon(Info, Weight, Level, aGalaxyStruct::oiUninhabited);
                         } else {
-                            ItemType = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}}));
+                            ItemType = static_cast<aConst::TItemType>(aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}})));
                             {
                                 std::int32_t round_3 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MaxSize);
                                 std::int32_t round_4 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MinSize);
                                 Weight = RandomRange(round_4, round_3);
                             }
                             Level = RandomRange(MinLevel, MaxLevel);
-                            Item = aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(ItemType), Weight, Level, 6);
+                            Item = aItem::CreateGeneratedEquipment(ItemType, Weight, Level, aGalaxyStruct::oiUninhabited);
                         }
                         Item->ConditionPercent = aMyFunction::SeededRandomFloatRange(Item->Id * (Attempts + 11) * 123, 1.0E+1, 1.0E+2);
                         ++Attempts;
@@ -344,7 +322,7 @@ namespace ab_ShipAI {
                         pas::Extended cpp_left_3 = DistanceTo(TargetShip);
                         return cpp_left_3 > MaximumWeaponRange();
                     }())) {
-                        TargetShip = pas::checked_cast<ab_Ship::TabShip*>(Source);
+                        TargetShip = static_cast<ab_Ship::TabShip*>(Source);
                     }
                 }
             }
@@ -556,7 +534,7 @@ namespace ab_ShipAI {
                 if (TargetBonus != nullptr) {
                     Obj = ab_Object::FirstArcadeObject;
                     while (Obj != nullptr) {
-                        if (Obj != this && pas::class_cast_if<TabShipAI*>(Obj) != nullptr && reinterpret_cast<TabShipAI*>(Obj)->TargetBonus == TargetBonus) {
+                        if (Obj != this && pas::class_cast_if<TabShipAI*>(Obj) != nullptr && static_cast<TabShipAI*>(Obj)->TargetBonus == TargetBonus) {
                             TargetBonus = nullptr;
                             break;
                         }

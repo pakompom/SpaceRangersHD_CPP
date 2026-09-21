@@ -25,8 +25,8 @@ namespace ab_W16 {
         }
         ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
         while (Obj != nullptr) {
-            if (pas::class_cast_if<TabW16*>(Obj) != nullptr && static_cast<TabW16*>(Obj)->ParentProjectile == Self) {
-                pas::checked_cast<TabW16*>(Obj)->ParentProjectile = nullptr;
+            if (TabW16* abW16 = pas::class_cast_if<TabW16*>(Obj); abW16 != nullptr && abW16->ParentProjectile == Self) {
+                abW16->ParentProjectile = nullptr;
             }
             Obj = Obj->Next;
         }
@@ -79,8 +79,8 @@ namespace ab_W16 {
                 Collision = nullptr;
             }
             if (Collision != nullptr) {
-                if (pas::class_cast_if<TabW16*>(Collision) != nullptr) {
-                    if (pas::checked_cast<TabW16*>(Collision)->ParentProjectile == this || ParentProjectile == Collision || ParentProjectile != nullptr && pas::checked_cast<TabW16*>(Collision)->ParentProjectile == ParentProjectile) {
+                if (TabW16* abW16 = pas::class_cast_if<TabW16*>(Collision)) {
+                    if (abW16->ParentProjectile == this || ParentProjectile == Collision || ParentProjectile != nullptr && abW16->ParentProjectile == ParentProjectile) {
                         Collision = nullptr;
                     }
                 }

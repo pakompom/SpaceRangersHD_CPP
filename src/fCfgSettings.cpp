@@ -56,7 +56,7 @@ namespace fCfgSettings {
         GR_Main::AppendLogTextThreadSafe("fCfgSettings... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         {
-            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* cpp_with_2 = MainPanel->FirstChild;
@@ -72,7 +72,7 @@ namespace fCfgSettings {
                             cpp_with_5->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + cpp_with_5->LocalPosition.X, cpp_with_5->LocalPosition.Y));
                             cpp_with_5->SetSize(ClassesImports::Point(cpp_with_5->ClientSize.X, cpp_with_5->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
                             {
-                                GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(cpp_with_5->FindByNameRecursive(u"PanelSet"_wref.get()));
+                                GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(cpp_with_5->FindByNameRecursive(u"PanelSet"sv));
                                 PanelSet->SetSize(ClassesImports::Point(PanelSet->ClientSize.X, PanelSet->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
                                 PanelSet->VerticalScrollBar->SetSize(ClassesImports::Point(PanelSet->VerticalScrollBar->ClientSize.X, PanelSet->VerticalScrollBar->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
                             }
@@ -85,7 +85,7 @@ namespace fCfgSettings {
                 }
             }
             {
-                GI_MessageLoop::TObjectGI* ModeLeftPanel_NextSibling = MainPanel->FindByNameRecursive(u"ModeLeftPanel"_wref.get())->NextSibling;
+                GI_MessageLoop::TObjectGI* ModeLeftPanel_NextSibling = MainPanel->FindByNameRecursive(u"ModeLeftPanel"sv)->NextSibling;
                 ModeLeftPanel_NextSibling->SetSize(ClassesImports::Point(ModeLeftPanel_NextSibling->ClientSize.X, ModeLeftPanel_NextSibling->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
                 {
                     GI_MessageLoop::TObjectGI* cpp_with_9 = ModeLeftPanel_NextSibling->NextSibling;
@@ -99,59 +99,59 @@ namespace fCfgSettings {
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         {
-            GI_GraphButton::TGraphButtonGI* Cancel = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* Cancel = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"sv));
             Cancel->UpCallback = pas::bind_method<&TfCfgSettings::CancelClicked>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()))->UpCallback = pas::bind_method<&TfCfgSettings::ApplyClicked>(this);
-        GetByName(u"MainPanel"_wref.get())->MouseMoveCallback = pas::bind_method<&TfCfgSettings::MainPanelMouseMove>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->UpCallback = pas::bind_method<&TfCfgSettings::ApplyClicked>(this);
+        GetByName(u"MainPanel"sv)->MouseMoveCallback = pas::bind_method<&TfCfgSettings::MainPanelMouseMove>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButAUp = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAUp"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButAUp = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAUp"sv));
             ButAUp->UpCallback = pas::bind_method<&TfCfgSettings::HighPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButAMiddle = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAMiddle"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButAMiddle = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAMiddle"sv));
             ButAMiddle->UpCallback = pas::bind_method<&TfCfgSettings::MediumPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButADown = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButADown"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButADown = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButADown"sv));
             ButADown->UpCallback = pas::bind_method<&TfCfgSettings::LowPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButAAuto = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAAuto"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButAAuto = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAAuto"sv));
             ButAAuto->UpCallback = pas::bind_method<&TfCfgSettings::AutoPresetClicked>(this);
         }
         {
-            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"_wref.get());
+            GI_MessageLoop::TObjectGI* MainPanel_2 = GetByName(u"MainPanel"sv);
             MainPanel_2->KeyDownCallback = pas::bind_method<&TfCfgSettings::MainPanelKeyDown>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[0] = ButGroup0->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[1] = ButGroup1->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
             ButGroup2->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup2->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[2] = ButGroup2->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
             ButGroup3->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup3->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[3] = ButGroup3->LocalPosition.Y;
         }
-        ModeLeftPosition = GetByName(u"ModeLeftPanel"_wref.get())->LocalPosition;
-        ModeRightPosition = GetByName(u"ModeRightPanel"_wref.get())->LocalPosition;
+        ModeLeftPosition = GetByName(u"ModeLeftPanel"sv)->LocalPosition;
+        ModeRightPosition = GetByName(u"ModeRightPanel"sv)->LocalPosition;
         {
-            GI_MessageLoop::TObjectGI* ModeLeftButtonN = GetByName(u"ModeLeftButtonN"_wref.get());
+            GI_MessageLoop::TObjectGI* ModeLeftButtonN = GetByName(u"ModeLeftButtonN"sv);
             ModeLeftButtonN->MouseEnterCallback = pas::bind_method<&TfCfgSettings::ModeMouseEnter>(this);
             ModeLeftButtonN->MouseLeaveCallback = pas::bind_method<&TfCfgSettings::ModeMouseLeave>(this);
             ModeLeftButtonN->LeftButtonDownCallback = pas::bind_method<&TfCfgSettings::ModeMouseDown>(this);
@@ -159,7 +159,7 @@ namespace fCfgSettings {
             ModeLeftButtonN->UserValue = 0;
         }
         {
-            GI_MessageLoop::TObjectGI* ModeLeftButtonD = GetByName(u"ModeLeftButtonD"_wref.get());
+            GI_MessageLoop::TObjectGI* ModeLeftButtonD = GetByName(u"ModeLeftButtonD"sv);
             ModeLeftButtonD->MouseEnterCallback = pas::bind_method<&TfCfgSettings::ModeMouseEnter>(this);
             ModeLeftButtonD->MouseLeaveCallback = pas::bind_method<&TfCfgSettings::ModeMouseLeave>(this);
             ModeLeftButtonD->LeftButtonDownCallback = pas::bind_method<&TfCfgSettings::ModeMouseDown>(this);
@@ -167,7 +167,7 @@ namespace fCfgSettings {
             ModeLeftButtonD->UserValue = 0;
         }
         {
-            GI_MessageLoop::TObjectGI* ModeRightButtonN = GetByName(u"ModeRightButtonN"_wref.get());
+            GI_MessageLoop::TObjectGI* ModeRightButtonN = GetByName(u"ModeRightButtonN"sv);
             ModeRightButtonN->MouseEnterCallback = pas::bind_method<&TfCfgSettings::ModeMouseEnter>(this);
             ModeRightButtonN->MouseLeaveCallback = pas::bind_method<&TfCfgSettings::ModeMouseLeave>(this);
             ModeRightButtonN->LeftButtonDownCallback = pas::bind_method<&TfCfgSettings::ModeMouseDown>(this);
@@ -175,7 +175,7 @@ namespace fCfgSettings {
             ModeRightButtonN->UserValue = 1;
         }
         {
-            GI_MessageLoop::TObjectGI* ModeRightButtonD = GetByName(u"ModeRightButtonD"_wref.get());
+            GI_MessageLoop::TObjectGI* ModeRightButtonD = GetByName(u"ModeRightButtonD"sv);
             ModeRightButtonD->MouseEnterCallback = pas::bind_method<&TfCfgSettings::ModeMouseEnter>(this);
             ModeRightButtonD->MouseLeaveCallback = pas::bind_method<&TfCfgSettings::ModeMouseLeave>(this);
             ModeRightButtonD->LeftButtonDownCallback = pas::bind_method<&TfCfgSettings::ModeMouseDown>(this);
@@ -203,8 +203,8 @@ namespace fCfgSettings {
         }
         SettingsMode = 0;
         ModeButtonState = 0;
-        GetByName(u"LabelHelp"_wref.get())->SetActive(false);
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+        GetByName(u"LabelHelp"sv)->SetActive(false);
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
         Panel->FreeOwnedChildren();
         for (I = 0; I <= 5; ++I) {
             GroupNextY[I] = 0;
@@ -221,7 +221,7 @@ namespace fCfgSettings {
         HasInstalledPackages = false;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(GR_Main::ModLanguageInstallConfigs) - 1); cpp_range.next(I); ) {
             Block = pas::list_at<EC_BlockPar::TBlockParEC>(GR_Main::ModLanguageInstallConfigs, I);
-            Block = Block->GetBlock(u"Packages"_wref.get());
+            Block = Block->GetBlock(u"Packages"sv);
             if (Block->GetParamCount() > 0) {
                 HasInstalledPackages = true;
                 break;
@@ -229,14 +229,14 @@ namespace fCfgSettings {
         }
         if (static_cast<std::uint8_t>(SimpleSteamApi::SteamInitialized ^ 1) && GR_Main::RequestedLanguage == u"") {
             AddOptionLabel(u"Lang"_w, aConst::LocalizedText(u"FormCfgSettings.Lang"_wref.get()), true);
-            if (GR_Main::AvailableLanguageCodes != u"" && EC_Str::CountDelimitedPartsW(GR_Main::AvailableLanguageCodes, u","_wref.get()) > 0) {
-                LanguageCount = EC_Str::CountDelimitedPartsW(GR_Main::AvailableLanguageCodes, u","_wref.get());
+            if (GR_Main::AvailableLanguageCodes != u"" && EC_Str::CountDelimitedPartsW(pas::view(GR_Main::AvailableLanguageCodes), u","sv) > 0) {
+                LanguageCount = EC_Str::CountDelimitedPartsW(pas::view(GR_Main::AvailableLanguageCodes), u","sv);
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, LanguageCount - 1); cpp_range_2.next(I); ) {
-                    Language = EC_Str::ExtractDelimitedPartW(GR_Main::AvailableLanguageCodes, I, u","_wref.get());
+                    Language = EC_Str::ExtractDelimitedPartW(pas::view(GR_Main::AvailableLanguageCodes), I, u","sv);
                     if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", Language, u".txt"})))) {
                         Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
                         Block->LoadFromTextFileWithEncodingProbe((cpp_text = pas::concat_wide({u"install_", Language, u".txt"}), cpp_text.pchar()), false);
-                        LanguageName = Block->GetParam(u"LangName"_wref.get());
+                        LanguageName = Block->GetParam(u"LangName"sv);
                         pas::free(Block);
                     }
                     {
@@ -251,7 +251,7 @@ namespace fCfgSettings {
                 }
             } else {
                 Language = GR_Main::SelectedLanguage;
-                AddOptionChoice(0, EC_Str::ExtractDelimitedPartW(Language, 0, u","_wref.get()), true, false);
+                AddOptionChoice(0, EC_Str::ExtractDelimitedPartW(pas::view(Language), 0, u","sv), true, false);
             }
         }
         AddOptionLabel(u"MultiThread"_w, aConst::LocalizedText(u"FormCfgSettings.MultiThread"_wref.get()), true);
@@ -1135,7 +1135,7 @@ namespace fCfgSettings {
             cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, GroupNextY[I]));
         }
         {
-            std::int32_t cpp_arg_114 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()))->CaptionLabel->GetLineHeight() * 2;
+            std::int32_t cpp_arg_114 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->CaptionLabel->GetLineHeight() * 2;
             GI_ScrollBar::TScrollBarGI* verticalScrollBar = Panel->VerticalScrollBar;
             verticalScrollBar->SetSmallChange(cpp_arg_114);
         }
@@ -1163,32 +1163,32 @@ namespace fCfgSettings {
         GI_GraphButton::TGraphButtonGI* Button = nullptr;
         std::uint8_t Show = false;
         do {
-            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAUp"_wref.get()));
+            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAUp"sv));
             Show = Button->HitTest(Point);
             if (Show) {
                 break;
             }
-            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAMiddle"_wref.get()));
+            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAMiddle"sv));
             Show = Button->HitTest(Point);
             if (Show) {
                 break;
             }
-            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButADown"_wref.get()));
+            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButADown"sv));
             Show = Button->HitTest(Point);
             if (Show) {
                 break;
             }
-            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAAuto"_wref.get()));
+            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAAuto"sv));
             Show = Button->HitTest(Point);
             if (Show) {
                 break;
             }
-            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"_wref.get()));
+            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"sv));
             Show = Button->HitTest(Point);
             if (Show) {
                 break;
             }
-            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"_wref.get()));
+            Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
             Show = Button->HitTest(Point);
             if (Show) {
                 break;
@@ -1198,7 +1198,7 @@ namespace fCfgSettings {
     }
 
     void TfCfgSettings::ShowControlHelp(GI_MessageLoop::TObjectGI* Sender, std::uint8_t Show) {
-        GI_Label::TLabelGI* LabelHelp = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelHelp"_wref.get()));
+        GI_Label::TLabelGI* LabelHelp = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LabelHelp"sv));
         if (Sender->HelpText == u"") {
             Show = false;
         }
@@ -1207,14 +1207,14 @@ namespace fCfgSettings {
     }
 
     void TfCfgSettings::GroupClicked(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t Group = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
+        std::int32_t Group = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
         if (SettingsMode == 1) {
             Group = Group + 4 - 1;
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()))->SetDown(Group == 0 || Group == 4);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()))->SetDown(Group == 1 || Group == 5);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()))->SetDown(Group == 2);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"_wref.get()))->SetDown(Group == 3);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->SetDown(Group == 0 || Group == 4);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv))->SetDown(Group == 1 || Group == 5);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv))->SetDown(Group == 2);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv))->SetDown(Group == 3);
         if (ActiveGroupIndex != Group) {
             ActiveGroupIndex = Group;
             RefreshVisibleGroup();
@@ -1225,19 +1225,19 @@ namespace fCfgSettings {
     void TfCfgSettings::RefreshVisibleGroup() {
         std::int32_t I{};
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->SetDown(ActiveGroupIndex == 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->SetDown(ActiveGroupIndex == 1 || ActiveGroupIndex == 4);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
             ButGroup2->SetDown(ActiveGroupIndex == 2 || ActiveGroupIndex == 5);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
             ButGroup3->SetDown(ActiveGroupIndex == 3);
         }
         for (I = 0; I <= 5; ++I) {
@@ -1245,7 +1245,7 @@ namespace fCfgSettings {
             cpp_with_5->SetActive(I == ActiveGroupIndex);
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
             PanelSet->SetScrollOffset(ClassesImports::Point(0, 0));
             PanelSet->UpdateScrollRanges();
             PanelSet->SetVerticalScrollbarEnabled(GroupNextY[ActiveGroupIndex] > PanelSet->ClientSize.Y);
@@ -1370,7 +1370,7 @@ namespace fCfgSettings {
             pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
             return cpp_string == cpp_string_2;
         }())) {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Sender);
+            GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -1385,7 +1385,7 @@ namespace fCfgSettings {
             pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
             return cpp_string == cpp_string_2;
         }())) {
-            GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Sender);
+            GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
@@ -1441,13 +1441,13 @@ namespace fCfgSettings {
     }
 
     // Searches only the active group.
-    std::uint8_t TfCfgSettings::HasOptionValue(pas::WideString OptionName) {
+    std::uint8_t TfCfgSettings::HasOptionValue(const std::u16string_view& OptionName) {
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
         while (Control != nullptr) {
-            if (Control->ControlName == OptionName) {
-                if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr) {
+            if (pas::view(Control->ControlName) == OptionName) {
+                if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
                     if (([&] {
-                        pas::WideString cpp_string = pas::checked_cast<GI_Image::TImageGI*>(Control)->GetImagePath();
+                        pas::WideString cpp_string = imageGI->GetImagePath();
                         pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchD"});
                         return cpp_string == cpp_string_2;
                     }())) {
@@ -1463,21 +1463,21 @@ namespace fCfgSettings {
     }
 
     // Searches only the active group; raises when no selected choice or slider exists.
-    std::int32_t TfCfgSettings::GetOptionValue(pas::WideString OptionName) {
+    std::int32_t TfCfgSettings::GetOptionValue(const std::u16string_view& OptionName) {
         std::int32_t Result = 0;
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
         while (Control != nullptr) {
-            if (Control->ControlName == OptionName) {
-                if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr) {
+            if (pas::view(Control->ControlName) == OptionName) {
+                if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
                     if (([&] {
-                        pas::WideString cpp_string = pas::checked_cast<GI_Image::TImageGI*>(Control)->GetImagePath();
+                        pas::WideString cpp_string = imageGI->GetImagePath();
                         pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchD"});
                         return cpp_string == cpp_string_2;
                     }())) {
                         return Control->UserValue;
                     }
-                } else if (pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control) != nullptr) {
-                    return pas::checked_cast<GI_CountBar::TCountBarGI*>(Control)->Position;
+                } else if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control)) {
+                    return countBarGI->Position;
                 }
             }
             Control = Control->NextSibling;
@@ -1487,15 +1487,15 @@ namespace fCfgSettings {
     }
 
     // Searches only the active group; missing options are ignored.
-    void TfCfgSettings::SetOptionValue(pas::WideString OptionName, std::int32_t Value) {
+    void TfCfgSettings::SetOptionValue(const std::u16string_view& OptionName, std::int32_t Value) {
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
         while (Control != nullptr) {
-            if (Control->ControlName == OptionName) {
+            if (pas::view(Control->ControlName) == OptionName) {
                 if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr && Control->UserValue == Value && pas::assigned(Control->LeftButtonDownCallback)) {
                     OptionChoiceMouseDown(Control, 0u, ClassesImports::Point(-1000, -1000));
                     break;
-                } else if (pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control) != nullptr) {
-                    pas::checked_cast<GI_CountBar::TCountBarGI*>(Control)->SetPosition_2(Value);
+                } else if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control)) {
+                    countBarGI->SetPosition_2(Value);
                     break;
                 }
             }
@@ -1552,9 +1552,9 @@ namespace fCfgSettings {
     // Changes display gamma before settings are applied.
     void TfCfgSettings::PreviewBrightness(GI_MessageLoop::TObjectGI* Sender) {
         GI_Label::TLabelGI* ValueLabel{};
-        if (HasOptionValue(u"Contrast"_w) && HasOptionValue(u"Brightness"_w)) {
-            float cpp_arg = pas::real_divide(GetOptionValue(u"Brightness"_w) - 50, 5.0E+1L);
-            float cpp_arg_2 = pas::real_divide(GetOptionValue(u"Contrast"_w) - 50, 5.0E+1L);
+        if (HasOptionValue(u"Contrast"sv) && HasOptionValue(u"Brightness"sv)) {
+            float cpp_arg = pas::real_divide(GetOptionValue(u"Brightness"sv) - 50, 5.0E+1L);
+            float cpp_arg_2 = pas::real_divide(GetOptionValue(u"Contrast"sv) - 50, 5.0E+1L);
             GR_Main::ApplyGammaRamp(cpp_arg, cpp_arg_2);
         }
         if (Sender->UserIndex != 0) {
@@ -1570,9 +1570,9 @@ namespace fCfgSettings {
     // Changes display gamma before settings are applied.
     void TfCfgSettings::PreviewContrast(GI_MessageLoop::TObjectGI* Sender) {
         GI_Label::TLabelGI* ValueLabel{};
-        if (HasOptionValue(u"Contrast"_w) && HasOptionValue(u"Brightness"_w)) {
-            float cpp_arg = pas::real_divide(GetOptionValue(u"Brightness"_w) - 50, 5.0E+1L);
-            float cpp_arg_2 = pas::real_divide(GetOptionValue(u"Contrast"_w) - 50, 5.0E+1L);
+        if (HasOptionValue(u"Contrast"sv) && HasOptionValue(u"Brightness"sv)) {
+            float cpp_arg = pas::real_divide(GetOptionValue(u"Brightness"sv) - 50, 5.0E+1L);
+            float cpp_arg_2 = pas::real_divide(GetOptionValue(u"Contrast"sv) - 50, 5.0E+1L);
             GR_Main::ApplyGammaRamp(cpp_arg, cpp_arg_2);
         }
         if (Sender->UserIndex != 0) {
@@ -1658,55 +1658,55 @@ namespace fCfgSettings {
     void TfCfgSettings::HighPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t SavedGroup = ActiveGroupIndex;
         ActiveGroupIndex = 0;
-        SetOptionValue(u"CountFilmSave"_w, 30);
-        SetOptionValue(u"ScrollSpeed"_w, 20);
-        SetOptionValue(u"ScrollSense"_w, 1);
-        SetOptionValue(u"FilmSpeed"_w, 2);
-        SetOptionValue(u"BeginCalcNextTurn"_w, 100);
+        SetOptionValue(u"CountFilmSave"sv, 30);
+        SetOptionValue(u"ScrollSpeed"sv, 20);
+        SetOptionValue(u"ScrollSense"sv, 1);
+        SetOptionValue(u"FilmSpeed"sv, 2);
+        SetOptionValue(u"BeginCalcNextTurn"sv, 100);
         ActiveGroupIndex = 1;
-        SetOptionValue(u"Resolution"_w, 2);
-        SetOptionValue(u"Brightness"_w, 50);
-        SetOptionValue(u"Contrast"_w, 50);
-        SetOptionValue(u"Video"_w, 1);
-        SetOptionValue(u"BGImage"_w, 1);
-        SetOptionValue(u"AnimCaptain"_w, 1);
-        SetOptionValue(u"AnimShip"_w, 1);
-        SetOptionValue(u"AnimItem"_w, 1);
-        SetOptionValue(u"AnimMenuShip"_w, 1);
-        SetOptionValue(u"AnimGov"_w, 2);
-        SetOptionValue(u"AnimHangar"_w, 1);
-        SetOptionValue(u"AnimStar"_w, 1);
-        SetOptionValue(u"SpaceImage"_w, 2);
-        SetOptionValue(u"SputnikShow"_w, 1);
-        SetOptionValue(u"CircleAction"_w, 0);
-        SetOptionValue(u"Tail"_w, 2);
-        SetOptionValue(u"Comet"_w, 2);
-        SetOptionValue(u"Wind"_w, 2);
-        SetOptionValue(u"PlanetClouds"_w, 1);
-        SetOptionValue(u"PlanetAtm"_w, 1);
-        SetOptionValue(u"AnimChangeForm"_w, 1);
-        SetOptionValue(u"AnimMainFon"_w, 1);
+        SetOptionValue(u"Resolution"sv, 2);
+        SetOptionValue(u"Brightness"sv, 50);
+        SetOptionValue(u"Contrast"sv, 50);
+        SetOptionValue(u"Video"sv, 1);
+        SetOptionValue(u"BGImage"sv, 1);
+        SetOptionValue(u"AnimCaptain"sv, 1);
+        SetOptionValue(u"AnimShip"sv, 1);
+        SetOptionValue(u"AnimItem"sv, 1);
+        SetOptionValue(u"AnimMenuShip"sv, 1);
+        SetOptionValue(u"AnimGov"sv, 2);
+        SetOptionValue(u"AnimHangar"sv, 1);
+        SetOptionValue(u"AnimStar"sv, 1);
+        SetOptionValue(u"SpaceImage"sv, 2);
+        SetOptionValue(u"SputnikShow"sv, 1);
+        SetOptionValue(u"CircleAction"sv, 0);
+        SetOptionValue(u"Tail"sv, 2);
+        SetOptionValue(u"Comet"sv, 2);
+        SetOptionValue(u"Wind"sv, 2);
+        SetOptionValue(u"PlanetClouds"sv, 1);
+        SetOptionValue(u"PlanetAtm"sv, 1);
+        SetOptionValue(u"AnimChangeForm"sv, 1);
+        SetOptionValue(u"AnimMainFon"sv, 1);
         ActiveGroupIndex = 2;
-        SetOptionValue(u"Sound"_w, 1);
-        SetOptionValue(u"SoundInSpace"_w, 1);
-        SetOptionValue(u"SoundVolume"_w, 100);
-        SetOptionValue(u"Music"_w, 1);
-        SetOptionValue(u"MusicInSpace"_w, 1);
-        SetOptionValue(u"MusicVolume"_w, 75);
+        SetOptionValue(u"Sound"sv, 1);
+        SetOptionValue(u"SoundInSpace"sv, 1);
+        SetOptionValue(u"SoundVolume"sv, 100);
+        SetOptionValue(u"Music"sv, 1);
+        SetOptionValue(u"MusicInSpace"sv, 1);
+        SetOptionValue(u"MusicVolume"sv, 75);
         ActiveGroupIndex = 4;
-        SetOptionValue(u"RobotBrightness"_w, 50);
-        SetOptionValue(u"RobotContrast"_w, 50);
-        SetOptionValue(u"RobotShowStencilShadows"_w, 1);
-        SetOptionValue(u"RobotShowProjShadows"_w, 1);
-        SetOptionValue(u"RobotRobotShadow"_w, 1);
-        SetOptionValue(u"RobotLandTexturesGloss"_w, 1);
-        SetOptionValue(u"RobotObjTexturesGloss"_w, 1);
-        SetOptionValue(u"RobotSky"_w, 2);
+        SetOptionValue(u"RobotBrightness"sv, 50);
+        SetOptionValue(u"RobotContrast"sv, 50);
+        SetOptionValue(u"RobotShowStencilShadows"sv, 1);
+        SetOptionValue(u"RobotShowProjShadows"sv, 1);
+        SetOptionValue(u"RobotRobotShadow"sv, 1);
+        SetOptionValue(u"RobotLandTexturesGloss"sv, 1);
+        SetOptionValue(u"RobotObjTexturesGloss"sv, 1);
+        SetOptionValue(u"RobotSky"sv, 2);
         ActiveGroupIndex = 5;
-        SetOptionValue(u"RobotSound"_w, 1);
-        SetOptionValue(u"RobotSoundVolume"_w, 100);
-        SetOptionValue(u"RobotMusic"_w, 1);
-        SetOptionValue(u"RobotMusicVolume"_w, 75);
+        SetOptionValue(u"RobotSound"sv, 1);
+        SetOptionValue(u"RobotSoundVolume"sv, 100);
+        SetOptionValue(u"RobotMusic"sv, 1);
+        SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
         GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMax"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
@@ -1714,55 +1714,55 @@ namespace fCfgSettings {
     void TfCfgSettings::MediumPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t SavedGroup = ActiveGroupIndex;
         ActiveGroupIndex = 0;
-        SetOptionValue(u"CountFilmSave"_w, 20);
-        SetOptionValue(u"ScrollSpeed"_w, 20);
-        SetOptionValue(u"ScrollSense"_w, 1);
-        SetOptionValue(u"FilmSpeed"_w, 1);
-        SetOptionValue(u"BeginCalcNextTurn"_w, 100);
+        SetOptionValue(u"CountFilmSave"sv, 20);
+        SetOptionValue(u"ScrollSpeed"sv, 20);
+        SetOptionValue(u"ScrollSense"sv, 1);
+        SetOptionValue(u"FilmSpeed"sv, 1);
+        SetOptionValue(u"BeginCalcNextTurn"sv, 100);
         ActiveGroupIndex = 1;
-        SetOptionValue(u"Brightness"_w, 50);
-        SetOptionValue(u"Contrast"_w, 50);
-        SetOptionValue(u"Video"_w, 1);
-        SetOptionValue(u"BGImage"_w, 1);
-        SetOptionValue(u"AnimCaptain"_w, 1);
-        SetOptionValue(u"AnimShip"_w, 1);
-        SetOptionValue(u"AnimItem"_w, 1);
-        SetOptionValue(u"AnimHangar"_w, 1);
-        SetOptionValue(u"AnimMenuShip"_w, 1);
-        SetOptionValue(u"AnimGov"_w, 1);
-        SetOptionValue(u"AnimHangar"_w, 1);
-        SetOptionValue(u"AnimStar"_w, 1);
-        SetOptionValue(u"SpaceImage"_w, 1);
-        SetOptionValue(u"SputnikShow"_w, 1);
-        SetOptionValue(u"CircleAction"_w, 0);
-        SetOptionValue(u"Tail"_w, 1);
-        SetOptionValue(u"Comet"_w, 1);
-        SetOptionValue(u"Wind"_w, 1);
-        SetOptionValue(u"PlanetClouds"_w, 0);
-        SetOptionValue(u"PlanetAtm"_w, 0);
-        SetOptionValue(u"AnimChangeForm"_w, 0);
-        SetOptionValue(u"AnimMainFon"_w, 0);
+        SetOptionValue(u"Brightness"sv, 50);
+        SetOptionValue(u"Contrast"sv, 50);
+        SetOptionValue(u"Video"sv, 1);
+        SetOptionValue(u"BGImage"sv, 1);
+        SetOptionValue(u"AnimCaptain"sv, 1);
+        SetOptionValue(u"AnimShip"sv, 1);
+        SetOptionValue(u"AnimItem"sv, 1);
+        SetOptionValue(u"AnimHangar"sv, 1);
+        SetOptionValue(u"AnimMenuShip"sv, 1);
+        SetOptionValue(u"AnimGov"sv, 1);
+        SetOptionValue(u"AnimHangar"sv, 1);
+        SetOptionValue(u"AnimStar"sv, 1);
+        SetOptionValue(u"SpaceImage"sv, 1);
+        SetOptionValue(u"SputnikShow"sv, 1);
+        SetOptionValue(u"CircleAction"sv, 0);
+        SetOptionValue(u"Tail"sv, 1);
+        SetOptionValue(u"Comet"sv, 1);
+        SetOptionValue(u"Wind"sv, 1);
+        SetOptionValue(u"PlanetClouds"sv, 0);
+        SetOptionValue(u"PlanetAtm"sv, 0);
+        SetOptionValue(u"AnimChangeForm"sv, 0);
+        SetOptionValue(u"AnimMainFon"sv, 0);
         ActiveGroupIndex = 2;
-        SetOptionValue(u"Sound"_w, 1);
-        SetOptionValue(u"SoundInSpace"_w, 1);
-        SetOptionValue(u"SoundVolume"_w, 100);
-        SetOptionValue(u"Music"_w, 1);
-        SetOptionValue(u"MusicInSpace"_w, 1);
-        SetOptionValue(u"MusicVolume"_w, 75);
+        SetOptionValue(u"Sound"sv, 1);
+        SetOptionValue(u"SoundInSpace"sv, 1);
+        SetOptionValue(u"SoundVolume"sv, 100);
+        SetOptionValue(u"Music"sv, 1);
+        SetOptionValue(u"MusicInSpace"sv, 1);
+        SetOptionValue(u"MusicVolume"sv, 75);
         ActiveGroupIndex = 4;
-        SetOptionValue(u"RobotBrightness"_w, 50);
-        SetOptionValue(u"RobotContrast"_w, 50);
-        SetOptionValue(u"RobotShowStencilShadows"_w, 0);
-        SetOptionValue(u"RobotShowProjShadows"_w, 1);
-        SetOptionValue(u"RobotRobotShadow"_w, 0);
-        SetOptionValue(u"RobotLandTexturesGloss"_w, 0);
-        SetOptionValue(u"RobotObjTexturesGloss"_w, 0);
-        SetOptionValue(u"RobotSky"_w, 1);
+        SetOptionValue(u"RobotBrightness"sv, 50);
+        SetOptionValue(u"RobotContrast"sv, 50);
+        SetOptionValue(u"RobotShowStencilShadows"sv, 0);
+        SetOptionValue(u"RobotShowProjShadows"sv, 1);
+        SetOptionValue(u"RobotRobotShadow"sv, 0);
+        SetOptionValue(u"RobotLandTexturesGloss"sv, 0);
+        SetOptionValue(u"RobotObjTexturesGloss"sv, 0);
+        SetOptionValue(u"RobotSky"sv, 1);
         ActiveGroupIndex = 5;
-        SetOptionValue(u"RobotSound"_w, 1);
-        SetOptionValue(u"RobotSoundVolume"_w, 100);
-        SetOptionValue(u"RobotMusic"_w, 1);
-        SetOptionValue(u"RobotMusicVolume"_w, 75);
+        SetOptionValue(u"RobotSound"sv, 1);
+        SetOptionValue(u"RobotSoundVolume"sv, 100);
+        SetOptionValue(u"RobotMusic"sv, 1);
+        SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
         GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMiddle"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
@@ -1770,55 +1770,55 @@ namespace fCfgSettings {
     void TfCfgSettings::LowPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t SavedGroup = ActiveGroupIndex;
         ActiveGroupIndex = 0;
-        SetOptionValue(u"CountFilmSave"_w, 1);
-        SetOptionValue(u"ScrollSpeed"_w, 20);
-        SetOptionValue(u"ScrollSense"_w, 1);
-        SetOptionValue(u"FilmSpeed"_w, 0);
-        SetOptionValue(u"BeginCalcNextTurn"_w, 0);
+        SetOptionValue(u"CountFilmSave"sv, 1);
+        SetOptionValue(u"ScrollSpeed"sv, 20);
+        SetOptionValue(u"ScrollSense"sv, 1);
+        SetOptionValue(u"FilmSpeed"sv, 0);
+        SetOptionValue(u"BeginCalcNextTurn"sv, 0);
         ActiveGroupIndex = 1;
-        SetOptionValue(u"Resolution"_w, 1);
-        SetOptionValue(u"Brightness"_w, 50);
-        SetOptionValue(u"Contrast"_w, 50);
-        SetOptionValue(u"Video"_w, 0);
-        SetOptionValue(u"BGImage"_w, 0);
-        SetOptionValue(u"AnimCaptain"_w, 0);
-        SetOptionValue(u"AnimShip"_w, 0);
-        SetOptionValue(u"AnimItem"_w, 0);
-        SetOptionValue(u"AnimMenuShip"_w, 0);
-        SetOptionValue(u"AnimGov"_w, 0);
-        SetOptionValue(u"AnimHangar"_w, 0);
-        SetOptionValue(u"AnimStar"_w, 0);
-        SetOptionValue(u"SpaceImage"_w, 0);
-        SetOptionValue(u"SputnikShow"_w, 0);
-        SetOptionValue(u"CircleAction"_w, 0);
-        SetOptionValue(u"Tail"_w, 0);
-        SetOptionValue(u"Comet"_w, 0);
-        SetOptionValue(u"Wind"_w, 0);
-        SetOptionValue(u"PlanetClouds"_w, 0);
-        SetOptionValue(u"PlanetAtm"_w, 0);
-        SetOptionValue(u"AnimChangeForm"_w, 0);
-        SetOptionValue(u"AnimMainFon"_w, 0);
+        SetOptionValue(u"Resolution"sv, 1);
+        SetOptionValue(u"Brightness"sv, 50);
+        SetOptionValue(u"Contrast"sv, 50);
+        SetOptionValue(u"Video"sv, 0);
+        SetOptionValue(u"BGImage"sv, 0);
+        SetOptionValue(u"AnimCaptain"sv, 0);
+        SetOptionValue(u"AnimShip"sv, 0);
+        SetOptionValue(u"AnimItem"sv, 0);
+        SetOptionValue(u"AnimMenuShip"sv, 0);
+        SetOptionValue(u"AnimGov"sv, 0);
+        SetOptionValue(u"AnimHangar"sv, 0);
+        SetOptionValue(u"AnimStar"sv, 0);
+        SetOptionValue(u"SpaceImage"sv, 0);
+        SetOptionValue(u"SputnikShow"sv, 0);
+        SetOptionValue(u"CircleAction"sv, 0);
+        SetOptionValue(u"Tail"sv, 0);
+        SetOptionValue(u"Comet"sv, 0);
+        SetOptionValue(u"Wind"sv, 0);
+        SetOptionValue(u"PlanetClouds"sv, 0);
+        SetOptionValue(u"PlanetAtm"sv, 0);
+        SetOptionValue(u"AnimChangeForm"sv, 0);
+        SetOptionValue(u"AnimMainFon"sv, 0);
         ActiveGroupIndex = 2;
-        SetOptionValue(u"Sound"_w, 0);
-        SetOptionValue(u"SoundInSpace"_w, 0);
-        SetOptionValue(u"SoundVolume"_w, 100);
-        SetOptionValue(u"Music"_w, 0);
-        SetOptionValue(u"MusicInSpace"_w, 0);
-        SetOptionValue(u"MusicVolume"_w, 75);
+        SetOptionValue(u"Sound"sv, 0);
+        SetOptionValue(u"SoundInSpace"sv, 0);
+        SetOptionValue(u"SoundVolume"sv, 100);
+        SetOptionValue(u"Music"sv, 0);
+        SetOptionValue(u"MusicInSpace"sv, 0);
+        SetOptionValue(u"MusicVolume"sv, 75);
         ActiveGroupIndex = 4;
-        SetOptionValue(u"RobotBrightness"_w, 50);
-        SetOptionValue(u"RobotContrast"_w, 50);
-        SetOptionValue(u"RobotShowStencilShadows"_w, 0);
-        SetOptionValue(u"RobotShowProjShadows"_w, 0);
-        SetOptionValue(u"RobotRobotShadow"_w, 0);
-        SetOptionValue(u"RobotLandTexturesGloss"_w, 0);
-        SetOptionValue(u"RobotObjTexturesGloss"_w, 0);
-        SetOptionValue(u"RobotSky"_w, 0);
+        SetOptionValue(u"RobotBrightness"sv, 50);
+        SetOptionValue(u"RobotContrast"sv, 50);
+        SetOptionValue(u"RobotShowStencilShadows"sv, 0);
+        SetOptionValue(u"RobotShowProjShadows"sv, 0);
+        SetOptionValue(u"RobotRobotShadow"sv, 0);
+        SetOptionValue(u"RobotLandTexturesGloss"sv, 0);
+        SetOptionValue(u"RobotObjTexturesGloss"sv, 0);
+        SetOptionValue(u"RobotSky"sv, 0);
         ActiveGroupIndex = 5;
-        SetOptionValue(u"RobotSound"_w, 0);
-        SetOptionValue(u"RobotSoundVolume"_w, 100);
-        SetOptionValue(u"RobotMusic"_w, 0);
-        SetOptionValue(u"RobotMusicVolume"_w, 75);
+        SetOptionValue(u"RobotSound"sv, 0);
+        SetOptionValue(u"RobotSoundVolume"sv, 100);
+        SetOptionValue(u"RobotMusic"sv, 0);
+        SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
         GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMin"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
@@ -1841,103 +1841,103 @@ namespace fCfgSettings {
         std::uint8_t ModernWindows = Version.dwMajorVersion > 5 || Version.dwMajorVersion == 5 && Version.dwMinorVersion >= 1;
         std::int32_t SavedGroup = ActiveGroupIndex;
         ActiveGroupIndex = 0;
-        SetOptionValue(u"CountFilmSave"_w, 30);
-        SetOptionValue(u"ScrollSpeed"_w, 20);
-        SetOptionValue(u"ScrollSense"_w, 1);
+        SetOptionValue(u"CountFilmSave"sv, 30);
+        SetOptionValue(u"ScrollSpeed"sv, 20);
+        SetOptionValue(u"ScrollSense"sv, 1);
         if (ClockMHz < 1000) {
-            SetOptionValue(u"FilmSpeed"_w, 0);
+            SetOptionValue(u"FilmSpeed"sv, 0);
         } else if (ClockMHz < 2000) {
-            SetOptionValue(u"FilmSpeed"_w, 1);
+            SetOptionValue(u"FilmSpeed"sv, 1);
         } else {
-            SetOptionValue(u"FilmSpeed"_w, 2);
+            SetOptionValue(u"FilmSpeed"sv, 2);
         }
-        SetOptionValue(u"BeginCalcNextTurn"_w, 100);
+        SetOptionValue(u"BeginCalcNextTurn"sv, 100);
         ActiveGroupIndex = 1;
-        SetOptionValue(u"Resolution"_w, 2);
-        SetOptionValue(u"Brightness"_w, 50);
-        SetOptionValue(u"Contrast"_w, 50);
-        SetOptionValue(u"Video"_w, ClockMHz >= 500);
-        SetOptionValue(u"BGImage"_w, 1);
-        SetOptionValue(u"AnimCaptain"_w, ClockMHz >= 500);
-        SetOptionValue(u"AnimShip"_w, 1);
-        SetOptionValue(u"AnimItem"_w, ClockMHz >= 300);
+        SetOptionValue(u"Resolution"sv, 2);
+        SetOptionValue(u"Brightness"sv, 50);
+        SetOptionValue(u"Contrast"sv, 50);
+        SetOptionValue(u"Video"sv, ClockMHz >= 500);
+        SetOptionValue(u"BGImage"sv, 1);
+        SetOptionValue(u"AnimCaptain"sv, ClockMHz >= 500);
+        SetOptionValue(u"AnimShip"sv, 1);
+        SetOptionValue(u"AnimItem"sv, ClockMHz >= 300);
         if (ClockMHz < 700 || MemoryMB < 200) {
-            SetOptionValue(u"AnimGov"_w, 0);
+            SetOptionValue(u"AnimGov"sv, 0);
         } else if (ClockMHz < 1500 || MemoryMB < 300 && ClockMHz < 2400) {
-            SetOptionValue(u"AnimGov"_w, 1);
+            SetOptionValue(u"AnimGov"sv, 1);
         } else {
-            SetOptionValue(u"AnimGov"_w, 2);
+            SetOptionValue(u"AnimGov"sv, 2);
         }
         if (ClockMHz < 1500 || MemoryMB < 300 && ClockMHz < 2400) {
-            SetOptionValue(u"AnimMenuShip"_w, 0);
+            SetOptionValue(u"AnimMenuShip"sv, 0);
         } else {
-            SetOptionValue(u"AnimMenuShip"_w, 1);
+            SetOptionValue(u"AnimMenuShip"sv, 1);
         }
-        SetOptionValue(u"SoftwareCursor"_w, ModernWindows);
-        SetOptionValue(u"AnimHangar"_w, ClockMHz >= 2000 || ClockMHz >= 1400 && MemoryMB > 500);
-        SetOptionValue(u"AnimStar"_w, ClockMHz >= 500);
+        SetOptionValue(u"SoftwareCursor"sv, ModernWindows);
+        SetOptionValue(u"AnimHangar"sv, ClockMHz >= 2000 || ClockMHz >= 1400 && MemoryMB > 500);
+        SetOptionValue(u"AnimStar"sv, ClockMHz >= 500);
         if (ClockMHz < 500) {
-            SetOptionValue(u"SpaceImage"_w, 0);
+            SetOptionValue(u"SpaceImage"sv, 0);
         } else if (ClockMHz < 1900) {
-            SetOptionValue(u"SpaceImage"_w, 1);
+            SetOptionValue(u"SpaceImage"sv, 1);
         } else {
-            SetOptionValue(u"SpaceImage"_w, 2);
+            SetOptionValue(u"SpaceImage"sv, 2);
         }
-        SetOptionValue(u"SputnikShow"_w, ClockMHz >= 500);
-        SetOptionValue(u"CircleAction"_w, 0);
+        SetOptionValue(u"SputnikShow"sv, ClockMHz >= 500);
+        SetOptionValue(u"CircleAction"sv, 0);
         if (ClockMHz < 500) {
-            SetOptionValue(u"Tail"_w, 0);
+            SetOptionValue(u"Tail"sv, 0);
         } else if (ClockMHz < 1000) {
-            SetOptionValue(u"Tail"_w, 1);
+            SetOptionValue(u"Tail"sv, 1);
         } else {
-            SetOptionValue(u"Tail"_w, 2);
-        }
-        if (ClockMHz < 500) {
-            SetOptionValue(u"Comet"_w, 0);
-        } else if (ClockMHz < 1000) {
-            SetOptionValue(u"Comet"_w, 1);
-        } else {
-            SetOptionValue(u"Comet"_w, 2);
+            SetOptionValue(u"Tail"sv, 2);
         }
         if (ClockMHz < 500) {
-            SetOptionValue(u"Wind"_w, 0);
+            SetOptionValue(u"Comet"sv, 0);
         } else if (ClockMHz < 1000) {
-            SetOptionValue(u"Wind"_w, 1);
+            SetOptionValue(u"Comet"sv, 1);
         } else {
-            SetOptionValue(u"Wind"_w, 2);
+            SetOptionValue(u"Comet"sv, 2);
         }
-        SetOptionValue(u"PlanetClouds"_w, ClockMHz >= 1900);
-        SetOptionValue(u"PlanetAtm"_w, ClockMHz >= 1900);
-        SetOptionValue(u"AnimChangeForm"_w, ClockMHz >= 1900);
-        SetOptionValue(u"AnimMainFon"_w, ClockMHz >= 1500);
+        if (ClockMHz < 500) {
+            SetOptionValue(u"Wind"sv, 0);
+        } else if (ClockMHz < 1000) {
+            SetOptionValue(u"Wind"sv, 1);
+        } else {
+            SetOptionValue(u"Wind"sv, 2);
+        }
+        SetOptionValue(u"PlanetClouds"sv, ClockMHz >= 1900);
+        SetOptionValue(u"PlanetAtm"sv, ClockMHz >= 1900);
+        SetOptionValue(u"AnimChangeForm"sv, ClockMHz >= 1900);
+        SetOptionValue(u"AnimMainFon"sv, ClockMHz >= 1500);
         ActiveGroupIndex = 2;
-        SetOptionValue(u"Sound"_w, ClockMHz >= 200);
-        SetOptionValue(u"SoundInSpace"_w, ClockMHz >= 200);
-        SetOptionValue(u"SoundVolume"_w, 100);
-        SetOptionValue(u"Music"_w, ClockMHz >= 400);
-        SetOptionValue(u"MusicInSpace"_w, ClockMHz >= 400);
-        SetOptionValue(u"MusicVolume"_w, 75);
+        SetOptionValue(u"Sound"sv, ClockMHz >= 200);
+        SetOptionValue(u"SoundInSpace"sv, ClockMHz >= 200);
+        SetOptionValue(u"SoundVolume"sv, 100);
+        SetOptionValue(u"Music"sv, ClockMHz >= 400);
+        SetOptionValue(u"MusicInSpace"sv, ClockMHz >= 400);
+        SetOptionValue(u"MusicVolume"sv, 75);
         ActiveGroupIndex = 4;
-        SetOptionValue(u"RobotBrightness"_w, 50);
-        SetOptionValue(u"RobotContrast"_w, 50);
-        SetOptionValue(u"RobotShowStencilShadows"_w, ClockMHz >= 2400);
-        SetOptionValue(u"RobotShowProjShadows"_w, ClockMHz >= 2000);
-        SetOptionValue(u"RobotRobotShadow"_w, ClockMHz >= 2400);
-        SetOptionValue(u"RobotLandTexturesGloss"_w, ClockMHz >= 2000);
-        SetOptionValue(u"RobotObjTexturesGloss"_w, ClockMHz >= 2000);
+        SetOptionValue(u"RobotBrightness"sv, 50);
+        SetOptionValue(u"RobotContrast"sv, 50);
+        SetOptionValue(u"RobotShowStencilShadows"sv, ClockMHz >= 2400);
+        SetOptionValue(u"RobotShowProjShadows"sv, ClockMHz >= 2000);
+        SetOptionValue(u"RobotRobotShadow"sv, ClockMHz >= 2400);
+        SetOptionValue(u"RobotLandTexturesGloss"sv, ClockMHz >= 2000);
+        SetOptionValue(u"RobotObjTexturesGloss"sv, ClockMHz >= 2000);
         if (ClockMHz >= 2000) {
-            SetOptionValue(u"RobotSky"_w, 2);
+            SetOptionValue(u"RobotSky"sv, 2);
         } else if (ClockMHz >= 1000) {
-            SetOptionValue(u"RobotSky"_w, 1);
+            SetOptionValue(u"RobotSky"sv, 1);
         } else {
-            SetOptionValue(u"RobotSky"_w, 0);
+            SetOptionValue(u"RobotSky"sv, 0);
         }
-        SetOptionValue(u"RobotSoftwareCursor"_w, static_cast<std::uint8_t>(ModernWindows ^ 1) & 127);
+        SetOptionValue(u"RobotSoftwareCursor"sv, static_cast<std::uint8_t>(ModernWindows ^ 1) & 127);
         ActiveGroupIndex = 5;
-        SetOptionValue(u"RobotSound"_w, ClockMHz >= 700);
-        SetOptionValue(u"RobotSoundVolume"_w, 100);
-        SetOptionValue(u"RobotMusic"_w, ClockMHz >= 1500);
-        SetOptionValue(u"RobotMusicVolume"_w, 75);
+        SetOptionValue(u"RobotSound"sv, ClockMHz >= 700);
+        SetOptionValue(u"RobotSoundVolume"sv, 100);
+        SetOptionValue(u"RobotMusic"sv, ClockMHz >= 1500);
+        SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
         GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.Auto"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
@@ -1950,51 +1950,51 @@ namespace fCfgSettings {
     void TfCfgSettings::RefreshModeUi() {
         if (SettingsMode == 0) {
             {
-                GI_Label::TLabelGI* WarningMod = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WarningMod"_wref.get()));
+                GI_Label::TLabelGI* WarningMod = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WarningMod"sv));
                 WarningMod->SetText(u""_wref.get());
                 if (ActiveGroupIndex == 3) {
                     WarningMod->SetText(aConst::LocalizedText(u"FormCfgSettings.WarningMod"_wref.get()));
                 }
             }
             {
-                GI_Label::TLabelGI* Warning = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Warning"_wref.get()));
+                GI_Label::TLabelGI* Warning = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Warning"sv));
                 Warning->SetText(u""_wref.get());
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
                 ButGroup0->SetActive(true);
                 ButGroup0->SetPosition(ClassesImports::Point(ButGroup0->LocalPosition.X, GroupButtonTops[0]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
                 ButGroup1->SetPosition(ClassesImports::Point(ButGroup1->LocalPosition.X, GroupButtonTops[1]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
                 ButGroup2->SetPosition(ClassesImports::Point(ButGroup2->LocalPosition.X, GroupButtonTops[2]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
                 ButGroup3->SetActive(false);
                 ButGroup3->SetPosition(ClassesImports::Point(ButGroup3->LocalPosition.X, GroupButtonTops[3]));
             }
-            GetByName(u"ModeLeft"_wref.get())->SetActive(true);
-            GetByName(u"ModeRight"_wref.get())->SetActive(false);
-            GetByName(u"ModeLeftPanel"_wref.get())->SetDepth(-1.0);
-            GetByName(u"ModeRightPanel"_wref.get())->SetDepth(-3.0);
-            GetByName(u"ModeLeftSmall"_wref.get())->SetActive(true);
-            GetByName(u"ModeRightSmall"_wref.get())->SetActive(false);
-            GetByName(u"ModeLeftButtonN"_wref.get())->SetActive(ModeButtonState < 2);
-            GetByName(u"ModeLeftButtonD"_wref.get())->SetActive(ModeButtonState >= 2);
-            GetByName(u"ModeRightButtonN"_wref.get())->SetActive(true);
-            GetByName(u"ModeRightButtonD"_wref.get())->SetActive(false);
+            GetByName(u"ModeLeft"sv)->SetActive(true);
+            GetByName(u"ModeRight"sv)->SetActive(false);
+            GetByName(u"ModeLeftPanel"sv)->SetDepth(-1.0);
+            GetByName(u"ModeRightPanel"sv)->SetDepth(-3.0);
+            GetByName(u"ModeLeftSmall"sv)->SetActive(true);
+            GetByName(u"ModeRightSmall"sv)->SetActive(false);
+            GetByName(u"ModeLeftButtonN"sv)->SetActive(ModeButtonState < 2);
+            GetByName(u"ModeLeftButtonD"sv)->SetActive(ModeButtonState >= 2);
+            GetByName(u"ModeRightButtonN"sv)->SetActive(true);
+            GetByName(u"ModeRightButtonD"sv)->SetActive(false);
             if (ModeButtonState != 0) {
-                GetByName(u"ModeLeftPanel"_wref.get())->SetPosition(ModeLeftPosition);
+                GetByName(u"ModeLeftPanel"sv)->SetPosition(ModeLeftPosition);
             } else {
-                GetByName(u"ModeLeftPanel"_wref.get())->SetPosition(EC_Struct::AddPoints(ModeLeftPosition, ClassesImports::Point(-1, 4)));
+                GetByName(u"ModeLeftPanel"sv)->SetPosition(EC_Struct::AddPoints(ModeLeftPosition, ClassesImports::Point(-1, 4)));
             }
             {
-                GI_Label::TLabelGI* ModeLeftName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeLeftName"_wref.get()));
+                GI_Label::TLabelGI* ModeLeftName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeLeftName"sv));
                 if (ModeButtonState == 1) {
                     ModeLeftName->SetTextColor(SettingsModeColorHighlighted);
                     ModeLeftName->SetShadowOffset(0);
@@ -2004,18 +2004,18 @@ namespace fCfgSettings {
                 }
             }
             {
-                GI_Label::TLabelGI* ModeRightName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeRightName"_wref.get()));
+                GI_Label::TLabelGI* ModeRightName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeRightName"sv));
                 ModeRightName->SetTextColor(SettingsModeColorNormal);
                 ModeRightName->SetShadowOffset(1);
             }
-            GetByName(u"ModeRightPanel"_wref.get())->SetPosition(ModeRightPosition);
+            GetByName(u"ModeRightPanel"sv)->SetPosition(ModeRightPosition);
         } else {
             {
-                GI_Label::TLabelGI* WarningMod_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WarningMod"_wref.get()));
+                GI_Label::TLabelGI* WarningMod_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WarningMod"sv));
                 WarningMod_2->SetText(u""_wref.get());
             }
             {
-                GI_Label::TLabelGI* Warning_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Warning"_wref.get()));
+                GI_Label::TLabelGI* Warning_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Warning"sv));
                 Warning_2->SetText(u""_wref.get());
                 Warning_2->CreateEmbeddedControl = pas::bind_static_method<&TfCfgSettings::CreateWarningImage>(this);
                 if (RobotAvailability == 1) {
@@ -2029,38 +2029,38 @@ namespace fCfgSettings {
                 }
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup0_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup0_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
                 ButGroup0_2->SetActive(false);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup1_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup1_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
                 ButGroup1_2->SetPosition(ClassesImports::Point(ButGroup1_2->LocalPosition.X, GroupButtonTops[0]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup2_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup2_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
                 ButGroup2_2->SetPosition(ClassesImports::Point(ButGroup2_2->LocalPosition.X, GroupButtonTops[1]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup3_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"_wref.get()));
+                GI_GraphButton::TGraphButtonGI* ButGroup3_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
                 ButGroup3_2->SetActive(false);
             }
-            GetByName(u"ModeLeft"_wref.get())->SetActive(false);
-            GetByName(u"ModeRight"_wref.get())->SetActive(true);
-            GetByName(u"ModeLeftPanel"_wref.get())->SetDepth(-3.0);
-            GetByName(u"ModeRightPanel"_wref.get())->SetDepth(-1.0);
-            GetByName(u"ModeLeftSmall"_wref.get())->SetActive(false);
-            GetByName(u"ModeRightSmall"_wref.get())->SetActive(true);
-            GetByName(u"ModeLeftButtonN"_wref.get())->SetActive(true);
-            GetByName(u"ModeLeftButtonD"_wref.get())->SetActive(false);
-            GetByName(u"ModeRightButtonN"_wref.get())->SetActive(ModeButtonState < 2);
-            GetByName(u"ModeRightButtonD"_wref.get())->SetActive(ModeButtonState >= 2);
+            GetByName(u"ModeLeft"sv)->SetActive(false);
+            GetByName(u"ModeRight"sv)->SetActive(true);
+            GetByName(u"ModeLeftPanel"sv)->SetDepth(-3.0);
+            GetByName(u"ModeRightPanel"sv)->SetDepth(-1.0);
+            GetByName(u"ModeLeftSmall"sv)->SetActive(false);
+            GetByName(u"ModeRightSmall"sv)->SetActive(true);
+            GetByName(u"ModeLeftButtonN"sv)->SetActive(true);
+            GetByName(u"ModeLeftButtonD"sv)->SetActive(false);
+            GetByName(u"ModeRightButtonN"sv)->SetActive(ModeButtonState < 2);
+            GetByName(u"ModeRightButtonD"sv)->SetActive(ModeButtonState >= 2);
             if (ModeButtonState != 0) {
-                GetByName(u"ModeRightPanel"_wref.get())->SetPosition(ModeRightPosition);
+                GetByName(u"ModeRightPanel"sv)->SetPosition(ModeRightPosition);
             } else {
-                GetByName(u"ModeRightPanel"_wref.get())->SetPosition(EC_Struct::AddPoints(ModeRightPosition, ClassesImports::Point(1, 4)));
+                GetByName(u"ModeRightPanel"sv)->SetPosition(EC_Struct::AddPoints(ModeRightPosition, ClassesImports::Point(1, 4)));
             }
             {
-                GI_Label::TLabelGI* ModeRightName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeRightName"_wref.get()));
+                GI_Label::TLabelGI* ModeRightName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeRightName"sv));
                 if (ModeButtonState == 1) {
                     ModeRightName_2->SetTextColor(SettingsModeColorHighlighted);
                     ModeRightName_2->SetShadowOffset(0);
@@ -2070,11 +2070,11 @@ namespace fCfgSettings {
                 }
             }
             {
-                GI_Label::TLabelGI* ModeLeftName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeLeftName"_wref.get()));
+                GI_Label::TLabelGI* ModeLeftName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeLeftName"sv));
                 ModeLeftName_2->SetTextColor(SettingsModeColorNormal);
                 ModeLeftName_2->SetShadowOffset(1);
             }
-            GetByName(u"ModeLeftPanel"_wref.get())->SetPosition(ModeLeftPosition);
+            GetByName(u"ModeLeftPanel"sv)->SetPosition(ModeLeftPosition);
         }
     }
 
@@ -2152,7 +2152,7 @@ namespace fCfgSettings {
     }
 
     void TfCfgSettings::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             PanelSet->VerticalScrollBar->SetPosition_2(PanelSet->VerticalScrollBar->Position - PanelSet->VerticalScrollBar->SmallChange);
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
@@ -2171,9 +2171,9 @@ namespace fCfgSettings {
         std::uint8_t ResetNeeded = false;
         ActiveGroupIndex = 0;
         if (static_cast<std::uint8_t>(SimpleSteamApi::SteamInitialized ^ 1) && GR_Main::RequestedLanguage == u"") {
-            Language = EC_Str::ExtractDelimitedPartW(GR_Main::AvailableLanguageCodes, GetOptionValue(u"Lang"_w), u","_wref.get());
+            Language = EC_Str::ExtractDelimitedPartW(pas::view(GR_Main::AvailableLanguageCodes), GetOptionValue(u"Lang"sv), u","sv);
             if (GR_Main::SelectedLanguage != Language) {
-                GR_Main::SelectedLanguage = Language;
+                GR_Main::SelectedLanguage = std::move(Language);
                 Text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Lang.txt"});
                 pas::text_assign(LanguageFile, static_cast<pas::AnsiString>(Text), false);
                 pas::text_open(LanguageFile, 3, false);
@@ -2198,44 +2198,44 @@ namespace fCfgSettings {
                 Globals::ReloadModsRequested = true;
             }
         }
-        GlobalsV::MultiThreadEnabled = GetOptionValue(u"MultiThread"_w);
+        GlobalsV::MultiThreadEnabled = GetOptionValue(u"MultiThread"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"MultiThread"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MultiThreadEnabled));
-        GlobalsV::DefaultOrder = GetOptionValue(u"DefaultOrder"_w);
+        GlobalsV::DefaultOrder = GetOptionValue(u"DefaultOrder"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"DefaultOrder"_wref.get(), pas::wide_int_to_str(GlobalsV::DefaultOrder));
-        GlobalsV::RightClickOnShip = GetOptionValue(u"RightClickOnShip"_w);
+        GlobalsV::RightClickOnShip = GetOptionValue(u"RightClickOnShip"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RightClickOnShip"_wref.get(), pas::wide_int_to_str(GlobalsV::RightClickOnShip));
-        GlobalsV::ViewFollowShip = GetOptionValue(u"ViewFollowShip"_w);
+        GlobalsV::ViewFollowShip = GetOptionValue(u"ViewFollowShip"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ViewFollowShip"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ViewFollowShip));
-        GlobalsV::ViewPathLength = GetOptionValue(u"ViewPathLength"_w);
+        GlobalsV::ViewPathLength = GetOptionValue(u"ViewPathLength"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ViewPathLength"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ViewPathLength));
-        GlobalsV::ActionDoubleClick = GetOptionValue(u"ActionDoubleClick"_w);
+        GlobalsV::ActionDoubleClick = GetOptionValue(u"ActionDoubleClick"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ActionDoubleClick"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ActionDoubleClick));
-        GlobalsV::ClickAutoCloseForm = GetOptionValue(u"ClickAutoCloseForm"_w);
+        GlobalsV::ClickAutoCloseForm = GetOptionValue(u"ClickAutoCloseForm"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ClickAutoCloseForm"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ClickAutoCloseForm));
-        GlobalsV::TurnSaveStep = GetOptionValue(u"TurnSaveStep"_w);
+        GlobalsV::TurnSaveStep = GetOptionValue(u"TurnSaveStep"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"TurnSaveStep"_wref.get(), pas::wide_int_to_str(GlobalsV::TurnSaveStep));
-        GlobalsV::QuickSaveExtraSlots = GetOptionValue(u"QuickSaveExtraSlots"_w);
+        GlobalsV::QuickSaveExtraSlots = GetOptionValue(u"QuickSaveExtraSlots"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"QuickSaveExtraSlots"_wref.get(), pas::wide_int_to_str(GlobalsV::QuickSaveExtraSlots));
-        GlobalsV::FilmHistoryLimit = GetOptionValue(u"CountFilmSave"_w);
+        GlobalsV::FilmHistoryLimit = GetOptionValue(u"CountFilmSave"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"CountFilmSave"_wref.get(), pas::wide_int_to_str(GlobalsV::FilmHistoryLimit));
-        GlobalsV::ScrollStep = GetOptionValue(u"ScrollSpeed"_w);
+        GlobalsV::ScrollStep = GetOptionValue(u"ScrollSpeed"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ScrollStep"_wref.get(), pas::wide_int_to_str(GlobalsV::ScrollStep));
-        GlobalsV::MaxPlayerNews = GetOptionValue(u"MaxPlayerNews"_w);
+        GlobalsV::MaxPlayerNews = GetOptionValue(u"MaxPlayerNews"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"MaxPlayerNews"_wref.get(), pas::wide_int_to_str(GlobalsV::MaxPlayerNews));
-        GlobalsV::MaxSearchResult = GetOptionValue(u"MaxSearchResult"_w);
+        GlobalsV::MaxSearchResult = GetOptionValue(u"MaxSearchResult"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"MaxSearchResult"_wref.get(), pas::wide_int_to_str(GlobalsV::MaxSearchResult));
-        GlobalsV::AfterburnerStopCondition = GetOptionValue(u"ForsageDeactivatePercent"_w);
+        GlobalsV::AfterburnerStopCondition = GetOptionValue(u"ForsageDeactivatePercent"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ForsageDeactivatePercent"_wref.get(), pas::wide_int_to_str(GlobalsV::AfterburnerStopCondition));
-        GlobalsV::FilmSpeed = GetOptionValue(u"FilmSpeed"_w);
+        GlobalsV::FilmSpeed = GetOptionValue(u"FilmSpeed"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"FilmSpeed"_wref.get(), pas::wide_int_to_str(GlobalsV::FilmSpeed));
-        GlobalsV::ChangeAutoPilot = GetOptionValue(u"ChangeAutoPilot"_w);
+        GlobalsV::ChangeAutoPilot = GetOptionValue(u"ChangeAutoPilot"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ChangeAutoPilot"_wref.get(), pas::wide_int_to_str(GlobalsV::ChangeAutoPilot));
-        GlobalsV::DisableAutoPilot = GetOptionValue(u"DisableAutoPilot"_w);
+        GlobalsV::DisableAutoPilot = GetOptionValue(u"DisableAutoPilot"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"DisableAutoPilot"_wref.get(), EC_Str::BoolToWideString(GlobalsV::DisableAutoPilot));
-        GlobalsV::BeginCalcNextTurn = pas::real_divide(GetOptionValue(u"BeginCalcNextTurn"_w), 1.0E+2L);
+        GlobalsV::BeginCalcNextTurn = pas::real_divide(GetOptionValue(u"BeginCalcNextTurn"sv), 1.0E+2L);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"BeginCalcNextTurn"_wref.get(), pas::wide_int64_to_str(System::Round(GlobalsV::BeginCalcNextTurn * 1.0E+2L)));
         ActiveGroupIndex = 1;
-        std::int32_t Index = GetOptionValue(u"Resolution"_w);
+        std::int32_t Index = GetOptionValue(u"Resolution"sv);
         if (GR_Main::SelectedGameDisplayMode != Index) {
             if (GR_Main::GameDisplayModes[Index].Width == 0) {
                 if (GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Width != GR_Main::DesktopDisplayMode.Width || GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Height != GR_Main::DesktopDisplayMode.Height) {
@@ -2253,168 +2253,168 @@ namespace fCfgSettings {
             }
             GR_Main::UserSettingsConfig->SetOrAddParam(u"VideoMode"_wref.get(), Text);
         }
-        GR_Main::DisplayBrightness = pas::real_divide(GetOptionValue(u"Brightness"_w) - 50, 5.0E+1L);
-        GR_Main::DisplayContrast = pas::real_divide(GetOptionValue(u"Contrast"_w) - 50, 5.0E+1L);
+        GR_Main::DisplayBrightness = pas::real_divide(GetOptionValue(u"Brightness"sv) - 50, 5.0E+1L);
+        GR_Main::DisplayContrast = pas::real_divide(GetOptionValue(u"Contrast"sv) - 50, 5.0E+1L);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"Brightness"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::DisplayBrightness)));
         GR_Main::UserSettingsConfig->SetOrAddParam(u"Contrast"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::DisplayContrast)));
         GR_Main::ApplyGammaRamp(GR_Main::DisplayBrightness, GR_Main::DisplayContrast);
-        if (static_cast<std::uint8_t>(GetOptionValue(u"VSync"_w)) != GR_Main::VSyncEnabled) {
+        if (static_cast<std::uint8_t>(GetOptionValue(u"VSync"sv)) != GR_Main::VSyncEnabled) {
             ResetNeeded = true;
             GR_Main::VSyncEnabled = static_cast<std::uint8_t>(GR_Main::VSyncEnabled ^ 1);
             GR_Main::UserSettingsConfig->SetOrAddParam(u"VSync"_wref.get(), EC_Str::BoolToWideString(GR_Main::VSyncEnabled));
         }
-        if (static_cast<std::uint8_t>(GetOptionValue(u"Window"_w)) != GR_Main::WindowedModeRequested) {
+        if (static_cast<std::uint8_t>(GetOptionValue(u"Window"sv)) != GR_Main::WindowedModeRequested) {
             ResetNeeded = true;
-            GR_Main::WindowedModeRequested = GetOptionValue(u"Window"_w);
+            GR_Main::WindowedModeRequested = GetOptionValue(u"Window"sv);
             GR_Main::UserSettingsConfig->SetOrAddParam(u"Window"_wref.get(), EC_Str::BoolToWideString(GR_Main::WindowedModeRequested));
         }
-        if (GR_Main::AlternateViewportEnabled && static_cast<std::uint8_t>(GetOptionValue(u"RenderMode"_w)) != GlobalsV::ScaleViewportToWindow) {
+        if (GR_Main::AlternateViewportEnabled && static_cast<std::uint8_t>(GetOptionValue(u"RenderMode"sv)) != GlobalsV::ScaleViewportToWindow) {
             RestartNeeded = true;
-            GlobalsV::ScaleViewportToWindow = GetOptionValue(u"RenderMode"_w);
+            GlobalsV::ScaleViewportToWindow = GetOptionValue(u"RenderMode"sv);
             GR_Main::UserSettingsConfig->SetOrAddParam(u"RenderModeScale"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ScaleViewportToWindow));
         }
-        if (static_cast<std::uint8_t>(GR_Main::AlternateViewportEnabled ^ 1) && static_cast<std::uint8_t>(GetOptionValue(u"HardwareRender"_w)) != GlobalsV::HardwareRenderingRequested) {
+        if (static_cast<std::uint8_t>(GR_Main::AlternateViewportEnabled ^ 1) && static_cast<std::uint8_t>(GetOptionValue(u"HardwareRender"sv)) != GlobalsV::HardwareRenderingRequested) {
             GlobalsV::HardwareRenderingRequested = static_cast<std::uint8_t>(GlobalsV::HardwareRenderingRequested ^ 1);
             GR_Main::UserSettingsConfig->SetOrAddParam(u"HardwareRender"_wref.get(), EC_Str::BoolToWideString(GlobalsV::HardwareRenderingRequested));
-            GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested && (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) || GR_Main::UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 && GI_Main::ParseEnabledNameGI(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AllowHardwareRenderUnderWine"_wref.get()))));
+            GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested && (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) || GR_Main::UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 && GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AllowHardwareRenderUnderWine"_wref.get())))));
         }
-        GR_Main::ShowSystemMouse = GetOptionValue(u"SoftwareCursor"_w);
+        GR_Main::ShowSystemMouse = GetOptionValue(u"SoftwareCursor"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ShowSystemMouse"_wref.get(), EC_Str::BoolToWideString(GR_Main::ShowSystemMouse));
-        Globals::SkipIntro = static_cast<std::uint8_t>(static_cast<std::uint8_t>(GetOptionValue(u"Intro"_w)) ^ 1);
+        Globals::SkipIntro = static_cast<std::uint8_t>(static_cast<std::uint8_t>(GetOptionValue(u"Intro"sv)) ^ 1);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"SkipIntro"_wref.get(), EC_Str::BoolToWideString(Globals::SkipIntro));
-        Globals::SkipVideo = static_cast<std::uint8_t>(static_cast<std::uint8_t>(GetOptionValue(u"Video"_w)) ^ 1);
+        Globals::SkipVideo = static_cast<std::uint8_t>(static_cast<std::uint8_t>(GetOptionValue(u"Video"sv)) ^ 1);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"SkipVideo"_wref.get(), EC_Str::BoolToWideString(Globals::SkipVideo));
-        GlobalsV::BGImage = GetOptionValue(u"BGImage"_w);
+        GlobalsV::BGImage = GetOptionValue(u"BGImage"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"BGImage"_wref.get(), EC_Str::BoolToWideString(GlobalsV::BGImage));
-        GlobalsV::AnimCaptain = GetOptionValue(u"AnimCaptain"_w);
+        GlobalsV::AnimCaptain = GetOptionValue(u"AnimCaptain"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimCaptain"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimCaptain));
-        GlobalsV::AnimShipFull = GetOptionValue(u"AnimShip"_w);
+        GlobalsV::AnimShipFull = GetOptionValue(u"AnimShip"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimShipFull"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimShipFull));
-        GlobalsV::AnimItem = GetOptionValue(u"AnimItem"_w);
+        GlobalsV::AnimItem = GetOptionValue(u"AnimItem"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimItem"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimItem));
-        GlobalsV::AnimMenuShip = GetOptionValue(u"AnimMenuShip"_w);
+        GlobalsV::AnimMenuShip = GetOptionValue(u"AnimMenuShip"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimMenuShip"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimMenuShip));
-        GlobalsV::AnimGov = GetOptionValue(u"AnimGov"_w);
+        GlobalsV::AnimGov = GetOptionValue(u"AnimGov"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimGov"_wref.get(), pas::wide_int_to_str(GlobalsV::AnimGov));
-        GlobalsV::AnimHangar = GetOptionValue(u"AnimHangar"_w);
+        GlobalsV::AnimHangar = GetOptionValue(u"AnimHangar"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimHangar"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimHangar));
-        GlobalsV::AnimStar = GetOptionValue(u"AnimStar"_w);
+        GlobalsV::AnimStar = GetOptionValue(u"AnimStar"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimStar"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimStar));
-        if (GetOptionValue(u"SpaceImage"_w) != GlobalsV::SpaceImage) {
-            GlobalsV::SpaceImage = GetOptionValue(u"SpaceImage"_w);
+        if (GetOptionValue(u"SpaceImage"sv) != GlobalsV::SpaceImage) {
+            GlobalsV::SpaceImage = GetOptionValue(u"SpaceImage"sv);
             if (aGalaxy::Galaxy != nullptr && GlobalsV::SpaceImage > 0) {
                 aGalaxy::Galaxy->GenerateSpaceBackground(aGalaxy::PlayerStar->BackgroundImage);
             }
             GR_Main::UserSettingsConfig->SetOrAddParam(u"SpaceImage"_wref.get(), pas::wide_int_to_str(GlobalsV::SpaceImage));
         }
-        GlobalsV::SputnikShow = GetOptionValue(u"SputnikShow"_w);
+        GlobalsV::SputnikShow = GetOptionValue(u"SputnikShow"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"SputnikShow"_wref.get(), EC_Str::BoolToWideString(GlobalsV::SputnikShow));
-        GlobalsV::CircleAction = GetOptionValue(u"CircleAction"_w);
+        GlobalsV::CircleAction = GetOptionValue(u"CircleAction"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"CircleAction"_wref.get(), EC_Str::BoolToWideString(GlobalsV::CircleAction));
-        GlobalsV::ShipTail = GetOptionValue(u"Tail"_w);
+        GlobalsV::ShipTail = GetOptionValue(u"Tail"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ShipTail"_wref.get(), pas::wide_int_to_str(GlobalsV::ShipTail));
-        GlobalsV::Comet = GetOptionValue(u"Comet"_w);
+        GlobalsV::Comet = GetOptionValue(u"Comet"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"Comet"_wref.get(), pas::wide_int_to_str(GlobalsV::Comet));
-        GlobalsV::Wind = GetOptionValue(u"Wind"_w);
+        GlobalsV::Wind = GetOptionValue(u"Wind"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"Wind"_wref.get(), pas::wide_int_to_str(GlobalsV::Wind));
-        GlobalsV::BackgroundShade = GetOptionValue(u"BackgroundShade"_w);
+        GlobalsV::BackgroundShade = GetOptionValue(u"BackgroundShade"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"BackgroundShade"_wref.get(), EC_Str::BoolToWideString(GlobalsV::BackgroundShade));
-        GlobalsV::BackgroundGrayscale = GetOptionValue(u"BackgroundGrayscale"_w);
+        GlobalsV::BackgroundGrayscale = GetOptionValue(u"BackgroundGrayscale"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"BackgroundGrayscale"_wref.get(), EC_Str::BoolToWideString(GlobalsV::BackgroundGrayscale));
-        GlobalsV::PlanetClouds = GetOptionValue(u"PlanetClouds"_w);
+        GlobalsV::PlanetClouds = GetOptionValue(u"PlanetClouds"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"PlanetClouds"_wref.get(), EC_Str::BoolToWideString(GlobalsV::PlanetClouds));
-        GlobalsV::PlanetAtm = GetOptionValue(u"PlanetAtm"_w);
+        GlobalsV::PlanetAtm = GetOptionValue(u"PlanetAtm"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"PlanetAtm"_wref.get(), EC_Str::BoolToWideString(GlobalsV::PlanetAtm));
-        GlobalsV::AnimChangeForm = GetOptionValue(u"AnimChangeForm"_w);
+        GlobalsV::AnimChangeForm = GetOptionValue(u"AnimChangeForm"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimChangeForm"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimChangeForm));
-        GlobalsV::AnimMainFon = GetOptionValue(u"AnimMainFon"_w);
+        GlobalsV::AnimMainFon = GetOptionValue(u"AnimMainFon"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimMainFon"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimMainFon));
-        GR_Main::ShowFrameRate = GetOptionValue(u"ShowFPS"_w);
+        GR_Main::ShowFrameRate = GetOptionValue(u"ShowFPS"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ShowFPS"_wref.get(), EC_Str::BoolToWideString(GR_Main::ShowFrameRate));
-        GlobalsV::GalaxyMapFontChoice = static_cast<GlobalsV::TGalaxyMapFontChoice>(GetOptionValue(u"FontGalaxy"_w));
+        GlobalsV::GalaxyMapFontChoice = static_cast<GlobalsV::TGalaxyMapFontChoice>(GetOptionValue(u"FontGalaxy"sv));
         GR_Main::UserSettingsConfig->SetOrAddParam(u"FontGalaxy"_wref.get(), pas::wide_int_to_str(static_cast<std::int32_t>(GlobalsV::GalaxyMapFontChoice)));
-        GlobalsV::DynamicTipsPos = GetOptionValue(u"DynamicTipsPos"_w);
+        GlobalsV::DynamicTipsPos = GetOptionValue(u"DynamicTipsPos"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"DynamicTipsPos"_wref.get(), EC_Str::BoolToWideString(GlobalsV::DynamicTipsPos));
-        if (static_cast<std::uint8_t>(GetOptionValue(u"UseTablesForGov"_w)) != GlobalsV::UseTablesForGov) {
+        if (static_cast<std::uint8_t>(GetOptionValue(u"UseTablesForGov"sv)) != GlobalsV::UseTablesForGov) {
             RestartNeeded = true;
-            GlobalsV::UseTablesForGov = GetOptionValue(u"UseTablesForGov"_w);
+            GlobalsV::UseTablesForGov = GetOptionValue(u"UseTablesForGov"sv);
             GR_Main::UserSettingsConfig->SetOrAddParam(u"UseTablesForGov"_wref.get(), EC_Str::BoolToWideString(GlobalsV::UseTablesForGov));
         }
-        GlobalsV::FontSmoothingEnabled = GetOptionValue(u"FontSmooth"_w);
+        GlobalsV::FontSmoothingEnabled = GetOptionValue(u"FontSmooth"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"FontSmooth"_wref.get(), EC_Str::BoolToWideString(GlobalsV::FontSmoothingEnabled));
-        GlobalsV::FontDialog = GetOptionValue(u"FontDialog"_w);
+        GlobalsV::FontDialog = GetOptionValue(u"FontDialog"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"FontDialog"_wref.get(), pas::wide_int_to_str(GlobalsV::FontDialog));
-        GlobalsV::FontQuest = GetOptionValue(u"FontQuest"_w);
+        GlobalsV::FontQuest = GetOptionValue(u"FontQuest"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"FontQuest"_wref.get(), pas::wide_int_to_str(GlobalsV::FontQuest));
-        GlobalsV::ScreenshotFormat = GetOptionValue(u"ScreenShotType"_w);
+        GlobalsV::ScreenshotFormat = GetOptionValue(u"ScreenShotType"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ScreenShotType"_wref.get(), pas::wide_int_to_str(GlobalsV::ScreenshotFormat));
-        GlobalsV::ScreenshotJpegQuality = GetOptionValue(u"ScreenShotQuality"_w);
+        GlobalsV::ScreenshotJpegQuality = GetOptionValue(u"ScreenShotQuality"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ScreenShotQuality"_wref.get(), pas::wide_int_to_str(GlobalsV::ScreenshotJpegQuality));
         ActiveGroupIndex = 2;
-        if (static_cast<std::uint8_t>(GetOptionValue(u"Sound"_w)) != GlobalsV::SoundEnabled) {
+        if (static_cast<std::uint8_t>(GetOptionValue(u"Sound"sv)) != GlobalsV::SoundEnabled) {
             GR_Main::UserSettingsConfig->SetOrAddParam(u"Sound"_wref.get(), EC_Str::BoolToWideString(static_cast<std::uint8_t>(GlobalsV::SoundEnabled ^ 1)));
             RestartNeeded = true;
         }
-        GlobalsV::SoundInSpaceEnabled = GetOptionValue(u"SoundInSpace"_w);
+        GlobalsV::SoundInSpaceEnabled = GetOptionValue(u"SoundInSpace"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"SoundInSpace"_wref.get(), EC_Str::BoolToWideString(GlobalsV::SoundInSpaceEnabled));
-        GlobalsV::SoundVolume = pas::real_divide(GetOptionValue(u"SoundVolume"_w), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"SoundVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"SoundVolume"_w)));
-        if (static_cast<std::uint8_t>(GetOptionValue(u"Music"_w)) != GlobalsV::MusicEnabled) {
+        GlobalsV::SoundVolume = pas::real_divide(GetOptionValue(u"SoundVolume"sv), 1.0E+2L);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"SoundVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"SoundVolume"sv)));
+        if (static_cast<std::uint8_t>(GetOptionValue(u"Music"sv)) != GlobalsV::MusicEnabled) {
             GR_Main::UserSettingsConfig->SetOrAddParam(u"Music"_wref.get(), EC_Str::BoolToWideString(static_cast<std::uint8_t>(GlobalsV::MusicEnabled ^ 1)));
             RestartNeeded = true;
         }
-        GlobalsV::MusicInSpaceEnabled = GetOptionValue(u"MusicInSpace"_w);
+        GlobalsV::MusicInSpaceEnabled = GetOptionValue(u"MusicInSpace"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInSpace"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MusicInSpaceEnabled));
-        GlobalsV::MusicVolume = pas::real_divide(GetOptionValue(u"MusicVolume"_w), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"MusicVolume"_w)));
-        GlobalsV::MusicInHyperEnabled = GetOptionValue(u"MusicInHyper"_w);
+        GlobalsV::MusicVolume = pas::real_divide(GetOptionValue(u"MusicVolume"sv), 1.0E+2L);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"MusicVolume"sv)));
+        GlobalsV::MusicInHyperEnabled = GetOptionValue(u"MusicInHyper"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInHyper"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MusicInHyperEnabled));
-        GlobalsV::MusicInPlanetEnabled = GetOptionValue(u"MusicInPlanet"_w);
+        GlobalsV::MusicInPlanetEnabled = GetOptionValue(u"MusicInPlanet"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInPlanet"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MusicInPlanetEnabled));
         ActiveGroupIndex = 4;
-        GR_Main::SelectedRobotDisplayMode = GetOptionValue(u"RobotResolution"_w);
+        GR_Main::SelectedRobotDisplayMode = GetOptionValue(u"RobotResolution"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotResolution"_wref.get(), static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(GR_Main::RobotDisplayModes[GR_Main::SelectedRobotDisplayMode].Width), ",", SysUtils::Int64ToStr(GR_Main::RobotDisplayModes[GR_Main::SelectedRobotDisplayMode].Height)})));
-        Robot::RobotVSync = GetOptionValue(u"RobotVSync"_w);
+        Robot::RobotVSync = GetOptionValue(u"RobotVSync"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotVSync"_wref.get(), EC_Str::BoolToWideString(Robot::RobotVSync));
         if (Robot::SupportedMultiSampleCount > 1) {
-            Robot::RobotFSAASamples = Robot::SupportedMultiSamples[GetOptionValue(u"RobotFSAASamples"_w)];
+            Robot::RobotFSAASamples = Robot::SupportedMultiSamples[GetOptionValue(u"RobotFSAASamples"sv)];
             GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotFSAASamples"_wref.get(), pas::wide_int_to_str(Robot::RobotFSAASamples));
         }
         if (static_cast<std::int32_t>(Robot::MaximumAnisotropy) > 0) {
-            Robot::RobotAnisotropy = GetOptionValue(u"RobotAnisotropy"_w);
+            Robot::RobotAnisotropy = GetOptionValue(u"RobotAnisotropy"sv);
             GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotAnisotropy"_wref.get(), pas::wide_int_to_str(Robot::RobotAnisotropy));
         }
-        Robot::RobotMaxDistance = GetOptionValue(u"RobotMaxDistance"_w);
+        Robot::RobotMaxDistance = GetOptionValue(u"RobotMaxDistance"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMaxDistance"_wref.get(), pas::wide_int_to_str(Robot::RobotMaxDistance));
-        GR_Main::RobotBrightness = pas::real_divide(GetOptionValue(u"RobotBrightness"_w) - 50, 5.0E+1L);
-        GR_Main::RobotContrast = pas::real_divide(GetOptionValue(u"RobotContrast"_w) - 50, 5.0E+1L);
+        GR_Main::RobotBrightness = pas::real_divide(GetOptionValue(u"RobotBrightness"sv) - 50, 5.0E+1L);
+        GR_Main::RobotContrast = pas::real_divide(GetOptionValue(u"RobotContrast"sv) - 50, 5.0E+1L);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotBrightness"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::RobotBrightness)));
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotContrast"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::RobotContrast)));
-        Robot::RobotSettings.ShowStencilShadows = GetOptionValue(u"RobotShowStencilShadows"_w);
+        Robot::RobotSettings.ShowStencilShadows = GetOptionValue(u"RobotShowStencilShadows"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotShowStencilShadows"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.ShowStencilShadows));
-        Robot::RobotSettings.ShowProjShadows = GetOptionValue(u"RobotShowProjShadows"_w);
+        Robot::RobotSettings.ShowProjShadows = GetOptionValue(u"RobotShowProjShadows"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotShowProjShadows"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.ShowProjShadows));
-        Robot::RobotSettings.RobotShadow = GetOptionValue(u"RobotRobotShadow"_w);
+        Robot::RobotSettings.RobotShadow = GetOptionValue(u"RobotRobotShadow"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotRobotShadow"_wref.get(), pas::wide_int_to_str(static_cast<std::int32_t>(Robot::RobotSettings.RobotShadow)));
-        Robot::RobotSettings.SelectEx = GetOptionValue(u"RobotSelectEx"_w);
+        Robot::RobotSettings.SelectEx = GetOptionValue(u"RobotSelectEx"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSelectEx"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.SelectEx));
-        Robot::RobotSettings.LandTexturesGloss = GetOptionValue(u"RobotLandTexturesGloss"_w);
+        Robot::RobotSettings.LandTexturesGloss = GetOptionValue(u"RobotLandTexturesGloss"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotLandTexturesGloss"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.LandTexturesGloss));
-        Robot::RobotSettings.ObjTexturesGloss = GetOptionValue(u"RobotObjTexturesGloss"_w);
+        Robot::RobotSettings.ObjTexturesGloss = GetOptionValue(u"RobotObjTexturesGloss"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotObjTexturesGloss"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.ObjTexturesGloss));
-        Robot::RobotSettings.SoftwareCursor = GetOptionValue(u"RobotSoftwareCursor"_w);
+        Robot::RobotSettings.SoftwareCursor = GetOptionValue(u"RobotSoftwareCursor"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSoftwareCursor"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.SoftwareCursor));
-        Robot::RobotSettings.Sky = GetOptionValue(u"RobotSky"_w);
+        Robot::RobotSettings.Sky = GetOptionValue(u"RobotSky"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSky"_wref.get(), pas::wide_int_to_str(static_cast<std::int32_t>(Robot::RobotSettings.Sky)));
         ActiveGroupIndex = 5;
-        Robot::RobotMusic = GetOptionValue(u"RobotMusic"_w);
+        Robot::RobotMusic = GetOptionValue(u"RobotMusic"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMusic"_wref.get(), EC_Str::BoolToWideString(Robot::RobotMusic));
-        GlobalsV::RobotMusicVolume = pas::real_divide(GetOptionValue(u"RobotMusicVolume"_w), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMusicVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"RobotMusicVolume"_w)));
-        Robot::RobotSound = GetOptionValue(u"RobotSound"_w);
+        GlobalsV::RobotMusicVolume = pas::real_divide(GetOptionValue(u"RobotMusicVolume"sv), 1.0E+2L);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMusicVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"RobotMusicVolume"sv)));
+        Robot::RobotSound = GetOptionValue(u"RobotSound"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSound"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSound));
-        GlobalsV::RobotSoundVolume = pas::real_divide(GetOptionValue(u"RobotSoundVolume"_w), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSoundVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"RobotSoundVolume"_w)));
+        GlobalsV::RobotSoundVolume = pas::real_divide(GetOptionValue(u"RobotSoundVolume"sv), 1.0E+2L);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSoundVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"RobotSoundVolume"sv)));
         ActiveGroupIndex = 3;
         Text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"cfg.txt"});
         GR_Main::UserSettingsConfig->SaveTextFile(Text.pchar(), true, false);
@@ -2470,9 +2470,9 @@ namespace fCfgSettings {
         } else if (aPlayer::GetPlayer()->IsOnPlanet()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiPirate)) {
+            } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId) & 0x0000007f].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
@@ -2483,9 +2483,9 @@ namespace fCfgSettings {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName, u"Pirate"}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace) & 0x0000007f].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             if (GlobalsV::MusicInSpaceEnabled) {

@@ -273,7 +273,7 @@ namespace aScript {
         if (pas::list_count(QueuedVideos) > 0) {
             Request = pas::list_at<TScriptVDRequest>(QueuedVideos, 0);
             if (static_cast<std::uint8_t>(Globals::SkipVideo ^ 1) && reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]) == Globals::RuinsTalkScreen) {
-                Video = pas::checked_cast<GI_XviD::TxvidGI*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->GetByName(u"Film"_wref.get()));
+                Video = pas::checked_cast<GI_XviD::TxvidGI*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->GetByName(u"Film"sv));
                 Video->SetActive(true);
                 if (Video->ImageOpen(Request->Video, false)) {
                     if (GlobalsV::MusicEnabled) {
@@ -570,7 +570,7 @@ namespace aScript {
         pas::free(Candidates);
     }
 
-    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, pas::WideString Name) {
+    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, const std::u16string_view& Name) {
         std::int32_t Index = Globals::FindScriptTemplateIndex(Name);
         if (Index < 0) {
             return false;
@@ -583,7 +583,7 @@ namespace aScript {
         TScript* Script = pas::construct_call<TScript>(TScript_Create);
         pas::list_add(aGalaxy::Galaxy->Scripts, reinterpret_cast<void*>(Script));
         Template->ActiveScriptIndex = pas::list_count(aGalaxy::Galaxy->Scripts) - 1;
-        Script->ClassId = Template->ConfigValue;
+        Script->ClassId = Template->ClassId;
         if (Script->LoadFromFile(Template->FileName, AnchorStar, AnchorPlanet, true)) {
             Template->LastTurn = aGalaxy::Galaxy->CurrentTurn;
             ++Template->UseCount;
@@ -606,7 +606,7 @@ namespace aScript {
         if (Script == nullptr) {
             return Result;
         }
-        std::int32_t Index = Globals::FindScriptTemplateIndex(Script->ScriptFileName);
+        std::int32_t Index = Globals::FindScriptTemplateIndex(pas::view(Script->ScriptFileName));
         if (Index < 0) {
             return Result;
         }
@@ -614,7 +614,7 @@ namespace aScript {
         I = pas::list_indexof(aGalaxy::Galaxy->Scripts, reinterpret_cast<void*>(Script));
         TScript* NewScript = pas::construct_call<TScript>(TScript_Create);
         pas::list_put(aGalaxy::Galaxy->Scripts, I, reinterpret_cast<void*>(NewScript));
-        NewScript->ClassId = Template->ConfigValue;
+        NewScript->ClassId = Template->ClassId;
         if (NewScript->LoadFromFile(Template->FileName, AnchorStar, AnchorPlanet, true)) {
             Template->LastTurn = aGalaxy::Galaxy->CurrentTurn;
             ++Template->UseCount;
@@ -720,24 +720,24 @@ namespace aScript {
     aGalaxyStruct::TOwnerMask DecodeScriptRaceMask(std::uint32_t Value) {
         aGalaxyStruct::TOwnerMask Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 4}});
+            Result = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
             return Result;
         }
         Result = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
         if (aScript::ScriptDefinitionBit(Value, 1)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}});
         }
         if (aScript::ScriptDefinitionBit(Value, 2)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}});
         }
         if (aScript::ScriptDefinitionBit(Value, 3)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiHuman}});
         }
         if (aScript::ScriptDefinitionBit(Value, 4)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}});
         }
         if (aScript::ScriptDefinitionBit(Value, 5)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiGaal}});
         }
         return Result;
     }
@@ -746,33 +746,33 @@ namespace aScript {
     aGalaxyStruct::TOwnerMask DecodeScriptOwnerMask(std::uint32_t Value) {
         aGalaxyStruct::TOwnerMask Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<aGalaxyStruct::TOwnerMask>({{0, 7}});
+            Result = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate}});
             return Result;
         }
         Result = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
         if (aScript::ScriptDefinitionBit(Value, 1)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{0}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}});
         }
         if (aScript::ScriptDefinitionBit(Value, 2)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{1}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}});
         }
         if (aScript::ScriptDefinitionBit(Value, 3)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{2}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiHuman}});
         }
         if (aScript::ScriptDefinitionBit(Value, 4)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{3}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}});
         }
         if (aScript::ScriptDefinitionBit(Value, 5)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{4}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiGaal}});
         }
         if (aScript::ScriptDefinitionBit(Value, 6)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{5}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiDominator}});
         }
         if (aScript::ScriptDefinitionBit(Value, 7)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{6}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiUninhabited}});
         }
         if (aScript::ScriptDefinitionBit(Value, 8)) {
-            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{7}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPirate}});
         }
         if (aScript::ScriptDefinitionBit(Value, 9) && aPlayer::GetPlayer() != nullptr) {
             Result = Result + pas::make_set<aGalaxyStruct::TOwnerMask>({{static_cast<std::int32_t>(aPlayer::GetPlayer()->OwnerId)}});
@@ -780,46 +780,46 @@ namespace aScript {
         return Result;
     }
 
-    TScriptEconomyMask DecodeScriptEconomyMask(std::uint32_t Value) {
-        TScriptEconomyMask Result{};
+    aGalaxyStruct::TPlanetEconomies DecodeScriptEconomyMask(std::uint32_t Value) {
+        aGalaxyStruct::TPlanetEconomies Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<TScriptEconomyMask>({{0, 2}});
+            Result = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({{aGalaxyStruct::peAgricultural, aGalaxyStruct::peIndustrial}});
             return Result;
         }
-        Result = pas::constant_set<TScriptEconomyMask>({});
+        Result = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
         if (aScript::ScriptDefinitionBit(Value, 1)) {
-            Result = Result + pas::constant_set<TScriptEconomyMask>({{0}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetEconomies>({{aGalaxyStruct::peAgricultural}});
         }
         if (aScript::ScriptDefinitionBit(Value, 2)) {
-            Result = Result + pas::constant_set<TScriptEconomyMask>({{2}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetEconomies>({{aGalaxyStruct::peIndustrial}});
         }
         if (aScript::ScriptDefinitionBit(Value, 3)) {
-            Result = Result + pas::constant_set<TScriptEconomyMask>({{1}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetEconomies>({{aGalaxyStruct::peMixed}});
         }
         return Result;
     }
 
-    TScriptGovernmentMask DecodeScriptGovernmentMask(std::uint32_t Value) {
-        TScriptGovernmentMask Result{};
+    aGalaxyStruct::TPlanetGovernments DecodeScriptGovernmentMask(std::uint32_t Value) {
+        aGalaxyStruct::TPlanetGovernments Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<TScriptGovernmentMask>({{0, 4}});
+            Result = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({{aGalaxyStruct::pgAnarchy, aGalaxyStruct::pgDemocracy}});
             return Result;
         }
-        Result = pas::constant_set<TScriptGovernmentMask>({});
+        Result = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({});
         if (aScript::ScriptDefinitionBit(Value, 1)) {
-            Result = Result + pas::constant_set<TScriptGovernmentMask>({{0}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetGovernments>({{aGalaxyStruct::pgAnarchy}});
         }
         if (aScript::ScriptDefinitionBit(Value, 2)) {
-            Result = Result + pas::constant_set<TScriptGovernmentMask>({{1}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetGovernments>({{aGalaxyStruct::pgDictatorship}});
         }
         if (aScript::ScriptDefinitionBit(Value, 3)) {
-            Result = Result + pas::constant_set<TScriptGovernmentMask>({{2}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetGovernments>({{aGalaxyStruct::pgMonarchy}});
         }
         if (aScript::ScriptDefinitionBit(Value, 4)) {
-            Result = Result + pas::constant_set<TScriptGovernmentMask>({{3}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetGovernments>({{aGalaxyStruct::pgRepublic}});
         }
         if (aScript::ScriptDefinitionBit(Value, 5)) {
-            Result = Result + pas::constant_set<TScriptGovernmentMask>({{4}});
+            Result = Result + pas::constant_set<aGalaxyStruct::TPlanetGovernments>({{aGalaxyStruct::pgDemocracy}});
         }
         return Result;
     }
@@ -862,107 +862,107 @@ namespace aScript {
         return Result;
     }
 
-    aGalaxy::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, std::uint8_t KlingType) {
-        aGalaxy::TDominatorSeriesMask Result{};
+    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, std::uint8_t KlingType) {
+        aGalaxyStruct::TDominatorSeriesMask Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0, 2}});
+            Result = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0, 2}});
             return Result;
         }
-        Result = pas::constant_set<aGalaxy::TDominatorSeriesMask>({});
+        Result = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({});
         switch (KlingType) {
             case 0: {
                 if (aScript::ScriptDefinitionBit(Value, 7)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 13)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 19)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
             case 1: {
                 if (aScript::ScriptDefinitionBit(Value, 8)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 14)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 20)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
             case 2: {
                 if (aScript::ScriptDefinitionBit(Value, 9)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 15)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 21)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
             case 3: {
                 if (aScript::ScriptDefinitionBit(Value, 10)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 16)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 22)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
             case 4: {
                 if (aScript::ScriptDefinitionBit(Value, 11)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 17)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 23)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
             case 5: {
                 if (aScript::ScriptDefinitionBit(Value, 12)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 18)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 24)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
             case 6: {
                 if (aScript::ScriptDefinitionBit(Value, 26)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 28)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 30)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
             case 7: {
                 if (aScript::ScriptDefinitionBit(Value, 27)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{0}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{0}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 29)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{1}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{1}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 31)) {
-                    Result = Result + pas::constant_set<aGalaxy::TDominatorSeriesMask>({{2}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{2}});
                 }
                 break;
             }
@@ -971,25 +971,25 @@ namespace aScript {
     }
 
     // Values outside 0..7 become owner 6.
-    std::uint8_t DecodeScriptItemOwner(std::int32_t Value) {
+    aGalaxyStruct::TOwnerId DecodeScriptItemOwner(std::int32_t Value) {
         if (Value == 0) {
-            return 0;
+            return aGalaxyStruct::oiMaloc;
         } else if (Value == 1) {
-            return 1;
+            return aGalaxyStruct::oiPeleng;
         } else if (Value == 2) {
-            return 2;
+            return aGalaxyStruct::oiHuman;
         } else if (Value == 3) {
-            return 3;
+            return aGalaxyStruct::oiFeyan;
         } else if (Value == 4) {
-            return 4;
+            return aGalaxyStruct::oiGaal;
         } else if (Value == 5) {
-            return 5;
+            return aGalaxyStruct::oiDominator;
         } else if (Value == 6) {
-            return 6;
+            return aGalaxyStruct::oiUninhabited;
         } else if (Value == 7) {
-            return 7;
+            return aGalaxyStruct::oiPirate;
         } else {
-            return 6;
+            return aGalaxyStruct::oiUninhabited;
         }
     }
 
@@ -1011,7 +1011,7 @@ namespace aScript {
     }
 
     // DominatorMasks requires eight entries indexed by TKlingType. StationNames is a comma-separated filter when ship-type bit 8 is set.
-    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask, pas::WideString StationNames, pas::OpenArray<aGalaxy::TDominatorSeriesMask> DominatorMasks) {
+    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask, const std::u16string_view& StationNames, pas::OpenArray<aGalaxyStruct::TDominatorSeriesMask> DominatorMasks) {
         auto cpp_array_copy = pas::copy_open_array(DominatorMasks);
         DominatorMasks = pas::open_array(cpp_array_copy);
         pas::WideString Name{};
@@ -1021,12 +1021,12 @@ namespace aScript {
         if (!pas::contains(ShipTypeMask, aConst::ShipToHullType(Ship))) {
             return Result;
         }
-        if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr && pas::contains(ShipTypeMask, 8)) {
+        if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Ship); ruins != nullptr && pas::contains(ShipTypeMask, 8)) {
             Name = pas::WideString();
             if (!pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                 return Result;
             }
-            if (reinterpret_cast<aRuins::TRuins*>(Ship)->NoLanding) {
+            if (ruins->NoLanding) {
                 return Result;
             }
             if (Ship->TypeNameOverrideKey != u"") {
@@ -1034,10 +1034,10 @@ namespace aScript {
             } else {
                 Name = aConst::ShipTypeNames[Ship->TypeId].Name;
             }
-            Count = EC_Str::CountDelimitedPartsW(StationNames, u","_wref.get());
+            Count = EC_Str::CountDelimitedPartsW(StationNames, u","sv);
             I = 0;
             while (I < Count) {
-                if (EC_Str::ExtractDelimitedPartW(StationNames, I, u","_wref.get()) == Name) {
+                if (EC_Str::ExtractDelimitedPartW(StationNames, I, u","sv) == Name) {
                     break;
                 }
                 ++I;
@@ -1046,9 +1046,9 @@ namespace aScript {
                 return Result;
             }
         }
-        if (pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) {
-            const aGalaxy::TDominatorSeriesMask& cpp_set = DominatorMasks[pas::checked_cast<aKling::TKling*>(Ship)->KlingType];
-            std::uint8_t cpp_element = static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(Ship)->DominatorSeries);
+        if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship)) {
+            const aGalaxyStruct::TDominatorSeriesMask& cpp_set = DominatorMasks[kling->KlingType];
+            std::uint8_t cpp_element = static_cast<std::uint8_t>(kling->DominatorSeries);
             if (!pas::contains(cpp_set, cpp_element)) {
                 return Result;
             }
@@ -1072,14 +1072,14 @@ namespace aScript {
             if (Ship->LiberationGroup != nullptr) {
                 continue;
             }
-            Strict = aPlayer::GetPlayer() != Ship && (!(pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) || pas::checked_cast<aKling::TKling*>(Ship)->KlingType != aGalaxyStruct::ktBoss);
+            Strict = aPlayer::GetPlayer() != Ship && (!(pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) || static_cast<aKling::TKling*>(Ship)->KlingType != aGalaxyStruct::ktBoss);
             if (Ship->ScriptShip != nullptr) {
                 continue;
             }
             if (Ship->AbsoluteScriptOrder > 0) {
                 continue;
             }
-            if (pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr && reinterpret_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip != nullptr) {
+            if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Ship); tranclucator != nullptr && tranclucator->OwnerShip != nullptr) {
                 continue;
             }
             if (Strict && Ship->InHyperspace) {
@@ -1151,7 +1151,7 @@ namespace aScript {
             if (!pas::contains(Group->OwnerMask, Ship->OwnerId)) {
                 continue;
             }
-            if (!aScript::ScriptShipMatchesType(Ship, Group->ShipTypeMask, Group->StationNames, pas::open_array(Group->DominatorMasks))) {
+            if (!aScript::ScriptShipMatchesType(Ship, Group->ShipTypeMask, pas::view(Group->StationNames), pas::open_array(Group->DominatorMasks))) {
                 continue;
             }
             if (aPlayer::GetPlayer() == Ship) {
@@ -1182,23 +1182,23 @@ namespace aScript {
             if (Ship->CargoFreeSpace < Group->MinFreeCargoSpace) {
                 continue;
             }
-            if (pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
-                if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] < Group->MinTraderStatus) {
+            if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
+                if (ranger->CareerStatus[aGalaxyStruct::rcTrader] < Group->MinTraderStatus) {
                     continue;
                 }
-                if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] > Group->MaxTraderStatus) {
+                if (ranger->CareerStatus[aGalaxyStruct::rcTrader] > Group->MaxTraderStatus) {
                     continue;
                 }
-                if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior] < Group->MinWarriorStatus) {
+                if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] < Group->MinWarriorStatus) {
                     continue;
                 }
-                if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior] > Group->MaxWarriorStatus) {
+                if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] > Group->MaxWarriorStatus) {
                     continue;
                 }
-                if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate] < Group->MinPirateStatus) {
+                if (ranger->CareerStatus[aGalaxyStruct::rcPirate] < Group->MinPirateStatus) {
                     continue;
                 }
-                if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate] > Group->MaxPirateStatus) {
+                if (ranger->CareerStatus[aGalaxyStruct::rcPirate] > Group->MaxPirateStatus) {
                     continue;
                 }
             }
@@ -1230,9 +1230,9 @@ namespace aScript {
     TScriptShip* GetScriptShipBindingForContext(aShip::TShip* Ship, TScript* Script) {
         std::int32_t I{};
         TScriptShip* Result = nullptr;
-        if (pas::class_cast_if<aPlayer::TPlayer*>(Ship) != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(reinterpret_cast<aPlayer::TPlayer*>(Ship)->ScriptShipBindings) - 1); cpp_range.next(I); ) {
-                Result = pas::list_at<TScriptShip>(reinterpret_cast<aPlayer::TPlayer*>(Ship)->ScriptShipBindings, I);
+        if (aPlayer::TPlayer* player = pas::class_cast_if<aPlayer::TPlayer*>(Ship)) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(player->ScriptShipBindings) - 1); cpp_range.next(I); ) {
+                Result = pas::list_at<TScriptShip>(player->ScriptShipBindings, I);
                 if (Result->Script == Script) {
                     break;
                 }
@@ -1483,10 +1483,10 @@ namespace aScript {
             Text = pas::WideString();
         }
         if (Text == u"") {
-            if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
-                Text = pas::checked_cast<aItem::TUselessItem*>(Item)->GetOnUseCodeText();
-            } else if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
-                Text = pas::checked_cast<aItem::TArtefact*>(Item)->GetOnUseCodeText();
+            if (aItem::TUselessItem* uselessItem = pas::class_cast_if<aItem::TUselessItem*>(Item)) {
+                Text = uselessItem->GetOnUseCodeText();
+            } else if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(Item)) {
+                Text = artefact->GetOnUseCodeText();
             }
         }
         if (Text != u"" && Binding != nullptr && Binding->Script != nullptr) {
@@ -1582,7 +1582,7 @@ namespace aScript {
         TScriptCacheUnit* Entry = static_cast<TScriptCacheUnit*>(Info->ActionCode);
         if (!Info->ActionCodeInitialized) {
             Info->ActionCodeInitialized = true;
-            Config = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"_wref.get())->GetBlock(u"AddInfo"_wref.get())->GetBlock(u"CustomInfos"_wref.get())->GetBlock(Info->TypeName);
+            Config = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"sv)->GetBlock(u"AddInfo"sv)->GetBlock(u"CustomInfos"sv)->GetBlock(pas::view(Info->TypeName));
             try {
                 Entry = aScript::GetCachedActionCode(CustomShipInfoScriptCache, Info->TypeName, Config);
             } catch (...) {
@@ -1696,7 +1696,7 @@ namespace aScript {
             if (aPlayer::GetPlayer()->DockedTo != nullptr) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenRuinsTalk;
             } else if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
-                if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == static_cast<std::uint8_t>(aGalaxyStruct::oiUninhabited)) {
+                if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiUninhabited) {
                     GlobalsV::RequestedScreenId = GlobalsV::screenPlanetNO;
                 } else {
                     GlobalsV::RequestedScreenId = GlobalsV::screenPlanet;
@@ -1900,9 +1900,9 @@ namespace aScript {
             pas::free(Self->StateCode);
             Self->StateCode = nullptr;
         }
-        if (Self->AuxiliaryCode != nullptr) {
-            pas::free(Self->AuxiliaryCode);
-            Self->AuxiliaryCode = nullptr;
+        if (Self->DialogCode != nullptr) {
+            pas::free(Self->DialogCode);
+            Self->DialogCode = nullptr;
         }
         if (Self->ActionCode != nullptr) {
             pas::free(Self->ActionCode);
@@ -1963,7 +1963,7 @@ namespace aScript {
         EC_Struct::TObjectEx_Create(Self);
         Self->InitCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
         Self->TurnCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
-        Self->AuxiliaryCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
+        Self->DialogCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
         Self->Constellations = pas::make_object<pas::List>();
         Self->Stars = pas::make_object<pas::List>();
         Self->Places = pas::make_object<pas::List>();
@@ -2028,9 +2028,9 @@ namespace aScript {
             pas::free(Self->TurnCode);
             Self->TurnCode = nullptr;
         }
-        if (Self->AuxiliaryCode != nullptr) {
-            pas::free(Self->AuxiliaryCode);
-            Self->AuxiliaryCode = nullptr;
+        if (Self->DialogCode != nullptr) {
+            pas::free(Self->DialogCode);
+            Self->DialogCode = nullptr;
         }
         if (Self->InitCode != nullptr) {
             pas::free(Self->InitCode);
@@ -2128,8 +2128,8 @@ namespace aScript {
         if (TurnCode != nullptr) {
             TurnCode->Clear();
         }
-        if (AuxiliaryCode != nullptr) {
-            AuxiliaryCode->Clear();
+        if (DialogCode != nullptr) {
+            DialogCode->Clear();
         }
         if (EtherIds != nullptr) {
             EtherIds->Clear();
@@ -2164,13 +2164,13 @@ namespace aScript {
     }
 
     // Raises when absent.
-    TScriptStar* TScript::GetStar(pas::WideString Name) {
+    TScriptStar* TScript::GetStar(const std::u16string_view& Name) {
         std::int32_t I{};
         TScriptStar* Star{};
         std::int32_t Count = pas::list_count(Stars);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Star = pas::list_at<TScriptStar>(Stars, I);
-            if (Name == Star->Name) {
+            if (Name == pas::view(Star->Name)) {
                 return Star;
             }
         }
@@ -2197,12 +2197,12 @@ namespace aScript {
     }
 
     // Raises when absent.
-    TScriptItem* TScript::GetItem(pas::WideString Name) {
+    TScriptItem* TScript::GetItem(const std::u16string_view& Name) {
         TScriptItem* Item{};
         std::int32_t I{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Items) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<TScriptItem>(Items, I);
-            if (Item->Name == Name) {
+            if (pas::view(Item->Name) == Name) {
                 return Item;
             }
         }
@@ -2254,10 +2254,10 @@ namespace aScript {
         }
     }
 
-    void TScript_RunAuxiliaryCode(TScript* Self) {
+    void TScript_RunDialogCode(TScript* Self) {
         try {
             CurrentScript = Self;
-            EC_Expression::TCodeEC_Run(Self->AuxiliaryCode, ScriptProcess);
+            EC_Expression::TCodeEC_Run(Self->DialogCode, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
@@ -2372,8 +2372,8 @@ namespace aScript {
         Binding->GroupIndex = GroupIndex;
         Binding->Script = this;
         Binding->Ship = Ship;
-        if (pas::class_cast_if<aPlayer::TPlayer*>(Ship) != nullptr) {
-            pas::list_add(reinterpret_cast<aPlayer::TPlayer*>(Ship)->ScriptShipBindings, reinterpret_cast<void*>(Binding));
+        if (aPlayer::TPlayer* player = pas::class_cast_if<aPlayer::TPlayer*>(Ship)) {
+            pas::list_add(player->ScriptShipBindings, reinterpret_cast<void*>(Binding));
         } else {
             Ship->ScriptShip = Binding;
         }
@@ -2475,7 +2475,7 @@ namespace aScript {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range_2.next(J); ) {
                     Target = pas::list_at<TScriptShip>(Ships, J);
                     if (Target->GroupIndex == TargetGroup && pas::class_cast_if<aRanger::TRanger*>(Target->Ship) != nullptr) {
-                        Source->Ship->SetStoredRangerRelationLevel(reinterpret_cast<aRanger::TRanger*>(Target->Ship), Level);
+                        Source->Ship->SetStoredRangerRelationLevel(static_cast<aRanger::TRanger*>(Target->Ship), Level);
                     }
                 }
             }
@@ -2488,7 +2488,7 @@ namespace aScript {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range.next(I); ) {
             Binding = pas::list_at<TScriptShip>(Ships, I);
             if (Binding->GroupIndex == GroupIndex && pas::class_cast_if<aRanger::TRanger*>(Binding->Ship) != nullptr) {
-                Planet->SetRelationLevelToRanger(reinterpret_cast<aRanger::TRanger*>(Binding->Ship), Level);
+                Planet->SetRelationLevelToRanger(static_cast<aRanger::TRanger*>(Binding->Ship), Level);
             }
         }
     }
@@ -2590,10 +2590,10 @@ namespace aScript {
                         if (!pas::contains(Binding->Planets[K].OwnerMask, Planet->OwnerId)) {
                             continue;
                         }
-                        if (!pas::contains(Binding->Planets[K].EconomyMask, static_cast<std::uint8_t>(Planet->Economy))) {
+                        if (!pas::contains(Binding->Planets[K].EconomyMask, Planet->Economy)) {
                             continue;
                         }
-                        if (!pas::contains(Binding->Planets[K].GovernmentMask, static_cast<std::uint8_t>(Planet->Government))) {
+                        if (!pas::contains(Binding->Planets[K].GovernmentMask, Planet->Government)) {
                             continue;
                         }
                         I = 0;
@@ -2646,7 +2646,7 @@ namespace aScript {
                         if (!pas::contains(Requirement->OwnerMask, Ship->OwnerId)) {
                             continue;
                         }
-                        if (!aScript::ScriptShipMatchesType(Ship, Requirement->ShipTypeMask, Requirement->StationNames, pas::open_array(pas::load_unaligned<TScriptDominatorMasks>(&Requirement->DominatorMasks)))) {
+                        if (!aScript::ScriptShipMatchesType(Ship, Requirement->ShipTypeMask, pas::view(Requirement->StationNames), pas::open_array(pas::load_unaligned<TScriptDominatorMasks>(&Requirement->DominatorMasks)))) {
                             continue;
                         }
                         if (Ship->Speed < Requirement->MinSpeed) {
@@ -2675,23 +2675,23 @@ namespace aScript {
                         if (Ship->CargoFreeSpace < Requirement->MinFreeCargoSpace && Requirement->MinFreeCargoSpace > 0) {
                             continue;
                         }
-                        if (pas::class_cast_if<aRanger::TRanger*>(Ship) != nullptr) {
-                            if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] < Requirement->MinTraderStatus) {
+                        if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
+                            if (ranger->CareerStatus[aGalaxyStruct::rcTrader] < Requirement->MinTraderStatus) {
                                 continue;
                             }
-                            if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcTrader] > Requirement->MaxTraderStatus) {
+                            if (ranger->CareerStatus[aGalaxyStruct::rcTrader] > Requirement->MaxTraderStatus) {
                                 continue;
                             }
-                            if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior] < Requirement->MinWarriorStatus) {
+                            if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] < Requirement->MinWarriorStatus) {
                                 continue;
                             }
-                            if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcWarrior] > Requirement->MaxWarriorStatus) {
+                            if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] > Requirement->MaxWarriorStatus) {
                                 continue;
                             }
-                            if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate] < Requirement->MinPirateStatus) {
+                            if (ranger->CareerStatus[aGalaxyStruct::rcPirate] < Requirement->MinPirateStatus) {
                                 continue;
                             }
-                            if (reinterpret_cast<aRanger::TRanger*>(Ship)->CareerStatus[aGalaxyStruct::rcPirate] > Requirement->MaxPirateStatus) {
+                            if (ranger->CareerStatus[aGalaxyStruct::rcPirate] > Requirement->MaxPirateStatus) {
                                 continue;
                             }
                         }
@@ -2856,8 +2856,8 @@ namespace aScript {
                 I = EC_Str::FindTextPosW(u"]"_wref.get(), State->OnActionText);
                 SourceText = EC_Str::CopyWideStringUnchecked(State->OnActionText, I + 1, State->OnActionText.length() - I);
                 ActionTypes = EC_Str::CopyWideStringUnchecked(State->OnActionText, 2, I - 2);
-                StepTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 1, u"|"_wref.get());
-                ActionTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 0, u"|"_wref.get());
+                StepTypes = EC_Str::ExtractDelimitedPartW(pas::view(ActionTypes), 1, u"|"sv);
+                ActionTypes = EC_Str::ExtractDelimitedPartW(pas::view(ActionTypes), 0, u"|"sv);
                 State->ActionCode = aScript::CompileScriptText(SourceText);
                 if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
                     State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aConst::satOnStep, aConst::satOnDeath}});
@@ -2880,9 +2880,9 @@ namespace aScript {
                     State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
                 } else {
                     State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
-                    Count = EC_Str::CountDelimitedPartsW(StepTypes, u","_wref.get());
+                    Count = EC_Str::CountDelimitedPartsW(pas::view(StepTypes), u","sv);
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                        Step = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(StepTypes, I, u","_wref.get()));
+                        Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I, u","sv)));
                         if (pas::in_range(Step, 0, 11)) {
                             pas::include_at(&State->StepTypeMask, Step);
                         }
@@ -2913,15 +2913,15 @@ namespace aScript {
         }
         CurrentScript = this;
         InitCode->LocalVar->AppendFromBuffer(Buffer);
-        Text = pas::concat_wide({u"ScriptLibs.", EC_Str::ExtractDelimitedPartW(ScriptFileName, 1, u"."_wref.get())});
+        Text = pas::concat_wide({u"ScriptLibs.", EC_Str::ExtractDelimitedPartW(pas::view(ScriptFileName), 1, u"."sv)});
         if (GR_Main::GameDataConfig->CountParamsByPath(Text) > 0) {
             if (ScriptLibraryCache == nullptr) {
                 ScriptLibraryCache = pas::construct_call<TLibraryCache>(TLibraryCache_Create);
             }
             Text = GR_Main::GameDataConfig->GetParamByPath(Text);
-            Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+            Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                TLibraryHandler* lib = ScriptLibraryCache->GetLib(EC_Str::ExtractDelimitedPartW(Text, I, u","_wref.get()));
+                TLibraryHandler* lib = ScriptLibraryCache->GetLib(EC_Str::ExtractDelimitedPartW(pas::view(Text), I, u","sv));
                 EC_Expression::TVarArrayEC* localVar = InitCode->LocalVar;
                 lib->InitAllFunctions(localVar);
             }
@@ -2984,7 +2984,7 @@ namespace aScript {
                     Star->Planets[J].GovernmentMask = aScript::DecodeScriptGovernmentMask(EC_Buf::TBufEC_GetUInt32(Buffer));
                     Star->Planets[J].MinOrbitPercent = EC_Buf::TBufEC_GetInt32(Buffer);
                     Star->Planets[J].MaxOrbitPercent = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->Planets[J].DefinitionText = Buffer->ReadWideString();
+                    Star->Planets[J].DialogChoiceText = Buffer->ReadWideString();
                 }
             }
             SubCount = EC_Buf::TBufEC_GetInt32(Buffer);
@@ -3165,7 +3165,7 @@ namespace aScript {
             Group->MinPirateStatus = EC_Buf::TBufEC_GetInt32(Buffer);
             Group->MaxPirateStatus = EC_Buf::TBufEC_GetInt32(Buffer);
             Group->MaxDistanceFromPlanet = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->DefinitionText = Buffer->ReadWideString();
+            Group->StationDialogVariable = Buffer->ReadWideString();
             Group->MinStrength = EC_Buf::TBufEC_GetSingle(Buffer);
             Group->MaxStrength = EC_Buf::TBufEC_GetSingle(Buffer);
             Group->StationNames = EC_Str::TrimWideString(Buffer->ReadWideString());
@@ -3346,15 +3346,15 @@ namespace aScript {
             Analyzer->RemoveNewlines();
             Analyzer->RemoveWhitespace();
             Analyzer->ValidateDelimiters();
-            AuxiliaryCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
+            DialogCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
             pas::free(Analyzer);
             if (ErrorText != u"") {
                 GR_Main::RaiseWideMessage(pas::concat_wide({u"CodeTurn.Compiler. Error=", ErrorText}));
             }
-            AuxiliaryCode->LinkAll(ScriptFunctionScope, false);
-            AuxiliaryCode->LinkAll(Globals::SharedScriptVariables, false);
-            AuxiliaryCode->LinkAll(InitCode->LocalVar, false);
-            AuxiliaryCode->ScriptFunLinked = true;
+            DialogCode->LinkAll(ScriptFunctionScope, false);
+            DialogCode->LinkAll(Globals::SharedScriptVariables, false);
+            DialogCode->LinkAll(InitCode->LocalVar, false);
+            DialogCode->ScriptFunLinked = true;
         }
         Count = EC_Buf::TBufEC_GetInt32(Buffer);
         for (auto cpp_range_16 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_16.next(I); ) {
@@ -3378,27 +3378,27 @@ namespace aScript {
                 State->PickupItem = reinterpret_cast<TScriptItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(State->PickupItemVarName)->GetDword())));
             }
             State->PickUpNearbyItems = EC_Buf::TBufEC_GetBoolean(Buffer);
-            State->AuxiliaryText = Buffer->ReadWideString();
-            if (State->AuxiliaryText != u"" && InitCode->LocalVar->GetVarNE(State->AuxiliaryText) == nullptr) {
-                State->AuxiliaryCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
+            State->DialogTextOrVariable = Buffer->ReadWideString();
+            if (State->DialogTextOrVariable != u"" && InitCode->LocalVar->GetVarNE(State->DialogTextOrVariable) == nullptr) {
+                State->DialogCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
                 Analyzer = pas::construct_call<EC_Expression::TCodeAnalyzerEC>(EC_Expression::TCodeAnalyzerEC_Create);
-                Analyzer->Tokenize(State->AuxiliaryText, 0);
+                Analyzer->Tokenize(State->DialogTextOrVariable, 0);
                 Analyzer->RemoveComments();
                 Analyzer->RemoveNewlines();
                 Analyzer->RemoveWhitespace();
                 Analyzer->ValidateDelimiters();
-                State->AuxiliaryCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
+                State->DialogCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
                 pas::free(Analyzer);
                 if (ErrorText != u"") {
                     GR_Main::RaiseWideMessage(pas::concat_wide({u"StateCodeText.Compiler. Error=", ErrorText, u" State=", State->Name}));
                 }
-                State->AuxiliaryCode->LinkAll(ScriptFunctionScope, false);
-                State->AuxiliaryCode->LinkAll(Globals::SharedScriptVariables, false);
-                State->AuxiliaryCode->LinkAll(InitCode->LocalVar, false);
-                State->AuxiliaryCode->ScriptFunLinked = true;
+                State->DialogCode->LinkAll(ScriptFunctionScope, false);
+                State->DialogCode->LinkAll(Globals::SharedScriptVariables, false);
+                State->DialogCode->LinkAll(InitCode->LocalVar, false);
+                State->DialogCode->ScriptFunLinked = true;
             }
             State->OnActionText = Buffer->ReadWideString();
-            if (State->OnActionText != u"" && State->OnActionText.length() < 32 && InitCode->LocalVar->GetVarNE(State->AuxiliaryText) != nullptr) {
+            if (State->OnActionText != u"" && State->OnActionText.length() < 32 && InitCode->LocalVar->GetVarNE(State->DialogTextOrVariable) != nullptr) {
                 State->OnActionText = pas::WideString();
             }
             if (State->OnActionText != u"") {
@@ -3583,7 +3583,7 @@ namespace aScript {
                 } else if (ScriptItem->DefinitionKind == 2 && ScriptItem->DefinitionType >= 0 && ScriptItem->DefinitionType <= 8) {
                     Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
                     pas::checked_cast<aItem::TGoods*>(Item)->Init(static_cast<aConst::TItemType>(static_cast<std::uint8_t>(ScriptItem->DefinitionType) - static_cast<std::uint8_t>(ScriptItem->DefinitionType > 4)), ScriptItem->Weight);
-                    pas::checked_cast<aItem::TGoods*>(Item)->NaturalFlag = ScriptItem->DefinitionType == 5;
+                    static_cast<aItem::TGoods*>(Item)->NaturalFlag = ScriptItem->DefinitionType == 5;
                 } else if (ScriptItem->DefinitionKind == 2 && ScriptItem->DefinitionType == 9) {
                     GR_Main::RaiseWideMessage(u"Script. Protoplasm not support"_wref.get());
                 } else if (ScriptItem->DefinitionKind == 2) {
@@ -3617,14 +3617,14 @@ namespace aScript {
                     }
                     if (J < pas::list_count(Group->Ships)) {
                         Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
-                        if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
-                            Ship->CargoGoods[Item->ItemType].Count += reinterpret_cast<aItem::TGoods*>(Item)->Quantity;
+                        if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
+                            Ship->CargoGoods[Item->ItemType].Count += goods->Quantity;
                             pas::free(Item);
                             Item = nullptr;
                         } else if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
                             pas::list_add(Ship->Artefacts, reinterpret_cast<void*>(Item));
-                            if (pas::class_cast_if<aItem::TArtefactTranclucator*>(Item) != nullptr) {
-                                pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship))->OwnerShip = Ship;
+                            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Item)) {
+                                pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(artefactTranclucator->Ship))->OwnerShip = Ship;
                             }
                         } else {
                             pas::list_add(Ship->Inventory, reinterpret_cast<void*>(Item));
@@ -4045,7 +4045,7 @@ namespace aScript {
         Count = EC_Buf::TBufEC_GetInt32(Buffer);
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(I); ) {
             Name = Buffer->ReadWideString();
-            Star = GetStar(Name);
+            Star = GetStar(pas::view(Name));
             Star->Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(EC_Buf::TBufEC_GetUInt32(Buffer))));
             {
                 EC_Expression::TVarEC* var = InitCode->LocalVar->GetVar(Star->Name);
@@ -4073,7 +4073,7 @@ namespace aScript {
                 ScriptItem->Script = this;
                 pas::list_add(Items, reinterpret_cast<void*>(ScriptItem));
             } else {
-                ScriptItem = GetItem(Name);
+                ScriptItem = GetItem(pas::view(Name));
             }
             if (GlobalsV::LoadedSaveVersion >= 162) {
                 ScriptItem->CanSell = EC_Buf::TBufEC_GetBoolean(Buffer);
@@ -4196,8 +4196,8 @@ namespace aScript {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Binding = pas::list_at<TScriptShip>(Ships, I);
             Binding->Ship = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Binding->Ship)), true)));
-            if (pas::class_cast_if<aPlayer::TPlayer*>(Binding->Ship) != nullptr) {
-                pas::list_add(reinterpret_cast<aPlayer::TPlayer*>(Binding->Ship)->ScriptShipBindings, reinterpret_cast<void*>(Binding));
+            if (aPlayer::TPlayer* player = pas::class_cast_if<aPlayer::TPlayer*>(Binding->Ship)) {
+                pas::list_add(player->ScriptShipBindings, reinterpret_cast<void*>(Binding));
             } else {
                 Binding->Ship->ScriptShip = Binding;
             }
@@ -4258,14 +4258,14 @@ namespace aScript {
         std::int32_t I{};
         pas::DynArray<std::uint32_t> Signature{};
         Text = Cell->GetString();
-        Name = EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get());
-        Text = DefinitionBlock->GetParam(Name);
-        std::int32_t Count = EC_Str::CountDelimitedPartsW(Text, u","_wref.get());
+        Name = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
+        Text = DefinitionBlock->GetParam(pas::view(Name));
+        std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
         if (Count < 2) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to init library function ", Name, u" from ", LibraryName}))));
         }
         void* Proc = ([&] {
-            std::uint8_t* cpp_arg = (cpp_text = static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(Text, 1, u","_wref.get())), cpp_text.pchar());
+            std::uint8_t* cpp_arg = (cpp_text = static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)), cpp_text.pchar());
             std::uint32_t moduleHandle = ModuleHandle;
             return WindowsImports::GetProcAddress(moduleHandle, cpp_arg);
         }());
@@ -4273,7 +4273,7 @@ namespace aScript {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to find library function ", Name, u" in ", LibraryName}))));
         }
         Signature.set_length(Count);
-        Kind = EC_Str::ExtractDelimitedPartW(Text, 0, u","_wref.get());
+        Kind = EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv);
         if (Kind == u"int") {
             Signature[0] = EC_Expression::lvInt;
         } else if (Kind == u"dword") {
@@ -4287,7 +4287,7 @@ namespace aScript {
         }
         Signature[1] = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Proc));
         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(I); ) {
-            Kind = EC_Str::ExtractDelimitedPartW(Text, I, u","_wref.get());
+            Kind = EC_Str::ExtractDelimitedPartW(pas::view(Text), I, u","sv);
             if (Kind == u"int") {
                 Signature[I] = EC_Expression::lvInt;
             } else if (Kind == u"dword") {
@@ -4353,7 +4353,7 @@ namespace aScript {
             if (Definition == nullptr) {
                 return Result;
             }
-            std::uint32_t Module = WindowsSdk::LoadLibraryW((cpp_text = Definition->GetParam(u"Path"_wref.get()), cpp_text.pchar()));
+            std::uint32_t Module = WindowsSdk::LoadLibraryW((cpp_text = Definition->GetParam(u"Path"sv), cpp_text.pchar()));
             if (Module == 0) {
                 pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load library ", Name}))));
             }
@@ -4408,7 +4408,7 @@ namespace aScript {
     }
 
     void TLibraryCache::InitFunction(EC_Expression::TVarEC* Cell) {
-        TLibraryHandler* lib = GetLib(EC_Str::ExtractDelimitedPartW(Cell->GetString(), 0, u","_wref.get()));
+        TLibraryHandler* lib = GetLib(EC_Str::ExtractDelimitedPartW(pas::view(Cell->GetString()), 0, u","sv));
         EC_Expression::TVarEC* cell = Cell;
         lib->InitFunction(cell);
     }
@@ -4530,12 +4530,12 @@ namespace aScript {
             }
             Result = pas::construct_call<TScriptCacheUnit>(TScriptCacheUnit_Create);
             if (Config->CountParams(u"OnActCodeTypes"_wref.get()) > 0) {
-                ActionTypes = Config->GetParam(u"OnActCodeTypes"_wref.get());
+                ActionTypes = Config->GetParam(u"OnActCodeTypes"sv);
             } else {
                 ActionTypes = pas::WideString();
             }
             if (Config->CountParams(u"OnActStepTypes"_wref.get()) > 0) {
-                StepTypes = Config->GetParam(u"OnActStepTypes"_wref.get());
+                StepTypes = Config->GetParam(u"OnActStepTypes"sv);
             } else {
                 StepTypes = pas::WideString();
             }
@@ -4543,7 +4543,7 @@ namespace aScript {
             return Result;
         };
         TScriptCacheUnit* Result = nullptr;
-        SourceBlock = Config->FindBlock(u"OnActCode"_wref.get());
+        SourceBlock = Config->FindBlock(u"OnActCode"sv);
         if (SourceBlock == nullptr) {
             return Result;
         }
@@ -4649,9 +4649,9 @@ namespace aScript {
             StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
         } else {
             StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
-            Count = EC_Str::CountDelimitedPartsW(StepTypes, u","_wref.get());
+            Count = EC_Str::CountDelimitedPartsW(pas::view(StepTypes), u","sv);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                Step = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(StepTypes, I, u","_wref.get()));
+                Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I, u","sv)));
                 if (pas::in_range(Step, 0, 11)) {
                     pas::include_at(&StepTypeMask, Step);
                 }
@@ -4692,8 +4692,8 @@ namespace aScript {
             I = EC_Str::FindTextPosW(u"]"_wref.get(), OnActionText);
             SourceText = EC_Str::CopyWideStringUnchecked(OnActionText, I + 1, OnActionText.length() - I);
             ActionTypes = EC_Str::CopyWideStringUnchecked(OnActionText, 2, I - 2);
-            StepTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 1, u"|"_wref.get());
-            ActionTypes = EC_Str::ExtractDelimitedPartW(ActionTypes, 0, u"|"_wref.get());
+            StepTypes = EC_Str::ExtractDelimitedPartW(pas::view(ActionTypes), 1, u"|"sv);
+            ActionTypes = EC_Str::ExtractDelimitedPartW(pas::view(ActionTypes), 0, u"|"sv);
             ActionCode = aScript::CompileScriptText(SourceText);
             ActionCode->LinkAll(ScriptFunctionScope, false);
             ActionCode->LinkAll(Globals::SharedScriptVariables, false);
@@ -4722,9 +4722,9 @@ namespace aScript {
                 StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
             } else {
                 StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
-                Count = EC_Str::CountDelimitedPartsW(StepTypes, u","_wref.get());
+                Count = EC_Str::CountDelimitedPartsW(pas::view(StepTypes), u","sv);
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                    Step = EC_Str::ExtractDigitsToIntW(EC_Str::ExtractDelimitedPartW(StepTypes, I, u","_wref.get()));
+                    Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I, u","sv)));
                     if (pas::in_range(Step, 0, 11)) {
                         pas::include_at(&StepTypeMask, Step);
                     }

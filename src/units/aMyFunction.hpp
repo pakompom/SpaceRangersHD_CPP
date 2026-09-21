@@ -87,7 +87,7 @@ namespace aMyFunction {
     pas::WideString FormatText3(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2, pas::WideString Token3, pas::WideString Replacement3);
 
     // Returns Text unchanged when either argument is empty.
-    pas::WideString WrapTextInColor(pas::WideString Text, pas::WideString ColorTag);
+    pas::WideString WrapTextInColor(const std::u16string_view& Text, const std::u16string_view& ColorTag);
 
     // Normalizes the ray direction, rejects tangencies, and returns whether the selected intersection is ahead of StartPoint. No segment-length bound.
     std::uint8_t RayIntersectsOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF ThroughPoint, EC_Struct::TPointF& Intersection, float Radius);

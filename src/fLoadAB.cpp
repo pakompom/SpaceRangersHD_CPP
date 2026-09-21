@@ -41,23 +41,23 @@ namespace fLoadAB {
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         GR_Main::AppendLogTextThreadSafe("fLoadAB... "_a);
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
-        GI_MessageLoop::TObjectGI* Root = GetByName(u""_wref.get());
+        GI_MessageLoop::TObjectGI* Root = GetByName(u""sv);
         Root->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Root->FindByNameRecursive(u"BGBuf"_wref.get())->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"_wref.get());
+        Root->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"sv);
         Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Panel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        GetByName(u"MainPanel"_wref.get())->KeyDownCallback = pas::bind_method<&TfLoadAB::ArenaListKeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"_wref.get()))->UpCallback = pas::bind_method<&TfLoadAB::ReturnToMenu>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"_wref.get()))->UpCallback = pas::bind_method<&TfLoadAB::ReturnToMenu>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"_wref.get()))->UpCallback = pas::bind_method<&TfLoadAB::StartSelectedArena>(this);
+        GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfLoadAB::ArenaListKeyDown>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfLoadAB::ReturnToMenu>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<&TfLoadAB::ReturnToMenu>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv))->UpCallback = pas::bind_method<&TfLoadAB::StartSelectedArena>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfLoadAB::SelectCategory>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfLoadAB::SelectCategory>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfLoadAB::SelectCategory>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfLoadAB::SelectCategory>(this);
         }
@@ -70,13 +70,13 @@ namespace fLoadAB {
         if (GlobalsV::PreviousScreenId != GlobalsV::screenArcadeBattle && GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"_wref.get()))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
             ButGroup0->SetDown(Category == 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
             ButGroup1->SetDown(Category == 1);
         }
         RebuildArenaList();
@@ -103,12 +103,12 @@ namespace fLoadAB {
         } else if (VirtualKey == 'F') {
             ReturnToMenu(Sender);
         } else if (VirtualKey == WindowsSdk::VK_PRIOR) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot->VerticalScrollBar->Active) {
                 PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->LargeChange);
             }
         } else if (VirtualKey == WindowsSdk::VK_NEXT) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             if (PanelSlot_2->VerticalScrollBar->Active) {
                 PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position + PanelSlot_2->VerticalScrollBar->LargeChange);
             }
@@ -131,9 +131,9 @@ namespace fLoadAB {
         } else if (VirtualKey == WindowsSdk::VK_TAB) {
             ArenaRowMouseLeave(nullptr);
             if (Category == 0) {
-                SelectCategory(GetByName(u"ButGroup1"_wref.get()));
+                SelectCategory(GetByName(u"ButGroup1"sv));
             } else {
-                SelectCategory(GetByName(u"ButGroup0"_wref.get()));
+                SelectCategory(GetByName(u"ButGroup0"sv));
             }
         }
     }
@@ -141,11 +141,11 @@ namespace fLoadAB {
     void TfLoadAB::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
         GI_PanelScrollBar::TPanelScrollBarGI* Panel{};
         WindowsSdk::TRect Bounds{};
-        Bounds = GetByName(u"MessageWindow"_wref.get())->HitTestBounds;
+        Bounds = GetByName(u"MessageWindow"sv)->HitTestBounds;
         if (Point.X >= Bounds.Left && Point.X < Bounds.Right && Point.Y >= Bounds.Top && Point.Y < Bounds.Bottom) {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
         } else {
-            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             if (Panel->VerticalScrollBar->Active) {
@@ -190,7 +190,7 @@ namespace fLoadAB {
             }
             return Result;
         };
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
         Panel->FreeOwnedChildren();
         TfLoadAB::PrepareCatalog();
         Entries = nullptr;
@@ -200,18 +200,18 @@ namespace fLoadAB {
             Name = List->GetBlockNameByIndex(I);
             Entry = List->GetBlockByIndex(I);
             if (Entry->CountParamsByPath(u"Group"_wref.get()) > 0) {
-                EntryCategory = EC_Str::ExtractDigitsToIntW(Entry->GetParam(u"Group"_wref.get()));
+                EntryCategory = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParam(u"Group"sv)));
             } else {
                 EntryCategory = 0;
             }
             if (EntryCategory == Category) {
-                Index = AppendEntry(EC_Str::ExtractDigitsToIntW(Entry->GetParam(u"Access"_wref.get())));
-                Entries[Index].Name = Entry->GetParam(u"Name"_wref.get());
-                Entries[Index].ImageName = Entry->GetParamOrMarker(u"Image"_wref.get());
-                Entries[Index].MapName = Entry->GetParam(u"Map"_wref.get());
+                Index = AppendEntry(EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParam(u"Access"sv))));
+                Entries[Index].Name = Entry->GetParam(u"Name"sv);
+                Entries[Index].ImageName = Entry->GetParamOrMarker(u"Image"sv);
+                Entries[Index].MapName = Entry->GetParam(u"Map"sv);
                 Entries[Index].Description = ReadArcadeDescription(u"Desc"_wref.get());
                 Entries[Index].ConfigIndex = I;
-                Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(Entry->GetParamOrMarker(u"Dif"_wref.get()));
+                Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Dif"sv)));
             }
         }
         std::int32_t Top = 0;
@@ -295,7 +295,7 @@ namespace fLoadAB {
             return;
         }
         if (SelectedIndex >= 0) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
             {
                 GI_MessageLoop::TObjectGI* cpp_with_2 = Entries[SelectedIndex].BackgroundImage->Parent;
                 PanelSlot->ScrollRectIntoView(cpp_with_2->GetLocalBounds());
@@ -349,12 +349,12 @@ namespace fLoadAB {
     }
 
     void TfLoadAB::SelectCategory(GI_MessageLoop::TObjectGI* Sender) {
-        std::int32_t NewCategory = EC_Str::ExtractDigitsToIntW(Sender->ControlName);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"_wref.get()))->SetDown(NewCategory == 0);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"_wref.get()))->SetDown(NewCategory == 1);
+        std::int32_t NewCategory = EC_Str::ExtractDigitsToIntW(pas::view(Sender->ControlName));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->SetDown(NewCategory == 0);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv))->SetDown(NewCategory == 1);
         if (Category != NewCategory) {
             {
-                GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"_wref.get()));
+                GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
                 PanelSlot->ScrollRectIntoView(ClassesImports::Rect(0, 0, 1, 1));
             }
             Category = NewCategory;
@@ -383,14 +383,14 @@ namespace fLoadAB {
         std::uint8_t Opened{};
         EC_Buf::TBufEC* Buffer{};
         {
-            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"_wref.get()));
+            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv));
             ButStart->SetDisabled(SelectedIndex < 0 || Entries.length() - 1 < SelectedIndex);
         }
         {
-            GI_GraphBuf::TGraphBufGI* ImageMap = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"ImageMap"_wref.get()));
+            GI_GraphBuf::TGraphBufGI* ImageMap = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"ImageMap"sv));
             ImageMap->SetActive(false);
             if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
-                if (Category == 0 && EC_Str::CountDelimitedPartsW(Entries[SelectedIndex].ImageName, u"\\"_wref.get()) <= 1) {
+                if (Category == 0 && EC_Str::CountDelimitedPartsW(pas::view(Entries[SelectedIndex].ImageName), u"\\"sv) <= 1) {
                     Path = pas::concat_wide({u"Data\\ABMap\\", Entries[SelectedIndex].ImageName});
                 } else {
                     Path = Entries[SelectedIndex].ImageName;
@@ -416,7 +416,7 @@ namespace fLoadAB {
             }
         }
         {
-            GI_Label::TLabelGI* with_MessageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"MessageText"_wref.get()));
+            GI_Label::TLabelGI* with_MessageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"MessageText"sv));
             with_MessageText->SetActive(false);
             if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
                 with_MessageText->SetActive(true);
@@ -424,12 +424,12 @@ namespace fLoadAB {
             }
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"_wref.get()));
+            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
             MessageWindow->SetScrollOffset(ClassesImports::Point(0, 0));
             MessageWindow->UpdateScrollRanges();
-            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get())->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get()))->ClientSize.Y > MessageWindow->ClientSize.Y);
+            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"sv)->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->ClientSize.Y > MessageWindow->ClientSize.Y);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"_wref.get()))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = MessageWindow->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }

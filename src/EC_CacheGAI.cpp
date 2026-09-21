@@ -18,6 +18,11 @@ namespace EC_CacheGAI {
         return pas::checked_cast<TCGaiEC*>(Control->AcquireDataFromConfig(pas::class_ref<TCGaiEC>()));
     }
 
+    // Native directory indexing adds the two header dwords separately.
+    std::uint32_t ReadGaiSequenceOffset(GR_gi::PGaiSequenceTableHeader Table, std::int32_t Index) {
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Table, Index * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDirectoryEntry)) + 4 + 4));
+    }
+
     void TCGaiControlEC::QueueLoadIfMissing(pas::List* PendingLoads) {
         TCGaiControlEC* Control{};
         if (RetainCount > 0) {
@@ -29,7 +34,7 @@ namespace EC_CacheGAI {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(CacheKey, pas::class_ref<TCGaiEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCGaiEC>()) == nullptr) {
             Control = pas::construct_call<TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -147,12 +152,12 @@ namespace EC_CacheGAI {
             return nullptr;
         }
         if (EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(RawGaiData, Offset)) == 0x00004c5a) {
-            DecodedFrameGi->LoadCompressedGiBytes(EC_Mem::AddPointerOffset(RawGaiData, Offset), EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(RawGaiData, FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)) + 4)));
+            DecodedFrameGi->LoadCompressedGiBytes(EC_Mem::AddPointerOffset(RawGaiData, Offset), EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(RawGaiData, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)))))->DataSize)))));
             if (!SkipPalettedColorCacheBuild) {
                 DecodedFrameGi->BuildPalettedFormat4ColorCache();
             }
         } else {
-            DecodedFrameGi->LoadRawGiBytes(EC_Mem::AddPointerOffset(RawGaiData, Offset), EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(RawGaiData, FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)) + 4)));
+            DecodedFrameGi->LoadRawGiBytes(EC_Mem::AddPointerOffset(RawGaiData, Offset), EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(RawGaiData, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)))))->DataSize)))));
         }
         if (!DecodedFrameGi->IsEmpty()) {
             return DecodedFrameGi;
@@ -174,16 +179,16 @@ namespace EC_CacheGAI {
         if (SequenceTableData == nullptr) {
             return 0;
         }
-        return EC_Mem::ReadDWordEC(SequenceTableData);
+        return EC_Mem::ReadDWordEC(&SequenceTableData->SequenceCount);
     }
 
     std::int32_t TCGaiEC::GetSequenceFrameCount(std::int32_t SequenceIndex) {
-        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, SequenceIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDirectoryEntry)) + 4 + 4))));
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_CacheGAI::ReadGaiSequenceOffset(SequenceTableData, SequenceIndex)));
     }
 
     void TCGaiEC::FillSequenceFrameIndexTable(std::int32_t SequenceIndex, void* DestTable, std::int32_t EntryStride) {
         std::int32_t Index{};
-        void* Source = EC_Mem::AddPointerOffset(SequenceTableData, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, SequenceIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDirectoryEntry)) + 4 + 4)));
+        void* Source = EC_Mem::AddPointerOffset(SequenceTableData, EC_CacheGAI::ReadGaiSequenceOffset(SequenceTableData, SequenceIndex));
         std::int32_t Count = EC_Mem::ReadDWordEC(Source);
         Source = EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDataBlock)));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
@@ -195,7 +200,7 @@ namespace EC_CacheGAI {
 
     void TCGaiEC::FillSequenceFrameDelayTable(std::int32_t SequenceIndex, void* DestTable, std::int32_t EntryStride) {
         std::int32_t Index{};
-        void* Source = EC_Mem::AddPointerOffset(SequenceTableData, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, SequenceIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDirectoryEntry)) + 4 + 4)));
+        void* Source = EC_Mem::AddPointerOffset(SequenceTableData, EC_CacheGAI::ReadGaiSequenceOffset(SequenceTableData, SequenceIndex));
         std::int32_t Count = EC_Mem::ReadDWordEC(Source);
         Source = EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDataBlock)) + static_cast<std::int32_t>(sizeof(std::int32_t)));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
@@ -206,11 +211,11 @@ namespace EC_CacheGAI {
     }
 
     std::int32_t TCGaiEC::GetSequenceFrameIndex(std::int32_t SequenceIndex, std::int32_t FrameInSequence) {
-        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, SequenceIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDirectoryEntry)) + 4 + 4)) + (FrameInSequence * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceFrameEntry)) + 4)));
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_CacheGAI::ReadGaiSequenceOffset(SequenceTableData, SequenceIndex) + static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiSequenceFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameInSequence * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDataBlock)))))->SourceFrameIndex))));
     }
 
     std::int32_t TCGaiEC::GetSequenceFrameDelay(std::int32_t SequenceIndex, std::int32_t FrameInSequence) {
-        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, SequenceIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDirectoryEntry)) + 4 + 4)) + (FrameInSequence * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceFrameEntry)) + 4 + 4)));
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_CacheGAI::ReadGaiSequenceOffset(SequenceTableData, SequenceIndex) + static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiSequenceFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameInSequence * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDataBlock)))))->FrameDelay))));
     }
 
     // NoConvertPF disables palette conversion. Only the minimum header size is validated; frame and sequence offsets are trusted.

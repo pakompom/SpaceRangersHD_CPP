@@ -119,7 +119,7 @@ namespace aItem {
         EC_Struct::TPointF Position;
         // Hull capacity for hull items.
         std::int32_t Weight;
-        std::uint8_t OwnerId;
+        aGalaxyStruct::TOwnerId OwnerId;
         std::uint8_t cpp_padding_2[3];
         std::int32_t Cost;
         pas::WideString NameOverride;
@@ -233,7 +233,7 @@ namespace aItem {
     #endif
     struct THull : aItem::TEquipment {
         PAS_CLASS_META(THull, aItem::TEquipment, "THull", 132)
-        void Init(std::int32_t Capacity, std::uint8_t Level, std::uint8_t Owner, std::uint8_t HullType, std::int32_t Series, std::uint8_t PirateBuilt);
+        void Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, std::uint8_t HullType, std::int32_t Series, std::uint8_t PirateBuilt);
         // Applies the current hull series, resets HullPoints to capacity, and bounds Cost.
         void ApplySeriesSizeAndCost();
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
@@ -296,7 +296,7 @@ namespace aItem {
     #endif
     struct TFuelTanks : aItem::TEquipment {
         PAS_CLASS_META(TFuelTanks, aItem::TEquipment, "TFuelTanks", 108)
-        void Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -322,7 +322,7 @@ namespace aItem {
     #endif
     struct TEngine : aItem::TEquipment {
         PAS_CLASS_META(TEngine, aItem::TEquipment, "TEngine", 108)
-        void Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -350,7 +350,7 @@ namespace aItem {
     #endif
     struct TRadar : aItem::TEquipment {
         PAS_CLASS_META(TRadar, aItem::TEquipment, "TRadar", 104)
-        void Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -374,7 +374,7 @@ namespace aItem {
     #endif
     struct TScaner : aItem::TEquipment {
         PAS_CLASS_META(TScaner, aItem::TEquipment, "TScaner", 100)
-        void Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -398,7 +398,7 @@ namespace aItem {
     #endif
     struct TRepairRobot : aItem::TEquipment {
         PAS_CLASS_META(TRepairRobot, aItem::TEquipment, "TRepairRobot", 100)
-        void Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -422,7 +422,7 @@ namespace aItem {
     #endif
     struct TCargoHook : aItem::TEquipment {
         PAS_CLASS_META(TCargoHook, aItem::TEquipment, "TCargoHook", 116)
-        void Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -452,7 +452,7 @@ namespace aItem {
     #endif
     struct TDefGenerator : aItem::TEquipment {
         PAS_CLASS_META(TDefGenerator, aItem::TEquipment, "TDefGenerator", 104)
-        void Init(std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -484,7 +484,7 @@ namespace aItem {
     struct TWeapon : aItem::TEquipment {
         PAS_CLASS_META(TWeapon, aItem::TEquipment, "TWeapon", 128)
         void p_destroy() override;
-        void Init(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void Init(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -540,7 +540,7 @@ namespace aItem {
     struct TSatellite : aItem::TEquipment {
         PAS_CLASS_META(TSatellite, aItem::TEquipment, "TSatellite", 116)
         // Clears deployment state.
-        void InitGenerated(std::uint8_t TypeId, std::uint8_t Owner, std::uint32_t Seed);
+        void InitGenerated(std::uint8_t TypeId, aGalaxyStruct::TOwnerId Owner, std::uint32_t Seed);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -589,7 +589,7 @@ namespace aItem {
         PAS_CLASS_META(TArtefact, aItem::TEquipmentWithActCode, "TArtefact", 104)
         void p_destroy() override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
-        virtual void Init(std::uint8_t Owner, aConst::TItemType ItemType);
+        virtual void Init(aGalaxyStruct::TOwnerId Owner, aConst::TItemType ItemType);
         pas::WideString GetBitmapResourceName() override;
         pas::WideString GetDisplayName() override;
         pas::WideString virtual_TItem_GetInfoText(pas::WideString ColorTag, void* Ship) override;
@@ -705,7 +705,7 @@ namespace aItem {
     #endif
     struct TCistern : aItem::TEquipment {
         PAS_CLASS_META(TCistern, aItem::TEquipment, "TCistern", 104)
-        void Init(std::int32_t Fuel, std::uint8_t Capacity, std::uint8_t Owner);
+        void Init(std::int32_t Fuel, std::uint8_t Capacity, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -788,7 +788,7 @@ namespace aItem {
         PAS_CLASS_META(TArtefactTranclucator, aItem::TArtefact, "TArtefactTranclucator", 108)
         void p_destroy() override;
         // Takes ownership of ExistingShip, or creates a ship when nil.
-        void InitTranclucator(std::uint8_t Owner, void* OwnerShip, void* ExistingShip);
+        void InitTranclucator(aGalaxyStruct::TOwnerId Owner, void* OwnerShip, void* ExistingShip);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         // Always returns nil.
@@ -809,7 +809,7 @@ namespace aItem {
     #endif
     struct TArtefactTransmitter : aItem::TArtefact {
         PAS_CLASS_META(TArtefactTransmitter, aItem::TArtefact, "TArtefactTransmitter", 108)
-        void InitTransmitter(std::uint8_t Owner);
+        void InitTransmitter(aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -853,7 +853,7 @@ namespace aItem {
     #endif
     struct TCustomWeapon : aItem::TWeapon {
         PAS_CLASS_META(TCustomWeapon, aItem::TWeapon, "TCustomWeapon", 132)
-        void InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight, std::uint8_t Level, std::uint8_t Owner);
+        void InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;

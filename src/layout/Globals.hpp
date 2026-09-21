@@ -33,7 +33,7 @@ namespace Globals {
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetSpaceTemplate, Radius) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetSpaceTemplate, SpaceObject) == 12);
     static_assert(sizeof(void*) != 4 || sizeof(Globals::TScriptTemplUnit) == 32);
-    static_assert(sizeof(void*) != 4 || offsetof(Globals::TScriptTemplUnit, ConfigValue) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(Globals::TScriptTemplUnit, ClassId) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TScriptTemplUnit, Name) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TScriptTemplUnit, FileName) == 12);
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TScriptTemplUnit, UseCount) == 16);
@@ -74,7 +74,7 @@ namespace Globals {
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetAdvtUnit, Goods) == 16);
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetAdvtUnit, Owner) == 17);
     static_assert(sizeof(void*) != 4 || sizeof(Globals::TPlanetAdvtList) == 8);
-    static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetAdvtList, Key) == 0);
+    static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetAdvtList, Weight) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetAdvtList, Indices) == 4);
     static_assert(sizeof(void*) != 4 || sizeof(Globals::TPlanetAdvtGroup) == 24);
     static_assert(sizeof(void*) != 4 || offsetof(Globals::TPlanetAdvtGroup, Image1) == 0);

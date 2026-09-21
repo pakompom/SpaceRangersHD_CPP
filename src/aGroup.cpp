@@ -58,8 +58,8 @@ namespace aGroup {
             } else if (Order.Kind == 4) {
                 Buffer->AddDWord(pas::checked_cast<aGalaxy::THole*>(Order.Target)->Id);
             } else if (Order.Kind == 2) {
-                if (pas::class_cast_if<aShip::TShip*>(Order.Target) != nullptr) {
-                    Buffer->AddDWord(static_cast<std::uint32_t>(pas::checked_cast<aShip::TShip*>(Order.Target)->Id) | 0x80000000u);
+                if (aShip::TShip* ship = pas::class_cast_if<aShip::TShip*>(Order.Target)) {
+                    Buffer->AddDWord(static_cast<std::uint32_t>(ship->Id) | 0x80000000u);
                 } else {
                     Buffer->AddDWord(pas::checked_cast<aPlanet::TPlanet*>(Order.Target)->Id);
                 }
