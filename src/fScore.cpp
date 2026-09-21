@@ -212,8 +212,11 @@ namespace fScore {
         Difficulty = DifficultyPercent;
         if (VictoryAchieved) {
             {
-                pas::Extended cpp_right = Math::Power(pas::real_max<pas::Extended>(7.0L, pas::real_divide(FinishedTurn - 300, 365.0L)), 1.3L);
-                TotalScore = System::Round(pas::real_divide(pas::real_divide(Experience * Difficulty, 1.0E+2L), cpp_right));
+                pas::Extended real_max = pas::real_max<pas::Extended>(7.0L, pas::real_divide(FinishedTurn - 300, 365.0L));
+                {
+                    pas::Extended cpp_right = Math::Power(real_max, 1.3L);
+                    TotalScore = System::Round(pas::real_divide(pas::real_divide(Experience * Difficulty, 1.0E+2L), cpp_right));
+                }
             }
             DominatorsResolved = TerronEndingState != 0 && KellerEndingState != 0 && BlazerEndingState != 0;
             PirateResolved = PirateRank >= 7 || PirateEndingState == 3;
@@ -1584,60 +1587,57 @@ namespace fScore {
             cpp_arg->SetText(formatText1);
         }
         {
+            GI_Label::TLabelGI* checked_cast = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITurn"sv));
+            pas::WideString LocalizedColorText = aConst::LocalizedColorText(u"FormScore.TurnWin"_wref.get());
+            std::int32_t max = std::max<std::int32_t>(0, Entry->FinishedTurn - 300);
+            checked_cast->SetText(aMyFunction::FormatText1(LocalizedColorText, u"<color=255,222,0>"_w, u"<Date>"_w, pas::wide_int_to_str(max)));
+        }
+        {
             const pas::WideString& formatText1_2 = ([&] {
-                pas::WideString intToStr = pas::wide_int_to_str(std::max<std::int32_t>(0, Entry->FinishedTurn - 300));
-                pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormScore.TurnWin"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,222,0>"_w, u"<Date>"_w, std::move(intToStr));
+                pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Entry->Rank], u".Name"}));
+                pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormScore.Rank"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Rank>"_w, std::move(localizedText));
             }());
-            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITurn"sv));
+            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRank"sv));
             cpp_arg_2->SetText(formatText1_2);
         }
         {
-            const pas::WideString& formatText1_3 = ([&] {
-                pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Entry->Rank], u".Name"}));
-                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormScore.Rank"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Rank>"_w, std::move(localizedText));
-            }());
-            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRank"sv));
-            cpp_arg_3->SetText(formatText1_3);
+            const pas::WideString& intToStr = pas::wide_int_to_str(Entry->DominatorKillCount);
+            GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillDominator"sv));
+            cpp_arg_3->SetText(intToStr);
         }
         {
-            const pas::WideString& intToStr_2 = pas::wide_int_to_str(Entry->DominatorKillCount);
-            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillDominator"sv));
+            const pas::WideString& intToStr_2 = pas::wide_int_to_str(Entry->PirateKillCount);
+            GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillPirate"sv));
             cpp_arg_4->SetText(intToStr_2);
         }
         {
-            const pas::WideString& intToStr_3 = pas::wide_int_to_str(Entry->PirateKillCount);
-            GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillPirate"sv));
+            const pas::WideString& intToStr_3 = pas::wide_int_to_str(Entry->OtherShipKillCount);
+            GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillNormal"sv));
             cpp_arg_5->SetText(intToStr_3);
         }
         {
-            const pas::WideString& intToStr_4 = pas::wide_int_to_str(Entry->OtherShipKillCount);
-            GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillNormal"sv));
+            const pas::WideString& intToStr_4 = pas::wide_int_to_str(Entry->ArcadeKillCount);
+            GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillHyper"sv));
             cpp_arg_6->SetText(intToStr_4);
         }
         {
-            const pas::WideString& intToStr_5 = pas::wide_int_to_str(Entry->ArcadeKillCount);
-            GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKillHyper"sv));
-            cpp_arg_7->SetText(intToStr_5);
+            const pas::WideString& formatText1_3 = ([&] {
+                pas::WideString intToStr_5 = pas::wide_int_to_str(Entry->LiberatedSystemCount);
+                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormScore.LiberationSystem"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,222,0>"_w, u"<LiberationSystem>"_w, std::move(intToStr_5));
+            }());
+            GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ILiberationSystem"sv));
+            cpp_arg_7->SetText(formatText1_3);
         }
         {
             const pas::WideString& formatText1_4 = ([&] {
-                pas::WideString intToStr_6 = pas::wide_int_to_str(Entry->LiberatedSystemCount);
-                pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormScore.LiberationSystem"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,222,0>"_w, u"<LiberationSystem>"_w, std::move(intToStr_6));
+                pas::WideString intToStr_6 = pas::wide_int_to_str(Entry->AwardCount);
+                pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormScore.Rewards"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Rewards>"_w, std::move(intToStr_6));
             }());
-            GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ILiberationSystem"sv));
+            GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRewards"sv));
             cpp_arg_8->SetText(formatText1_4);
-        }
-        {
-            const pas::WideString& formatText1_5 = ([&] {
-                pas::WideString intToStr_7 = pas::wide_int_to_str(Entry->AwardCount);
-                pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormScore.Rewards"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_5), u"<color=255,240,100>"_w, u"<Rewards>"_w, std::move(intToStr_7));
-            }());
-            GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRewards"sv));
-            cpp_arg_9->SetText(formatText1_5);
         }
         LetterQuests = 0;
         ShipKillQuests = 0;
@@ -1660,13 +1660,13 @@ namespace fScore {
             }
         }
         {
-            const pas::WideString& formatText1_6 = ([&] {
-                pas::WideString intToStr_8 = pas::wide_int_to_str(LetterQuests + ShipKillQuests + PlanetQuests + SystemDefenseQuests + ShipDefenseQuests);
-                pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormScore.Quests"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_6), u"<color=255,240,100>"_w, u"<Quests>"_w, std::move(intToStr_8));
+            const pas::WideString& formatText1_5 = ([&] {
+                pas::WideString intToStr_7 = pas::wide_int_to_str(LetterQuests + ShipKillQuests + PlanetQuests + SystemDefenseQuests + ShipDefenseQuests);
+                pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormScore.Quests"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedColorText_5), u"<color=255,240,100>"_w, u"<Quests>"_w, std::move(intToStr_7));
             }());
-            GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IQuests"sv));
-            cpp_arg_10->SetText(formatText1_6);
+            GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IQuests"sv));
+            cpp_arg_9->SetText(formatText1_5);
         }
         if (GR_Main::GiResourceVariant() == 2) {
             Separator = u"+"_w;
@@ -1737,22 +1737,22 @@ namespace fScore {
             }
         }
         {
-            const pas::WideString& formatText1_7 = ([&] {
-                pas::WideString intToStr_9 = pas::wide_int_to_str(Entry->PlanetBattles);
-                pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormScore.PlanetBattles"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_7), u"<color=255,240,100>"_w, u"<PlanetBattles>"_w, std::move(intToStr_9));
+            const pas::WideString& formatText1_6 = ([&] {
+                pas::WideString intToStr_8 = pas::wide_int_to_str(Entry->PlanetBattles);
+                pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormScore.PlanetBattles"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedColorText_6), u"<color=255,240,100>"_w, u"<PlanetBattles>"_w, std::move(intToStr_8));
             }());
-            GI_Label::TLabelGI* cpp_arg_11 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPlanetBattles"sv));
-            cpp_arg_11->SetText(formatText1_7);
+            GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPlanetBattles"sv));
+            cpp_arg_10->SetText(formatText1_6);
         }
         {
-            const pas::WideString& formatText1_8 = ([&] {
-                pas::WideString intToStr_10 = pas::wide_int_to_str(Entry->TotalExperience);
-                pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormScore.Exp"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_8), u"<color=255,222,0>"_w, u"<Exp>"_w, std::move(intToStr_10));
+            const pas::WideString& formatText1_7 = ([&] {
+                pas::WideString intToStr_9 = pas::wide_int_to_str(Entry->TotalExperience);
+                pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormScore.Exp"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedColorText_7), u"<color=255,222,0>"_w, u"<Exp>"_w, std::move(intToStr_9));
             }());
-            GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IExp"sv));
-            cpp_arg_12->SetText(formatText1_8);
+            GI_Label::TLabelGI* cpp_arg_11 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IExp"sv));
+            cpp_arg_11->SetText(formatText1_7);
         }
         ResolvedColor = u"<color=255,100,50>"_w;
         UnresolvedColor = u"<color=30,252,30>"_w;
@@ -1779,13 +1779,13 @@ namespace fScore {
             }
         }
         {
-            const pas::WideString& formatText1_9 = ([&] {
+            const pas::WideString& formatText1_8 = ([&] {
                 pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(u"ShipType.Dominator.Blazer.0"_wref.get());
                 pas::WideString text_2 = Text;
                 return aMyFunction::FormatText1(std::move(text_2), pas::WideString(), u"<Blazer>"_w, std::move(lookupLocalizedTextByKey_2));
             }());
-            GI_Label::TLabelGI* cpp_arg_13 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IBlazer"sv));
-            cpp_arg_13->SetText(formatText1_9);
+            GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IBlazer"sv));
+            cpp_arg_12->SetText(formatText1_8);
         }
         switch (Entry->KellerEndingState) {
             case 0: {
@@ -1806,13 +1806,13 @@ namespace fScore {
             }
         }
         {
-            const pas::WideString& formatText1_10 = ([&] {
+            const pas::WideString& formatText1_9 = ([&] {
                 pas::WideString lookupLocalizedTextByKey_3 = GR_Main::LookupLocalizedTextByKey(u"ShipType.Dominator.Keller.0"_wref.get());
                 pas::WideString text_3 = Text;
                 return aMyFunction::FormatText1(std::move(text_3), pas::WideString(), u"<Keller>"_w, std::move(lookupLocalizedTextByKey_3));
             }());
-            GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKeller"sv));
-            cpp_arg_14->SetText(formatText1_10);
+            GI_Label::TLabelGI* cpp_arg_13 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKeller"sv));
+            cpp_arg_13->SetText(formatText1_9);
         }
         switch (Entry->TerronEndingState) {
             case 0: {
@@ -1833,13 +1833,13 @@ namespace fScore {
             }
         }
         {
-            const pas::WideString& formatText1_11 = ([&] {
+            const pas::WideString& formatText1_10 = ([&] {
                 pas::WideString lookupLocalizedTextByKey_4 = GR_Main::LookupLocalizedTextByKey(u"ShipType.Dominator.Terron.0"_wref.get());
                 pas::WideString text_4 = Text;
                 return aMyFunction::FormatText1(std::move(text_4), pas::WideString(), u"<Terron>"_w, std::move(lookupLocalizedTextByKey_4));
             }());
-            GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITerron"sv));
-            cpp_arg_15->SetText(formatText1_11);
+            GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITerron"sv));
+            cpp_arg_14->SetText(formatText1_10);
         }
         if (Entry->PirateEndingState > 0) {
             Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"FormScore.PirateWin", SysUtils::IntToStr(Entry->PirateEndingState)})))), pas::view(ResolvedColor));
@@ -1852,22 +1852,22 @@ namespace fScore {
             IPirate->SetText(Text);
         }
         if (Entry->VictoryAchieved) {
-            const pas::WideString& formatText1_12 = ([&] {
-                pas::WideString intToStr_11 = pas::wide_int_to_str(Entry->TotalScore);
-                pas::WideString localizedColorText_9 = aConst::LocalizedColorText(u"FormScore.TotalWin"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_9), u"<color=255,222,0>"_w, u"<Total>"_w, std::move(intToStr_11));
+            const pas::WideString& formatText1_11 = ([&] {
+                pas::WideString intToStr_10 = pas::wide_int_to_str(Entry->TotalScore);
+                pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormScore.TotalWin"_wref.get());
+                return aMyFunction::FormatText1(std::move(localizedColorText_8), u"<color=255,222,0>"_w, u"<Total>"_w, std::move(intToStr_10));
             }());
-            GI_Label::TLabelGI* cpp_arg_16 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITotal"sv));
-            cpp_arg_16->SetText(formatText1_12);
+            GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITotal"sv));
+            cpp_arg_15->SetText(formatText1_11);
         } else {
-            const pas::WideString& localizedColorText_10 = aConst::LocalizedColorText(u"FormScore.TotalLoss"_wref.get());
-            GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITotal"sv));
-            cpp_arg_17->SetText(localizedColorText_10);
+            const pas::WideString& localizedColorText_9 = aConst::LocalizedColorText(u"FormScore.TotalLoss"_wref.get());
+            GI_Label::TLabelGI* cpp_arg_16 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITotal"sv));
+            cpp_arg_16->SetText(localizedColorText_9);
         }
         {
-            const pas::WideString& localizedColorText_11 = aConst::LocalizedColorText(u"FormScore.Note"_wref.get());
-            GI_Label::TLabelGI* cpp_arg_18 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"INote"sv));
-            cpp_arg_18->SetText(localizedColorText_11);
+            const pas::WideString& localizedColorText_10 = aConst::LocalizedColorText(u"FormScore.Note"_wref.get());
+            GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"INote"sv));
+            cpp_arg_17->SetText(localizedColorText_10);
         }
     }
 

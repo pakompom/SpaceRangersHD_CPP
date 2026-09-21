@@ -2440,7 +2440,8 @@ namespace aConst {
         aConst::InitializeCaptainHealthDefinitions();
         aConst::LoadHullSeriesConfiguration();
         if (GR_Main::LanguageDataConfig->CountParamsByPath(u"Artefacts.NumericValues.MaxSlots"_wref.get()) > 0) {
-            DefaultHullSlotCounts[sskArtefact] = std::max<std::int32_t>(4, std::min<std::int32_t>(32, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::LanguageDataConfig->GetParamByPath(u"Artefacts.NumericValues.MaxSlots"_wref.get())))));
+            std::int32_t min = std::min<std::int32_t>(32, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::LanguageDataConfig->GetParamByPath(u"Artefacts.NumericValues.MaxSlots"_wref.get()))));
+            DefaultHullSlotCounts[sskArtefact] = std::max<std::int32_t>(4, min);
         } else {
             DefaultHullSlotCounts[sskArtefact] = 4;
         }

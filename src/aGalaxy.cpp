@@ -2017,14 +2017,38 @@ namespace aGalaxy {
             if (FinalizationNameEncoded != u"") {
                 SetCheatPoints(0);
             }
-            DifficultyLevels[0] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DeieffPhizroantle"_w)))))));
-            DifficultyLevels[1] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DuiefsTvrnaSdlej"_w)))))));
-            DifficultyLevels[2] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiffeSscvn"_w)))))));
-            DifficultyLevels[3] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DqirfsRfejpyariSra"_w)))))));
-            DifficultyLevels[4] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DoitfdTgeecthv"_w)))))));
-            DifficultyLevels[5] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiFfsQvueeYsst"_w)))))));
-            DifficultyLevels[6] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiwfsHrojlee"_w)))))));
-            DifficultyLevels[7] = std::max<std::int32_t>(0, std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiefdBkarlsaGndcVee"_w)))))));
+            {
+                std::int32_t min = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DeieffPhizroantle"_w))))));
+                DifficultyLevels[0] = std::max<std::int32_t>(0, min);
+            }
+            {
+                std::int32_t min_2 = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DuiefsTvrnaSdlej"_w))))));
+                DifficultyLevels[1] = std::max<std::int32_t>(0, min_2);
+            }
+            {
+                std::int32_t min_3 = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiffeSscvn"_w))))));
+                DifficultyLevels[2] = std::max<std::int32_t>(0, min_3);
+            }
+            {
+                std::int32_t min_4 = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DqirfsRfejpyariSra"_w))))));
+                DifficultyLevels[3] = std::max<std::int32_t>(0, min_4);
+            }
+            {
+                std::int32_t min_5 = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DoitfdTgeecthv"_w))))));
+                DifficultyLevels[4] = std::max<std::int32_t>(0, min_5);
+            }
+            {
+                std::int32_t min_6 = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiFfsQvueeYsst"_w))))));
+                DifficultyLevels[5] = std::max<std::int32_t>(0, min_6);
+            }
+            {
+                std::int32_t min_7 = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiwfsHrojlee"_w))))));
+                DifficultyLevels[6] = std::max<std::int32_t>(0, min_7);
+            }
+            {
+                std::int32_t min_8 = std::min<std::int32_t>(9, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"DpiefdBkarlsaGndcVee"_w))))));
+                DifficultyLevels[7] = std::max<std::int32_t>(0, min_8);
+            }
             WarDeltaWin[1] = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"KvlsiRnsgTshDdeHljtoaRWdifnG"_w)))));
             WarDeltaWin[2] = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"PuirreastTerswDVesltt4a6WHidns"_w)))));
             WarDeltaWin[0] = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::EditableSaveBlock->GetParam(pas::view(EC_Str::DecodeTextW(u"Npo6rdm2aSlfsHDeeyljt4asWCignI"_w)))));
@@ -9339,10 +9363,11 @@ namespace aGalaxy {
                     {
                         std::int32_t cpp_right = aMyFunction::NextRandomIntRange(2, 5, RandomState);
                         if (pas::imod(CurrentTurn, cpp_right) == 0) {
-                            DominatorResearch[Series].Material = std::max<std::int32_t>(0, ([&] {
+                            std::int32_t max = std::max<std::int32_t>(0, ([&] {
                                 std::int32_t cpp_right_2 = aMyFunction::NextRandomIntRange(1, aConst::GalaxyDifficultyTuning[DifficultyLevels[2]].MaximumResearchMaterialConsumption, RandomState);
                                 return DominatorResearch[Series].Material - cpp_right_2;
                             }()));
+                            DominatorResearch[Series].Material = max;
                         }
                     }
                     if (Progress >= 1.0E+2L) {
@@ -10148,8 +10173,8 @@ namespace aGalaxy {
 
     // Uses the active Galaxy, not Self; denominator is max(pirate systems - 1, 1).
     float TGalaxy::GetCoalitionToPirateSystemRatio() {
-        pas::Extended cpp_left = Galaxy->CountFactionStars(aGalaxyStruct::sfCoalition);
-        return pas::real_divide(cpp_left, std::max<std::int32_t>(1, Galaxy->CountFactionStars(aGalaxyStruct::sfPirates) - 1));
+        std::int32_t max = std::max<std::int32_t>(1, Galaxy->CountFactionStars(aGalaxyStruct::sfPirates) - 1);
+        return pas::real_divide(Galaxy->CountFactionStars(aGalaxyStruct::sfCoalition), max);
     }
 
     // With custom rules disabled, reads the active Galaxy difficulty array rather than Self.

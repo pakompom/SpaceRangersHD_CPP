@@ -1470,8 +1470,8 @@ namespace fPlanetNO {
                         MinimumWidth = 0;
                     } else {
                         if (pas::class_cast_if<aItem::THull*>(Equipment) != nullptr) {
-                            pas::Extended cpp_right = pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-                            BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Equipment->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
+                            float real_max = pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                            BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Equipment->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
                         } else {
                             BarWidth = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
                         }

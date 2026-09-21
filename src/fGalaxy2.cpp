@@ -765,8 +765,8 @@ namespace fGalaxy2 {
             First = Star->Position;
             Second = aPlayer::GetPlayer()->CurrentStar->Position;
             {
-                std::int64_t cpp_right = System::Round(System::Sqrt(pas::sqr(static_cast<long double>(First.X) - Second.X) + pas::sqr(static_cast<long double>(First.Y) - Second.Y)));
-                if (TfGalaxy2::GetRadarSummaryRadius() < cpp_right) {
+                std::int32_t cpp_left = TfGalaxy2::GetRadarSummaryRadius();
+                if (cpp_left < System::Round(System::Sqrt(pas::sqr(static_cast<long double>(First.X) - Second.X) + pas::sqr(static_cast<long double>(First.Y) - Second.Y)))) {
                     return Result;
                 }
             }

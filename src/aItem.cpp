@@ -635,8 +635,11 @@ namespace aItem {
         switch (Item->ItemType) {
             case aConst::t_Hull: {
                 pas::checked_cast<THull*>(Item)->Armor += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
-                static_cast<THull*>(Item)->HullPoints = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
-                return Result;
+                {
+                    std::int32_t min_2 = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
+                    static_cast<THull*>(Item)->HullPoints = min_2;
+                    return Result;
+                }
             }
             case aConst::t_FuelTanks: {
                 pas::checked_cast<TFuelTanks*>(Item)->Capacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
@@ -734,7 +737,10 @@ namespace aItem {
         switch (Item->ItemType) {
             case aConst::t_Hull: {
                 pas::checked_cast<THull*>(Item)->Armor -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
-                static_cast<THull*>(Item)->HullPoints = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
+                {
+                    std::int32_t min = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
+                    static_cast<THull*>(Item)->HullPoints = min;
+                }
                 break;
             }
             case aConst::t_FuelTanks: {
@@ -801,7 +807,10 @@ namespace aItem {
         Item->Weight = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Weight * 100, aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].SizePercent)));
         Item->Cost = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Cost * 100, aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].CostPercent)));
         if (Item->ItemType == aConst::t_Hull) {
-            pas::checked_cast<THull*>(Item)->HullPoints = std::min<std::int32_t>(Item->Weight, pas::checked_cast<THull*>(Item)->HullPoints);
+            {
+                std::int32_t min = std::min<std::int32_t>(Item->Weight, pas::checked_cast<THull*>(Item)->HullPoints);
+                static_cast<THull*>(Item)->HullPoints = min;
+            }
             if (Item->Cost < 0 || Item->Cost > 100000000) {
                 Item->Cost = 100000000;
             }
@@ -2314,18 +2323,18 @@ namespace aItem {
             ExtraCapacity = 0;
             switch (Kind) {
                 case ikMinor: {
-                    std::int32_t cpp_left = aMyFunction::SeededRandomIntRange(3, 7, Id * 214571);
-                    ExtraCapacity = System::Round(cpp_left * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    std::int32_t SeededRandomIntRange = aMyFunction::SeededRandomIntRange(3, 7, Id * 214571);
+                    ExtraCapacity = System::Round(SeededRandomIntRange * std::max<std::int32_t>(Weight, 500) * 0.01L);
                     break;
                 }
                 case ikMedium: {
-                    std::int32_t cpp_left_2 = aMyFunction::SeededRandomIntRange(8, 12, Id * 214571);
-                    ExtraCapacity = System::Round(cpp_left_2 * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    std::int32_t SeededRandomIntRange_2 = aMyFunction::SeededRandomIntRange(8, 12, Id * 214571);
+                    ExtraCapacity = System::Round(SeededRandomIntRange_2 * std::max<std::int32_t>(Weight, 500) * 0.01L);
                     break;
                 }
                 case ikMajor: {
-                    std::int32_t cpp_left_3 = aMyFunction::SeededRandomIntRange(13, 17, Id * 214571);
-                    ExtraCapacity = System::Round(cpp_left_3 * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    std::int32_t SeededRandomIntRange_3 = aMyFunction::SeededRandomIntRange(13, 17, Id * 214571);
+                    ExtraCapacity = System::Round(SeededRandomIntRange_3 * std::max<std::int32_t>(Weight, 500) * 0.01L);
                     break;
                 }
             }
@@ -5105,11 +5114,14 @@ namespace aItem {
             OwnerId = aConst::OwnerFromInternalName(pas::view(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Owner"}))));
         }
         Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Size"}))));
-        Weight = std::max<std::int64_t>(static_cast<std::int64_t>(1), ([&] {
-            pas::Extended cpp_left_2 = aMyFunction::SeededRandomIntRange(0, Weight, Id * 71621723);
-            pas::Extended cpp_left = cpp_left_2 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 0.5, 3.0);
-            return System::Round(cpp_left + Weight);
-        }()));
+        {
+            std::int64_t max = std::max<std::int64_t>(static_cast<std::int64_t>(1), ([&] {
+                pas::Extended cpp_left_2 = aMyFunction::SeededRandomIntRange(0, Weight, Id * 71621723);
+                pas::Extended cpp_left = cpp_left_2 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 0.5, 3.0);
+                return System::Round(cpp_left + Weight);
+            }()));
+            Weight = max;
+        }
         Cost = System::Round(([&] {
             pas::Extended cpp_left_3 = ([&] {
                 pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Cost"}));

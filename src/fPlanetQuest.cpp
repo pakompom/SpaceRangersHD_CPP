@@ -784,8 +784,8 @@ namespace fPlanetQuest {
             TextLabel->SetTextAlignY(GI_Main::tayTop);
             // Preserve native getter order: rendered line count, then line height.
             {
-                std::int32_t cpp_left = std::max<std::int32_t>(1, TextLabel->GetRenderedLineCount());
-                std::int32_t cpp_arg = cpp_left * TextLabel->GetLineHeight() + 4;
+                std::int32_t max = std::max<std::int32_t>(1, TextLabel->GetRenderedLineCount());
+                std::int32_t cpp_arg = max * TextLabel->GetLineHeight() + 4;
                 std::int32_t x = TextLabel->ClientSize.X;
                 TextLabel->SetSize(ClassesImports::Point(x, cpp_arg));
             }

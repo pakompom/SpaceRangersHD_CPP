@@ -1248,6 +1248,8 @@ namespace aTransport {
 
     float TTransport::AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) {
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
+        float MoneyPenalty{};
+        float WeightPenalty{};
         float FragilityScale{};
         std::int32_t Price{};
         float DesiredMoneyFraction{};
@@ -1293,17 +1295,27 @@ namespace aTransport {
             return pas::real_divide(aGalaxy::Galaxy->CountFactionStars(aGalaxyStruct::sfCoalition), cpp_right);
         }()) + 0.1L) * DesiredMoneyFraction));
         float DesiredFreeFraction = pas::real_max<pas::Extended>(0.01L, pas::real_min<pas::Extended>(0.99L, pas::real_divide(GetDesiredCargoFreeSpace(), std::max<std::int32_t>(100, GetHull()->Weight))));
-        pas::Extended cpp_left_2 = pas::sqr(([&] {
-            pas::Extended cpp_left_3 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedMoneyFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_3, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
-        }()));
-        float MoneyPenalty = pas::real_divide(cpp_left_2, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+        {
+            float real_max_3 = pas::real_max<float>(0.01f, SmoothedMoneyFraction);
+            {
+                pas::Extended inline_value = pas::sqr(([&] {
+                    pas::Extended cpp_left_2 = pas::real_divide(1.0L, real_max_3) - 1.0L;
+                    return pas::real_divide(cpp_left_2, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
+                }()));
+                MoneyPenalty = pas::real_divide(inline_value, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+            }
+        }
         float EffectivenessScale = pas::real_divide(2.0L, pas::real_max<float>(1.0E+1f, SmoothedEquipmentEffectiveness));
-        pas::Extended cpp_left_4 = pas::sqr(([&] {
-            pas::Extended cpp_left_5 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_5, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
-        }()));
-        float WeightPenalty = pas::real_divide(cpp_left_4, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+        {
+            float real_max_6 = pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction);
+            {
+                pas::Extended inline_value_2 = pas::sqr(([&] {
+                    pas::Extended cpp_left_3 = pas::real_divide(1.0L, real_max_6) - 1.0L;
+                    return pas::real_divide(cpp_left_3, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
+                }()));
+                WeightPenalty = pas::real_divide(inline_value_2, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+            }
+        }
         if (Item->OwnerId == OwnerId && TransportType == ttDiplomat) {
             EffectivenessScale = EffectivenessScale * 1.1L;
         }
@@ -1400,10 +1412,10 @@ namespace aTransport {
                     Result = std::max<std::int32_t>(Value, -GetSlotCount(aConst::sskWeapon)) * TransportSlotBonusWeights[BonusKind];
                 }
                 {
-                    std::int32_t cpp_right = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
-                    if (CountEquippedWeapons() > cpp_right) {
-                        std::int32_t cpp_right_2 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
-                        Result = Result - TransportSlotBonusWeights[BonusKind] * 0.6L * (CountEquippedWeapons() - cpp_right_2);
+                    std::int32_t max_6 = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
+                    if (CountEquippedWeapons() > max_6) {
+                        std::int32_t max_7 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
+                        Result = Result - TransportSlotBonusWeights[BonusKind] * 0.6L * (CountEquippedWeapons() - max_7);
                     }
                 }
             } else if (cpp_case >= aConst::bonSkill1 && cpp_case <= aConst::bonSkill6) {

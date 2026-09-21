@@ -3087,18 +3087,18 @@ namespace aScriptFun {
             }
         } else {
             if (Ship->CurrentPlanet == nullptr) {
+                std::int32_t max_3 = std::max<std::int32_t>(1, Ship->Speed);
                 Turns += ([&] {
-                    pas::Extended cpp_right = std::max<std::int32_t>(1, Ship->Speed);
                     EC_Struct::TPointF jumpDeparturePoint = Ship->GetJumpDeparturePoint(Star);
                     EC_Struct::TPointF position = Ship->Position;
-                    return MathImports::Ceil(pas::real_divide(aMyFunction::PointDistance(jumpDeparturePoint, position), cpp_right));
+                    return MathImports::Ceil(pas::real_divide(aMyFunction::PointDistance(jumpDeparturePoint, position), max_3));
                 }());
             } else {
+                std::int32_t max_4 = std::max<std::int32_t>(1, Ship->Speed);
                 Turns += ([&] {
-                    pas::Extended cpp_right_2 = std::max<std::int32_t>(1, Ship->Speed);
                     EC_Struct::TPointF jumpDeparturePoint_2 = Ship->GetJumpDeparturePoint(Star);
                     EC_Struct::TPointF position_2 = Ship->CurrentPlanet->GetPosition();
-                    return MathImports::Ceil(pas::real_divide(aMyFunction::PointDistance(jumpDeparturePoint_2, position_2), cpp_right_2));
+                    return MathImports::Ceil(pas::real_divide(aMyFunction::PointDistance(jumpDeparturePoint_2, position_2), max_4));
                 }());
             }
             Turns += aShip::TShip::CalculateJumpTravelDays(Ship->CurrentStar, Star);
@@ -8443,7 +8443,10 @@ namespace aScriptFun {
                         std::int32_t round_2 = System::Round(Position.X);
                         cpp_with = aMyFunction::IntegerPointToPolar(ClassesImports::Point(round_2, round));
                     }
-                    scriptPlace_2->Radius = System::Round(cpp_with.Radius);
+                    {
+                        auto& cpp_target = scriptPlace_2->Radius;
+                        cpp_target = System::Round(cpp_with.Radius);
+                    }
                     scriptPlace_2->AngleOffset = cpp_with.AngleRadians;
                 } else if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
                     planet_2->Orbit = std::bit_cast<aMyFunction::TPolarPoint>(([&] {
@@ -8530,7 +8533,10 @@ namespace aScriptFun {
                         std::int32_t round_2 = System::Round(Position.X);
                         cpp_with = aMyFunction::IntegerPointToPolar(ClassesImports::Point(round_2, round));
                     }
-                    scriptPlace_2->Radius = System::Round(cpp_with.Radius);
+                    {
+                        auto& cpp_target = scriptPlace_2->Radius;
+                        cpp_target = System::Round(cpp_with.Radius);
+                    }
                     scriptPlace_2->AngleOffset = cpp_with.AngleRadians;
                 } else if (aPlanet::TPlanet* planet_2 = pas::class_cast_if<aPlanet::TPlanet*>(Obj)) {
                     planet_2->Orbit = std::bit_cast<aMyFunction::TPolarPoint>(([&] {
@@ -15429,11 +15435,14 @@ namespace aScriptFun {
                 }
                 if (av.length() - 1 > 1) {
                     Count = av[2]->GetInt();
-                    reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->Ammo = std::max<std::int32_t>(0, ([&] {
-                        std::int32_t ammoCapacity = reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->AmmoCapacity;
-                        std::int32_t cpp_arg = reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->Ammo + Count;
-                        return std::min<std::int32_t>(ammoCapacity, cpp_arg);
-                    }()));
+                    {
+                        std::int32_t min = ([&] {
+                            std::int32_t ammoCapacity = reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->AmmoCapacity;
+                            std::int32_t cpp_arg = reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->Ammo + Count;
+                            return std::min<std::int32_t>(ammoCapacity, cpp_arg);
+                        }());
+                        reinterpret_cast<aItem::TWeapon*>(static_cast<aItem::TEquipment*>(Item))->Ammo = std::max<std::int32_t>(0, min);
+                    }
                 }
             }
         }

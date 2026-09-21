@@ -636,11 +636,11 @@ namespace aRuins {
                         Self->FlyDate = aGalaxy::Galaxy->CurrentTurn + 30;
                     }
                     {
-                        pas::Extended cpp_right = pas::real_max<float>(0.001f, Self->CurrentStar->GetCachedFactionStrength(aGalaxyStruct::sfPirates));
-                        Imbalance = pas::real_divide(std::fabs(([&] {
-                            pas::Extended cpp_right_2 = Self->CurrentStar->GetCachedFactionStrength(aGalaxyStruct::sfDominators) * 2.5L;
-                            return Self->CurrentStar->GetCachedFactionStrength(aGalaxyStruct::sfCoalition) - cpp_right_2;
-                        }())), cpp_right);
+                        pas::Extended inline_value_3 = std::fabs(([&] {
+                            pas::Extended cpp_right = Self->CurrentStar->GetCachedFactionStrength(aGalaxyStruct::sfDominators) * 2.5L;
+                            return Self->CurrentStar->GetCachedFactionStrength(aGalaxyStruct::sfCoalition) - cpp_right;
+                        }()));
+                        Imbalance = pas::real_divide(inline_value_3, pas::real_max<float>(0.001f, Self->CurrentStar->GetCachedFactionStrength(aGalaxyStruct::sfPirates)));
                     }
                     LocalBalance = Self->EvaluateLocalForceBalance(Self->Position);
                     if ((LocalBalance < -1.5E+2L || Imbalance > 3.0E+1L) && Self->FlyDate < aGalaxy::Galaxy->CurrentTurn + 25 && Self->FlyDate > aGalaxy::Galaxy->CurrentTurn) {
@@ -1491,8 +1491,8 @@ namespace aRuins {
                 RelationFactor = static_cast<long double>(RelationFactor) * HullFraction;
             }
             {
-                pas::Extended cpp_right = pas::real_min<pas::Extended>(1.0L, pas::real_divide(Ship->Speed, pas::real_max<double>(1.0E+2, aMyFunction::PointDistance(Point, Ship->Position))));
-                Result = Result + pas::real_divide(pas::real_divide(Ship->Strength, Ship->UsableWeaponCount + 7), ReferenceStrength) * RelationFactor * cpp_right;
+                pas::Extended real_min = pas::real_min<pas::Extended>(1.0L, pas::real_divide(Ship->Speed, pas::real_max<double>(1.0E+2, aMyFunction::PointDistance(Point, Ship->Position))));
+                Result = Result + pas::real_divide(pas::real_divide(Ship->Strength, Ship->UsableWeaponCount + 7), ReferenceStrength) * RelationFactor * real_min;
             }
         }
         return Result;
@@ -1829,14 +1829,17 @@ namespace aRuins {
                     pas::Extended cpp_right = aMyFunction::NextRandomFloatRange(0.9, 1.1, RandomState);
                     return aConst::GoodsMarket[Good].MinPrice * cpp_right;
                 }());
-                ShopGoods[Good].Count = ([&] {
-                    std::int32_t cpp_arg = ([&] {
-                        std::int32_t cpp_right_2 = aMyFunction::NextRandomIntRange(1, aConst::GoodsMarket[Good].BaseStock / 10 + 1, RandomState);
-                        return ShopGoods[Good].Count + cpp_right_2;
+                {
+                    std::int32_t max = ([&] {
+                        std::int32_t cpp_arg = ([&] {
+                            std::int32_t cpp_right_2 = aMyFunction::NextRandomIntRange(1, aConst::GoodsMarket[Good].BaseStock / 10 + 1, RandomState);
+                            return ShopGoods[Good].Count + cpp_right_2;
+                        }());
+                        std::int32_t cpp_arg_2 = aConst::GoodsMarket[Good].BaseStock / 10 + 1;
+                        return std::max<std::int32_t>(cpp_arg, cpp_arg_2);
                     }());
-                    std::int32_t cpp_arg_2 = aConst::GoodsMarket[Good].BaseStock / 10 + 1;
-                    return std::max<std::int32_t>(cpp_arg, cpp_arg_2);
-                }());
+                    ShopGoods[Good].Count = max;
+                }
                 ShopGoods[Good].PurchasePrice = System::Round(ShopGoods[Good].PriceState);
                 ShopGoods[Good].BaseSalePrice = std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(ShopGoods[Good].PriceState * 0.98L - 1.0L));
             }

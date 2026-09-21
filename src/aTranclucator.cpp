@@ -1102,10 +1102,10 @@ namespace aTranclucator {
                     Result = std::max<std::int32_t>(Value, -GetSlotCount(aConst::sskWeapon)) * TranclucatorSlotBonusWeights[BonusKind];
                 }
                 {
-                    std::int32_t cpp_right = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
-                    if (CountEquippedWeapons() > cpp_right) {
-                        std::int32_t cpp_right_2 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
-                        return Result - (CountEquippedWeapons() - cpp_right_2) * (TranclucatorSlotBonusWeights[BonusKind] * 0.6L);
+                    std::int32_t max_6 = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
+                    if (CountEquippedWeapons() > max_6) {
+                        std::int32_t max_7 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
+                        return Result - (CountEquippedWeapons() - max_7) * (TranclucatorSlotBonusWeights[BonusKind] * 0.6L);
                     }
                 }
                 return Result;

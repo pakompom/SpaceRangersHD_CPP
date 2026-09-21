@@ -4092,8 +4092,8 @@ namespace ab_MainForm {
                 MinimumWidth = 0;
             } else {
                 if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Instance)) {
-                    pas::Extended cpp_right = pas::real_max<float>(0.1f, hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-                    Width = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Instance->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
+                    float real_max = pas::real_max<float>(0.1f, hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                    Width = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Instance->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
                 } else {
                     Width = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, pas::checked_cast<aItem::TEquipment*>(Instance)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
                 }

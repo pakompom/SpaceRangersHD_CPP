@@ -1243,6 +1243,7 @@ namespace fHangar {
         pas::WideString Text{};
         pas::WideString Path{};
         pas::WideString ColorTag{};
+        std::int32_t BarWidth{};
         std::int32_t CapWidth{};
         std::int32_t MinimumWidth{};
         if (ShipInfoHideTimer != nullptr) {
@@ -1417,8 +1418,10 @@ namespace fHangar {
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(false);
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(false);
         }
-        pas::Extended cpp_right = pas::real_max<float>(0.1f, Ship->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-        std::int32_t BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Ship->GetHull()->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
+        {
+            float real_max = pas::real_max<float>(0.1f, Ship->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+            BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Ship->GetHull()->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
+        }
         BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
         {
             GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableLeft"sv));

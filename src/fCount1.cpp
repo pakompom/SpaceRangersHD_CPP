@@ -199,7 +199,10 @@ namespace fCount1 {
         }
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"sv))->SetDisabled(Value == Maximum);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"sv))->SetDisabled(Value == Minimum);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Max"sv))->SetDisabled(Value == std::min<std::int32_t>(Limit, Maximum));
+        {
+            GI_GraphButton::TGraphButtonGI* checked_cast = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Max"sv));
+            checked_cast->SetDisabled(Value == std::min<std::int32_t>(Limit, Maximum));
+        }
     }
 
     void TfCount1::AddPressed(GI_MessageLoop::TObjectGI* Sender) {

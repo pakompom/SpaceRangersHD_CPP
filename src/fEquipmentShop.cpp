@@ -709,8 +709,8 @@ namespace fEquipmentShop {
                             cpp_with_5->SetPosition(ClassesImports::Point(round_8, round_7));
                         }
                         {
-                            std::int32_t trunc_7 = System::Trunc(CellHeight);
                             std::int32_t cpp_arg = System::Trunc(CellWidth) - GR_Main::GiScalePixels(10);
+                            std::int32_t trunc_7 = System::Trunc(CellHeight);
                             cpp_with_5->SetSize(ClassesImports::Point(cpp_arg, trunc_7));
                         }
                         cpp_with_5->SetDepth(2.0);
@@ -731,8 +731,8 @@ namespace fEquipmentShop {
                                 cpp_with_6->SetPosition(ClassesImports::Point(round_10, round_9));
                             }
                             {
-                                std::int32_t trunc_8 = System::Trunc(CellHeight);
                                 std::int32_t cpp_arg_2 = System::Trunc(CellWidth) - GR_Main::GiScalePixels(10);
+                                std::int32_t trunc_8 = System::Trunc(CellHeight);
                                 cpp_with_6->SetSize(ClassesImports::Point(cpp_arg_2, trunc_8));
                             }
                             cpp_with_6->SetDepth(1.0);
@@ -1512,6 +1512,7 @@ namespace fEquipmentShop {
         pas::WideString SeriesName{};
         std::uint8_t DisplayKind{};
         aGalaxyStruct::TDominatorSeries Series{};
+        std::int32_t BarWidth{};
         std::int32_t CapWidth{};
         std::int32_t MinimumWidth{};
         GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(Target->GetByName(u"InfoHull"sv));
@@ -1689,8 +1690,10 @@ namespace fEquipmentShop {
             InfoHullEmRace->SetImageKindX(GI_Main::ikxCenter);
             InfoHullEmRace->SetImageKindY(GI_Main::ikyCenter);
         }
-        pas::Extended cpp_right = pas::real_max<float>(0.1f, Hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-        std::int32_t BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Hull->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
+        {
+            float real_max = pas::real_max<float>(0.1f, Hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+            BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Hull->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
+        }
         BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
         {
             GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));

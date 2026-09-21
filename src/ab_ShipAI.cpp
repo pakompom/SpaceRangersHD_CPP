@@ -298,8 +298,8 @@ namespace ab_ShipAI {
                             continue;
                         }
                         if (([&] {
-                            pas::Extended cpp_right = pas::real_max<pas::Extended>(8.0E+2L, static_cast<long double>(aPlayer::GetPlayer()->Wealth) * aMyFunction::RemapClamped(Attempts, 0.0, 5.0E+2, 0.01L * RewardScale, 0.03L * RewardScale));
-                            return Item->GetConditionAdjustedCost() < cpp_right;
+                            pas::Extended real_max = pas::real_max<pas::Extended>(8.0E+2L, static_cast<long double>(aPlayer::GetPlayer()->Wealth) * aMyFunction::RemapClamped(Attempts, 0.0, 5.0E+2, 0.01L * RewardScale, 0.03L * RewardScale));
+                            return Item->GetConditionAdjustedCost() < real_max;
                         }()) && (Item->GetConditionAdjustedCost() > aPlayer::GetPlayer()->Wealth * 0.008L * RewardScale || Attempts > 500)) {
                             fShip2::ClearPlayerHoldEntries();
                             aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Item, nullptr, 0);

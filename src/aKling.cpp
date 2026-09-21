@@ -510,11 +510,11 @@ namespace aKling {
         ChameleonActive = false;
         GraphDominator = aGalaxy::Galaxy->GraphDominatorSurfacesEnabled;
         {
+            std::uint8_t randomTuning = RandomTuning(2, 3);
             std::uint16_t round = System::Round(([&] {
                 pas::Extended cpp_left = aKling::RandomInteger(aConst::DominatorShipDefinitions[KlingType].MinimumHullSize, aConst::DominatorShipDefinitions[KlingType].MaximumHullSize, this);
                 return cpp_left * aConst::HullCapacityScale;
             }()));
-            std::uint8_t randomTuning = RandomTuning(2, 3);
             aShip::TShip* self = this;
             aShip::TShip_CreateAndEquipHull(self, round, randomTuning, aGalaxyStruct::oiDominator, -1, false);
         }
@@ -562,10 +562,11 @@ namespace aKling {
             self_7->CreateAndEquipScanner(sizeForKind_6, randomInteger_3, aGalaxyStruct::oiDominator);
         }
         {
-            std::uint8_t randomInteger_4 = aKling::RandomInteger(1, std::min<std::int32_t>(TechLevel, 7), this);
-            std::int32_t sizeForKind_7 = SizeForKind(aConst::CargoHookBaseSize);
+            std::int32_t SizeForKind_2 = SizeForKind(aConst::CargoHookBaseSize);
+            std::int32_t min_2 = std::min<std::int32_t>(TechLevel, 7);
+            std::uint8_t randomInteger_4 = aKling::RandomInteger(1, min_2, this);
             aShip::TShip* self_8 = this;
-            self_8->CreateAndEquipCargoHook(sizeForKind_7, randomInteger_4, aGalaxyStruct::oiDominator);
+            self_8->CreateAndEquipCargoHook(SizeForKind_2, randomInteger_4, aGalaxyStruct::oiDominator);
         }
         std::int32_t Distribution = DominatorWeaponDistributionByTier[Tier];
         std::int32_t WeaponCount = RandomTuning(12, 13);

@@ -182,9 +182,9 @@ namespace aPirate {
             CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
             {
                 aGalaxyStruct::TOwnerId ownerId_2 = OwnerId;
+                std::uint8_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(1, 2, RandomState);
                 pas::Extended cpp_left = aConst::EquipmentSizeFactors[aMyFunction::NextRandomIntRange(1, 2, RandomState)];
                 std::int32_t round_3 = System::Round(cpp_left * aConst::EngineBaseSize);
-                std::uint8_t nextRandomIntRange_3 = aMyFunction::NextRandomIntRange(1, 2, RandomState);
                 aShip::TShip* self_5 = this;
                 self_5->CreateAndEquipEngine(round_3, nextRandomIntRange_3, ownerId_2);
             }
@@ -2134,6 +2134,8 @@ namespace aPirate {
 
     float TPirate::AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) {
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
+        float MoneyPenalty{};
+        float WeightPenalty{};
         float FragilityScale{};
         std::int32_t Price{};
         float HullValueScale{};
@@ -2169,17 +2171,27 @@ namespace aPirate {
         }
         float DesiredMoneyFraction = 0.1f;
         float DesiredFreeFraction = pas::real_max<pas::Extended>(0.01L, pas::real_min<pas::Extended>(0.99L, pas::real_divide(GetDesiredCargoFreeSpace(), std::max<std::int32_t>(100, GetHull()->Weight))));
-        pas::Extended cpp_left = pas::sqr(([&] {
-            pas::Extended cpp_left_2 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedMoneyFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_2, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
-        }()));
-        float MoneyPenalty = pas::real_divide(cpp_left, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+        {
+            float real_max_2 = pas::real_max<float>(0.01f, SmoothedMoneyFraction);
+            {
+                pas::Extended inline_value = pas::sqr(([&] {
+                    pas::Extended cpp_left = pas::real_divide(1.0L, real_max_2) - 1.0L;
+                    return pas::real_divide(cpp_left, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
+                }()));
+                MoneyPenalty = pas::real_divide(inline_value, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+            }
+        }
         float EffectivenessScale = pas::real_divide(2.0L, pas::real_max<float>(1.0E+1f, SmoothedEquipmentEffectiveness));
-        pas::Extended cpp_left_3 = pas::sqr(([&] {
-            pas::Extended cpp_left_4 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_4, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
-        }()));
-        float WeightPenalty = pas::real_divide(cpp_left_3, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+        {
+            float real_max_5 = pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction);
+            {
+                pas::Extended inline_value_2 = pas::sqr(([&] {
+                    pas::Extended cpp_left_2 = pas::real_divide(1.0L, real_max_5) - 1.0L;
+                    return pas::real_divide(cpp_left_2, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
+                }()));
+                WeightPenalty = pas::real_divide(inline_value_2, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+            }
+        }
         MoneyPenalty = MoneyPenalty * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-25, 25, Id + Seed));
         EffectivenessScale = EffectivenessScale * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-25, 25, Seed + 3 * Id));
         WeightPenalty = WeightPenalty * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-25, 25, Seed + 5 * Id));
@@ -2293,10 +2305,10 @@ namespace aPirate {
                     Result = std::max<std::int32_t>(Value, -GetSlotCount(aConst::sskWeapon)) * PirateSlotBonusWeights[BonusKind];
                 }
                 {
-                    std::int32_t cpp_right = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
-                    if (CountEquippedWeapons() > cpp_right) {
-                        std::int32_t cpp_right_2 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
-                        Result = Result - PirateSlotBonusWeights[BonusKind] * 0.6L * (CountEquippedWeapons() - cpp_right_2);
+                    std::int32_t max_6 = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
+                    if (CountEquippedWeapons() > max_6) {
+                        std::int32_t max_7 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
+                        Result = Result - PirateSlotBonusWeights[BonusKind] * 0.6L * (CountEquippedWeapons() - max_7);
                     }
                 }
             } else if (cpp_case == aConst::bonSlotArt) {
@@ -2435,8 +2447,11 @@ namespace aPirate {
             }
         }
         {
-            pas::Extended cpp_left = pas::real_divide(DisruptionFactor, pas::real_max<float>(TotalDisruption, 1.0f));
-            DisruptionFactor = cpp_left * aMyFunction::RemapClamped(TotalDisruption, 1.0, 3.0, 1.0, 2.0);
+            float real_max = pas::real_max<float>(TotalDisruption, 1.0f);
+            {
+                pas::Extended cpp_right_4 = aMyFunction::RemapClamped(TotalDisruption, 1.0, 3.0, 1.0, 2.0);
+                DisruptionFactor = pas::real_divide(DisruptionFactor, real_max) * cpp_right_4;
+            }
         }
         if (SlowFactor > 0.01L) {
             switch (PirateType) {
@@ -2472,8 +2487,8 @@ namespace aPirate {
                 }
             }
             {
-                std::int32_t cpp_left_2 = CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(AcidFlags));
-                Result = static_cast<long double>(Result) + cpp_left_2 * Weapon->GetShotCount();
+                std::int32_t cpp_left = CountWeaponsByDamageFlags(static_cast<aGalaxyStruct::TDamageFlagSet>(AcidFlags));
+                Result = static_cast<long double>(Result) + cpp_left * Weapon->GetShotCount();
             }
             if (pas::contains(Flags, aGalaxyStruct::dkAcid)) {
                 ShotTotal = 1;

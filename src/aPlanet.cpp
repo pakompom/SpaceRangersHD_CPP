@@ -345,10 +345,12 @@ namespace aPlanet {
                         Satellite->Graphic->OrbitRotation = aMyFunction::NextRandomIntRange(200, 350, RandomState);
                         Satellite->Graphic->MinDisplayRadius = GlobalsV::GeneratedSatelliteBaseRadius;
                         {
-                            double cpp_arg_6 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
-                            double cpp_arg_7 = Satellite->Graphic->MinDisplayRadius * 1.3L;
-                            double cpp_arg_8 = std::min<std::int32_t>(GlobalsV::MaximumSatelliteTemplateRadius, Satellite->Graphic->MinDisplayRadius * 2);
-                            Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_6, 0.0, 1.0, cpp_arg_7, cpp_arg_8));
+                            std::int32_t min = std::min<std::int32_t>(GlobalsV::MaximumSatelliteTemplateRadius, Satellite->Graphic->MinDisplayRadius * 2);
+                            {
+                                double cpp_arg_6 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
+                                double cpp_arg_7 = Satellite->Graphic->MinDisplayRadius * 1.3L;
+                                Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_6, 0.0, 1.0, cpp_arg_7, min));
+                            }
                         }
                         Satellite->Graphic->RotationTimerInterval = 25u;
                         Satellite->Graphic->SurfaceMapStep = 1;
@@ -378,17 +380,17 @@ namespace aPlanet {
                         MinOrbitRadius = System::Round(Radius * 1.3L);
                         MaxOrbitRadius = Radius * 2;
                         {
-                            SE_Space::TObjectSE* cpp_arg_10 = pas::construct_call<SE_Sputnik::TSputnikSE>(SE_Space::TObjectSE_Create, pas::concat_wide({u"Sputnik.", ([&] {
+                            SE_Space::TObjectSE* cpp_arg_9 = pas::construct_call<SE_Sputnik::TSputnikSE>(SE_Space::TObjectSE_Create, pas::concat_wide({u"Sputnik.", ([&] {
                                 std::int32_t nextRandomIntRange_2 = ([&] {
-                                    std::int32_t cpp_arg_9 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Sputnik"_wref.get())->GetBlockCount() - 1;
+                                    std::int32_t cpp_arg_8 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Sputnik"_wref.get())->GetBlockCount() - 1;
                                     std::uint32_t& randomState_2 = RandomState;
-                                    return aMyFunction::NextRandomIntRange(0, cpp_arg_9, randomState_2);
+                                    return aMyFunction::NextRandomIntRange(0, cpp_arg_8, randomState_2);
                                 }());
                                 EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Sputnik"_wref.get());
                                 return blockByPath_2->GetBlockNameByIndex(nextRandomIntRange_2);
                             }())}), ClassesImports::Point(0, 0));
                             pas::Var<SE_Space::TObjectSE*> graphic_6 = pas::Var<SE_Space::TObjectSE*>(&Satellite->Graphic);
-                            SE_Space::RetainSpaceObject(graphic_6, cpp_arg_10);
+                            SE_Space::RetainSpaceObject(graphic_6, cpp_arg_9);
                         }
                         Satellite->Graphic->DepthOrder = I;
                         Satellite->Graphic->OrbitCenter = GetPosition();
@@ -400,10 +402,10 @@ namespace aPlanet {
                         Satellite->Graphic->OrbitRotation = aMyFunction::NextRandomIntRange(1, 359, RandomState);
                         Satellite->Graphic->MinDisplayRadius = GlobalsV::GeneratedSatelliteBaseRadius;
                         {
-                            double cpp_arg_11 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
-                            double cpp_arg_12 = pas::real_divide(GlobalsV::MaximumSatelliteTemplateRadius, 2.0L);
+                            double cpp_arg_10 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
+                            double cpp_arg_11 = pas::real_divide(GlobalsV::MaximumSatelliteTemplateRadius, 2.0L);
                             double maximumSatelliteTemplateRadius = GlobalsV::MaximumSatelliteTemplateRadius;
-                            Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_11, 0.0, 1.0, cpp_arg_12, maximumSatelliteTemplateRadius));
+                            Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_10, 0.0, 1.0, cpp_arg_11, maximumSatelliteTemplateRadius));
                         }
                         Satellite->Graphic->RotationTimerInterval = 25u;
                         Satellite->Graphic->SurfaceMapStep = 1;
@@ -542,9 +544,9 @@ namespace aPlanet {
                 Orbit.AngleDegrees = aMyFunction::NextRandomIntRange(0, 359, RandomState);
                 GraphicRadius = 80;
                 {
-                    SE_Space::TObjectSE* cpp_arg_13 = pas::construct_call<SE_Planet::TPlanetSE>(SE_Planet::TPlanetSE_CreateFromGraph, u"Ruins.RG"_wref.get(), ClassesImports::Point(0, 0));
+                    SE_Space::TObjectSE* cpp_arg_12 = pas::construct_call<SE_Planet::TPlanetSE>(SE_Planet::TPlanetSE_CreateFromGraph, u"Ruins.RG"_wref.get(), ClassesImports::Point(0, 0));
                     pas::Var<SE_Space::TObjectSE*> graphic_7 = pas::Var<SE_Space::TObjectSE*>(&Graphic);
-                    SE_Space::RetainSpaceObject(graphic_7, cpp_arg_13);
+                    SE_Space::RetainSpaceObject(graphic_7, cpp_arg_12);
                 }
                 GraphName = Graphic->GraphKey;
                 Radius = GraphicRadius;
@@ -555,9 +557,9 @@ namespace aPlanet {
                     graphic_8->SetRotationTimerInterval(nextRandomIntRange_3);
                 }
                 {
-                    std::int32_t cpp_arg_14 = aMyFunction::NextRandomIntRange(0, 1, RandomState) * 2 - 1;
+                    std::int32_t cpp_arg_13 = aMyFunction::NextRandomIntRange(0, 1, RandomState) * 2 - 1;
                     SE_Planet::TPlanetSE* graphic_9 = Graphic;
-                    graphic_9->SetSurfaceMapStep(cpp_arg_14);
+                    graphic_9->SetSurfaceMapStep(cpp_arg_13);
                 }
                 Graphic->OrbitalVelocity = OrbitalVelocity;
                 PreviousPlanet = pas::list_at<TPlanet>(Star->Planets, pas::list_count(Star->Planets) - 1);
@@ -603,9 +605,9 @@ namespace aPlanet {
                 SpriteTemplateIndex = Quantity;
                 GraphicRadius = Globals::PlanetSpaceTemplates[Quantity].Radius;
                 {
-                    SE_Space::TObjectSE* cpp_arg_15 = pas::construct_call<SE_Planet::TPlanetSE>(SE_Planet::TPlanetSE_Create);
+                    SE_Space::TObjectSE* cpp_arg_14 = pas::construct_call<SE_Planet::TPlanetSE>(SE_Planet::TPlanetSE_Create);
                     pas::Var<SE_Space::TObjectSE*> graphic_10 = pas::Var<SE_Space::TObjectSE*>(&Graphic);
-                    SE_Space::RetainSpaceObject(graphic_10, cpp_arg_15);
+                    SE_Space::RetainSpaceObject(graphic_10, cpp_arg_14);
                 }
                 Globals::PlanetSpaceTemplates[Quantity].SpaceObject->CopyTo(Graphic);
                 GraphName = Graphic->GraphKey;
@@ -665,9 +667,9 @@ namespace aPlanet {
                     graphic_13->SetRotationTimerInterval(nextRandomIntRange_6);
                 }
                 {
-                    std::int32_t cpp_arg_16 = aMyFunction::NextRandomIntRange(0, 1, RandomState) * 2 - 1;
+                    std::int32_t cpp_arg_15 = aMyFunction::NextRandomIntRange(0, 1, RandomState) * 2 - 1;
                     SE_Planet::TPlanetSE* graphic_14 = Graphic;
-                    graphic_14->SetSurfaceMapStep(cpp_arg_16);
+                    graphic_14->SetSurfaceMapStep(cpp_arg_15);
                 }
                 Graphic->OrbitalVelocity = OrbitalVelocity;
                 SatelliteConfig = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Sputnik"_wref.get());
@@ -708,13 +710,13 @@ namespace aPlanet {
                             Satellite = pas::construct_call<TSputnik>(TSputnik_Create);
                             pas::list_add(Satellites, reinterpret_cast<void*>(Satellite));
                             {
-                                SE_Space::TObjectSE* cpp_arg_17 = pas::construct_call<SE_Sputnik::TSputnikSE>(SE_Space::TObjectSE_Create, pas::concat_wide({u"Sputnik.", ([&] {
+                                SE_Space::TObjectSE* cpp_arg_16 = pas::construct_call<SE_Sputnik::TSputnikSE>(SE_Space::TObjectSE_Create, pas::concat_wide({u"Sputnik.", ([&] {
                                     std::int32_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(0, SatelliteConfig->GetBlockCount() - 1, RandomState);
                                     EC_BlockPar::TBlockParEC* satelliteConfig = SatelliteConfig;
                                     return satelliteConfig->GetBlockNameByIndex(nextRandomIntRange_7);
                                 }())}), ClassesImports::Point(0, 0));
                                 pas::Var<SE_Space::TObjectSE*> graphic_15 = pas::Var<SE_Space::TObjectSE*>(&Satellite->Graphic);
-                                SE_Space::RetainSpaceObject(graphic_15, cpp_arg_17);
+                                SE_Space::RetainSpaceObject(graphic_15, cpp_arg_16);
                             }
                             Satellite->Graphic->DepthOrder = I;
                             Satellite->Graphic->OrbitCenter = GetPosition();
@@ -729,16 +731,18 @@ namespace aPlanet {
                             Satellite->Graphic->OrbitInclination = aMyFunction::NextRandomIntRange(50, 120, RandomState);
                             Satellite->Graphic->OrbitRotation = aMyFunction::NextRandomIntRange(200, 350, RandomState);
                             {
-                                double cpp_arg_18 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), SatelliteCount);
+                                double cpp_arg_17 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), SatelliteCount);
                                 double generatedSatelliteBaseRadius = GlobalsV::GeneratedSatelliteBaseRadius;
-                                double cpp_arg_19 = GlobalsV::GeneratedSatelliteBaseRadius * 2;
-                                Satellite->Graphic->MinDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_18, 0.0, 1.0, generatedSatelliteBaseRadius, cpp_arg_19));
+                                double cpp_arg_18 = GlobalsV::GeneratedSatelliteBaseRadius * 2;
+                                Satellite->Graphic->MinDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_17, 0.0, 1.0, generatedSatelliteBaseRadius, cpp_arg_18));
                             }
                             {
-                                double cpp_arg_20 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
-                                double cpp_arg_21 = Satellite->Graphic->MinDisplayRadius * 1.3L;
-                                double cpp_arg_22 = std::min<std::int32_t>(GlobalsV::MaximumSatelliteTemplateRadius, Satellite->Graphic->MinDisplayRadius * 2);
-                                Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_20, 0.0, 1.0, cpp_arg_21, cpp_arg_22));
+                                std::int32_t min_3 = std::min<std::int32_t>(GlobalsV::MaximumSatelliteTemplateRadius, Satellite->Graphic->MinDisplayRadius * 2);
+                                {
+                                    double cpp_arg_19 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
+                                    double cpp_arg_20 = Satellite->Graphic->MinDisplayRadius * 1.3L;
+                                    Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_19, 0.0, 1.0, cpp_arg_20, min_3));
+                                }
                             }
                             PreviousExtent = static_cast<long double>(Satellite->Graphic->OrbitRadius) + Satellite->Graphic->MaxDisplayRadius / 2;
                             Satellite->Graphic->RotationTimerInterval = 25u;
@@ -797,12 +801,12 @@ namespace aPlanet {
                             ItemOwner = aConst::RaceToOwner(RaceId);
                             Series = aGalaxy::Galaxy->SelectHullSeries(ItemOwner, HullType, 1, 100);
                             {
+                                std::uint8_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(1, InventionLevels[0], RandomState);
                                 std::int32_t round = System::Round(static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[4]);
                                 std::int32_t round_2 = System::Round(static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(round_2, round, RandomState);
-                                std::uint8_t nextRandomIntRange_9 = aMyFunction::NextRandomIntRange(1, InventionLevels[0], RandomState);
-                                aItem::THull* cpp_arg_23 = pas::checked_cast<aItem::THull*>(Item);
-                                cpp_arg_23->Init(nextRandomIntRange_8, nextRandomIntRange_9, ItemOwner, HullType, Series, false);
+                                std::int32_t nextRandomIntRange_9 = aMyFunction::NextRandomIntRange(round_2, round, RandomState);
+                                aItem::THull* cpp_arg_21 = pas::checked_cast<aItem::THull*>(Item);
+                                cpp_arg_21->Init(nextRandomIntRange_9, nextRandomIntRange_8, ItemOwner, HullType, Series, false);
                             }
                         }
                         break;
@@ -813,12 +817,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId = OwnerId;
+                                std::uint8_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(1, InventionLevels[1], RandomState);
                                 std::int32_t round_3 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_4 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(round_4, round_3, RandomState);
-                                std::uint8_t nextRandomIntRange_11 = aMyFunction::NextRandomIntRange(1, InventionLevels[1], RandomState);
-                                aItem::TFuelTanks* cpp_arg_24 = pas::checked_cast<aItem::TFuelTanks*>(Item);
-                                cpp_arg_24->Init(nextRandomIntRange_10, nextRandomIntRange_11, ownerId);
+                                std::int32_t nextRandomIntRange_11 = aMyFunction::NextRandomIntRange(round_4, round_3, RandomState);
+                                aItem::TFuelTanks* cpp_arg_22 = pas::checked_cast<aItem::TFuelTanks*>(Item);
+                                cpp_arg_22->Init(nextRandomIntRange_11, nextRandomIntRange_10, ownerId);
                             }
                         }
                         break;
@@ -829,12 +833,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_2 = OwnerId;
+                                std::uint8_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(1, InventionLevels[2], RandomState);
                                 std::int32_t round_5 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_6 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(round_6, round_5, RandomState);
-                                std::uint8_t nextRandomIntRange_13 = aMyFunction::NextRandomIntRange(1, InventionLevels[2], RandomState);
-                                aItem::TEngine* cpp_arg_25 = pas::checked_cast<aItem::TEngine*>(Item);
-                                cpp_arg_25->Init(nextRandomIntRange_12, nextRandomIntRange_13, ownerId_2);
+                                std::int32_t nextRandomIntRange_13 = aMyFunction::NextRandomIntRange(round_6, round_5, RandomState);
+                                aItem::TEngine* cpp_arg_23 = pas::checked_cast<aItem::TEngine*>(Item);
+                                cpp_arg_23->Init(nextRandomIntRange_13, nextRandomIntRange_12, ownerId_2);
                             }
                         }
                         break;
@@ -845,12 +849,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_3 = OwnerId;
+                                std::uint8_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(1, InventionLevels[3], RandomState);
                                 std::int32_t round_7 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_8 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(round_8, round_7, RandomState);
-                                std::uint8_t nextRandomIntRange_15 = aMyFunction::NextRandomIntRange(1, InventionLevels[3], RandomState);
-                                aItem::TRadar* cpp_arg_26 = pas::checked_cast<aItem::TRadar*>(Item);
-                                cpp_arg_26->Init(nextRandomIntRange_14, nextRandomIntRange_15, ownerId_3);
+                                std::int32_t nextRandomIntRange_15 = aMyFunction::NextRandomIntRange(round_8, round_7, RandomState);
+                                aItem::TRadar* cpp_arg_24 = pas::checked_cast<aItem::TRadar*>(Item);
+                                cpp_arg_24->Init(nextRandomIntRange_15, nextRandomIntRange_14, ownerId_3);
                             }
                         }
                         break;
@@ -861,12 +865,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_4 = OwnerId;
+                                std::uint8_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(1, InventionLevels[4], RandomState);
                                 std::int32_t round_9 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_10 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(round_10, round_9, RandomState);
-                                std::uint8_t nextRandomIntRange_17 = aMyFunction::NextRandomIntRange(1, InventionLevels[4], RandomState);
-                                aItem::TScaner* cpp_arg_27 = pas::checked_cast<aItem::TScaner*>(Item);
-                                cpp_arg_27->Init(nextRandomIntRange_16, nextRandomIntRange_17, ownerId_4);
+                                std::int32_t nextRandomIntRange_17 = aMyFunction::NextRandomIntRange(round_10, round_9, RandomState);
+                                aItem::TScaner* cpp_arg_25 = pas::checked_cast<aItem::TScaner*>(Item);
+                                cpp_arg_25->Init(nextRandomIntRange_17, nextRandomIntRange_16, ownerId_4);
                             }
                         }
                         break;
@@ -877,12 +881,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_5 = OwnerId;
+                                std::uint8_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(1, InventionLevels[5], RandomState);
                                 std::int32_t round_11 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_12 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(round_12, round_11, RandomState);
-                                std::uint8_t nextRandomIntRange_19 = aMyFunction::NextRandomIntRange(1, InventionLevels[5], RandomState);
-                                aItem::TRepairRobot* cpp_arg_28 = pas::checked_cast<aItem::TRepairRobot*>(Item);
-                                cpp_arg_28->Init(nextRandomIntRange_18, nextRandomIntRange_19, ownerId_5);
+                                std::int32_t nextRandomIntRange_19 = aMyFunction::NextRandomIntRange(round_12, round_11, RandomState);
+                                aItem::TRepairRobot* cpp_arg_26 = pas::checked_cast<aItem::TRepairRobot*>(Item);
+                                cpp_arg_26->Init(nextRandomIntRange_19, nextRandomIntRange_18, ownerId_5);
                             }
                         }
                         break;
@@ -893,12 +897,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_6 = OwnerId;
+                                std::uint8_t nextRandomIntRange_20 = aMyFunction::NextRandomIntRange(1, InventionLevels[6], RandomState);
                                 std::int32_t round_13 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_14 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_20 = aMyFunction::NextRandomIntRange(round_14, round_13, RandomState);
-                                std::uint8_t nextRandomIntRange_21 = aMyFunction::NextRandomIntRange(1, InventionLevels[6], RandomState);
-                                aItem::TCargoHook* cpp_arg_29 = pas::checked_cast<aItem::TCargoHook*>(Item);
-                                cpp_arg_29->Init(nextRandomIntRange_20, nextRandomIntRange_21, ownerId_6);
+                                std::int32_t nextRandomIntRange_21 = aMyFunction::NextRandomIntRange(round_14, round_13, RandomState);
+                                aItem::TCargoHook* cpp_arg_27 = pas::checked_cast<aItem::TCargoHook*>(Item);
+                                cpp_arg_27->Init(nextRandomIntRange_21, nextRandomIntRange_20, ownerId_6);
                             }
                         }
                         break;
@@ -909,12 +913,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_7 = OwnerId;
+                                std::uint8_t nextRandomIntRange_22 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
                                 std::int32_t round_15 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_16 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_22 = aMyFunction::NextRandomIntRange(round_16, round_15, RandomState);
-                                std::uint8_t nextRandomIntRange_23 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
-                                aItem::TDefGenerator* cpp_arg_30 = pas::checked_cast<aItem::TDefGenerator*>(Item);
-                                cpp_arg_30->Init(nextRandomIntRange_22, nextRandomIntRange_23, ownerId_7);
+                                std::int32_t nextRandomIntRange_23 = aMyFunction::NextRandomIntRange(round_16, round_15, RandomState);
+                                aItem::TDefGenerator* cpp_arg_28 = pas::checked_cast<aItem::TDefGenerator*>(Item);
+                                cpp_arg_28->Init(nextRandomIntRange_23, nextRandomIntRange_22, ownerId_7);
                             }
                         }
                         break;
@@ -922,20 +926,20 @@ namespace aPlanet {
                     case aConst::t_Weapon1: {
                         for (auto cpp_range_20 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(2, InventionLevels[7] + 2, RandomState)); cpp_range_20.next(I); ) {
                             {
-                                std::uint8_t cpp_arg_31 = InventionLevels[7];
+                                std::uint8_t cpp_arg_29 = InventionLevels[7];
                                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 100000);
                                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                                WeaponInfo = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), cpp_arg_31, 1);
+                                WeaponInfo = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), cpp_arg_29, 1);
                             }
                             GeneratedWeapon = ([&] {
                                 aGalaxyStruct::TOwnerId ownerId_8 = OwnerId;
-                                std::int32_t nextRandomIntRange_24 = ([&] {
+                                std::int32_t nextRandomIntRange_24 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
+                                std::int32_t nextRandomIntRange_25 = ([&] {
                                     std::int32_t round_17 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[1]);
                                     std::int32_t round_18 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[5]);
                                     return aMyFunction::NextRandomIntRange(round_18, round_17, RandomState);
                                 }());
-                                std::int32_t nextRandomIntRange_25 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
-                                return aItem::CreateGeneratedWeapon(WeaponInfo, nextRandomIntRange_24, nextRandomIntRange_25, ownerId_8);
+                                return aItem::CreateGeneratedWeapon(WeaponInfo, nextRandomIntRange_25, nextRandomIntRange_24, ownerId_8);
                             }());
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(GeneratedWeapon));
                         }
@@ -966,9 +970,9 @@ namespace aPlanet {
                     continue;
                 }
                 {
-                    std::uint32_t cpp_arg_32 = 767 + aMyFunction::NextRandomIntRange(1, 3000, RandomState);
+                    std::uint32_t cpp_arg_30 = 767 + aMyFunction::NextRandomIntRange(1, 3000, RandomState);
                     aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(RaceId);
-                    Loot = aItem::CreateRandomLootItem(aItem::ilpTreasure, raceToOwner, cpp_arg_32);
+                    Loot = aItem::CreateRandomLootItem(aItem::ilpTreasure, raceToOwner, cpp_arg_30);
                 }
                 if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Loot)) {
                     static_cast<aTranclucator::TTranclucator*>(artefactTranclucator->Ship)->OwnerShip = nullptr;
@@ -1250,10 +1254,12 @@ namespace aPlanet {
                         Satellite->Graphic->MinDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_4, 0.0, 1.0, generatedSatelliteBaseRadius, cpp_arg_5));
                     }
                     {
-                        double cpp_arg_6 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
-                        double cpp_arg_7 = Satellite->Graphic->MinDisplayRadius * 1.3L;
-                        double cpp_arg_8 = std::min<std::int32_t>(GlobalsV::MaximumSatelliteTemplateRadius, Satellite->Graphic->MinDisplayRadius * 2);
-                        Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_6, 0.0, 1.0, cpp_arg_7, cpp_arg_8));
+                        std::int32_t min = std::min<std::int32_t>(GlobalsV::MaximumSatelliteTemplateRadius, Satellite->Graphic->MinDisplayRadius * 2);
+                        {
+                            double cpp_arg_6 = pas::real_divide(aMyFunction::NextRandomUnitFloat(RandomState), 1.0L);
+                            double cpp_arg_7 = Satellite->Graphic->MinDisplayRadius * 1.3L;
+                            Satellite->Graphic->MaxDisplayRadius = System::Round(aMyFunction::RemapClamped(cpp_arg_6, 0.0, 1.0, cpp_arg_7, min));
+                        }
                     }
                     PreviousExtent = static_cast<long double>(Satellite->Graphic->OrbitRadius) + Satellite->Graphic->MaxDisplayRadius / 2;
                     Satellite->Graphic->RotationTimerInterval = 25u;
@@ -1297,12 +1303,12 @@ namespace aPlanet {
                             ItemOwner = aConst::RaceToOwner(RaceId);
                             Series = aGalaxy::Galaxy->SelectHullSeries(ItemOwner, HullType, 1, 100);
                             {
+                                std::uint8_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(1, InventionLevels[0], RandomState);
                                 std::int32_t round = System::Round(static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[4]);
                                 std::int32_t round_2 = System::Round(static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_4 = aMyFunction::NextRandomIntRange(round_2, round, RandomState);
-                                std::uint8_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(1, InventionLevels[0], RandomState);
-                                aItem::THull* cpp_arg_9 = pas::checked_cast<aItem::THull*>(Item);
-                                cpp_arg_9->Init(nextRandomIntRange_4, nextRandomIntRange_5, ItemOwner, HullType, Series, false);
+                                std::int32_t nextRandomIntRange_5 = aMyFunction::NextRandomIntRange(round_2, round, RandomState);
+                                aItem::THull* cpp_arg_8 = pas::checked_cast<aItem::THull*>(Item);
+                                cpp_arg_8->Init(nextRandomIntRange_5, nextRandomIntRange_4, ItemOwner, HullType, Series, false);
                             }
                         }
                         break;
@@ -1313,12 +1319,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId = OwnerId;
+                                std::uint8_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(1, InventionLevels[1], RandomState);
                                 std::int32_t round_3 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_4 = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_6 = aMyFunction::NextRandomIntRange(round_4, round_3, RandomState);
-                                std::uint8_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(1, InventionLevels[1], RandomState);
-                                aItem::TFuelTanks* cpp_arg_10 = pas::checked_cast<aItem::TFuelTanks*>(Item);
-                                cpp_arg_10->Init(nextRandomIntRange_6, nextRandomIntRange_7, ownerId);
+                                std::int32_t nextRandomIntRange_7 = aMyFunction::NextRandomIntRange(round_4, round_3, RandomState);
+                                aItem::TFuelTanks* cpp_arg_9 = pas::checked_cast<aItem::TFuelTanks*>(Item);
+                                cpp_arg_9->Init(nextRandomIntRange_7, nextRandomIntRange_6, ownerId);
                             }
                         }
                         break;
@@ -1329,12 +1335,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_2 = OwnerId;
+                                std::uint8_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(1, InventionLevels[2], RandomState);
                                 std::int32_t round_5 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_6 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_8 = aMyFunction::NextRandomIntRange(round_6, round_5, RandomState);
-                                std::uint8_t nextRandomIntRange_9 = aMyFunction::NextRandomIntRange(1, InventionLevels[2], RandomState);
-                                aItem::TEngine* cpp_arg_11 = pas::checked_cast<aItem::TEngine*>(Item);
-                                cpp_arg_11->Init(nextRandomIntRange_8, nextRandomIntRange_9, ownerId_2);
+                                std::int32_t nextRandomIntRange_9 = aMyFunction::NextRandomIntRange(round_6, round_5, RandomState);
+                                aItem::TEngine* cpp_arg_10 = pas::checked_cast<aItem::TEngine*>(Item);
+                                cpp_arg_10->Init(nextRandomIntRange_9, nextRandomIntRange_8, ownerId_2);
                             }
                         }
                         break;
@@ -1345,12 +1351,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_3 = OwnerId;
+                                std::uint8_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(1, InventionLevels[3], RandomState);
                                 std::int32_t round_7 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_8 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_10 = aMyFunction::NextRandomIntRange(round_8, round_7, RandomState);
-                                std::uint8_t nextRandomIntRange_11 = aMyFunction::NextRandomIntRange(1, InventionLevels[3], RandomState);
-                                aItem::TRadar* cpp_arg_12 = pas::checked_cast<aItem::TRadar*>(Item);
-                                cpp_arg_12->Init(nextRandomIntRange_10, nextRandomIntRange_11, ownerId_3);
+                                std::int32_t nextRandomIntRange_11 = aMyFunction::NextRandomIntRange(round_8, round_7, RandomState);
+                                aItem::TRadar* cpp_arg_11 = pas::checked_cast<aItem::TRadar*>(Item);
+                                cpp_arg_11->Init(nextRandomIntRange_11, nextRandomIntRange_10, ownerId_3);
                             }
                         }
                         break;
@@ -1361,12 +1367,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_4 = OwnerId;
+                                std::uint8_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(1, InventionLevels[4], RandomState);
                                 std::int32_t round_9 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_10 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_12 = aMyFunction::NextRandomIntRange(round_10, round_9, RandomState);
-                                std::uint8_t nextRandomIntRange_13 = aMyFunction::NextRandomIntRange(1, InventionLevels[4], RandomState);
-                                aItem::TScaner* cpp_arg_13 = pas::checked_cast<aItem::TScaner*>(Item);
-                                cpp_arg_13->Init(nextRandomIntRange_12, nextRandomIntRange_13, ownerId_4);
+                                std::int32_t nextRandomIntRange_13 = aMyFunction::NextRandomIntRange(round_10, round_9, RandomState);
+                                aItem::TScaner* cpp_arg_12 = pas::checked_cast<aItem::TScaner*>(Item);
+                                cpp_arg_12->Init(nextRandomIntRange_13, nextRandomIntRange_12, ownerId_4);
                             }
                         }
                         break;
@@ -1377,12 +1383,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_5 = OwnerId;
+                                std::uint8_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(1, InventionLevels[5], RandomState);
                                 std::int32_t round_11 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_12 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_14 = aMyFunction::NextRandomIntRange(round_12, round_11, RandomState);
-                                std::uint8_t nextRandomIntRange_15 = aMyFunction::NextRandomIntRange(1, InventionLevels[5], RandomState);
-                                aItem::TRepairRobot* cpp_arg_14 = pas::checked_cast<aItem::TRepairRobot*>(Item);
-                                cpp_arg_14->Init(nextRandomIntRange_14, nextRandomIntRange_15, ownerId_5);
+                                std::int32_t nextRandomIntRange_15 = aMyFunction::NextRandomIntRange(round_12, round_11, RandomState);
+                                aItem::TRepairRobot* cpp_arg_13 = pas::checked_cast<aItem::TRepairRobot*>(Item);
+                                cpp_arg_13->Init(nextRandomIntRange_15, nextRandomIntRange_14, ownerId_5);
                             }
                         }
                         break;
@@ -1393,12 +1399,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_6 = OwnerId;
+                                std::uint8_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(1, InventionLevels[6], RandomState);
                                 std::int32_t round_13 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_14 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_16 = aMyFunction::NextRandomIntRange(round_14, round_13, RandomState);
-                                std::uint8_t nextRandomIntRange_17 = aMyFunction::NextRandomIntRange(1, InventionLevels[6], RandomState);
-                                aItem::TCargoHook* cpp_arg_15 = pas::checked_cast<aItem::TCargoHook*>(Item);
-                                cpp_arg_15->Init(nextRandomIntRange_16, nextRandomIntRange_17, ownerId_6);
+                                std::int32_t nextRandomIntRange_17 = aMyFunction::NextRandomIntRange(round_14, round_13, RandomState);
+                                aItem::TCargoHook* cpp_arg_14 = pas::checked_cast<aItem::TCargoHook*>(Item);
+                                cpp_arg_14->Init(nextRandomIntRange_17, nextRandomIntRange_16, ownerId_6);
                             }
                         }
                         break;
@@ -1409,12 +1415,12 @@ namespace aPlanet {
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(Item));
                             {
                                 aGalaxyStruct::TOwnerId ownerId_7 = OwnerId;
+                                std::uint8_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
                                 std::int32_t round_15 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[1]);
                                 std::int32_t round_16 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[5]);
-                                std::int32_t nextRandomIntRange_18 = aMyFunction::NextRandomIntRange(round_16, round_15, RandomState);
-                                std::uint8_t nextRandomIntRange_19 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
-                                aItem::TDefGenerator* cpp_arg_16 = pas::checked_cast<aItem::TDefGenerator*>(Item);
-                                cpp_arg_16->Init(nextRandomIntRange_18, nextRandomIntRange_19, ownerId_7);
+                                std::int32_t nextRandomIntRange_19 = aMyFunction::NextRandomIntRange(round_16, round_15, RandomState);
+                                aItem::TDefGenerator* cpp_arg_15 = pas::checked_cast<aItem::TDefGenerator*>(Item);
+                                cpp_arg_15->Init(nextRandomIntRange_19, nextRandomIntRange_18, ownerId_7);
                             }
                         }
                         break;
@@ -1422,20 +1428,20 @@ namespace aPlanet {
                     case aConst::t_Weapon1: {
                         for (auto cpp_range_12 = pas::for_to<std::int32_t>(1, aMyFunction::NextRandomIntRange(2, InventionLevels[7] + 2, RandomState)); cpp_range_12.next(I); ) {
                             {
-                                std::uint8_t cpp_arg_17 = InventionLevels[7];
+                                std::uint8_t cpp_arg_16 = InventionLevels[7];
                                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 100000);
                                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                                WeaponInfo = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), cpp_arg_17, 1);
+                                WeaponInfo = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), cpp_arg_16, 1);
                             }
                             GeneratedWeapon = ([&] {
                                 aGalaxyStruct::TOwnerId ownerId_8 = OwnerId;
-                                std::int32_t nextRandomIntRange_20 = ([&] {
+                                std::int32_t nextRandomIntRange_20 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
+                                std::int32_t nextRandomIntRange_21 = ([&] {
                                     std::int32_t round_17 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[1]);
                                     std::int32_t round_18 = System::Round(static_cast<long double>(WeaponInfo->AverageSize) * aConst::EquipmentSizeFactors[5]);
                                     return aMyFunction::NextRandomIntRange(round_18, round_17, RandomState);
                                 }());
-                                std::int32_t nextRandomIntRange_21 = aMyFunction::NextRandomIntRange(1, InventionLevels[7], RandomState);
-                                return aItem::CreateGeneratedWeapon(WeaponInfo, nextRandomIntRange_20, nextRandomIntRange_21, ownerId_8);
+                                return aItem::CreateGeneratedWeapon(WeaponInfo, nextRandomIntRange_21, nextRandomIntRange_20, ownerId_8);
                             }());
                             pas::list_add(EquipmentShop, reinterpret_cast<void*>(GeneratedWeapon));
                         }
@@ -1466,9 +1472,9 @@ namespace aPlanet {
                     continue;
                 }
                 {
-                    std::uint32_t cpp_arg_18 = 767 + aMyFunction::NextRandomIntRange(1, 3000, RandomState);
+                    std::uint32_t cpp_arg_17 = 767 + aMyFunction::NextRandomIntRange(1, 3000, RandomState);
                     aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(RaceId);
-                    Loot = aItem::CreateRandomLootItem(aItem::ilpTreasure, raceToOwner, cpp_arg_18);
+                    Loot = aItem::CreateRandomLootItem(aItem::ilpTreasure, raceToOwner, cpp_arg_17);
                 }
                 if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Loot)) {
                     static_cast<aTranclucator::TTranclucator*>(artefactTranclucator->Ship)->OwnerShip = nullptr;
@@ -2478,8 +2484,8 @@ namespace aPlanet {
                     if (static_cast<std::uint8_t>(Self->IsMainPiratePlanet ^ 1) && static_cast<std::uint8_t>(Self->NoAutomaticShipSpawning ^ 1)) {
                         if (Self->CurrentStar->Constellation->Id != 20) {
                             if (([&] {
-                                pas::Extended cpp_right = pas::real_min<pas::Extended>(aGalaxy::Galaxy->CountFactionStars(aGalaxyStruct::sfCoalition) * 1.5L, 63.0L) + aGalaxy::Galaxy->GetExtraRangerCount();
-                                return aGalaxy::Galaxy->CountEligibleRangers() < cpp_right;
+                                pas::Extended real_min = pas::real_min<pas::Extended>(aGalaxy::Galaxy->CountFactionStars(aGalaxyStruct::sfCoalition) * 1.5L, 63.0L);
+                                return aGalaxy::Galaxy->CountEligibleRangers() < real_min + aGalaxy::Galaxy->GetExtraRangerCount();
                             }()) && Self->CurrentStar->CountEligibleRangersInSpace() < aGalaxy::Galaxy->GetExtraRangerCount() + 1 && aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.04L) {
                                 Self->BuyRanger(100);
                             }

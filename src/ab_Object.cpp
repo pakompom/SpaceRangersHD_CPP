@@ -308,11 +308,12 @@ namespace ab_Object {
                     ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Zone->Longitude, Zone->PolarAngle, 0.0, State.LongitudeDegrees, State.PolarAngleDegrees, ab_Global::SphereRadius);
                     if (static_cast<long double>(Zone->Radius) + ZoneRadius + 5.0L > Distance) {
                         if (Zone->DamagePerTick < 0) {
-                            pas::checked_cast<ab_Hit::TabHit*>(this)->Health = ([&] {
+                            std::int32_t min = ([&] {
                                 std::int32_t maxHealth = pas::checked_cast<ab_Hit::TabHit*>(this)->MaxHealth;
                                 std::int32_t cpp_arg_3 = pas::checked_cast<ab_Hit::TabHit*>(this)->Health + -Zone->DamagePerTick;
                                 return std::min<std::int32_t>(maxHealth, cpp_arg_3);
                             }());
+                            static_cast<ab_Hit::TabHit*>(this)->Health = min;
                         } else {
                             ApplyDamage(Zone->DamagePerTick, nullptr, false);
                             if (ab_ShipAI::TabShipAI* abShipAI = pas::class_cast_if<ab_ShipAI::TabShipAI*>(this)) {

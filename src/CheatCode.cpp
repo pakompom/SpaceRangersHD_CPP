@@ -662,10 +662,13 @@ namespace CheatCode {
                                 const std::int32_t cpp_last = static_cast<std::int32_t>(Ship->WeaponCount);
                                 if (1 <= cpp_last) {
                                     for (K = 1; K <= cpp_last; ++K) {
-                                        Ship->Weapons[K]->MaxDamage = std::min<std::int32_t>(255, ([&] {
-                                            std::int32_t cpp_right = aMyFunction::RandomIntRange(10, 20);
-                                            return Ship->Weapons[K]->MaxDamage + cpp_right;
-                                        }()));
+                                        {
+                                            std::int32_t min = std::min<std::int32_t>(255, ([&] {
+                                                std::int32_t cpp_right = aMyFunction::RandomIntRange(10, 20);
+                                                return Ship->Weapons[K]->MaxDamage + cpp_right;
+                                            }()));
+                                            Ship->Weapons[K]->MaxDamage = min;
+                                        }
                                         if (aPlayer::GetPlayer() != Ship) {
                                             Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), 50);
                                         }

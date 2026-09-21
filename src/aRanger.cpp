@@ -302,9 +302,9 @@ namespace aRanger {
         CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
         {
             aGalaxyStruct::TOwnerId ownerId = OwnerId;
+            std::uint8_t nextRandomIntRange = aMyFunction::NextRandomIntRange(1, 2, RandomState);
             pas::Extended cpp_left = aConst::EquipmentSizeFactors[aMyFunction::NextRandomIntRange(1, 2, RandomState)];
             std::int32_t round_2 = System::Round(cpp_left * aConst::EngineBaseSize);
-            std::uint8_t nextRandomIntRange = aMyFunction::NextRandomIntRange(1, 2, RandomState);
             aShip::TShip* self_2 = this;
             self_2->CreateAndEquipEngine(round_2, nextRandomIntRange, ownerId);
         }
@@ -1479,16 +1479,17 @@ namespace aRanger {
                         pas::Extended cpp_right = ShopGoodsPurchasePrice(Good, Planet);
                         return aConst::GoodsMarket[Good].AveragePrice * 0.7L > cpp_right;
                     }())) {
-                        PurchaseProfit = static_cast<long double>(PurchaseProfit) + ([&] {
-                            std::int32_t cpp_right_2 = ShopGoodsPurchasePrice(Good, Planet);
-                            std::int32_t cpp_arg = pas::idiv(Money, cpp_right_2);
-                            std::int32_t cpp_arg_2 = std::min<std::int32_t>(CargoFreeSpace, Planet->Goods[Good].Count);
-                            std::int32_t cpp_left_4 = std::min<std::int32_t>(cpp_arg, cpp_arg_2);
-                            return cpp_left_4 * ([&] {
+                        std::int32_t min = std::min<std::int32_t>(CargoFreeSpace, Planet->Goods[Good].Count);
+                        {
+                            std::int32_t min_2 = std::min<std::int32_t>(([&] {
+                                std::int32_t cpp_right_2 = ShopGoodsPurchasePrice(Good, Planet);
+                                return pas::idiv(Money, cpp_right_2);
+                            }()), min);
+                            PurchaseProfit = static_cast<long double>(PurchaseProfit) + min_2 * ([&] {
                                 std::int32_t cpp_right_3 = ShopGoodsPurchasePrice(Good, Planet);
                                 return aConst::GoodsMarket[Good].AveragePrice - cpp_right_3;
                             }());
-                        }());
+                        }
                     }
                 }
                 Profit = static_cast<long double>(Profit) + pas::real_min<float>(Profit, PurchaseProfit);
@@ -1879,12 +1880,12 @@ namespace aRanger {
                         pas::Extended cpp_right_2 = ShopGoodsPurchasePrice(Good, nullptr);
                         return pas::real_divide(aConst::GoodsMarket[Good].AveragePrice, cpp_right_2);
                     }()) > BestRatio && FindBestQueuedSellPlanetProfitScore(Good, BestPlanet, ShopGoodsPurchasePrice(Good, nullptr)) > 50) {
-                        std::int32_t cpp_right_3 = ShopGoodsPurchasePrice(Good, nullptr);
-                        pas::Extended cpp_left = std::min<std::int32_t>(CargoFreeSpace, CurrentPlanet->Goods[Good].Count) * cpp_right_3;
-                        if (cpp_left > pas::real_min<pas::Extended>(Money * 0.2L, Wealth * 0.05L)) {
+                        std::int32_t min = std::min<std::int32_t>(CargoFreeSpace, CurrentPlanet->Goods[Good].Count);
+                        pas::Extended real_min = pas::real_min<pas::Extended>(Money * 0.2L, Wealth * 0.05L);
+                        if (min * ShopGoodsPurchasePrice(Good, nullptr) > real_min) {
                             BestRatio = ([&] {
-                                pas::Extended cpp_right_4 = ShopGoodsPurchasePrice(Good, nullptr);
-                                return pas::real_divide(aConst::GoodsMarket[Good].AveragePrice, cpp_right_4);
+                                pas::Extended cpp_right_3 = ShopGoodsPurchasePrice(Good, nullptr);
+                                return pas::real_divide(aConst::GoodsMarket[Good].AveragePrice, cpp_right_3);
                             }());
                             BestGood = Good;
                         }
@@ -1893,8 +1894,8 @@ namespace aRanger {
             }
             if (BestRatio > 0.0L) {
                 {
-                    pas::Extended cpp_right_5 = ShopGoodsPurchasePrice(BestGood, nullptr);
-                    std::int64_t trunc = System::Trunc(pas::real_divide(Money, cpp_right_5));
+                    pas::Extended cpp_right_4 = ShopGoodsPurchasePrice(BestGood, nullptr);
+                    std::int64_t trunc = System::Trunc(pas::real_divide(Money, cpp_right_4));
                     std::int64_t cargoFreeSpace = static_cast<std::int64_t>(CargoFreeSpace);
                     Count = std::min<std::int64_t>(trunc, cargoFreeSpace);
                 }
@@ -3515,6 +3516,8 @@ namespace aRanger {
 
     float TRanger::AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) {
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
+        float MoneyPenalty{};
+        float WeightPenalty{};
         float FragilityScale{};
         std::int32_t Price{};
         float DesiredMoneyFraction{};
@@ -3549,17 +3552,27 @@ namespace aRanger {
             FragilityScale = FragilityScale * 0.5L;
         }
         float DesiredFreeFraction = pas::real_max<pas::Extended>(0.01L, pas::real_min<pas::Extended>(0.99L, pas::real_divide(GetDesiredCargoFreeSpace(), std::max<std::int32_t>(100, GetHull()->Weight))));
-        pas::Extended cpp_left = pas::sqr(([&] {
-            pas::Extended cpp_left_2 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedMoneyFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_2, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
-        }()));
-        float MoneyPenalty = pas::real_divide(cpp_left, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+        {
+            float real_max_2 = pas::real_max<float>(0.01f, SmoothedMoneyFraction);
+            {
+                pas::Extended inline_value = pas::sqr(([&] {
+                    pas::Extended cpp_left = pas::real_divide(1.0L, real_max_2) - 1.0L;
+                    return pas::real_divide(cpp_left, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
+                }()));
+                MoneyPenalty = pas::real_divide(inline_value, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+            }
+        }
         float EffectivenessScale = pas::real_divide(2.0L, pas::real_max<float>(1.0E+1f, SmoothedEquipmentEffectiveness));
-        pas::Extended cpp_left_3 = pas::sqr(([&] {
-            pas::Extended cpp_left_4 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_4, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
-        }()));
-        float WeightPenalty = pas::real_divide(cpp_left_3, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+        {
+            float real_max_5 = pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction);
+            {
+                pas::Extended inline_value_2 = pas::sqr(([&] {
+                    pas::Extended cpp_left_2 = pas::real_divide(1.0L, real_max_5) - 1.0L;
+                    return pas::real_divide(cpp_left_2, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
+                }()));
+                WeightPenalty = pas::real_divide(inline_value_2, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+            }
+        }
         MoneyPenalty = MoneyPenalty * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-20, 20, Id + Seed));
         EffectivenessScale = EffectivenessScale * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-20, 20, Id * 3 + Seed));
         WeightPenalty = WeightPenalty * 0.01L * (100 + aMyFunction::SeededRandomIntRange(-20, 20, Id * 5 + Seed));
@@ -3681,10 +3694,10 @@ namespace aRanger {
                     Result = std::max<std::int32_t>(Value, -GetSlotCount(aConst::sskWeapon)) * RangerSlotBonusEvaluationWeights[PreferredCareer][BonusKind];
                 }
                 {
-                    std::int32_t cpp_right = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
-                    if (CountEquippedWeapons() > cpp_right) {
-                        std::int32_t cpp_right_2 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
-                        Result = Result - RangerSlotBonusEvaluationWeights[PreferredCareer][BonusKind] * 0.6L * (CountEquippedWeapons() - cpp_right_2);
+                    std::int32_t max_6 = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
+                    if (CountEquippedWeapons() > max_6) {
+                        std::int32_t max_7 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
+                        Result = Result - RangerSlotBonusEvaluationWeights[PreferredCareer][BonusKind] * 0.6L * (CountEquippedWeapons() - max_7);
                     }
                 }
             } else if (cpp_case == aConst::bonSlotArt) {
@@ -4213,9 +4226,8 @@ namespace aRanger {
             ArchiveQuest(Index);
             RefreshPlayerQuestTargets();
             if (this->CurrentPlanet != nullptr) {
-                std::int32_t cpp_arg = std::max<std::int32_t>(0, 70 - this->CurrentPlanet->RelationToShip(this));
-                aPlanet::TPlanet* currentPlanet = this->CurrentPlanet;
-                currentPlanet->ChangeRelationToRanger(this, cpp_arg);
+                std::int32_t max = std::max<std::int32_t>(0, 70 - this->CurrentPlanet->RelationToShip(this));
+                this->CurrentPlanet->ChangeRelationToRanger(this, max);
             }
             if (this->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate && aPlanet::MainPiratePlanet != nullptr) {
                 if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(this) == aGalaxyStruct::rlHostile) {
@@ -4655,9 +4667,8 @@ namespace aRanger {
             Result = pas::WideString();
         }
         if (Self->CurrentPlanet != nullptr) {
-            std::int32_t cpp_arg = std::max<std::int32_t>(0, 70 - Self->CurrentPlanet->RelationToShip(Self));
-            aPlanet::TPlanet* currentPlanet = Self->CurrentPlanet;
-            currentPlanet->ChangeRelationToRanger(Self, cpp_arg);
+            std::int32_t max = std::max<std::int32_t>(0, 70 - Self->CurrentPlanet->RelationToShip(Self));
+            Self->CurrentPlanet->ChangeRelationToRanger(Self, max);
         }
         if (Self->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate && aPlanet::MainPiratePlanet != nullptr) {
             if (aPlanet::MainPiratePlanet->GetRelationLevelToShip(Self) == aGalaxyStruct::rlHostile) {
@@ -4916,10 +4927,10 @@ namespace aRanger {
                                                 Quest.DeadlineTurn = System::Round(Quest.DeadlineTurn * 1.5L);
                                             }
                                             Quest.DeadlineTurn = aGalaxy::Galaxy->CurrentTurn + System::Round(pas::real_divide(Quest.DeadlineTurn, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestTimeAndExperienceFactor));
-                                            Quest.RewardMoney = aConst::QuestTuning[Quest.QuestType].BaseRewardMoney + System::Round(([&] {
-                                                pas::Extended cpp_left_2 = aConst::QuestTuning[Quest.QuestType].RewardCapitalPercent * pas::real_min<pas::Extended>(aGalaxy::Galaxy->AverageRangerCapital * 0.01L, aPlayer::GetPlayer()->Wealth * 0.01L);
-                                                return cpp_left_2 * aMyFunction::RemapClamped(Target->Wealth, aPlayer::GetPlayer()->Wealth / 2, 2 * aPlayer::GetPlayer()->Wealth, 0.8, 1.2);
-                                            }()));
+                                            {
+                                                pas::Extended real_min_2 = pas::real_min<pas::Extended>(aGalaxy::Galaxy->AverageRangerCapital * 0.01L, aPlayer::GetPlayer()->Wealth * 0.01L);
+                                                Quest.RewardMoney = aConst::QuestTuning[Quest.QuestType].BaseRewardMoney + System::Round(aConst::QuestTuning[Quest.QuestType].RewardCapitalPercent * real_min_2 * aMyFunction::RemapClamped(Target->Wealth, aPlayer::GetPlayer()->Wealth / 2, 2 * aPlayer::GetPlayer()->Wealth, 0.8, 1.2));
+                                            }
                                             Quest.RewardMoney = System::Round(static_cast<long double>(Quest.RewardMoney) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestMoneyFactor);
                                             if (Self->IsHealthEffectActive(23)) {
                                                 Quest.RewardMoney = System::Round(([&] {
@@ -4988,8 +4999,8 @@ namespace aRanger {
                                                         break;
                                                     }
                                                     {
-                                                        pas::Extended cpp_right_3 = 3.0E+1L * pas::real_max<float>(1.0f, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].GoodsEventDurationFactor);
-                                                        if (!(TextQuest->Difficulty < aGalaxy::Galaxy->InterpolateSingleByTechLevel(0.0f, 71.0f) + cpp_right_3)) {
+                                                        float real_max = pas::real_max<float>(1.0f, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].GoodsEventDurationFactor);
+                                                        if (!(TextQuest->Difficulty < aGalaxy::Galaxy->InterpolateSingleByTechLevel(0.0f, 71.0f) + 3.0E+1L * real_max)) {
                                                             break;
                                                         }
                                                     }
@@ -5006,15 +5017,15 @@ namespace aRanger {
                                                     Quest.DeadlineTurn = System::Round(Quest.DeadlineTurn * 1.5L);
                                                 }
                                                 Quest.DeadlineTurn = aGalaxy::Galaxy->CurrentTurn + System::Round(pas::real_divide(Quest.DeadlineTurn, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestTimeAndExperienceFactor));
-                                                Quest.RewardMoney = aConst::QuestTuning[Quest.QuestType].BaseRewardMoney + System::Round(([&] {
-                                                    pas::Extended cpp_left_3 = aConst::QuestTuning[Quest.QuestType].RewardCapitalPercent * pas::real_min<pas::Extended>(aGalaxy::Galaxy->AverageRangerCapital * 0.01L, aPlayer::GetPlayer()->Wealth * 0.01L);
-                                                    return cpp_left_3 * aMyFunction::RemapClamped(TextQuest->Difficulty, 5.0E+1, 1.0E+2, 1.0, 2.1);
-                                                }()));
+                                                {
+                                                    pas::Extended real_min_3 = pas::real_min<pas::Extended>(aGalaxy::Galaxy->AverageRangerCapital * 0.01L, aPlayer::GetPlayer()->Wealth * 0.01L);
+                                                    Quest.RewardMoney = aConst::QuestTuning[Quest.QuestType].BaseRewardMoney + System::Round(aConst::QuestTuning[Quest.QuestType].RewardCapitalPercent * real_min_3 * aMyFunction::RemapClamped(TextQuest->Difficulty, 5.0E+1, 1.0E+2, 1.0, 2.1));
+                                                }
                                                 Quest.RewardMoney = System::Round(static_cast<long double>(Quest.RewardMoney) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestMoneyFactor);
                                                 if (Self->IsHealthEffectActive(23)) {
                                                     Quest.RewardMoney = System::Round(([&] {
-                                                        pas::Extended cpp_right_4 = aMyFunction::SeededRandomFloatRange(pas::idiv(static_cast<std::int32_t>(Self->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn, Interval), 1.3, 2.3);
-                                                        return Quest.RewardMoney * cpp_right_4;
+                                                        pas::Extended cpp_right_3 = aMyFunction::SeededRandomFloatRange(pas::idiv(static_cast<std::int32_t>(Self->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn, Interval), 1.3, 2.3);
+                                                        return Quest.RewardMoney * cpp_right_3;
                                                     }()));
                                                 }
                                                 Quest.RewardMoney += System::Round(Quest.RewardMoney * Self->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma, false) * 0.1L);
@@ -5067,8 +5078,8 @@ namespace aRanger {
                                 Quest.Planet = Self->CurrentPlanet;
                                 Quest.Successful = false;
                                 Quest.DeadlineTurn = ([&] {
-                                    std::int32_t cpp_right_5 = aMyFunction::SeededRandomIntRange(-10, 10, Self->CurrentPlanet->GenerationSeed);
-                                    return aConst::QuestTuning[Quest.QuestType].BaseDuration + cpp_right_5;
+                                    std::int32_t cpp_right_4 = aMyFunction::SeededRandomIntRange(-10, 10, Self->CurrentPlanet->GenerationSeed);
+                                    return aConst::QuestTuning[Quest.QuestType].BaseDuration + cpp_right_4;
                                 }());
                                 if (Self->IsHealthEffectActive(24)) {
                                     Quest.DeadlineTurn = System::Round(pas::real_divide(Quest.DeadlineTurn, 1.5L));
@@ -5078,8 +5089,8 @@ namespace aRanger {
                                 Quest.RewardMoney = System::Round(static_cast<long double>(Quest.RewardMoney) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestMoneyFactor);
                                 if (Self->IsHealthEffectActive(23)) {
                                     Quest.RewardMoney = System::Round(([&] {
-                                        pas::Extended cpp_right_6 = aMyFunction::SeededRandomFloatRange(pas::idiv(static_cast<std::int32_t>(Self->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn, Interval), 1.3, 2.3);
-                                        return Quest.RewardMoney * cpp_right_6;
+                                        pas::Extended cpp_right_5 = aMyFunction::SeededRandomFloatRange(pas::idiv(static_cast<std::int32_t>(Self->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn, Interval), 1.3, 2.3);
+                                        return Quest.RewardMoney * cpp_right_5;
                                     }()));
                                 }
                                 Quest.RewardMoney += System::Round(Quest.RewardMoney * Self->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma, false) * 0.1L);
@@ -5173,8 +5184,8 @@ namespace aRanger {
                                                 Quest.Planet = Self->CurrentPlanet;
                                                 Quest.Successful = false;
                                                 Quest.DeadlineTurn = ([&] {
-                                                    std::int32_t cpp_right_7 = aMyFunction::SeededRandomIntRange(-10, 10, Self->CurrentPlanet->GenerationSeed);
-                                                    return aConst::QuestTuning[Quest.QuestType].BaseDuration + cpp_right_7;
+                                                    std::int32_t cpp_right_6 = aMyFunction::SeededRandomIntRange(-10, 10, Self->CurrentPlanet->GenerationSeed);
+                                                    return aConst::QuestTuning[Quest.QuestType].BaseDuration + cpp_right_6;
                                                 }());
                                                 if (Self->IsHealthEffectActive(24)) {
                                                     Quest.DeadlineTurn = System::Round(pas::real_divide(Quest.DeadlineTurn, 1.5L));
@@ -5184,8 +5195,8 @@ namespace aRanger {
                                                 Quest.RewardMoney = System::Round(static_cast<long double>(Quest.RewardMoney) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestMoneyFactor);
                                                 if (Self->IsHealthEffectActive(23)) {
                                                     Quest.RewardMoney = System::Round(([&] {
-                                                        pas::Extended cpp_right_8 = aMyFunction::SeededRandomFloatRange(pas::idiv(static_cast<std::int32_t>(Self->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn, Interval), 1.3, 2.3);
-                                                        return Quest.RewardMoney * cpp_right_8;
+                                                        pas::Extended cpp_right_7 = aMyFunction::SeededRandomFloatRange(pas::idiv(static_cast<std::int32_t>(Self->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn, Interval), 1.3, 2.3);
+                                                        return Quest.RewardMoney * cpp_right_7;
                                                     }()));
                                                 }
                                                 Quest.RewardMoney += System::Round(Quest.RewardMoney * Self->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma, false) * 0.1L);

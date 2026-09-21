@@ -1937,16 +1937,16 @@ namespace aPlayer {
                 if (Self->CaptainHealth[I].Progress <= 0.0L) {
                     LocalSeed = aGalaxy::Galaxy->GenerationSeed + static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn);
                     {
-                        pas::Extended cpp_right_3 = aMyFunction::NextRandomFloatRange(0.0, 1.0E+3, LocalSeed);
-                        if (pas::sqr(std::max<std::int32_t>(0, StimulantExcess - Self->CountActiveArtefacts(aConst::t_ArtBio))) * 0.4L > cpp_right_3) {
+                        std::int32_t max = std::max<std::int32_t>(0, StimulantExcess - Self->CountActiveArtefacts(aConst::t_ArtBio));
+                        if (pas::sqr(max) * 0.4L > aMyFunction::NextRandomFloatRange(0.0, 1.0E+3, LocalSeed)) {
                             if (pas::contains(aConst::CaptainHealthDefinitions[I].AllowedOwners, aConst::RaceToOwner(Self->PilotRace)) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedRatingBands, Self->GetRangerRatingBand()) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedRanks, Self->Rank) && pas::contains(aConst::CaptainHealthDefinitions[I].AllowedCareers, Self->GetDominantCareer())) {
                                 Self->CaptainHealth[I].Progress = 1.0E+2;
                                 Self->CaptainHealth[I].ExpireTurn = ([&] {
-                                    std::int64_t cpp_right_4 = System::Round(([&] {
+                                    std::int64_t cpp_right_3 = System::Round(([&] {
                                         pas::Extended cpp_left_7 = aMyFunction::RemapClamped(aMyFunction::SeededRandomUnitFloat(static_cast<std::int32_t>(aGalaxy::Galaxy->GenerationSeed) + I + aGalaxy::Galaxy->CurrentTurn), 0.0, 1.0, 0.5, 3.0);
                                         return cpp_left_7 * aConst::CaptainHealthDefinitions[I].Duration;
                                     }()));
-                                    return aGalaxy::Galaxy->CurrentTurn + cpp_right_4;
+                                    return aGalaxy::Galaxy->CurrentTurn + cpp_right_3;
                                 }());
                                 ++Self->CaptainHealth[I].ApplicationCount;
                                 Text = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Illness.Illness.", SysUtils::IntToStr(I - 1), ".Start"})));

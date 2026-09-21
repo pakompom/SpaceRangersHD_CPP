@@ -249,12 +249,12 @@ namespace fGameSettings {
                                     SpecialStar = OtherStar;
                                 } else if (Distance == MaximumDistance) {
                                     {
-                                        pas::Extended cpp_left = pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeX) - SpecialStar->Position.X, static_cast<pas::Extended>(SpecialStar->Position.X)));
-                                        EdgeDistance = cpp_left + pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeY) - SpecialStar->Position.Y, static_cast<pas::Extended>(SpecialStar->Position.Y)));
+                                        pas::Extended real_min = pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeX) - SpecialStar->Position.X, static_cast<pas::Extended>(SpecialStar->Position.X));
+                                        EdgeDistance = pas::sqr(real_min) + pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeY) - SpecialStar->Position.Y, static_cast<pas::Extended>(SpecialStar->Position.Y)));
                                     }
                                     {
-                                        pas::Extended cpp_left_2 = pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeX) - OtherStar->Position.X, static_cast<pas::Extended>(OtherStar->Position.X)));
-                                        OtherEdgeDistance = cpp_left_2 + pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeY) - OtherStar->Position.Y, static_cast<pas::Extended>(OtherStar->Position.Y)));
+                                        pas::Extended real_min_3 = pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeX) - OtherStar->Position.X, static_cast<pas::Extended>(OtherStar->Position.X));
+                                        OtherEdgeDistance = pas::sqr(real_min_3) + pas::sqr(pas::real_min<pas::Extended>(static_cast<long double>(aConst::GalaxySizeY) - OtherStar->Position.Y, static_cast<pas::Extended>(OtherStar->Position.Y)));
                                     }
                                     if (OtherEdgeDistance < EdgeDistance) {
                                         SpecialStar = OtherStar;
@@ -321,8 +321,8 @@ namespace fGameSettings {
                 }
                 if (StartStar != HomePlanet->CurrentStar) {
                     for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, pas::list_count(StartStar->Planets) - 1); cpp_range_13.next(I); ) {
-                        aGalaxyStruct::TOwnerId cpp_left_3 = pas::list_at<aPlanet::TPlanet>(StartStar->Planets, I)->OwnerId;
-                        if (cpp_left_3 == aConst::RaceToOwner(Self->PlayerRace)) {
+                        aGalaxyStruct::TOwnerId cpp_left = pas::list_at<aPlanet::TPlanet>(StartStar->Planets, I)->OwnerId;
+                        if (cpp_left == aConst::RaceToOwner(Self->PlayerRace)) {
                             HomePlanet = pas::list_at<aPlanet::TPlanet>(StartStar->Planets, I);
                             break;
                         }
@@ -490,8 +490,8 @@ namespace fGameSettings {
             }
             Stage = 10;
             {
-                pas::Extended cpp_left_4 = aGalaxy::Galaxy->GetInitialDominatorControlPercent();
-                N = System::Round(cpp_left_4 * pas::real_divide(pas::list_count(aGalaxy::Galaxy->Stars), 1.0E+2L));
+                pas::Extended cpp_left_2 = aGalaxy::Galaxy->GetInitialDominatorControlPercent();
+                N = System::Round(cpp_left_2 * pas::real_divide(pas::list_count(aGalaxy::Galaxy->Stars), 1.0E+2L));
             }
             if (N > pas::list_count(aGalaxy::Galaxy->Stars) - 1) {
                 N = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
@@ -668,8 +668,8 @@ namespace fGameSettings {
                     case 43: {
                         Item = pas::construct_call<aItem::TFuelTanks>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[4]);
                             aItem::TFuelTanks* cpp_arg_11 = pas::checked_cast<aItem::TFuelTanks*>(Item);
+                            std::int32_t round = System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[4]);
                             cpp_arg_11->Init(round, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -677,8 +677,8 @@ namespace fGameSettings {
                     case 44: {
                         Item = pas::construct_call<aItem::TEngine>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_2 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]);
                             aItem::TEngine* cpp_arg_12 = pas::checked_cast<aItem::TEngine*>(Item);
+                            std::int32_t round_2 = System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[3]);
                             cpp_arg_12->Init(round_2, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -686,8 +686,8 @@ namespace fGameSettings {
                     case 45: {
                         Item = pas::construct_call<aItem::TRadar>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_3 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]);
                             aItem::TRadar* cpp_arg_13 = pas::checked_cast<aItem::TRadar*>(Item);
+                            std::int32_t round_3 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[3]);
                             cpp_arg_13->Init(round_3, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -695,8 +695,8 @@ namespace fGameSettings {
                     case 46: {
                         Item = pas::construct_call<aItem::TScaner>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_4 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[4]);
                             aItem::TScaner* cpp_arg_14 = pas::checked_cast<aItem::TScaner*>(Item);
+                            std::int32_t round_4 = System::Round(static_cast<long double>(aConst::ScannerBaseSize) * aConst::EquipmentSizeFactors[4]);
                             cpp_arg_14->Init(round_4, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -704,8 +704,8 @@ namespace fGameSettings {
                     case 47: {
                         Item = pas::construct_call<aItem::TRepairRobot>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_5 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[3]);
                             aItem::TRepairRobot* cpp_arg_15 = pas::checked_cast<aItem::TRepairRobot*>(Item);
+                            std::int32_t round_5 = System::Round(static_cast<long double>(aConst::RepairRobotBaseSize) * aConst::EquipmentSizeFactors[3]);
                             cpp_arg_15->Init(round_5, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -713,8 +713,8 @@ namespace fGameSettings {
                     case 48: {
                         Item = pas::construct_call<aItem::TCargoHook>(aItem::TCargoHook_Create);
                         {
-                            std::int32_t round_6 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]);
                             aItem::TCargoHook* cpp_arg_16 = pas::checked_cast<aItem::TCargoHook*>(Item);
+                            std::int32_t round_6 = System::Round(static_cast<long double>(aConst::CargoHookBaseSize) * aConst::EquipmentSizeFactors[3]);
                             cpp_arg_16->Init(round_6, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -722,8 +722,8 @@ namespace fGameSettings {
                     case 49: {
                         Item = pas::construct_call<aItem::TDefGenerator>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_7 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[3]);
                             aItem::TDefGenerator* cpp_arg_17 = pas::checked_cast<aItem::TDefGenerator*>(Item);
+                            std::int32_t round_7 = System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[3]);
                             cpp_arg_17->Init(round_7, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -731,8 +731,8 @@ namespace fGameSettings {
                     case 50: {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_8 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[4]);
                             aItem::TWeapon* cpp_arg_18 = pas::checked_cast<aItem::TWeapon*>(Item);
+                            std::int32_t round_8 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[4]);
                             cpp_arg_18->Init(aConst::t_Weapon1, round_8, 3, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -740,8 +740,8 @@ namespace fGameSettings {
                     case 51: {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_9 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]);
                             aItem::TWeapon* cpp_arg_19 = pas::checked_cast<aItem::TWeapon*>(Item);
+                            std::int32_t round_9 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]);
                             cpp_arg_19->Init(aConst::t_Weapon2, round_9, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -749,8 +749,8 @@ namespace fGameSettings {
                     case 52: {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_10 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[2]);
                             aItem::TWeapon* cpp_arg_20 = pas::checked_cast<aItem::TWeapon*>(Item);
+                            std::int32_t round_10 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[2]);
                             cpp_arg_20->Init(aConst::t_Weapon3, round_10, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -758,8 +758,8 @@ namespace fGameSettings {
                     case 53: {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_11 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[3]);
                             aItem::TWeapon* cpp_arg_21 = pas::checked_cast<aItem::TWeapon*>(Item);
+                            std::int32_t round_11 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[3]);
                             cpp_arg_21->Init(aConst::t_Weapon4, round_11, 1, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -767,8 +767,8 @@ namespace fGameSettings {
                     case 54: {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_12 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon5].AverageSize) * aConst::EquipmentSizeFactors[4]);
                             aItem::TWeapon* cpp_arg_22 = pas::checked_cast<aItem::TWeapon*>(Item);
+                            std::int32_t round_12 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon5].AverageSize) * aConst::EquipmentSizeFactors[4]);
                             cpp_arg_22->Init(aConst::t_Weapon5, round_12, 1, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
@@ -776,8 +776,8 @@ namespace fGameSettings {
                     default: {
                         Item = pas::construct_call<aItem::TRadar>(aItem::TEquipment_Create);
                         {
-                            std::int32_t round_13 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[4]);
                             aItem::TRadar* cpp_arg_23 = pas::checked_cast<aItem::TRadar*>(Item);
+                            std::int32_t round_13 = System::Round(static_cast<long double>(aConst::RadarBaseSize) * aConst::EquipmentSizeFactors[4]);
                             cpp_arg_23->Init(round_13, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;

@@ -4283,8 +4283,8 @@ namespace fStarMap {
                     MinimumWidth = 0;
                 } else {
                     if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Obj)) {
-                        pas::Extended cpp_right = pas::real_max<float>(0.1f, hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-                        BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(static_cast<aItem::TItem*>(hull)->Weight, aConst::HullBaseSize), cpp_right)) * 64.0L);
+                        float real_max = pas::real_max<float>(0.1f, hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                        BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(static_cast<aItem::TItem*>(hull)->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
                     } else {
                         BarWidth = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, pas::checked_cast<aItem::TEquipment*>(Obj)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
                     }
@@ -4513,8 +4513,8 @@ namespace fStarMap {
                     pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(false);
                 }
                 {
-                    pas::Extended cpp_right_2 = pas::real_max<float>(0.1f, pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-                    BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->Weight, aConst::HullBaseSize), cpp_right_2)) * 64.0L);
+                    float real_max_3 = pas::real_max<float>(0.1f, pas::checked_cast<aShip::TShip*>(Obj)->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                    BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(static_cast<aShip::TShip*>(Obj)->GetHull()->Weight, aConst::HullBaseSize), real_max_3)) * 64.0L);
                 }
                 BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
                 {
@@ -4584,8 +4584,8 @@ namespace fStarMap {
                             InfoShipEffects->SetText(Text);
                         }
                         {
-                            std::int32_t cpp_right_3 = InfoShipEffects->GetLineHeight();
-                            std::int32_t cpp_arg_89 = StatusCount * cpp_right_3 + 2;
+                            std::int32_t cpp_right = InfoShipEffects->GetLineHeight();
+                            std::int32_t cpp_arg_89 = StatusCount * cpp_right + 2;
                             std::int32_t x = InfoShipEffects->ClientSize.X;
                             InfoShipEffects->SetSize(ClassesImports::Point(x, cpp_arg_89));
                         }
@@ -7267,10 +7267,8 @@ namespace fStarMap {
                     MinimumWidth = 0;
                 } else {
                     if (Item->ItemType == aConst::t_Hull) {
-                        BarWidth = System::Round(System::Sqrt(([&] {
-                            pas::Extended cpp_right = pas::real_max<double>(0.1, Item->Fragility);
-                            return pas::real_divide(pas::real_divide(Item->Weight, aConst::HullBaseSize), cpp_right);
-                        }())) * 64.0L);
+                        double real_max = pas::real_max<double>(0.1, Item->Fragility);
+                        BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Item->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
                     } else {
                         BarWidth = System::Round(pas::real_divide(64.0L, pas::real_max<double>(0.1, Item->Fragility)));
                     }
@@ -7439,10 +7437,10 @@ namespace fStarMap {
                     pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(false);
                     pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(false);
                 }
-                BarWidth = System::Round(System::Sqrt(([&] {
-                    pas::Extended cpp_right_2 = pas::real_max<double>(0.1, Ship->HullFragility);
-                    return pas::real_divide(pas::real_divide(Ship->HullCapacity, aConst::HullBaseSize), cpp_right_2);
-                }())) * 64.0L);
+                {
+                    double real_max_3 = pas::real_max<double>(0.1, Ship->HullFragility);
+                    BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Ship->HullCapacity, aConst::HullBaseSize), real_max_3)) * 64.0L);
+                }
                 BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
                 {
                     GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableLeft"sv));

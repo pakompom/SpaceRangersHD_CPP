@@ -1096,13 +1096,13 @@ namespace GR_Main {
         }
         ProcessorCoreCount = std::max<std::int32_t>(Count, 1);
         GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Processor=", ExtraText, ModuleName})));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"CPU Clock=", ([&] {
+        {
             double measureCpuClockMHz = GR_Main::MeasureCpuClockMHz();
             double measureCpuClockMHz_2 = GR_Main::MeasureCpuClockMHz();
-            double cpp_arg = pas::real_min<double>(measureCpuClockMHz, measureCpuClockMHz_2);
-            double measureCpuClockMHz_3 = GR_Main::MeasureCpuClockMHz();
-            return SysUtils::Int64ToStr(System::Round(pas::real_min<double>(cpp_arg, measureCpuClockMHz_3)));
-        }()), " MHz"}));
+            double real_min = pas::real_min<double>(measureCpuClockMHz, measureCpuClockMHz_2);
+            double real_min_2 = pas::real_min<double>(real_min, GR_Main::MeasureCpuClockMHz());
+            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"CPU Clock=", SysUtils::Int64ToStr(System::Round(real_min_2)), " MHz"}));
+        }
         MemoryStatus.Length = static_cast<std::int32_t>(sizeof(TMemoryStatusEx));
         GR_Main::GlobalMemoryStatusEx(MemoryStatus);
         GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical Memory Total=", SysUtils::IntToStr(MemoryStatus.TotalPhys / 0x00100000), " MB"}));

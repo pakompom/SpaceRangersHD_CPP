@@ -1824,13 +1824,17 @@ namespace fCfgSettings {
     }
 
     void TfCfgSettings::AutoPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
+        std::int32_t ClockMHz{};
         WindowsSdk::TMemoryStatus Memory{};
         WindowsSdk::TOSVersionInfo Version{};
-        double estimateCpuClockMHz = fCfgSettings::EstimateCpuClockMHz();
-        double estimateCpuClockMHz_2 = fCfgSettings::EstimateCpuClockMHz();
-        double cpp_arg = pas::real_min<double>(estimateCpuClockMHz, estimateCpuClockMHz_2);
-        double estimateCpuClockMHz_3 = fCfgSettings::EstimateCpuClockMHz();
-        std::int32_t ClockMHz = System::Round(pas::real_min<double>(cpp_arg, estimateCpuClockMHz_3));
+        {
+            double real_min = ([&] {
+                double estimateCpuClockMHz = fCfgSettings::EstimateCpuClockMHz();
+                double estimateCpuClockMHz_2 = fCfgSettings::EstimateCpuClockMHz();
+                return pas::real_min<double>(estimateCpuClockMHz, estimateCpuClockMHz_2);
+            }());
+            ClockMHz = System::Round(pas::real_min<double>(real_min, fCfgSettings::EstimateCpuClockMHz()));
+        }
         pas::fill_memory(&Memory, static_cast<std::int32_t>(sizeof(WindowsSdk::TMemoryStatus)), static_cast<std::uint8_t>(0));
         Memory.dwLength = static_cast<std::int32_t>(sizeof(WindowsSdk::TMemoryStatus));
         WindowsSdk::GlobalMemoryStatus(Memory);

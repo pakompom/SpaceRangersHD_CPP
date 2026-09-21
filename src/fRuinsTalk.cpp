@@ -369,7 +369,8 @@ namespace fRuinsTalk {
         std::int32_t PortraitY = static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 10;
         std::int32_t TableY = PortraitY + Panel->FindByNameRecursive(u"Panel_Anim0"sv)->ClientSize.Y / 10 * 6;
         if (Panel->FindByNameRecursive(u"Table2"sv) != nullptr) {
-            Bottom = TableY + System::Round(pas::real_min<pas::Extended>(Panel->FindByNameRecursive(u"Table"sv)->ClientSize.Y * 0.95L + Panel->FindByNameRecursive(u"Table"sv)->LocalPosition.Y, Panel->FindByNameRecursive(u"Table2"sv)->ClientSize.Y * 0.9L + Panel->FindByNameRecursive(u"Table2"sv)->LocalPosition.Y));
+            pas::Extended real_min = pas::real_min<pas::Extended>(Panel->FindByNameRecursive(u"Table"sv)->ClientSize.Y * 0.95L + Panel->FindByNameRecursive(u"Table"sv)->LocalPosition.Y, Panel->FindByNameRecursive(u"Table2"sv)->ClientSize.Y * 0.9L + Panel->FindByNameRecursive(u"Table2"sv)->LocalPosition.Y);
+            Bottom = TableY + System::Round(real_min);
         } else {
             Bottom = TableY + System::Round(Panel->FindByNameRecursive(u"Table"sv)->ClientSize.Y * 0.95L + Panel->FindByNameRecursive(u"Table"sv)->LocalPosition.Y);
         }
@@ -5270,11 +5271,13 @@ namespace fRuinsTalk {
                             Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[Index].Star));
                             if (aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Star->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 7281) >= 0.6L && Star->Constellation->Id != 20 && Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstRangerCenter] <= 0 && Star->Constellation->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) < pas::list_count(Star->Constellation->Stars) && Star->ShipTypeCounts[aGalaxyStruct::rstRangerCenter] <= 0 && Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) <= 2 && Star->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && (Star->Status.Battle == 0 || Star->CountPirateShips(false) <= 0) && Star->Status.CustomFaction == u"" && aPlayer::GetPlayer()->CurrentStar != Star && Star->DaysSincePlayerVisit >= 30 && Star->IsConstellationVisible()) {
                                 {
-                                    std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
-                                    std::int32_t cpp_left_3 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit) + 200 - cpp_right;
-                                    std::int32_t cpp_left_2 = cpp_left_3 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstRangerCenter];
-                                    std::int32_t cpp_left = cpp_left_2 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
-                                    Score = cpp_left - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    std::int32_t min = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit);
+                                    {
+                                        std::int32_t cpp_left_3 = min + 200 - aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
+                                        std::int32_t cpp_left_2 = cpp_left_3 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstRangerCenter];
+                                        std::int32_t cpp_left = cpp_left_2 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
+                                        Score = cpp_left - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    }
                                 }
                                 if (BestScore <= Score) {
                                     BestScore = Score;
@@ -5333,11 +5336,13 @@ namespace fRuinsTalk {
                             Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[Index].Star));
                             if (aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Star->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 113223) >= 0.6L && Star->Constellation->Id != 20 && Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstPirateBase] <= 0 && Star->Constellation->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) < pas::list_count(Star->Constellation->Stars) && Star->ShipTypeCounts[aGalaxyStruct::rstPirateBase] <= 0 && Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) <= 1 && Star->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && pas::is_one_of<aGalaxyStruct::sfCoalition, aGalaxyStruct::sfPirates>(Star->Status.ControlFaction) && Star->Status.CustomFaction == u"" && aPlayer::GetPlayer()->CurrentStar != Star && Star->DaysSincePlayerVisit >= 30 && Star->IsConstellationVisible()) {
                                 {
-                                    std::int32_t cpp_right_2 = aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
-                                    std::int32_t cpp_left_6 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit) + 200 - cpp_right_2;
-                                    std::int32_t cpp_left_5 = cpp_left_6 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstPirateBase];
-                                    std::int32_t cpp_left_4 = cpp_left_5 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
-                                    Score = cpp_left_4 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    std::int32_t min_2 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit);
+                                    {
+                                        std::int32_t cpp_left_6 = min_2 + 200 - aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
+                                        std::int32_t cpp_left_5 = cpp_left_6 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstPirateBase];
+                                        std::int32_t cpp_left_4 = cpp_left_5 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
+                                        Score = cpp_left_4 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    }
                                 }
                                 if (BestScore <= Score) {
                                     BestScore = Score;
@@ -5396,11 +5401,13 @@ namespace fRuinsTalk {
                             Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[Index].Star));
                             if (aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Star->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 17823) >= 0.6L && Star->Constellation->Id != 20 && Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstMilitaryBase] <= 0 && Star->Constellation->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) < pas::list_count(Star->Constellation->Stars) && Star->ShipTypeCounts[aGalaxyStruct::rstMilitaryBase] <= 0 && Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) <= 1 && Star->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && (Star->Status.Battle == 0 || Star->CountPirateShips(false) <= 0) && Star->Status.CustomFaction == u"" && aPlayer::GetPlayer()->CurrentStar != Star && Star->DaysSincePlayerVisit >= 30 && Star->IsConstellationVisible()) {
                                 {
-                                    std::int32_t cpp_right_3 = aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
-                                    std::int32_t cpp_left_9 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit) + 200 - cpp_right_3;
-                                    std::int32_t cpp_left_8 = cpp_left_9 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstMilitaryBase];
-                                    std::int32_t cpp_left_7 = cpp_left_8 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
-                                    Score = cpp_left_7 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    std::int32_t min_3 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit);
+                                    {
+                                        std::int32_t cpp_left_9 = min_3 + 200 - aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
+                                        std::int32_t cpp_left_8 = cpp_left_9 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstMilitaryBase];
+                                        std::int32_t cpp_left_7 = cpp_left_8 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
+                                        Score = cpp_left_7 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    }
                                 }
                                 if (BestScore <= Score) {
                                     BestScore = Score;
@@ -5459,11 +5466,13 @@ namespace fRuinsTalk {
                             Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[Index].Star));
                             if (aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Star->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 11123) >= 0.6L && Star->Constellation->Id != 20 && Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstScienceBase] <= 0 && Star->Constellation->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) < pas::list_count(Star->Constellation->Stars) && Star->ShipTypeCounts[aGalaxyStruct::rstScienceBase] <= 0 && Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) <= 1 && Star->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && (Star->Status.Battle == 0 || Star->CountPirateShips(false) <= 0) && Star->Status.CustomFaction == u"" && aPlayer::GetPlayer()->CurrentStar != Star && Star->DaysSincePlayerVisit >= 30 && Star->IsConstellationVisible()) {
                                 {
-                                    std::int32_t cpp_right_4 = aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
-                                    std::int32_t cpp_left_12 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit) + 200 - cpp_right_4;
-                                    std::int32_t cpp_left_11 = cpp_left_12 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstScienceBase];
-                                    std::int32_t cpp_left_10 = cpp_left_11 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
-                                    Score = cpp_left_10 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    std::int32_t min_4 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit);
+                                    {
+                                        std::int32_t cpp_left_12 = min_4 + 200 - aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
+                                        std::int32_t cpp_left_11 = cpp_left_12 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstScienceBase];
+                                        std::int32_t cpp_left_10 = cpp_left_11 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
+                                        Score = cpp_left_10 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    }
                                 }
                                 if (BestScore <= Score) {
                                     BestScore = Score;
@@ -5522,11 +5531,13 @@ namespace fRuinsTalk {
                             Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[Index].Star));
                             if (aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Star->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 9112323) >= 0.6L && Star->Constellation->Id != 20 && Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstBusinessCenter] <= 0 && Star->Constellation->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) < pas::list_count(Star->Constellation->Stars) && Star->ShipTypeCounts[aGalaxyStruct::rstBusinessCenter] <= 0 && Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) <= 1 && Star->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && (Star->Status.Battle == 0 || Star->CountPirateShips(false) <= 0) && Star->Status.CustomFaction == u"" && aPlayer::GetPlayer()->CurrentStar != Star && Star->DaysSincePlayerVisit >= 30 && Star->IsConstellationVisible()) {
                                 {
-                                    std::int32_t cpp_right_5 = aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
-                                    std::int32_t cpp_left_15 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit) + 200 - cpp_right_5;
-                                    std::int32_t cpp_left_14 = cpp_left_15 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstBusinessCenter];
-                                    std::int32_t cpp_left_13 = cpp_left_14 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
-                                    Score = cpp_left_13 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    std::int32_t min_5 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit);
+                                    {
+                                        std::int32_t cpp_left_15 = min_5 + 200 - aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
+                                        std::int32_t cpp_left_14 = cpp_left_15 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstBusinessCenter];
+                                        std::int32_t cpp_left_13 = cpp_left_14 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
+                                        Score = cpp_left_13 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    }
                                 }
                                 if (BestScore <= Score) {
                                     BestScore = Score;
@@ -5585,11 +5596,13 @@ namespace fRuinsTalk {
                             Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[Index].Star));
                             if (aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Star->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 1123087) >= 0.6L && Star->Constellation->Id != 20 && Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstMedicalBase] <= 0 && Star->Constellation->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) < pas::list_count(Star->Constellation->Stars) && Star->ShipTypeCounts[aGalaxyStruct::rstMedicalBase] <= 0 && Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes)) <= 1 && Star->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && (Star->Status.Battle == 0 || Star->CountPirateShips(false) <= 0) && Star->Status.CustomFaction == u"" && aPlayer::GetPlayer()->CurrentStar != Star && Star->DaysSincePlayerVisit >= 30 && Star->IsConstellationVisible()) {
                                 {
-                                    std::int32_t cpp_right_6 = aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
-                                    std::int32_t cpp_left_18 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit) + 200 - cpp_right_6;
-                                    std::int32_t cpp_left_17 = cpp_left_18 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstMedicalBase];
-                                    std::int32_t cpp_left_16 = cpp_left_17 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
-                                    Score = cpp_left_16 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    std::int32_t min_6 = std::min<std::int32_t>(40, Star->DaysSincePlayerVisit);
+                                    {
+                                        std::int32_t cpp_left_18 = min_6 + 200 - aMyFunction::SeededRandomIntRange(1, 50, Star->GenerationSeed);
+                                        std::int32_t cpp_left_17 = cpp_left_18 - 10 * Star->Constellation->ShipTypeCounts[aGalaxyStruct::rstMedicalBase];
+                                        std::int32_t cpp_left_16 = cpp_left_17 - Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(StationTypes));
+                                        Score = cpp_left_16 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Star->Position));
+                                    }
                                 }
                                 if (BestScore <= Score) {
                                     BestScore = Score;
@@ -5804,10 +5817,12 @@ namespace fRuinsTalk {
                             Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, Index);
                             if (Planet->IsCoalitionOwned && static_cast<std::uint8_t>(Planet->IsMainPiratePlanet ^ 1) && aMyFunction::SeededRandomUnitFloat(aPlayer::GetPlayer()->DockedTo->Seed + Planet->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 5889) >= 0.9L && Planet->CurrentStar->ShipTypeCounts[aGalaxyStruct::stKling] <= 0 && Planet->OwnerId != aGalaxyStruct::oiPirate && (Planet->CurrentStar->Status.Battle == 0 || Planet->CurrentStar->CountPirateShips(false) <= 0) && Planet->CurrentStar->DaysSincePlayerVisit >= 30 && Planet->CurrentStar->IsConstellationVisible()) {
                                 {
-                                    std::int32_t cpp_right_7 = aMyFunction::SeededRandomIntRange(1, 50, Planet->GenerationSeed);
-                                    std::int32_t cpp_left_20 = std::min<std::int32_t>(40, Planet->CurrentStar->DaysSincePlayerVisit) + 200 - cpp_right_7;
-                                    std::int32_t cpp_left_19 = cpp_left_20 - 10 * pas::list_count(Planet->Warriors);
-                                    Score = cpp_left_19 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Planet->CurrentStar->Position));
+                                    std::int32_t min_7 = std::min<std::int32_t>(40, Planet->CurrentStar->DaysSincePlayerVisit);
+                                    {
+                                        std::int32_t cpp_left_20 = min_7 + 200 - aMyFunction::SeededRandomIntRange(1, 50, Planet->GenerationSeed);
+                                        std::int32_t cpp_left_19 = cpp_left_20 - 10 * pas::list_count(Planet->Warriors);
+                                        Score = cpp_left_19 - System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, Planet->CurrentStar->Position));
+                                    }
                                 }
                                 if (BestScore <= Score) {
                                     BestScore = Score;
@@ -6680,6 +6695,7 @@ namespace fRuinsTalk {
         std::int32_t I{};
         std::int32_t Cost{};
         std::int32_t Duration{};
+        std::int32_t MaxStimulants{};
         std::uint32_t Seed{};
         pas::WideString Text{};
         pas::WideString StimulantText{};
@@ -6710,9 +6726,10 @@ namespace fRuinsTalk {
         }
         std::int32_t cpp_left_2 = aPlayer::GetPlayer()->GetTotalStatBonus(aConst::bonStimCapacity);
         std::int32_t Bonus = cpp_left_2 + aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtBio);
-        std::int32_t countActiveStimulants = aPlayer::GetPlayer()->CountActiveStimulants();
-        std::int32_t cpp_arg = MathImports::Floor(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->CurrentTurn / 70 * aPlayer::GetPlayer()->DockedTo->Id, 0.0, 1.0)) * (std::max<std::int32_t>(2, std::max<std::int32_t>(2, static_cast<std::int32_t>(Rank)) + Bonus) - 1)) + 2;
-        std::int32_t MaxStimulants = std::max<std::int32_t>(countActiveStimulants, cpp_arg);
+        {
+            std::int32_t TShip_CountActiveStimulants = aPlayer::GetPlayer()->CountActiveStimulants();
+            MaxStimulants = std::max<std::int32_t>(TShip_CountActiveStimulants, MathImports::Floor(static_cast<long double>(aMyFunction::SeededRandomFloatRange(aGalaxy::Galaxy->CurrentTurn / 70 * aPlayer::GetPlayer()->DockedTo->Id, 0.0, 1.0)) * (std::max<std::int32_t>(2, std::max<std::int32_t>(2, static_cast<std::int32_t>(Rank)) + Bonus) - 1)) + 2);
+        }
         std::int32_t LawStimulants = std::max<std::int32_t>(2, static_cast<std::int32_t>(Rank));
         DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.MC1"_wref.get());
         if (MaxStimulants < LawStimulants) {
@@ -6760,9 +6777,9 @@ namespace fRuinsTalk {
                     Duration = System::Round(pas::real_divide(Duration, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor));
                     aMyFunction::ReplaceTextToken(Text, u"<Month>"_w, pas::wide_int_to_str(Duration / 30), u"<color=255,240,100>"_w);
                     Cost = ([&] {
-                        std::int32_t cpp_arg_2 = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
+                        std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                         std::int32_t computeScaledSmallMoney = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg_2, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                     }());
                     if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                         Cost = Cost / 2;
@@ -6784,41 +6801,41 @@ namespace fRuinsTalk {
             for (I = 13; I <= 24; ++I) {
                 if (pas::contains(Offers, I)) {
                     Cost = ([&] {
-                        std::int32_t cpp_arg_3 = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
+                        std::int32_t cpp_arg_2 = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                         std::int32_t computeScaledSmallMoney_2 = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney_2, cpp_arg_3, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney_2, cpp_arg_2, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                     }());
                     if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                         Cost = Cost / 2;
                     }
                     if (aPlayer::GetPlayer()->Money < Cost || aPlayer::GetPlayer()->CaptainHealth[I].Progress == 1.0E+2L) {
                         GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback = fTalk::ScriptDialogBlockCallback;
-                        pas::WideString cpp_arg_4 = pas::concat_wide({u"- ", ([&] {
+                        pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", ([&] {
                             auto name = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
                             pas::WideString intToStr = pas::wide_int_to_str(Cost);
                             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerStim"_wref.get());
                             return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<StimName>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
                         }())});
                         TfRuinsTalk* self = this;
-                        self->AddChoice(std::move(cpp_arg_4), 0, scriptDialogBlockCallback);
+                        self->AddChoice(std::move(cpp_arg_3), 0, scriptDialogBlockCallback);
                     } else {
-                        GI_MessageLoop::TDialogChoiceEventGI cpp_arg_5 = pas::bind_method<&TfRuinsTalk::BuySelectedStimulantAtMedicalCenter>(this);
-                        pas::WideString cpp_arg_6 = pas::concat_wide({u"- ", ([&] {
+                        GI_MessageLoop::TDialogChoiceEventGI cpp_arg_4 = pas::bind_method<&TfRuinsTalk::BuySelectedStimulantAtMedicalCenter>(this);
+                        pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", ([&] {
                             auto name_2 = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
                             pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                             pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerStim"_wref.get());
                             return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<StimName>"_w, name_2.get(), u"<Money>"_w, std::move(intToStr_2));
                         }())});
                         TfRuinsTalk* self_2 = this;
-                        self_2->AddChoice(std::move(cpp_arg_6), I, cpp_arg_5);
+                        self_2->AddChoice(std::move(cpp_arg_5), I, cpp_arg_4);
                     }
                 }
             }
             {
-                GI_MessageLoop::TDialogChoiceEventGI cpp_arg_7 = pas::bind_method<&TfRuinsTalk::DeclineMedicalCenterStimulants>(this);
-                pas::WideString cpp_arg_8 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerNo"_wref.get())});
+                GI_MessageLoop::TDialogChoiceEventGI cpp_arg_6 = pas::bind_method<&TfRuinsTalk::DeclineMedicalCenterStimulants>(this);
+                pas::WideString cpp_arg_7 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerNo"_wref.get())});
                 TfRuinsTalk* self_3 = this;
-                self_3->AddChoice(std::move(cpp_arg_8), 0, cpp_arg_7);
+                self_3->AddChoice(std::move(cpp_arg_7), 0, cpp_arg_6);
             }
         } else {
             ClearChoices();

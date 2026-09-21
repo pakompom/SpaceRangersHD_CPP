@@ -2264,8 +2264,14 @@ namespace aShip {
     }
 
     double TShip::CalculateDefenseStrength() {
-        pas::Extended cpp_left = pas::real_divide(GetHull()->HullPoints, pas::real_max<float>(0.01f, GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}))));
-        double Result = pas::real_divide(cpp_left * (GetArmor() + 5), DefenseDamageFactor);
+        double Result{};
+        {
+            float real_max = pas::real_max<float>(0.01f, GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+            {
+                pas::Extended cpp_left = pas::real_divide(GetHull()->HullPoints, real_max);
+                Result = pas::real_divide(cpp_left * (GetArmor() + 5), DefenseDamageFactor);
+            }
+        }
         if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(this); kling != nullptr && kling->KlingType == aGalaxyStruct::ktKlig) {
             return Result * 3.0L;
         }
@@ -5229,8 +5235,14 @@ namespace aShip {
                 return 1.0E+2;
             }
             {
-                pas::Extended cpp_left = pas::real_divide(static_cast<long double>(Self->GetHull()->HullPoints) * OwnDamage, pas::real_max<float>(0.01f, Self->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}))));
-                Result = pas::real_divide(cpp_left, pas::real_divide(static_cast<long double>(Target->GetHull()->HullPoints) * TargetDamage, pas::real_max<float>(0.01f, Target->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
+                float real_max = pas::real_max<float>(0.01f, Self->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                {
+                    float real_max_2 = pas::real_max<float>(0.01f, Target->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                    {
+                        pas::Extended cpp_left = pas::real_divide(static_cast<long double>(Self->GetHull()->HullPoints) * OwnDamage, real_max);
+                        Result = pas::real_divide(cpp_left, pas::real_divide(static_cast<long double>(Target->GetHull()->HullPoints) * TargetDamage, real_max_2));
+                    }
+                }
             }
         } catch (...) {
             auto cpp_exception = pas::caught_object();
@@ -5829,16 +5841,16 @@ namespace aShip {
                     }
                     ProfitableCount = MathImports::Floor(pas::real_divide(Profit, ShopGoodsSellPrice(Good, nullptr) - UnitCost));
                     ExperienceFactor = 1.0E-4L * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].GoodsEventDurationFactor * std::max<std::int32_t>(0, pas::checked_cast<aPlayer::TPlayer*>(this)->CareerStatus[aGalaxyStruct::rcTrader] - 50);
-                    Experience = ([&] {
-                        pas::Extended cpp_right = pas::real_min<pas::Extended>(1.0L, ([&] {
+                    {
+                        pas::Extended real_min = pas::real_min<pas::Extended>(1.0L, ([&] {
                             pas::Extended cpp_left = ([&] {
                                 pas::Extended cpp_left_2 = ShopGoodsSellPrice(Good, nullptr) - UnitCost;
                                 return cpp_left_2 * aConst::GoodsMarketBase[Good].TradeExperienceFactor;
                             }());
                             return pas::real_divide(cpp_left, ShopGoodsSellPrice(Good, nullptr));
                         }()));
-                        return static_cast<long double>(ProfitableCount) * ExperienceFactor * aConst::GoodsMarketBase[Good].AveragePrice * cpp_right;
-                    }());
+                        Experience = static_cast<long double>(ProfitableCount) * ExperienceFactor * aConst::GoodsMarketBase[Good].AveragePrice * real_min;
+                    }
                     TradeExperience += MathImports::Floor(Experience);
                     if (Profit > 0) {
                         pas::checked_cast<aRanger::TRanger*>(this)->AddTraderCareerActivity(2);
@@ -6237,8 +6249,8 @@ namespace aShip {
     }
 
     std::int32_t TShip::GetArmor() {
-        std::int32_t cpp_right = System::Round(GetCombatStatusStrength(cseAcid));
-        std::int32_t Result = aShip::TShip_CalculateHullArmor(this, GetHull()) - cpp_right;
+        std::int32_t cpp_left = aShip::TShip_CalculateHullArmor(this, GetHull());
+        std::int32_t Result = cpp_left - static_cast<std::int32_t>(System::Round(GetCombatStatusStrength(cseAcid)));
         return std::max<std::int32_t>(0, Result);
     }
 
@@ -6588,6 +6600,7 @@ namespace aShip {
 
     // Requires Graphic; chooses dimensions from ship class, hull and special equipment.
     void TShip::RefreshGraphicSize() {
+        std::int32_t Size{};
         std::int32_t Small{};
         std::int32_t Large{};
         std::uint8_t Kind{};
@@ -6646,8 +6659,13 @@ namespace aShip {
             Small = System::Round(Small * aConst::MicroModuleTemplates[GetHull()->SpecialModuleIndex - 1].HullGraphSizePercent * 0.01L);
             Large = System::Round(Large * aConst::MicroModuleTemplates[GetHull()->SpecialModuleIndex - 1].HullGraphSizePercent * 0.01L);
         }
-        pas::Extended cpp_left = System::Ln(pas::real_max<pas::Extended>(1.0L, pas::real_divide(GetHull()->Weight, static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[5]))) * (Large - Small);
-        std::int32_t Size = System::Round(pas::real_divide(cpp_left, System::Ln(pas::real_divide(2.0L * aConst::EquipmentSizeFactors[1], aConst::EquipmentSizeFactors[5]))) + Small);
+        {
+            pas::Extended real_max = pas::real_max<pas::Extended>(1.0L, pas::real_divide(GetHull()->Weight, static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[5]));
+            {
+                pas::Extended cpp_left = System::Ln(real_max) * (Large - Small);
+                Size = System::Round(pas::real_divide(cpp_left, System::Ln(pas::real_divide(2.0L * aConst::EquipmentSizeFactors[1], aConst::EquipmentSizeFactors[5]))) + Small);
+            }
+        }
         if (GR_Main::GiResourceVariant() == 1) {
             Size = System::Round(Size * 0.78125L);
         }
@@ -6989,8 +7007,8 @@ namespace aShip {
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Quantity += reinterpret_cast<aItem::TGoods*>(Item)->Quantity;
                 pas::checked_cast<aItem::TGoods*>(Entry->Item)->Weight += Item->Weight;
                 {
-                    std::int64_t cpp_step = System::Round(Item->Cost);
                     std::int32_t& cpp_target = pas::checked_cast<aItem::TGoods*>(Entry->Item)->Cost;
+                    std::int64_t cpp_step = System::Round(Item->Cost);
                     cpp_target += cpp_step;
                 }
                 if (Slot >= 0) {
@@ -7316,8 +7334,8 @@ namespace aShip {
         }
         if (!pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(Item)) {
-                pas::Extended cpp_right = pas::real_max<float>(0.25f, static_cast<aItem::TEquipment*>(artefact)->GetFragilityFactor(static_cast<aGalaxyStruct::TDamageFlagSet>(aGalaxyStruct::EmptyDamageFlags)));
-                return pas::real_divide(pas::real_divide(5.0E+3L, std::max<std::int32_t>(1, Item->Weight)), cpp_right);
+                float real_max = pas::real_max<float>(0.25f, static_cast<aItem::TEquipment*>(artefact)->GetFragilityFactor(static_cast<aGalaxyStruct::TDamageFlagSet>(aGalaxyStruct::EmptyDamageFlags)));
+                return pas::real_divide(pas::real_divide(5.0E+3L, std::max<std::int32_t>(1, Item->Weight)), real_max);
             }
             return pas::real_divide(Item->Cost, std::max<std::int32_t>(1, Item->Weight));
         }
@@ -7354,26 +7372,26 @@ namespace aShip {
                     CandidateHull = reinterpret_cast<aItem::THull*>(Equipment);
                     Result = EvaluateStatBonus(aConst::bonHull, aShip::TShip_CalculateHullArmor(this, CandidateHull));
                     if (GetHull() != CandidateHull) {
-                        pas::Extended cpp_left = EvaluateStatBonus(aConst::bonMass, CalculateEquippedMass(nullptr));
-                        std::int32_t cpp_left_3 = CalculateEquippedMass(nullptr);
-                        std::int32_t cpp_left_2 = cpp_left_3 + CandidateHull->CalculateMass();
-                        pas::Extended cpp_right_2 = System::Round(cpp_left - EvaluateStatBonus(aConst::bonMass, cpp_left_2 - GetHull()->CalculateMass()));
-                        std::int32_t cpp_left_11 = CandidateHull->GetSlotCount(aConst::sskRadar);
-                        pas::Extended cpp_left_10 = static_cast<long double>(Result) + EvaluateStatBonus(aConst::bonSlotRadar, cpp_left_11 - GetHull()->GetSlotCount(aConst::sskRadar));
-                        std::int32_t cpp_left_12 = CandidateHull->GetSlotCount(aConst::sskScanner);
-                        pas::Extended cpp_left_9 = cpp_left_10 + EvaluateStatBonus(aConst::bonSlotScaner, cpp_left_12 - GetHull()->GetSlotCount(aConst::sskScanner));
-                        std::int32_t cpp_left_13 = CandidateHull->GetSlotCount(aConst::sskRepairRobot);
-                        pas::Extended cpp_left_8 = cpp_left_9 + EvaluateStatBonus(aConst::bonSlotDroid, cpp_left_13 - GetHull()->GetSlotCount(aConst::sskRepairRobot));
-                        std::int32_t cpp_left_14 = CandidateHull->GetSlotCount(aConst::sskCargoHook);
-                        pas::Extended cpp_left_7 = cpp_left_8 + EvaluateStatBonus(aConst::bonSlotHook, cpp_left_14 - GetHull()->GetSlotCount(aConst::sskCargoHook));
-                        std::int32_t cpp_left_15 = CandidateHull->GetSlotCount(aConst::sskDefGenerator);
-                        pas::Extended cpp_left_6 = cpp_left_7 + EvaluateStatBonus(aConst::bonSlotDef, cpp_left_15 - GetHull()->GetSlotCount(aConst::sskDefGenerator));
-                        std::int32_t cpp_left_16 = CandidateHull->GetSlotCount(aConst::sskWeapon);
-                        pas::Extended cpp_left_5 = cpp_left_6 + EvaluateStatBonus(aConst::bonSlotWeapon, cpp_left_16 - GetHull()->GetSlotCount(aConst::sskWeapon));
-                        std::int32_t cpp_left_17 = CandidateHull->GetSlotCount(aConst::sskArtefact);
-                        pas::Extended cpp_left_4 = cpp_left_5 + EvaluateStatBonus(aConst::bonSlotArt, cpp_left_17 - GetHull()->GetSlotCount(aConst::sskArtefact));
-                        std::int32_t cpp_left_18 = CandidateHull->GetSlotCount(aConst::sskAfterburner);
-                        Result = cpp_left_4 + EvaluateStatBonus(aConst::bonSlotForsage, cpp_left_18 - GetHull()->GetSlotCount(aConst::sskAfterburner)) + cpp_right_2;
+                        std::int32_t cpp_left_9 = CandidateHull->GetSlotCount(aConst::sskRadar);
+                        pas::Extended cpp_left_8 = static_cast<long double>(Result) + EvaluateStatBonus(aConst::bonSlotRadar, cpp_left_9 - GetHull()->GetSlotCount(aConst::sskRadar));
+                        std::int32_t cpp_left_10 = CandidateHull->GetSlotCount(aConst::sskScanner);
+                        pas::Extended cpp_left_7 = cpp_left_8 + EvaluateStatBonus(aConst::bonSlotScaner, cpp_left_10 - GetHull()->GetSlotCount(aConst::sskScanner));
+                        std::int32_t cpp_left_11 = CandidateHull->GetSlotCount(aConst::sskRepairRobot);
+                        pas::Extended cpp_left_6 = cpp_left_7 + EvaluateStatBonus(aConst::bonSlotDroid, cpp_left_11 - GetHull()->GetSlotCount(aConst::sskRepairRobot));
+                        std::int32_t cpp_left_12 = CandidateHull->GetSlotCount(aConst::sskCargoHook);
+                        pas::Extended cpp_left_5 = cpp_left_6 + EvaluateStatBonus(aConst::bonSlotHook, cpp_left_12 - GetHull()->GetSlotCount(aConst::sskCargoHook));
+                        std::int32_t cpp_left_13 = CandidateHull->GetSlotCount(aConst::sskDefGenerator);
+                        pas::Extended cpp_left_4 = cpp_left_5 + EvaluateStatBonus(aConst::bonSlotDef, cpp_left_13 - GetHull()->GetSlotCount(aConst::sskDefGenerator));
+                        std::int32_t cpp_left_14 = CandidateHull->GetSlotCount(aConst::sskWeapon);
+                        pas::Extended cpp_left_3 = cpp_left_4 + EvaluateStatBonus(aConst::bonSlotWeapon, cpp_left_14 - GetHull()->GetSlotCount(aConst::sskWeapon));
+                        std::int32_t cpp_left_15 = CandidateHull->GetSlotCount(aConst::sskArtefact);
+                        pas::Extended cpp_left_2 = cpp_left_3 + EvaluateStatBonus(aConst::bonSlotArt, cpp_left_15 - GetHull()->GetSlotCount(aConst::sskArtefact));
+                        std::int32_t cpp_left_16 = CandidateHull->GetSlotCount(aConst::sskAfterburner);
+                        pas::Extended cpp_left = cpp_left_2 + EvaluateStatBonus(aConst::bonSlotForsage, cpp_left_16 - GetHull()->GetSlotCount(aConst::sskAfterburner));
+                        pas::Extended cpp_left_17 = EvaluateStatBonus(aConst::bonMass, CalculateEquippedMass(nullptr));
+                        std::int32_t cpp_left_19 = CalculateEquippedMass(nullptr);
+                        std::int32_t cpp_left_18 = cpp_left_19 + CandidateHull->CalculateMass();
+                        Result = cpp_left + System::Round(cpp_left_17 - EvaluateStatBonus(aConst::bonMass, cpp_left_18 - GetHull()->CalculateMass()));
                     }
                     break;
                 }
@@ -7382,8 +7400,8 @@ namespace aShip {
                     break;
                 }
                 case aConst::t_Engine: {
-                    pas::Extended cpp_left_19 = EvaluateStatBonus(aConst::bonSpeed, aShip::TShip_CalculateEngineSpeed(this, reinterpret_cast<aItem::TEngine*>(Equipment), InNormalSpace() || static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(this, Equipment) ^ 1)));
-                    Result = cpp_left_19 + EvaluateStatBonus(aConst::bonJump, aShip::TShip_CalculateEngineJumpRange(this, reinterpret_cast<aItem::TEngine*>(Equipment)));
+                    pas::Extended cpp_left_20 = EvaluateStatBonus(aConst::bonSpeed, aShip::TShip_CalculateEngineSpeed(this, reinterpret_cast<aItem::TEngine*>(Equipment), InNormalSpace() || static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(this, Equipment) ^ 1)));
+                    Result = cpp_left_20 + EvaluateStatBonus(aConst::bonJump, aShip::TShip_CalculateEngineJumpRange(this, reinterpret_cast<aItem::TEngine*>(Equipment)));
                     break;
                 }
                 case aConst::t_Radar: {
@@ -7431,8 +7449,8 @@ namespace aShip {
             Result = Result + DamageValue * (1.0L + EvaluateStatBonus(aConst::bonWRadius, System::Round(WeaponRange)) * 0.002L);
             Result = Result + EvaluateStatBonus(aConst::bonWRadius, System::Round((static_cast<long double>(WeaponRange) + MinRange) * 0.5L)) * 0.5L;
             if ((CurrentPlanet != nullptr || DockedTo != nullptr) && pas::in_range(Weapon->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                pas::Extended cpp_left_20 = aMyFunction::RemapClamped(Weapon->AmmoCapacity, 3.0E+1, 1.0E+2, 0.0, 0.5);
-                Result = Result * (cpp_left_20 + aMyFunction::RemapClamped(Weapon->AmmoCapacity, 0.0, 3.0E+1, 0.0, 0.5));
+                pas::Extended cpp_left_21 = aMyFunction::RemapClamped(Weapon->AmmoCapacity, 3.0E+1, 1.0E+2, 0.0, 0.5);
+                Result = Result * (cpp_left_21 + aMyFunction::RemapClamped(Weapon->AmmoCapacity, 0.0, 3.0E+1, 0.0, 0.5));
             }
         } else {
             Result = 1.0f;
@@ -7795,13 +7813,13 @@ namespace aShip {
                         AccumulateEquipmentBonus(Self->EvaluateStatBonus(aConst::bonHookRadius, Item->GetStatBonus(aConst::bonHookRadius)));
                     }
                     if (Self->GetDefGenerator() != nullptr && ItemType != aConst::t_DefGenerator) {
-                        std::int32_t cpp_right = System::Round(1.0E+2L - aShip::TShip_CalculateDefGeneratorFactor(Self, Self->GetDefGenerator()) * 1.0E+2L);
-                        pas::Extended cpp_left_7 = Self->EvaluateStatBonus(aConst::bonDef, Item->GetStatBonus(aConst::bonDef) + cpp_right);
+                        std::int32_t cpp_left_8 = Item->GetStatBonus(aConst::bonDef);
+                        pas::Extended cpp_left_7 = Self->EvaluateStatBonus(aConst::bonDef, cpp_left_8 + static_cast<std::int32_t>(System::Round(1.0E+2L - aShip::TShip_CalculateDefGeneratorFactor(Self, Self->GetDefGenerator()) * 1.0E+2L)));
                         AccumulateEquipmentBonus(cpp_left_7 - Self->EvaluateStatBonus(aConst::bonDef, System::Round(1.0E+2L - aShip::TShip_CalculateDefGeneratorFactor(Self, Self->GetDefGenerator()) * 1.0E+2L)));
                     }
                     {
-                        pas::Extended cpp_left_8 = Self->EvaluateStatBonus(aConst::bonWRadius, Item->GetStatBonus(aConst::bonWRadius));
-                        AccumulateEquipmentBonus(cpp_left_8 * Self->CountEquippedWeapons());
+                        pas::Extended cpp_left_9 = Self->EvaluateStatBonus(aConst::bonWRadius, Item->GetStatBonus(aConst::bonWRadius));
+                        AccumulateEquipmentBonus(cpp_left_9 * Self->CountEquippedWeapons());
                     }
                     if (!pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                         const std::int32_t cpp_last_2 = static_cast<std::int32_t>(Self->CountEquippedWeapons());
@@ -7833,8 +7851,8 @@ namespace aShip {
                     AccumulateEquipmentBonus(Item->GetStatBonus(aConst::bonAIValue));
                 }
                 {
-                    pas::Extended cpp_left_9 = Self->EvaluateStatBonus(aConst::bonMass, Self->CalculateEquippedMass(Item));
-                    AccumulateEquipmentBonus(cpp_left_9 - Self->EvaluateStatBonus(aConst::bonMass, Self->CalculateEquippedMass(nullptr)));
+                    pas::Extended cpp_left_10 = Self->EvaluateStatBonus(aConst::bonMass, Self->CalculateEquippedMass(Item));
+                    AccumulateEquipmentBonus(cpp_left_10 - Self->EvaluateStatBonus(aConst::bonMass, Self->CalculateEquippedMass(nullptr)));
                 }
                 if (Item->MicroModuleIndex != 0) {
                     Positive = static_cast<long double>(Positive) + System::Round(static_cast<long double>(aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff]) * Positive * 1.0E-4L);
@@ -7935,6 +7953,8 @@ namespace aShip {
     // Price modes: 1 negated item cost, 3 resale value, 4 item cost; other modes omit the price term. Mode 0 also omits weight/fragility penalties; the supplied effectiveness is recomputed.
     float TShip::AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) {
         static const pas::Set<0, 255> NoFlags = pas::constant_set<pas::Set<0, 255>>({});
+        float MoneyPenalty{};
+        float WeightPenalty{};
         std::int32_t Price{};
         float FragilityScale = 1.0f;
         if (pas::is_one_of<aConst::t_FuelTanks, aConst::t_Radar, aConst::t_Scaner>(Item->ItemType)) {
@@ -7943,17 +7963,27 @@ namespace aShip {
         float DesiredMoneyFraction = 0.2f;
         float HullValueScale = 1.0f;
         float DesiredFreeFraction = pas::real_max<pas::Extended>(0.01L, pas::real_min<pas::Extended>(0.99L, pas::real_divide(GetDesiredCargoFreeSpace(), std::max<std::int32_t>(100, GetHull()->Weight))));
-        pas::Extended cpp_left = pas::sqr(([&] {
-            pas::Extended cpp_left_2 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedMoneyFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_2, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
-        }()));
-        float MoneyPenalty = pas::real_divide(cpp_left, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+        {
+            float real_max_2 = pas::real_max<float>(0.01f, SmoothedMoneyFraction);
+            {
+                pas::Extended inline_value = pas::sqr(([&] {
+                    pas::Extended cpp_left = pas::real_divide(1.0L, real_max_2) - 1.0L;
+                    return pas::real_divide(cpp_left, pas::real_divide(1.0L, DesiredMoneyFraction) - 1.0L);
+                }()));
+                MoneyPenalty = pas::real_divide(inline_value, pas::real_max<pas::Extended>(SmoothedWealth * 0.05L, 1.0E+3L));
+            }
+        }
         float EffectivenessScale = pas::real_divide(2.0L, pas::real_max<float>(1.0E+1f, SmoothedEquipmentEffectiveness));
-        pas::Extended cpp_left_3 = pas::sqr(([&] {
-            pas::Extended cpp_left_4 = pas::real_divide(1.0L, pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction)) - 1.0L;
-            return pas::real_divide(cpp_left_4, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
-        }()));
-        float WeightPenalty = pas::real_divide(cpp_left_3, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+        {
+            float real_max_5 = pas::real_max<float>(0.01f, SmoothedFreeCapacityFraction);
+            {
+                pas::Extended inline_value_2 = pas::sqr(([&] {
+                    pas::Extended cpp_left_2 = pas::real_divide(1.0L, real_max_5) - 1.0L;
+                    return pas::real_divide(cpp_left_2, pas::real_divide(1.0L, DesiredFreeFraction) - 1.0L);
+                }()));
+                WeightPenalty = pas::real_divide(inline_value_2, pas::real_max<pas::Extended>(1.0E+1L, GetHull()->Weight * 0.1L));
+            }
+        }
         Effectiveness = CalculateItemEffectiveness(Item);
         switch (PriceMode) {
             case 4: Price = Item->Cost; break;
@@ -8074,10 +8104,10 @@ namespace aShip {
                     Result = std::max<std::int32_t>(Value, -GetSlotCount(aConst::sskWeapon)) * SlotBonusEvaluationWeights[BonusKind];
                 }
                 {
-                    std::int32_t cpp_right = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
-                    if (CountEquippedWeapons() > cpp_right) {
-                        std::int32_t cpp_right_2 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
-                        return Result - SlotBonusEvaluationWeights[BonusKind] * 0.6L * (CountEquippedWeapons() - cpp_right_2);
+                    std::int32_t max_6 = std::max<std::int32_t>(Value + GetSlotCount(aConst::sskWeapon), 1);
+                    if (CountEquippedWeapons() > max_6) {
+                        std::int32_t max_7 = std::max<std::int32_t>(1, Value + GetSlotCount(aConst::sskWeapon));
+                        return Result - SlotBonusEvaluationWeights[BonusKind] * 0.6L * (CountEquippedWeapons() - max_7);
                     }
                 }
                 return Result;
@@ -8674,18 +8704,21 @@ namespace aShip {
             }
             DropValueScale = System::Round(static_cast<long double>(aGalaxy::Galaxy->GetDropValueModifier()) * aGalaxy::Galaxy->AverageRangerCapital) / 12;
             {
-                pas::Extended cpp_right = pas::real_divide(Item->Cost, std::max<std::int64_t>(static_cast<std::int64_t>(1), DropValueScale));
-                Value = DominatorProgramDropCostFactors[pas::checked_cast<aKling::TKling*>(this)->KlingType] * cpp_right;
+                std::int64_t max = std::max<std::int64_t>(static_cast<std::int64_t>(1), DropValueScale);
+                {
+                    pas::Extended cpp_left = DominatorProgramDropCostFactors[pas::checked_cast<aKling::TKling*>(this)->KlingType];
+                    Value = cpp_left * pas::real_divide(Item->Cost, max);
+                }
             }
             if (Item->Cost > 1000 && ([&] {
-                std::int32_t cpp_left = aMyFunction::NextRandomIntRange(1, 100, RandomState);
-                return cpp_left > System::Round(System::Exp(0.3L - 0.3L * Value) * 1.0E+2L);
+                std::int32_t cpp_left_2 = aMyFunction::NextRandomIntRange(1, 100, RandomState);
+                return cpp_left_2 > System::Round(System::Exp(0.3L - 0.3L * Value) * 1.0E+2L);
             }())) {
                 continue;
             }
             if (Item->Cost > 1000 && ([&] {
-                std::int32_t cpp_left_2 = aMyFunction::NextRandomIntRange(1, 100, RandomState);
-                return cpp_left_2 > System::Round(System::Exp(0.3L - 0.3L * Value * 0.5L) * 1.0E+2L);
+                std::int32_t cpp_left_3 = aMyFunction::NextRandomIntRange(1, 100, RandomState);
+                return cpp_left_3 > System::Round(System::Exp(0.3L - 0.3L * Value * 0.5L) * 1.0E+2L);
             }())) {
                 if (Cheapest == nullptr || Cheapest->Cost > Item->Cost) {
                     Cheapest = Item;
@@ -9646,13 +9679,13 @@ namespace aShip {
         aConst::PWeaponInfo Info = aGalaxy::Galaxy->SelectWeaponInfo(Self->RandomState, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), MaximumLevel, MinimumLevel);
         aItem::TWeapon* Weapon = ([&] {
             aGalaxyStruct::TOwnerId ownerId = Self->OwnerId;
-            std::int32_t nextRandomIntRange = ([&] {
+            std::int32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(MinimumLevel, MaximumLevel, Self->RandomState);
+            std::int32_t nextRandomIntRange_2 = ([&] {
                 std::int32_t round = System::Round(static_cast<long double>(Info->AverageSize) * aConst::EquipmentSizeFactors[3]);
                 std::int32_t round_2 = System::Round(static_cast<long double>(Info->AverageSize) * aConst::EquipmentSizeFactors[5]);
                 return aMyFunction::NextRandomIntRange(round_2, round, Self->RandomState);
             }());
-            std::int32_t nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(MinimumLevel, MaximumLevel, Self->RandomState);
-            return aItem::CreateGeneratedWeapon(Info, nextRandomIntRange, nextRandomIntRange_2, ownerId);
+            return aItem::CreateGeneratedWeapon(Info, nextRandomIntRange_2, nextRandomIntRange, ownerId);
         }());
         pas::list_add(Self->Inventory, reinterpret_cast<void*>(Weapon));
         if (aMyFunction::NextRandomUnitFloat(Self->RandomState) < 0.5L) {
@@ -10282,9 +10315,10 @@ namespace aShip {
                 }
             }
             if (EquippedWeight + CargoFreeSpace >= Item->Weight && ([&] {
-                pas::Extended cpp_left_3 = EvaluateItem(Item, 1);
-                pas::Extended cpp_left_2 = pas::real_divide(cpp_left_3, std::max<std::int32_t>(1, Item->Weight));
-                return cpp_left_2 > pas::real_divide(EquippedValue, std::max<std::int32_t>(1, EquippedWeight));
+                std::int32_t max = std::max<std::int32_t>(1, Item->Weight);
+                std::int32_t max_2 = std::max<std::int32_t>(1, EquippedWeight);
+                pas::Extended cpp_left_2 = pas::real_divide(EvaluateItem(Item, 1), max);
+                return cpp_left_2 > pas::real_divide(EquippedValue, max_2);
             }())) {
                 return true;
             }
@@ -10300,8 +10334,10 @@ namespace aShip {
                 }
             }
             return LooseWeight + CargoFreeSpace >= Item->Weight && ([&] {
-                pas::Extended cpp_left_4 = pas::real_divide(Item->Cost, std::max<std::int32_t>(1, Item->Weight));
-                return cpp_left_4 > pas::real_divide(LooseCost, std::max<std::int32_t>(1, LooseWeight));
+                std::int32_t max_3 = std::max<std::int32_t>(1, Item->Weight);
+                std::int32_t max_4 = std::max<std::int32_t>(1, LooseWeight);
+                pas::Extended cpp_left_3 = pas::real_divide(Item->Cost, max_3);
+                return cpp_left_3 > pas::real_divide(LooseCost, max_4);
             }());
         }
         return Result;
@@ -11715,10 +11751,10 @@ namespace aShip {
             Count = pas::list_count(CurrentStar->Ships);
             OffsetX = 0.0f;
             OffsetY = 0.0f;
-            SelfWeight = pas::real_max<pas::Extended>(0.01L, ([&] {
-                pas::Extended cpp_right = pas::real_max<double>(0.01, aMyFunction::PointDistance(RepulsionPosition, Position));
-                return pas::real_divide(CalculateSpeed(), cpp_right);
-            }()));
+            {
+                double real_max = pas::real_max<double>(0.01, aMyFunction::PointDistance(RepulsionPosition, Position));
+                SelfWeight = pas::real_max<pas::Extended>(0.01L, pas::real_divide(CalculateSpeed(), real_max));
+            }
             do {
                 I = 0;
                 while (I < Count) {
@@ -11727,10 +11763,10 @@ namespace aShip {
                         ++I;
                         continue;
                     }
-                    OtherWeight = pas::real_max<pas::Extended>(0.01L, ([&] {
-                        pas::Extended cpp_right_2 = pas::real_max<double>(0.01, aMyFunction::PointDistance(Other->RepulsionPosition, Other->Position));
-                        return pas::real_divide(Other->CalculateSpeed(), cpp_right_2);
-                    }()));
+                    {
+                        double real_max_3 = pas::real_max<double>(0.01, aMyFunction::PointDistance(Other->RepulsionPosition, Other->Position));
+                        OtherWeight = pas::real_max<pas::Extended>(0.01L, pas::real_divide(Other->CalculateSpeed(), real_max_3));
+                    }
                     {
                         pas::Extended cpp_left = aMyFunction::SeededRandomIntRange(95, 105, static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) * (Other->Seed + Seed));
                         Fraction = cpp_left * pas::real_divide(SelfWeight, static_cast<long double>(SelfWeight) + OtherWeight) * 0.01L;
