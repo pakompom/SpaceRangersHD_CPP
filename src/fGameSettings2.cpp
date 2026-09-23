@@ -206,7 +206,7 @@ namespace fGameSettings2 {
             ItemTypeByChoice[I] = I + 43;
         }
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 11); cpp_range_4.next(I); ) {
-            if (pas::in_range(ItemTypeByChoice[I], static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
+            if (pas::in_range(ItemTypeByChoice[I], static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_Lirecron))) {
                 GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"ItemI", SysUtils::IntToStr(I + 1)})))));
                 pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[static_cast<aConst::TItemType>(ItemTypeByChoice[I])], u"s"});
                 cpp_arg->SetImagePath(std::move(cpp_arg_2));
@@ -1484,13 +1484,13 @@ namespace fGameSettings2 {
         }
         Average = Average / 8;
         if (Average == 50) {
-            Color = u"<color=0,255,0>"_w;
+            Color = aMyFunction::GreenColorTag;
         } else if (Average <= 100) {
             Color = u"<color=254,255,255>"_w;
         } else if (Average <= 150) {
-            Color = u"<color=255,240,100>"_w;
+            Color = aMyFunction::TextHighlightColorTag;
         } else if (Average <= 200) {
-            Color = u"<color=255,166,0>"_w;
+            Color = aMyFunction::OrangeColorTag;
         } else {
             Color = pas::concat_wide({u"<color=255,", EC_Str::IntToWideString(System::Round(aMyFunction::RemapClamped(Average, 2.0E+2, 5.0E+2, 166.0, 0.0))), u",0>"});
         }
@@ -1801,7 +1801,11 @@ namespace fGameSettings2 {
             cpp_arg_2->SetDisabled(cpp_arg);
         }
         Text = aConst::LocalizedColorText(pas::concat_wide({u"FormGameSet2.", aConst::OwnerInfo[aConst::RaceToOwner(PlayerRace)].InternalName, u".Char", pas::wide_int_to_str(CharacterPreset)}));
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString trimWideString = EC_Str::TrimWideString(pas::checked_cast<GI_Edit::TEditGI*>(GetByName(u"PlayerName"sv))->Text);
+            aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, std::move(trimWideString), textHighlightColorTag.get());
+        }
         pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Info"sv))->SetText(Text);
     }
 
@@ -2178,7 +2182,7 @@ namespace fGameSettings2 {
     void TfGameSettings2::FormatExtendedInteger(GI_MessageLoop::TObjectGI* Sender) {
         if (Sender->UserIndex != 0) {
             GI_Label::TLabelGI* cpp_with = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
-            cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, u"<color=255,240,100>", u" ", pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), u"</color>"}));
+            cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), aMyFunction::EndColorTag}));
         }
     }
 
@@ -2188,13 +2192,13 @@ namespace fGameSettings2 {
             GI_Label::TLabelGI* cpp_with = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Value = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             if (Value == 0) {
-                const pas::WideString& cpp_arg = pas::concat_wide({cpp_with->HelpText, u"<color=255,240,100>", u" ", aConst::LocalizedText(u"FormGameSet2.Extended.HelpAuto"_wref.get()), u"</color>"});
+                const pas::WideString& cpp_arg = pas::concat_wide({cpp_with->HelpText, aMyFunction::TextHighlightColorTag, u" ", aConst::LocalizedText(u"FormGameSet2.Extended.HelpAuto"_wref.get()), aMyFunction::EndColorTag});
                 GI_Label::TLabelGI* cpp_arg_2 = cpp_with;
                 cpp_arg_2->SetText(cpp_arg);
             } else if (Value <= 25) {
-                cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, u"<color=255,240,100>", u" ", pas::wide_int_to_str(50 + System::Round((Value - 1) * 6.25L)), u"%", u"</color>"}));
+                cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int_to_str(50 + System::Round((Value - 1) * 6.25L)), u"%", aMyFunction::EndColorTag}));
             } else {
-                cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, u"<color=255,166,0>", u" ", pas::wide_int_to_str(50 + System::Round((Value - 1) * 6.25L)), u"%", u"</color>"}));
+                cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, aMyFunction::OrangeColorTag, u" ", pas::wide_int_to_str(50 + System::Round((Value - 1) * 6.25L)), u"%", aMyFunction::EndColorTag}));
             }
         }
     }
@@ -2204,7 +2208,7 @@ namespace fGameSettings2 {
         if (Sender->UserIndex != 0) {
             GI_Label::TLabelGI* cpp_with = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Value = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
-            cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, u"<color=255,240,100>", u" ", pas::wide_int_to_str(50 + System::Round(Value * 6.25L)), u"%", u"</color>"}));
+            cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int_to_str(50 + System::Round(Value * 6.25L)), u"%", aMyFunction::EndColorTag}));
         }
     }
 
@@ -2213,7 +2217,7 @@ namespace fGameSettings2 {
         if (Sender->UserIndex != 0) {
             GI_Label::TLabelGI* cpp_with = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Value = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
-            cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, u"<color=255,240,100>", u" ", pas::wide_int_to_str(Value), u"%", u"</color>"}));
+            cpp_with->SetText(pas::concat_wide({cpp_with->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int_to_str(Value), u"%", aMyFunction::EndColorTag}));
         }
     }
 

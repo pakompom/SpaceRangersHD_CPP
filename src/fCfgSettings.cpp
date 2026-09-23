@@ -369,7 +369,7 @@ namespace fCfgSettings {
         ValueLabel = AddOptionLabel(u"MaxPlayerNews"_w, aConst::LocalizedText(u"FormCfgSettings.MaxPlayerNews"_wref.get()), false);
         AddOptionSlider(ValueLabel, 0, 100, GlobalsV::MaxPlayerNews, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         ValueLabel = AddOptionLabel(u"TurnSaveStep"_w, aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 365, GlobalsV::TurnSaveStep, 1, pas::bind_static_method<&TfCfgSettings::FormatTurnSaveStep>(this));
+        AddOptionSlider(ValueLabel, 0, aGalaxyStruct::TurnsPerYear, GlobalsV::TurnSaveStep, 1, pas::bind_static_method<&TfCfgSettings::FormatTurnSaveStep>(this));
         ValueLabel = AddOptionLabel(u"QuickSaveExtraSlots"_w, aConst::LocalizedText(u"FormCfgSettings.QuickSaveSlots"_wref.get()), false);
         AddOptionSlider(ValueLabel, 0, 9, GlobalsV::QuickSaveExtraSlots, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         ValueLabel = AddOptionLabel(u"CountFilmSave"_w, aConst::LocalizedText(u"FormCfgSettings.CountFilmSave"_wref.get()), false);
@@ -1510,11 +1510,11 @@ namespace fCfgSettings {
             ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Index = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             if (GR_Main::GameDisplayModes[Index].Width == 0) {
-                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText, u"<color=255,240,100>", u" ", aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), u"</color>"});
+                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), aMyFunction::EndColorTag});
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(cpp_arg);
             } else {
-                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, u"<color=255,240,100>", u" ", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Width)), u"x", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Height)), u"</color>"}));
+                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Width)), u"x", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Height)), aMyFunction::EndColorTag}));
             }
         }
     }
@@ -1526,11 +1526,11 @@ namespace fCfgSettings {
             ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Index = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             if (GR_Main::RobotDisplayModes[Index].Width == 0) {
-                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText, u"<color=255,240,100>", u" ", aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), u"</color>"});
+                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), aMyFunction::EndColorTag});
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(cpp_arg);
             } else {
-                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, u"<color=255,240,100>", u" ", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Width)), u"x", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Height)), u"</color>"}));
+                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Width)), u"x", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Height)), aMyFunction::EndColorTag}));
             }
         }
     }
@@ -1542,7 +1542,7 @@ namespace fCfgSettings {
             ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Index = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(Robot::SupportedMultiSamples[Index]), u"<color=255,240,100>"_w);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(Robot::SupportedMultiSamples[Index]), aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1560,7 +1560,7 @@ namespace fCfgSettings {
         if (Sender->UserIndex != 0) {
             ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), u"<color=255,240,100>"_w);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1578,7 +1578,7 @@ namespace fCfgSettings {
         if (Sender->UserIndex != 0) {
             ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), u"<color=255,240,100>"_w);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1590,7 +1590,7 @@ namespace fCfgSettings {
         if (Sender->UserIndex != 0) {
             ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), u"<color=255,240,100>"_w);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1610,19 +1610,21 @@ namespace fCfgSettings {
                 Text = aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep1"_wref.get());
             } else if (Value >= 2 && Value <= 4) {
                 Text = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString intToStr = pas::wide_int_to_str(Value);
                     pas::WideString localizedText = aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep2"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w, std::move(intToStr), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w, std::move(intToStr), textHighlightColorTag.get());
                 }());
             } else {
                 Text = ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString intToStr_2 = pas::wide_int_to_str(Value);
                     pas::WideString localizedText_2 = aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep3"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<Value>"_w, std::move(intToStr_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<Value>"_w, std::move(intToStr_2), textHighlightColorTag_2.get());
                 }());
             }
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Text>"_w, Text, u"<color=255,240,100>"_w);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Text>"_w, Text, aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1640,15 +1642,16 @@ namespace fCfgSettings {
                 Text = aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOffNever"_wref.get());
             } else if (Value < 100) {
                 Text = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString intToStr = pas::wide_int_to_str(100 - Value);
                     pas::WideString localizedText = aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOffStep"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w, std::move(intToStr), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w, std::move(intToStr), textHighlightColorTag.get());
                 }());
             } else {
                 Text = aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOffAlways"_wref.get());
             }
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Text>"_w, Text, u"<color=255,240,100>"_w);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Text>"_w, Text, aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -2486,7 +2489,7 @@ namespace fCfgSettings {
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));

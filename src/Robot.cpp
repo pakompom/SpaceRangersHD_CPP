@@ -511,7 +511,7 @@ namespace Robot {
                                     WindowsSdk::TRect drawClip_4 = DrawClip;
                                     void* pixels_4 = Buffer->GetPixels();
                                     std::int32_t pitchBytes_4 = Buffer->PitchBytes;
-                                    Font->DrawTaggedText32(pixels_4, pitchBytes_4, (Width - 0) / 2 - (Bounds.Right - Bounds.Left) / 2 + OffsetX, CurrentY + OffsetY, currentText_4, drawClip_4);
+                                    Font->DrawTaggedText32(pixels_4, pitchBytes_4, Robot::CenterSpan(0, Width, Bounds.Left, Bounds.Right) + OffsetX, CurrentY + OffsetY, currentText_4, drawClip_4);
                                 }
                             } else if (AlignX == 3 && static_cast<std::uint8_t>(WrappedLines->IsAtLast() ^ 1)) {
                                 const pas::WideString& currentText_5 = WrappedLines->GetCurrentText();
@@ -609,6 +609,10 @@ namespace Robot {
 
     void PAS_STDCALL RobotReleaseTextures() {
         GR_DX::ReleaseAllTextureSurfaces();
+    }
+
+    std::int32_t CenterSpan(std::int32_t SpanStart, std::int32_t SpanEnd, std::int32_t ContentStart, std::int32_t ContentEnd) {
+        return SpanStart + (SpanEnd - SpanStart) / 2 - (ContentEnd - ContentStart) / 2;
     }
 
 } // namespace Robot

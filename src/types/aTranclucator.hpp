@@ -61,7 +61,7 @@ namespace aTranclucator {
         void virtual_TShip_NextDayLogic() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
-        std::uint8_t GetGreetingShipCategory() override;
+        aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() override;
         // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxy::TStar* GetHomeStar() override;
@@ -74,7 +74,6 @@ namespace aTranclucator {
         void RepairBrokenEquipmentAtLocation() override;
         // Moves unequipped inventory and artefacts plus all goods; refreshes Self and the destination player's storage bubbles.
         void TransferUnequippedCargo(aShip::TShip* Destination);
-        // The +0 index/pointer expressions below preserve native DCC32 argument scheduling.
         void StoreUnequippedCargoAt(pas::Object* Location);
         std::uint8_t UnloadCargoForPlayerOwner();
         std::uint8_t TryLandForStorage();

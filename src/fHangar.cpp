@@ -1,7 +1,6 @@
 #include "layout/fHangar.hpp"
 #include "types/EC_BlockPar.hpp"
 #include "types/EC_Data.hpp"
-#include "types/GI_GAI.hpp"
 #include "types/GI_GraphBuf.hpp"
 #include "types/GI_GraphButton.hpp"
 #include "types/GI_Image.hpp"
@@ -29,6 +28,7 @@
 #include "units/EC_Cache.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
+#include "units/GI_GAI.hpp"
 #include "units/GI_GI.hpp"
 #include "units/GI_Main.hpp"
 #include "units/GI_MessageBox.hpp"
@@ -232,10 +232,10 @@ namespace fHangar {
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfHangar::MainKeyDown>(this);
         {
             GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"sv));
-            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase));
+            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase);
             if (BGCity2->Active) {
                 BGCity2->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(I)}));
-                BGCity2->GaiImageControl->LoadFrameSequenceFromText(u"[50,0-0]"_wref.get());
+                BGCity2->GaiImageControl->LoadFrameSequenceFromText(GI_GAI::SingleFrameAnimationSpec);
                 BGCity2->SetImageKindX(GI_Main::ikxCenter);
                 BGCity2->SetImageKindY(GI_Main::ikyCenter);
             }
@@ -343,7 +343,7 @@ namespace fHangar {
         }
         RefreshDockedShips();
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
         }
         aGalaxy::Galaxy->PrimeIntegrityChecksum(210);
         RefreshServiceButtons();
@@ -354,7 +354,7 @@ namespace fHangar {
         std::int32_t I{};
         aGalaxy::Galaxy->CheckIntegrityChecksum(211);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         ShipInfoWindow->SetActive(false);
         HoveredShip = nullptr;
@@ -484,7 +484,7 @@ namespace fHangar {
         aGalaxy::PlayerStar->RefreshSpaceObjectPositions();
         fEquipmentShop::RestoreTemporaryShopStock();
         aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 1);
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(3)) {
+        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
             aGalaxy::Galaxy->EnableDominatorSurfaces();
         } else {
             aGalaxy::Galaxy->DisableDominatorSurfaces();
@@ -511,15 +511,15 @@ namespace fHangar {
         if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->QueuedTravelTarget != nullptr) {
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion) && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion) && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase) && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
             if (aPlayer::GetPlayer()->Speed <= 0) {
                 Globals::RuinsTalkScreen->DepartWithStation(1);
             } else {
@@ -630,7 +630,7 @@ namespace fHangar {
                 GR_Main::MusicManager->RequestFadeOut();
                 return;
             }
-            if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+            if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
@@ -656,7 +656,8 @@ namespace fHangar {
                 ButRepair->HelpText = pas::concat_wide({aConst::LocalizedColorText(u"Help.ButRepair"_wref.get()), u" ", ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.HullStatus.Cost"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
                 }())});
             }
         }
@@ -669,7 +670,8 @@ namespace fHangar {
                 ButRefuel->HelpText = pas::concat_wide({aConst::LocalizedColorText(u"Help.ButRefuel"_wref.get()), u" ", ([&] {
                     pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->GetFullRefuelCost());
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.Cost"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
                 }())});
             }
         }
@@ -692,7 +694,8 @@ namespace fHangar {
             GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.HullStatus.NotMoney"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
             }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
             MainPanel->FlashMoneyWarning();
             return;
@@ -731,7 +734,8 @@ namespace fHangar {
             GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->GetFullRefuelCost());
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.NotMoney"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
             }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
             MainPanel->FlashMoneyWarning();
             return;
@@ -1254,7 +1258,7 @@ namespace fHangar {
             return;
         }
         ShipInfoWindow->SetActive(true);
-        Ship->ScriptItemsAct(aConst::satOnShowingShipInfo, nullptr, nullptr, 0);
+        Ship->ScriptItemsAct(aGalaxyStruct::satOnShowingShipInfo, nullptr, nullptr, 0);
         if (aPlayer::GetPlayer() != Ship) {
             {
                 const pas::WideString& wrapTextInColor = ([&] {
@@ -1266,21 +1270,37 @@ namespace fHangar {
                 cpp_arg->SetText(wrapTextInColor);
             }
             if (Ship != nullptr && aPlayer::GetPlayer() == Ship->PartnerShip) {
-                const pas::WideString& cpp_arg_2 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get())), u"<color=255,240,100>"sv)});
+                const pas::WideString& cpp_arg_2 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
+                    pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get());
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextByKey)), pas::view(std::move(textHighlightColorTag)));
+                }())});
                 GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_3->SetText(cpp_arg_2);
             }
-            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId, 6, 11)) {
-                const pas::WideString& cpp_arg_4 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId], u".AddToShipInfo"}))), u"<color=255,0,0>"sv)});
+            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId, static_cast<std::int32_t>(aGalaxyStruct::prgShipwreck), static_cast<std::int32_t>(aGalaxyStruct::prgDisconnection))) {
+                const pas::WideString& cpp_arg_4 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
+                    pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId], u".AddToShipInfo"}));
+                    pas::WideString redColorTag = aMyFunction::RedColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText)), pas::view(std::move(redColorTag)));
+                }())});
                 GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_5->SetText(cpp_arg_4);
             }
             if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship); ranger != nullptr && static_cast<std::uint32_t>(ranger->PrisonTermRemaining) > 0) {
-                const pas::WideString& cpp_arg_6 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormHangar.Prison"_wref.get())), u"<color=255,0,0>"sv)});
+                const pas::WideString& cpp_arg_6 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.Prison"_wref.get());
+                    pas::WideString redColorTag_2 = aMyFunction::RedColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)), pas::view(std::move(redColorTag_2)));
+                }())});
                 GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_7->SetText(cpp_arg_6);
             } else if (aPirate::TPirate* pirate = pas::class_cast_if<aPirate::TPirate*>(Ship); pirate != nullptr && pirate->PrisonTermRemaining > 0) {
-                const pas::WideString& cpp_arg_8 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormHangar.Prison"_wref.get())), u"<color=255,0,0>"sv)});
+                const pas::WideString& cpp_arg_8 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormHangar.Prison"_wref.get());
+                    pas::WideString redColorTag_3 = aMyFunction::RedColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_2)), pas::view(std::move(redColorTag_3)));
+                }())});
                 GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_9->SetText(cpp_arg_8);
             }
@@ -1328,7 +1348,7 @@ namespace fHangar {
             GI_GraphBuf::TGraphBufGI* InfoShipImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"sv));
             InfoShipImage2_2->SetActive(true);
             InfoShipImage2_2->SourceHasPerPixelAlpha = true;
-            if (aKling::TerronShip == Ship && aGalaxy::Galaxy->TerronToStarTurn >= 0x40000000) {
+            if (aKling::TerronShip == Ship && aGalaxy::Galaxy->TerronToStarTurn >= aGalaxyStruct::TerronTransformationFlag) {
                 GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(aKling::TerronShip->CurrentStar->Graphic)->StaticImagePath), 1, u","sv), InfoShipImage2_2->GraphBuf);
             } else {
                 GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Graphic)->StaticImagePath), 1, u","sv), InfoShipImage2_2->GraphBuf);
@@ -1373,7 +1393,7 @@ namespace fHangar {
             cpp_arg_14->SetText(wrapTextInColor_3);
         }
         if (Ship->GetHull()->HullPoints <= pas::real_divide(Ship->GetHull()->Weight, 2.0L)) {
-            ColorTag = u"<color=255,166,0>"_w;
+            ColorTag = aMyFunction::OrangeColorTag;
         } else {
             ColorTag = pas::WideString();
         }

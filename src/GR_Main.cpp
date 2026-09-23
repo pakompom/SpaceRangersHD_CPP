@@ -49,6 +49,11 @@ namespace GR_Main {
 
     using TIsWow64Process = pas::StdcallProc<std::int32_t(WindowsImports::THandle, std::int32_t&)>;
 
+    // Shared by version display, configuration migration and data compatibility checks.
+    const pas::WideString GameVersionText = u"2.1.2500"_w;
+
+    const pas::WideString ModSelectionConfigPath = u"Mods\\ModCFG.txt"_w;
+
     // Message pump returns without sleeping when active; cleared during device loss.
     std::uint8_t RuntimeActive{};
 
@@ -709,9 +714,9 @@ namespace GR_Main {
         pas::WideString ModPath{};
         EC_BlockPar::TBlockParEC* Block{};
         ModNames = pas::WideString();
-        if (SysUtilsImports::FileExists("Mods\\ModCFG.txt"_a)) {
+        if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(ModSelectionConfigPath))) {
             Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-            Block->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"Mods\\ModCFG.txt"), false);
+            Block->LoadFromTextFileWithEncodingProbe(ModSelectionConfigPath.pchar(), false);
             if (Block->CountParams(u"CurrentMod"_wref.get()) > 0) {
                 ModNames = EC_Str::TrimWideString(Block->GetParam(u"CurrentMod"sv));
             }
@@ -893,9 +898,9 @@ namespace GR_Main {
         };
         MainDataConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         ModNames = pas::WideString();
-        if (static_cast<std::uint8_t>(SkipModsOnReload ^ 1) && SysUtilsImports::FileExists("Mods\\ModCFG.txt"_a)) {
+        if (static_cast<std::uint8_t>(SkipModsOnReload ^ 1) && SysUtilsImports::FileExists(static_cast<pas::AnsiString>(ModSelectionConfigPath))) {
             Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-            Block->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"Mods\\ModCFG.txt"), false);
+            Block->LoadFromTextFileWithEncodingProbe(ModSelectionConfigPath.pchar(), false);
             if (Block->CountParams(u"CurrentMod"_wref.get()) > 0) {
                 ModNames = EC_Str::TrimWideString(Block->GetParamByPath(u"CurrentMod"_wref.get()));
             }
@@ -1004,8 +1009,8 @@ namespace GR_Main {
 
     void LoadInformationColorTags() {
         EC_BlockPar::TBlockParEC* Block{};
-        aMyFunction::InfoNameColorTag = u"<color=57,239,255>"_w;
-        aMyFunction::InfoHullSeriesColorTag = u"<color=82,166,255>"_w;
+        aMyFunction::InfoNameColorTag = aMyFunction::DefaultInfoNameColorTag;
+        aMyFunction::InfoHullSeriesColorTag = aMyFunction::DefaultInfoHullSeriesColorTag;
         if (GameDataConfig->CountBlocks(u"StyleColor"_wref.get()) > 0) {
             Block = GameDataConfig->GetBlock(u"StyleColor"sv);
             if (Block->CountParamsByPath(u"InfoNameColor"_wref.get()) > 0) {
@@ -1117,7 +1122,7 @@ namespace GR_Main {
             GR_Main::AppendLogTextThreadSafe("Creating cfg.txt ... "_a);
             WindowsSdk::CopyFileW(pas::literal_pointer(u"cfg.txt"), Text.pchar(), 0);
             UserSettingsConfig->LoadFromTextFileWithEncodingProbe(Text.pchar(), true);
-            UserSettingsConfig->AddParam(u"CurrentVersion"_wref.get(), u"2.1.2500"_wref.get());
+            UserSettingsConfig->AddParam(u"CurrentVersion"_wref.get(), GameVersionText);
             UserSettingsConfig->AddParam(u"VideoMemSizeLimit"_wref.get(), u"256"_wref.get());
             if (GlobalsV::RunningUnderWine) {
                 UserSettingsConfig->AddParam(u"RunOnWineWithoutWarning"_wref.get(), u"True"_wref.get());
@@ -1129,17 +1134,20 @@ namespace GR_Main {
             UserSettingsConfig->LoadFromTextFileWithEncodingProbe(Text.pchar(), true);
             if (UserSettingsConfig->CountParamsByPath(u"CurrentVersion"_wref.get()) == 0) {
                 GR_Main::AppendLogTextThreadSafe("Updating cfg.txt content ... "_a);
-                UserSettingsConfig->AddParam(u"CurrentVersion"_wref.get(), u"2.1.2500"_wref.get());
+                UserSettingsConfig->AddParam(u"CurrentVersion"_wref.get(), GameVersionText);
                 UserSettingsConfig->SetOrAddParam(u"HardwareRender"_wref.get(), u"True"_wref.get());
                 UserSettingsConfig->SetOrAddParam(u"MultiThread"_wref.get(), u"False"_wref.get());
                 UserSettingsConfig->SaveTextFile(Text.pchar(), true, false);
                 GR_Main::AppendLogLineThreadSafe("ok!"_a);
-            } else if (UserSettingsConfig->GetParamByPathOrMarker(u"CurrentVersion"_wref.get()) != u"2.1.2500") {
+            } else if (([&] {
+                pas::WideString cpp_string = UserSettingsConfig->GetParamByPathOrMarker(u"CurrentVersion"_wref.get());
+                return cpp_string != GameVersionText;
+            }())) {
                 GR_Main::AppendLogTextThreadSafe("Updating cfg.txt version ... "_a);
                 if (UserSettingsConfig->GetParam(u"CurrentVersion"sv) == u"2.1.1800" && UserSettingsConfig->CountParamsByPath(u"CountFilmSave"_wref.get()) > 0 && UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()) == u"30") {
                     UserSettingsConfig->SetOrAddParam(u"CountFilmSave"_wref.get(), u"7"_wref.get());
                 }
-                UserSettingsConfig->SetOrAddParam(u"CurrentVersion"_wref.get(), u"2.1.2500"_wref.get());
+                UserSettingsConfig->SetOrAddParam(u"CurrentVersion"_wref.get(), GameVersionText);
                 UserSettingsConfig->SaveTextFile(Text.pchar(), true, false);
                 GR_Main::AppendLogLineThreadSafe("ok!"_a);
             }
@@ -1383,15 +1391,24 @@ namespace GR_Main {
             Cursor->ImagePath = Block->GetBlockByIndex(Index)->GetParam(u"Image"sv);
             Cursor->HotSpot = GI_Main::GetPointGI(pas::view(Block->GetBlockByIndex(Index)->GetParam(u"Sme"sv)));
         }
-        if (LanguageDataConfig->GetParamByPathOrMarker(u"BV.BV"_wref.get()) != u"2.1.2500") {
+        if (([&] {
+            pas::WideString cpp_string_2 = LanguageDataConfig->GetParamByPathOrMarker(u"BV.BV"_wref.get());
+            return cpp_string_2 != GameVersionText;
+        }())) {
             GR_Main::AppendLogLineThreadSafe("Build version mismatch with Lang.dat!"_a);
             BuildVersionMismatch = true;
         }
-        if (MainDataConfig->GetParamByPathOrMarker(u"BV.BV"_wref.get()) != u"2.1.2500") {
+        if (([&] {
+            pas::WideString cpp_string_3 = MainDataConfig->GetParamByPathOrMarker(u"BV.BV"_wref.get());
+            return cpp_string_3 != GameVersionText;
+        }())) {
             GR_Main::AppendLogLineThreadSafe("Build version mismatch with Main.dat!"_a);
             BuildVersionMismatch = true;
         }
-        if (CacheDataRoot->FindEntry(u"BV"_wref.get())->ChildData->FindEntry(u"BV"_wref.get())->SharedFileRef->FileRef->FileName != u"2.1.2500") {
+        if (([&] {
+            const pas::WideString& cpp_string_ref = CacheDataRoot->FindEntry(u"BV"_wref.get())->ChildData->FindEntry(u"BV"_wref.get())->SharedFileRef->FileRef->FileName;
+            return cpp_string_ref != GameVersionText;
+        }())) {
             GR_Main::AppendLogLineThreadSafe("Build version mismatch with CacheData.dat!"_a);
             BuildVersionMismatch = true;
         }
@@ -2000,7 +2017,7 @@ namespace GR_Main {
         GR_Main::ApplyGammaRamp(DisplayBrightness, DisplayContrast);
         // Native uses two different approximations of pi for these tables.
         for (Index = 0; Index <= 360; ++Index) {
-            Angle = Index * 0.017453292222222222223L;
+            Angle = Index * pas::constant(aMyFunction::GamePi / 1.8E+2L);
             GR_DX::CircleCos[Index] = System::Cos(Angle);
             GR_DX::CircleSin[Index] = System::Sin(Angle);
         }
@@ -2153,17 +2170,17 @@ namespace GR_Main {
         } else if (OffscreenTexture == nullptr) {
             Direct3D9::IDirect3DDevice9_BeginScene(Direct3DDevice);
             if (!AlternateViewportEnabled) {
-                GR_DX::DrawTexture((ScreenRenderBuffer->GetTexture(cpp_result), cpp_result), 0, 0, 255, 0x00ffffffu, nullptr, false, false);
+                GR_DX::DrawTexture((ScreenRenderBuffer->GetTexture(cpp_result), cpp_result), 0, 0, 255, GR_DX::RgbWhite, nullptr, false, false);
             } else if (GlobalsV::ScaleViewportToWindow) {
                 std::int32_t presentationWidth = PresentationWidth;
                 std::int32_t presentationHeight = PresentationHeight;
                 pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (ScreenRenderBuffer->GetTexture(cpp_result_2), cpp_result_2);
-                GR_DX::DrawTextureSized(texture, 0, 0, presentationWidth, presentationHeight, 255, 0x00ffffffu, nullptr, false, false);
+                GR_DX::DrawTextureSized(texture, 0, 0, presentationWidth, presentationHeight, 255, GR_DX::RgbWhite, nullptr, false, false);
             } else {
                 pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture_2 = (ScreenRenderBuffer->GetTexture(cpp_result_3), cpp_result_3);
                 std::int32_t y = ViewportOffset.Y;
                 std::int32_t x = ViewportOffset.X;
-                GR_DX::DrawTexture(texture_2, x, y, 255, 0x00ffffffu, nullptr, false, false);
+                GR_DX::DrawTexture(texture_2, x, y, 255, GR_DX::RgbWhite, nullptr, false, false);
             }
             Direct3D9::IDirect3DDevice9_EndScene(Direct3DDevice);
             Direct3D9::IDirect3DDevice9_Present(Direct3DDevice, nullptr, nullptr, 0u, nullptr);
@@ -2293,10 +2310,10 @@ namespace GR_Main {
             Y = static_cast<std::int32_t>(ViewHeight - Height) / 2;
             Direct3D9::IDirect3DDevice9_Clear(Direct3DDevice, 0u, nullptr, Direct3D9::D3DCLEAR_TARGET, 0u, 1.0f, 0u);
             if (GlobalsV::HardwareRenderingEnabled) {
-                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
+                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
             } else {
                 Direct3D9::IDirect3DDevice9_BeginScene(Direct3DDevice);
-                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
+                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
                 Direct3D9::IDirect3DDevice9_EndScene(Direct3DDevice);
                 Direct3D9::IDirect3DDevice9_Present(Direct3DDevice, nullptr, nullptr, 0u, nullptr);
             }

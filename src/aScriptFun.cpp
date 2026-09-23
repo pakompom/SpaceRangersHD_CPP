@@ -357,13 +357,13 @@ namespace aScriptFun {
         }
         if (av.length() - 1 > 1) {
             pas::WideString string = av[1]->GetString();
-            std::uint8_t pasint = av[2]->GetInt();
+            aGalaxyStruct::TGalaxyNewsKind pasint = static_cast<aGalaxyStruct::TGalaxyNewsKind>(av[2]->GetInt());
             aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
             galaxy->AddPlanetNews(pasint, std::move(string));
         } else {
             pas::WideString string_2 = av[1]->GetString();
             aGalaxy::TGalaxy* galaxy_2 = aGalaxy::Galaxy;
-            galaxy_2->AddPlanetNews(0, std::move(string_2));
+            galaxy_2->AddPlanetNews(aGalaxyStruct::gnScript, std::move(string_2));
         }
     }
 
@@ -385,25 +385,23 @@ namespace aScriptFun {
             Turn = av[2]->GetInt();
             Entry = pas::construct_call<aPlayer::TJournalRecord>(aPlayer::TJournalRecord_Create);
             Entry->Text = av[1]->GetString();
-            // The value-expression receiver preserves native receiver-before-value loads;
-            // no addition is emitted. See the DCC32 ABI observations.
-            reinterpret_cast<aPlayer::TJournalRecord*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Entry)) + 0)))->DateTurn = Turn;
+            Entry->DateTurn = Turn;
             if (pas::list_count(aPlayer::GetPlayer()->JournalRecords) <= 0 || pas::list_at<aPlayer::TJournalRecord>(aPlayer::GetPlayer()->JournalRecords, pas::list_count(aPlayer::GetPlayer()->JournalRecords) - 1)->DateTurn <= Turn) {
                 pas::list_add(aPlayer::GetPlayer()->JournalRecords, reinterpret_cast<void*>(Entry));
-            } else {
-                {
-                    const std::int32_t cpp_first = pas::list_count(aPlayer::GetPlayer()->JournalRecords) - 2;
-                    if (cpp_first >= 0) {
-                        for (I = cpp_first; I >= 0; --I) {
-                            if (pas::list_at<aPlayer::TJournalRecord>(aPlayer::GetPlayer()->JournalRecords, I)->DateTurn <= Turn) {
-                                pas::list_insert(aPlayer::GetPlayer()->JournalRecords, I + 1, reinterpret_cast<void*>(Entry));
-                                return;
-                            }
+                return;
+            }
+            {
+                const std::int32_t cpp_first = pas::list_count(aPlayer::GetPlayer()->JournalRecords) - 2;
+                if (cpp_first >= 0) {
+                    for (I = cpp_first; I >= 0; --I) {
+                        if (pas::list_at<aPlayer::TJournalRecord>(aPlayer::GetPlayer()->JournalRecords, I)->DateTurn <= Turn) {
+                            pas::list_insert(aPlayer::GetPlayer()->JournalRecords, I + 1, reinterpret_cast<void*>(Entry));
+                            return;
                         }
                     }
                 }
-                pas::list_insert(aPlayer::GetPlayer()->JournalRecords, 0, reinterpret_cast<void*>(Entry));
             }
+            pas::list_insert(aPlayer::GetPlayer()->JournalRecords, 0, reinterpret_cast<void*>(Entry));
         }
     }
 
@@ -438,8 +436,8 @@ namespace aScriptFun {
         }
         aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[2]->GetInt());
-        std::uint8_t Kind = av[3]->GetInt();
-        std::int32_t Award = pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->SelectAward(Owner, pas::make_set<aNormalShip::TAwardTypeMask>({{static_cast<std::int32_t>(Kind)}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
+        aGalaxyStruct::TAwardKind Kind = static_cast<aGalaxyStruct::TAwardKind>(av[3]->GetInt());
+        std::int32_t Award = pas::checked_cast<aNormalShip::TNormalShip*>(Ship)->SelectAward(Owner, pas::make_set<aNormalShip::TAwardTypeMask>({{static_cast<std::int32_t>(Kind)}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, aGalaxyStruct::rstCustomStation}}));
         if (Award == aGalaxyStruct::AwardNotFound) {
             GR_Main::RaiseWideMessage(u"Error RewardNumber=255"_wref.get());
         }
@@ -462,7 +460,7 @@ namespace aScriptFun {
         auto cpp_array_copy = pas::copy_open_array(av);
         av = pas::open_array(cpp_array_copy);
         aShip::TShip* Ship{};
-        std::uint8_t Kind{};
+        aGalaxyStruct::TAwardKind Kind{};
         std::int32_t Index{};
         std::int32_t Count{};
         if (av.length() - 1 < 1) {
@@ -481,7 +479,7 @@ namespace aScriptFun {
                 cpp_arg_2->SetString(cpp_arg);
             }
         } else {
-            Kind = av[2]->GetInt();
+            Kind = static_cast<aGalaxyStruct::TAwardKind>(av[2]->GetInt());
             if (Ship->AwardIds == nullptr) {
                 av[0]->SetInt(0);
                 return;
@@ -1649,7 +1647,7 @@ namespace aScriptFun {
         {
             const pas::WideString& string = av[1]->GetString();
             std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
-            Globals::AddOrUpdatePlayerBubble(0, currentTurn, string, u""_wref.get());
+            Globals::AddOrUpdatePlayerBubble(Globals::pmGalaxyNews, currentTurn, string, u""_wref.get());
         }
     }
 
@@ -1678,7 +1676,7 @@ namespace aScriptFun {
                 Globals::TMessagePlayer* cpp_with = ([&] {
                     const pas::WideString& string = av[1]->GetString();
                     std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
-                    return Globals::AddOrUpdatePlayerBubble(1, currentTurn, string, u""_wref.get());
+                    return Globals::AddOrUpdatePlayerBubble(Globals::pmRadio, currentTurn, string, u""_wref.get());
                 }());
                 cpp_with->Targets[0].ShipId = Ship->Id;
             }
@@ -1695,7 +1693,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script Ether"_a));
         }
         av[0]->SetInt(0);
-        std::uint8_t Kind = av[1]->GetInt();
+        Globals::TPlayerMessageKind Kind = static_cast<Globals::TPlayerMessageKind>(av[1]->GetInt());
         Key = av[2]->GetString();
         pas::Object* Obj = nullptr;
         std::uint8_t InPlayerSystem = false;
@@ -1718,15 +1716,23 @@ namespace aScriptFun {
                 pas::make_exception<pas::Exception>("Error.Script Ether objtype"_a);
             }
         }
-        if (static_cast<std::uint8_t>(pas::in_set<1, 1, 10, 10>(Kind) ^ 1) || Obj == nullptr || InPlayerSystem) {
-            if (Kind == 3 && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(pas::view(Key)) < 0) {
+        if (static_cast<std::uint8_t>(pas::is_one_of<Globals::pmRadio, Globals::pmRadioPlayer>(Kind) ^ 1) || Obj == nullptr || InPlayerSystem) {
+            if (Kind == Globals::pmQuestActive && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(pas::view(Key)) < 0) {
                 aScript::CurrentScript->EtherIds->Add(Key);
             }
             MessageEntry = ([&] {
                 auto key = pas::borrow(Key);
-                const pas::WideString& replaceAllWideString = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[3]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
+                const pas::WideString& replaceAllWideString_2 = ([&] {
+                    const pas::WideString& replaceAllWideString = ([&] {
+                        const pas::WideString& string = av[3]->GetString();
+                        const pas::WideString& textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return EC_Str::ReplaceAllWideString(string, u"<clr>"_wref.get(), pas::view(textHighlightColorTag));
+                    }());
+                    const pas::WideString& endColorTag = aMyFunction::EndColorTag;
+                    return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<clrEnd>"_wref.get(), pas::view(endColorTag));
+                }());
                 std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
-                return Globals::AddOrUpdatePlayerBubble(Kind, currentTurn, replaceAllWideString, key.get());
+                return Globals::AddOrUpdatePlayerBubble(Kind, currentTurn, replaceAllWideString_2, key.get());
             }());
             if (Obj != nullptr) {
                 if (aShip::TShip* ship_2 = pas::class_cast_if<aShip::TShip*>(Obj)) {
@@ -1772,7 +1778,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script Ether"_a));
         }
         av[0]->SetInt(0);
-        std::uint8_t Kind = av[2]->GetInt();
+        Globals::TPlayerMessageKind Kind = static_cast<Globals::TPlayerMessageKind>(av[2]->GetInt());
         Key = av[3]->GetString();
         pas::Object* Obj = nullptr;
         std::uint8_t InPlayerSystem = false;
@@ -1795,15 +1801,23 @@ namespace aScriptFun {
                 pas::make_exception<pas::Exception>("Error.Script Ether objtype"_a);
             }
         }
-        if (static_cast<std::uint8_t>(pas::in_set<1, 1, 10, 10>(Kind) ^ 1) || Obj == nullptr || InPlayerSystem) {
-            if (Kind == 3 && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(pas::view(Key)) < 0) {
+        if (static_cast<std::uint8_t>(pas::is_one_of<Globals::pmRadio, Globals::pmRadioPlayer>(Kind) ^ 1) || Obj == nullptr || InPlayerSystem) {
+            if (Kind == Globals::pmQuestActive && Key != u"" && aScript::CurrentScript != nullptr && aScript::CurrentScript->EtherIds->IndexOf(pas::view(Key)) < 0) {
                 aScript::CurrentScript->EtherIds->Add(Key);
             }
             MessageEntry = ([&] {
                 auto key = pas::borrow(Key);
-                const pas::WideString& replaceAllWideString = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[4]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
+                const pas::WideString& replaceAllWideString_2 = ([&] {
+                    const pas::WideString& replaceAllWideString = ([&] {
+                        const pas::WideString& string = av[4]->GetString();
+                        const pas::WideString& textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return EC_Str::ReplaceAllWideString(string, u"<clr>"_wref.get(), pas::view(textHighlightColorTag));
+                    }());
+                    const pas::WideString& endColorTag = aMyFunction::EndColorTag;
+                    return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<clrEnd>"_wref.get(), pas::view(endColorTag));
+                }());
                 std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
-                return Globals::AddOrUpdatePlayerBubble(Kind, currentTurn, replaceAllWideString, key.get());
+                return Globals::AddOrUpdatePlayerBubble(Kind, currentTurn, replaceAllWideString_2, key.get());
             }());
             MessageEntry->ImageNameOverride = av[1]->GetString();
             if (Obj != nullptr) {
@@ -2003,7 +2017,7 @@ namespace aScriptFun {
             Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"sv);
             Text = EC_Str::ReplaceAllWideString(Text, u"<ll>"_wref.get(), u"\r\n \r\n"sv);
             if (aPlayer::GetPlayer() != nullptr) {
-                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::view(pas::concat_wide({u"<color=255,240,100>", aPlayer::GetPlayer()->Name, u"</color>"})));
+                Text = EC_Str::ReplaceAllWideString(Text, u"<Player>"_wref.get(), pas::view(pas::concat_wide({aMyFunction::TextHighlightColorTag, aPlayer::GetPlayer()->Name, aMyFunction::EndColorTag})));
             }
             av[0]->SetString(Text);
         } else {
@@ -2015,7 +2029,7 @@ namespace aScriptFun {
                     Color = pas::concat_wide({u"<color=", Color, u">"});
                 }
             } else {
-                Color = u"<color=255,240,100>"_w;
+                Color = aMyFunction::TextHighlightColorTag;
             }
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
                 Text = ([&] {
@@ -2150,11 +2164,35 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DText"_a));
         }
         if (aPlayer::GetPlayer()->IsDockedToShip()) {
-            Globals::RuinsTalkScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
+            Globals::RuinsTalkScreen->DialogText = ([&] {
+                const pas::WideString& replaceAllWideString = ([&] {
+                    const pas::WideString& string = av[1]->GetString();
+                    const pas::WideString& textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return EC_Str::ReplaceAllWideString(string, u"<clr>"_wref.get(), pas::view(textHighlightColorTag));
+                }());
+                const pas::WideString& endColorTag = aMyFunction::EndColorTag;
+                return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<clrEnd>"_wref.get(), pas::view(endColorTag));
+            }());
         } else if (!aPlayer::GetPlayer()->IsOnPlanet()) {
-            Globals::TalkScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
+            Globals::TalkScreen->DialogText = ([&] {
+                const pas::WideString& replaceAllWideString_2 = ([&] {
+                    const pas::WideString& string_2 = av[1]->GetString();
+                    const pas::WideString& textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return EC_Str::ReplaceAllWideString(string_2, u"<clr>"_wref.get(), pas::view(textHighlightColorTag_2));
+                }());
+                const pas::WideString& endColorTag_2 = aMyFunction::EndColorTag;
+                return EC_Str::ReplaceAllWideString(replaceAllWideString_2, u"<clrEnd>"_wref.get(), pas::view(endColorTag_2));
+            }());
         } else {
-            Globals::GovernmentScreen->DialogText = EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv);
+            Globals::GovernmentScreen->DialogText = ([&] {
+                const pas::WideString& replaceAllWideString_3 = ([&] {
+                    const pas::WideString& string_3 = av[1]->GetString();
+                    const pas::WideString& textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return EC_Str::ReplaceAllWideString(string_3, u"<clr>"_wref.get(), pas::view(textHighlightColorTag_3));
+                }());
+                const pas::WideString& endColorTag_3 = aMyFunction::EndColorTag;
+                return EC_Str::ReplaceAllWideString(replaceAllWideString_3, u"<clrEnd>"_wref.get(), pas::view(endColorTag_3));
+            }());
         }
     }
 
@@ -2165,11 +2203,35 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DAddText"_a));
         }
         if (aPlayer::GetPlayer()->IsDockedToShip()) {
-            Globals::RuinsTalkScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv), Globals::RuinsTalkScreen->DialogText});
+            Globals::RuinsTalkScreen->DialogText = pas::concat_wide_reverse({([&] {
+                const pas::WideString& replaceAllWideString = ([&] {
+                    const pas::WideString& string = av[1]->GetString();
+                    const pas::WideString& textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return EC_Str::ReplaceAllWideString(string, u"<clr>"_wref.get(), pas::view(textHighlightColorTag));
+                }());
+                const pas::WideString& endColorTag = aMyFunction::EndColorTag;
+                return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<clrEnd>"_wref.get(), pas::view(endColorTag));
+            }()), Globals::RuinsTalkScreen->DialogText});
         } else if (!aPlayer::GetPlayer()->IsOnPlanet()) {
-            Globals::TalkScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv), Globals::TalkScreen->DialogText});
+            Globals::TalkScreen->DialogText = pas::concat_wide_reverse({([&] {
+                const pas::WideString& replaceAllWideString_2 = ([&] {
+                    const pas::WideString& string_2 = av[1]->GetString();
+                    const pas::WideString& textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return EC_Str::ReplaceAllWideString(string_2, u"<clr>"_wref.get(), pas::view(textHighlightColorTag_2));
+                }());
+                const pas::WideString& endColorTag_2 = aMyFunction::EndColorTag;
+                return EC_Str::ReplaceAllWideString(replaceAllWideString_2, u"<clrEnd>"_wref.get(), pas::view(endColorTag_2));
+            }()), Globals::TalkScreen->DialogText});
         } else {
-            Globals::GovernmentScreen->DialogText = pas::concat_wide_reverse({EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(av[1]->GetString(), u"<clr>"_wref.get(), u"<color=255,240,100>"sv), u"<clrEnd>"_wref.get(), u"</color>"sv), Globals::GovernmentScreen->DialogText});
+            Globals::GovernmentScreen->DialogText = pas::concat_wide_reverse({([&] {
+                const pas::WideString& replaceAllWideString_3 = ([&] {
+                    const pas::WideString& string_3 = av[1]->GetString();
+                    const pas::WideString& textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return EC_Str::ReplaceAllWideString(string_3, u"<clr>"_wref.get(), pas::view(textHighlightColorTag_3));
+                }());
+                const pas::WideString& endColorTag_3 = aMyFunction::EndColorTag;
+                return EC_Str::ReplaceAllWideString(replaceAllWideString_3, u"<clrEnd>"_wref.get(), pas::view(endColorTag_3));
+            }()), Globals::GovernmentScreen->DialogText});
         }
     }
 
@@ -2878,7 +2940,7 @@ namespace aScriptFun {
         if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics)) && Planet->OwnerId != aGalaxyStruct::oiPirate) {
             if (!aConst::GoodsLegalOnPlanet[Kind][Planet->RaceId][Planet->Government]) {
                 av[0]->SetInt(1);
-            } else if (pas::in_set<0, 1>(Kind) && Ship->IsHealthEffectActive(12)) {
+            } else if (pas::in_set<0, 1>(Kind) && Ship->IsHealthEffectActive(aGalaxyStruct::heNewMolizone)) {
                 av[0]->SetInt(1);
             }
         }
@@ -3649,7 +3711,7 @@ namespace aScriptFun {
             if (Index == 0) {
                 av[0]->SetInt(aConst::RadiationHealthDefinitions[1].Duration);
             } else {
-                av[0]->SetInt(aConst::CaptainHealthDefinitions[Index].Duration);
+                av[0]->SetInt(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].Duration);
             }
             return;
         }
@@ -3675,24 +3737,24 @@ namespace aScriptFun {
                 }
             }
         } else if (Index > 0 && Index <= 24) {
-            if (Ship->IsHealthEffectActive(Index)) {
-                Remaining = Ship->CaptainHealth[Index].ExpireTurn - aGalaxy::Galaxy->CurrentTurn;
+            if (Ship->IsHealthEffectActive(static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index))) {
+                Remaining = Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].ExpireTurn - aGalaxy::Galaxy->CurrentTurn;
             }
             if (av.length() - 1 > 2) {
                 Duration = av[3]->GetInt();
                 if (Duration == -1) {
-                    Duration = aConst::CaptainHealthDefinitions[Index].Duration;
+                    Duration = aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].Duration;
                 }
                 if (Duration == 0) {
-                    Ship->CaptainHealth[Index].Progress = 0.0;
-                    Ship->CaptainHealth[Index].ExpireTurn = 0;
+                    Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].Progress = 0.0;
+                    Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].ExpireTurn = 0;
                 }
                 if (Remaining == 0 && Duration > 0) {
-                    Ship->CaptainHealth[Index].Progress = 1.0E+2;
-                    Ship->CaptainHealth[Index].ExpireTurn = aGalaxy::Galaxy->CurrentTurn + Duration;
+                    Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].Progress = 1.0E+2;
+                    Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].ExpireTurn = aGalaxy::Galaxy->CurrentTurn + Duration;
                 }
                 if (Remaining > 0 && Duration > 0) {
-                    Ship->CaptainHealth[Index].ExpireTurn = aGalaxy::Galaxy->CurrentTurn + Duration;
+                    Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].ExpireTurn = aGalaxy::Galaxy->CurrentTurn + Duration;
                 }
             }
         }
@@ -3714,9 +3776,9 @@ namespace aScriptFun {
                 Ship->RadiationHealth[1].Progress = av[3]->GetFloat();
             }
         } else if (Index > 0 && Index <= 24) {
-            av[0]->SetInt(System::Round(Ship->CaptainHealth[Index].Progress));
+            av[0]->SetInt(System::Round(Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].Progress));
             if (av.length() - 1 > 2) {
-                Ship->CaptainHealth[Index].Progress = av[3]->GetInt();
+                Ship->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(Index)].Progress = av[3]->GetInt();
             }
         } else {
             av[0]->SetInt(0);
@@ -4098,7 +4160,7 @@ namespace aScriptFun {
         std::array<EC_Expression::TVarEC*, 2> cpp_array_copy;
         std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
         av.elements = cpp_array_copy.data();
-        std::uint8_t Kind{};
+        aGalaxyStruct::TShipType Kind{};
         aGalaxy::TStar* Star{};
         aShip::TShip* Ship{};
         std::int32_t I{};
@@ -4107,7 +4169,7 @@ namespace aScriptFun {
         }
         av[0]->SetDword(0u);
         if (aPlayer::GetPlayer() != nullptr) {
-            Kind = av[1]->GetInt();
+            Kind = static_cast<aGalaxyStruct::TShipType>(av[1]->GetInt());
             Star = aPlayer::GetPlayer()->CurrentStar;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
@@ -4703,7 +4765,7 @@ namespace aScriptFun {
         if (av.length() - 1 != 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script HaveProgramm"_a));
         }
-        av[0]->SetInt(aPlayer::GetPlayer()->HasProgram(av[1]->GetDword()) & 127);
+        av[0]->SetInt(aPlayer::GetPlayer()->HasProgram(static_cast<aGalaxyStruct::TProgramIndex>(av[1]->GetDword())) & 127);
     }
 
     void SF_GetProgramm(pas::OpenArray<EC_Expression::TVarEC*> av, EC_Expression::TCodeEC* code) {
@@ -4723,7 +4785,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetProgramm"_a));
         }
-        av[0]->SetInt(aPlayer::GetPlayer()->HasProgram(av[1]->GetDword()) & 127);
+        av[0]->SetInt(aPlayer::GetPlayer()->HasProgram(static_cast<aGalaxyStruct::TProgramIndex>(av[1]->GetDword())) & 127);
         {
             auto& cpp_target = aPlayer::GetPlayer()->ProgramCounts[static_cast<aGalaxyStruct::TProgramIndex>(av[1]->GetDword())];
             cpp_target = av[2]->GetInt();
@@ -4734,7 +4796,7 @@ namespace aScriptFun {
         std::array<EC_Expression::TVarEC*, 4> cpp_array_copy;
         std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
         av.elements = cpp_array_copy.data();
-        std::uint8_t ProgramId{};
+        aGalaxyStruct::TProgramIndex ProgramId{};
         std::int32_t Count{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script DomikProgramm"_a));
@@ -4742,7 +4804,7 @@ namespace aScriptFun {
         aKling::TKling* Ship = reinterpret_cast<aKling::TKling*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetInt(Ship->ActiveProgramId);
         if (av.length() - 1 > 1) {
-            ProgramId = av[2]->GetDword();
+            ProgramId = static_cast<aGalaxyStruct::TProgramIndex>(av[2]->GetDword());
             Ship->ActiveProgramId = ProgramId;
             switch (ProgramId) {
                 case aGalaxyStruct::prgShipwreck: {
@@ -5046,7 +5108,11 @@ namespace aScriptFun {
                 Text = EC_Str::ReplaceAllWideString(Text, u"<br>"_wref.get(), u"\r\n"sv);
                 if (aPlayer::GetPlayer() != nullptr) {
                     Text = ([&] {
-                        const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aPlayer::GetPlayer()->GetFullName(u" "_wref.get())), u"<color=255,240,100>"sv);
+                        const pas::WideString& wrapTextInColor = ([&] {
+                            pas::WideString fullName = aPlayer::GetPlayer()->GetFullName(u" "_wref.get());
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)), pas::view(std::move(textHighlightColorTag)));
+                        }());
                         const pas::WideString& text = Text;
                         return EC_Str::ReplaceAllWideString(text, u"<PlayerFull>"_wref.get(), pas::view(wrapTextInColor));
                     }());
@@ -6116,7 +6182,7 @@ namespace aScriptFun {
                     }
                     Ship->RefreshAssignedItemSlots();
                     Ship->RefreshDerivedStats(true);
-                    Ship->ScriptItemsAct(0x00000034, nullptr, nullptr, 0);
+                    Ship->ScriptItemsAct(aGalaxyStruct::satOnNonStandartEqChange, nullptr, nullptr, 0);
                 }
             }
         }
@@ -6348,7 +6414,7 @@ namespace aScriptFun {
                 }
                 Stat = av[2]->GetInt();
             }
-            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                 switch (Stat) {
                     case 0: av[0]->SetInt(pas::checked_cast<aItem::TWeapon*>(Item)->MaxDamage); break;
                     case 1: av[0]->SetInt(pas::checked_cast<aItem::TWeapon*>(Item)->MinDamage); break;
@@ -6491,7 +6557,7 @@ namespace aScriptFun {
             Item = scriptItem->Item;
         }
         if (Item != nullptr) {
-            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                 switch (Stat) {
                     case 0: pas::checked_cast<aItem::TWeapon*>(Item)->MaxDamage = Value; break;
                     case 1: pas::checked_cast<aItem::TWeapon*>(Item)->MinDamage = Value; break;
@@ -6573,7 +6639,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 4) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateHull"_a));
         }
-        std::uint8_t HullType = av[1]->GetDword();
+        aGalaxyStruct::THullType HullType = static_cast<aGalaxyStruct::THullType>(av[1]->GetDword());
         std::int32_t Capacity = av[2]->GetInt();
         std::int32_t Level = av[3]->GetInt();
         aGalaxyStruct::TOwnerId Owner = static_cast<aGalaxyStruct::TOwnerId>(av[4]->GetDword());
@@ -6916,7 +6982,7 @@ namespace aScriptFun {
             reinterpret_cast<aItem::THull*>(Item)->OwnerShip = Ship;
             Ship->RefreshAssignedItemSlots();
             Ship->RefreshDerivedStats(true);
-            Ship->ScriptItemsAct(aConst::satOnNonStandartEqChange, nullptr, nullptr, 0);
+            Ship->ScriptItemsAct(aGalaxyStruct::satOnNonStandartEqChange, nullptr, nullptr, 0);
         } else if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
             pas::list_add(Ship->Artefacts, reinterpret_cast<void*>(Item));
         } else if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
@@ -6967,7 +7033,7 @@ namespace aScriptFun {
                     if (1 <= cpp_last) {
                         for (WeaponIndex = 1; WeaponIndex <= cpp_last; ++WeaponIndex) {
                             if (Ship->Weapons[WeaponIndex] == Item) {
-                                Ship->UnequipSlot(aConst::t_Weapon1, WeaponIndex);
+                                Ship->UnequipSlot(aConst::WeaponCategoryItemType, WeaponIndex);
                                 break;
                             }
                         }
@@ -7966,7 +8032,7 @@ namespace aScriptFun {
             Ship->WeaponCount = 0;
             Source->RefreshAssignedItemSlots();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, 4); cpp_range.next(I); ) {
-                Weapon = pas::checked_cast<aItem::TWeapon*>(Source->FindEquippedItemInSlot(aConst::t_Weapon1, I));
+                Weapon = pas::checked_cast<aItem::TWeapon*>(Source->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, I));
                 if (aShip::TShip_IsEquipmentUsable(Source, Weapon)) {
                     if (Weapon->ItemType != aConst::t_CustomWeapon) {
                         ab_W::ab_Weapon_Initialize(&Ship->Weapons[I], Weapon->ItemType);
@@ -8879,7 +8945,7 @@ namespace aScriptFun {
                 Ship->RefreshDerivedStats(true);
                 if (aPlayer::GetPlayer() == Ship && Globals::GetInnermostScreenLoop() == Globals::StarMapScreen && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
                     Globals::StarMapScreen->ClearPathOverlay(true);
-                    aPlayer::GetPlayer()->BuildOrderMovementPath(999999);
+                    aPlayer::GetPlayer()->BuildOrderMovementPath(aGalaxyStruct::FullPathNodeLimit);
                     Globals::StarMapScreen->BuildShipPathOverlay(Ship, false, pas::WideString());
                 }
             }
@@ -9019,9 +9085,9 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script OrderFollowShip"_a));
         }
         std::uint8_t Absolute = false;
-        std::uint8_t FollowMode = 0;
+        aShip::TFollowMode FollowMode = aShip::fmFollowNear;
         if (av.length() - 1 > 2) {
-            FollowMode = av[3]->GetInt();
+            FollowMode = static_cast<aShip::TFollowMode>(static_cast<std::uint8_t>(av[3]->GetInt()));
         }
         if (av.length() - 1 > 3) {
             Absolute = av[4]->GetInt() != 0;
@@ -9546,7 +9612,7 @@ namespace aScriptFun {
         aPlanet::TPlanet* Planet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetInt(Planet->CurrentInvention);
         if (av.length() - 1 > 1) {
-            Planet->CurrentInvention = av[2]->GetInt();
+            Planet->CurrentInvention = static_cast<aGalaxyStruct::TPlanetInvention>(av[2]->GetInt());
         }
     }
 
@@ -9572,7 +9638,7 @@ namespace aScriptFun {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlanetInventionLevel"_a));
         }
         aPlanet::TPlanet* Planet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
-        std::uint8_t Index = av[2]->GetInt();
+        aGalaxyStruct::TPlanetInvention Index = static_cast<aGalaxyStruct::TPlanetInvention>(av[2]->GetInt());
         av[0]->SetInt(Planet->InventionLevels[Index]);
         if (av.length() - 1 > 2) {
             Planet->InventionLevels[Index] = av[3]->GetInt();
@@ -9649,7 +9715,7 @@ namespace aScriptFun {
         std::copy_n(av.data(), std::min(av.length(), 3), cpp_array_copy.data());
         av.elements = cpp_array_copy.data();
         if (av.length() - 1 < 1) {
-            av[0]->SetFloat(pas::real_divide(static_cast<long double>(aGalaxy::Galaxy->DominatorResearch[0].Progress) + aGalaxy::Galaxy->DominatorResearch[1].Progress + aGalaxy::Galaxy->DominatorResearch[2].Progress, 3.0L));
+            av[0]->SetFloat(pas::real_divide(static_cast<long double>(aGalaxy::Galaxy->DominatorResearch[aGalaxyStruct::dsBlazer].Progress) + aGalaxy::Galaxy->DominatorResearch[aGalaxyStruct::dsKeller].Progress + aGalaxy::Galaxy->DominatorResearch[aGalaxyStruct::dsTerron].Progress, 3.0L));
         } else {
             av[0]->SetFloat(aGalaxy::Galaxy->DominatorResearch[static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt())].Progress);
             if (av.length() - 1 > 1) {
@@ -9759,7 +9825,7 @@ namespace aScriptFun {
             }
             if (Ship != nullptr && Ship->IsHullDestroyed() && static_cast<std::uint8_t>(Ship->DestroyQueued ^ 1)) {
                 if (av[0]->GetInt() > 0) {
-                    Ship->ScriptItemsAct(aConst::satOnDeath, nullptr, nullptr, 0);
+                    Ship->ScriptItemsAct(aGalaxyStruct::satOnDeath, nullptr, nullptr, 0);
                 }
                 if (Ship->CurrentStar != nullptr && Ship->CurrentStar->RecordingTurnFilm) {
                     Ship->CurrentStar->ClearShipReferences(Obj);
@@ -9811,7 +9877,7 @@ namespace aScriptFun {
         }
         av[0]->SetInt(Hull->HullType);
         if (av.length() - 1 > 1) {
-            Hull->HullType = av[2]->GetInt();
+            Hull->HullType = static_cast<aGalaxyStruct::THullType>(av[2]->GetInt());
         }
     }
 
@@ -10303,9 +10369,9 @@ namespace aScriptFun {
         if (Star != nullptr) {
             Station = nullptr;
             Kind = av[2]->GetInt();
-            if (pas::in_range(static_cast<std::uint8_t>(Kind), static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
+            if (pas::in_range(static_cast<aGalaxyStruct::TShipType>(Kind), static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                 Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                Station->Init(static_cast<aGalaxyStruct::TStationType>(Kind), Star, pas::WideString());
+                Station->Init(Kind, Star, pas::WideString());
             }
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Station)));
         }
@@ -10323,9 +10389,9 @@ namespace aScriptFun {
         if (Star != nullptr) {
             Station = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
             av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Station)));
-            Station->Init(aGalaxyStruct::rstCustomStation, Star, av[2]->GetString());
+            Station->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstCustomStation), Star, av[2]->GetString());
             if (av.length() - 1 > 2) {
-                Station->CurrentStanding = av[3]->GetInt();
+                Station->CurrentStanding = static_cast<aGalaxyStruct::TShipStanding>(av[3]->GetInt());
             } else {
                 Station->CurrentStanding = aGalaxyStruct::ssUnaligned;
             }
@@ -10338,7 +10404,7 @@ namespace aScriptFun {
         av.elements = cpp_array_copy.data();
         aRuins::TRuins* Station{};
         std::int32_t Kind{};
-        std::uint8_t Index{};
+        aGalaxyStruct::TShipType Index{};
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script RuinsChangeType"_a));
         }
@@ -10346,7 +10412,7 @@ namespace aScriptFun {
         if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Obj)) {
             Station = ruins;
             if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
-                for (Index = aGalaxyStruct::rstRangerCenter; Index <= aGalaxyStruct::rstCustomStation; ++Index) {
+                for (auto cpp_range = pas::for_to<aGalaxyStruct::TShipType>(aGalaxyStruct::rstRangerCenter, aGalaxyStruct::rstCustomStation); cpp_range.next(Index); ) {
                     if (([&] {
                         pas::WideString cpp_string = av[2]->GetString();
                         return cpp_string == aConst::ShipTypeNames[Index].Name;
@@ -10357,7 +10423,7 @@ namespace aScriptFun {
                 }
             }
             Kind = av[2]->GetInt();
-            Index = Kind;
+            Index = static_cast<aGalaxyStruct::TShipType>(Kind);
             if (pas::in_range(Index, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                 Station->TypeId = Index;
             }
@@ -10375,7 +10441,7 @@ namespace aScriptFun {
         if (Ship != nullptr) {
             av[0]->SetInt(Ship->CurrentStanding);
             if (av.length() - 1 > 1) {
-                Ship->CurrentStanding = av[2]->GetInt();
+                Ship->CurrentStanding = static_cast<aGalaxyStruct::TShipStanding>(av[2]->GetInt());
             }
         }
     }
@@ -10977,7 +11043,7 @@ namespace aScriptFun {
         aShip::TShip* Ship{};
         std::int32_t I{};
         std::int32_t J{};
-        aGalaxyStruct::TShipTypeMask Standings{};
+        aGalaxyStruct::TShipStandings Standings{};
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script StarEnemyThreatLeve"_a));
         }
@@ -10998,9 +11064,9 @@ namespace aScriptFun {
             av[0]->SetInt(1);
             return;
         }
-        Standings = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::ssDominator}, {aGalaxyStruct::ssCustom}});
+        Standings = pas::constant_set<aGalaxyStruct::TShipStandings>({{aGalaxyStruct::ssDominator}, {aGalaxyStruct::ssCustom}});
         if (IncludePirates) {
-            Standings = Standings + pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::ssPirateActive}, {aGalaxyStruct::ssPirateMilitary}});
+            Standings = Standings + pas::constant_set<aGalaxyStruct::TShipStandings>({{aGalaxyStruct::ssPirateActive}, {aGalaxyStruct::ssPirateMilitary}});
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(J); ) {
             Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
@@ -11845,7 +11911,7 @@ namespace aScriptFun {
         if (av.length() - 1 > 2 && av[3]->GetDword() != 0) {
             pas::store_unaligned<std::uint16_t>(&Mask, static_cast<std::uint16_t>(av[3]->GetDword()));
         } else {
-            Mask = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, aGalaxyStruct::stWarrior}, {6, 13}});
+            Mask = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, aGalaxyStruct::stWarrior}, {aGalaxyStruct::rstRangerCenter, aGalaxyStruct::rstCustomStation}});
         }
         // Parsed by the native routine but never consulted.
         if (av.length() - 1 > 3 && av[4]->GetDword() != 0) {
@@ -11899,7 +11965,7 @@ namespace aScriptFun {
                     aScriptFun::CheckShip(Ship, av, MinimumId, Mask, IncludeScripted, FactionCount, Factions, TypeCount, CustomTypes, Text, Value);
                 }
             }
-            if (pas::contains(Mask, 4)) {
+            if (pas::contains(Mask, aGalaxyStruct::stWarrior)) {
                 for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_5.next(J); ) {
                     Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
                     for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(Planet->Warriors) - 1); cpp_range_6.next(K); ) {
@@ -11909,7 +11975,7 @@ namespace aScriptFun {
                 }
             }
         }
-        if (pas::contains(Mask, 5)) {
+        if (pas::contains(Mask, aGalaxyStruct::stTranclucator)) {
             for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_7.next(I); ) {
                 Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
                 for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_8.next(J); ) {
@@ -12029,7 +12095,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlayerChameleonCharges"_a));
         }
-        std::uint8_t Index = av[1]->GetInt();
+        aGalaxyStruct::TDominatorSeries Index = static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt());
         av[0]->SetInt(aPlayer::GetPlayer()->ChameleonCharges[Index]);
         if (av.length() - 1 > 1) {
             aPlayer::GetPlayer()->ChameleonCharges[Index] = av[2]->GetInt();
@@ -12062,7 +12128,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlayerChameleonDetected"_a));
         }
-        std::uint8_t Index = av[1]->GetInt();
+        aGalaxyStruct::TDominatorSeries Index = static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt());
         av[0]->SetInt(aPlayer::GetPlayer()->ChameleonDetected[Index]);
         if (av.length() - 1 > 1) {
             aPlayer::GetPlayer()->ChameleonDetected[Index] = av[2]->GetInt() != 0;
@@ -12076,7 +12142,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script PlayerLogicChameleon"_a));
         }
-        std::uint8_t Index = av[1]->GetInt();
+        aGalaxyStruct::TDominatorSeries Index = static_cast<aGalaxyStruct::TDominatorSeries>(av[1]->GetInt());
         av[0]->SetInt(aPlayer::GetPlayer()->ChameleonLogic[Index]);
         if (av.length() - 1 > 1) {
             aPlayer::GetPlayer()->ChameleonLogic[Index] = av[2]->GetInt();
@@ -13009,15 +13075,15 @@ namespace aScriptFun {
         aGalaxy::TStar* Star{};
         // Nested in SF_FindPlanetByAdvancement; reads its selected planet and writes its local score.
         auto CalcValue = [&]() -> void {
-            std::uint8_t I{};
+            aGalaxyStruct::TPlanetInvention I{};
             Score = 0;
-            for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(19); ++I) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TPlanetInvention>(aGalaxyStruct::piHull, aGalaxyStruct::piTurbogravitron); cpp_range.next(I); ) {
                 Score += Planet->InventionLevels[I];
             }
-            for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(7); ++I) {
+            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TPlanetInvention>(aGalaxyStruct::piHull, aGalaxyStruct::piMainTech); cpp_range_2.next(I); ) {
                 Score += 2 * Planet->InventionLevels[I];
             }
-            Score = Score + 8 * Planet->InventionLevels[7] + 4 * Planet->InventionLevels[0] + 2 * Planet->InventionLevels[5];
+            Score = Score + 8 * Planet->InventionLevels[aGalaxyStruct::piMainTech] + 4 * Planet->InventionLevels[aGalaxyStruct::piHull] + 2 * Planet->InventionLevels[aGalaxyStruct::piRepairRobot];
         };
         if (av.length() - 1 < 1) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script FindPlanetByAdvancement"_a));
@@ -13435,7 +13501,6 @@ namespace aScriptFun {
         std::int32_t NewCount{};
         aPlayer::PStorageEntry Entry{};
         aItem::TProtoplasm* Nodes{};
-        // The + 0 expressions retain native DCC32 load/store ordering; no arithmetic is emitted.
         pas::Object* Location = nullptr;
         if (av.length() - 1 >= 1) {
             Location = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
@@ -13455,23 +13520,26 @@ namespace aScriptFun {
             if ((Entry->LocationOwner == Location || Location == nullptr) && static_cast<std::uint8_t>(Entry->Item->ItemType) == static_cast<std::uint8_t>(aConst::t_Protoplasm)) {
                 Nodes = reinterpret_cast<aItem::TProtoplasm*>(Entry->Item);
                 // Native does not advance Index when the series differs.
-                if (Series < 0 || Nodes->DominatorSeries == Series) {
-                    av[0]->SetInt(av[0]->GetInt() + Nodes->Weight);
-                    if (Remaining <= 0) {
-                        ++Index;
-                    } else if (Remaining + 0 < Nodes->StackCount) {
-                        NewCount = Nodes->StackCount - Remaining;
-                        Nodes->Cost = System::Round(pas::real_divide(Nodes->Cost, Nodes->StackCount) * NewCount);
-                        Nodes->StackCount = NewCount + 0;
-                        Nodes->Weight = NewCount + 0;
-                        Remaining = 0;
-                        ++Index;
-                    } else {
-                        Remaining -= Nodes->Weight;
-                        pas::list_delete(aPlayer::GetPlayer()->StorageEntries, Index);
-                        pas::free(Entry->Item);
-                        pas::dispose(Entry);
-                    }
+                if (!(Series < 0 || Nodes->DominatorSeries == Series)) {
+                    continue;
+                }
+                av[0]->SetInt(av[0]->GetInt() + Nodes->Weight);
+                if (Remaining <= 0) {
+                    ++Index;
+                    continue;
+                }
+                if (Remaining < Nodes->StackCount) {
+                    NewCount = Nodes->StackCount - Remaining;
+                    Nodes->Cost = System::Round(pas::real_divide(Nodes->Cost, Nodes->StackCount) * NewCount);
+                    Nodes->StackCount = NewCount;
+                    Nodes->Weight = NewCount;
+                    Remaining = 0;
+                    ++Index;
+                } else {
+                    Remaining -= Nodes->Weight;
+                    pas::list_delete(aPlayer::GetPlayer()->StorageEntries, Index);
+                    pas::free(Entry->Item);
+                    pas::dispose(Entry);
                 }
             } else {
                 ++Index;
@@ -13599,7 +13667,7 @@ namespace aScriptFun {
             } else if (aTransport::TTransport* transport_2 = pas::class_cast_if<aTransport::TTransport*>(Ship)) {
                 transport_2->TransportType = static_cast<aTransport::TTransportType>(av[2]->GetInt());
             } else if (aWarrior::TWarrior* warrior_2 = pas::class_cast_if<aWarrior::TWarrior*>(Ship)) {
-                warrior_2->WarriorType = av[2]->GetInt();
+                warrior_2->WarriorType = static_cast<aWarrior::TWarriorType>(av[2]->GetInt());
             } else if (aPirate::TPirate* pirate_2 = pas::class_cast_if<aPirate::TPirate*>(Ship)) {
                 pirate_2->PirateType = av[2]->GetInt();
             } else if (aRanger::TRanger* ranger_2 = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
@@ -14050,7 +14118,7 @@ namespace aScriptFun {
         } else if (aMissile::TMissile* missile = pas::class_cast_if<aMissile::TMissile*>(Target)) {
             Missile = missile;
             Hit = Missile->CanBeHit(Ship, Weapon);
-            Hit = Ship->ScriptItemsAct(aConst::satOnWeaponShot, Missile, Weapon, Hit) != 0;
+            Hit = Ship->ScriptItemsAct(aGalaxyStruct::satOnWeaponShot, Missile, Weapon, Hit) != 0;
             if (Hit) {
                 Star = Missile->CurrentStar;
                 if (Star->RecordingTurnFilm) {
@@ -14129,7 +14197,7 @@ namespace aScriptFun {
             Missile = pas::construct_call<aMissile::TMissile>(aMissile::TMissile_Create);
             Missile->InitializeShot(Ship->CurrentStar, Ship, Weapon, Target, Shot);
         }
-        Ship->ScriptItemsAct(aConst::satOnMissileShot, Missile, Weapon, 0);
+        Ship->ScriptItemsAct(aGalaxyStruct::satOnMissileShot, Missile, Weapon, 0);
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Missile)));
         if (Ship->CurrentStar->RecordingTurnFilm) {
             Step = Ship->CurrentStar->CurrentStepIndex;
@@ -14142,7 +14210,7 @@ namespace aScriptFun {
         std::array<EC_Expression::TVarEC*, 12> cpp_array_copy;
         std::copy_n(av.data(), std::min(av.length(), 12), cpp_array_copy.data());
         av.elements = cpp_array_copy.data();
-        std::uint8_t Kind{};
+        aConst::TItemType Kind{};
         std::int32_t Module{};
         std::int32_t Special{};
         aMissile::TMissile* Missile{};
@@ -14169,7 +14237,7 @@ namespace aScriptFun {
             Missile = pas::construct_call<aMissile::TCustomMissile>(aMissile::TMissile_Create);
             reinterpret_cast<aMissile::TCustomMissile*>(Missile)->InitializeUnownedShot_2(Star, Target, X, Y, Direction, MinDamage, MaxDamage, Speed, av[9]->GetString(), Module, Special);
         } else {
-            Kind = av[9]->GetInt();
+            Kind = static_cast<aConst::TItemType>(av[9]->GetInt());
             Missile = pas::construct_call<aMissile::TMissile>(aMissile::TMissile_Create);
             Missile->InitializeUnownedShot(Star, Target, X, Y, Direction, MinDamage, MaxDamage, Speed, Kind, Module, Special);
         }
@@ -14199,7 +14267,7 @@ namespace aScriptFun {
         }
         if (av.length() - 1 < 2) {
             {
-                const pas::WideString& microModuleInfoText = aItem::GetMicroModuleInfoText(Index, u"<color=255,240,100>"_w);
+                const pas::WideString& microModuleInfoText = aItem::GetMicroModuleInfoText(Index, aMyFunction::TextHighlightColorTag);
                 EC_Expression::TVarEC* cpp_arg = av[0];
                 cpp_arg->SetString(microModuleInfoText);
             }
@@ -14208,20 +14276,20 @@ namespace aScriptFun {
         std::int32_t Count = av[2]->GetInt();
         Text = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[Index].ConfigName, u".ExText"}));
         if (Text != u"") {
-            aMyFunction::ReplaceTextToken(Text, u"<ExCount>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<ExCount>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
             if (aConst::MicroModuleTemplates[Index].SeparatedNumbers) {
                 for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range.next(Bonus); ) {
                     Value = Count * aConst::MicroModuleTemplates[Index].StatBonuses[Bonus];
                     if (Value > 0) {
                         pas::WideString cpp_arg_2 = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
                         pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[Bonus], u">"});
-                        aMyFunction::ReplaceTextToken(Text, std::move(cpp_arg_3), std::move(cpp_arg_2), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Text, std::move(cpp_arg_3), std::move(cpp_arg_2), aMyFunction::TextHighlightColorTag);
                     } else if (Value < 0) {
                         pas::WideString intToStr = pas::wide_int_to_str(Value);
                         pas::WideString cpp_arg_4 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[Bonus], u">"});
-                        aMyFunction::ReplaceTextToken(Text, std::move(cpp_arg_4), std::move(intToStr), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Text, std::move(cpp_arg_4), std::move(intToStr), aMyFunction::TextHighlightColorTag);
                     } else {
-                        aMyFunction::ReplaceTextToken(Text, pas::concat_wide({u"<", aConst::EquipmentBonusNames[Bonus], u">"}), u"--"_w, u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Text, pas::concat_wide({u"<", aConst::EquipmentBonusNames[Bonus], u">"}), u"--"_w, aMyFunction::TextHighlightColorTag);
                     }
                 }
             }
@@ -15349,7 +15417,7 @@ namespace aScriptFun {
                             break;
                         }
                         default: {
-                            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                            if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                                 reinterpret_cast<aItem::TWeapon*>(Item)->TechLevel = NewLevel;
                                 reinterpret_cast<aItem::TWeapon*>(Item)->Range = reinterpret_cast<aItem::TWeapon*>(Item)->Range + reinterpret_cast<aItem::TWeapon*>(NewBase)->Range - reinterpret_cast<aItem::TWeapon*>(OldBase)->Range;
                                 reinterpret_cast<aItem::TWeapon*>(Item)->MinDamage = reinterpret_cast<aItem::TWeapon*>(Item)->MinDamage + reinterpret_cast<aItem::TWeapon*>(NewBase)->MinDamage - reinterpret_cast<aItem::TWeapon*>(OldBase)->MinDamage;
@@ -15846,7 +15914,7 @@ namespace aScriptFun {
         if (av.length() - 1 < 2) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateActCodeEvent"_a));
         }
-        std::uint8_t ActionType = av[1]->GetInt();
+        aGalaxyStruct::TScriptActionType ActionType = static_cast<aGalaxyStruct::TScriptActionType>(av[1]->GetInt());
         if (EC_Expression::TVarEC_RealVType(av[2]) == EC_Expression::vkString) {
             if (av.length() - 1 < 3) {
                 pas::raise(pas::make_exception<pas::Exception>("Error.Script CreateActCodeEvent cant call info without ship"_a));
@@ -16178,7 +16246,8 @@ namespace aScriptFun {
                     const pas::WideString& formatText1 = ([&] {
                         auto name = pas::borrow(aPlayer::GetPlayer()->CurrentStar->Name);
                         pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.UseTransmitter"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Star>"_w, name.get());
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag), u"<Star>"_w, name.get());
                     }());
                     GI_MessageLoop::TMessageLoopGI* shipScreen_2 = Globals::ShipScreen;
                     GI_MessageBox::ShowMessageBoxGI(shipScreen_2, formatText1, GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
@@ -16191,7 +16260,8 @@ namespace aScriptFun {
                 const pas::WideString& formatText1_2 = ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aConst::MinTransmitterPower - pas::checked_cast<aItem::TArtefactTransmitter*>(Globals::ScriptUseItem)->Power);
                     pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormShip.NotUseTransmitter"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Count>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_2), u"<Count>"_w, std::move(intToStr));
                 }());
                 GI_MessageLoop::TMessageLoopGI* shipScreen_3 = Globals::ShipScreen;
                 GI_MessageBox::ShowMessageBoxGI(shipScreen_3, formatText1_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
@@ -17395,59 +17465,59 @@ namespace aScriptFun {
         }
         Name = av[1]->GetString();
         for (auto cpp_range = pas::for_to<GlobalsV::TGameScreenId>(GlobalsV::screenNone, GlobalsV::screenAchievements); cpp_range.next(Id); ) {
-            if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id]) != nullptr && pas::class_cast_if<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id]) != nullptr && pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id])->RegisteredLoopName == Name) {
-                Child = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id]);
-                Parent = Globals::GetInnermostScreenLoop();
-                ChildBackground = nullptr;
-                Background = Child->FindControlByPath(u"BGBuf"_wref.get());
-                if (Background != nullptr) {
-                    GR_Main::CaptureScreenBackground(true, 0);
-                    pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(Background)->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
-                } else {
-                    ChildBackground = Child->FindControlByPath(u"BGBufChild"_wref.get());
-                    if (ChildBackground != nullptr) {
-                        GR_Main::CaptureScreenBackground(true, 0);
-                        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(ChildBackground)->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
-                        ChildBackground->SetActive(true);
-                    }
-                }
-                Parent->RootUiObject->OnModalSuspend();
-                Parent->CaptureCursorState(&State);
-                Parent->SetCursorActive(false);
-                Parent->DrawQueuedUpdateRects();
-                // The identity expression preserves native RHS-first register allocation.
-                Child->ParentLoop = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Parent)) * 1)));
-                Parent->ChildLoop = Child;
-                if (Child == Globals::GalaxyScreen && av.length() - 1 >= 2) {
-                    Globals::GalaxyScreen->ViewMode = av[2]->GetInt();
-                }
-                if (Child->Run() == 1) {
-                    av[0]->SetInt(1);
-                } else {
-                    av[0]->SetInt(0);
-                }
-                if (ChildBackground != nullptr) {
-                    ChildBackground->SetActive(false);
-                }
-                Child->ParentLoop = nullptr;
-                Parent->ChildLoop = nullptr;
-                if ((Background != nullptr || ChildBackground != nullptr) && Parent->ParentLoop != nullptr) {
-                    Root = Parent->ParentLoop;
-                    while (Root->ParentLoop != nullptr) {
-                        Root = Root->ParentLoop;
-                    }
-                    GR_Main::FullFrameRedrawRequested = true;
-                    Root->DrawFrame();
-                    GR_Main::CaptureScreenBackground(true, 0);
-                }
-                Parent->InvalidateViewport();
-                Parent->RestoreCursorState(&State);
-                Parent->UpdateCursorPosition();
-                Parent->RootUiObject->OnModalResume();
-                Parent->Present();
-                GR_Main::PostMouseMoveMessage();
-                return;
+            if (!(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id]) != nullptr && pas::class_cast_if<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id]) != nullptr && pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id])->RegisteredLoopName == Name)) {
+                continue;
             }
+            Child = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Id]);
+            Parent = Globals::GetInnermostScreenLoop();
+            ChildBackground = nullptr;
+            Background = Child->FindControlByPath(u"BGBuf"_wref.get());
+            if (Background != nullptr) {
+                GR_Main::CaptureScreenBackground(true, 0);
+                pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(Background)->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+            } else {
+                ChildBackground = Child->FindControlByPath(u"BGBufChild"_wref.get());
+                if (ChildBackground != nullptr) {
+                    GR_Main::CaptureScreenBackground(true, 0);
+                    pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(ChildBackground)->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+                    ChildBackground->SetActive(true);
+                }
+            }
+            Parent->RootUiObject->OnModalSuspend();
+            Parent->CaptureCursorState(&State);
+            Parent->SetCursorActive(false);
+            Parent->DrawQueuedUpdateRects();
+            Child->ParentLoop = Parent;
+            Parent->ChildLoop = Child;
+            if (Child == Globals::GalaxyScreen && av.length() - 1 >= 2) {
+                Globals::GalaxyScreen->ViewMode = av[2]->GetInt();
+            }
+            if (Child->Run() == 1) {
+                av[0]->SetInt(1);
+            } else {
+                av[0]->SetInt(0);
+            }
+            if (ChildBackground != nullptr) {
+                ChildBackground->SetActive(false);
+            }
+            Child->ParentLoop = nullptr;
+            Parent->ChildLoop = nullptr;
+            if ((Background != nullptr || ChildBackground != nullptr) && Parent->ParentLoop != nullptr) {
+                Root = Parent->ParentLoop;
+                while (Root->ParentLoop != nullptr) {
+                    Root = Root->ParentLoop;
+                }
+                GR_Main::FullFrameRedrawRequested = true;
+                Root->DrawFrame();
+                GR_Main::CaptureScreenBackground(true, 0);
+            }
+            Parent->InvalidateViewport();
+            Parent->RestoreCursorState(&State);
+            Parent->UpdateCursorPosition();
+            Parent->RootUiObject->OnModalResume();
+            Parent->Present();
+            GR_Main::PostMouseMoveMessage();
+            return;
         }
         pas::raise(pas::make_exception<pas::Exception>("Error.Script RunChildForm - ML not found"_a));
     }
@@ -17799,9 +17869,9 @@ namespace aScriptFun {
         if (av.length() - 1 > 1) {
             Kind = av[2]->GetInt();
         } else {
-            Kind = aConst::t_Weapon1;
+            Kind = aConst::t_IndustrialLaser;
         }
-        if (!pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
+        if (!pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_Lirecron))) {
             pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script InventNewCustomWeapon - invalid type ", av[2]->GetString()}))));
         }
         aConst::PWeaponInfo Base = &aConst::WeaponInfos[static_cast<aConst::TItemType>(Kind)];
@@ -18007,7 +18077,7 @@ namespace aScriptFun {
         aConst::PWeaponInfo Info = reinterpret_cast<aConst::PWeaponInfo>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(av[1]->GetDword())));
         av[0]->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Info)));
         Info->TechLevel = av[2]->GetInt();
-        if (!pas::in_range(static_cast<aConst::TItemType>(av[3]->GetInt()), static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_Weapon18))) {
+        if (!pas::in_range(static_cast<aConst::TItemType>(av[3]->GetInt()), static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_Lirecron))) {
             pas::raise(pas::make_exception<pas::Exception>("Error.Script SetCustomWeaponPrimaryData invalid tech"_a));
         }
         Info->InventionIndex = aConst::WeaponInfos[static_cast<aConst::TItemType>(av[3]->GetInt())].InventionIndex;
@@ -18318,7 +18388,7 @@ namespace aScriptFun {
 
     void InitializeScriptBuiltinsAndConstants(EC_Expression::TVarArrayEC* Scope) {
         std::int32_t WeaponIndex{};
-        std::uint8_t ActionIndex{};
+        aGalaxyStruct::TScriptActionType ActionIndex{};
         aConst::TEquipmentBonusKind BonusIndex{};
         EC_Expression::RegisterExpressionBuiltins(Scope);
         Scope->Add(u"GRun"_wref.get(), EC_Expression::vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<EC_Expression::TVarEC*>, EC_Expression::TCodeEC*)>(SF_GRun))));
@@ -19085,10 +19155,10 @@ namespace aScriptFun {
             std::int32_t cpp_arg = BonusIndex;
             add_2->SetInt(cpp_arg);
         }
-        for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(61)); cpp_range_3.next(ActionIndex); ) {
+        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TScriptActionType>(aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath); cpp_range_3.next(ActionIndex); ) {
             EC_Expression::TVarEC* add_3 = Scope->Add(aConst::ScriptActionTypeNames[ActionIndex], EC_Expression::vkInt);
-            std::int32_t actionIndex = ActionIndex;
-            add_3->SetInt(actionIndex);
+            std::int32_t cpp_arg_2 = ActionIndex;
+            add_3->SetInt(cpp_arg_2);
         }
         aScript::ScriptRequestThread = pas::construct_call<aScript::TScriptThread>(aScript::TScriptThread_Create);
         aScript::ScriptRequestThread->SetPriority(2);

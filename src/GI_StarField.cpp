@@ -347,7 +347,7 @@ namespace GI_StarField {
                             pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(I, cpp_result), cpp_result);
                             std::int32_t top = Bounds.Top;
                             std::int32_t left = Bounds.Left;
-                            GR_DX::DrawTexture(orCreateFrameSurface, left, top, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&Intersection), false, false);
+                            GR_DX::DrawTexture(orCreateFrameSurface, left, top, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&Intersection), false, false);
                         } else {
                             Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Bounds.Left, Bounds.Top, Intersection, 0, 255);
                         }

@@ -30,6 +30,8 @@ namespace EC_Struct {
 
     TPointF SubtractPointsF(TPointF Left, TPointF Right);
 
+    std::int32_t SquaredDistanceToPoint(const Types::TPoint& Point, std::int32_t X, std::int32_t Y);
+
     // Returns false without writing Intersection when the rectangles do not overlap.
     inline std::uint8_t IntersectRects(Types::TRect& Intersection, const Types::TRect& First, const Types::TRect& Second);
 

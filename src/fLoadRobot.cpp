@@ -121,20 +121,56 @@ namespace fLoadRobot {
                 WinText = aConst::LocalizedText(u"FormLoadRobot.StdVictory"_wref.get());
                 LossText = aConst::LocalizedText(u"FormLoadRobot.StdDefeat"_wref.get());
             }
-            aMyFunction::ReplaceTextToken(StartText, u"<Star>"_w, aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(StartText, u"<Planet>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(StartText, u"<Player>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get()), u"<color=255,240,100>"_w);
+            {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
+                aMyFunction::ReplaceTextToken(StartText, u"<Star>"_w, std::move(localizedText), textHighlightColorTag.get());
+            }
+            {
+                auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_2 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
+                aMyFunction::ReplaceTextToken(StartText, u"<Planet>"_w, std::move(localizedText_2), textHighlightColorTag_2.get());
+            }
+            {
+                auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_3 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
+                aMyFunction::ReplaceTextToken(StartText, u"<Player>"_w, std::move(localizedText_3), textHighlightColorTag_3.get());
+            }
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(StartText);
             StartText = pas::concat_wide({pas::wide_int_to_str(Difficulty), StartText});
             StartText = pas::concat_wide({pas::wide_int_to_str(2), StartText});
             StartText = pas::concat_wide({pas::wide_int_to_str(3), StartText});
-            aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get()), u"<color=255,240,100>"_w);
+            {
+                auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_4 = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
+                aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, std::move(localizedText_4), textHighlightColorTag_4.get());
+            }
+            {
+                auto textHighlightColorTag_5 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_5 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
+                aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, std::move(localizedText_5), textHighlightColorTag_5.get());
+            }
+            {
+                auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_6 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
+                aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, std::move(localizedText_6), textHighlightColorTag_6.get());
+            }
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(WinText);
-            aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get()), u"<color=255,240,100>"_w);
+            {
+                auto textHighlightColorTag_7 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_7 = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
+                aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, std::move(localizedText_7), textHighlightColorTag_7.get());
+            }
+            {
+                auto textHighlightColorTag_8 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_8 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
+                aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, std::move(localizedText_8), textHighlightColorTag_8.get());
+            }
+            {
+                auto textHighlightColorTag_9 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString localizedText_9 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
+                aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, std::move(localizedText_9), textHighlightColorTag_9.get());
+            }
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(LossText);
             TerronName = aConst::LocalizedText(u"FormLoadRobot.PPlace"_wref.get());
             LoadPanel->OnOpen();
@@ -757,10 +793,22 @@ namespace fLoadRobot {
             if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0 && Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
                 with_MessageText->SetActive(true);
                 Text = Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].GovTextStart;
-                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get()), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get()), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get()), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(1000), u"<color=0,71,234>"_w);
+                {
+                    auto brightBlueColorTag = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, std::move(localizedText), brightBlueColorTag.get());
+                }
+                {
+                    auto brightBlueColorTag_2 = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText_2 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, std::move(localizedText_2), brightBlueColorTag_2.get());
+                }
+                {
+                    auto brightBlueColorTag_3 = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText_3 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, std::move(localizedText_3), brightBlueColorTag_3.get());
+                }
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(1000), aMyFunction::BrightBlueColorTag);
                 with_MessageText->SetText(Text);
                 Text = Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].FromAuthor;
                 if (Text != u"") {

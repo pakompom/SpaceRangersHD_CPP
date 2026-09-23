@@ -3,6 +3,7 @@
 #include "types/GR_Sound.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/GI_GraphButton.hpp"
 #include "units/GI_Image.hpp"
@@ -18,7 +19,7 @@
 
 // Native TfChameleon VMT and callers establish this unit's ownership.
 namespace fChameleon {
-    std::uint32_t ShowChameleonDialog(GI_MessageLoop::TMessageLoopGI* Parent, std::int32_t BlazerCharges, std::int32_t KellerCharges, std::int32_t TerronCharges, std::uint8_t VisualType, std::uint8_t Active, std::int32_t& Choice) {
+    std::uint32_t ShowChameleonDialog(GI_MessageLoop::TMessageLoopGI* Parent, std::int32_t BlazerCharges, std::int32_t KellerCharges, std::int32_t TerronCharges, aGalaxyStruct::TKlingType VisualType, std::uint8_t Active, std::int32_t& Choice) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI CursorState{};
         Parent->RootUiObject->OnModalSuspend();
@@ -33,9 +34,9 @@ namespace fChameleon {
             try {
                 Dialog->ChameleonActive = Active;
                 Dialog->VisualType = VisualType;
-                Dialog->Charges[0] = BlazerCharges;
-                Dialog->Charges[1] = KellerCharges;
-                Dialog->Charges[2] = TerronCharges;
+                Dialog->Charges[aGalaxyStruct::dsBlazer] = BlazerCharges;
+                Dialog->Charges[aGalaxyStruct::dsKeller] = KellerCharges;
+                Dialog->Charges[aGalaxyStruct::dsTerron] = TerronCharges;
                 Result = Dialog->Run();
                 Choice = Dialog->Choice;
                 Parent->InvalidateViewport();
@@ -61,7 +62,7 @@ namespace fChameleon {
         pas::WideString SeriesText{};
         pas::WideString NameText{};
         pas::WideString ShipName{};
-        std::uint8_t Series{};
+        aGalaxyStruct::TDominatorSeries Series{};
         std::uint8_t Disabled{};
         WindowsSdk::TRect WorkRect{};
         // Nested OnOpen helper; does not access its parent frame.
@@ -75,12 +76,12 @@ namespace fChameleon {
                 return aMyFunction::FormatText1(std::move(localizedText), pas::WideString(), u"<Count>"_w, std::move(intToStr));
             }()), u")"});
         };
-        auto ChameleonSeriesColor = [&](std::uint8_t Series) -> pas::WideString {
+        auto ChameleonSeriesColor = [&](aGalaxyStruct::TDominatorSeries Series) -> pas::WideString {
             pas::WideString Result{};
             switch (Series) {
-                case 0: return u"<color=255,0,0>"_w;
-                case 1: return u"<color=0,128,255>"_w;
-                case 2: return u"<color=45,105,45>"_w;
+                case aGalaxyStruct::dsBlazer: return aMyFunction::RedColorTag;
+                case aGalaxyStruct::dsKeller: return aMyFunction::AzureColorTag;
+                case aGalaxyStruct::dsTerron: return aMyFunction::DarkGreenColorTag;
                 default: return Result;
             }
         };
@@ -126,8 +127,8 @@ namespace fChameleon {
         Caption->SetDepth(0.0);
         Caption->SetFontName(GlobalsV::NormalFontName);
         Caption->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
-        ShipName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[0], u".", pas::wide_int_to_str(static_cast<std::int32_t>(VisualType))}));
-        Caption->SetText(pas::concat_wide({aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Name"_wref.get()), u" - ", aMyFunction::WrapTextInColor(pas::view(ShipName), u"<color=0,50,200>"sv)}));
+        ShipName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[aGalaxyStruct::dsBlazer], u".", pas::wide_int_to_str(static_cast<std::int32_t>(VisualType))}));
+        Caption->SetText(pas::concat_wide({aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Name"_wref.get()), u" - ", aMyFunction::WrapTextInColor(pas::view(ShipName), pas::view(aMyFunction::DialogHighlightColorTag))}));
         Caption->SetTextAlignX(GI_Main::taxCenter);
         Caption->SetTextAlignY(GI_Main::tayAuto);
         Caption->SetPosition(ClassesImports::Point(0, WorkRect.Bottom));
@@ -145,7 +146,7 @@ namespace fChameleon {
         }
         std::uint8_t NeedSelection = static_cast<std::uint8_t>(ChameleonActive ^ 1);
         std::uint8_t HasSelection = ChameleonActive;
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range.next(Series); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range.next(Series); ) {
             Y += 20;
             ++Index;
             NameText = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[Series], u".0"}));

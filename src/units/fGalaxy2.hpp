@@ -9,6 +9,8 @@ namespace GI_MessageLoop {
 namespace fGalaxy2 {
     extern const pas::Array<std::uint8_t, 1, 7> GalaxyMapFriendlyShipOrder;
 
+    extern const pas::WideString GalaxySummaryWhiteColorTag;
+
     void CaptureGalaxyPreview(GI_MessageLoop::TMessageLoopGI* ParentLoop);
 
     std::uint8_t RunGalaxyMap(GI_MessageLoop::TMessageLoopGI* ParentLoop);

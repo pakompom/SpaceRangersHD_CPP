@@ -136,7 +136,7 @@ namespace aPlanet {
         std::uint8_t TryResetSurfaceLootAfterLongAbsence();
         // Increments the current track, clears its progress and selects the next track after every increment.
         void BoostInventionLevels(std::int32_t Count);
-        // Chooses among tracks permitted by ResearchLevelPercent and main technology slot 7; raises if no choice is found.
+        // Chooses among tracks permitted by ResearchLevelPercent and the piMainTech track; raises if no choice is found.
         void SelectCurrentInvention();
         // Uses the difficulty multiplier; completion requires progress strictly above 100. Levels cap at 8 and excess progress is discarded.
         void AdvanceInventionProgress();
@@ -209,9 +209,9 @@ namespace aPlanet {
         std::uint8_t cpp_padding_2[4];
         // Degrees per unscaled movement step.
         double OrbitalVelocity;
-        // Slot 7 is the main technology level used to gate the other tracks.
+        // piMainTech is the main technology level used to gate the other tracks.
         pas::Array<std::uint8_t, 0, 19> InventionLevels;
-        std::uint8_t CurrentInvention;
+        aGalaxyStruct::TPlanetInvention CurrentInvention;
         std::uint8_t cpp_padding_3[3];
         float CurrentInventionPoints;
         // Selection ceiling, compared with invention level * 12.5.

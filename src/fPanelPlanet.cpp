@@ -97,17 +97,19 @@ namespace fPanelPlanet {
         if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen = Screen;
                 GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 const pas::WideString& replaceColoredToken_2 = ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen_2 = Screen;
                 GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -137,17 +139,19 @@ namespace fPanelPlanet {
         if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen = Screen;
                 GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 const pas::WideString& replaceColoredToken_2 = ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen_2 = Screen;
                 GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -197,17 +201,19 @@ namespace fPanelPlanet {
         if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen = Screen;
                 GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 const pas::WideString& replaceColoredToken_2 = ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen_2 = Screen;
                 GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);

@@ -150,7 +150,7 @@ namespace fPlanetQuest {
                 Data = EC_CacheBuf::AcquireOrCreateBuffer(Control);
                 Quest->LoadFromReader(Data->Buffer, false);
                 if (!Globals::StandaloneQuestMode) {
-                    if (QuestId >= 10000) {
+                    if (QuestId >= aGalaxyStruct::FirstLicensedQuestId) {
                         if (GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) <= 0 || ([&] {
                             pas::WideString cpp_string = ([&] {
                                 const pas::WideString& intToStr = pas::wide_int_to_str(QuestId);
@@ -211,7 +211,7 @@ namespace fPlanetQuest {
             ApplyLegacyPictureOverrides();
         }
         if (aPlayer::GetPlayer() == nullptr) {
-            CurrentDate = EC_Str::TrimWideString(aGalaxy::Galaxy->FormatTurnDate(300));
+            CurrentDate = EC_Str::TrimWideString(aGalaxy::Galaxy->FormatTurnDate(aGalaxyStruct::GalaxyWarmupTurns));
         } else {
             CurrentDate = EC_Str::TrimWideString(aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn));
         }
@@ -584,8 +584,9 @@ namespace fPlanetQuest {
         Text = EC_Str::RemoveMatchingTextTagsW(Text, u"/fix"sv, u"/FIX"sv);
         Text = ([&] {
             const pas::WideString& textColorTag = GetTextColorTag(GlobalsV::QuestStyleIndex);
+            const pas::WideString& textHighlightColorTag = aMyFunction::TextHighlightColorTag;
             const pas::WideString& text = Text;
-            return EC_Str::ReplaceAllWideString(text, textColorTag, u"<color=255,240,100>"sv);
+            return EC_Str::ReplaceAllWideString(text, textColorTag, pas::view(textHighlightColorTag));
         }());
         Lines = pas::construct_call<EC_Str::TStringsEC>(EC_Str::TStringsEC_Create);
         Lines->SetText(Text);
@@ -925,7 +926,7 @@ namespace fPlanetQuest {
             }
             Stage = 1;
             if (aPlayer::GetPlayer() != nullptr) {
-                aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
             }
             Stage = 2;
             if (GlobalsV::QuestStyleIndex < 0 || GlobalsV::QuestStyleIndex >= QuestStyleCount) {
@@ -940,7 +941,7 @@ namespace fPlanetQuest {
             ClearParameterPanel();
             LayoutParameterPanel();
             Stage = 4;
-            if (pas::list_count(aScript::QueuedTextQuests) == 0 && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->TextQuestId >= 10000 && (GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) <= 0 || ([&] {
+            if (pas::list_count(aScript::QueuedTextQuests) == 0 && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->TextQuestId >= aGalaxyStruct::FirstLicensedQuestId && (GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) <= 0 || ([&] {
                 pas::WideString cpp_string = ([&] {
                     const pas::WideString& intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->TextQuestId);
                     EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
@@ -1091,7 +1092,7 @@ namespace fPlanetQuest {
             aGalaxy::Galaxy->CheckIntegrityChecksum(151);
         }
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         QuestId = -1;
         if (PageAnimationTimer != nullptr) {
@@ -1454,7 +1455,7 @@ namespace fPlanetQuest {
         pas::WideString ReplacementLineBreak{};
         pas::WideString IndentedLineBreak{};
         if (aPlayer::GetPlayer() == nullptr) {
-            CurrentDate = EC_Str::TrimWideString(aGalaxy::Galaxy->FormatTurnDate(DaysElapsed + 300));
+            CurrentDate = EC_Str::TrimWideString(aGalaxy::Galaxy->FormatTurnDate(DaysElapsed + aGalaxyStruct::GalaxyWarmupTurns));
         } else {
             CurrentDate = EC_Str::TrimWideString(aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn));
         }
@@ -1556,7 +1557,7 @@ namespace fPlanetQuest {
                 const pas::WideString& expanded_9 = Expanded;
                 return EC_Str::ReplaceAllWideString(expanded_9, u"<clr>"_wref.get(), pas::view(textColorTag_10));
             }());
-            Expanded = EC_Str::ReplaceAllWideString(Expanded, u"<clrEnd>"_wref.get(), u"</color>"sv);
+            Expanded = EC_Str::ReplaceAllWideString(Expanded, u"<clrEnd>"_wref.get(), pas::view(aMyFunction::EndColorTag));
         }
         return Expanded;
     }
@@ -1599,9 +1600,9 @@ namespace fPlanetQuest {
                                 if (Quest->CompleteOnFinish) {
                                     GovernmentQuest->Successful = true;
                                     News = aConst::PickLocalizedTextVariant(u"GalaxyNews.Quest.Successful.PlanetaryQuest"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * static_cast<std::int32_t>(aGalaxy::Galaxy->GenerationSeed));
-                                    aMyFunction::ReplaceTextToken(News, u"<FromPlanet>"_w, GovernmentQuest->Planet->Name, u"<color=255,240,100>"_w);
-                                    aMyFunction::ReplaceTextToken(News, u"<ToPlanet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                                    Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, News, u""_wref.get());
+                                    aMyFunction::ReplaceTextToken(News, u"<FromPlanet>"_w, GovernmentQuest->Planet->Name, aMyFunction::TextHighlightColorTag);
+                                    aMyFunction::ReplaceTextToken(News, u"<ToPlanet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                                    Globals::AddOrUpdatePlayerBubble(Globals::pmGalaxyNews, aGalaxy::Galaxy->CurrentTurn, News, u""_wref.get());
                                 }
                                 ItemName = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.ItemForPlanetQuest.", SysUtils::IntToStr(GovernmentQuest->QuestNumber)})));
                                 if (ItemName != u"none") {
@@ -1673,10 +1674,14 @@ namespace fPlanetQuest {
                                     GovernmentQuest->Successful = false;
                                     static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::PublishQuestStatus(GovernmentQuest, -1);
                                     News = aConst::PickLocalizedTextVariant(u"GalaxyNews.Quest.Failure.PlanetaryQuest"_wref.get(), static_cast<std::int32_t>(aPlayer::GetPlayer()->Seed) * (aGalaxy::Galaxy->CurrentTurn / 10));
-                                    aMyFunction::ReplaceTextToken(News, u"<ToPlanet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                                    aMyFunction::ReplaceTextToken(News, u"<FromPlanet>"_w, GovernmentQuest->Planet->Name, u"<color=255,240,100>"_w);
-                                    aMyFunction::ReplaceTextToken(News, u"<Relation>"_w, GovernmentQuest->Planet->GetRelationLevelTextToShip(aPlayer::GetPlayer()), u"<color=255,240,100>"_w);
-                                    Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, News, u""_wref.get());
+                                    aMyFunction::ReplaceTextToken(News, u"<ToPlanet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                                    aMyFunction::ReplaceTextToken(News, u"<FromPlanet>"_w, GovernmentQuest->Planet->Name, aMyFunction::TextHighlightColorTag);
+                                    {
+                                        auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                                        pas::WideString relationLevelTextToShip = GovernmentQuest->Planet->GetRelationLevelTextToShip(aPlayer::GetPlayer());
+                                        aMyFunction::ReplaceTextToken(News, u"<Relation>"_w, std::move(relationLevelTextToShip), textHighlightColorTag.get());
+                                    }
+                                    Globals::AddOrUpdatePlayerBubble(Globals::pmGalaxyNews, aGalaxy::Galaxy->CurrentTurn, News, u""_wref.get());
                                     aPlayer::GetPlayer()->CurrentPlanet->TextQuestId = -1;
                                     aPlayer::GetPlayer()->ArchiveQuest(I);
                                     break;
@@ -1884,28 +1889,28 @@ namespace fPlanetQuest {
         pas::WideString Expanded{};
         EC_Expression::TVarEC* Variable{};
         Expanded = std::move(Text);
-        // +0 preserves the native argument-load order; see docs/development.md.
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Quest->GetParameterCount()); cpp_range.next(I); ) {
-            if (EC_Str::FindTextPosW(u"ext_"_wref.get(), Quest->GetParameter(I + 0)->NameText->Text) == 1) {
-                Name = Quest->GetParameter(I + 0)->NameText->Text;
-                Token = Name;
-                Name.write(1) = u'E';
-                Token.write(1) = u't';
-                Token = pas::concat_wide({u"<", Token, u">"});
-                Name = pas::concat_wide({u"GQuestVar", Name});
-                Variable = Globals::SharedScriptVariables->GetVarNE(Name);
-                if (Variable != nullptr) {
-                    Expanded = ([&] {
-                        const pas::WideString& wrapTextInColor = ([&] {
-                            pas::WideString textColorTag = GetTextColorTag(GlobalsV::QuestStyleIndex);
-                            pas::WideString trimWideString = EC_Str::TrimWideString(Variable->GetString());
-                            return aMyFunction::WrapTextInColor(pas::view(std::move(trimWideString)), pas::view(std::move(textColorTag)));
-                        }());
-                        const pas::WideString& token = Token;
-                        const pas::WideString& expanded = Expanded;
-                        return EC_Str::ReplaceAllWideString(expanded, token, pas::view(wrapTextInColor));
+            if (EC_Str::FindTextPosW(u"ext_"_wref.get(), Quest->GetParameter(I)->NameText->Text) != 1) {
+                continue;
+            }
+            Name = Quest->GetParameter(I)->NameText->Text;
+            Token = Name;
+            Name.write(1) = u'E';
+            Token.write(1) = u't';
+            Token = pas::concat_wide({u"<", Token, u">"});
+            Name = pas::concat_wide({u"GQuestVar", Name});
+            Variable = Globals::SharedScriptVariables->GetVarNE(Name);
+            if (Variable != nullptr) {
+                Expanded = ([&] {
+                    const pas::WideString& wrapTextInColor = ([&] {
+                        pas::WideString textColorTag = GetTextColorTag(GlobalsV::QuestStyleIndex);
+                        pas::WideString trimWideString = EC_Str::TrimWideString(Variable->GetString());
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(trimWideString)), pas::view(std::move(textColorTag)));
                     }());
-                }
+                    const pas::WideString& token = Token;
+                    const pas::WideString& expanded = Expanded;
+                    return EC_Str::ReplaceAllWideString(expanded, token, pas::view(wrapTextInColor));
+                }());
             }
         }
         return Expanded;

@@ -54,8 +54,8 @@ namespace CalcParseClass {
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (Math::Power(std::fabs(X), Y) > 2.0E+9L) {
-                OutValue->IntValue = MathImports::Sign(A) * 2000000000;
+            if (Math::Power(std::fabs(X), Y) > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+                OutValue->IntValue = MathImports::Sign(A) * CPVarClass::QuestNumericLimit;
             } else {
                 std::int32_t cpp_left_4 = System::Round(Math::IntPower(AbsValue, B));
                 OutValue->IntValue = cpp_left_4 * MathImports::Sign(A);
@@ -91,10 +91,10 @@ namespace CalcParseClass {
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (X + Y > 2.0E+9L) {
-                OutValue->IntValue = 2000000000;
-            } else if (X + Y < -2.0E+9L) {
-                OutValue->IntValue = -2000000000;
+            if (X + Y > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+                OutValue->IntValue = CPVarClass::QuestNumericLimit;
+            } else if (X + Y < pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit))) {
+                OutValue->IntValue = -CPVarClass::QuestNumericLimit;
             } else {
                 OutValue->IntValue = A + B;
             }
@@ -129,10 +129,10 @@ namespace CalcParseClass {
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (X - Y > 2.0E+9L) {
-                OutValue->IntValue = 2000000000;
-            } else if (X - Y < -2.0E+9L) {
-                OutValue->IntValue = -2000000000;
+            if (X - Y > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+                OutValue->IntValue = CPVarClass::QuestNumericLimit;
+            } else if (X - Y < pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit))) {
+                OutValue->IntValue = -CPVarClass::QuestNumericLimit;
             } else {
                 OutValue->IntValue = A - B;
             }
@@ -167,10 +167,10 @@ namespace CalcParseClass {
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (X * Y > 2.0E+9L) {
-                OutValue->IntValue = 2000000000;
-            } else if (X * Y < -2.0E+9L) {
-                OutValue->IntValue = -2000000000;
+            if (X * Y > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+                OutValue->IntValue = CPVarClass::QuestNumericLimit;
+            } else if (X * Y < pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit))) {
+                OutValue->IntValue = -CPVarClass::QuestNumericLimit;
             } else {
                 OutValue->IntValue = A * B;
             }
@@ -200,9 +200,9 @@ namespace CalcParseClass {
             if (B == 0) {
                 OutValue->ValueKind = CPVarClass::cpvkInteger;
                 if (A < 0) {
-                    OutValue->IntValue = -2000000000;
+                    OutValue->IntValue = -CPVarClass::QuestNumericLimit;
                 } else {
-                    OutValue->IntValue = 2000000000;
+                    OutValue->IntValue = CPVarClass::QuestNumericLimit;
                 }
             } else if (pas::imod(A, B) == 0) {
                 OutValue->ValueKind = CPVarClass::cpvkInteger;
@@ -224,9 +224,9 @@ namespace CalcParseClass {
             Y = Right->AsExtended();
             if (Y == 0.0L) {
                 if (X < 0.0L) {
-                    OutValue->FloatValue = -2.0E+9L;
+                    OutValue->FloatValue = pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit));
                 } else {
-                    OutValue->FloatValue = 2.0E+9L;
+                    OutValue->FloatValue = pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit));
                 }
             } else {
                 try {
@@ -256,9 +256,9 @@ namespace CalcParseClass {
             B = Right->AsInteger();
             if (B == 0) {
                 if (A < 0) {
-                    OutValue->IntValue = -2000000000;
+                    OutValue->IntValue = -CPVarClass::QuestNumericLimit;
                 } else {
-                    OutValue->IntValue = 2000000000;
+                    OutValue->IntValue = CPVarClass::QuestNumericLimit;
                 }
             } else {
                 OutValue->IntValue = pas::idiv(A, B);
@@ -268,9 +268,9 @@ namespace CalcParseClass {
             Y = Right->AsExtended();
             if (Y == 0.0L) {
                 if (X < 0.0L) {
-                    OutValue->FloatValue = -2.0E+9L;
+                    OutValue->FloatValue = pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit));
                 } else {
-                    OutValue->FloatValue = 2.0E+9L;
+                    OutValue->FloatValue = pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit));
                 }
             } else {
                 try {
@@ -301,9 +301,9 @@ namespace CalcParseClass {
             Negative = A < 0;
             if (B == 0) {
                 if (Negative) {
-                    OutValue->IntValue = -2000000000;
+                    OutValue->IntValue = -CPVarClass::QuestNumericLimit;
                 } else {
-                    OutValue->IntValue = 2000000000;
+                    OutValue->IntValue = CPVarClass::QuestNumericLimit;
                 }
             } else {
                 OutValue->IntValue = pas::imod(pas::abs(A), pas::abs(B));
@@ -316,9 +316,9 @@ namespace CalcParseClass {
             Y = System::Trunc(Right->AsExtended());
             if (Y == 0.0L) {
                 if (X < 0.0L) {
-                    OutValue->FloatValue = -2.0E+9L;
+                    OutValue->FloatValue = pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit));
                 } else {
-                    OutValue->FloatValue = 2.0E+9L;
+                    OutValue->FloatValue = pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit));
                 }
             } else {
                 try {

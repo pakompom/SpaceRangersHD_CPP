@@ -52,7 +52,7 @@ namespace aWarrior {
     }
 
     // Sets location, money and WarriorType; registers the ship with its star and home garrison.
-    void TWarrior::InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::uint8_t Kind) {
+    void TWarrior::InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, TWarriorType Kind) {
         std::int32_t FirstNameIndex{};
         std::int32_t LastNameIndex{};
         std::uint8_t TechLevel{};
@@ -128,13 +128,13 @@ namespace aWarrior {
                 self->AddRankPoints(nextRandomIntRange);
             }
             if (!aGalaxy::Galaxy->IsZeroStartingExperienceEnabled()) {
-                GainExperience(System::Round(aMyFunction::RemapClamped(static_cast<std::int8_t>(Rank + static_cast<std::uint8_t>(0)), 0.0, 1.0E+3, aConst::TotalSkillTrainingCost / 6, aConst::TotalSkillTrainingCost / 2)), 0);
+                GainExperience(System::Round(aMyFunction::RemapClamped(Rank, 0.0, 1.0E+3, aConst::TotalSkillTrainingCost / 6, aConst::TotalSkillTrainingCost / 2)), aGalaxyStruct::esUnscaled);
                 {
                     double techLevel = aGalaxy::Galaxy->TechLevel;
                     double nextRandomIntRange_2 = aMyFunction::NextRandomIntRange(0, aConst::TotalSkillTrainingCost / 2, RandomState);
                     std::int32_t round = System::Round(aMyFunction::RemapClamped(techLevel, 3.0, 8.0, 0.0, nextRandomIntRange_2));
                     aShip::TShip* self_2 = this;
-                    self_2->GainExperience(round, 0);
+                    self_2->GainExperience(round, aGalaxyStruct::esUnscaled);
                 }
             }
         }
@@ -157,17 +157,17 @@ namespace aWarrior {
             CreateAndEquipFuelTanks(System::Round(static_cast<long double>(2 * aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
             CreateAndEquipEngine(System::Round(static_cast<long double>(2 * aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 1, OwnerId);
             if (GetSlotCount(aConst::sskWeapon) > WeaponCount) {
-                Weapon = CreateAndEquipWeapon(aConst::t_Weapon3, 2 * aConst::WeaponInfos[aConst::t_Weapon3].AverageSize, 1, OwnerId);
+                Weapon = CreateAndEquipWeapon(aConst::t_Flux, 2 * aConst::WeaponInfos[aConst::t_Flux].AverageSize, 1, OwnerId);
                 Weapon->DetailImprovement = 3;
                 Weapon->Improve(aItem::ikAny);
             }
             if (GetSlotCount(aConst::sskWeapon) > WeaponCount) {
-                Weapon = CreateAndEquipWeapon(aConst::t_Weapon3, 2 * aConst::WeaponInfos[aConst::t_Weapon3].AverageSize, 1, OwnerId);
+                Weapon = CreateAndEquipWeapon(aConst::t_Flux, 2 * aConst::WeaponInfos[aConst::t_Flux].AverageSize, 1, OwnerId);
                 Weapon->DetailImprovement = 3;
                 Weapon->Improve(aItem::ikAny);
             }
             if (GetSlotCount(aConst::sskWeapon) > WeaponCount) {
-                Weapon = CreateAndEquipWeapon(aConst::t_Weapon3, 2 * aConst::WeaponInfos[aConst::t_Weapon3].AverageSize, 1, OwnerId);
+                Weapon = CreateAndEquipWeapon(aConst::t_Flux, 2 * aConst::WeaponInfos[aConst::t_Flux].AverageSize, 1, OwnerId);
                 Weapon->DetailImprovement = 3;
                 Weapon->Improve(aItem::ikAny);
             }
@@ -197,10 +197,10 @@ namespace aWarrior {
             CreateAndEquipFuelTanks(System::Round(static_cast<long double>(aConst::FuelTanksBaseSize) * aConst::EquipmentSizeFactors[5]), 1, OwnerId);
             CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 1, OwnerId);
             if (GetSlotCount(aConst::sskWeapon) > WeaponCount) {
-                CreateAndEquipWeapon(aConst::t_Weapon1, aConst::WeaponInfos[aConst::t_Weapon1].AverageSize, 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_IndustrialLaser, aConst::WeaponInfos[aConst::t_IndustrialLaser].AverageSize, 1, OwnerId);
             }
             if (GetSlotCount(aConst::sskWeapon) > WeaponCount) {
-                CreateAndEquipWeapon(aConst::t_Weapon3, aConst::WeaponInfos[aConst::t_Weapon3].AverageSize, 1, OwnerId);
+                CreateAndEquipWeapon(aConst::t_Flux, aConst::WeaponInfos[aConst::t_Flux].AverageSize, 1, OwnerId);
             }
             if (GetSlotCountForItemType(aConst::t_Radar) > 0) {
                 aGalaxyStruct::TOwnerId ownerId_3 = OwnerId;
@@ -233,13 +233,13 @@ namespace aWarrior {
 
     void TWarrior::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
         aNormalShip::TNormalShip::SaveToBuffer(Buffer);
-        Buffer->AddAnsiChar(WarriorType);
+        Buffer->AddAnsiChar(static_cast<std::uint8_t>(WarriorType));
     }
 
     void TWarrior::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aNormalShip::TNormalShip::LoadFromBuffer(Buffer, Galaxy);
         if (GlobalsV::LoadedSaveVersion >= 130) {
-            WarriorType = EC_Buf::TBufEC_GetByte(Buffer);
+            WarriorType = static_cast<TWarriorType>(EC_Buf::TBufEC_GetByte(Buffer));
         } else {
             WarriorType = wtRegular;
         }
@@ -273,7 +273,7 @@ namespace aWarrior {
     }
 
     void TWarrior_NextDayLogic(TWarrior* Self) {
-        static const pas::Set<0, 255> FriendlyStationMask = pas::constant_set<pas::Set<0, 255>>({{2}, {3}});
+        static const pas::Set<0, 255> FriendlyStationMask = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::ssCoalitionMilitary}, {aGalaxyStruct::ssCoalitionActive}});
         aPlanet::TPlanet* Planet{};
         aShip::TShip* Station{};
         std::int32_t Stage = 0;
@@ -333,7 +333,7 @@ namespace aWarrior {
                     if (Self->LiberationGroup != nullptr) {
                         Self->ProcessLiberationGroupRoute();
                     }
-                    if (Self->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase) && reinterpret_cast<aRuins::TRuins*>(Self->DockedTo)->FlyToStar != nullptr && reinterpret_cast<aRuins::TRuins*>(Self->DockedTo)->FlyToStar != Self->DockedTo->CurrentStar) {
+                    if (Self->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase && reinterpret_cast<aRuins::TRuins*>(Self->DockedTo)->FlyToStar != nullptr && reinterpret_cast<aRuins::TRuins*>(Self->DockedTo)->FlyToStar != Self->DockedTo->CurrentStar) {
                         return;
                     }
                     if (Self->DockedTo->InNormalSpace()) {
@@ -361,7 +361,7 @@ namespace aWarrior {
                                 Self->UpdateAfterburnerState();
                             } else {
                                 Stage = 13;
-                                Station = Self->FindNearestDockableStation(static_cast<aGalaxyStruct::TStationStandingMask>(FriendlyStationMask));
+                                Station = Self->FindNearestDockableStation(static_cast<aGalaxyStruct::TShipStandings>(FriendlyStationMask));
                                 if (Station != nullptr) {
                                     Stage = 14;
                                     Self->OrderLanding(Station, true);
@@ -424,8 +424,8 @@ namespace aWarrior {
 
     // Flagship branch; its diagnostic retains TWarrior.NextDayLogic.
     void TWarrior_NextDayFlagshipLogic(TWarrior* Self) {
-        static const pas::Set<0, 255> FriendlyStationMask = pas::constant_set<pas::Set<0, 255>>({{2}, {3}});
-        static const pas::Set<0, 255> AnyStationMask = pas::constant_set<pas::Set<0, 255>>({{0, 15}}) - pas::constant_set<pas::Set<0, 255>>({{0, 15}});
+        static const pas::Set<0, 255> FriendlyStationMask = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::ssCoalitionMilitary}, {aGalaxyStruct::ssCoalitionActive}});
+        static const pas::Set<0, 255> AnyStationMask = pas::constant_set<pas::Set<0, 255>>({});
         aPlanet::TPlanet* Planet{};
         aShip::TShip* Station{};
         aShip::TShip* Ship{};
@@ -596,7 +596,7 @@ namespace aWarrior {
                             Self->UpdateAfterburnerState();
                         } else {
                             Stage = 13;
-                            Station = Self->FindNearestDockableStation(static_cast<aGalaxyStruct::TStationStandingMask>(FriendlyStationMask));
+                            Station = Self->FindNearestDockableStation(static_cast<aGalaxyStruct::TShipStandings>(FriendlyStationMask));
                             if (Station != nullptr) {
                                 Stage = 14;
                                 Self->OrderLanding(Station, true);
@@ -622,7 +622,7 @@ namespace aWarrior {
                                 Stations = pas::make_object<pas::List>();
                                 for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                                     Ship = pas::list_at<aShip::TShip>(Self->CurrentStar->Ships, I);
-                                    if (pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && Ship->virtual_TShip_CanDock(Self) && pas::in_range(Ship->CurrentStanding, aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssNeutral)) {
+                                    if (pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation)) && Ship->virtual_TShip_CanDock(Self) && pas::in_range(Ship->CurrentStanding, static_cast<std::int32_t>(aGalaxyStruct::ssCoalitionMilitary), static_cast<std::int32_t>(aGalaxyStruct::ssNeutral))) {
                                         if (static_cast<long double>(aMyFunction::PointDistanceSquared(Self->Position, Ship->Position)) >= pas::sqr(Self->CalculateSpeed())) {
                                             pas::list_add(Stations, reinterpret_cast<void*>(Ship));
                                         }
@@ -664,7 +664,7 @@ namespace aWarrior {
                         }
                         if (Self->Order == aShip::soNone) {
                             if (aMyFunction::NextRandomIntRange(1, 100, Self->RandomState) > 40) {
-                                Station = Self->FindNearestDockableStation(static_cast<aGalaxyStruct::TStationStandingMask>(AnyStationMask));
+                                Station = Self->FindNearestDockableStation(static_cast<aGalaxyStruct::TShipStandings>(AnyStationMask));
                                 if (Station != nullptr) {
                                     Self->OrderLanding(Station, false);
                                 }
@@ -792,7 +792,7 @@ namespace aWarrior {
         return u"Warrior"_w;
     }
 
-    std::uint8_t TWarrior::GetGreetingShipCategory() {
+    aGalaxyStruct::TGreetingShipCategory TWarrior::GetGreetingShipCategory() {
         return aGalaxyStruct::gscWarrior;
     }
 
@@ -822,7 +822,7 @@ namespace aWarrior {
             if (aMyFunction::NextRandomUnitFloat(RandomState) < 0.05L) {
                 std::int32_t seededRandomIntRange = aMyFunction::SeededRandomIntRange(100, 500, RandomState);
                 aShip::TShip* self = this;
-                self->GainExperience(seededRandomIntRange, 0);
+                self->GainExperience(seededRandomIntRange, aGalaxyStruct::esUnscaled);
             }
             if (aPlayer::GetPlayer()->Rank > Rank && aMyFunction::NextRandomUnitFloat(RandomState) < 0.01L && (Rank < 4 || WarriorType == wtFlagship && Rank < 6)) {
                 {
@@ -833,7 +833,7 @@ namespace aWarrior {
                 TryPromoteRank();
             }
             if (aMyFunction::NextRandomUnitFloat(RandomState) < 0.02L && CurrentPlanet != nullptr && (AwardIds == nullptr || 2 * (Rank + 1) > pas::list_count(AwardIds))) {
-                Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atAccomplishment}, {aGalaxyStruct::atSecretMission}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, 13}}));
+                Award = SelectAward(aConst::RaceToOwner(CurrentPlanet->RaceId), pas::constant_set<aNormalShip::TAwardTypeMask>({{aGalaxyStruct::atAccomplishment}, {aGalaxyStruct::atSecretMission}}), pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::stKling, aGalaxyStruct::rstCustomStation}}));
                 if (Award != aGalaxyStruct::AwardNotFound) {
                     AddAward(Award);
                 }
@@ -870,7 +870,7 @@ namespace aWarrior {
             Relation = Value;
         }
         pas::list_put(HomePlanet->RangerRelations, Index, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Relation))));
-        if (Relation < 10 && (EnemyShip == nullptr || EnemyShip->CurrentStar != CurrentStar)) {
+        if (Relation < aGalaxyStruct::RelationBadMin && (EnemyShip == nullptr || EnemyShip->CurrentStar != CurrentStar)) {
             EnemyShip = static_cast<aShip::TShip*>(Ranger);
         }
         if (aPlayer::GetPlayer() == Ranger) {
@@ -919,7 +919,7 @@ namespace aWarrior {
     }
 
     std::uint8_t TWarrior_TrustsAttackRequester(TWarrior* Self, aShip::TShip* Ship) {
-        return aShip::TShip_RelationToShip(Self, Ship) >= 30;
+        return aShip::TShip_RelationToShip(Self, Ship) >= aGalaxyStruct::RelationNormalMin;
     }
 
     std::uint8_t TWarrior::AcceptsAppealFrom(aShip::TShip* Ship) {
@@ -1027,7 +1027,7 @@ namespace aWarrior {
                     Stage = 31;
                     if (Ship->InNormalSpace() && Ship != this && EnemyShip != Ship) {
                         Stage = 32;
-                        if (aShip::TShip_RelationToShip(this, Ship) < 10 || EnemyShip == Ship || Ship->EnemyShip == this) {
+                        if (aShip::TShip_RelationToShip(this, Ship) < aGalaxyStruct::RelationBadMin || EnemyShip == Ship || Ship->EnemyShip == this) {
                             Stage = 33;
                             if (TruceShip != Ship) {
                                 Stage = 34;
@@ -1088,7 +1088,7 @@ namespace aWarrior {
                     for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Asteroids) - 1); cpp_range_4.next(I); ) {
                         Asteroid = pas::list_at<aAsteroid::TAsteroid>(CurrentStar->Asteroids, I);
                         Distance = aMyFunction::PointDistanceSquared(Position, Asteroid->Position);
-                        if (Distance <= 1.0E+6L) {
+                        if (Distance <= pas::constant(static_cast<long double>(aGalaxyStruct::AsteroidTargetRangeSquared))) {
                             const std::int32_t cpp_last_7 = static_cast<std::int32_t>(WeaponCount);
                             if (1 <= cpp_last_7) {
                                 for (J = 1; J <= cpp_last_7; ++J) {
@@ -1275,7 +1275,7 @@ namespace aWarrior {
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Self->CurrentStar->Asteroids) - 1); cpp_range_3.next(I); ) {
                     Asteroid = pas::list_at<aAsteroid::TAsteroid>(Self->CurrentStar->Asteroids, I);
                     Distance = aMyFunction::PointDistanceSquared(Self->Position, Asteroid->Position);
-                    if (Distance <= 1.0E+6L) {
+                    if (Distance <= pas::constant(static_cast<long double>(aGalaxyStruct::AsteroidTargetRangeSquared))) {
                         const std::int32_t cpp_last_3 = static_cast<std::int32_t>(Self->WeaponCount);
                         if (1 <= cpp_last_3) {
                             for (J = 1; J <= cpp_last_3; ++J) {
@@ -1422,7 +1422,7 @@ namespace aWarrior {
             OwnAttack = CalculateAttackStrength();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
-                if (Ship->InNormalSpace() && aShip::TShip_RelationToShip(this, Ship) < 10 && TruceShip != Ship) {
+                if (Ship->InNormalSpace() && aShip::TShip_RelationToShip(this, Ship) < aGalaxyStruct::RelationBadMin && TruceShip != Ship) {
                     {
                         pas::Extended real_max = pas::real_max<pas::Extended>(1.0L, pas::real_divide(OwnAttack, Ship->CalculateDefenseStrength()));
                         Score = Ship->CalculateAttackStrength() * real_max;
@@ -1457,7 +1457,7 @@ namespace aWarrior {
                 BestDistance = 1.0;
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range_2.next(I); ) {
                     Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
-                    if (Ship->InNormalSpace() && aShip::TShip_RelationToShip(this, Ship) < 10 && TruceShip != Ship) {
+                    if (Ship->InNormalSpace() && aShip::TShip_RelationToShip(this, Ship) < aGalaxyStruct::RelationBadMin && TruceShip != Ship) {
                         if (pas::is_one_of<aGalaxyStruct::ssDominator, aGalaxyStruct::ssPirateMilitary>(Ship->CurrentStanding)) {
                             EnemyShip = Ship;
                             if (aShip::TShip_ChanceToWin(this, Ship) > 1.0L) {
@@ -1492,9 +1492,9 @@ namespace aWarrior {
             RetreatToFlagship = Ship != nullptr && EnemyShip->InNormalSpace() && static_cast<std::uint8_t>(EnemyShip->HasNoUsableWeapons() ^ 1) && EnemyShip->EnemyShip == this && EnemyShip->OrderTarget == this && EnemyShip->Speed > Speed && aShip::TShip_GetRelationLevelToShip(Ship, EnemyShip) <= aGalaxyStruct::rlHostile;
             if (EnemyShip->InNormalSpace()) {
                 if (RetreatToFlagship) {
-                    OrderFollowShip(Ship, 0, false);
+                    OrderFollowShip(Ship, aShip::fmFollowNear, false);
                 } else {
-                    OrderFollowShip(EnemyShip, 1, false);
+                    OrderFollowShip(EnemyShip, aShip::fmMinWeaponRange, false);
                 }
                 if (aShip::TShip_ChanceToWin(this, EnemyShip) < 0.8L) {
                     aShip::TShip_RequestAlliesAttackShip(this, EnemyShip);
@@ -1787,9 +1787,9 @@ namespace aWarrior {
         pas::free(Allies);
         if (BestShip != nullptr && BestShipScore >= BestPositionScore) {
             if (aShip::TShip_GetRelationLevelToShip(this, BestShip) > aGalaxyStruct::rlHostile) {
-                OrderFollowShip(BestShip, 0, false);
+                OrderFollowShip(BestShip, aShip::fmFollowNear, false);
             } else {
-                OrderFollowShip(BestShip, 1, false);
+                OrderFollowShip(BestShip, aShip::fmMinWeaponRange, false);
             }
         } else {
             OrderMove(Destination, false);
@@ -1894,14 +1894,15 @@ namespace aWarrior {
                         }
                         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Planet->Warriors) - 1); cpp_range_4.next(K); ) {
                             Warrior = pas::list_at<TWarrior>(Planet->Warriors, K);
-                            if (Warrior != this) {
-                                GarrisonStrength = static_cast<long double>(GarrisonStrength) + aMyFunction::RemapClamped(Warrior->Strength, 0.1L * Strength, 1.0E+1L * Strength, 0.3, 3.0);
-                                if (Warrior->WarriorType == wtFlagship) {
-                                    if (static_cast<aGalaxyStruct::TOwnerId>(static_cast<std::uint8_t>(Warrior->PilotRace) + static_cast<std::uint8_t>(0)) == PilotRace) {
-                                        FlagshipFactor = FlagshipFactor * 0.05L;
-                                    } else {
-                                        FlagshipFactor = FlagshipFactor * 0.2L;
-                                    }
+                            if (Warrior == this) {
+                                continue;
+                            }
+                            GarrisonStrength = static_cast<long double>(GarrisonStrength) + aMyFunction::RemapClamped(Warrior->Strength, 0.1L * Strength, 1.0E+1L * Strength, 0.3, 3.0);
+                            if (Warrior->WarriorType == wtFlagship) {
+                                if (Warrior->PilotRace == PilotRace) {
+                                    FlagshipFactor = FlagshipFactor * 0.05L;
+                                } else {
+                                    FlagshipFactor = FlagshipFactor * 0.2L;
                                 }
                             }
                         }
@@ -1967,7 +1968,7 @@ namespace aWarrior {
                     }
                 }
             }
-            if (BestPlanet != nullptr && reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(BestPlanet)) + 0))) != HomePlanet) {
+            if (BestPlanet != nullptr && BestPlanet != HomePlanet) {
                 I = pas::list_indexof(HomePlanet->Warriors, reinterpret_cast<void*>(this));
                 if (I >= 0) {
                     pas::list_delete(HomePlanet->Warriors, I);
@@ -1976,7 +1977,7 @@ namespace aWarrior {
                 if (I < 0) {
                     pas::list_add(BestPlanet->Warriors, reinterpret_cast<void*>(this));
                 }
-                HomePlanet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(BestPlanet)) + 0)));
+                HomePlanet = BestPlanet;
             }
         }
     }
@@ -2109,7 +2110,7 @@ namespace aWarrior {
         };
         Result = false;
         if (pas::class_cast_if<aRanger::TRanger*>(Requester) != nullptr) {
-            if (pas::in_range(Target->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stPirate)) {
+            if (pas::in_range(Target->TypeId, static_cast<std::int32_t>(aGalaxyStruct::stRanger), static_cast<std::int32_t>(aGalaxyStruct::stPirate))) {
                 Target->ChangeRelationToRanger(Requester, -20);
             }
             if (Target->OwnerId == aGalaxyStruct::oiDominator || Target->TypeId == aGalaxyStruct::stPirate) {
@@ -2140,9 +2141,10 @@ namespace aWarrior {
             Response = ([&] {
                 pas::WideString name = Target->GetName();
                 pas::WideString lookupVisibleTalkText = aShip::TShip_LookupVisibleTalkText(Self, u"Talk.Attack.WeAlreadyHavePact"_wref.get(), Requester);
-                return aMyFunction::FormatText1(std::move(lookupVisibleTalkText), u"<color=255,240,100>"_w, u"<Target>"_w, std::move(name));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupVisibleTalkText), std::move(textHighlightColorTag), u"<Target>"_w, std::move(name));
             }());
-        } else if (aShip::TShip_RelationToShip(Self, Target) >= 30) {
+        } else if (aShip::TShip_RelationToShip(Self, Target) >= aGalaxyStruct::RelationNormalMin) {
             if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Target); !(tranclucator != nullptr)) {
                 Response = aShip::TShip_LookupVisibleTalkText(Self, pas::concat_wide({u"Talk.Attack.", Self->GetTypeNameKey(), u"WeFriends"}), Requester);
             } else if (tranclucator->OwnerShip == Self) {
@@ -2532,7 +2534,7 @@ namespace aWarrior {
     }
 
     void TWarrior_RefreshCurrentStanding(TWarrior* Self) {
-        std::int32_t StandingMode = Self->GetScriptStandingOverrideMode();
+        aGalaxyStruct::TScriptStandingOverrideMode StandingMode = Self->GetScriptStandingOverrideMode();
         if (StandingMode == aGalaxyStruct::ssmCustomFaction) {
             Self->CurrentStanding = aGalaxyStruct::ssCustom;
         } else if (StandingMode != aGalaxyStruct::ssmFixed) {

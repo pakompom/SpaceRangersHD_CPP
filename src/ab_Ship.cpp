@@ -348,10 +348,10 @@ namespace ab_Ship {
         std::int32_t BestWeapon{};
         float DamageScale{};
         if (Health > 0 && WeaponCount > 0 && BonusTicks[ab_Global::abkWeaponLock] <= 0) {
-            if (this != PlayerArcadeShip || LastPrimaryWeapon == PrimaryWeapon || ab_Global::WeaponSwitchDelayMs / 20 <= ab_Global::ArcadeTickCount - LastPrimaryFireTick) {
+            if (this != PlayerArcadeShip || LastPrimaryWeapon == PrimaryWeapon || pas::idiv(ab_Global::WeaponSwitchDelayMs, ab_Global::ArcadeTickMs) <= ab_Global::ArcadeTickCount - LastPrimaryFireTick) {
                 if (CanFireWeapon(PrimaryWeapon)) {
                     if (BonusTicks[ab_Global::abkInvisibility] > 0) {
-                        RevealTicks = ab_Global::RevealAfterFiringMs / 20;
+                        RevealTicks = pas::idiv(ab_Global::RevealAfterFiringMs, ab_Global::ArcadeTickMs);
                     }
                     LastPrimaryWeapon = PrimaryWeapon;
                     LastPrimaryFireTick = ab_Global::ArcadeTickCount;
@@ -404,10 +404,10 @@ namespace ab_Ship {
         std::int32_t BestWeapon{};
         float DamageScale{};
         if (Health > 0 && WeaponCount > 0 && BonusTicks[ab_Global::abkWeaponLock] <= 0) {
-            if (this != PlayerArcadeShip || LastSecondaryWeapon == SecondaryWeapon || ab_Global::WeaponSwitchDelayMs / 20 <= ab_Global::ArcadeTickCount - LastSecondaryFireTick) {
+            if (this != PlayerArcadeShip || LastSecondaryWeapon == SecondaryWeapon || pas::idiv(ab_Global::WeaponSwitchDelayMs, ab_Global::ArcadeTickMs) <= ab_Global::ArcadeTickCount - LastSecondaryFireTick) {
                 if (CanFireWeapon(SecondaryWeapon)) {
                     if (BonusTicks[ab_Global::abkInvisibility] > 0) {
-                        RevealTicks = ab_Global::RevealAfterFiringMs / 20;
+                        RevealTicks = pas::idiv(ab_Global::RevealAfterFiringMs, ab_Global::ArcadeTickMs);
                     }
                     LastSecondaryWeapon = SecondaryWeapon;
                     LastSecondaryFireTick = ab_Global::ArcadeTickCount;

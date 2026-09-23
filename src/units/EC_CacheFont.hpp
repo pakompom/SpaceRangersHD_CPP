@@ -12,9 +12,7 @@ namespace EC_CacheFont {
     // Also clears the shared font's color stack, disables ARGB colors and enables color tags.
     TCFontEC* AcquireCachedFont(EC_Cache::TCacheControlEC* Control);
 
-    // The + 0 expressions below, including those in Self casts, preserve DCC32's
-    // native operand evaluation order. They emit no additional instructions.
-    void IncludeGlyphBounds(WindowsSdk::TRect& Bounds, std::int32_t& X, std::int32_t& Y, PAftGlyphEC& Glyph);
+    void IncludeGlyphBounds(WindowsSdk::TRect& Bounds, std::int32_t X, std::int32_t Y, PAftGlyphEC Glyph);
 
     // ColorStack is a separately allocated buffer.
     void TCFontEC_Create(TCFontEC* Self);

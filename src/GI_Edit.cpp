@@ -454,7 +454,7 @@ namespace GI_Edit {
                         pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (Bitmap->Bitmap->GetTexture(cpp_result), cpp_result);
                         std::int32_t top = HitTestBounds.Top;
                         std::int32_t left = HitTestBounds.Left;
-                        GR_DX::DrawTexture(texture, left, top, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                        GR_DX::DrawTexture(texture, left, top, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                     } else {
                         std::int32_t top_2 = ClipRect.Top;
                         void* pixels = Bitmap->Bitmap->GetPixels();
@@ -521,7 +521,7 @@ namespace GI_Edit {
                                 pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture_2 = (Buffer->GetTexture(cpp_result_2), cpp_result_2);
                                 std::int32_t top_3 = HitTestBounds.Top;
                                 std::int32_t left_3 = HitTestBounds.Left;
-                                GR_DX::DrawTexture(texture_2, left_3, top_3, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                                GR_DX::DrawTexture(texture_2, left_3, top_3, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                             }
                         } else {
                             auto characterText_2 = pas::borrow(CharacterText);

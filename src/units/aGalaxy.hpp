@@ -26,8 +26,8 @@ namespace aGalaxy {
     // Startup size-check marker: positive means mismatch; nonpositive is accepted.
     extern std::int32_t ModuleSizeIntegrityStatus;
 
-    // 0 unchecked, 1 accepted, 2 mismatch.
-    extern std::uint8_t ModuleCrcIntegrityStatus;
+    // Cached module CRC result.
+    extern aGalaxy::TModuleCrcStatus ModuleCrcIntegrityStatus;
 
     // Cleared on mismatch while saving star 1; no native readers.
     extern std::int32_t ModuleCrcFailureValue;

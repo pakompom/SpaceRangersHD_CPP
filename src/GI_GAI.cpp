@@ -24,6 +24,9 @@
 #include "units/aMyFunction.hpp"
 
 namespace GI_GAI {
+    // Frame zero with a 50 ms delay.
+    const pas::WideString SingleFrameAnimationSpec = u"[50,0-0]"_w;
+
     std::uint32_t GaiFrameHeap = 0u;
 
     void LoadGaiFrameToGraphBuf(const pas::WideString& Path, GR_GraphBuf::TGraphBufGR* GraphBuf, std::uint32_t Seed) {
@@ -989,7 +992,7 @@ namespace GI_GAI {
                             while (Y < Bottom) {
                                 X = Left;
                                 while (X < Right) {
-                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
                                     X += Width;
                                 }
                                 Y += Height;
@@ -1019,7 +1022,7 @@ namespace GI_GAI {
                                 for (auto cpp_range = pas::for_to<std::int32_t>(0, FrameCount - 1); cpp_range.next(FrameIndex); ) {
                                     Texture = (Image->GetOrCreateFrameSurface(GetSequenceFrameSourceIndex(SequenceFrame), cpp_result_2), cpp_result_2);
                                     FrameOrigin = Image->GetFrameOrigin(GetSequenceFrameSourceIndex(SequenceFrame));
-                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
                                 }
                                 X += Width;
                             }
@@ -1077,7 +1080,7 @@ namespace GI_GAI {
                         while (Y < Bottom) {
                             X = Left;
                             while (X < Right) {
-                                GR_DX::DrawTexture(Texture, X, Y, Alpha, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                GR_DX::DrawTexture(Texture, X, Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
                                 X += Width;
                             }
                             Y += Height;
@@ -1143,7 +1146,7 @@ namespace GI_GAI {
                         while (Y < Bottom) {
                             X = Left;
                             while (X < Right) {
-                                GR_DX::DrawTexture(Texture, X, Y, Alpha, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                GR_DX::DrawTexture(Texture, X, Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
                                 X += Width;
                             }
                             Y += Height;

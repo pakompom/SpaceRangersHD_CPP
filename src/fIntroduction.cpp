@@ -125,13 +125,15 @@ namespace fIntroduction {
             Text = ([&] {
                 auto name = pas::borrow(aPlayer::GetPlayer()->Name);
                 pas::WideString localizedText = aConst::LocalizedText(u"FormIntroduction.Text"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Player>"_w, name.get());
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Player>"_w, name.get());
             }());
         } else {
             Text = ([&] {
                 auto playerName = pas::borrow(Globals::NewGameGenerationThread->PlayerName);
                 pas::WideString localizedText_2 = aConst::LocalizedText(u"FormIntroduction.Text"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<Player>"_w, playerName.get());
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_2), u"<Player>"_w, playerName.get());
             }());
         }
         {

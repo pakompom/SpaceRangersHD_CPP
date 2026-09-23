@@ -67,7 +67,7 @@ namespace aTransport {
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         pas::WideString GetTypeNameKey() override;
-        std::uint8_t GetGreetingShipCategory() override;
+        aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() override;
         // Always rcTrader.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;

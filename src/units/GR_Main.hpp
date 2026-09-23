@@ -43,6 +43,11 @@ namespace GR_Sound {
 } // namespace GR_Sound
 
 namespace GR_Main {
+    // Shared by version display, configuration migration and data compatibility checks.
+    extern const pas::WideString GameVersionText;
+
+    extern const pas::WideString ModSelectionConfigPath;
+
     // Message pump returns without sleeping when active; cleared during device loss.
     extern std::uint8_t RuntimeActive;
 

@@ -7,6 +7,9 @@ namespace EC_Cache {
 } // namespace EC_Cache
 
 namespace EC_CacheBitmap {
+    // Cache paths pass the option after '?' to LoadFromConfigBuffer.
+    extern const pas::WideString RgbaImagePathSuffix;
+
     TCBitmapEC* AcquireOrCreateBitmap(EC_Cache::TCacheControlEC* Control);
 
     void TCBitmapEC_Create(TCBitmapEC* Self);

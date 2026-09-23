@@ -211,11 +211,11 @@ namespace ab_ShipAI {
                 Reward = GetRewardItem(false);
                 if (Reward != nullptr) {
                     if (ab_Ship::KellerArcadeShip == this) {
-                        aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Reward, nullptr, 0);
+                        aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnABItemDrop, Reward, nullptr, 0);
                         aPlayer::ArcadeKellerReward = Reward;
                     } else {
                         fShip2::ClearPlayerHoldEntries();
-                        aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Reward, nullptr, 0);
+                        aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnABItemDrop, Reward, nullptr, 0);
                         if (pas::class_cast_if<aItem::TArtefact*>(Reward) != nullptr) {
                             pas::list_insert(aPlayer::GetPlayer()->Artefacts, 0, reinterpret_cast<void*>(Reward));
                         } else {
@@ -225,7 +225,7 @@ namespace ab_ShipAI {
                     AddArcadeRewardToList(Reward);
                 } else if (RewardObject != nullptr) {
                     fShip2::ClearPlayerHoldEntries();
-                    aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, RewardObject, nullptr, 0);
+                    aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnABItemDrop, RewardObject, nullptr, 0);
                     if (pas::class_cast_if<aItem::TArtefact*>(RewardObject) != nullptr) {
                         pas::list_insert(aPlayer::GetPlayer()->Artefacts, 0, reinterpret_cast<void*>(RewardObject));
                     } else {
@@ -263,7 +263,7 @@ namespace ab_ShipAI {
                             {
                                 std::uint32_t randomRange = RandomRange(1, 100000);
                                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                                Info = galaxy->SelectWeaponInfo(randomRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}}), std::min<std::int32_t>(WeaponTech + 1, 8), std::max<std::int32_t>(1, WeaponTech - 1));
+                                Info = galaxy->SelectWeaponInfo(randomRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{aGalaxyStruct::waFree}}), std::min<std::int32_t>(WeaponTech + 1, 8), std::max<std::int32_t>(1, WeaponTech - 1));
                             }
                             Weight = ([&] {
                                 std::int32_t round = System::Round(static_cast<long double>(Info->AverageSize) * MaxSize);
@@ -286,7 +286,7 @@ namespace ab_ShipAI {
                         ++Attempts;
                         if (Attempts > 10000) {
                             fShip2::ClearPlayerHoldEntries();
-                            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Item, nullptr, 0);
+                            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnABItemDrop, Item, nullptr, 0);
                             pas::list_insert(aPlayer::GetPlayer()->Inventory, 1, reinterpret_cast<void*>(Item));
                             aPlayer::GetPlayer()->RefreshDerivedStats(true);
                             AddArcadeRewardToList(Item);
@@ -302,7 +302,7 @@ namespace ab_ShipAI {
                             return Item->GetConditionAdjustedCost() < real_max;
                         }()) && (Item->GetConditionAdjustedCost() > aPlayer::GetPlayer()->Wealth * 0.008L * RewardScale || Attempts > 500)) {
                             fShip2::ClearPlayerHoldEntries();
-                            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnABItemDrop, Item, nullptr, 0);
+                            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnABItemDrop, Item, nullptr, 0);
                             pas::list_insert(aPlayer::GetPlayer()->Inventory, 1, reinterpret_cast<void*>(Item));
                             aPlayer::GetPlayer()->RefreshDerivedStats(true);
                             AddArcadeRewardToList(Item);

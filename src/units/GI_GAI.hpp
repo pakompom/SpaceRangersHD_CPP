@@ -12,6 +12,9 @@ namespace GR_GraphBuf {
 } // namespace GR_GraphBuf
 
 namespace GI_GAI {
+    // Frame zero with a 50 ms delay.
+    extern const pas::WideString SingleFrameAnimationSpec;
+
     extern std::uint32_t GaiFrameHeap;
 
     void LoadGaiFrameToGraphBuf(const pas::WideString& Path, GR_GraphBuf::TGraphBufGR* GraphBuf, std::uint32_t Seed);

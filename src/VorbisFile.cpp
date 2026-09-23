@@ -170,10 +170,9 @@ namespace VorbisFile {
         return Total;
     }
 
-    void TOggWorker_Create(TOggWorker* Self, PCriticalSection SharedLock, std::uint8_t UseExternalLibrary) {
+    void TOggWorker_Create(TOggWorker* Self, pas::CriticalSection*& SharedLock, std::uint8_t UseExternalLibrary) {
         pas::object_create(Self);
-        // Materialize the value before Self, as in the native DCC32 assignment.
-        Self->Lock = reinterpret_cast<PCriticalSection>(reinterpret_cast<std::uint8_t*>(SharedLock) + 0);
+        Self->Lock = &SharedLock;
         if (!UseExternalLibrary) {
             pas::critical_enter(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
             if (!VorbisLoaded) {

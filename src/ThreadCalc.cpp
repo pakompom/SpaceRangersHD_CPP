@@ -3,6 +3,7 @@
 #include "types/GI_MessageLoop.hpp"
 #include "types/SystemImports.hpp"
 #include "types/aEFilm.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aShip.hpp"
 #include "units/GR_Main.hpp"
@@ -108,7 +109,7 @@ namespace ThreadCalc {
                         } else {
                             FrameMs = 8;
                         }
-                        AdaptiveBeginCalcNextTurn = pas::real_min<pas::Extended>(0.9L, pas::real_divide(AdaptiveBeginCalcNextTurn + 1.0L - pas::real_min<pas::Extended>(1.0L, pas::real_divide(LastGalaxyTurnDuration + 100, 200 * FrameMs)), 2.0L));
+                        AdaptiveBeginCalcNextTurn = pas::real_min<pas::Extended>(0.9L, pas::real_divide(AdaptiveBeginCalcNextTurn + 1.0L - pas::real_min<pas::Extended>(1.0L, pas::real_divide(LastGalaxyTurnDuration + 100, aGalaxyStruct::BaseMovementStepsPerTurn * FrameMs)), 2.0L));
                     } else {
                         aGalaxy::Galaxy->NextDay();
                     }
@@ -118,7 +119,7 @@ namespace ThreadCalc {
                     if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                         GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                         GR_Main::AppendLogLineThreadSafe("ThreadCalc exception 1"_a);
-                        if (aGalaxy::Galaxy->CurrentTurn < 300) {
+                        if (aGalaxy::Galaxy->CurrentTurn < aGalaxyStruct::GalaxyWarmupTurns) {
                             GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Galaxy create exception, seed = ", SysUtils::IntToStr(aGalaxy::Galaxy->GenerationSeed)}));
                         }
                         WindowsSdk::SetEvent(Self->IdleEvent);
@@ -138,7 +139,7 @@ namespace ThreadCalc {
                 if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception_2)) {
                     GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                     GR_Main::AppendLogLineThreadSafe("ThreadCalc exception 2"_a);
-                    if (aGalaxy::Galaxy->CurrentTurn < 300) {
+                    if (aGalaxy::Galaxy->CurrentTurn < aGalaxyStruct::GalaxyWarmupTurns) {
                         GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Galaxy create exception, seed = ", SysUtils::IntToStr(aGalaxy::Galaxy->GenerationSeed)}));
                     }
                     WindowsSdk::SetEvent(Self->IdleEvent);
@@ -161,7 +162,7 @@ namespace ThreadCalc {
                 if (pas::Exception* E_3 = pas::class_cast_if<pas::Exception*>(cpp_exception_3)) {
                     GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_3))), " ", E_3->message}));
                     GR_Main::AppendLogLineThreadSafe("ThreadCalc exception 3"_a);
-                    if (aGalaxy::Galaxy->CurrentTurn < 300) {
+                    if (aGalaxy::Galaxy->CurrentTurn < aGalaxyStruct::GalaxyWarmupTurns) {
                         GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Galaxy create exception, seed = ", SysUtils::IntToStr(aGalaxy::Galaxy->GenerationSeed)}));
                     }
                     WindowsSdk::SetEvent(Self->IdleEvent);

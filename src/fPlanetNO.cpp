@@ -161,7 +161,7 @@ namespace fPlanetNO {
         CloseResearchPanel();
         aScript::DispatchPendingScriptRequests();
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
         }
         aGalaxy::Galaxy->PrimeIntegrityChecksum(111);
     }
@@ -171,7 +171,7 @@ namespace fPlanetNO {
             aGalaxy::Galaxy->CheckIntegrityChecksum(112);
         }
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         CloseResearchPanel();
         MainPanel->OnClose();
@@ -208,7 +208,8 @@ namespace fPlanetNO {
         if (aPlayer::GetPlayer()->HasSatelliteOnPlanet(aPlayer::GetPlayer()->CurrentPlanet) && GI_MessageBox::ShowMessageBoxGI(this, ([&] {
             auto name = pas::borrow(aPlayer::GetPlayer()->CurrentPlanet->Name);
             pas::WideString paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormPlanetNO.SatelliteInPlanet"_wref.get());
-            return aMyFunction::FormatText1(std::move(paramByPathOrMarker), u"<color=255,240,100>"_w, u"<Name>"_w, name.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(paramByPathOrMarker), std::move(textHighlightColorTag), u"<Name>"_w, name.get());
         }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
             return;
         }
@@ -227,7 +228,7 @@ namespace fPlanetNO {
         Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position));
         aGalaxy::PlayerStar->RefreshSpaceObjectPositions();
         aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 1);
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(3)) {
+        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
             aGalaxy::Galaxy->EnableDominatorSurfaces();
         } else {
             aGalaxy::Galaxy->DisableDominatorSurfaces();
@@ -330,7 +331,7 @@ namespace fPlanetNO {
                     return blockByPath->CountParams(intToStr);
                 }()) > 0) {
                     QuestId = Quest->QuestNumber;
-                    if (Quest->QuestNumber < 10000 || GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
+                    if (Quest->QuestNumber < aGalaxyStruct::FirstLicensedQuestId || GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
                         pas::WideString cpp_string = ([&] {
                             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(Quest->QuestNumber));
                             EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
@@ -360,10 +361,10 @@ namespace fPlanetNO {
                     Text = aConst::LocalizedColorText(u"PlanetQuest.StartText.QuestExtern"_wref.get());
                 }
                 if (Quest != nullptr) {
-                    aMyFunction::ReplaceTextToken(Text, u"<CurPlanet>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->Name, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Text, u"<CurStar>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->CurrentStar->Name, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Quest->Planet->Name, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Quest->Planet->CurrentStar->Name, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<CurPlanet>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->Name, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Text, u"<CurStar>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Quest->Planet->Name, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Quest->Planet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                 }
                 QuestInfo_Text->SetText(Text);
                 Window->SetSize(ClassesImports::Point(QuestInfo_Text->ClientSize.X + Window->WorkSubRect.Left + Window->WorkSubRect.Right, QuestInfo_Text->ClientSize.Y + Window->WorkSubRect.Top + Window->WorkSubRect.Bottom));
@@ -1011,54 +1012,60 @@ namespace fPlanetNO {
         }
         {
             const pas::WideString& replaceColoredToken_2 = ([&] {
+                auto dialogHighlightColorTag = pas::borrow(aMyFunction::DialogHighlightColorTag);
                 pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->WaterTiles);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormPlanetNO.Space"_wref.get());
-                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<val>"_w, std::move(intToStr), u"<color=0,50,200>"_w);
+                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<val>"_w, std::move(intToStr), dialogHighlightColorTag.get());
             }());
             GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterSpace"sv));
             cpp_arg_4->SetText(replaceColoredToken_2);
         }
         {
             const pas::WideString& replaceColoredToken_3 = ([&] {
+                auto dialogHighlightColorTag_2 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                 pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->LandTiles);
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormPlanetNO.Space"_wref.get());
-                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_3), u"<val>"_w, std::move(intToStr_2), u"<color=0,50,200>"_w);
+                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_3), u"<val>"_w, std::move(intToStr_2), dialogHighlightColorTag_2.get());
             }());
             GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandSpace"sv));
             cpp_arg_5->SetText(replaceColoredToken_3);
         }
         {
             const pas::WideString& replaceColoredToken_4 = ([&] {
+                auto dialogHighlightColorTag_3 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                 pas::WideString intToStr_3 = pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->HillTiles);
                 pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormPlanetNO.Space"_wref.get());
-                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_4), u"<val>"_w, std::move(intToStr_3), u"<color=0,50,200>"_w);
+                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_4), u"<val>"_w, std::move(intToStr_3), dialogHighlightColorTag_3.get());
             }());
             GI_Label::TLabelGI* cpp_arg_6 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillSpace"sv));
             cpp_arg_6->SetText(replaceColoredToken_4);
         }
         {
             const pas::WideString& replaceColoredToken_5 = ([&] {
+                auto dialogHighlightColorTag_4 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                 pas::WideString intToStr_4 = pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->WaterExplored);
                 pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormPlanetNO.Complate"_wref.get());
-                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_5), u"<val>"_w, std::move(intToStr_4), u"<color=0,50,200>"_w);
+                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_5), u"<val>"_w, std::move(intToStr_4), dialogHighlightColorTag_4.get());
             }());
             GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"WaterComplate"sv));
             cpp_arg_7->SetText(replaceColoredToken_5);
         }
         {
             const pas::WideString& replaceColoredToken_6 = ([&] {
+                auto dialogHighlightColorTag_5 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                 pas::WideString intToStr_5 = pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->LandExplored);
                 pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormPlanetNO.Complate"_wref.get());
-                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_6), u"<val>"_w, std::move(intToStr_5), u"<color=0,50,200>"_w);
+                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_6), u"<val>"_w, std::move(intToStr_5), dialogHighlightColorTag_5.get());
             }());
             GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LandComplate"sv));
             cpp_arg_8->SetText(replaceColoredToken_6);
         }
         {
             const pas::WideString& replaceColoredToken_7 = ([&] {
+                auto dialogHighlightColorTag_6 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                 pas::WideString intToStr_6 = pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->HillExplored);
                 pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormPlanetNO.Complate"_wref.get());
-                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_7), u"<val>"_w, std::move(intToStr_6), u"<color=0,50,200>"_w);
+                return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_7), u"<val>"_w, std::move(intToStr_6), dialogHighlightColorTag_6.get());
             }());
             GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"HillComplate"sv));
             cpp_arg_9->SetText(replaceColoredToken_7);
@@ -1080,9 +1087,10 @@ namespace fPlanetNO {
             if (WaterTimeLeft->Active) {
                 WaterRate = std::min<std::int32_t>(999, MathImports::Ceil(pas::real_divide(aPlayer::GetPlayer()->CurrentPlanet->WaterTiles - aPlayer::GetPlayer()->CurrentPlanet->WaterExplored, WaterRate)));
                 WaterTimeLeft->SetText(([&] {
+                    auto dialogHighlightColorTag_7 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                     pas::WideString intToStr_7 = pas::wide_int_to_str(WaterRate);
                     pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormPlanetNO.TimeLeft"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_8), u"<val>"_w, std::move(intToStr_7), u"<color=0,50,200>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_8), u"<val>"_w, std::move(intToStr_7), dialogHighlightColorTag_7.get());
                 }()));
             }
         }
@@ -1092,9 +1100,10 @@ namespace fPlanetNO {
             if (LandTimeLeft->Active) {
                 LandRate = std::min<std::int32_t>(999, MathImports::Ceil(pas::real_divide(aPlayer::GetPlayer()->CurrentPlanet->LandTiles - aPlayer::GetPlayer()->CurrentPlanet->LandExplored, LandRate)));
                 LandTimeLeft->SetText(([&] {
+                    auto dialogHighlightColorTag_8 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                     pas::WideString intToStr_8 = pas::wide_int_to_str(LandRate);
                     pas::WideString localizedColorText_9 = aConst::LocalizedColorText(u"FormPlanetNO.TimeLeft"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_9), u"<val>"_w, std::move(intToStr_8), u"<color=0,50,200>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_9), u"<val>"_w, std::move(intToStr_8), dialogHighlightColorTag_8.get());
                 }()));
             }
         }
@@ -1104,9 +1113,10 @@ namespace fPlanetNO {
             if (HillTimeLeft->Active) {
                 HillRate = std::min<std::int32_t>(999, MathImports::Ceil(pas::real_divide(aPlayer::GetPlayer()->CurrentPlanet->HillTiles - aPlayer::GetPlayer()->CurrentPlanet->HillExplored, HillRate)));
                 HillTimeLeft->SetText(([&] {
+                    auto dialogHighlightColorTag_9 = pas::borrow(aMyFunction::DialogHighlightColorTag);
                     pas::WideString intToStr_9 = pas::wide_int_to_str(HillRate);
                     pas::WideString localizedColorText_10 = aConst::LocalizedColorText(u"FormPlanetNO.TimeLeft"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_10), u"<val>"_w, std::move(intToStr_9), u"<color=0,50,200>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_10), u"<val>"_w, std::move(intToStr_9), dialogHighlightColorTag_9.get());
                 }()));
             }
         }
@@ -1395,7 +1405,6 @@ namespace fPlanetNO {
         }
     }
 
-    // The explicit script receiver value preserves native argument evaluation order.
     // Borrows Item; nil schedules a delayed hide.
     void TfPlanetNO::UpdateItemInfoPopup(aItem::TItem* Item) {
         static const pas::Set<0, 255> DurableTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
@@ -1403,129 +1412,130 @@ namespace fPlanetNO {
         std::int32_t BarWidth{};
         std::int32_t CapWidth{};
         std::int32_t MinimumWidth{};
-        if (Item != HoveredItem) {
-            HoveredItem = Item;
-            if (Item == nullptr) {
-                if (ItemInfoHideTimer != nullptr) {
-                    CancelCallbackTimer(ItemInfoHideTimer);
-                    ItemInfoHideTimer = nullptr;
-                }
-                ItemInfoHideTimer = ScheduleCallbackTimer(300, 99999, pas::bind_method<&TfPlanetNO::HideItemInfoPopup>(this), 0);
-            } else {
-                if (ItemInfoHideTimer != nullptr) {
-                    CancelCallbackTimer(ItemInfoHideTimer);
-                    ItemInfoHideTimer = nullptr;
-                }
-                if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
-                    ShowGoodsInfoPopup(goods);
-                } else {
-                    if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
-                        if (Item->ScriptItem != nullptr) {
-                            reinterpret_cast<aScript::TScriptItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Item->ScriptItem)) + 0)))->RunActionCode(aConst::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
-                        }
-                        if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) {
-                            aScript::RunItemConfigActionCode(Item, aConst::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
-                        }
-                    }
-                    Equipment = pas::checked_cast<aItem::TEquipment*>(Item);
-                    ItemInfoWindow->SetActive(true);
-                    {
-                        GI_Image::TImageGI* cpp_with = ItemInfoImage;
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", Equipment->GetBitmapResourceName(), u"s"}));
-                        cpp_with->SetImageKindX(GI_Main::ikxCenter);
-                        cpp_with->SetImageKindY(GI_Main::ikyCenter);
-                        {
-                            Types::TPoint visualCenter = cpp_with->GetVisualCenter();
-                            Types::TPoint itemImageCenter = Globals::ShipScreen->ItemImageCenter;
-                            cpp_with->SetPosition(EC_Struct::SubtractPoints(itemImageCenter, visualCenter));
-                        }
-                    }
-                    {
-                        const pas::WideString& wrapTextInColor = ([&] {
-                            pas::WideString displayName = Equipment->GetDisplayName();
-                            pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                            return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag)));
-                        }());
-                        GI_Label::TLabelGI* itemInfoNameLabel = ItemInfoNameLabel;
-                        itemInfoNameLabel->SetText(wrapTextInColor);
-                    }
-                    {
-                        const pas::WideString& infoText = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, aPlayer::GetPlayer());
-                        GI_Label::TLabelGI* itemInfoTextLabel = ItemInfoTextLabel;
-                        itemInfoTextLabel->SetText(infoText);
-                    }
-                    ItemInfoSizeLabel->SetText(pas::wide_int_to_str(Equipment->Weight));
-                    ItemInfoCostLabel->SetText(pas::wide_int_to_str(Equipment->Cost));
-                    {
-                        GI_Image::TImageGI* cpp_with_2 = ItemInfoRaceIcon;
-                        cpp_with_2->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Equipment)));
-                        cpp_with_2->SetImageKindX(GI_Main::ikxCenter);
-                        cpp_with_2->SetImageKindY(GI_Main::ikyCenter);
-                    }
-                    if (static_cast<std::uint8_t>(pas::contains(DurableTypes, static_cast<std::uint8_t>(Equipment->ItemType)) ^ 1) && Equipment->ItemType != aConst::t_Hull) {
-                        {
-                            GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
-                            InfoDurable->Parent->Parent->SetActive(false);
-                        }
-                        MinimumWidth = 0;
-                    } else {
-                        if (pas::class_cast_if<aItem::THull*>(Equipment) != nullptr) {
-                            float real_max = pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-                            BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Equipment->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
-                        } else {
-                            BarWidth = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
-                        }
-                        BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
-                        {
-                            GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
-                            CapWidth = InfoDurableLeft->GetContentSize().X;
-                            MinimumWidth = 2 * CapWidth + BarWidth + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + 2 * InfoDurableLeft->Parent->Parent->LocalPosition.X;
-                        }
-                        {
-                            GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
-                            InfoDurable_2->Parent->Parent->SetActive(true);
-                            InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(2 * CapWidth + BarWidth, InfoDurable_2->Parent->Parent->ClientSize.Y));
-                            InfoDurable_2->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
-                            if (Equipment->ItemType == aConst::t_Hull) {
-                                pas::Extended cpp_left_2 = pas::checked_cast<aItem::THull*>(Equipment)->HullPoints;
-                                std::int64_t cpp_left = System::Round(pas::real_divide(cpp_left_2, pas::checked_cast<aItem::THull*>(Equipment)->Weight) * BarWidth);
-                                std::int32_t cpp_arg = cpp_left - (InfoDurable_2->GetContentSize().X - 5);
-                                std::int32_t y = InfoDurable_2->LocalPosition.Y;
-                                InfoDurable_2->SetPosition(ClassesImports::Point(cpp_arg, y));
-                            } else {
-                                std::int64_t cpp_left_3 = System::Round(BarWidth * pas::real_divide(Equipment->ConditionPercent, 1.0E+2L));
-                                std::int32_t cpp_arg_2 = cpp_left_3 - (InfoDurable_2->GetContentSize().X - 5);
-                                std::int32_t y_2 = InfoDurable_2->LocalPosition.Y;
-                                InfoDurable_2->SetPosition(ClassesImports::Point(cpp_arg_2, y_2));
-                            }
-                        }
-                        {
-                            GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
-                            {
-                                std::int32_t cpp_arg_3 = BarWidth + CapWidth - InfoDurableRight->GetContentSize().X;
-                                std::int32_t y_3 = InfoDurableRight->LocalPosition.Y;
-                                InfoDurableRight->SetPosition(ClassesImports::Point(cpp_arg_3, y_3));
-                            }
-                            InfoDurableRight->Parent->SetPosition(ClassesImports::Point(CapWidth, InfoDurableRight->Parent->LocalPosition.Y));
-                            InfoDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableRight->Parent->ClientSize.Y));
-                        }
-                        {
-                            GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
-                            {
-                                std::int32_t cpp_arg_4 = BarWidth + 1 - InfoDurableBack->GetContentSize().X;
-                                std::int32_t y_4 = InfoDurableBack->LocalPosition.Y;
-                                InfoDurableBack->SetPosition(ClassesImports::Point(cpp_arg_4, y_4));
-                            }
-                            InfoDurableBack->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableBack->Parent->ClientSize.Y));
-                        }
-                    }
-                    fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, ItemInfoNameLabel, ItemInfoTextLabel, true, true, MinimumWidth);
-                    ItemInfoSizeLabel->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
-                    ItemInfoCostLabel->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
-                    ItemInfoRaceIcon->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
-                }
+        if (Item == HoveredItem) {
+            return;
+        }
+        HoveredItem = Item;
+        if (Item == nullptr) {
+            if (ItemInfoHideTimer != nullptr) {
+                CancelCallbackTimer(ItemInfoHideTimer);
+                ItemInfoHideTimer = nullptr;
+            }
+            ItemInfoHideTimer = ScheduleCallbackTimer(300, 99999, pas::bind_method<&TfPlanetNO::HideItemInfoPopup>(this), 0);
+            return;
+        }
+        if (ItemInfoHideTimer != nullptr) {
+            CancelCallbackTimer(ItemInfoHideTimer);
+            ItemInfoHideTimer = nullptr;
+        }
+        if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
+            ShowGoodsInfoPopup(goods);
+            return;
+        }
+        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
+            if (Item->ScriptItem != nullptr) {
+                reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
+            }
+            if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) {
+                aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
             }
         }
+        Equipment = pas::checked_cast<aItem::TEquipment*>(Item);
+        ItemInfoWindow->SetActive(true);
+        {
+            GI_Image::TImageGI* cpp_with = ItemInfoImage;
+            cpp_with->SetImagePath(pas::concat_wide({u"GI,", Equipment->GetBitmapResourceName(), u"s"}));
+            cpp_with->SetImageKindX(GI_Main::ikxCenter);
+            cpp_with->SetImageKindY(GI_Main::ikyCenter);
+            {
+                Types::TPoint visualCenter = cpp_with->GetVisualCenter();
+                Types::TPoint itemImageCenter = Globals::ShipScreen->ItemImageCenter;
+                cpp_with->SetPosition(EC_Struct::SubtractPoints(itemImageCenter, visualCenter));
+            }
+        }
+        {
+            const pas::WideString& wrapTextInColor = ([&] {
+                pas::WideString displayName = Equipment->GetDisplayName();
+                pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
+                return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag)));
+            }());
+            GI_Label::TLabelGI* itemInfoNameLabel = ItemInfoNameLabel;
+            itemInfoNameLabel->SetText(wrapTextInColor);
+        }
+        {
+            const pas::WideString& infoText = Equipment->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, aPlayer::GetPlayer());
+            GI_Label::TLabelGI* itemInfoTextLabel = ItemInfoTextLabel;
+            itemInfoTextLabel->SetText(infoText);
+        }
+        ItemInfoSizeLabel->SetText(pas::wide_int_to_str(Equipment->Weight));
+        ItemInfoCostLabel->SetText(pas::wide_int_to_str(Equipment->Cost));
+        {
+            GI_Image::TImageGI* cpp_with_2 = ItemInfoRaceIcon;
+            cpp_with_2->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Equipment)));
+            cpp_with_2->SetImageKindX(GI_Main::ikxCenter);
+            cpp_with_2->SetImageKindY(GI_Main::ikyCenter);
+        }
+        if (static_cast<std::uint8_t>(pas::contains(DurableTypes, static_cast<std::uint8_t>(Equipment->ItemType)) ^ 1) && Equipment->ItemType != aConst::t_Hull) {
+            {
+                GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
+                InfoDurable->Parent->Parent->SetActive(false);
+            }
+            MinimumWidth = 0;
+        } else {
+            if (pas::class_cast_if<aItem::THull*>(Equipment) != nullptr) {
+                float real_max = pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
+                BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Equipment->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
+            } else {
+                BarWidth = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, Equipment->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
+            }
+            BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
+            {
+                GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
+                CapWidth = InfoDurableLeft->GetContentSize().X;
+                MinimumWidth = 2 * CapWidth + BarWidth + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + 2 * InfoDurableLeft->Parent->Parent->LocalPosition.X;
+            }
+            {
+                GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
+                InfoDurable_2->Parent->Parent->SetActive(true);
+                InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(2 * CapWidth + BarWidth, InfoDurable_2->Parent->Parent->ClientSize.Y));
+                InfoDurable_2->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
+                if (Equipment->ItemType == aConst::t_Hull) {
+                    pas::Extended cpp_left_2 = pas::checked_cast<aItem::THull*>(Equipment)->HullPoints;
+                    std::int64_t cpp_left = System::Round(pas::real_divide(cpp_left_2, pas::checked_cast<aItem::THull*>(Equipment)->Weight) * BarWidth);
+                    std::int32_t cpp_arg = cpp_left - (InfoDurable_2->GetContentSize().X - 5);
+                    std::int32_t y = InfoDurable_2->LocalPosition.Y;
+                    InfoDurable_2->SetPosition(ClassesImports::Point(cpp_arg, y));
+                } else {
+                    std::int64_t cpp_left_3 = System::Round(BarWidth * pas::real_divide(Equipment->ConditionPercent, 1.0E+2L));
+                    std::int32_t cpp_arg_2 = cpp_left_3 - (InfoDurable_2->GetContentSize().X - 5);
+                    std::int32_t y_2 = InfoDurable_2->LocalPosition.Y;
+                    InfoDurable_2->SetPosition(ClassesImports::Point(cpp_arg_2, y_2));
+                }
+            }
+            {
+                GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
+                {
+                    std::int32_t cpp_arg_3 = BarWidth + CapWidth - InfoDurableRight->GetContentSize().X;
+                    std::int32_t y_3 = InfoDurableRight->LocalPosition.Y;
+                    InfoDurableRight->SetPosition(ClassesImports::Point(cpp_arg_3, y_3));
+                }
+                InfoDurableRight->Parent->SetPosition(ClassesImports::Point(CapWidth, InfoDurableRight->Parent->LocalPosition.Y));
+                InfoDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableRight->Parent->ClientSize.Y));
+            }
+            {
+                GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
+                {
+                    std::int32_t cpp_arg_4 = BarWidth + 1 - InfoDurableBack->GetContentSize().X;
+                    std::int32_t y_4 = InfoDurableBack->LocalPosition.Y;
+                    InfoDurableBack->SetPosition(ClassesImports::Point(cpp_arg_4, y_4));
+                }
+                InfoDurableBack->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoDurableBack->Parent->ClientSize.Y));
+            }
+        }
+        fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, ItemInfoNameLabel, ItemInfoTextLabel, true, true, MinimumWidth);
+        ItemInfoSizeLabel->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
+        ItemInfoCostLabel->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
+        ItemInfoRaceIcon->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
     }
 
     void TfPlanetNO::ShowGoodsInfoPopup(aItem::TGoods* Item) {

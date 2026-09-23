@@ -70,9 +70,12 @@ namespace NoSteamAchievemens {
                     Size = Buffer->DataSize;
                     for (auto cpp_range = pas::for_to<std::int32_t>(8, Size - 1); cpp_range.next(Index); ) {
                         *Cursor = *Cursor ^ static_cast<std::uint8_t>(Seed - 1);
-                        Seed = 16807 * (Seed % 127773) - 2836 * (Seed / 127773);
+                        {
+                            std::int32_t cpp_left_4 = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
+                            Seed = cpp_left_4 - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
+                        }
                         if (Seed <= 0) {
-                            Seed += 0x7fffffff;
+                            Seed += EC_Buf::SeedRngModulus;
                         }
                         Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
                     }
@@ -183,9 +186,12 @@ namespace NoSteamAchievemens {
         Cursor = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(8, Size - 1); cpp_range_3.next(Index); ) {
             *Cursor = *Cursor ^ static_cast<std::uint8_t>(Seed - 1);
-            Seed = 16807 * (Seed % 127773) - 2836 * (Seed / 127773);
+            {
+                std::int32_t cpp_left = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
+                Seed = cpp_left - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
+            }
             if (Seed <= 0) {
-                Seed += 0x7fffffff;
+                Seed += EC_Buf::SeedRngModulus;
             }
             Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
         }
@@ -204,7 +210,11 @@ namespace NoSteamAchievemens {
         pas::WideString ImagePath{};
         if (PopUp::PopupController != nullptr) {
             Text = aConst::LocalizedColorText(u"Achievements.AchievementReceived"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Achievement>"_w, aConst::LocalizedColorText(pas::concat_wide({u"Achievements.", Block->GetParam(u"Id"sv), u".Name"})), u"<color=0,71,234>"_w);
+            {
+                auto brightBlueColorTag = pas::borrow(aMyFunction::BrightBlueColorTag);
+                pas::WideString localizedColorText = aConst::LocalizedColorText(pas::concat_wide({u"Achievements.", Block->GetParam(u"Id"sv), u".Name"}));
+                aMyFunction::ReplaceTextToken(Text, u"<Achievement>"_w, std::move(localizedColorText), brightBlueColorTag.get());
+            }
             ImagePath = pas::concat_wide({u"GI,Bm.FormAchievements.Img.", Block->GetParam(u"Id"sv)});
             PopUp::PopupController->QueueNotification(Text, ImagePath);
         }

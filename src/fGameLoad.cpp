@@ -157,7 +157,7 @@ namespace fGameLoad {
                     }()) == GI_MessageBox::mbgResultOK) {
                         Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
                         Block->AddParam(u"CurrentMod"_wref.get(), GR_Main::LoadedSaveModSet);
-                        Block->SaveTextFile(pas::literal_pointer(u"Mods\\ModCFG.txt"), true, false);
+                        Block->SaveTextFile(GR_Main::ModSelectionConfigPath.pchar(), true, false);
                         pas::free(Block);
                         GlobalsV::RequestedScreenId = GlobalsV::screenNone;
                         GlobalsV::PostLoadScreenId = GlobalsV::screenGameLoad;

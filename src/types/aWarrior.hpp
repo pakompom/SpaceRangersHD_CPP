@@ -36,6 +36,12 @@ namespace aShip {
 namespace aWarrior {
     struct TWarrior;
 
+    // BuyWarrior / BuyFlagship and GetDefaultHullType distinguish these subtypes.
+    enum TWarriorType : std::uint8_t {
+        wtRegular = 0,
+        wtFlagship = 1,
+    };
+
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -43,7 +49,7 @@ namespace aWarrior {
         PAS_CLASS_META(TWarrior, aNormalShip::TNormalShip, "TWarrior", 1300)
         void p_destroy() override;
         // Sets location, money and WarriorType; registers the ship with its star and home garrison.
-        void InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::uint8_t Kind);
+        void InitGenerated(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, TWarriorType Kind);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void virtual_TShip_NextDay() override;
@@ -57,7 +63,7 @@ namespace aWarrior {
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         pas::WideString GetTypeNameKey() override;
-        std::uint8_t GetGreetingShipCategory() override;
+        aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() override;
         // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
@@ -101,16 +107,11 @@ namespace aWarrior {
         std::uint8_t AcceptPickupDistance(aItem::TItem* Item, double Distance) override;
         void virtual_TShip_RefreshCurrentStanding() override;
         // wtRegular / wtFlagship; exposed as Script.ShipSubType.
-        std::uint8_t WarriorType;
+        TWarriorType WarriorType;
         std::uint8_t cpp_padding[3];
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
     #endif
-
-    // BuyWarrior / BuyFlagship and GetDefaultHullType distinguish these subtypes.
-    inline constexpr std::int32_t wtRegular = 0;
-
-    inline constexpr std::int32_t wtFlagship = 1;
 
 } // namespace aWarrior

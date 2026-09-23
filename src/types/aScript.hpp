@@ -293,7 +293,7 @@ namespace aScript {
         // Requires nonempty OnActionText and an empty ActionCode slot.
         void CompileActionCode();
         // Returns the event parameter after script changes. Object slots can carry event-specific integers.
-        std::int32_t RunActionCode(std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+        std::int32_t RunActionCode(aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
         pas::WideString FormatDataText(pas::WideString Text, pas::WideString ColorTag);
         pas::WideString Name;
         // Group index, planet, or place variable.
@@ -411,7 +411,7 @@ namespace aScript {
         void p_destroy() override;
         TScriptGroup* GetGroup();
         // Returns the event parameter after script changes. Object slots can carry event-specific integers.
-        std::int32_t RunActionCode(std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+        std::int32_t RunActionCode(aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
         TScript* Script;
         std::int32_t GroupIndex;
         // Borrowed; destruction invalidates the backlink.
@@ -552,7 +552,7 @@ namespace aScript {
     };
     #pragma pack(pop)
 
-    using TScriptShipTypeMask = pas::Set<0, 15>;
+    using TScriptShipTypeMask = pas::Set<0, 10>;
 
     using TScriptDominatorMasks = pas::Array<aGalaxyStruct::TDominatorSeriesMask, 0, 7>;
 

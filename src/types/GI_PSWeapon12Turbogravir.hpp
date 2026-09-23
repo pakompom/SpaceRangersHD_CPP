@@ -78,7 +78,7 @@ namespace GI_PSWeapon12Turbogravir {
         EC_Struct::TPointF FloatVelocity;
         std::uint8_t State;
         std::uint8_t cpp_padding_2[1];
-        // Initialized to 30000; unused by native update.
+        // Set to 30000; unused. Possibly a lifetime counter.
         std::uint16_t Unknown2E;
         std::int32_t Radius;
     };

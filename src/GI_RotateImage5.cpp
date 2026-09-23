@@ -3,12 +3,14 @@
 #include "types/GR_DX.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aMyFunction.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/Direct3D9.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_CacheHSAI.hpp"
 #include "units/EC_CacheRotateBuf.hpp"
 #include "units/EC_Mem.hpp"
+#include "units/EC_Struct.hpp"
 #include "units/GI_Main.hpp"
 #include "units/GI_MessageLoop.hpp"
 #include "units/GI_RotateImage5.hpp"
@@ -140,10 +142,10 @@ namespace GI_RotateImage5 {
             } catch (...) {
                 pas::raise(pas::make_exception<pas::Exception>("Error in TRotateImage5GI.SetImage"_a));
             }
-            Radius = pas::sqr(Pivot.X - 0) + pas::sqr(Pivot.Y - 0);
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - ImageSize.X) + pas::sqr(Pivot.Y - ImageSize.Y)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - ImageSize.X) + pas::sqr(Pivot.Y - 0)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - 0) + pas::sqr(Pivot.Y - ImageSize.Y)));
+            Radius = EC_Struct::SquaredDistanceToPoint(Pivot, 0, 0);
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, ImageSize.Y)));
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, 0)));
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, 0, ImageSize.Y)));
             Radius = MathImports::Floor(System::Sqrt(Radius) * 2.0L + 2.0L);
             {
                 std::int32_t trunc = System::Trunc(Radius);
@@ -161,7 +163,7 @@ namespace GI_RotateImage5 {
             CenterX = pas::real_divide(ClientSize.X, 2.0L);
             CenterY = pas::real_divide(ClientSize.Y, 2.0L);
             for (I = 0; I <= 255; ++I) {
-                Radians = pas::real_divide(pas::real_divide(I, 256.0L) * 3.6E+2L * 3.1415926L, 1.8E+2L);
+                Radians = pas::real_divide(pas::real_divide(I, 256.0L) * 3.6E+2L * aMyFunction::GamePi, 1.8E+2L);
                 C = System::Cos(Radians);
                 S = System::Sin(Radians);
                 TopLeftX[I] = static_cast<long double>(System::Trunc(static_cast<long double>(LeftX) * C - static_cast<long double>(TopY) * S)) + CenterX;
@@ -325,7 +327,7 @@ namespace GI_RotateImage5 {
                     }
                 }
             }
-            Vertices[0].Color = static_cast<std::uint32_t>(Alpha) << 24 | 0x00ffffff;
+            Vertices[0].Color = static_cast<std::uint32_t>(Alpha) << 24 | GR_DX::RgbWhite;
             Vertices[1].Color = Vertices[0].Color;
             Vertices[2].Color = Vertices[0].Color;
             Vertices[3].Color = Vertices[0].Color;

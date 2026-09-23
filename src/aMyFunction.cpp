@@ -10,10 +10,56 @@
 #include "units/aMyFunction.hpp"
 
 namespace aMyFunction {
-    // Configured by GI_Main from StyleColor.InfoNameColor / InfoHullSeriesColor.
-    pas::WideString InfoNameColorTag = u"<color=57,239,255>"_w;
+    // Complete markup tags. Keep these untyped so they remain string literals.
+    // Dialogs remap the standard highlight and equipment colors for light panels.
+    const pas::WideString TextHighlightColorTag = u"<color=255,240,100>"_w;
 
-    pas::WideString InfoHullSeriesColorTag = u"<color=82,166,255>"_w;
+    const pas::WideString DialogHighlightColorTag = u"<color=0,50,200>"_w;
+
+    const pas::WideString EquipmentBonusColorTag = u"<color=255,167,84>"_w;
+
+    const pas::WideString DialogEquipmentBonusColorTag = u"<color=240,100,30>"_w;
+
+    const pas::WideString DialogGreenColorTag = u"<color=0,130,0>"_w;
+
+    const pas::WideString EndColorTag = u"</color>"_w;
+
+    // Shared palette; the same colors serve several unrelated display roles.
+    // Exact spelling matters to ReplaceAllWideString; padded RGB tags differ.
+    const pas::WideString RedColorTag = u"<color=255,0,0>"_w;
+
+    const pas::WideString GreenColorTag = u"<color=0,255,0>"_w;
+
+    const pas::WideString GrayColorTag = u"<color=127,127,127>"_w;
+
+    const pas::WideString YellowColorTag = u"<color=255,255,0>"_w;
+
+    const pas::WideString BlackColorTag = u"<color=0,0,0>"_w;
+
+    const pas::WideString MagentaColorTag = u"<color=255,0,255>"_w;
+
+    const pas::WideString CyanColorTag = u"<color=0,255,255>"_w;
+
+    const pas::WideString OrangeColorTag = u"<color=255,166,0>"_w;
+
+    const pas::WideString GoldColorTag = u"<color=254,217,7>"_w;
+
+    const pas::WideString AzureColorTag = u"<color=0,128,255>"_w;
+
+    const pas::WideString DarkGreenColorTag = u"<color=45,105,45>"_w;
+
+    const pas::WideString BrightBlueColorTag = u"<color=0,71,234>"_w;
+
+    const pas::WideString MicroModuleHighPriorityColorTag = u"<color=17,139,255>"_w;
+
+    const pas::WideString DefaultInfoNameColorTag = u"<color=57,239,255>"_w;
+
+    const pas::WideString DefaultInfoHullSeriesColorTag = u"<color=82,166,255>"_w;
+
+    // Configured by GI_Main from StyleColor.InfoNameColor / InfoHullSeriesColor.
+    pas::WideString InfoNameColorTag = aMyFunction::DefaultInfoNameColorTag;
+
+    pas::WideString InfoHullSeriesColorTag = aMyFunction::DefaultInfoHullSeriesColorTag;
 
     const float PolarDegreesToRadians = 0.017453292f;
 
@@ -43,26 +89,26 @@ namespace aMyFunction {
 
     // One of 1000 discrete values from 0.001 through 1.0 inclusive.
     float RandomUnitFloat() {
-        return pas::real_divide(aMyFunction::RandomIntRange(1, 1000), 1.0E+3L);
+        return pas::real_divide(aMyFunction::RandomIntRange(1, RandomFloatResolution), pas::constant(static_cast<long double>(RandomFloatResolution)));
     }
 
     // Chaotic mode ignores Seed.
     float SeededRandomUnitFloat(std::uint32_t Seed) {
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(1, 1000, Seed), 1.0E+3L);
+        return pas::real_divide(aMyFunction::SeededRandomIntRange(1, RandomFloatResolution, Seed), pas::constant(static_cast<long double>(RandomFloatResolution)));
     }
 
     // Endpoints are quantized as Trunc(bound*1000+1)/1000; results have 0.001 resolution.
     double RandomFloatRange(double BoundA, double BoundB) {
-        std::int32_t trunc = System::Trunc(BoundB * 1.0E+3L + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * 1.0E+3L + 1.0L);
-        return pas::real_divide(aMyFunction::RandomIntRange(trunc_2, trunc), 1.0E+3L);
+        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
+        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
+        return pas::real_divide(aMyFunction::RandomIntRange(trunc_2, trunc), pas::constant(static_cast<long double>(RandomFloatResolution)));
     }
 
     // Uses RandomFloatRange's endpoint quantization; chaotic mode ignores Seed.
     double SeededRandomFloatRange(std::uint32_t Seed, double BoundA, double BoundB) {
-        std::int32_t trunc = System::Trunc(BoundB * 1.0E+3L + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * 1.0E+3L + 1.0L);
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, Seed), 1.0E+3L);
+        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
+        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
+        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, Seed), pas::constant(static_cast<long double>(RandomFloatResolution)));
     }
 
     std::uint32_t StepRandomSeed(std::uint32_t Seed) {
@@ -105,9 +151,9 @@ namespace aMyFunction {
         if (Seed == OldSeed) {
             Seed = Seed * 6281 + 317 + Seed / 7311;
         }
-        std::int32_t trunc = System::Trunc(BoundB * 1.0E+3L + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * 1.0E+3L + 1.0L);
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, Seed), 1.0E+3L);
+        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
+        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
+        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, Seed), pas::constant(static_cast<long double>(RandomFloatResolution)));
     }
 
     // Normally in [0,1). Chaotic mode leaves Seed unchanged and instead yields 0.001..1.001.
@@ -152,7 +198,7 @@ namespace aMyFunction {
 
     // Adds 360 only once for negative angles; does not fully normalize arbitrary inputs.
     double RadiansToHeadingDegrees(double Angle) {
-        double Result = Angle * 57.29578049044296832L;
+        double Result = Angle * pas::constant(1.8E+2L / GamePi);
         if (Result < 0.0L) {
             return 3.6E+2L + Result;
         }
@@ -164,7 +210,7 @@ namespace aMyFunction {
         if (Angle > 1.8E+2L) {
             Angle = Angle - 3.6E+2L;
         }
-        return Angle * 0.017453292222222222223L;
+        return Angle * pas::constant(GamePi / 1.8E+2L);
     }
 
     // Bearing from A to B: zero points upward and angles increase clockwise in screen coordinates.
@@ -203,21 +249,21 @@ namespace aMyFunction {
     // case-sensitive and append </color> even when the replacement text is empty.
     void ReplaceTextToken(pas::WideString& Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag) {
         if (ColorTag != u"") {
-            Replacement = pas::concat_wide({ColorTag, Replacement, u"</color>"});
+            Replacement = pas::concat_wide({ColorTag, Replacement, EndColorTag});
         }
         Text = EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
 
     pas::WideString ReplaceColoredToken(pas::WideString Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag) {
         if (ColorTag != u"") {
-            Replacement = pas::concat_wide({ColorTag, Replacement, u"</color>"});
+            Replacement = pas::concat_wide({ColorTag, Replacement, EndColorTag});
         }
         return EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
 
     pas::WideString FormatText1(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token, pas::WideString Replacement) {
         if (ColorTag != u"") {
-            Replacement = pas::concat_wide({ColorTag, Replacement, u"</color>"});
+            Replacement = pas::concat_wide({ColorTag, Replacement, EndColorTag});
         }
         return EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
@@ -225,17 +271,17 @@ namespace aMyFunction {
     // Multiple replacements run in order, including matches in text inserted earlier.
     pas::WideString FormatText2(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2) {
         if (ColorTag != u"") {
-            Replacement1 = pas::concat_wide({ColorTag, Replacement1, u"</color>"});
-            Replacement2 = pas::concat_wide({ColorTag, Replacement2, u"</color>"});
+            Replacement1 = pas::concat_wide({ColorTag, Replacement1, EndColorTag});
+            Replacement2 = pas::concat_wide({ColorTag, Replacement2, EndColorTag});
         }
         return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2, pas::view(Replacement2));
     }
 
     pas::WideString FormatText3(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2, pas::WideString Token3, pas::WideString Replacement3) {
         if (ColorTag != u"") {
-            Replacement1 = pas::concat_wide({ColorTag, Replacement1, u"</color>"});
-            Replacement2 = pas::concat_wide({ColorTag, Replacement2, u"</color>"});
-            Replacement3 = pas::concat_wide({ColorTag, Replacement3, u"</color>"});
+            Replacement1 = pas::concat_wide({ColorTag, Replacement1, EndColorTag});
+            Replacement2 = pas::concat_wide({ColorTag, Replacement2, EndColorTag});
+            Replacement3 = pas::concat_wide({ColorTag, Replacement3, EndColorTag});
         }
         return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2, pas::view(Replacement2)), Token3, pas::view(Replacement3));
     }
@@ -243,7 +289,7 @@ namespace aMyFunction {
     // Returns Text unchanged when either argument is empty.
     pas::WideString WrapTextInColor(const std::u16string_view& Text, const std::u16string_view& ColorTag) {
         if (ColorTag != u""sv && Text != u""sv) {
-            return pas::concat_wide({ColorTag, Text, u"</color>"});
+            return pas::concat_wide({ColorTag, Text, EndColorTag});
         }
         return pas::WideString(Text);
     }
@@ -547,12 +593,12 @@ namespace aMyFunction {
 
     pas::WideString NormalizeTextHighlightColors(pas::WideString Text) {
         pas::WideString Result{};
-        Result = aMyFunction::FormatText1(Text, pas::WideString(), u"<color=17,139,255>"_w, u"<color=255,240,100>"_w);
-        Result = aMyFunction::FormatText1(Result, pas::WideString(), u"<color=127,127,127>"_w, u"<color=255,240,100>"_w);
-        Result = aMyFunction::FormatText1(Result, pas::WideString(), u"<color=191,185,128>"_w, u"<color=255,240,100>"_w);
-        Result = aMyFunction::FormatText1(Result, pas::WideString(), InfoNameColorTag, u"<color=255,240,100>"_w);
-        Result = aMyFunction::FormatText1(Result, pas::WideString(), u"<color=39,172,177>"_w, u"<color=255,240,100>"_w);
-        return aMyFunction::FormatText1(Result, pas::WideString(), InfoHullSeriesColorTag, u"<color=255,240,100>"_w);
+        Result = aMyFunction::FormatText1(Text, pas::WideString(), MicroModuleHighPriorityColorTag, TextHighlightColorTag);
+        Result = aMyFunction::FormatText1(Result, pas::WideString(), GrayColorTag, TextHighlightColorTag);
+        Result = aMyFunction::FormatText1(Result, pas::WideString(), u"<color=191,185,128>"_w, TextHighlightColorTag);
+        Result = aMyFunction::FormatText1(Result, pas::WideString(), InfoNameColorTag, TextHighlightColorTag);
+        Result = aMyFunction::FormatText1(Result, pas::WideString(), u"<color=39,172,177>"_w, TextHighlightColorTag);
+        return aMyFunction::FormatText1(Result, pas::WideString(), InfoHullSeriesColorTag, TextHighlightColorTag);
     }
 
     void TObjectList_Destroy(TObjectList* Self) {

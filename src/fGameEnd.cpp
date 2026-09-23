@@ -396,7 +396,7 @@ namespace fGameEnd {
                                 return aConst::PickLocalizedTextVariant(cpp_arg_4, cpp_arg_3);
                             }());
                         }
-                        aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
                     } else {
                         aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, pas::WideString(), pas::WideString());
                     }
@@ -427,13 +427,17 @@ namespace fGameEnd {
         if (Globals::LastLoadedPlayerName == u"") {
             Globals::LastLoadedPlayerName = u"GPlayerName='"_w;
         }
-        aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, Globals::LastLoadedPlayerName, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, aGalaxy::FormatGameTurnDate(aGalaxy::Galaxy->CurrentTurn), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, Globals::LastLoadedPlayerName, aMyFunction::TextHighlightColorTag);
+        {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(aGalaxy::Galaxy->CurrentTurn);
+            aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatGameTurnDate), textHighlightColorTag.get());
+        }
         if (EC_Str::FindTextOffsetW(Text, u"<Money>"_wref.get(), 0) >= 0) {
             if (aConst::LastMedicalPolicyTicks == 0) {
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, u"10.000"_w, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, u"10.000"_w, aMyFunction::TextHighlightColorTag);
             } else {
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, u"20.000"_w, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, u"20.000"_w, aMyFunction::TextHighlightColorTag);
                 Achievements::TryUnlockAchievement(u"INSURANCE"_w);
             }
         }

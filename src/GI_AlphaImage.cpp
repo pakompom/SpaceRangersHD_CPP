@@ -286,7 +286,7 @@ namespace GI_AlphaImage {
                 while (Y < Bottom) {
                     X = Left;
                     while (X < Right) {
-                        GR_DX::DrawTexture((Bitmap->GetTexture(cpp_result), cpp_result), X, Y, 255, 0x00ffffffu, &ClipRect, false, false);
+                        GR_DX::DrawTexture((Bitmap->GetTexture(cpp_result), cpp_result), X, Y, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                         X += Width;
                     }
                     Y += Height;

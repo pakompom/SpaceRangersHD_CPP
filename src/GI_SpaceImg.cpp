@@ -161,7 +161,7 @@ namespace GI_SpaceImg {
                 }
             }
             if (Image->OrbitRadius != 0.0L && Image->OrbitStepDegrees != 0.0L) {
-                Image->OrbitAngleRadians = 0.017453292222222222223L * Image->OrbitStepDegrees + Image->OrbitAngleRadians;
+                Image->OrbitAngleRadians = pas::constant(aMyFunction::GamePi / 1.8E+2L) * Image->OrbitStepDegrees + Image->OrbitAngleRadians;
                 Image->X = System::Sin(Image->OrbitAngleRadians) * Image->OrbitRadius + Image->OrbitCenter.X;
                 Image->Y = Image->OrbitCenter.Y - System::Cos(Image->OrbitAngleRadians) * Image->OrbitRadius;
             }
@@ -274,7 +274,7 @@ namespace GI_SpaceImg {
                                 pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(Data->GetSequenceFrameIndex(0, Image->FrameIndex), cpp_result_2), cpp_result_2);
                                 std::int32_t cpp_arg = Bounds.Top + Origin.Y;
                                 std::int32_t cpp_arg_2 = Bounds.Left + Origin.X;
-                                GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                                GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                             }
                         } else {
                             Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Bounds.Left + Frame->GetBoundsRect().Left - Data->GetBoundsRect().Left, Bounds.Top + Frame->GetBoundsRect().Top - Data->GetBoundsRect().Top, ClipRect, 0, 255);

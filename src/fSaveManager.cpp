@@ -141,7 +141,7 @@ namespace fSaveManager {
         GetByName(u"CaptionLoad"sv)->SetActive(Globals::SaveManagerMode == smmLoad);
         GetByName(u"CaptionSave"sv)->SetActive(Globals::SaveManagerMode == smmSave);
         if (aSaveLoad::SaveWriter != nullptr && aSaveLoad::SaveWriter->IsRunning()) {
-            aSaveLoad::SaveWriter->WaitForIdle(0xffffffffu);
+            aSaveLoad::SaveWriter->WaitForIdle(WindowsSdk::INFINITE);
         }
         RebuildSlotControls();
         if (pas::list_count(Slots) <= 0) {

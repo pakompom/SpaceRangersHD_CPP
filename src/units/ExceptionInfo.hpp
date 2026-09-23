@@ -18,6 +18,8 @@ namespace ExceptionInfo {
 
     pas::WideString ByteToHexText(std::uint8_t Value);
 
+    char16_t HexDigitAt(std::uint8_t Value, std::int32_t Index);
+
     // Native initializer saves and replaces the RTL raise hook.
     void UnitInitialize();
 

@@ -229,12 +229,12 @@ namespace aKling {
         }
         CreateAndEquipFuelTanks(100, 8, aGalaxyStruct::oiDominator);
         CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon15, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon15].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon15, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon15].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon13, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon13].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon11, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon11].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_TorpedoTube, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_TorpedoTube].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_TorpedoTube, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_TorpedoTube].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_IMHO9000, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_IMHO9000].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_Disintegrator, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Disintegrator].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         if (aGalaxy::Galaxy->GetDifficultyTierIndex() > 0) {
-            CreateAndEquipWeapon(aConst::t_Weapon12, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon12].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+            CreateAndEquipWeapon(aConst::t_Turbogravitron, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Turbogravitron].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         }
         CreateAndEquipDefGenerator(System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         {
@@ -286,12 +286,12 @@ namespace aKling {
         }
         CreateAndEquipFuelTanks(100, 8, aGalaxyStruct::oiDominator);
         CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon15, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon15].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon14, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon14].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon13, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon13].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon9, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon9].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_TorpedoTube, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_TorpedoTube].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_Vertix, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Vertix].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_IMHO9000, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_IMHO9000].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_Multiresonator, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Multiresonator].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         if (aGalaxy::Galaxy->GetDifficultyTierIndex() > 0) {
-            CreateAndEquipWeapon(aConst::t_Weapon10, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon10].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+            CreateAndEquipWeapon(aConst::t_AtomicVision, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_AtomicVision].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         }
         CreateAndEquipDefGenerator(System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         {
@@ -365,16 +365,16 @@ namespace aKling {
         }
         CreateAndEquipFuelTanks(100, 8, aGalaxyStruct::oiDominator);
         CreateAndEquipEngine(System::Round(static_cast<long double>(aConst::EngineBaseSize) * aConst::EquipmentSizeFactors[1]), 8, aGalaxyStruct::oiDominator);
-        aItem::TWeapon* Weapon = CreateAndEquipWeapon(aConst::t_Weapon13, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon13].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        aItem::TWeapon* Weapon = CreateAndEquipWeapon(aConst::t_IMHO9000, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_IMHO9000].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         Weapon->Range += 5 * aGalaxy::Galaxy->GetEffectiveDifficultyLevel();
         Weapon->MaxDamage += aGalaxy::Galaxy->GetEffectiveDifficultyLevel() / 2;
-        CreateAndEquipWeapon(aConst::t_Weapon4, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        CreateAndEquipWeapon(aConst::t_Weapon4, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
-        Weapon = CreateAndEquipWeapon(aConst::t_Weapon9, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon9].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_MissileLauncher, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_MissileLauncher].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        CreateAndEquipWeapon(aConst::t_MissileLauncher, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_MissileLauncher].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+        Weapon = CreateAndEquipWeapon(aConst::t_Multiresonator, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Multiresonator].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         Weapon->Range += 5 * aGalaxy::Galaxy->GetEffectiveDifficultyLevel();
         Weapon->MaxDamage += aGalaxy::Galaxy->GetEffectiveDifficultyLevel() / 2;
         if (aGalaxy::Galaxy->GetDifficultyTierIndex() > 1) {
-            CreateAndEquipWeapon(aConst::t_Weapon15, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon15].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
+            CreateAndEquipWeapon(aConst::t_TorpedoTube, System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_TorpedoTube].AverageSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         }
         CreateAndEquipDefGenerator(System::Round(static_cast<long double>(aConst::DefGeneratorBaseSize) * aConst::EquipmentSizeFactors[5]), 8, aGalaxyStruct::oiDominator);
         {
@@ -467,7 +467,7 @@ namespace aKling {
         };
         InitializeDominator(Kind, Planet, Series);
         ControlPercent = aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfDominators);
-        std::int32_t Rating = System::Round(static_cast<long double>(125 * aGalaxy::Galaxy->GetEffectiveDifficultyLevel()) + aMyFunction::RemapClamped(aGalaxy::Galaxy->CurrentTurn, 3.0E+2, 2.22E+4, 0.0, 3.0E+3));
+        std::int32_t Rating = System::Round(static_cast<long double>(125 * aGalaxy::Galaxy->GetEffectiveDifficultyLevel()) + aMyFunction::RemapClamped(aGalaxy::Galaxy->CurrentTurn, pas::constant(static_cast<double>(aGalaxyStruct::GalaxyWarmupTurns)), 2.22E+4, 0.0, 3.0E+3));
         std::int32_t WarRating = -150 * aGalaxy::Galaxy->WarDeltaWin[1];
         std::int32_t DistanceRating = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
@@ -506,7 +506,7 @@ namespace aKling {
         }
         MinimumControl = 1;
         MaximumControl = DominatorGenerationTuning[Tier][1];
-        MiddleControl = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->CurrentTurn, 3.0E+2, 1.125E+4, MaximumControl / 4, 3 * MaximumControl / 4));
+        MiddleControl = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->CurrentTurn, pas::constant(static_cast<double>(aGalaxyStruct::GalaxyWarmupTurns)), 1.125E+4, MaximumControl / 4, 3 * MaximumControl / 4));
         ChameleonActive = false;
         GraphDominator = aGalaxy::Galaxy->GraphDominatorSurfacesEnabled;
         {
@@ -578,11 +578,11 @@ namespace aKling {
                 if (Attempts > 1000) {
                     break;
                 }
-                WeaponType = aConst::t_Weapon1;
+                WeaponType = aConst::t_IndustrialLaser;
                 Roll = aKling::RandomInteger(1, 100, this);
                 Chosen = false;
                 WeightSum = 0;
-                while (WeaponType <= aConst::t_Weapon15 && static_cast<std::uint8_t>(Chosen ^ 1)) {
+                while (WeaponType <= aConst::t_TorpedoTube && static_cast<std::uint8_t>(Chosen ^ 1)) {
                     WeightSum += DominatorWeaponWeights[Distribution][KlingType][WeaponType];
                     if (Roll <= WeightSum) {
                         MaximumSizeIndex = DominatorEquipmentSizeIndices[KlingType][0];
@@ -591,7 +591,7 @@ namespace aKling {
                             MaximumSizeIndex = 2;
                             MinimumSizeIndex = 1;
                         }
-                        Accepted = static_cast<std::uint8_t>(aGalaxy::Galaxy->AreDominatorRacialWeaponsEnabled() ^ 1) || (DominatorSeries != aGalaxyStruct::dsBlazer || static_cast<std::uint8_t>(pas::is_one_of<aConst::t_Weapon13, aConst::t_Weapon14>(WeaponType) ^ 1)) && (DominatorSeries != aGalaxyStruct::dsTerron || static_cast<std::uint8_t>(pas::is_one_of<aConst::t_Weapon14, aConst::t_Weapon15>(WeaponType) ^ 1)) && (DominatorSeries != aGalaxyStruct::dsKeller || static_cast<std::uint8_t>(pas::is_one_of<aConst::t_Weapon13, aConst::t_Weapon15>(WeaponType) ^ 1));
+                        Accepted = static_cast<std::uint8_t>(aGalaxy::Galaxy->AreDominatorRacialWeaponsEnabled() ^ 1) || (DominatorSeries != aGalaxyStruct::dsBlazer || static_cast<std::uint8_t>(pas::is_one_of<aConst::t_IMHO9000, aConst::t_Vertix>(WeaponType) ^ 1)) && (DominatorSeries != aGalaxyStruct::dsTerron || static_cast<std::uint8_t>(pas::is_one_of<aConst::t_Vertix, aConst::t_TorpedoTube>(WeaponType) ^ 1)) && (DominatorSeries != aGalaxyStruct::dsKeller || static_cast<std::uint8_t>(pas::is_one_of<aConst::t_IMHO9000, aConst::t_TorpedoTube>(WeaponType) ^ 1));
                         if (Accepted) {
                             std::uint8_t randomTuning_5 = RandomTuning(8, 9);
                             std::int32_t randomEquipmentSize = aKling::RandomEquipmentSize(aConst::WeaponInfos[WeaponType].AverageSize, MaximumSizeIndex, MinimumSizeIndex, this);
@@ -675,7 +675,7 @@ namespace aKling {
         Buffer->AddAnsiChar(static_cast<std::uint8_t>(KlingType));
         Buffer->AddAnsiChar(static_cast<std::uint8_t>(DominatorSeries));
         Buffer->AddIntegerValue(ActiveProgramAppliedTurn);
-        Buffer->AddAnsiChar(ActiveProgramId);
+        Buffer->AddAnsiChar(static_cast<std::uint8_t>(ActiveProgramId));
     }
 
     void TKling::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
@@ -683,7 +683,7 @@ namespace aKling {
         KlingType = static_cast<aGalaxyStruct::TKlingType>(EC_Buf::TBufEC_GetByte(Buffer));
         DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(EC_Buf::TBufEC_GetByte(Buffer));
         ActiveProgramAppliedTurn = EC_Buf::TBufEC_GetInt32(Buffer);
-        ActiveProgramId = EC_Buf::TBufEC_GetByte(Buffer);
+        ActiveProgramId = static_cast<aGalaxyStruct::TProgramIndex>(EC_Buf::TBufEC_GetByte(Buffer));
         if (GlobalsV::LoadedSaveVersion <= 147) {
             ClearRecentlyDroppedItems();
         }
@@ -759,7 +759,7 @@ namespace aKling {
                     Self->MoveToRandomPatrolPoint();
                     return;
                 }
-                if (Self->DominatorSeries == aGalaxyStruct::dsTerron && TerronShip != nullptr && static_cast<std::uint8_t>(Self->HasIndependentScriptFaction() ^ 1) && aGalaxy::Galaxy->TerronToStarTurn >= 0x40000000) {
+                if (Self->DominatorSeries == aGalaxyStruct::dsTerron && TerronShip != nullptr && static_cast<std::uint8_t>(Self->HasIndependentScriptFaction() ^ 1) && aGalaxy::Galaxy->TerronToStarTurn >= aGalaxyStruct::TerronTransformationFlag) {
                     if (Self->CurrentStar != TerronShip->CurrentStar) {
                         Self->OrderJump(TerronShip->CurrentStar, false);
                     } else {
@@ -773,7 +773,7 @@ namespace aKling {
                     if (Self->PartnerShip != nullptr && Self->PartnerShip->CurrentStar != Self->CurrentStar) {
                         Self->OrderJump(Self->PartnerShip->CurrentStar, true);
                     } else if (Self->PartnerShip != nullptr && Self->PartnerShip->InNormalSpace() && Self->PartnerShip->Order == aShip::soJump && Self->PartnerShip->EstimateOrderTravelTurns() <= 3) {
-                        Self->OrderFollowShip(Self->PartnerShip, 0, true);
+                        Self->OrderFollowShip(Self->PartnerShip, aShip::fmFollowNear, true);
                     } else if ((static_cast<std::uint8_t>(Self->OrderAbsolute ^ 1) || !(pas::class_cast_if<aShip::TShip*>(Self->OrderTarget) != nullptr)) && (!(pas::class_cast_if<aGalaxy::TStar*>(Self->OrderTarget) != nullptr) || Self->EstimateOrderTravelTurns() >= 3)) {
                         Stage = 4;
                         Self->SelectEnemyShipInStar();
@@ -800,7 +800,7 @@ namespace aKling {
                             if (Ship != nullptr) {
                                 if (System::Sqrt(pas::sqr(static_cast<pas::Extended>(Ship->Position.X)) + pas::sqr(static_cast<pas::Extended>(Ship->Position.Y))) > std::min<std::int32_t>(8 * Ship->Speed, 2 * Self->Speed)) {
                                     Stage = 12;
-                                    Self->OrderFollowShip(Ship, 1, false);
+                                    Self->OrderFollowShip(Ship, aShip::fmMinWeaponRange, false);
                                 }
                             }
                         }
@@ -844,7 +844,7 @@ namespace aKling {
                 }
                 Stage = 2;
                 AssignWeaponTargetsInStar();
-                if (DominatorSeries == aGalaxyStruct::dsTerron && TerronShip != nullptr && aGalaxy::Galaxy->TerronToStarTurn >= 0x40000000) {
+                if (DominatorSeries == aGalaxyStruct::dsTerron && TerronShip != nullptr && aGalaxy::Galaxy->TerronToStarTurn >= aGalaxyStruct::TerronTransformationFlag) {
                     if (CurrentStar != TerronShip->CurrentStar) {
                         OrderJump(TerronShip->CurrentStar, false);
                     } else {
@@ -1036,7 +1036,7 @@ namespace aKling {
         std::int32_t I{};
         aShip::TShip* Result = nullptr;
         std::uint32_t Count = 0u;
-        std::uint8_t PlayerIsBertor = aPlayer::GetPlayer()->CurrentStar == CurrentStar && aPlayer::GetPlayer()->InNormalSpace() && IsPlayerCamouflageEffective(aPlayer::GetPlayer()) && aPlayer::GetPlayer()->ChameleonActive && pas::in_range(aPlayer::GetPlayer()->ChameleonVisualType, 6, 6);
+        std::uint8_t PlayerIsBertor = aPlayer::GetPlayer()->CurrentStar == CurrentStar && aPlayer::GetPlayer()->InNormalSpace() && IsPlayerCamouflageEffective(aPlayer::GetPlayer()) && aPlayer::GetPlayer()->ChameleonActive && pas::in_range(aPlayer::GetPlayer()->ChameleonVisualType, static_cast<std::int32_t>(aGalaxyStruct::ktBertor), static_cast<std::int32_t>(aGalaxyStruct::ktBertor));
         if (PlayerIsBertor) {
             Result = aPlayer::GetPlayer();
             ++Count;
@@ -1142,7 +1142,7 @@ namespace aKling {
     }
 
     std::uint8_t TKling::RetreatToReinforcedStar() {
-        static const pas::Set<0, 255> DominatorShipMask = pas::constant_set<pas::Set<0, 255>>({{0}});
+        static const pas::Set<0, 255> DominatorShipMask = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::stKling}});
         std::int32_t I{};
         aGalaxy::TStar* Star{};
         std::uint8_t Result = false;
@@ -1183,7 +1183,7 @@ namespace aKling {
     }
 
     aGalaxy::TStar* TKling::FindKellerAttackTarget() {
-        static const pas::Set<0, 255> CoalitionShipMask = pas::constant_set<pas::Set<0, 255>>({{1, 5}});
+        static const pas::Set<0, 255> CoalitionShipMask = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::stRanger, aGalaxyStruct::stTranclucator}});
         std::int32_t I{};
         std::int32_t J{};
         std::int32_t Score{};
@@ -1197,7 +1197,7 @@ namespace aKling {
             aMyFunction::IncrementWrapped(Index, 0, pas::list_count(aGalaxy::Galaxy->Stars) - 1);
             Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[Index].Star));
             if (Star->Constellation->Id != 20 && (BlazerShip == nullptr || BlazerShip->CurrentStar != Star) && (TerronShip == nullptr || TerronShip->CurrentStar != Star) && (Star->Status.ControlFaction != aGalaxyStruct::sfDominators || Star->Status.Battle != 0)) {
-                if (aGalaxy::Galaxy->CurrentTurn > 300 || aMyFunction::PointDistanceSquared(Star->Position, aPlayer::GetPlayer()->CurrentStar->Position) >= pas::sqr((1.0L - pas::real_divide(aGalaxy::Galaxy->CurrentTurn, 3.0E+2L)) * 7.0E+1L + 35.0L)) {
+                if (aGalaxy::Galaxy->CurrentTurn > aGalaxyStruct::GalaxyWarmupTurns || aMyFunction::PointDistanceSquared(Star->Position, aPlayer::GetPlayer()->CurrentStar->Position) >= pas::sqr((1.0L - pas::real_divide(aGalaxy::Galaxy->CurrentTurn, pas::constant(static_cast<long double>(aGalaxyStruct::GalaxyWarmupTurns)))) * 7.0E+1L + 35.0L)) {
                     if ((Star->Status.Battle == 0 || Star->Status.DominatorSeries != aGalaxyStruct::dsKeller || Star->ShipTypeCounts[aGalaxyStruct::stKling] <= 6) && static_cast<std::uint8_t>(aScript::IsStarProtectedByScript(Star) ^ 1)) {
                         Score = 0;
                         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range_2.next(J); ) {
@@ -1213,7 +1213,7 @@ namespace aKling {
                         }
                         Score = System::Round(static_cast<long double>(Score) * aMyFunction::RemapClamped(Star->CountShipsByTypeMask(static_cast<aGalaxyStruct::TShipTypeMask>(CoalitionShipMask)), 1.0, 1.0E+1, 2.0, 1.0E+1));
                         Score = System::Round(static_cast<long double>(Score) * aMyFunction::NextRandomFloatRange(1.0, 3.0, RandomState));
-                        if (aPlayer::GetPlayer()->HomePlanet->CurrentStar == Star && aGalaxy::Galaxy->CurrentTurn < aGalaxy::Galaxy->InterpolateDifficulty(-1, 1.2f, 1.0f, 0.7f, 0.5f) * 8.0E+2L + 3.0E+2L) {
+                        if (aPlayer::GetPlayer()->HomePlanet->CurrentStar == Star && aGalaxy::Galaxy->CurrentTurn < aGalaxy::Galaxy->InterpolateDifficulty(-1, 1.2f, 1.0f, 0.7f, 0.5f) * 8.0E+2L + pas::constant(static_cast<long double>(aGalaxyStruct::GalaxyWarmupTurns))) {
                             Score = SystemImports::MaxInt - 1;
                         }
                         if (Score < BestScore) {
@@ -1283,10 +1283,11 @@ namespace aKling {
                         Text = ([&] {
                             auto name = pas::borrow(aGalaxy::Galaxy->KellerTargetStar->Name);
                             pas::WideString localizedColorText = aConst::LocalizedColorText(u"Artefacts.ArtAnalyzer.KellerHole"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Star>"_w, name.get());
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Star>"_w, name.get());
                         }());
                         if (Text != u"") {
-                            Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
+                            Globals::AddOrUpdatePlayerBubble(Globals::pmGalaxyNews, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
                         }
                     }
                 }
@@ -1402,18 +1403,19 @@ namespace aKling {
         std::int32_t EscortCount = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
-            if (Ship->InNormalSpace()) {
-                if (TKling* kling = pas::class_cast_if<TKling*>(Ship); !(kling != nullptr)) {
-                    if (!IsPlayerCamouflageEffective(Ship)) {
-                        return Result;
-                    }
-                } else {
-                    if (kling->DominatorSeries != DominatorSeries) {
-                        return Result;
-                    }
-                    if (pas::in_range(kling->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquentor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip)) && Ship != this) {
-                        ++EscortCount;
-                    }
+            if (!Ship->InNormalSpace()) {
+                continue;
+            }
+            if (TKling* kling = pas::class_cast_if<TKling*>(Ship); !(kling != nullptr)) {
+                if (!IsPlayerCamouflageEffective(Ship)) {
+                    return Result;
+                }
+            } else {
+                if (kling->DominatorSeries != DominatorSeries) {
+                    return Result;
+                }
+                if (pas::in_range(kling->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquantor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip)) && Ship != this) {
+                    ++EscortCount;
                 }
             }
         }
@@ -1423,7 +1425,7 @@ namespace aKling {
         pas::List* Stars = pas::make_object<pas::List>();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Constellation->Stars) - 1); cpp_range_2.next(I); ) {
             Star = pas::list_at<aGalaxy::TStar>(Constellation->Stars, I);
-            if (reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Star)) + 0))) != CurrentStar && static_cast<std::uint8_t>(aScript::IsStarProtectedByScript(Star) ^ 1) && Star->ShipTypeCounts[aGalaxyStruct::stKling] >= 6 && (KellerShip == nullptr || static_cast<std::uint8_t>(KellerShip->InNormalSpace() ^ 1) || KellerShip->CurrentStar != Star) && (TerronShip == nullptr || static_cast<std::uint8_t>(TerronShip->InNormalSpace() ^ 1) || TerronShip->CurrentStar != Star) && (BlazerShip == nullptr || static_cast<std::uint8_t>(BlazerShip->InNormalSpace() ^ 1) || BlazerShip->CurrentStar != Star) && pas::in_range(Star->Status.ControlFaction, static_cast<std::int32_t>(aGalaxyStruct::sfDominators), static_cast<std::int32_t>(aGalaxyStruct::sfDominators)) && static_cast<aGalaxyStruct::TDominatorSeries>(static_cast<std::uint8_t>(Star->Status.DominatorSeries) + static_cast<std::uint8_t>(0)) == DominatorSeries && Star->Status.Battle == 0 && Star->Status.CustomFaction == u"") {
+            if (Star != CurrentStar && static_cast<std::uint8_t>(aScript::IsStarProtectedByScript(Star) ^ 1) && Star->ShipTypeCounts[aGalaxyStruct::stKling] >= 6 && (KellerShip == nullptr || static_cast<std::uint8_t>(KellerShip->InNormalSpace() ^ 1) || KellerShip->CurrentStar != Star) && (TerronShip == nullptr || static_cast<std::uint8_t>(TerronShip->InNormalSpace() ^ 1) || TerronShip->CurrentStar != Star) && (BlazerShip == nullptr || static_cast<std::uint8_t>(BlazerShip->InNormalSpace() ^ 1) || BlazerShip->CurrentStar != Star) && pas::in_range(Star->Status.ControlFaction, static_cast<std::int32_t>(aGalaxyStruct::sfDominators), static_cast<std::int32_t>(aGalaxyStruct::sfDominators)) && Star->Status.DominatorSeries == DominatorSeries && Star->Status.Battle == 0 && Star->Status.CustomFaction == u"") {
                 pas::list_add(Stars, reinterpret_cast<void*>(Star));
             }
         }
@@ -1585,7 +1587,7 @@ namespace aKling {
             while (SendIndex < pas::list_count(Origin->Ships) && Sent <= SendCount && SendCount > 0) {
                 Ship = pas::list_at<aShip::TShip>(Origin->Ships, SendIndex);
                 ++SendIndex;
-                if (TKling* kling = pas::class_cast_if<TKling*>(Ship); kling != nullptr && kling->DominatorSeries == Series && static_cast<std::uint8_t>(Ship->OrderAbsolute ^ 1) && static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1) && Ship != BlazerShip && Ship != KellerShip && Ship != TerronShip && pas::in_range(kling->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquentor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip)) && kling->ActiveProgramAppliedTurn <= 0) {
+                if (TKling* kling = pas::class_cast_if<TKling*>(Ship); kling != nullptr && kling->DominatorSeries == Series && static_cast<std::uint8_t>(Ship->OrderAbsolute ^ 1) && static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1) && Ship != BlazerShip && Ship != KellerShip && Ship != TerronShip && pas::in_range(kling->KlingType, static_cast<std::int32_t>(aGalaxyStruct::ktEquantor), static_cast<std::int32_t>(aGalaxyStruct::ktShtip)) && kling->ActiveProgramAppliedTurn <= 0) {
                     Ship->OrderJump(TargetStar, true);
                     ++Sent;
                 }
@@ -1595,10 +1597,11 @@ namespace aKling {
                     Text = ([&] {
                         auto name = pas::borrow(TargetStar->Name);
                         pas::WideString localizedText = aConst::LocalizedText(u"Artefacts.ArtAnalyzer.AttackDomik"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Star>"_w, name.get());
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Star>"_w, name.get());
                     }());
                     if (Text != u"") {
-                        Globals::AddOrUpdatePlayerBubble(0, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
+                        Globals::AddOrUpdatePlayerBubble(Globals::pmGalaxyNews, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
                     }
                 }
             }
@@ -1649,7 +1652,7 @@ namespace aKling {
                             NearbyIndex = aMyFunction::IncrementWrapped(NearbyIndex, 1, NearbyRange);
                             --Attempts;
                             if (TargetStar->Constellation->Id != 20 && TargetStar != Origin && static_cast<std::uint8_t>(aScript::IsStarProtectedByScript(TargetStar) ^ 1)) {
-                                if (aGalaxy::Galaxy->CurrentTurn > 300 || aPlayer::GetPlayer()->CurrentStar != TargetStar && aMyFunction::PointDistanceSquared(TargetStar->Position, aPlayer::GetPlayer()->CurrentStar->Position) >= pas::sqr((1.0L - pas::real_divide(aGalaxy::Galaxy->CurrentTurn, 3.0E+2L)) * 7.0E+1L + 35.0L)) {
+                                if (aGalaxy::Galaxy->CurrentTurn > aGalaxyStruct::GalaxyWarmupTurns || aPlayer::GetPlayer()->CurrentStar != TargetStar && aMyFunction::PointDistanceSquared(TargetStar->Position, aPlayer::GetPlayer()->CurrentStar->Position) >= pas::sqr((1.0L - pas::real_divide(aGalaxy::Galaxy->CurrentTurn, pas::constant(static_cast<long double>(aGalaxyStruct::GalaxyWarmupTurns)))) * 7.0E+1L + 35.0L)) {
                                     if (BlazerShip == nullptr || aGalaxy::Galaxy->BlazerLandingPlanetId == 0 || BlazerShip->CurrentStar != TargetStar) {
                                         TargetCount = TargetStar->CountDominatorForces(Series, false, false, TargetStrength);
                                         OtherSeriesCount = TargetStar->CountDominatorForces(Series, false, true, OtherSeriesStrength);
@@ -1770,7 +1773,7 @@ namespace aKling {
         }
     }
 
-    std::uint8_t TKling::GetGreetingShipCategory() {
+    aGalaxyStruct::TGreetingShipCategory TKling::GetGreetingShipCategory() {
         return aGalaxyStruct::gscKling;
     }
 
@@ -1788,7 +1791,7 @@ namespace aKling {
     }
 
     // Checks the stored active flag and ID; expiration is handled by the daily ship update.
-    std::uint8_t TKling::IsProgramActive(std::uint8_t ProgramId) {
+    std::uint8_t TKling::IsProgramActive(aGalaxyStruct::TProgramIndex ProgramId) {
         return ActiveProgramAppliedTurn > 0 && ProgramId == ActiveProgramId;
     }
 
@@ -2015,7 +2018,7 @@ namespace aKling {
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Asteroids) - 1); cpp_range_4.next(I); ) {
                 Asteroid = pas::list_at<aAsteroid::TAsteroid>(CurrentStar->Asteroids, I);
                 Distance = aMyFunction::PointDistanceSquared(Position, Asteroid->Position);
-                if (Distance <= 1.0E+6L) {
+                if (Distance <= pas::constant(static_cast<long double>(aGalaxyStruct::AsteroidTargetRangeSquared))) {
                     const std::int32_t cpp_last_6 = static_cast<std::int32_t>(WeaponCount);
                     if (1 <= cpp_last_6) {
                         for (J = 1; J <= cpp_last_6; ++J) {
@@ -2045,7 +2048,7 @@ namespace aKling {
             if (reinterpret_cast<aPlayer::TPlayer*>(Attacker)->ChameleonActive && reinterpret_cast<aPlayer::TPlayer*>(Attacker)->ChameleonSeries == DominatorSeries) {
                 const pas::WideString& localizedText = aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Detect"_wref.get());
                 std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
-                Globals::AddOrUpdatePlayerBubble(0, currentTurn, localizedText, u""_wref.get());
+                Globals::AddOrUpdatePlayerBubble(Globals::pmGalaxyNews, currentTurn, localizedText, u""_wref.get());
             }
         }
     }
@@ -2102,9 +2105,9 @@ namespace aKling {
         if (EnemyShip != nullptr && EnemyShip->CurrentStar == CurrentStar) {
             if (EnemyShip->InNormalSpace()) {
                 if (ShouldKamikaze()) {
-                    OrderFollowShip(EnemyShip, 3, false);
+                    OrderFollowShip(EnemyShip, aShip::fmKamikaze, false);
                 } else {
-                    OrderFollowShip(EnemyShip, 1, false);
+                    OrderFollowShip(EnemyShip, aShip::fmMinWeaponRange, false);
                 }
             } else if (EnemyShip->CurrentPlanet != nullptr) {
                 OrderMove(EnemyShip->CurrentPlanet->GetPosition(), false);
@@ -2230,7 +2233,7 @@ namespace aKling {
     }
 
     void TKling_RefreshCurrentStanding(TKling* Self) {
-        std::int32_t StandingMode = Self->GetScriptStandingOverrideMode();
+        aGalaxyStruct::TScriptStandingOverrideMode StandingMode = Self->GetScriptStandingOverrideMode();
         if (StandingMode == aGalaxyStruct::ssmCustomFaction) {
             Self->CurrentStanding = aGalaxyStruct::ssCustom;
         } else if (StandingMode != aGalaxyStruct::ssmFixed) {

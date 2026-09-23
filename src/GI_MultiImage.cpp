@@ -266,28 +266,27 @@ namespace GI_MultiImage {
 
     // Native early-out compares the control's Position, not the item's old position. CellSize must be nonzero.
     void TMultiImageGI::SetUnitPosition(TMultiImageUnitGI* Item, Types::TPoint Position) {
-        TMultiImageColGI* Column{};
         // Preserve the native comparison against the control's position.
-        if (Item->Column == nullptr || LocalPosition.X != Position.X || LocalPosition.Y != Position.Y) {
-            Item->Position = Position;
-            {
-                TMultiImageRowGI* orCreateRow = GetOrCreateRow(pas::idiv(Position.Y, reinterpret_cast<TMultiImageGI*>(reinterpret_cast<std::uint8_t*>(this) + 0)->CellSize));
-                std::int32_t cpp_arg = pas::idiv(Position.X, reinterpret_cast<TMultiImageGI*>(reinterpret_cast<std::uint8_t*>(this) + 0)->CellSize);
-                Column = TMultiImageGI::GetOrCreateColumn(orCreateRow, cpp_arg);
-            }
-            if (Item->Column != Column) {
-                UnlinkUnitFromColumn(Item);
-                Item->Column = Column;
-                if (Column->Last != nullptr) {
-                    Column->Last->NextInColumn = Item;
-                }
-                Item->PrevInColumn = Column->Last;
-                Item->NextInColumn = nullptr;
-                Column->Last = reinterpret_cast<TMultiImageUnitGI*>(reinterpret_cast<std::uint8_t*>(Item) + 0);
-                if (Column->First == nullptr) {
-                    Column->First = reinterpret_cast<TMultiImageUnitGI*>(reinterpret_cast<std::uint8_t*>(Item) + 0);
-                }
-            }
+        if (Item->Column != nullptr && LocalPosition.X == Position.X && LocalPosition.Y == Position.Y) {
+            return;
+        }
+        Item->Position = Position;
+        TMultiImageRowGI* orCreateRow = GetOrCreateRow(pas::idiv(Position.Y, CellSize));
+        std::int32_t cpp_arg = pas::idiv(Position.X, CellSize);
+        TMultiImageColGI* Column = TMultiImageGI::GetOrCreateColumn(orCreateRow, cpp_arg);
+        if (Item->Column == Column) {
+            return;
+        }
+        UnlinkUnitFromColumn(Item);
+        Item->Column = Column;
+        if (Column->Last != nullptr) {
+            Column->Last->NextInColumn = Item;
+        }
+        Item->PrevInColumn = Column->Last;
+        Item->NextInColumn = nullptr;
+        Column->Last = Item;
+        if (Column->First == nullptr) {
+            Column->First = Item;
         }
     }
 
@@ -325,11 +324,6 @@ namespace GI_MultiImage {
     }
 
     void TMultiImageGI::Invalidate() {
-        std::int32_t MinColumn{};
-        std::int32_t MaxColumn{};
-        std::int32_t MinRow{};
-        std::int32_t MaxRow{};
-        TMultiImageRowGI* Row{};
         TMultiImageColGI* Column{};
         TMultiImageUnitGI* Item{};
         Types::TPoint Position{};
@@ -341,43 +335,44 @@ namespace GI_MultiImage {
         if (!Active) {
             return;
         }
-        if (EC_Struct::IntersectRects(Bounds, HitTestBounds, GR_Main::GameScreenRect)) {
-            Bounds.Left -= AbsolutePosition.X;
-            Bounds.Top -= AbsolutePosition.Y;
-            Bounds.Right -= AbsolutePosition.X;
-            Bounds.Bottom -= AbsolutePosition.Y;
-            MinColumn = pas::idiv(Bounds.Left, reinterpret_cast<TMultiImageGI*>(reinterpret_cast<std::uint8_t*>(this) + 0)->CellSize) - 1;
-            MaxColumn = pas::idiv(Bounds.Right - 1, CellSize) + 1;
-            MinRow = pas::idiv(Bounds.Top, reinterpret_cast<TMultiImageGI*>(reinterpret_cast<std::uint8_t*>(this) + 0)->CellSize) - 1;
-            MaxRow = pas::idiv(Bounds.Bottom - 1, CellSize) + 1;
-            Row = FirstRow;
-            while (Row != nullptr) {
-                if (Row->Index >= MinRow && Row->Index <= MaxRow) {
-                    Column = Row->First;
-                    while (Column != nullptr) {
-                        if (Column->Index >= MinColumn && Column->Index <= MaxColumn) {
-                            Item = Column->First;
-                            while (Item != nullptr) {
-                                Position.X = AbsolutePosition.X + Item->Position.X;
-                                Position.Y = AbsolutePosition.Y + Item->Position.Y;
-                                Image = pas::list_at<TMultiImageImageGI>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Images) + 0), Item->ImageIndex);
-                                Bounds.Left = Position.X + 0 + Image->Bounds.Left;
-                                Bounds.Top = Position.Y + 0 + Image->Bounds.Top;
-                                Bounds.Right = Position.X + 0 + Image->Bounds.Right;
-                                Bounds.Bottom = Position.Y + 0 + Image->Bounds.Bottom;
-                                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(reinterpret_cast<std::uint8_t*>(MessageLoop) + 0)->QueueUpdateRect(Bounds);
-                                Item = Item->NextInColumn;
-                            }
-                        } else if (Column->Index > MaxColumn) {
-                            break;
+        if (!EC_Struct::IntersectRects(Bounds, HitTestBounds, GR_Main::GameScreenRect)) {
+            return;
+        }
+        Bounds.Left -= AbsolutePosition.X;
+        Bounds.Top -= AbsolutePosition.Y;
+        Bounds.Right -= AbsolutePosition.X;
+        Bounds.Bottom -= AbsolutePosition.Y;
+        std::int32_t MinColumn = pas::idiv(Bounds.Left, CellSize) - 1;
+        std::int32_t MaxColumn = pas::idiv(Bounds.Right - 1, CellSize) + 1;
+        std::int32_t MinRow = pas::idiv(Bounds.Top, CellSize) - 1;
+        std::int32_t MaxRow = pas::idiv(Bounds.Bottom - 1, CellSize) + 1;
+        TMultiImageRowGI* Row = FirstRow;
+        while (Row != nullptr) {
+            if (Row->Index >= MinRow && Row->Index <= MaxRow) {
+                Column = Row->First;
+                while (Column != nullptr) {
+                    if (Column->Index >= MinColumn && Column->Index <= MaxColumn) {
+                        Item = Column->First;
+                        while (Item != nullptr) {
+                            Position.X = AbsolutePosition.X + Item->Position.X;
+                            Position.Y = AbsolutePosition.Y + Item->Position.Y;
+                            Image = pas::list_at<TMultiImageImageGI>(Images, Item->ImageIndex);
+                            Bounds.Left = Position.X + Image->Bounds.Left;
+                            Bounds.Top = Position.Y + Image->Bounds.Top;
+                            Bounds.Right = Position.X + Image->Bounds.Right;
+                            Bounds.Bottom = Position.Y + Image->Bounds.Bottom;
+                            MessageLoop->QueueUpdateRect(Bounds);
+                            Item = Item->NextInColumn;
                         }
-                        Column = Column->Next;
+                    } else if (Column->Index > MaxColumn) {
+                        break;
                     }
-                } else if (Row->Index > MaxRow) {
-                    break;
+                    Column = Column->Next;
                 }
-                Row = Row->Next;
+            } else if (Row->Index > MaxRow) {
+                break;
             }
+            Row = Row->Next;
         }
     }
 
@@ -423,7 +418,7 @@ namespace GI_MultiImage {
                                         pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface = (Data->GetOrCreateSurface(0, cpp_result), cpp_result);
                                         std::int32_t top = Bounds.Top;
                                         std::int32_t left = Bounds.Left;
-                                        GR_DX::DrawTexture(orCreateSurface, left, top, 255, 0x00ffffffu, &ClipRect, false, false);
+                                        GR_DX::DrawTexture(orCreateSurface, left, top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                                     } else {
                                         Data->Image->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Bounds.Left, Bounds.Top, ClipRect, 0, 255);
                                     }

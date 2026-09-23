@@ -522,7 +522,7 @@ namespace GI_GraphBuf {
                     {
                         std::int32_t cpp_arg = 255 - pas::shl(static_cast<std::int32_t>(HalfAlpha), 7);
                         pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (GraphBuf->GetTexture(cpp_result), cpp_result);
-                        GR_DX::DrawTexture(texture, X, Y, cpp_arg, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                        GR_DX::DrawTexture(texture, X, Y, cpp_arg, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                     }
                     X += Width;
                 }

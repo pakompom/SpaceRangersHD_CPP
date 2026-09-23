@@ -208,7 +208,7 @@ namespace aGalaxy {
         std::uint8_t BuildConstellationStarGraphs();
         // Requires at least eight constellations.
         void BuildConstellationPolygonsAndAdjacency(aVector::TPolygon2D* WorkingPolygon);
-        void GenerateGalaxyLayout(std::uint8_t PlayerRace);
+        void GenerateGalaxyLayout(aGalaxyStruct::TOwnerId PlayerRace);
         // Requires constellation ID 20 and generated compatible outlines. Merges its visible outline into a neighbor and retains backups for RestoreHiddenForm.
         void HideSpecialConstellation();
         std::int32_t CountVisibleConstellationsWithBoundaryPoints(EC_Struct::TPointF FirstPoint, EC_Struct::TPointF SecondPoint);
@@ -235,10 +235,10 @@ namespace aGalaxy {
         // -1 selects CurrentTurn.
         pas::WideString FormatTurnDate(std::int32_t Turn);
         // Adds a player bubble only after turn 300; news insertion still uses duplicate-text suppression.
-        void AddPlanetNewsWithPlayerBubble(std::uint8_t NewsType, pas::WideString Text);
+        void AddPlanetNewsWithPlayerBubble(aGalaxyStruct::TGalaxyNewsKind NewsType, pas::WideString Text);
         // Rejects empty text; identical existing text suppresses insertion regardless of NewsType.
-        void AddPlanetNews(std::uint8_t NewsType, pas::WideString Text);
-        std::int32_t CountPlanetNewsByType(std::uint8_t NewsType);
+        void AddPlanetNews(aGalaxyStruct::TGalaxyNewsKind NewsType, pas::WideString Text);
+        std::int32_t CountPlanetNewsByType(aGalaxyStruct::TGalaxyNewsKind NewsType);
         // Removes entries more than 30 days old.
         void PrunePlanetNews();
         // Replaces the global spawn-planet pointer without freeing its previous value; does not register the proxy in star or galaxy planet lists.
@@ -265,7 +265,7 @@ namespace aGalaxy {
         // Zero-based index. The final attempt-limit fallback can return an incompatible module; callers must check CanInstallMicroModule. Context rejection can bypass the attempt-limit check.
         static std::int32_t SelectMicroModuleForEquipment(std::uint8_t MinimumPriority, std::uint8_t MaximumPriority, std::uint32_t Seed, pas::Object* Context, void* Item);
         // Zero-based series index or -1; advances Self.RandomState.
-        std::int32_t SelectHullSeries(aGalaxyStruct::TOwnerId OwnerId, std::uint8_t HullType, std::uint8_t MinimumRarity, std::uint8_t MaximumRarity);
+        std::int32_t SelectHullSeries(aGalaxyStruct::TOwnerId OwnerId, aGalaxyStruct::THullType HullType, std::uint8_t MinimumRarity, std::uint8_t MaximumRarity);
         // Invalid series values return false.
         std::uint8_t IsDominatorSeriesUnresolved(aGalaxyStruct::TDominatorSeries Series);
         // True if any selected series is unresolved; false for an empty set.
@@ -1096,6 +1096,12 @@ namespace aGalaxy {
     #pragma pack(pop)
 
     using PMapLineSegment = TMapLineSegment*;
+
+    enum TModuleCrcStatus : std::uint8_t {
+        mcsUnchecked = 0,
+        mcsAccepted = 1,
+        mcsMismatch = 2,
+    };
 
     #pragma pack(push, 1)
     struct TConstellationBoundaryRaySample {

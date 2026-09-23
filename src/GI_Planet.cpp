@@ -622,7 +622,7 @@ namespace GI_Planet {
                             TextureCache->SetSurface(Texture, 0);
                         }
                     }
-                    GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, 0x00ffffffu, &ClipRect, false, false);
+                    GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                     if (HasCloud1) {
                         Texture = (TextureCache->GetSurface(1, cpp_result_3), cpp_result_3);
                         if (Cloud1MapOffset != RenderedMapOffsets[1]) {
@@ -637,7 +637,7 @@ namespace GI_Planet {
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 1);
                         }
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, 0x00ffffffu, &ClipRect, false, false);
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                     } else {
                         TextureCache->SetSurface(nullptr, 1);
                     }
@@ -655,7 +655,7 @@ namespace GI_Planet {
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 2);
                         }
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, 0x00ffffffu, &ClipRect, false, false);
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                     } else {
                         TextureCache->SetSurface(nullptr, 2);
                     }
@@ -673,7 +673,7 @@ namespace GI_Planet {
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 3);
                         }
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, 0x00ffffffu, &ClipRect, false, false);
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                     } else {
                         TextureCache->SetSurface(nullptr, 3);
                     }
@@ -693,7 +693,7 @@ namespace GI_Planet {
                     }
                     Texture = (TextureCache->GetSurface(4, cpp_result_10), cpp_result_10);
                     if (static_cast<std::uint8_t>(AtmosphereImageCache->HasEmptyCacheKey() ^ 1) && Texture != nullptr && AtmosphereColor != 0) {
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, 0x00ffffffu, &ClipRect, false, false);
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                     }
                 } else {
                     if (Image->Bitmap->BytesPerPixel == 2) {

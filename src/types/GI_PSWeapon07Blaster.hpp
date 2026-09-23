@@ -54,7 +54,7 @@ namespace GI_PSWeapon07Blaster {
         EC_Struct::TPointF Velocity;
         std::uint8_t State;
         std::uint8_t cpp_padding_2[1];
-        // Initialized to 30000; unused by the native update.
+        // Set to 30000; unused. Possibly a lifetime counter.
         std::uint16_t Unknown1E;
         std::uint8_t cpp_padding_3[4];
         float BaseX;

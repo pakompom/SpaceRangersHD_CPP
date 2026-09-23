@@ -122,6 +122,16 @@ namespace EC_Buf {
 
     using PEncodedTableHeaderEC = TEncodedTableHeaderEC*;
 
+    // Shared seed recurrence in DAT streams, achievements, scores and arcade objects.
+    // Callers retain their different sign/modulus handling.
+    inline constexpr std::int32_t SeedRngMultiplier = 16807;
+
+    inline constexpr std::int32_t SeedRngQuotient = 127773;
+
+    inline constexpr std::int32_t SeedRngRemainder = 2836;
+
+    inline constexpr std::int32_t SeedRngModulus = 0x7fffffff;
+
     inline constexpr std::int32_t BufferGrowthSlack = 256;
 
     inline constexpr std::int32_t CarriageReturnCode = 13;

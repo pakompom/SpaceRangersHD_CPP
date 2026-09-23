@@ -26,7 +26,9 @@ namespace aGalaxyStruct {
 
     struct TPlanetNews;
 
-    using TGalaxyDifficultyLevels = pas::Array<std::uint8_t, 0, 7>;
+    using TDifficultyLevel = std::uint8_t;
+
+    using TGalaxyDifficultyLevels = pas::Array<TDifficultyLevel, 0, 7>;
 
     // Raw saved settings. Accessors apply defaults when Enabled is false.
     // Most modifier bytes encode 0.5 + value / 16, rather than percentages.
@@ -75,6 +77,19 @@ namespace aGalaxyStruct {
     };
     #pragma pack(pop)
 
+    // OwnerToSys () and RaceToSys () establish these IDs.
+    // RaceId and PilotRace use the same Coalition values 0..4.
+    enum TOwnerId : std::uint8_t {
+        oiMaloc = 0,
+        oiPeleng = 1,
+        oiHuman = 2,
+        oiFeyan = 3,
+        oiGaal = 4,
+        oiDominator = 5,
+        oiUninhabited = 6,
+        oiPirate = 7,
+    };
+
     enum TStarFaction : std::uint8_t {
         sfCoalition = 0,
         sfDominators = 1,
@@ -97,22 +112,91 @@ namespace aGalaxyStruct {
         qtDefendShip = 4,
     };
 
-    using TWeaponAvailabilityMask = pas::Set<0, 15>;
-
-    // OwnerToSys () and RaceToSys () establish these IDs.
-    // RaceId and PilotRace use the same Coalition values 0..4.
-    enum TOwnerId : std::uint8_t {
-        oiMaloc = 0,
-        oiPeleng = 1,
-        oiHuman = 2,
-        oiFeyan = 3,
-        oiGaal = 4,
-        oiDominator = 5,
-        oiUninhabited = 6,
-        oiPirate = 7,
+    // GalaxyNews producers and CountPlanetNewsByType () share these IDs.
+    // Distinct from pm* player-message presentation kinds.
+    enum TGalaxyNewsKind : std::uint8_t {
+        gnScript = 0,
+        gnRevolutionAnarchy = 1,
+        gnRevolutionDictatorship = 2,
+        gnRevolutionMonarchy = 3,
+        gnRevolutionRepublic = 4,
+        gnRevolutionDemocracy = 5,
+        gnMineralDeposit = 6,
+        gnMineralShortage = 7,
+        gnArmsSurplus = 8,
+        gnArmsShortage = 9,
+        gnTechnicsSurplus = 10,
+        gnFoodSurplus = 11,
+        gnFoodShortage = 12,
+        gnMedicineSurplus = 13,
+        gnLuxurySurplus = 14,
+        gnLuxuryShortage = 15,
+        gnAlcoholSurplus = 16,
+        gnAlcoholShortage = 17,
+        gnTransportActivity = 18,
+        gnManyPirates = 19,
+        gnSomePirates = 20,
+        gnNoPirates = 21,
+        gnManyRangers = 22,
+        gnEminentRangerLocation = 23,
+        gnDominatorAttack = 24,
+        gnDominatorAttackRepelled = 25,
+        gnLiberationGroupCreated = 26,
+        gnPirateAttack = 27,
+        gnPirateAttackRepelled = 28,
+        gnCoalitionTakesDominatorSystem = 29,
+        gnCoalitionTakesPirateSystem = 30,
+        gnPiratesTakeDominatorSystem = 31,
+        gnPiratesTakeCoalitionSystem = 32,
+        gnDominatorsTakeCoalitionSystem = 33,
+        gnDominatorsTakePirateSystem = 34,
+        gnCoalitionDefeated = 35,
+        gnWormholeCreated = 36,
+        gnEminentWarrior = 37,
+        gnEminentTrader = 38,
+        gnEminentPirate = 39,
+        gnImprisonment = 40,
+        gnStationCreated = 41,
+        gnCoalitionInvestment = 42,
+        gnDominatorResearchCompleted = 43,
+        gnStationSpecialShip = 44,
+        gnMilitaryBaseOperation = 45,
     };
 
-    enum TStationType : std::uint8_t {
+    using TWeaponAvailabilityMask = pas::Set<0, 10>;
+
+    // Hull categories differ from TShip.TypeId; transports have three hull kinds.
+    enum THullType : std::uint8_t {
+        htRanger = 0,
+        htWarrior = 1,
+        htPirate = 2,
+        htTransport = 3,
+        htLiner = 4,
+        htDiplomat = 5,
+        htKling = 6,
+        htTranclucator = 7,
+        htStation = 8,
+        htSpecial = 9,
+        htFlagship = 10,
+    };
+
+    using TStationType = std::uint8_t;
+
+    // Shared ship career category; non-ranger implementations can return a fixed career.
+    enum TRangerCareer : std::uint8_t {
+        rcTrader = 0,
+        rcPirate = 1,
+        rcWarrior = 2,
+    };
+
+    // ShipTypeNames and subclass initializers share this ship/station domain.
+    enum TShipType : std::uint8_t {
+        stKling = 0,
+        stRanger = 1,
+        stTransport = 2,
+        stPirate = 3,
+        stWarrior = 4,
+        stTranclucator = 5,
         rstRangerCenter = 6,
         rstPirateBase = 7,
         rstMilitaryBase = 8,
@@ -121,13 +205,6 @@ namespace aGalaxyStruct {
         rstMedicalBase = 11,
         rstDominion = 12,
         rstCustomStation = 13,
-    };
-
-    // Shared ship career category; non-ranger implementations can return a fixed career.
-    enum TRangerCareer : std::uint8_t {
-        rcTrader = 0,
-        rcPirate = 1,
-        rcWarrior = 2,
     };
 
     using TFactionStrengthValues = pas::Array<float, 0, 2>;
@@ -152,9 +229,48 @@ namespace aGalaxyStruct {
         std::int32_t FactionStrengthCacheTurn;
     };
 
-    using TShipTypeMask = pas::Set<0, 15>;
+    using TShipTypeMask = pas::Set<0, 13>;
 
     using TRangerCareerSet = pas::Set<0, 2>;
+
+    // English ShipType.Dominator entries name the same seven ordinary types in every series.
+    // Type zero selects the series boss: Blazer, Keller or Terron.
+    enum TKlingType : std::uint8_t {
+        ktBoss = 0,
+        ktEquantor = 1,
+        ktUrgant = 2,
+        ktSmersh = 3,
+        ktMenoc = 4,
+        ktShtip = 5,
+        ktBertor = 6,
+        ktKlig = 7,
+    };
+
+    // PlanetInventionInfo () and EquipmentInventionIndices ().
+    // Research-track IDs are distinct from item types and numeric technology levels.
+    // Weapon tracks use English Items.Weapon.Name names; later weapons can share a track.
+    enum TPlanetInvention : std::uint8_t {
+        piHull = 0,
+        piFuelTanks = 1,
+        piEngine = 2,
+        piRadar = 3,
+        piScanner = 4,
+        piRepairRobot = 5,
+        piCargoHook = 6,
+        piMainTech = 7,
+        piIndustrialLaser = 8,
+        piFragmentationCannon = 9,
+        piFlux = 10,
+        piMissileLauncher = 11,
+        piTreton = 12,
+        piWavePhaser = 13,
+        piFlowBlaster = 14,
+        piElectronicCutter = 15,
+        piMultiresonator = 16,
+        piAtomicVision = 17,
+        piDisintegrator = 18,
+        piTurbogravitron = 19,
+    };
 
     enum TPlanetEconomy : std::uint8_t {
         peAgricultural = 0,
@@ -183,17 +299,6 @@ namespace aGalaxyStruct {
 
     using TOwnerMask = pas::Set<0, 7>;
 
-    enum TKlingType : std::uint8_t {
-        ktBoss = 0,
-        ktEquentor = 1,
-        ktUrgant = 2,
-        ktSmersh = 3,
-        ktMenok = 4,
-        ktShtip = 5,
-        ktBertor = 6,
-        ktKlig = 7,
-    };
-
     enum TRelationLevel : std::uint8_t {
         rlHostile = 0,
         rlBad = 1,
@@ -204,11 +309,14 @@ namespace aGalaxyStruct {
 
     using TItemTypeMask = pas::Set<0, 79>;
 
+    // Numeric goods-table indices correspond to t_Food..t_Narcotics in aConst.
+    using TGoodsIndex = std::uint8_t;
+
     // Native record RTTI.
     struct TPlanetNews {
         std::uint32_t Id;
         std::int32_t Turn;
-        std::uint8_t NewsType;
+        TGalaxyNewsKind NewsType;
         std::uint8_t cpp_padding[3];
         pas::WideString Text;
     };
@@ -252,9 +360,33 @@ namespace aGalaxyStruct {
         dkDroidBlock = 19,
     };
 
-    using TStationStandingMask = pas::Set<0, 15>;
+    // CurrentStanding categories: GetControlPresence (),
+    // ResetControlFaction (), and subclass RefreshCurrentStanding methods.
+    enum TShipStanding : std::uint8_t {
+        ssDominator = 0,
+        ssUnaligned = 1,
+        ssCoalitionMilitary = 2,
+        ssCoalitionActive = 3,
+        ssCoalitionPassive = 4,
+        ssNeutral = 5,
+        ssPiratePassive = 6,
+        ssPirateActive = 7,
+        ssPirateMilitary = 8,
+        ssCustom = 9,
+    };
+
+    using TShipStandings = pas::Set<0, 9>;
 
     using PGoodsTradePriceEntry = TGoodsTradePriceEntry*;
+
+    // GainExperience applies separate diminishing returns to these sources.
+    enum TExperienceSource : std::uint8_t {
+        esUnscaled = 0,
+        esDominators = 1,
+        esPirates = 2,
+        esNormalShips = 3,
+        esTraderCareer = 4,
+    };
 
     enum TPilotSkill : std::uint8_t {
         psAccuracy = 0,
@@ -263,6 +395,138 @@ namespace aGalaxyStruct {
         psTrading = 3,
         psCharisma = 4,
         psLeadership = 5,
+    };
+
+    // Diseases (1..12) and stimulants (13..24); radiation is stored separately.
+    enum TCaptainHealthEffect : std::uint32_t {
+        heBlindness = 1,
+        heChekumash = 2,
+        heHolyFanaticism = 3,
+        heComplexImmunocide = 4,
+        heMysteriousLuatanza = 5,
+        heDrugAddiction = 6,
+        heWhirlwindConcussion = 7,
+        hePulledMuscle = 8,
+        heGrandMalosausus = 9,
+        heBitterPelenosia = 10,
+        heAkaSezyanka = 11,
+        heNewMolizone = 12,
+        heMaloqSizha = 13,
+        heOneEyedKhamas = 14,
+        heStardust = 15,
+        heSuperTechnician = 16,
+        heGaalianAlacrity = 17,
+        heBloodDjogar = 18,
+        heRagobamWhisper = 19,
+        heShakhmandooLeader = 20,
+        hePsychotropicCache = 21,
+        heBusinessMark = 22,
+        heDoubleplex = 23,
+        heAbsoluteStatus = 24,
+    };
+
+    // GetScriptStandingOverrideMode () and its callers use a 32-bit ordinal.
+    enum TScriptStandingOverrideMode : std::uint32_t {
+        ssmNormal = 0,
+        ssmCustomFaction = 1,
+        ssmFixed = 2,
+    };
+
+    // ScriptActionTypeNames (), action masks and ship/item dispatch.
+    enum TScriptActionType : std::uint8_t {
+        satOnStep = 0,
+        satOnWeaponShot = 1,
+        satOnMissileShot = 2,
+        satOnDealingDamage = 3,
+        satOnDealingFatalDamage = 4,
+        satOnDealingKamikazeDamage = 5,
+        satOnTakingDamage = 6,
+        satOnTakingDamageEn = 7,
+        satOnTakingDamageSp = 8,
+        satOnTakingDamageMi = 9,
+        satOnWeaponShot2 = 10,
+        satOnMissileShot2 = 11,
+        satOnGettingWeaponHit = 12,
+        satOnGettingMissileHit = 13,
+        satOnDroidRepair = 14,
+        satOnItemPickUp = 15,
+        satOnScan = 16,
+        satOnChameleonConfusion = 17,
+        satOnScanPossibility = 18,
+        satOnAnotherItem = 19,
+        satOnAnotherItem2 = 20,
+        satOnAnotherGoods = 21,
+        satOnItemHit = 22,
+        satOnMissileHittingObject = 23,
+        satOnEnteringForm = 24,
+        satOnLeavingForm = 25,
+        satOnReEnteringForm = 26,
+        satOnEnteringOtherShip = 27,
+        satOnLeavingOtherShip = 28,
+        satOnReEnteringOtherShip = 29,
+        satOnPlayerSkillIncrease = 30,
+        satOnPlayerTalkedWithShip = 31,
+        satOnShipTalkedWithPlayer = 32,
+        satOnDropItem = 33,
+        satOnDropItemFixed = 34,
+        satOnMovingItemToStorage = 35,
+        satOnReduceEqBattle = 36,
+        satOnReduceEqUse = 37,
+        satOnReduceEqForce = 38,
+        satOnReduceEqForsage = 39,
+        satOnItemDestroy = 40,
+        satOnPlayerChangeHull = 41,
+        satOnPlayerUseMM = 42,
+        satOnPlayerBuyEq = 43,
+        satOnItemEquip = 44,
+        satOnItemDeEquip = 45,
+        satOnTrancPacking = 46,
+        satOnShipBuysGoods = 47,
+        satOnShipSellsGoods = 48,
+        satOnShowingItemInfo = 49,
+        satOnShowingShipInfo = 50,
+        satOnShowingStarInfo = 51,
+        satOnNonStandartEqChange = 52,
+        satOnCustomTargetting = 53,
+        satOnCustomTargettingCheck = 54,
+        satOnStartAB = 55,
+        satOnABItemDrop = 56,
+        satOnGovItemReward = 57,
+        satOnCheckingUsability = 58,
+        satOnCheckingUsability2 = 59,
+        satOnCheckingUsabilityGoods = 60,
+        satOnDeath = 61,
+    };
+
+    // InitializeShipGreetingDefinitions () and TShip virtual slot $30.
+    // Transport subtypes and pirate allegiance have distinct greeting categories.
+    enum TGreetingShipCategory : std::uint8_t {
+        gscTransport = 0,
+        gscLiner = 1,
+        gscDiplomat = 2,
+        gscRanger = 3,
+        gscPirate = 4,
+        gscWarrior = 5,
+        gscKling = 6,
+        gscPirateClan = 7,
+    };
+
+    using TShipRank = std::uint8_t;
+
+    // ranger inventory, Dominator effects and script prog* IDs.
+    enum TProgramIndex : std::uint8_t {
+        prgKellerCall = 0,
+        prgLogicalNegation = 1,
+        prgDematerial = 2,
+        prgEnergotron = 3,
+        prgSabCrack = 4,
+        prgIntercom = 5,
+        prgShipwreck = 6,
+        prgWeaponBlocking = 7,
+        prgInsanity = 8,
+        prgShock = 9,
+        prgSelfDestruction = 10,
+        prgDisconnection = 11,
     };
 
     using TQuestTypes = pas::Set<0, 4>;
@@ -280,6 +544,23 @@ namespace aGalaxyStruct {
     };
     #pragma pack(pop)
 
+    // CoalitionProjectNames (), investment dispatch (),
+    // and the military-base war operation () share these cooldown indices.
+    enum TCoalitionProject : std::uint8_t {
+        cpCreateRangerCenter = 0,
+        cpCreatePirateBase = 1,
+        cpCreateMilitaryBase = 2,
+        cpCreateScienceBase = 3,
+        cpCreateBusinessCenter = 4,
+        cpCreateMedicalBase = 5,
+        cpRangersSubsidy = 6,
+        cpPiratesSubsidy = 7,
+        cpTransportSubsidy = 8,
+        cpLostSubsidy = 9,
+        cpWarSubsidy = 10,
+        cpWarOperation = 11,
+    };
+
     enum TShopUpdateMode : std::uint8_t {
         sumNormal = 0,
         sumDisabled = 1,
@@ -289,8 +570,8 @@ namespace aGalaxyStruct {
 
     using PPlanetBattleStatistics = TPlanetBattleStatistics*;
 
-    // Preserve the full byte for native membership checks; selected series are 0..2.
-    using TDominatorSeriesMask = pas::Set<0, 7>;
+    // Series filters retain the native one-byte set storage and membership checks.
+    using TDominatorSeriesMask = pas::Set<0, 2>;
 
     // Native record RTTI.
     #pragma pack(push, 1)
@@ -365,6 +646,8 @@ namespace aGalaxyStruct {
     };
     #pragma pack(pop)
 
+    // Native record RTTI.
+    // Native record RTTI.
     using TByteMask = pas::Set<0, 7>;
 
     using TQuestExperienceTable = pas::Array<std::int32_t, 0, 4>;
@@ -379,6 +662,28 @@ namespace aGalaxyStruct {
     #pragma pack(pop)
 
     using TQuestTuningTable = pas::Array<TQuestTuning, 0, 4>;
+
+    // Award categories from SysToReward (); distinct from individual award IDs.
+    enum TAwardKind : std::uint8_t {
+        atLiberation = 0,
+        atAccomplishment = 1,
+        atSecretMission = 2,
+        atCowardice = 3,
+        atPerfidy = 4,
+        atPlanetBattle = 5,
+    };
+
+    // ShowPlayerDialogue (), TfTalk.BuildBuiltinChoices (),
+    // and the script Talk* constants share these conversation categories.
+    enum TTalkKind : std::uint8_t {
+        tkMoneyDemand = 0,
+        tkGoodsDemand = 1,
+        tkTruceOffer = 2,
+        tkAttack = 3,
+        tkPartnerBreak = 4,
+        tkPartnerEnd = 5,
+        tkPartnerRiot = 6,
+    };
 
     #pragma pack(push, 1)
     struct TPlanetOwnerMasks {
@@ -419,190 +724,67 @@ namespace aGalaxyStruct {
 
     using TPlanetRaceMarketTable = pas::Array<TPlanetRaceMarketInfo, 0, 4>;
 
-    using TFactionStandingMasks = pas::Array<TStationStandingMask, 0, 2>;
+    using TFactionStandingMasks = pas::Array<TShipStandings, 0, 2>;
 
-    // Native record RTTI.
-    // Native record RTTI.
-    // Nine quotas per Coalition race: types 42..49, then the shared weapon bucket 50.
-    using TPlanetEquipmentOfferQuotaRow = pas::Array<std::int32_t, 0, 8>;
+    using TDominatorSeriesNameTable = pas::Array<pas::WideString, 0, 2>;
 
-    using TPlanetEquipmentOfferQuotaTable = pas::Array<TPlanetEquipmentOfferQuotaRow, 0, 4>;
+    using TCaptainDisease = std::uint8_t;
+
+    using TCaptainStimulant = std::uint8_t;
 
     using TGalaxyDifficultyIndex = std::uint8_t;
 
-    using TGoodsTextOrder = pas::Array<std::uint8_t, 0, 7>;
+    using TGoodsTextOrder = pas::Array<TGoodsIndex, 0, 7>;
 
-    using TProgramIndex = std::uint8_t;
+    // Shared simulation, economy and targeting limits recovered from their callers.
+    inline constexpr std::int32_t GalaxyWarmupTurns = 300;
 
-    // TShip.TypeId names from ShipTypeNames (initialized by the table
-    // at) and the subclass initializers.
-    // These are distinct from the hull-generation codes returned by ShipToHullType.
-    inline constexpr std::int32_t stKling = 0;
+    inline constexpr std::int32_t TurnsPerYear = 365;
 
-    inline constexpr std::int32_t stRanger = 1;
+    inline constexpr std::int32_t MaxMonetaryValue = 100000000;
 
-    inline constexpr std::int32_t stTransport = 2;
+    inline constexpr std::int32_t BaseMovementStepsPerTurn = 200;
 
-    inline constexpr std::int32_t stPirate = 3;
+    inline constexpr std::int32_t FullPathNodeLimit = 999999;
 
-    inline constexpr std::int32_t stWarrior = 4;
+    inline constexpr std::int32_t AsteroidTargetRangeSquared = 1000000;
 
-    inline constexpr std::int32_t stTranclucator = 5;
+    inline constexpr std::int32_t InterceptorTargetRangeSquared = 1000000;
 
-    // CurrentStanding categories: native GetControlPresence (),
-    // ResetControlFaction (), and subclass RefreshCurrentStanding methods.
-    // The companion ShipStanding reference uses CoalMilitary/Active/Passive and
-    // PirateMilitary/Active/Passive for the same IDs. Keep the stored Byte ABI.
-    inline constexpr std::int32_t ssDominator = 0;
+    // TerronToStarTurn packs this transformation marker with a turn number.
+    inline constexpr std::int32_t TerronTransformationFlag = 0x40000000;
 
-    inline constexpr std::int32_t ssUnaligned = 1;
+    // RelationValueToLevel boundaries; distinct from the rl* category ordinals.
+    inline constexpr std::int32_t RelationBadMin = 10;
 
-    inline constexpr std::int32_t ssCoalitionMilitary = 2;
+    inline constexpr std::int32_t RelationNormalMin = 30;
 
-    inline constexpr std::int32_t ssCoalitionActive = 3;
+    inline constexpr std::int32_t RelationGoodMin = 60;
 
-    inline constexpr std::int32_t ssCoalitionPassive = 4;
+    inline constexpr std::int32_t RelationExcellentMin = 80;
 
-    inline constexpr std::int32_t ssNeutral = 5;
+    // Common collection-count guard in saved galaxy/ship/planet records.
+    inline constexpr std::int32_t MaxSavedListCount = 10000;
 
-    inline constexpr std::int32_t ssPiratePassive = 6;
+    // soJumpHole has finished transit and is following its emergence path.
+    inline constexpr std::int32_t HoleExitOrderState = -65536;
 
-    inline constexpr std::int32_t ssPirateActive = 7;
+    // The landing target and stored-item loader use opposite high-bit tags.
+    inline constexpr std::uint32_t OrderTargetShipFlag = 0x80000000u;
 
-    inline constexpr std::int32_t ssPirateMilitary = 8;
+    inline constexpr std::uint32_t StoredItemPlanetFlag = 0x80000000u;
 
-    inline constexpr std::int32_t ssCustom = 9;
+    inline constexpr std::int32_t TaggedObjectIdMask = 0x7fffffff;
 
-    // GetScriptStandingOverrideMode (); its SubFaction test is preserved.
-    inline constexpr std::int32_t ssmNormal = 0;
+    // Configuration/adverts leave goods unspecified; greetings translate that to a skip marker.
+    inline constexpr std::int32_t UnspecifiedGoods = 42;
 
-    inline constexpr std::int32_t ssmCustomFaction = 1;
+    inline constexpr std::int32_t NoGreetingGoods = 50;
 
-    inline constexpr std::int32_t ssmFixed = 2;
+    // Higher text-quest IDs use PlanetQuestLic rather than standalone completion records.
+    inline constexpr std::int32_t FirstLicensedQuestId = 10000;
 
-    // Greeting category bits from InitializeShipGreetingDefinitions () and
-    // TShip virtual slot $30. Transport subtypes and pirate allegiance have
-    // separate greeting categories; these values are distinct from TypeId.
-    inline constexpr std::int32_t gscTransport = 0;
-
-    inline constexpr std::int32_t gscLiner = 1;
-
-    inline constexpr std::int32_t gscDiplomat = 2;
-
-    inline constexpr std::int32_t gscRanger = 3;
-
-    inline constexpr std::int32_t gscPirate = 4;
-
-    inline constexpr std::int32_t gscWarrior = 5;
-
-    inline constexpr std::int32_t gscKling = 6;
-
-    inline constexpr std::int32_t gscPirateClan = 7;
-
-    // Hull categories from ShipToHullType (), GetDefaultHullType (),
-    // and ApplySpecialMicroModule (). They are not TShip.TypeId values.
-    inline constexpr std::int32_t htRanger = 0;
-
-    inline constexpr std::int32_t htWarrior = 1;
-
-    inline constexpr std::int32_t htPirate = 2;
-
-    inline constexpr std::int32_t htTransport = 3;
-
-    inline constexpr std::int32_t htLiner = 4;
-
-    inline constexpr std::int32_t htDiplomat = 5;
-
-    inline constexpr std::int32_t htKling = 6;
-
-    inline constexpr std::int32_t htTranclucator = 7;
-
-    inline constexpr std::int32_t htStation = 8;
-
-    inline constexpr std::int32_t htSpecial = 9;
-
-    inline constexpr std::int32_t htFlagship = 10;
-
-    // Used by ranger inventory, Dominator effects, and script prog* identifiers.
-    inline constexpr std::int32_t prgKellerCall = 0;
-
-    inline constexpr std::int32_t prgLogicalNegation = 1;
-
-    inline constexpr std::int32_t prgDematerial = 2;
-
-    inline constexpr std::int32_t prgEnergotron = 3;
-
-    inline constexpr std::int32_t prgSabCrack = 4;
-
-    inline constexpr std::int32_t prgIntercom = 5;
-
-    inline constexpr std::int32_t prgShipwreck = 6;
-
-    inline constexpr std::int32_t prgWeaponBlocking = 7;
-
-    inline constexpr std::int32_t prgInsanity = 8;
-
-    inline constexpr std::int32_t prgShock = 9;
-
-    inline constexpr std::int32_t prgSelfDestruction = 10;
-
-    inline constexpr std::int32_t prgDisconnection = 11;
-
-    // CoalitionProjectNames (), investment dispatch (),
-    // and the military-base war operation () share these cooldown indices.
-    inline constexpr std::int32_t cpCreateRangerCenter = 0;
-
-    inline constexpr std::int32_t cpCreatePirateBase = 1;
-
-    inline constexpr std::int32_t cpCreateMilitaryBase = 2;
-
-    inline constexpr std::int32_t cpCreateScienceBase = 3;
-
-    inline constexpr std::int32_t cpCreateBusinessCenter = 4;
-
-    inline constexpr std::int32_t cpCreateMedicalBase = 5;
-
-    inline constexpr std::int32_t cpRangersSubsidy = 6;
-
-    inline constexpr std::int32_t cpPiratesSubsidy = 7;
-
-    inline constexpr std::int32_t cpTransportSubsidy = 8;
-
-    inline constexpr std::int32_t cpLostSubsidy = 9;
-
-    inline constexpr std::int32_t cpWarSubsidy = 10;
-
-    inline constexpr std::int32_t cpWarOperation = 11;
-
-    // Conversation IDs shared by ShowPlayerDialogue (),
-    // TfTalk.BuildBuiltinChoices (), and script Talk* constants.
-    inline constexpr std::int32_t tkMoneyDemand = 0;
-
-    inline constexpr std::int32_t tkGoodsDemand = 1;
-
-    inline constexpr std::int32_t tkTruceOffer = 2;
-
-    inline constexpr std::int32_t tkAttack = 3;
-
-    inline constexpr std::int32_t tkPartnerBreak = 4;
-
-    inline constexpr std::int32_t tkPartnerEnd = 5;
-
-    inline constexpr std::int32_t tkPartnerRiot = 6;
-
-    // Award categories from SysToReward (); SelectAward returns $FF on failure.
-    inline constexpr std::int32_t atLiberation = 0;
-
-    inline constexpr std::int32_t atAccomplishment = 1;
-
-    inline constexpr std::int32_t atSecretMission = 2;
-
-    inline constexpr std::int32_t atCowardice = 3;
-
-    inline constexpr std::int32_t atPerfidy = 4;
-
-    inline constexpr std::int32_t atPlanetBattle = 5;
-
+    // SelectAward returns this sentinel when no individual award qualifies.
     inline constexpr std::int32_t AwardNotFound = 0x000000ff;
 
     // Semantic aliases follow WeaponDamageFlagNames and the native

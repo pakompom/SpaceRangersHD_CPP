@@ -114,7 +114,6 @@ namespace fPlanetNO {
         static std::int32_t CountDeployedSatellites();
         void AdvanceSatelliteMarkers(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void UpdateProbeSignalSound(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
-        // The explicit script receiver value preserves native argument evaluation order.
         // Borrows Item; nil schedules a delayed hide.
         void UpdateItemInfoPopup(aItem::TItem* Item);
         void ShowGoodsInfoPopup(aItem::TGoods* Item);

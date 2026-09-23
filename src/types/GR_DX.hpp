@@ -48,4 +48,7 @@ namespace GR_DX {
 
     using TLineAlphaTableGR = pas::Array<std::uint8_t, 0, 359>;
 
+    // White texture tint; alpha is supplied separately.
+    inline constexpr std::int32_t RgbWhite = 0x00ffffff;
+
 } // namespace GR_DX

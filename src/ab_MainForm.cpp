@@ -25,6 +25,7 @@
 #include "units/ClassesImports.hpp"
 #include "units/EC_Buf.hpp"
 #include "units/EC_Cache.hpp"
+#include "units/EC_CacheBitmap.hpp"
 #include "units/EC_CacheBuf.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
@@ -303,7 +304,7 @@ namespace ab_MainForm {
         ab_Global::ArcadeSpaceProcess->OpenSpace(WorldPanel, this);
         ab_Global::ArcadeSpaceProcess->Space->AlphaShift = 0;
         if (aPlayer::GetPlayer() != nullptr) {
-            if (aPlayer::GetPlayer()->IsHealthEffectActive(1)) {
+            if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heBlindness)) {
                 ab_Global::ArcadeSpaceProcess->Space->AlphaShift = 2;
             }
         }
@@ -363,7 +364,7 @@ namespace ab_MainForm {
             } else {
                 Ship->CreateShipVisual(aPlayer::GetPlayer()->Graphic->GraphKey, System::Round(pas::real_divide(pas::shl(aPlayer::GetPlayer()->Graphic->Size.X, 10), 8.0E+2L)));
             }
-            aPlayer::GetPlayer()->ScriptItemsAct(0x00000037, Ship, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnStartAB, Ship, nullptr, 0);
         }
         Ship->MaxSpeed = 11.0;
         Ship->TurnSpeed = ab_Global::PlayerInitialTurnSpeed;
@@ -598,7 +599,7 @@ namespace ab_MainForm {
             EnterMapView();
         }
         ab_Global::ArcadeTickCount = 0;
-        UpdateTimer = ScheduleCallbackTimer(20, 20, pas::bind_method<&TfAB::TimerTakt>(this), 0);
+        UpdateTimer = ScheduleCallbackTimer(ab_Global::ArcadeTickMs, ab_Global::ArcadeTickMs, pas::bind_method<&TfAB::TimerTakt>(this), 0);
         ScrollTimer = ScheduleCallbackTimer(GlobalsV::ScrollTime, GlobalsV::ScrollTime, pas::bind_method<&TfAB::ScrollMapTimer>(this), 0);
         TimerTakt(nullptr, 0);
         HideHelp();
@@ -1118,7 +1119,7 @@ namespace ab_MainForm {
                     }
                 }
                 if (aPlayer::GetPlayer() != nullptr) {
-                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1));
+                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, Value - 1));
                     if (aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon) <= Value - 1) {
                         Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"H"}));
                     } else if (Item == nullptr) {
@@ -1132,9 +1133,9 @@ namespace ab_MainForm {
                 WeaponSecondaryImages[Value - 1]->SetActive(false);
                 {
                     GI_Image::TImageGI* cpp_with = WeaponIcons[Value - 1];
-                    if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1) != nullptr) {
+                    if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, Value - 1) != nullptr) {
                         WeaponIcons[Value - 1]->SetActive(true);
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, Value - 1)->GetBitmapResourceName(), u"s"}));
+                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, Value - 1)->GetBitmapResourceName(), u"s"}));
                     } else if (Button->UserIndex >= 0) {
                         WeaponIcons[Value - 1]->SetActive(true);
                         cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[static_cast<aConst::TItemType>(ab_Ship::PlayerArcadeShip->Weapons[Button->UserIndex].ItemType)], u"s"}));
@@ -1154,8 +1155,8 @@ namespace ab_MainForm {
                 if (WeaponButtons[SlotIndex]->UserState == 0) {
                     WeaponButtons[SlotIndex]->UserState = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, WeaponButtons[SlotIndex])));
                 }
-                if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, SlotIndex) != nullptr) {
-                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, SlotIndex));
+                if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, SlotIndex) != nullptr) {
+                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, SlotIndex));
                     MicroModule = Item->MicroModuleIndex;
                     Item->MicroModuleIndex = 0;
                     WeaponName = Item->GetShortName();
@@ -1389,7 +1390,7 @@ namespace ab_MainForm {
                     aGalaxy::Galaxy->CheckIntegrityChecksum1(640);
                 }
                 if (aPlayer::GetPlayer() != nullptr) {
-                    aItem::TWeapon* cpp_with = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSlotIndexMask));
+                    aItem::TWeapon* cpp_with = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSlotIndexMask));
                     cpp_with->AssignedSlotData = ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData;
                 }
                 TfAB::NormalizeWeaponSelection();
@@ -2447,7 +2448,7 @@ namespace ab_MainForm {
             }
             Stage = 1;
             if (ab_Global::ArcadeViewMode == 0) {
-                if (static_cast<std::uint8_t>(ab_Global::ArcadeAutopilotEnabled ^ 1) && static_cast<std::uint8_t>(ab_Global::ArcadeEnemiesDefeated ^ 1) && static_cast<std::uint8_t>(GlobalsV::DisableAutoPilot ^ 1) && (ab_Global::ArcadeTickCount - ab_Global::ArcadeLastInputTick) * 20 > GlobalsV::ChangeAutoPilot * 1000) {
+                if (static_cast<std::uint8_t>(ab_Global::ArcadeAutopilotEnabled ^ 1) && static_cast<std::uint8_t>(ab_Global::ArcadeEnemiesDefeated ^ 1) && static_cast<std::uint8_t>(GlobalsV::DisableAutoPilot ^ 1) && (ab_Global::ArcadeTickCount - ab_Global::ArcadeLastInputTick) * ab_Global::ArcadeTickMs > GlobalsV::ChangeAutoPilot * 1000) {
                     ab_Global::ArcadeAutopilotEnabled = true;
                     UpdateAutopilotButtons();
                 }
@@ -2995,7 +2996,7 @@ namespace ab_MainForm {
         } else if (static_cast<std::uint8_t>(aCalc::IsTurnCalculationRunningUI() ^ 1) && static_cast<std::uint8_t>(pas::is_one_of<ThreadCalc::tcpGalaxyRunning, ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase) ^ 1)) {
             if (aCalc::TurnCalculationPhase == ThreadCalc::tcpGalaxyFinished) {
                 aCalc::QueuePlayerStarTurnCalculation();
-            } else if (aPlayer::GetPlayer()->Order != aShip::soJump && aPlayer::GetPlayer()->Order != aShip::soJumpHole || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == -65536) {
+            } else if (aPlayer::GetPlayer()->Order != aShip::soJump && aPlayer::GetPlayer()->Order != aShip::soJumpHole || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == aGalaxyStruct::HoleExitOrderState) {
                 Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position));
                 Globals::StarMapScreen->ResumeMode = fStarMap::smrTurnFilm;
                 CampaignTransitionStarted = true;
@@ -3801,7 +3802,7 @@ namespace ab_MainForm {
                     Star = aPlayer::GetPlayer()->CurrentStar;
                 }
                 {
-                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(Star->Name), u"<color=255,240,100>"sv);
+                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(Star->Name), pas::view(aMyFunction::TextHighlightColorTag));
                     GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"sv));
                     cpp_arg->SetText(wrapTextInColor);
                 }
@@ -3889,9 +3890,9 @@ namespace ab_MainForm {
                         GI_GraphBuf::TGraphBufGI* cpp_with_4 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Owner, false);
                         cpp_with_4->SourceHasPerPixelAlpha = true;
                         if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) != nullptr) {
-                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aPlanet::TPlanet>(Objects, Index)->GetFactionResourceName())), 1, u","sv), u"?RGBA"}));
+                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide_reverse({EC_CacheBitmap::RgbaImagePathSuffix, EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aPlanet::TPlanet>(Objects, Index)->GetFactionResourceName())), 1, u","sv)}));
                         } else {
-                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aShip::TShip>(Objects, Index)->GetFactionNameKey())), 1, u","sv), u"?RGBA"}));
+                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide_reverse({EC_CacheBitmap::RgbaImagePathSuffix, EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aShip::TShip>(Objects, Index)->GetFactionNameKey())), 1, u","sv)}));
                         }
                         cpp_with_4->SetPosition(ClassesImports::Point(Owner->ClientSize.X / 2 + 15 + 5 + RowHeight + 5 + 1, RowHeight * Index + 1));
                         cpp_with_4->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
@@ -3916,7 +3917,11 @@ namespace ab_MainForm {
                 GetByName(u"InfoStar"sv)->SetActive(false);
                 GetByName(u"InfoPanel"sv)->SetActive(true);
                 {
-                    const pas::WideString& wrapTextInColor_2 = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormAB.InfoName"_wref.get())), u"<color=255,240,100>"sv);
+                    const pas::WideString& wrapTextInColor_2 = ([&] {
+                        pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormAB.InfoName"_wref.get());
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)), pas::view(std::move(textHighlightColorTag)));
+                    }());
                     GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv));
                     cpp_arg_2->SetText(wrapTextInColor_2);
                 }
@@ -3964,9 +3969,9 @@ namespace ab_MainForm {
                 }
                 BattleHelpLabel->SetActive(true);
                 {
-                    const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"Help.ABSphere"_wref.get());
+                    const pas::WideString& localizedColorText_2 = aConst::LocalizedColorText(u"Help.ABSphere"_wref.get());
                     GI_Label::TLabelGI* battleHelpLabel = BattleHelpLabel;
-                    battleHelpLabel->SetText(localizedColorText);
+                    battleHelpLabel->SetText(localizedColorText_2);
                 }
             }
         }
@@ -4014,10 +4019,10 @@ namespace ab_MainForm {
             Instance = Item->Item;
             if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
                 if (Instance->ScriptItem != nullptr) {
-                    reinterpret_cast<aScript::TScriptItem*>(Instance->ScriptItem)->RunActionCode(aConst::satOnShowingItemInfo, nullptr, nullptr, nullptr, 0);
+                    reinterpret_cast<aScript::TScriptItem*>(Instance->ScriptItem)->RunActionCode(aGalaxyStruct::satOnShowingItemInfo, nullptr, nullptr, nullptr, 0);
                 }
                 if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Instance) != nullptr) {
-                    aScript::RunItemConfigActionCode(Instance, aConst::satOnShowingItemInfo, nullptr, nullptr, nullptr, 0);
+                    aScript::RunItemConfigActionCode(Instance, aGalaxyStruct::satOnShowingItemInfo, nullptr, nullptr, nullptr, 0);
                 }
             }
             ItemInfoWindow->SetActive(true);
@@ -4059,7 +4064,7 @@ namespace ab_MainForm {
                     cpp_arg_3->SetText(wrapTextInColor_2);
                 }
                 {
-                    const pas::WideString& infoText = Instance->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
+                    const pas::WideString& infoText = Instance->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, nullptr);
                     GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
                     cpp_arg_4->SetText(infoText);
                 }
@@ -4234,7 +4239,7 @@ namespace ab_MainForm {
             ab_Ship::PlayerArcadeShip->WeaponCount = 0;
             SlotCount = aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, SlotCount - 1); cpp_range.next(SlotIndex); ) {
-                Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::t_Weapon1, SlotIndex));
+                Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, SlotIndex));
                 if (aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Item)) {
                     if (CampaignWeapons[ab_Ship::PlayerArcadeShip->WeaponCount] != Item || ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount].SlotData != Item->AssignedSlotData) {
                         ab_W::ab_Weapon_InitializeFromInfo(&ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount], Item->GetWeaponInfo());
@@ -4332,9 +4337,9 @@ namespace ab_MainForm {
 
     double TfAB::RandomFloat(double BoundA, double BoundB) {
         RandomSeed = RandomSeed / 7931 + (RandomSeed * 7981 + 567);
-        std::int32_t trunc = System::Trunc(BoundB * 1.0E+3L + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * 1.0E+3L + 1.0L);
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, RandomSeed), 1.0E+3L);
+        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(aMyFunction::RandomFloatResolution)) + 1.0L);
+        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(aMyFunction::RandomFloatResolution)) + 1.0L);
+        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, RandomSeed), pas::constant(static_cast<long double>(aMyFunction::RandomFloatResolution)));
     }
 
     void TfAB::UpdateHelp(GI_MessageLoop::TObjectGI* Sender, std::uint8_t Show) {

@@ -3,6 +3,7 @@
 #include "types/GI_MessageLoop.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aGalaxyStruct.hpp"
 
 namespace GI_Image {
     struct TImageGI;
@@ -28,7 +29,7 @@ namespace fChameleon {
         void MainKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void ProcessCallbackTimers() override;
         std::uint8_t ChameleonActive;
-        std::uint8_t VisualType;
+        aGalaxyStruct::TKlingType VisualType;
         std::uint8_t cpp_padding[2];
         pas::Array<std::int32_t, 0, 2> Charges;
         // One-based: disable, Blazer, Keller, Terron.

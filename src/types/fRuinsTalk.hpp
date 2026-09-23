@@ -62,11 +62,11 @@ namespace fRuinsTalk {
         void OnOpen() override;
         void OnClose() override;
         // Returns inventory count; unused sorted slots are -1.
-        std::int32_t SortResearchItems(std::uint8_t Series);
+        std::int32_t SortResearchItems(aGalaxyStruct::TDominatorSeries Series);
         static std::uint8_t IsResearchItemQuestLetter(aItem::TItem* Item);
-        std::int32_t CountResearchRemains(std::uint8_t Series, std::int32_t Count);
+        std::int32_t CountResearchRemains(aGalaxyStruct::TDominatorSeries Series, std::int32_t Count);
         std::int32_t CountResearchEquipment(std::int32_t Count);
-        void BuildResearchItemChoices(std::uint8_t Series, pas::WideString& Text);
+        void BuildResearchItemChoices(aGalaxyStruct::TDominatorSeries Series, pas::WideString& Text);
         void EndTurnClicked(GI_MessageLoop::TObjectGI* Sender);
         void ShipClicked(GI_MessageLoop::TObjectGI* Sender);
         void RememberChoiceScroll();
@@ -287,7 +287,7 @@ namespace fRuinsTalk {
         void ShowDominionPirateLicenseDialog(std::int32_t Action);
         void BuyDominionPirateLicense(std::int32_t Action);
         void DeclineDominionPirateLicense(std::int32_t Action);
-        std::uint8_t CheckDominionServiceStanding(std::uint8_t RequiredRank, pas::WideString Prefix, float CreditCost);
+        std::uint8_t CheckDominionServiceStanding(aGalaxyStruct::TShipRank RequiredRank, pas::WideString Prefix, float CreditCost);
         static void SpendDominionServiceCredit(float CreditCost);
         std::uint8_t CheckDominionAvailable();
         void ShowDominionTravelDialog(std::int32_t Action);
@@ -330,7 +330,7 @@ namespace fRuinsTalk {
         // Copied from the docked ship on entry.
         aGalaxyStruct::TOwnerId StationOwner;
         // Copied from the docked ship on entry.
-        std::uint8_t StationType;
+        aGalaxyStruct::TStationType StationType;
         // timeGetTime timestamp used by the queued-video callback.
         std::uint32_t ScriptVideoStartedAt;
         GI_MessageLoop::PCallbackTimerGI ScriptVideoTimer;

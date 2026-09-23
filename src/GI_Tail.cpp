@@ -115,14 +115,14 @@ namespace GI_Tail {
         std::int32_t I{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, SegmentCapacity - 1); cpp_range.next(I); ) {
             Segment = &Segments[I];
-            if (Segment->Active) {
-                ++Segment->FrameIndex;
-                // The neutral additions preserve native operand materialization order.
-                if (Segment->FrameIndex + 0 >= FrameCount) {
-                    Segment->Active = false;
-                    if (I + 0 == LastSegmentIndex) {
-                        LastSegmentIndex = -1;
-                    }
+            if (!Segment->Active) {
+                continue;
+            }
+            ++Segment->FrameIndex;
+            if (Segment->FrameIndex >= FrameCount) {
+                Segment->Active = false;
+                if (I == LastSegmentIndex) {
+                    LastSegmentIndex = -1;
                 }
             }
         }
@@ -291,7 +291,7 @@ namespace GI_Tail {
                                     pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(Data->GetSequenceFrameIndex(0, Segment->FrameIndex), cpp_result), cpp_result);
                                     std::int32_t cpp_arg = Origin.Y + Bounds.Top;
                                     std::int32_t cpp_arg_2 = Origin.X + Bounds.Left;
-                                    GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, 0x00ffffffu, &ClipRect, false, false);
+                                    GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, GR_DX::RgbWhite, &ClipRect, false, false);
                                 }
                             } else {
                                 Gi = Data->LoadFrameGi(Data->GetSequenceFrameIndex(0, Segment->FrameIndex));
@@ -349,7 +349,7 @@ namespace GI_Tail {
                                         pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(Data->GetSequenceFrameIndex(0, Segment->FrameIndex), cpp_result), cpp_result);
                                         std::int32_t cpp_arg = Origin.Y + Bounds.Top;
                                         std::int32_t cpp_arg_2 = Origin.X + Bounds.Left;
-                                        GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, 0x00ffffffu, &Intersection, false, false);
+                                        GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, GR_DX::RgbWhite, &Intersection, false, false);
                                     }
                                 } else {
                                     Gi = Data->LoadFrameGi(Data->GetSequenceFrameIndex(0, Segment->FrameIndex));

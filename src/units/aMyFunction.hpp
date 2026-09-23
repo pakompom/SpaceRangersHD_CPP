@@ -4,6 +4,52 @@
 #include "types/aMyFunction.hpp"
 
 namespace aMyFunction {
+    // Complete markup tags. Keep these untyped so they remain string literals.
+    // Dialogs remap the standard highlight and equipment colors for light panels.
+    extern const pas::WideString TextHighlightColorTag;
+
+    extern const pas::WideString DialogHighlightColorTag;
+
+    extern const pas::WideString EquipmentBonusColorTag;
+
+    extern const pas::WideString DialogEquipmentBonusColorTag;
+
+    extern const pas::WideString DialogGreenColorTag;
+
+    extern const pas::WideString EndColorTag;
+
+    // Shared palette; the same colors serve several unrelated display roles.
+    // Exact spelling matters to ReplaceAllWideString; padded RGB tags differ.
+    extern const pas::WideString RedColorTag;
+
+    extern const pas::WideString GreenColorTag;
+
+    extern const pas::WideString GrayColorTag;
+
+    extern const pas::WideString YellowColorTag;
+
+    extern const pas::WideString BlackColorTag;
+
+    extern const pas::WideString MagentaColorTag;
+
+    extern const pas::WideString CyanColorTag;
+
+    extern const pas::WideString OrangeColorTag;
+
+    extern const pas::WideString GoldColorTag;
+
+    extern const pas::WideString AzureColorTag;
+
+    extern const pas::WideString DarkGreenColorTag;
+
+    extern const pas::WideString BrightBlueColorTag;
+
+    extern const pas::WideString MicroModuleHighPriorityColorTag;
+
+    extern const pas::WideString DefaultInfoNameColorTag;
+
+    extern const pas::WideString DefaultInfoHullSeriesColorTag;
+
     // Configured by GI_Main from StyleColor.InfoNameColor / InfoHullSeriesColor.
     extern pas::WideString InfoNameColorTag;
 

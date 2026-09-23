@@ -416,7 +416,7 @@ namespace GI_GI {
                                     std::int32_t alpha = Alpha;
                                     std::uint8_t hardwareMirrorHorizontal = HardwareMirrorHorizontal;
                                     pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface = (Image->GetOrCreateSurface(TileIndex, cpp_result), cpp_result);
-                                    GR_DX::DrawTexture(orCreateSurface, X + TileOrigin.X, Y + TileOrigin.Y, alpha, 0x00ffffffu, &ClipRect, false, hardwareMirrorHorizontal);
+                                    GR_DX::DrawTexture(orCreateSurface, X + TileOrigin.X, Y + TileOrigin.Y, alpha, GR_DX::RgbWhite, &ClipRect, false, hardwareMirrorHorizontal);
                                 }
                                 ++TileIndex;
                             }
@@ -432,7 +432,7 @@ namespace GI_GI {
                                 std::int32_t alpha_2 = Alpha;
                                 std::uint8_t hardwareMirrorHorizontal_2 = HardwareMirrorHorizontal;
                                 pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface_2 = (Image->GetOrCreateSurface(0, cpp_result_2), cpp_result_2);
-                                GR_DX::DrawTexture(orCreateSurface_2, X, Y, alpha_2, 0x00ffffffu, &ClipRect, false, hardwareMirrorHorizontal_2);
+                                GR_DX::DrawTexture(orCreateSurface_2, X, Y, alpha_2, GR_DX::RgbWhite, &ClipRect, false, hardwareMirrorHorizontal_2);
                             }
                             X += Width;
                         }

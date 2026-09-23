@@ -60,7 +60,7 @@ namespace fEquipmentShop {
 
     aRuins::TRuins* TemporaryShopStation = nullptr;
 
-    pas::Array<pas::WideString, 0, 2> ShopDominatorImagePrefixes = pas::Array<pas::WideString, 0, 2>{{u"B"_w, u"K"_w, u"T"_w}};
+    aGalaxyStruct::TDominatorSeriesNameTable ShopDominatorImagePrefixes = aGalaxyStruct::TDominatorSeriesNameTable{{u"B"_w, u"K"_w, u"T"_w}};
 
     // Native no-op. Sole caller passes nil; original parameter meaning is unresolved.
     void TemporaryShopStockHook(void* Argument) {
@@ -230,7 +230,7 @@ namespace fEquipmentShop {
     pas::WideString GetShopItemIconName(aItem::TItem* Item) {
         pas::WideString Result{};
         aGalaxyStruct::TOwnerId Owner{};
-        if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr && pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator)) && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(3)) {
+        if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr && pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator)) && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
             Owner = Item->OwnerId;
             Item->OwnerId = aGalaxyStruct::oiDominator;
             Result = Item->GetBitmapResourceName();
@@ -418,10 +418,10 @@ namespace fEquipmentShop {
         }
         {
             GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"sv));
-            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase));
+            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase);
             if (BGCity2->Active) {
                 BGCity2->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(Size)}));
-                BGCity2->GaiImageControl->LoadFrameSequenceFromText(u"[50,0-0]"_wref.get());
+                BGCity2->GaiImageControl->LoadFrameSequenceFromText(GI_GAI::SingleFrameAnimationSpec);
                 BGCity2->SetImageKindX(GI_Main::ikxCenter);
                 BGCity2->SetImageKindY(GI_Main::ikyCenter);
             }
@@ -487,7 +487,7 @@ namespace fEquipmentShop {
         if (aPlayer::GetPlayer() != nullptr) {
             SavedSlots = TemporaryShopSlots;
             TemporaryShopSlots = nullptr;
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
             TemporaryShopSlots = SavedSlots;
         }
         fEquipmentShop::BuildTemporaryShopSlotGrid();
@@ -511,7 +511,7 @@ namespace fEquipmentShop {
         std::int32_t Count{};
         aGalaxy::Galaxy->CheckIntegrityChecksum(191);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         if (TemporaryShopSlots != nullptr) {
             Count = pas::list_count(TemporaryShopSlots);
@@ -821,15 +821,15 @@ namespace fEquipmentShop {
         if (aPlayer::GetPlayer()->QueuedTravelTarget != nullptr) {
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion) && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion) && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase) && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
             if (aPlayer::GetPlayer()->Speed <= 0) {
                 Globals::RuinsTalkScreen->DepartWithStation(1);
                 return;
@@ -1028,7 +1028,8 @@ namespace fEquipmentShop {
                     GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                         pas::WideString intToWideString = EC_Str::IntToWideString(aGalaxy::Galaxy->PendingEquipmentPurchasePrice - aPlayer::GetPlayer()->Money);
                         pas::WideString paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormShop.NoMoney"_wref.get());
-                        return aMyFunction::FormatText1(std::move(paramByPathOrMarker), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToWideString));
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(paramByPathOrMarker), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToWideString));
                     }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
                 }
                 aGalaxy::Galaxy->CheckIntegrityChecksum(309);
@@ -1047,14 +1048,16 @@ namespace fEquipmentShop {
                         if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                             pas::WideString intToWideString_2 = EC_Str::IntToWideString(aGalaxy::Galaxy->PendingEquipmentPurchasePrice);
                             pas::WideString paramByPathOrMarker_2 = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormShop.BuyHull"_wref.get());
-                            return aMyFunction::FormatText1(std::move(paramByPathOrMarker_2), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToWideString_2));
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(paramByPathOrMarker_2), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToWideString_2));
                         }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
                             return;
                         }
                     } else if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                         pas::WideString intToWideString_3 = EC_Str::IntToWideString(aGalaxy::Galaxy->PendingEquipmentPurchasePrice);
                         pas::WideString paramByPathOrMarker_3 = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormShop.UpgradeHull"_wref.get());
-                        return aMyFunction::FormatText1(std::move(paramByPathOrMarker_3), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToWideString_3));
+                        pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(paramByPathOrMarker_3), std::move(textHighlightColorTag_3), u"<Money>"_w, std::move(intToWideString_3));
                     }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
                         return;
                     }
@@ -1062,7 +1065,8 @@ namespace fEquipmentShop {
                     pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(Slot->Item->GetDisplayName());
                     pas::WideString intToWideString_4 = EC_Str::IntToWideString(aGalaxy::Galaxy->PendingEquipmentPurchasePrice);
                     pas::WideString paramByPathOrMarker_4 = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormShop.Buy"_wref.get());
-                    return aMyFunction::FormatText2(std::move(paramByPathOrMarker_4), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW), u"<Money>"_w, std::move(intToWideString_4));
+                    pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText2(std::move(paramByPathOrMarker_4), std::move(textHighlightColorTag_4), u"<Item>"_w, std::move(removeTextTagsW), u"<Money>"_w, std::move(intToWideString_4));
                 }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
                     return;
                 }
@@ -1106,7 +1110,7 @@ namespace fEquipmentShop {
                         Event->AddTextData(aPlayer::GetPlayer()->GetHull()->GetDisplayName());
                         Event->AddTextData(aPlayer::GetPlayer()->GetHull()->GetCategoryConfigName());
                         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aGalaxy::Galaxy->PendingEquipmentPurchasePrice);
-                        aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnPlayerChangeHull, Slot->Item, aPlayer::GetPlayer()->GetHull(), 0);
+                        aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnPlayerChangeHull, Slot->Item, aPlayer::GetPlayer()->GetHull(), 0);
                         pas::list_delete(aPlayer::GetPlayer()->Inventory, pas::list_indexof(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(aPlayer::GetPlayer()->GetHull())));
                         pas::free(aPlayer::GetPlayer()->GetHull());
                         pas::list_insert(aPlayer::GetPlayer()->Inventory, 0, reinterpret_cast<void*>(Slot->Item));
@@ -1114,7 +1118,7 @@ namespace fEquipmentShop {
                         aPlayer::GetPlayer()->GetHull()->OwnerShip = aPlayer::GetPlayer();
                         aPlayer::GetPlayer()->GetHull()->AssignedSlotData = 0u;
                         if (Slot->Item->ScriptItem != nullptr) {
-                            reinterpret_cast<aScript::TScriptItem*>(Slot->Item->ScriptItem)->RunActionCode(aConst::satOnPlayerChangeHull, aPlayer::GetPlayer(), Slot->Item, nullptr, 0);
+                            reinterpret_cast<aScript::TScriptItem*>(Slot->Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnPlayerChangeHull, aPlayer::GetPlayer(), Slot->Item, nullptr, 0);
                         }
                         Slot->Item = nullptr;
                         aPlayer::GetPlayer()->RefreshAssignedItemSlots();
@@ -1151,7 +1155,7 @@ namespace fEquipmentShop {
                     Slot->Item = nullptr;
                     Destination = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(aPlayer::GetPlayer()));
                 }
-                aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnPlayerBuyEq, PurchasedItem, nullptr, Destination);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnPlayerBuyEq, PurchasedItem, nullptr, Destination);
                 aPlayer::GetPlayer()->RefreshDerivedStats(true);
                 aGalaxy::Galaxy->PrimeIntegrityChecksum(197);
                 {
@@ -1303,23 +1307,23 @@ namespace fEquipmentShop {
             if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
                 if (aPlayer::GetPlayer()->CurrentPlanet != nullptr) {
                     if (Item->ScriptItem != nullptr) {
-                        reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
+                        reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
                     }
                     if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) {
-                        aScript::RunItemConfigActionCode(Item, aConst::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
+                        aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->CurrentPlanet, nullptr, 0);
                     }
                 } else {
                     if (Item->ScriptItem != nullptr) {
-                        reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->DockedTo, nullptr, 0);
+                        reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->DockedTo, nullptr, 0);
                     }
                     if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) {
-                        aScript::RunItemConfigActionCode(Item, aConst::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->DockedTo, nullptr, 0);
+                        aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnShowingItemInfo, nullptr, aPlayer::GetPlayer()->DockedTo, nullptr, 0);
                     }
                 }
             }
             if (Item->ItemType == aConst::t_Hull) {
                 {
-                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
+                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, nullptr);
                     aItem::THull* cpp_arg = pas::checked_cast<aItem::THull*>(Item);
                     RefreshHullInfo(this, cpp_arg, std::move(infoText), false);
                 }
@@ -1349,7 +1353,7 @@ namespace fEquipmentShop {
                     cpp_arg_2->SetText(wrapTextInColor);
                 }
                 {
-                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
+                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, nullptr);
                     GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv));
                     cpp_arg_3->SetText(infoText_2);
                 }
@@ -1360,7 +1364,7 @@ namespace fEquipmentShop {
                 }
                 Price = EC_Str::IntToWideString(Equipment->GetConditionAdjustedCost());
                 if (Equipment->GetConditionAdjustedCost() < Equipment->Cost) {
-                    Price = aMyFunction::WrapTextInColor(pas::view(Price), u"<color=255,0,0>"sv);
+                    Price = aMyFunction::WrapTextInColor(pas::view(Price), pas::view(aMyFunction::RedColorTag));
                 }
                 pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPrice"sv))->SetText(Price);
                 {
@@ -1510,7 +1514,7 @@ namespace fEquipmentShop {
         std::int32_t I{};
         pas::WideString PreviewPath{};
         pas::WideString SeriesName{};
-        std::uint8_t DisplayKind{};
+        aGalaxyStruct::TKlingType DisplayKind{};
         aGalaxyStruct::TDominatorSeries Series{};
         std::int32_t BarWidth{};
         std::int32_t CapWidth{};
@@ -1608,25 +1612,25 @@ namespace fEquipmentShop {
             GI_MessageLoop::TObjectGI* byName_13 = Target->GetByName(u"InfoHull_DefGenerator"sv);
             byName_13->SetActive(cpp_arg_16);
         }
-        DisplayKind = 0;
+        DisplayKind = aGalaxyStruct::ktBoss;
         Series = aGalaxyStruct::dsBlazer;
-        std::uint8_t HullKind = Hull->HullType;
-        if (Hull->OwnerShip != nullptr && aPlayer::GetPlayer() == Hull->OwnerShip && aPlayer::GetPlayer()->ChameleonActive && pas::in_range(aPlayer::GetPlayer()->ChameleonVisualType, 0, 7) && aPlayer::GetPlayer()->ChameleonVisualType != 0) {
-            HullKind = 6;
+        aGalaxyStruct::THullType HullKind = Hull->HullType;
+        if (Hull->OwnerShip != nullptr && aPlayer::GetPlayer() == Hull->OwnerShip && aPlayer::GetPlayer()->ChameleonActive && pas::in_range(aPlayer::GetPlayer()->ChameleonVisualType, static_cast<std::int32_t>(aGalaxyStruct::ktBoss), static_cast<std::int32_t>(aGalaxyStruct::ktKlig)) && aPlayer::GetPlayer()->ChameleonVisualType != aGalaxyStruct::ktBoss) {
+            HullKind = aGalaxyStruct::htKling;
             DisplayKind = aPlayer::GetPlayer()->ChameleonVisualType;
             Series = aPlayer::GetPlayer()->ChameleonSeries;
         }
         if (Hull->OwnerShip != nullptr && pas::class_cast_if<aKling::TKling*>(static_cast<pas::Object*>(Hull->OwnerShip)) != nullptr) {
-            HullKind = 6;
-            DisplayKind = static_cast<std::uint8_t>(pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Hull->OwnerShip))->KlingType);
+            HullKind = aGalaxyStruct::htKling;
+            DisplayKind = pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Hull->OwnerShip))->KlingType;
             Series = pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Hull->OwnerShip))->DominatorSeries;
         }
         if (!SuppressImage) {
             GI_Image::TImageGI* InfoHullImage = pas::checked_cast<GI_Image::TImageGI*>(Target->GetByName(u"InfoHullImage"sv));
-            if (HullKind == 6) {
+            if (HullKind == aGalaxyStruct::htKling) {
                 InfoHullImage->SetImagePath(u"GraphBuf"_w);
                 PreviewPath = pas::WideString();
-                if (DisplayKind != 0) {
+                if (DisplayKind != aGalaxyStruct::ktBoss) {
                     PreviewPath = GR_Main::GameDataConfig->GetParamByPathOrMarker(pas::concat_wide({u"SE.Ship.", aConst::DominatorSeriesNames[Series], u".", ShopDominatorImagePrefixes[Series], EC_Str::IntToWideString(DisplayKind), u".", GR_Main::GiResourceSuffix(), u"ImageP"}));
                 }
                 if (PreviewPath != u"") {
@@ -1641,7 +1645,7 @@ namespace fEquipmentShop {
                 } else {
                     GI_GraphBuf::TGraphBufGI* cpp_with_3 = InfoHullImage->GraphBufControl;
                     cpp_with_3->SourceHasPerPixelAlpha = true;
-                    if (DisplayKind == 0) {
+                    if (DisplayKind == aGalaxyStruct::ktBoss) {
                         switch (Series) {
                             case aGalaxyStruct::dsTerron: {
                                 GI_GI::LoadGiByPathIntoGraphBuf(u"Bm.Ruins.Terroni"_wref.get(), cpp_with_3->GraphBuf);
@@ -1808,7 +1812,7 @@ namespace fEquipmentShop {
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));

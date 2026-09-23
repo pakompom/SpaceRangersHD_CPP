@@ -85,9 +85,13 @@ namespace ExceptionInfo {
     pas::WideString ByteToHexText(std::uint8_t Value) {
         pas::WideString Result{};
         Result.set_length(2);
-        Result.write(1) = ExceptionInfo::HexDigit(pas::shr(static_cast<std::int32_t>(Value), 4));
-        Result.write(2) = ExceptionInfo::HexDigit(pas::shr(static_cast<std::int32_t>(Value), 0));
+        Result.write(1) = ExceptionInfo::HexDigitAt(Value, 1);
+        Result.write(2) = ExceptionInfo::HexDigitAt(Value, 0);
         return Result;
+    }
+
+    char16_t HexDigitAt(std::uint8_t Value, std::int32_t Index) {
+        return ExceptionInfo::HexDigit(pas::shr(static_cast<std::int32_t>(Value), Index * 4));
     }
 
     // Native initializer saves and replaces the RTL raise hook.

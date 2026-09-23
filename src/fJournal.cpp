@@ -156,7 +156,7 @@ namespace fJournal {
         JournalSelected = static_cast<std::uint8_t>(JournalSelected ^ 1);
         ToggleJournalNews(nullptr);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
         }
         aGalaxy::Galaxy->PrimeIntegrityChecksum(201);
     }
@@ -164,7 +164,7 @@ namespace fJournal {
     void TfJournal::OnClose() {
         aGalaxy::Galaxy->CheckIntegrityChecksum(202);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         InfoPanel->FreeOwnedChildren();
         MainPanel->OnClose();
@@ -243,8 +243,8 @@ namespace fJournal {
     void TfJournal::AddEntryHeading(pas::WideString Text, pas::WideString MessageText, std::int32_t Compact, std::int32_t RecordIndex) {
         pas::WideString ButtonPrefix{};
         std::int32_t PinWidth{};
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,0,0>"sv);
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::BlackColorTag));
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::GreenColorTag, pas::view(aMyFunction::YellowColorTag));
         GI_Image::TImageGI* Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, InfoPanel);
         if (Compact == 0) {
             Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(), u"CaptionL"}));
@@ -336,7 +336,7 @@ namespace fJournal {
     }
 
     void TfJournal::AddEntryText(pas::WideString Text, GI_Main::TTextAlignXGI Align, pas::WideString FontName) {
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag));
         {
             GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, InfoPanel);
             if (FontName == u"") {
@@ -456,7 +456,7 @@ namespace fJournal {
 
     void TfJournal::PinEntryClicked(GI_MessageLoop::TObjectGI* Sender) {
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
-        Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, Sender->HelpText, u""_wref.get());
+        Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Sender->HelpText, u""_wref.get());
         MainPanel->RebuildMessageButtons(false);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->SetDisabled(true);
         GI_Main::BreakUiMessage();
@@ -505,9 +505,10 @@ namespace fJournal {
                     if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.ExtractRecord"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
                         FileName = aPlayer::GetPlayer()->ExportJournal();
                         GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedText = aConst::LocalizedText(u"FormInfo.ExtractRecordDone"_wref.get());
                             pas::WideString fileName = FileName;
-                            return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<FileName>"_w, std::move(fileName), u"<color=255,240,100>"_w);
+                            return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<FileName>"_w, std::move(fileName), textHighlightColorTag.get());
                         }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
                         RebuildJournalEntries();
                         GI_Main::BreakUiMessage();
@@ -517,9 +518,10 @@ namespace fJournal {
                 if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.ExtractNews"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
                     FileName = aPlayer::GetPlayer()->ExportNews();
                     GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                        auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString localizedText_2 = aConst::LocalizedText(u"FormInfo.ExtractNewsDone"_wref.get());
                         pas::WideString fileName_2 = FileName;
-                        return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<FileName>"_w, std::move(fileName_2), u"<color=255,240,100>"_w);
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<FileName>"_w, std::move(fileName_2), textHighlightColorTag_2.get());
                     }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
                     RebuildNewsEntries();
                     GI_Main::BreakUiMessage();
@@ -554,7 +556,7 @@ namespace fJournal {
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                 if (!GlobalsV::MusicInPlanetEnabled) {
                     GR_Main::MusicManager->RequestFadeOut();
-                } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
                     GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
@@ -591,9 +593,17 @@ namespace fJournal {
                     }
                     Entry = pas::list_at<aGalaxyStruct::TPlanetNews>(aPlayer::GetPlayer()->NewsEntries, I);
                     {
-                        pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(aGalaxy::Galaxy->FormatTurnDate(Entry->Turn)), u"<color=255,240,100>"sv), u"\r\n", u" ", u"\r\n", Entry->Text});
-                        pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), HeadingSuffix})), u"<color=255,240,100>"sv);
-                        AddEntryHeading(std::move(wrapTextInColor), std::move(cpp_arg), 1, 0);
+                        pas::WideString cpp_arg_2 = pas::concat_wide({([&] {
+                            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Entry->Turn);
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)), pas::view(std::move(textHighlightColorTag_2)));
+                        }()), u"\r\n", u" ", u"\r\n", Entry->Text});
+                        pas::WideString wrapTextInColor = ([&] {
+                            pas::WideString cpp_arg = pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), HeadingSuffix});
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg)), pas::view(std::move(textHighlightColorTag)));
+                        }());
+                        AddEntryHeading(std::move(wrapTextInColor), std::move(cpp_arg_2), 1, 0);
                     }
                     AddEntryText(u" ."_w, GI_Main::taxCenter, pas::WideString());
                     AddEntryText(Entry->Text, GI_Main::taxAuto, pas::WideString());
@@ -624,8 +634,16 @@ namespace fJournal {
                 for (I = cpp_first; I >= 0; --I) {
                     Entry = pas::list_at<aPlayer::TJournalRecord>(aPlayer::GetPlayer()->JournalRecords, I);
                     {
-                        pas::WideString cpp_arg = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn)), u"<color=255,240,100>"sv), u"\r\n", u" ", u"\r\n", Entry->Text});
-                        pas::WideString wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn)), u"<color=255,240,100>"sv);
+                        pas::WideString cpp_arg = pas::concat_wide({([&] {
+                            pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn);
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate_2)), pas::view(std::move(textHighlightColorTag_2)));
+                        }()), u"\r\n", u" ", u"\r\n", Entry->Text});
+                        pas::WideString wrapTextInColor = ([&] {
+                            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn);
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)), pas::view(std::move(textHighlightColorTag)));
+                        }());
                         AddEntryHeading(std::move(wrapTextInColor), std::move(cpp_arg), 1, I);
                     }
                     AddEntryText(u" ."_w, GI_Main::taxCenter, pas::WideString());
@@ -641,7 +659,8 @@ namespace fJournal {
             pas::WideString formatText1 = ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(Displayed);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormInfo.RecordCount"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=0,50,200>"_w, u"<Count>"_w, std::move(intToStr));
+                pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(dialogHighlightColorTag), u"<Count>"_w, std::move(intToStr));
             }());
             AddEntryText(std::move(formatText1), GI_Main::taxCenter, smallFontName.get());
         }

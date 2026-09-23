@@ -852,7 +852,7 @@ namespace GI_Label {
                             RemoveUnusedEmbeddedControls(Font);
                             TextTexture->SetSurface(Texture, 0);
                         }
-                        GR_DX::DrawTexture(Texture, AbsolutePosition.X, AbsolutePosition.Y, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                        GR_DX::DrawTexture(Texture, AbsolutePosition.X, AbsolutePosition.Y, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                         if (BorderEnabled) {
                             Color = GR_DX::Color565ToArgb(BorderLightColor);
                             GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - 1, HitTestBounds.Top, Color, 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));

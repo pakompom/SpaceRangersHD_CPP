@@ -48,10 +48,10 @@
 #include "units/fScaner.hpp"
 
 namespace fScaner {
-    pas::WideString GetPirateRankSmallImagePath(std::uint8_t Rank) {
+    pas::WideString GetPirateRankSmallImagePath(aGalaxyStruct::TShipRank Rank) {
         pas::WideString Result{};
         {
-            std::uint8_t cpp_case = Rank;
+            aGalaxyStruct::TShipRank cpp_case = Rank;
             if (cpp_case >= 0 && cpp_case <= 7) {
                 return static_cast<pas::WideString>(pas::concat_ansi({"GI,Bm.FormShip2.PRank", SysUtils::IntToStr(Rank + 1), "s"}));
             } else {
@@ -148,10 +148,10 @@ namespace fScaner {
             ShipToInspect = pas::checked_cast<aShip::TShip*>(Globals::ScannerTarget);
             Stage = 3;
             if (aPlayer::GetPlayer() != nullptr) {
-                aPlayer::GetPlayer()->ScriptItemsAct(0x00000010, ShipToInspect, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnScan, ShipToInspect, nullptr, 0);
             }
             Stage = 4;
-            ShipToInspect->ScriptItemsAct(0x00000018, nullptr, nullptr, 0);
+            ShipToInspect->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
             Stage = 5;
             CompactHullInfo = pas::in_range(ShipToInspect->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation));
             Stage = 6;
@@ -167,7 +167,7 @@ namespace fScaner {
             Stage = 8;
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 7); cpp_range_3.next(I); ) {
                 MaximumSlots = 1;
-                if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::t_Weapon1) {
+                if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::WeaponCategoryItemType) {
                     MaximumSlots = 5;
                 }
                 SlotCount = ShipToInspect->GetSlotCountForItemType(aConst::EquipmentSlotLayouts[I].ItemType);
@@ -177,7 +177,7 @@ namespace fScaner {
                     GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(J), u"off"})))->SetActive(false);
                     GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(J), u"Set"})))->SetActive(false);
                 }
-                if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::t_Weapon1) {
+                if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::WeaponCategoryItemType) {
                     for (auto cpp_range_5 = pas::for_to<std::int32_t>(SlotCount, 4); cpp_range_5.next(J); ) {
                         GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(J), u"off"})))->SetActive(true);
                         GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(J), u"Set"})))->SetActive(false);
@@ -381,7 +381,7 @@ namespace fScaner {
     }
 
     void TfScaner::OnClose() {
-        ShipToInspect->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+        ShipToInspect->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         if (ItemHoverTimer != nullptr) {
             CancelCallbackTimer(ItemHoverTimer);
             ItemHoverTimer = nullptr;
@@ -606,24 +606,24 @@ namespace fScaner {
             if (Sender->UserValue == -1) {
                 if (Sender->UserData != 0) {
                     Info = reinterpret_cast<aShip::PCustomShipInfo>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserData)));
-                    aScript::RunCustomShipInfoActionCode(Info, 0x00000031, ShipToInspect, nullptr, nullptr, 0);
+                    aScript::RunCustomShipInfoActionCode(Info, aGalaxyStruct::satOnShowingItemInfo, ShipToInspect, nullptr, nullptr, 0);
                     Description = Info->Description;
                     if (Description == u"") {
                         Description = aConst::LocalizedColorText(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".Description"}));
                     }
-                    aMyFunction::ReplaceTextToken(Description, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     Caption = aConst::LocalizedColorText(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".Name"}));
-                    aMyFunction::ReplaceTextToken(Caption, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Caption, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     Sender->HelpText = pas::concat_wide({Caption, u"~", Description});
                 }
                 {
@@ -696,13 +696,15 @@ namespace fScaner {
                                     pas::WideString nextRankName = Ship->GetNextRankName();
                                     pas::WideString intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(Ship->GetRankPointsToNextRank()));
                                     pas::WideString localizedText = aConst::LocalizedText(u"Rank.NextRankText"_wref.get());
-                                    return aMyFunction::FormatText2(std::move(localizedText), u"<color=255,240,100>"_w, u"<NextRank>"_w, std::move(nextRankName), u"<WarPoints>"_w, std::move(intToStr));
+                                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                    return aMyFunction::FormatText2(std::move(localizedText), std::move(textHighlightColorTag), u"<NextRank>"_w, std::move(nextRankName), u"<WarPoints>"_w, std::move(intToStr));
                                 }())});
                             } else {
                                 Text = pas::concat_wide({Text, u" ", ([&] {
                                     pas::WideString nextRankName_2 = Ship->GetNextRankName();
                                     pas::WideString localizedText_2 = aConst::LocalizedText(u"Rank.NextRankGetText"_wref.get());
-                                    return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<NextRank>"_w, std::move(nextRankName_2));
+                                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                    return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_2), u"<NextRank>"_w, std::move(nextRankName_2));
                                 }())});
                             }
                         }
@@ -726,7 +728,8 @@ namespace fScaner {
                     Text = pas::concat_wide({Text, u"\r\n", ([&] {
                         pas::WideString intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(Ship->GetPirateRankPointsToNextRank()));
                         pas::WideString localizedText_3 = aConst::LocalizedText(u"RankPirate.NextRankText"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText_3), u"<color=255,240,100>"_w, u"<WarPoints>"_w, std::move(intToStr_2));
+                        pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_3), std::move(textHighlightColorTag_3), u"<WarPoints>"_w, std::move(intToStr_2));
                     }())});
                 }
             } else if (pas::class_cast_if<GI_Zone::TZoneGI*>(Sender) != nullptr) {
@@ -746,23 +749,25 @@ namespace fScaner {
                 Text = ([&] {
                     pas::WideString intToStr_3 = pas::wide_int_to_str(static_cast<std::int32_t>(aConst::PilotSkillEffects[ShipToInspect->GetEffectiveSkillLevel(Skill, false)][Skill]));
                     pas::WideString localizedText_5 = aConst::LocalizedText(pas::concat_wide({u"Skills.", aConst::SkillConfigNames[Skill], u".Text"}));
-                    return aMyFunction::FormatText1(std::move(localizedText_5), u"<color=255,240,100>"_w, u"<SkillValue>"_w, std::move(intToStr_3));
+                    pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText_5), std::move(textHighlightColorTag_4), u"<SkillValue>"_w, std::move(intToStr_3));
                 }());
-                aMyFunction::ReplaceTextToken(Text, u"<SkillLevel>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(ShipToInspect->GetEffectiveSkillLevel(Skill, false))), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<SkillLevel>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(ShipToInspect->GetEffectiveSkillLevel(Skill, false))), aMyFunction::TextHighlightColorTag);
                 if (Skill == aGalaxyStruct::psTechnical) {
-                    aMyFunction::ReplaceTextToken(Text, u"<N>"_w, pas::wide_int_to_str(ShipToInspect->GetSatelliteLimit()), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<N>"_w, pas::wide_int_to_str(ShipToInspect->GetSatelliteLimit()), aMyFunction::TextHighlightColorTag);
                 }
                 if (Skill == aGalaxyStruct::psTrading) {
-                    aMyFunction::ReplaceTextToken(Text, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::TradingSkillSalePercent[ShipToInspect->GetEffectiveSkillLevel(Skill, false)])), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::TradingSkillSalePercent[ShipToInspect->GetEffectiveSkillLevel(Skill, false)])), aMyFunction::TextHighlightColorTag);
                 }
                 if (Skill == aGalaxyStruct::psLeadership) {
-                    aMyFunction::ReplaceTextToken(Text, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::LeadershipExperiencePercent[ShipToInspect->GetEffectiveSkillLevel(Skill, false)])), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::LeadershipExperiencePercent[ShipToInspect->GetEffectiveSkillLevel(Skill, false)])), aMyFunction::TextHighlightColorTag);
                 }
                 if (ShipToInspect->GetBaseSkillLevel(Skill) < 6) {
                     Text = pas::concat_wide({Text, u"\r\n", u"\r\n", ([&] {
                         pas::WideString intToStr_4 = pas::wide_int_to_str(static_cast<std::int32_t>(aConst::SkillTrainingCosts[ShipToInspect->BaseSkills[Skill] + 1][Skill]));
                         pas::WideString localizedText_6 = aConst::LocalizedText(u"Skills.PointForNextLevel"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText_6), u"<color=255,240,100>"_w, u"<PointForNextLevel>"_w, std::move(intToStr_4));
+                        pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_6), std::move(textHighlightColorTag_5), u"<PointForNextLevel>"_w, std::move(intToStr_4));
                     }())});
                 }
             }
@@ -885,7 +890,7 @@ namespace fScaner {
             }
             Stage = 3;
             if (ShipToInspect->CalculateSpeed() <= 0) {
-                Text = u"<color=255,0,0>"_w;
+                Text = aMyFunction::RedColorTag;
             } else {
                 Text = pas::WideString();
             }
@@ -896,7 +901,7 @@ namespace fScaner {
             }
             Stage = 4;
             if (ShipToInspect->GetCargoFreeSpace() < 0) {
-                Text = u"<color=255,0,0>"_w;
+                Text = aMyFunction::RedColorTag;
             } else {
                 Text = pas::WideString();
             }
@@ -986,7 +991,7 @@ namespace fScaner {
                     GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(SlotIndex), u"Ex"})))->SetActive(false);
                     Stage = 17;
                 }
-                if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::t_Weapon1) {
+                if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::WeaponCategoryItemType) {
                     Stage = 18;
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(SlotCount, 4); cpp_range_3.next(SlotIndex); ) {
                         pas::checked_cast<GI_Zone::TZoneGI*>(GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(SlotIndex), u"z"}))))->ZoneMouseDownCallback = nullptr;
@@ -1299,15 +1304,15 @@ namespace fScaner {
             }
             if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
                 if (Item->ScriptItem != nullptr) {
-                    reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(0x00000031, ShipToInspect, nullptr, nullptr, 0);
+                    reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnShowingItemInfo, ShipToInspect, nullptr, nullptr, 0);
                 }
                 if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) {
-                    aScript::RunItemConfigActionCode(Item, 0x00000031, ShipToInspect, nullptr, nullptr, 0);
+                    aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnShowingItemInfo, ShipToInspect, nullptr, nullptr, 0);
                 }
             }
             if (Item->ItemType == aConst::t_Hull && ShipToInspect->TypeId != aGalaxyStruct::stTranclucator && ShipToInspect->TypeId != aGalaxyStruct::stKling && static_cast<std::uint8_t>(CompactHullInfo ^ 1)) {
                 {
-                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, ShipToInspect);
+                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, ShipToInspect);
                     aItem::THull* cpp_arg = pas::checked_cast<aItem::THull*>(Item);
                     GI_MessageLoop::TMessageLoopGI* self = this;
                     fEquipmentShop::TfEquipmentShop* equipmentShopScreen = Globals::EquipmentShopScreen;
@@ -1389,7 +1394,7 @@ namespace fScaner {
                     cpp_arg_2->SetText(wrapTextInColor);
                 }
                 {
-                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, ShipToInspect);
+                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, ShipToInspect);
                     GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoText"sv));
                     cpp_arg_3->SetText(infoText_2);
                 }
@@ -1642,13 +1647,13 @@ namespace fScaner {
         Panel->SetDragScrollingEnabled(true);
         OffsetY = 0;
         for (I = 1; I <= 24; ++I) {
-            if (ShipToInspect->IsHealthEffectActive(I)) {
+            if (ShipToInspect->IsHealthEffectActive(static_cast<aGalaxyStruct::TCaptainHealthEffect>(I))) {
                 if (I < 13) {
                     IconKind = 1;
                 } else {
                     IconKind = 2;
                 }
-                AddRow(IconKind, aConst::CaptainHealthDefinitions[I].Name, pas::concat_wide({aConst::CaptainHealthDefinitions[I].Name, u"~", aConst::CaptainHealthDefinitions[I].Text}), 0);
+                AddRow(IconKind, aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name, pas::concat_wide({aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name, u"~", aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Text}), 0);
             }
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ShipToInspect->CustomShipInfos) - 1); cpp_range.next(I); ) {
@@ -1660,19 +1665,19 @@ namespace fScaner {
                     Description = aConst::LocalizedColorText(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".Description"}));
                 }
                 if (Description != u"NoShow") {
-                    aMyFunction::ReplaceTextToken(Description, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     Caption = Block->GetParam(u"Name"sv);
-                    aMyFunction::ReplaceTextToken(Caption, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Caption, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Caption, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Caption, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     {
                         std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Icon"sv)));
                         pas::WideString cpp_arg = pas::concat_wide({Caption, u"~", Description});

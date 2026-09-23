@@ -143,7 +143,7 @@ namespace GI_GAIFile {
         std::int32_t I{};
         if (LoaderThread != nullptr && LoaderThread->IsRunning()) {
             LoaderThread->RequestStop();
-            LoaderThread->WaitForIdle(0xffffffffu);
+            LoaderThread->WaitForIdle(WindowsSdk::INFINITE);
         }
         if (ImageFile != nullptr && ImageFile->OpenDepth > 0) {
             ImageFile->ReleaseHandle();
@@ -173,7 +173,7 @@ namespace GI_GAIFile {
         }
         if (LoaderThread->IsRunning()) {
             LoaderThread->RequestStop();
-            LoaderThread->WaitForIdle(0xffffffffu);
+            LoaderThread->WaitForIdle(WindowsSdk::INFINITE);
         }
         Data = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*)))))));
         if (Data != nullptr) {
@@ -195,7 +195,7 @@ namespace GI_GAIFile {
         void* Data{};
         if (LoaderThread->IsRunning()) {
             LoaderThread->RequestStop();
-            LoaderThread->WaitForIdle(0xffffffffu);
+            LoaderThread->WaitForIdle(WindowsSdk::INFINITE);
         }
         if (SequenceFrameCount > PreloadCount) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Header.FrameCount - 1); cpp_range.next(I); ) {
@@ -287,7 +287,7 @@ namespace GI_GAIFile {
         std::int32_t Last{};
         if (LoaderThread->IsRunning()) {
             LoaderThread->RequestStop();
-            LoaderThread->WaitForIdle(0xffffffffu);
+            LoaderThread->WaitForIdle(WindowsSdk::INFINITE);
         }
         if (SequenceFrames != nullptr) {
             EC_Mem::FreeEC(SequenceFrames);

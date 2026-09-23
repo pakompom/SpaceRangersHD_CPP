@@ -102,9 +102,9 @@ namespace fJump {
             }
             LoadPanel->SetProgress(1.0f);
             LoadPanel->Hide();
-            if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
+            if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase) {
                 MovieConfig = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.WB.HyperJumpVideo"_wref.get());
-            } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion)) {
+            } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion) {
                 MovieConfig = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.CB.HyperJumpVideo"_wref.get());
             } else {
                 BeginTravel();
@@ -197,7 +197,7 @@ namespace fJump {
             aCalc::QueueGalaxyTurnCalculation();
             Present();
         } else {
-            if (static_cast<std::uint8_t>(pas::is_one_of<aShip::soJump, aShip::soJumpHole, aShip::soTeleport>(aPlayer::GetPlayer()->Order) ^ 1) || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == -65536) {
+            if (static_cast<std::uint8_t>(pas::is_one_of<aShip::soJump, aShip::soJumpHole, aShip::soTeleport>(aPlayer::GetPlayer()->Order) ^ 1) || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == aGalaxyStruct::HoleExitOrderState) {
                 aCalc::QueueGalaxyTurnCalculation();
                 Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position));
                 Globals::StarMapScreen->ResumeMode = fStarMap::smrTurnFilm;

@@ -48,4 +48,7 @@ namespace CPVarClass {
     #pragma pack(pop)
     #endif
 
+    // Arithmetic saturation and numeric-conversion limit; also used on zero division.
+    inline constexpr std::int32_t QuestNumericLimit = 2000000000;
+
 } // namespace CPVarClass

@@ -85,23 +85,22 @@ namespace Achievements {
         return Result;
     }
 
-    // 1=Steam, 2=Steam without achievement support, 3=local.
-    std::uint8_t GetAchievementBackend() {
+    TAchievementBackend GetAchievementBackend() {
         if (SimpleSteamApi::SteamInitialized) {
             if (SimpleSteamApi::SteamAchievementsCount() > 0) {
-                return 1;
+                return achSteam;
             }
-            return 2;
+            return achSteamWithoutAchievements;
         }
-        return 3;
+        return achLocal;
     }
 
     // Capped at 82.
     std::int32_t GetAvailableAchievementCount() {
         switch (Achievements::GetAchievementBackend()) {
-            case 1: return std::min<std::int32_t>(82, SimpleSteamApi::SteamAchievementsCount());
-            case 3: return 82;
-            case 2: return 0;
+            case achSteam: return std::min<std::int32_t>(82, SimpleSteamApi::SteamAchievementsCount());
+            case achLocal: return 82;
+            case achSteamWithoutAchievements: return 0;
             default: return 0;
         }
     }
@@ -140,11 +139,11 @@ namespace Achievements {
         if (Block != nullptr) {
             Result = Achievements::CreateAchievementData();
             switch (Achievements::GetAchievementBackend()) {
-                case 1: {
+                case achSteam: {
                     SimpleSteamApi::SteamAchievementData(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Result);
                     break;
                 }
-                case 3: NoSteamAchievemens::GetLocalAchievementData(Key, Result); break;
+                case achLocal: NoSteamAchievemens::GetLocalAchievementData(Key, Result); break;
             }
             WStringUtils::TruncateStartupWideString(pas::Var<WStringUtils::PStartupWideString>(&Result->Name));
             WStringUtils::TruncateStartupWideString(pas::Var<WStringUtils::PStartupWideString>(&Result->Description));
@@ -173,12 +172,12 @@ namespace Achievements {
             return Result;
         }
         switch (Achievements::GetAchievementBackend()) {
-            case 1: {
+            case achSteam: {
                 Result = SimpleSteamApi::SteamUnlockAchievement(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))));
                 break;
             }
-            case 3: Result = NoSteamAchievemens::UnlockLocalAchievement(Block); break;
-            case 2: Result = false; break;
+            case achLocal: Result = NoSteamAchievemens::UnlockLocalAchievement(Block); break;
+            case achSteamWithoutAchievements: Result = false; break;
             default: Result = false; break;
         }
         if (Result && aPlayer::GetPlayer() != nullptr) {
@@ -217,12 +216,12 @@ namespace Achievements {
             return Result;
         }
         switch (Achievements::GetAchievementBackend()) {
-            case 1: {
+            case achSteam: {
                 Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
                 break;
             }
-            case 3: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
-            case 2: Result = false; break;
+            case achLocal: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
+            case achSteamWithoutAchievements: Result = false; break;
             default: Result = false; break;
         }
         Achievements::FreeAchievementData(Data);
@@ -261,12 +260,12 @@ namespace Achievements {
             Increment = Data->MaxValue - Data->Value;
         }
         switch (Achievements::GetAchievementBackend()) {
-            case 1: {
+            case achSteam: {
                 Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
                 break;
             }
-            case 3: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
-            case 2: Result = false; break;
+            case achLocal: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
+            case achSteamWithoutAchievements: Result = false; break;
             default: Result = false; break;
         }
         Achievements::FreeAchievementData(Data);
@@ -488,7 +487,7 @@ namespace Achievements {
 
     // Requires PlaceInRating=1 and CurrentTurn>=300.
     void TAchievementStats::CheckFirstPlaceRatingAchievement() {
-        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->CurrentTurn >= 300 && aPlayer::GetPlayer()->PlaceInRating == 1) {
+        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->CurrentTurn >= aGalaxyStruct::GalaxyWarmupTurns && aPlayer::GetPlayer()->PlaceInRating == 1) {
             Achievements::TryUnlockAchievement(u"RATING"_w);
         }
     }
@@ -522,7 +521,7 @@ namespace Achievements {
     void TAchievementStats::CheckFastVictoryAchievement() {
         std::int32_t Elapsed{};
         if (aGalaxy::Galaxy != nullptr) {
-            Elapsed = aGalaxy::Galaxy->CurrentTurn - 300;
+            Elapsed = aGalaxy::Galaxy->CurrentTurn - aGalaxyStruct::GalaxyWarmupTurns;
             if (pas::real_divide(Elapsed, 365.0L) < 7.0L) {
                 Achievements::TryUnlockAchievement(u"SPRINTER"_w);
             }
@@ -620,9 +619,9 @@ namespace Achievements {
 
     // ILL: the player has experienced every one of the twelve diseases.
     void TAchievementStats::CheckAllDiseasesAchievement() {
-        std::int32_t I{};
+        aGalaxyStruct::TCaptainHealthEffect I{};
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            for (I = 1; I <= 12; ++I) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(static_cast<aGalaxyStruct::TCaptainHealthEffect>(1), static_cast<aGalaxyStruct::TCaptainHealthEffect>(12)); cpp_range.next(I); ) {
                 if (aPlayer::GetPlayer()->CaptainHealth[I].ApplicationCount == 0) {
                     return;
                 }
@@ -632,9 +631,9 @@ namespace Achievements {
     }
 
     void TAchievementStats::CheckAllDrugsAchievement() {
-        std::int32_t I{};
+        aGalaxyStruct::TCaptainHealthEffect I{};
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            for (I = 13; I <= 24; ++I) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(static_cast<aGalaxyStruct::TCaptainHealthEffect>(13), static_cast<aGalaxyStruct::TCaptainHealthEffect>(24)); cpp_range.next(I); ) {
                 if (aPlayer::GetPlayer()->CaptainHealth[I].ApplicationCount == 0) {
                     return;
                 }
@@ -664,7 +663,7 @@ namespace Achievements {
         std::uint16_t Month{};
         std::uint16_t Day{};
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            SysUtilsImports::DecodeDate(aGalaxy::GameTurnToDateTime(aGalaxy::Galaxy->CurrentTurn - 300), Year, Month, Day);
+            SysUtilsImports::DecodeDate(aGalaxy::GameTurnToDateTime(aGalaxy::Galaxy->CurrentTurn - aGalaxyStruct::GalaxyWarmupTurns), Year, Month, Day);
             if (Year > 3304) {
                 return;
             }

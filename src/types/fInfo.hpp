@@ -90,7 +90,6 @@ namespace fInfo {
         void SearchClicked(GI_MessageLoop::TObjectGI* Sender);
         void RunSearch(GI_MessageLoop::TObjectGI* Sender);
         void AddEquipmentInfoText(aItem::TItem* Item, pas::WideString Text);
-        // The explicit receiver value preserves native loading before the False argument.
         void ToggleVisibleBookmark();
         static std::uint8_t IsAtBusinessCenter();
         void CategoryStateChanged(GI_MessageLoop::TObjectGI* Sender);

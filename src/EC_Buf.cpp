@@ -487,9 +487,12 @@ namespace EC_Buf {
         std::int32_t i{};
         // Nested helper of TBufEC.ApplyDatXorCipher; requires its parent stack frame.
         auto StepDatXorSeedState = [&]() -> std::int32_t {
-            State = 16807 * (State % 127773) - 2836 * (State / 127773);
+            {
+                std::int32_t cpp_left = SeedRngMultiplier * pas::imod(State, SeedRngQuotient);
+                State = cpp_left - SeedRngRemainder * pas::idiv(State, SeedRngQuotient);
+            }
             if (State <= 0) {
-                State += 0x7fffffff;
+                State += SeedRngModulus;
             }
             return State - 1;
         };

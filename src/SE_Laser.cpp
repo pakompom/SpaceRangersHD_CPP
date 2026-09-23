@@ -4,6 +4,7 @@
 #include "types/GI_Panel.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aMyFunction.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
@@ -49,7 +50,7 @@ namespace SE_Laser {
         double Angle = Math::ArcTan2(static_cast<long double>(TargetPosition.X) - Position.X, -(static_cast<long double>(TargetPosition.Y) - Position.Y));
         double AngleSin = System::Sin(Angle);
         double AngleCos = System::Cos(Angle);
-        std::int32_t ImageAngle = System::Round(pas::real_divide(Angle, 3.1415926L) * 127.0L) & 0x000000ff;
+        std::int32_t ImageAngle = System::Round(pas::real_divide(Angle, aMyFunction::GamePi) * 127.0L) & 0x000000ff;
         double Distance = pas::real_divide(SegmentSize, 2.0L);
         double BeamLength = System::Sqrt(pas::sqr(static_cast<long double>(TargetPosition.X) - Position.X) + pas::sqr(static_cast<long double>(TargetPosition.Y) - Position.Y));
         Segments = pas::make_object<pas::List>();

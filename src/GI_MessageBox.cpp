@@ -14,6 +14,7 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/System.hpp"
+#include "units/aMyFunction.hpp"
 
 // Native routines; dialog VMT and managed-field table precede OnOpen.
 namespace GI_MessageBox {
@@ -99,7 +100,7 @@ namespace GI_MessageBox {
         TextLabel->SetDepth(0.0);
         TextLabel->SetFontName(GlobalsV::NormalFontName);
         TextLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
-        TextLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(MessageText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv), u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"sv));
+        TextLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(MessageText, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag)), aMyFunction::GreenColorTag, pas::view(aMyFunction::YellowColorTag)));
         std::int32_t Attempts = 100;
         while (Attempts > 0) {
             TextLabel->SetTextAlignX(GI_Main::taxCenter);

@@ -67,13 +67,13 @@ namespace aKling {
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
-        std::uint8_t GetGreetingShipCategory() override;
+        aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() override;
         // Always rcWarrior.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Checks the stored active flag and ID; expiration is handled by the daily ship update.
-        std::uint8_t IsProgramActive(std::uint8_t ProgramId);
+        std::uint8_t IsProgramActive(aGalaxyStruct::TProgramIndex ProgramId);
         // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
         void SetInventoryDominatorOwner();
@@ -113,7 +113,7 @@ namespace aKling {
         std::uint8_t cpp_padding[2];
         // Zero means inactive.
         std::int32_t ActiveProgramAppliedTurn;
-        std::uint8_t ActiveProgramId;
+        aGalaxyStruct::TProgramIndex ActiveProgramId;
         std::uint8_t AuraEffectShownThisTurn;
         std::uint8_t cpp_padding_2[2];
     };

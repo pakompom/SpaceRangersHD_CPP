@@ -53,7 +53,7 @@ namespace aRanger {
         rcmDecreaseWithFloor20 = 4,
     };
 
-    using TRangerProgramMask = pas::Set<0, 15>;
+    using TRangerProgramMask = pas::Set<0, 11>;
 
     using PQuest = TQuest*;
 
@@ -101,7 +101,7 @@ namespace aRanger {
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         // Returns the ranger category used by ship-greeting filters.
-        std::uint8_t GetGreetingShipCategory() override;
+        aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() override;
         // Ties favor trader, then pirate.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         // Values occupies the low three bytes of one stack slot; result is the average of 100 minus each career-distance.
@@ -141,7 +141,7 @@ namespace aRanger {
         void BuildReachablePlanetQueue() override;
         std::uint8_t virtual_TShip_CanQueueReachablePlanet(aPlanet::TPlanet* Planet) override;
         // Native distant-system branch tests ships in the current system (), rather than the candidate system.
-        std::uint8_t TryOrderTravelToShipTypeLocation(std::uint8_t ShipType);
+        std::uint8_t TryOrderTravelToShipTypeLocation(aGalaxyStruct::TShipType ShipType);
         void SellCargoGoods();
         void BuyProfitableGoods();
         // Skips queue index 0. Leaves BestPlanet unchanged unless a candidate improves the score; UnitCost must be nonzero.
@@ -185,18 +185,18 @@ namespace aRanger {
         std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
         std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
         std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        static pas::WideString GetProgramName(std::uint8_t ProgramIndex);
-        pas::WideString GetProgramInfoText(std::uint8_t ProgramIndex);
+        static pas::WideString GetProgramName(aGalaxyStruct::TProgramIndex ProgramIndex);
+        pas::WideString GetProgramInfoText(aGalaxyStruct::TProgramIndex ProgramIndex);
         // Does not mask or validate ProgramIndex.
-        std::uint8_t HasProgram(std::uint8_t ProgramIndex);
+        std::uint8_t HasProgram(aGalaxyStruct::TProgramIndex ProgramIndex);
         // Sums owned quantities for bits 0..11; higher bits are ignored. Native signed 32-bit additions wrap on overflow.
         std::int32_t CountProgramsInFilter(TRangerProgramMask Filter);
         // Selects an allowed ID regardless of inventory counts; deterministic system/turn seed. Empty filter returns zero after 10000 attempts.
-        std::uint8_t SelectRandomProgramIdFromFilter(TRangerProgramMask Filter);
+        aGalaxyStruct::TProgramIndex SelectRandomProgramIdFromFilter(TRangerProgramMask Filter);
         // Favors program 5 until enough copies exist; otherwise selects among IDs 6..11.
-        std::uint8_t SelectProgramReward();
+        aGalaxyStruct::TProgramIndex SelectProgramReward();
         // At least one; uses galaxy seed, turn and difficulty.
-        static std::int32_t GetProgramRewardCount(std::uint8_t ProgramIndex);
+        static std::int32_t GetProgramRewardCount(aGalaxyStruct::TProgramIndex ProgramIndex);
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
         float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
         float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;

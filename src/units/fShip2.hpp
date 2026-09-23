@@ -1,4 +1,5 @@
 #pragma once
+#include "types/aGalaxyStruct.hpp"
 #include "types/aPlayer.hpp"
 #include "types/fShip2.hpp"
 
@@ -31,13 +32,13 @@ namespace fShip2 {
 
     std::int32_t CompareStoredItems(aPlayer::PStorageEntry Left, aPlayer::PStorageEntry Right, TPlayerHoldSort Sort);
 
-    pas::WideString RankToImage(std::uint8_t Rank);
+    pas::WideString RankToImage(aGalaxyStruct::TShipRank Rank);
 
-    pas::WideString RankToImageSmall(std::uint8_t Rank);
+    pas::WideString RankToImageSmall(aGalaxyStruct::TShipRank Rank);
 
-    pas::WideString PirateRankToImage(std::uint8_t Rank);
+    pas::WideString PirateRankToImage(aGalaxyStruct::TShipRank Rank);
 
-    pas::WideString PirateRankToImageSmall(std::uint8_t Rank);
+    pas::WideString PirateRankToImageSmall(aGalaxyStruct::TShipRank Rank);
 
     void InitializePlayerHoldView();
 

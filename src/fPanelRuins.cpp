@@ -101,7 +101,7 @@ namespace fPanelRuins {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstBusinessCenter) && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
             const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.DebtNoAccess"_wref.get());
             GI_MessageLoop::TMessageLoopGI* screen = Screen;
             GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -127,7 +127,7 @@ namespace fPanelRuins {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstBusinessCenter) && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
             const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.DebtNoAccess"_wref.get());
             GI_MessageLoop::TMessageLoopGI* screen = Screen;
             GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -153,7 +153,7 @@ namespace fPanelRuins {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstBusinessCenter) && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
             const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.DebtNoAccess"_wref.get());
             GI_MessageLoop::TMessageLoopGI* screen = Screen;
             GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -204,7 +204,7 @@ namespace fPanelRuins {
         aGalaxy::PlayerStar->RefreshSpaceObjectPositions();
         fEquipmentShop::RestoreTemporaryShopStock();
         aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 1);
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(3)) {
+        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
             aGalaxy::Galaxy->EnableDominatorSurfaces();
         } else {
             aGalaxy::Galaxy->DisableDominatorSurfaces();

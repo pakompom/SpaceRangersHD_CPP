@@ -30,9 +30,9 @@ namespace aItem {
     // Applies the ordered item-type insertions for save versions before 164, 78, 131, 78 and 127; arithmetic wraps in a byte.
     aConst::TItemType MigrateSavedItemType(std::uint8_t ItemType);
 
-    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, std::uint8_t HullType, aGalaxyStruct::TOwnerId Owner, void* Ship);
+    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, aGalaxyStruct::THullType HullType, aGalaxyStruct::TOwnerId Owner, void* Ship);
 
-    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner, std::uint8_t HullType);
+    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner, aGalaxyStruct::THullType HullType);
 
     std::int32_t CalculateGeneratedFuelCapacity(std::uint32_t Weight, std::int32_t Level);
 

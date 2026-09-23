@@ -42,7 +42,7 @@ namespace aNormalShip {
     };
     #pragma pack(pop)
 
-    using TAwardTypeMask = pas::Set<0, 7>;
+    using TAwardTypeMask = pas::Set<0, 5>;
 
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
@@ -104,12 +104,12 @@ namespace aNormalShip {
         TSystemKillCounts CurrentSystemKills;
         aPlanet::TPlanet* PendingLiberationCeremonyPlanet;
         std::int32_t PendingLiberationContribution;
-        std::uint8_t Rank;
+        aGalaxyStruct::TShipRank Rank;
         std::uint8_t cpp_padding[1];
         std::uint16_t RankPoints;
         // Shared 30-turn cooldown for money, cargo and paid-truce demands.
         std::int32_t LastPlayerExtortionTurn;
-        std::uint8_t PirateRank;
+        aGalaxyStruct::TShipRank PirateRank;
         std::uint8_t cpp_padding_2[3];
         std::uint32_t PirateRankPoints;
     };

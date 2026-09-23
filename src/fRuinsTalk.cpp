@@ -4,7 +4,6 @@
 #include "types/EC_Data.hpp"
 #include "types/EC_Expression.hpp"
 #include "types/EC_Struct.hpp"
-#include "types/GI_GAI.hpp"
 #include "types/GI_GraphButton.hpp"
 #include "types/GI_MessageLoop.hpp"
 #include "types/GI_PanelScrollBar.hpp"
@@ -28,6 +27,7 @@
 #include "units/Achievements.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Str.hpp"
+#include "units/GI_GAI.hpp"
 #include "units/GI_Image.hpp"
 #include "units/GI_Label.hpp"
 #include "units/GI_Main.hpp"
@@ -127,7 +127,7 @@ namespace fRuinsTalk {
 
     pas::Array<std::int32_t, 0, 11> InvestmentQuoteCosts{};
 
-    std::uint8_t SelectedResearchSeries{};
+    aGalaxyStruct::TDominatorSeries SelectedResearchSeries{};
 
     std::int32_t NearbyTradeAdviceCost{};
 
@@ -155,7 +155,7 @@ namespace fRuinsTalk {
 
     std::int32_t GetDominionRelocationCost(aGalaxy::TStar* Star) {
         std::uint8_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
-        return std::min<std::int64_t>(static_cast<std::int64_t>(100000000), ([&] {
+        return std::min<std::int64_t>(static_cast<std::int64_t>(aGalaxyStruct::MaxMonetaryValue), ([&] {
             std::int32_t cpp_arg = aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) * 2;
             std::int32_t cpp_arg_2 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) / 2;
             pas::Extended cpp_right = aMyFunction::SeededRandomIntRange(cpp_arg_2, cpp_arg, Star->GenerationSeed + 1171 + aPlayer::GetPlayer()->DockedTo->CurrentStar->GenerationSeed);
@@ -412,7 +412,7 @@ namespace fRuinsTalk {
     // Native diagnostic name: TfRuinsTalk.BeforeRun.
     void TfRuinsTalk::OnOpen() {
         aGalaxyStruct::TOwnerId Owner{};
-        std::uint8_t Kind{};
+        aGalaxyStruct::TStationType Kind{};
         std::int32_t Index{};
         EC_BlockPar::TBlockParEC* Block{};
         GI_MessageLoop::TObjectGI* Control{};
@@ -439,7 +439,7 @@ namespace fRuinsTalk {
             SavedChoiceScroll = -1;
             Stage = 3;
             StationOwner = aPlayer::GetPlayer()->DockedTo->OwnerId;
-            StationType = aPlayer::GetPlayer()->DockedTo->TypeId;
+            StationType = static_cast<aGalaxyStruct::TStationType>(aPlayer::GetPlayer()->DockedTo->TypeId);
             StationBridgeMode = aPlayer::GetPlayer()->RuinsMode;
             if (StationBridgeMode > 0) {
                 aPlayer::GetPlayer()->CurrentPlanet = nullptr;
@@ -465,10 +465,10 @@ namespace fRuinsTalk {
             aGalaxy::Galaxy->ReleaseItemGraphics();
             Stage = 8;
             Background = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG2"sv));
-            Background->SetActive(StationType == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase));
+            Background->SetActive(StationType == aGalaxyStruct::rstMilitaryBase);
             if (Background->Active) {
                 Background->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(Index)}));
-                Background->GaiImageControl->LoadFrameSequenceFromText(u"[50,0-0]"_wref.get());
+                Background->GaiImageControl->LoadFrameSequenceFromText(GI_GAI::SingleFrameAnimationSpec);
                 Background->SetImageKindX(GI_Main::ikxCenter);
                 Background->SetImageKindY(GI_Main::ikyCenter);
             }
@@ -491,7 +491,7 @@ namespace fRuinsTalk {
                 if (Control != nullptr) {
                     Control->SetActive(false);
                 }
-                for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(6), static_cast<std::uint8_t>(12)); cpp_range_2.next(Kind); ) {
+                for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TStationType>(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstRangerCenter), static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstDominion)); cpp_range_2.next(Kind); ) {
                     Control = FindControlByPath(pas::concat_wide({u"Panel", aConst::OwnerInfo[Owner].InternalName, aConst::ShipTypeNames[Kind].Name}));
                     if (Control != nullptr) {
                         Control->SetActive(false);
@@ -588,7 +588,7 @@ namespace fRuinsTalk {
             Stage = 25;
             MainPanel->RebuildMessageButtons(false);
             if (aPlayer::GetPlayer() != nullptr) {
-                aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
             }
             Stage = 26;
             SelectPortraitAnimation(true);
@@ -608,7 +608,7 @@ namespace fRuinsTalk {
     void TfRuinsTalk::OnClose() {
         aGalaxy::Galaxy->CheckIntegrityChecksum(181);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         StopScriptVideo(false);
         LoadPanel->OnClose();
@@ -623,7 +623,7 @@ namespace fRuinsTalk {
     }
 
     // Returns inventory count; unused sorted slots are -1.
-    std::int32_t TfRuinsTalk::SortResearchItems(std::uint8_t Series) {
+    std::int32_t TfRuinsTalk::SortResearchItems(aGalaxyStruct::TDominatorSeries Series) {
         std::int32_t I{};
         std::int32_t BestIndex{};
         aItem::TEquipment* Item{};
@@ -641,7 +641,7 @@ namespace fRuinsTalk {
             Result.Priority = 0;
             if (Item->OwnerId == aGalaxyStruct::oiDominator && Item->EquippedFlag == 0 && Item->NoDropFlag == 0 && Item->CustomFaction == u"" && !(pas::class_cast_if<aItem::THull*>(Item) != nullptr)) {
                 if (pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
-                    if (static_cast<aGalaxyStruct::TDominatorSeries>(Series) == Item->DominatorSeries) {
+                    if (Series == Item->DominatorSeries) {
                         Result.Priority = 5;
                     } else {
                         Result.Priority = 4;
@@ -727,7 +727,7 @@ namespace fRuinsTalk {
         return Result;
     }
 
-    std::int32_t TfRuinsTalk::CountResearchRemains(std::uint8_t Series, std::int32_t Count) {
+    std::int32_t TfRuinsTalk::CountResearchRemains(aGalaxyStruct::TDominatorSeries Series, std::int32_t Count) {
         std::int32_t I{};
         std::int32_t Index{};
         aItem::TEquipment* Item{};
@@ -738,7 +738,7 @@ namespace fRuinsTalk {
                 break;
             }
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, Index);
-            if (Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(Series) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
+            if (Item->DominatorSeries == Series && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
                 if (static_cast<aItem::TUselessItem*>(Item)->IsDominatorRemains() && static_cast<std::uint8_t>(TfRuinsTalk::IsResearchItemQuestLetter(Item) ^ 1)) {
                     ++Matches;
                 }
@@ -765,27 +765,31 @@ namespace fRuinsTalk {
         return Matches;
     }
 
-    void TfRuinsTalk::BuildResearchItemChoices(std::uint8_t Series, pas::WideString& Text) {
+    void TfRuinsTalk::BuildResearchItemChoices(aGalaxyStruct::TDominatorSeries Series, pas::WideString& Text) {
         std::int32_t I{};
         std::int32_t Index{};
         aItem::TEquipment* Item{};
         pas::WideString Items{};
         pas::WideString Description{};
         pas::WideString Bonus{};
-        Bonus = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get())), u"<color=255,240,100>"sv)});
+        Bonus = pas::concat_wide({u" ", ([&] {
+            pas::WideString lookupLocalizedTextOrEmpty = GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextOrEmpty)), pas::view(std::move(textHighlightColorTag)));
+        }())});
         std::int32_t Number = 0;
         std::int32_t Count = SortResearchItems(Series);
         if (CountResearchRemains(Series, Count) > 0) {
             switch (Series) {
-                case 0: {
+                case aGalaxyStruct::dsBlazer: {
                     AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.SB.Scn.PlayerSaleAllUselessBlazer"_wref.get())}), Count, pas::bind_method<&TfRuinsTalk::SellResearchRemains>(this));
                     break;
                 }
-                case 1: {
+                case aGalaxyStruct::dsKeller: {
                     AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.SB.Scn.PlayerSaleAllUselessKeller"_wref.get())}), Count, pas::bind_method<&TfRuinsTalk::SellResearchRemains>(this));
                     break;
                 }
-                case 2: {
+                case aGalaxyStruct::dsTerron: {
                     AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.SB.Scn.PlayerSaleAllUselessTerron"_wref.get())}), Count, pas::bind_method<&TfRuinsTalk::SellResearchRemains>(this));
                     break;
                 }
@@ -801,8 +805,8 @@ namespace fRuinsTalk {
             }
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, Index);
             ++Number;
-            Description = pas::concat_wide({aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName())), u" (", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Item->Cost)), u"<color=255,240,100>"sv), u" cr)"});
-            if (Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(Series) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
+            Description = pas::concat_wide({aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName())), u" (", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Item->Cost)), pas::view(aMyFunction::TextHighlightColorTag)), u" cr)"});
+            if (Item->DominatorSeries == Series && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
                 Description = pas::concat_wide({Description, Bonus});
             }
             Items = pas::concat_wide({Items, u"\r\n", pas::wide_int_to_str(Number), u") ", Description});
@@ -815,15 +819,15 @@ namespace fRuinsTalk {
         if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->PendingDockDialogue > 1 || StationBridgeMode > 0 || aPlayer::GetPlayer()->QueuedTravelTarget != nullptr) {
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion) && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion) && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase) && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
             if (aPlayer::GetPlayer()->Speed <= 0) {
                 Globals::RuinsTalkScreen->DepartWithStation(1);
             } else {
@@ -963,7 +967,7 @@ namespace fRuinsTalk {
             if (!pas::assigned(Callback)) {
                 Text = EC_Str::RemoveTextTagsW(Text);
             }
-            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv)}));
+            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag))}));
             cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             if (!pas::assigned(Choice->Callback)) {
                 cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(127, 127, 127));
@@ -1059,7 +1063,7 @@ namespace fRuinsTalk {
             DialogText = EC_Str::ReplaceAllWideString(DialogText, pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix}), u"\r\n"sv);
             DialogText = EC_Str::ReplaceAllWideString(DialogText, u"\r\n"_wref.get(), pas::view(pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix})));
             PresentedTextLength = DialogText.length();
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag));
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->SetText(DialogText);
             TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
             TextPanel->SetScrollOffset(ClassesImports::Point(0, 0));
@@ -1194,10 +1198,10 @@ namespace fRuinsTalk {
     void TfRuinsTalk::AddMessageClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString Text{};
         Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetText();
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,50,200>"_wref.get(), u"<color=255,240,100>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::DialogHighlightColorTag, pas::view(aMyFunction::TextHighlightColorTag));
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->SetDisabled(true);
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
-        Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
+        Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
         MainPanel->RebuildMessageButtons(false);
         GI_Main::BreakUiMessage();
     }
@@ -1301,7 +1305,7 @@ namespace fRuinsTalk {
                 aCalc::WaitForTurnCalculationUI();
             }
             Stage = 1;
-            if (ShowArrivalVideo && StationType == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
+            if (ShowArrivalVideo && StationType == aGalaxyStruct::rstMilitaryBase) {
                 Stage = 2;
                 ShowMilitaryBaseArrivalDialog(0);
             } else {
@@ -1327,8 +1331,8 @@ namespace fRuinsTalk {
         std::uint8_t Result = false;
         if (aGalaxy::Galaxy->TerronSeriesResolvedTurn != 0 || aGalaxy::Galaxy->KellerSeriesResolvedTurn != 0 || aGalaxy::Galaxy->BlazerSeriesResolvedTurn != 0) {
             MessageEntry = Globals::FindPlayerBubbleByKey(u"BlazerWin"_wref.get(), false);
-            if (MessageEntry != nullptr && MessageEntry->Kind == 3) {
-                MessageEntry->Kind = 4;
+            if (MessageEntry != nullptr && MessageEntry->Kind == Globals::pmQuestActive) {
+                MessageEntry->Kind = Globals::pmQuestSucceeded;
                 MessageEntry->WasRead = false;
                 Result = true;
                 if (aKling::BlazerShip == nullptr && aGalaxy::Galaxy->BlazerSelfDestructTurn != 0) {
@@ -1339,24 +1343,26 @@ namespace fRuinsTalk {
                     Variant = 3;
                 }
                 DialogText = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(aGalaxy::Galaxy->BlazerSeriesResolvedTurn);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"FormRuinsRC.Win.Blazer", SysUtils::IntToStr(Variant)})));
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Date>"_w, std::move(formatGameTurnDate), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Date>"_w, std::move(formatGameTurnDate), textHighlightColorTag.get());
                 }());
                 if (Variant == 2 && aKling::BlazerShip != nullptr && aKling::BlazerShip->CurrentPlanet != nullptr) {
-                    DialogText = aMyFunction::ReplaceColoredToken(DialogText, u"<Planet>"_w, aKling::BlazerShip->CurrentPlanet->Name, u"<color=255,240,100>"_w);
+                    DialogText = aMyFunction::ReplaceColoredToken(DialogText, u"<Planet>"_w, aKling::BlazerShip->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
                 }
                 DialogText = pas::concat_wide({DialogText, u"\r\n", u" ", u"\r\n", ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString awardRandomMedal = aPlayer::GetPlayer()->AwardRandomMedal();
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuinsRC.Win.Reward"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Reward>"_w, std::move(awardRandomMedal), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Reward>"_w, std::move(awardRandomMedal), textHighlightColorTag_2.get());
                 }())});
                 ClearChoices();
                 AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuinsRC.Continue"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ContinueDominatorVictoryDialog>(this));
             } else {
                 MessageEntry = Globals::FindPlayerBubbleByKey(u"KellerWin"_wref.get(), false);
-                if (MessageEntry != nullptr && MessageEntry->Kind == 3) {
-                    MessageEntry->Kind = 4;
+                if (MessageEntry != nullptr && MessageEntry->Kind == Globals::pmQuestActive) {
+                    MessageEntry->Kind = Globals::pmQuestSucceeded;
                     MessageEntry->WasRead = false;
                     Result = true;
                     if (aKling::KellerShip == nullptr) {
@@ -1365,21 +1371,23 @@ namespace fRuinsTalk {
                         Variant = 2;
                     }
                     DialogText = ([&] {
+                        auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString formatGameTurnDate_2 = aGalaxy::FormatGameTurnDate(aGalaxy::Galaxy->KellerSeriesResolvedTurn);
                         pas::WideString localizedColorText_3 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"FormRuinsRC.Win.Keller", SysUtils::IntToStr(Variant)})));
-                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_3), u"<Date>"_w, std::move(formatGameTurnDate_2), u"<color=255,240,100>"_w);
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_3), u"<Date>"_w, std::move(formatGameTurnDate_2), textHighlightColorTag_3.get());
                     }());
                     DialogText = pas::concat_wide({DialogText, u"\r\n", u" ", u"\r\n", ([&] {
+                        auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString awardRandomMedal_2 = aPlayer::GetPlayer()->AwardRandomMedal();
                         pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRuinsRC.Win.Reward"_wref.get());
-                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_4), u"<Reward>"_w, std::move(awardRandomMedal_2), u"<color=255,240,100>"_w);
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_4), u"<Reward>"_w, std::move(awardRandomMedal_2), textHighlightColorTag_4.get());
                     }())});
                     ClearChoices();
                     AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuinsRC.Continue"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ContinueDominatorVictoryDialog>(this));
                 } else {
                     MessageEntry = Globals::FindPlayerBubbleByKey(u"TerronWin"_wref.get(), false);
-                    if (MessageEntry != nullptr && MessageEntry->Kind == 3) {
-                        MessageEntry->Kind = 4;
+                    if (MessageEntry != nullptr && MessageEntry->Kind == Globals::pmQuestActive) {
+                        MessageEntry->Kind = Globals::pmQuestSucceeded;
                         MessageEntry->WasRead = false;
                         Result = true;
                         if (aGalaxy::Galaxy->TerronToStarTurn != 0) {
@@ -1397,17 +1405,19 @@ namespace fRuinsTalk {
                             GR_Main::RaiseWideMessage(u"Terron status"_wref.get());
                         }
                         DialogText = ([&] {
+                            auto textHighlightColorTag_5 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString formatGameTurnDate_3 = aGalaxy::FormatGameTurnDate(aGalaxy::Galaxy->TerronSeriesResolvedTurn);
                             pas::WideString localizedColorText_5 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"FormRuinsRC.Win.Terron", SysUtils::IntToStr(Variant)})));
-                            return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_5), u"<Date>"_w, std::move(formatGameTurnDate_3), u"<color=255,240,100>"_w);
+                            return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_5), u"<Date>"_w, std::move(formatGameTurnDate_3), textHighlightColorTag_5.get());
                         }());
                         if (Variant == 1 && aKling::TerronShip != nullptr && aKling::TerronShip->CurrentStar != nullptr) {
-                            DialogText = aMyFunction::ReplaceColoredToken(DialogText, u"<Star>"_w, aKling::TerronShip->CurrentStar->Name, u"<color=255,240,100>"_w);
+                            DialogText = aMyFunction::ReplaceColoredToken(DialogText, u"<Star>"_w, aKling::TerronShip->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                         }
                         DialogText = pas::concat_wide({DialogText, u"\r\n", u" ", u"\r\n", ([&] {
+                            auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString awardRandomMedal_3 = aPlayer::GetPlayer()->AwardRandomMedal();
                             pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormRuinsRC.Win.Reward"_wref.get());
-                            return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_6), u"<Reward>"_w, std::move(awardRandomMedal_3), u"<color=255,240,100>"_w);
+                            return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_6), u"<Reward>"_w, std::move(awardRandomMedal_3), textHighlightColorTag_6.get());
                         }())});
                         ClearChoices();
                         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuinsRC.Continue"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ContinueDominatorVictoryDialog>(this));
@@ -1457,7 +1467,7 @@ namespace fRuinsTalk {
             Globals::ScriptDialogIndex = -1;
             Script = nullptr;
             Stage = 2;
-            if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstRangerCenter) && ShowDominatorVictoryDialog()) {
+            if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstRangerCenter && ShowDominatorVictoryDialog()) {
                 return;
             }
             Stage = 3;
@@ -1475,95 +1485,111 @@ namespace fRuinsTalk {
                 if (StationBridgeMode == 1) {
                     Stage = 6;
                     DialogText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeGreeting"_wref.get());
-                    aMyFunction::ReplaceTextToken(DialogText, u"<Energy>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetHull()->Energy), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(DialogText, u"<EnergyMax>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetHull()->EnergyMax), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(DialogText, u"<Energy>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetHull()->Energy), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(DialogText, u"<EnergyMax>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetHull()->EnergyMax), aMyFunction::TextHighlightColorTag);
                     if (aPlayer::GetPlayer()->GetHull()->ImpulseShieldsEnabled) {
+                        auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeImpulseShieldsStatusOn"_wref.get());
                         pas::WideString& dialogText = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText, u"<ShieldMode>"_w, std::move(localizedColorText), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText, u"<ShieldMode>"_w, std::move(localizedColorText), textHighlightColorTag.get());
                     } else {
+                        auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeImpulseShieldsStatusOff"_wref.get());
                         pas::WideString& dialogText_2 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_2, u"<ShieldMode>"_w, std::move(localizedColorText_2), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_2, u"<ShieldMode>"_w, std::move(localizedColorText_2), textHighlightColorTag_2.get());
                     }
-                    aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveInterceptorTargets()), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveInterceptorTargets()), aMyFunction::TextHighlightColorTag);
                     if (aPlayer::GetPlayer()->InHyperspace || aPlayer::GetPlayer()->RuinsSavedDockedTo != nullptr || aPlayer::GetPlayer()->RuinsSavedPlanet != nullptr) {
+                        auto endColorTag = pas::borrow(aMyFunction::EndColorTag);
                         pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetNotNormalSpace"_wref.get());
                         pas::WideString& dialogText_3 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_3, u"<Ship>"_w, std::move(localizedColorText_3), u"</color>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_3, u"<Ship>"_w, std::move(localizedColorText_3), endColorTag.get());
                     } else if (aPlayer::GetPlayer()->GetHull()->Energy < aPlayer::GetPlayer()->GetInterceptorEnergyCost()) {
+                        auto endColorTag_2 = pas::borrow(aMyFunction::EndColorTag);
                         pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetNoEnergy"_wref.get());
                         pas::WideString& dialogText_4 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_4, u"<Ship>"_w, std::move(localizedColorText_4), u"</color>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_4, u"<Ship>"_w, std::move(localizedColorText_4), endColorTag_2.get());
                     } else if (aPlayer::GetPlayer()->GetHull()->InterceptorTarget != nullptr) {
+                        auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString fullName = static_cast<aShip::TShip*>(aPlayer::GetPlayer()->GetHull()->InterceptorTarget)->GetFullName(u" "_wref.get());
                         pas::WideString& dialogText_5 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_5, u"<Ship>"_w, std::move(fullName), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_5, u"<Ship>"_w, std::move(fullName), textHighlightColorTag_3.get());
                     } else if (aPlayer::GetPlayer()->GetHull()->InterceptorTargetingStrategy == aItem::itsManual) {
+                        auto endColorTag_3 = pas::borrow(aMyFunction::EndColorTag);
                         pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetOff"_wref.get());
                         pas::WideString& dialogText_6 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_6, u"<Ship>"_w, std::move(localizedColorText_5), u"</color>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_6, u"<Ship>"_w, std::move(localizedColorText_5), endColorTag_3.get());
                     } else if (aPlayer::GetPlayer()->SelectInterceptorTarget() != nullptr) {
+                        auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString fullName_2 = aPlayer::GetPlayer()->SelectInterceptorTarget()->GetFullName(u" "_wref.get());
                         pas::WideString& dialogText_7 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_7, u"<Ship>"_w, std::move(fullName_2), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_7, u"<Ship>"_w, std::move(fullName_2), textHighlightColorTag_4.get());
                     } else {
+                        auto endColorTag_4 = pas::borrow(aMyFunction::EndColorTag);
                         pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetMissing"_wref.get());
                         pas::WideString& dialogText_8 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_8, u"<Ship>"_w, std::move(localizedColorText_6), u"</color>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_8, u"<Ship>"_w, std::move(localizedColorText_6), endColorTag_4.get());
                     }
                     switch (aPlayer::GetPlayer()->GetHull()->InterceptorTargetingStrategy) {
                         case aItem::itsManual: {
+                            auto textHighlightColorTag_5 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyManual"_wref.get());
                             pas::WideString& dialogText_9 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_9, u"<Strategy>"_w, std::move(localizedColorText_7), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_9, u"<Strategy>"_w, std::move(localizedColorText_7), textHighlightColorTag_5.get());
                             break;
                         }
                         case aItem::itsMostHullPoints: {
+                            auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMax"_wref.get());
                             pas::WideString& dialogText_10 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_10, u"<Strategy>"_w, std::move(localizedColorText_8), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_10, u"<Strategy>"_w, std::move(localizedColorText_8), textHighlightColorTag_6.get());
                             break;
                         }
                         case aItem::itsFewestHullPoints: {
+                            auto textHighlightColorTag_7 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_9 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMin"_wref.get());
                             pas::WideString& dialogText_11 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_11, u"<Strategy>"_w, std::move(localizedColorText_9), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_11, u"<Strategy>"_w, std::move(localizedColorText_9), textHighlightColorTag_7.get());
                             break;
                         }
                         case aItem::itsGreatestStrength: {
+                            auto textHighlightColorTag_8 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_10 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyStrMax"_wref.get());
                             pas::WideString& dialogText_12 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_12, u"<Strategy>"_w, std::move(localizedColorText_10), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_12, u"<Strategy>"_w, std::move(localizedColorText_10), textHighlightColorTag_8.get());
                             break;
                         }
                         case aItem::itsStrongestDefense: {
+                            auto textHighlightColorTag_9 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_11 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDefMax"_wref.get());
                             pas::WideString& dialogText_13 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_13, u"<Strategy>"_w, std::move(localizedColorText_11), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_13, u"<Strategy>"_w, std::move(localizedColorText_11), textHighlightColorTag_9.get());
                             break;
                         }
                         case aItem::itsNearest: {
+                            auto textHighlightColorTag_10 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_12 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMin"_wref.get());
                             pas::WideString& dialogText_14 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_14, u"<Strategy>"_w, std::move(localizedColorText_12), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_14, u"<Strategy>"_w, std::move(localizedColorText_12), textHighlightColorTag_10.get());
                             break;
                         }
                         case aItem::itsFarthest: {
+                            auto textHighlightColorTag_11 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_13 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMax"_wref.get());
                             pas::WideString& dialogText_15 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_15, u"<Strategy>"_w, std::move(localizedColorText_13), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_15, u"<Strategy>"_w, std::move(localizedColorText_13), textHighlightColorTag_11.get());
                             break;
                         }
                         default: {
+                            auto textHighlightColorTag_12 = pas::borrow(aMyFunction::TextHighlightColorTag);
                             pas::WideString localizedColorText_14 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyManual"_wref.get());
                             pas::WideString& dialogText_16 = DialogText;
-                            aMyFunction::ReplaceTextToken(dialogText_16, u"<Strategy>"_w, std::move(localizedColorText_14), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(dialogText_16, u"<Strategy>"_w, std::move(localizedColorText_14), textHighlightColorTag_12.get());
                             break;
                         }
                     }
-                    aMyFunction::ReplaceTextToken(DialogText, u"<Duration>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetInterceptorPassCount())), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(DialogText, u"<DeployCost>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetInterceptorEnergyCost()), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(DialogText, u"<Duration>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetInterceptorPassCount())), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(DialogText, u"<DeployCost>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetInterceptorEnergyCost()), aMyFunction::TextHighlightColorTag);
                 } else if (StationBridgeMode > 1 || aPlayer::GetPlayer()->RuinsMode > 0) {
                     DialogText = u"text missing"_w;
                 } else {
@@ -1599,9 +1625,9 @@ namespace fRuinsTalk {
                                 }
                             }
                             DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.RC.GreetingAdd"_wref.get())});
-                            aMyFunction::ReplaceTextToken(DialogText, u"<RC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                            aMyFunction::ReplaceTextToken(DialogText, u"<Number>"_w, pas::wide_int_to_str(Place), u"<color=255,240,100>"_w);
-                            aMyFunction::ReplaceTextToken(DialogText, u"<BaseNod>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<RC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<Number>"_w, pas::wide_int_to_str(Place), aMyFunction::TextHighlightColorTag);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<BaseNod>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes), aMyFunction::TextHighlightColorTag);
                             break;
                         }
                         case aGalaxyStruct::rstPirateBase: {
@@ -1615,8 +1641,8 @@ namespace fRuinsTalk {
                             if (aPlayer::GetPlayer()->MayTakeSubCrack()) {
                                 DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.PB.SabCrack.PBGreetingAdd"_wref.get())});
                             }
-                            aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), aMyFunction::TextHighlightColorTag);
                             break;
                         }
                         case aGalaxyStruct::rstScienceBase: {
@@ -1627,23 +1653,23 @@ namespace fRuinsTalk {
                                 DialogText = aConst::LocalizedColorText(u"FormRuins.SB.GreetingBeforeScn"_wref.get());
                             }
                             DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.SB.GreetingAdd"_wref.get())});
-                            if (aGalaxy::Galaxy->CurrentTurn - 300 < 120) {
+                            if (aGalaxy::Galaxy->CurrentTurn - aGalaxyStruct::GalaxyWarmupTurns < 120) {
                                 DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuinsSB.History.SB"_wref.get())});
                             }
-                            aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
                             break;
                         }
                         case aGalaxyStruct::rstMilitaryBase: {
                             Stage = 11;
                             if (aPlayer::GetPlayer()->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators) {
                                 DialogText = aConst::LocalizedColorText(u"FormRuins.WB.FlyToEnemy.WBAfterQuestions"_wref.get());
-                                aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+                                aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
                             } else {
                                 if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate && aPlayer::GetPlayer()->TryPromoteRank()) {
                                     Stage = 12;
                                     DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.WB.", aConst::CoalitionRankNames[aPlayer::GetPlayer()->Rank], u".NewRank"}));
                                     static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckCommanderAchievement();
-                                    aMyFunction::ReplaceTextToken(DialogText, u"<PredPoints>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::CoalitionRankPointThresholds[aPlayer::GetPlayer()->Rank - 1])), u"<color=255,240,100>"_w);
+                                    aMyFunction::ReplaceTextToken(DialogText, u"<PredPoints>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::CoalitionRankPointThresholds[aPlayer::GetPlayer()->Rank - 1])), aMyFunction::TextHighlightColorTag);
                                     if (aPlayer::GetPlayer()->Rank == 7) {
                                         ModuleIndex = aConst::FindMicroModuleTemplateByCustomTag(u"AkrinAmplifier"sv);
                                         Item = pas::construct_call<aItem::TMicroModule>(aItem::TEquipment_Create);
@@ -1656,23 +1682,24 @@ namespace fRuinsTalk {
                                         }
                                         pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
                                         {
+                                            auto textHighlightColorTag_13 = pas::borrow(aMyFunction::TextHighlightColorTag);
                                             pas::WideString plainName = pas::checked_cast<aItem::TMicroModule*>(Item)->GetPlainName();
                                             pas::WideString& dialogText_17 = DialogText;
-                                            aMyFunction::ReplaceTextToken(dialogText_17, u"<MMName>"_w, std::move(plainName), u"<color=255,240,100>"_w);
+                                            aMyFunction::ReplaceTextToken(dialogText_17, u"<MMName>"_w, std::move(plainName), textHighlightColorTag_13.get());
                                         }
                                     }
                                     Seed = aGalaxy::Galaxy->CurrentTurn / 50 * (aPlayer::GetPlayer()->DockedTo->Id * (aPlayer::GetPlayer()->Rank + 11));
                                     MinimumSizeFactor = aConst::EquipmentSizeFactors[4];
                                     MaximumSizeFactor = aConst::EquipmentSizeFactors[2];
                                     if (aMyFunction::NextRandomIntRange(1, 100, Seed) > 70) {
-                                        Info = aGalaxy::Galaxy->SelectWeaponInfo(Seed, pas::make_set<aGalaxyStruct::TWeaponAvailabilityMask>({{0}, {1}, {static_cast<std::int32_t>(aConst::OwnerWeaponAvailability[StationOwner])}}), std::min<std::int32_t>(aGalaxy::Galaxy->TechLevel + 2, 8), aGalaxy::Galaxy->TechLevel);
+                                        Info = aGalaxy::Galaxy->SelectWeaponInfo(Seed, pas::make_set<aGalaxyStruct::TWeaponAvailabilityMask>({{static_cast<std::int32_t>(aGalaxyStruct::waFree)}, {static_cast<std::int32_t>(aGalaxyStruct::waCoalitionOnly)}, {static_cast<std::int32_t>(aConst::OwnerWeaponAvailability[StationOwner])}}), std::min<std::int32_t>(aGalaxy::Galaxy->TechLevel + 2, 8), aGalaxy::Galaxy->TechLevel);
                                         Seed = aGalaxy::Galaxy->CurrentTurn / 33 * (aPlayer::GetPlayer()->DockedTo->Id * (aPlayer::GetPlayer()->Rank + 17));
                                         Weight = ([&] {
                                             std::int32_t round = System::Round(static_cast<long double>(Info->AverageSize) * MaximumSizeFactor);
                                             std::int32_t round_2 = System::Round(static_cast<long double>(Info->AverageSize) * MinimumSizeFactor);
                                             return aMyFunction::NextRandomIntRange(round_2, round, Seed);
                                         }());
-                                        Level = System::Round(aMyFunction::RemapClamped(System::Round(aMyFunction::RemapClamped(static_cast<std::int8_t>(aPlayer::GetPlayer()->Rank * 1), 0.0, 7.0, 1.0, 5.0)), 1.0, 5.0, 3.0, 8.0));
+                                        Level = System::Round(aMyFunction::RemapClamped(System::Round(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Rank, 0.0, 7.0, 1.0, 5.0)), 1.0, 5.0, 3.0, 8.0));
                                         Item = aItem::CreateGeneratedWeapon(Info, Weight, Level, StationOwner);
                                     } else {
                                         ItemType = static_cast<aConst::TItemType>(aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{43, 49}})));
@@ -1682,13 +1709,14 @@ namespace fRuinsTalk {
                                             std::int32_t round_4 = System::Round(static_cast<long double>(aConst::GetAverageItemSize(ItemType)) * MinimumSizeFactor);
                                             Weight = aMyFunction::NextRandomIntRange(round_4, round_3, Seed);
                                         }
-                                        Level = System::Round(aMyFunction::RemapClamped(static_cast<std::int8_t>(aPlayer::GetPlayer()->Rank * 1), 0.0, 7.0, 3.0, 8.0));
+                                        Level = System::Round(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Rank, 0.0, 7.0, 3.0, 8.0));
                                         Item = aItem::CreateGeneratedEquipment(ItemType, Weight, Level, StationOwner);
                                     }
                                     if (Item != nullptr) {
+                                        auto textHighlightColorTag_14 = pas::borrow(aMyFunction::TextHighlightColorTag);
                                         pas::WideString displayName = Item->GetDisplayName();
                                         pas::WideString& dialogText_18 = DialogText;
-                                        aMyFunction::ReplaceTextToken(dialogText_18, u"<ItemName>"_w, std::move(displayName), u"<color=255,240,100>"_w);
+                                        aMyFunction::ReplaceTextToken(dialogText_18, u"<ItemName>"_w, std::move(displayName), textHighlightColorTag_14.get());
                                     } else {
                                         GR_Main::RaiseWideMessage(u"eq=nil"_wref.get());
                                     }
@@ -1698,24 +1726,26 @@ namespace fRuinsTalk {
                                 }
                                 if (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                                     DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.WB.FlyToEnemy.GreetingAdd"_wref.get())});
-                                    aMyFunction::ReplaceTextToken(DialogText, u"<StarEnemy>"_w, pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar->Name, u"<color=255,240,100>"_w);
+                                    aMyFunction::ReplaceTextToken(DialogText, u"<StarEnemy>"_w, pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar->Name, aMyFunction::TextHighlightColorTag);
                                     {
+                                        auto textHighlightColorTag_15 = pas::borrow(aMyFunction::TextHighlightColorTag);
                                         pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate);
                                         pas::WideString& dialogText_19 = DialogText;
-                                        aMyFunction::ReplaceTextToken(dialogText_19, u"<Date>"_w, std::move(formatTurnDate), u"<color=255,240,100>"_w);
+                                        aMyFunction::ReplaceTextToken(dialogText_19, u"<Date>"_w, std::move(formatTurnDate), textHighlightColorTag_15.get());
                                     }
                                     MilitaryTravelDistance = System::Round(aMyFunction::PointDistance(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar->Position, aPlayer::GetPlayer()->CurrentStar->Position));
                                 }
                                 if (aPlayer::GetPlayer()->CountProgramRewardStocks() > 0) {
                                     DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.WB.Programms.GreetingAdd"_wref.get())});
                                 }
-                                aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+                                aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
                                 {
+                                    auto textHighlightColorTag_16 = pas::borrow(aMyFunction::TextHighlightColorTag);
                                     pas::WideString rankName = aPlayer::GetPlayer()->GetRankName();
                                     pas::WideString& dialogText_20 = DialogText;
-                                    aMyFunction::ReplaceTextToken(dialogText_20, u"<Rank>"_w, std::move(rankName), u"<color=255,240,100>"_w);
+                                    aMyFunction::ReplaceTextToken(dialogText_20, u"<Rank>"_w, std::move(rankName), textHighlightColorTag_16.get());
                                 }
-                                aMyFunction::ReplaceTextToken(DialogText, u"<NeedPoints>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetRankPointsToNextRank())), u"<color=255,240,100>"_w);
+                                aMyFunction::ReplaceTextToken(DialogText, u"<NeedPoints>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetRankPointsToNextRank())), aMyFunction::TextHighlightColorTag);
                             }
                             break;
                         }
@@ -1730,19 +1760,20 @@ namespace fRuinsTalk {
                             if (aPlayer::GetPlayer()->DebtDefaultCount >= 3) {
                                 DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.BK.AddDebtContinue"_wref.get())});
                             }
-                            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount), u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount), aMyFunction::TextHighlightColorTag);
                             {
+                                auto textHighlightColorTag_17 = pas::borrow(aMyFunction::TextHighlightColorTag);
                                 pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->DebtDueTurn);
                                 pas::WideString& dialogText_21 = DialogText;
-                                aMyFunction::ReplaceTextToken(dialogText_21, u"<Date>"_w, std::move(formatTurnDate_2), u"<color=255,240,100>"_w);
+                                aMyFunction::ReplaceTextToken(dialogText_21, u"<Date>"_w, std::move(formatTurnDate_2), textHighlightColorTag_17.get());
                             }
                             break;
                         }
                         case aGalaxyStruct::rstMedicalBase: {
                             Stage = 14;
                             DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Greeting"_wref.get());
-                            aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
                             break;
                         }
                         case aGalaxyStruct::rstDominion: {
@@ -1751,14 +1782,14 @@ namespace fRuinsTalk {
                                 DialogText = aConst::LocalizedColorText(u"FormRuins.CB.GreetingHyperspace"_wref.get());
                             } else if (aPlayer::GetPlayer()->QueuedTravelTarget != nullptr) {
                                 DialogText = aConst::LocalizedColorText(u"FormRuins.CB.GreetingPlayerFlyToStar"_wref.get());
-                                aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, aPlayer::GetPlayer()->QueuedTravelTarget->Name, u"<color=255,240,100>"_w);
+                                aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, aPlayer::GetPlayer()->QueuedTravelTarget->Name, aMyFunction::TextHighlightColorTag);
                             } else if (aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0) {
                                 DialogText = aConst::LocalizedColorText(u"FormRuins.CB.GreetingFlyToStar"_wref.get());
-                                aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, reinterpret_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->DockedTo->OrderTarget)->Name, u"<color=255,240,100>"_w);
+                                aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, reinterpret_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->DockedTo->OrderTarget)->Name, aMyFunction::TextHighlightColorTag);
                             } else {
                                 DialogText = aConst::LocalizedColorText(u"FormRuins.CB.GreetingNormal"_wref.get());
                             }
-                            aMyFunction::ReplaceTextToken(DialogText, u"<CB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+                            aMyFunction::ReplaceTextToken(DialogText, u"<CB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
                             break;
                         }
                     }
@@ -1910,7 +1941,7 @@ namespace fRuinsTalk {
     void TfRuinsTalk::ShowBridgeBlackHoleDialog(std::int32_t Action) {
         if (!aPlayer::GetPlayer()->NoJump) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeBHChooseDestination"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(600), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(600), aMyFunction::TextHighlightColorTag);
             ClearChoices();
             {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::SelectBridgeBlackHoleDestination>(this);
@@ -1951,84 +1982,98 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowInterceptorDialog(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsChooseAction"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveInterceptorTargets()), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveInterceptorTargets()), aMyFunction::TextHighlightColorTag);
         if (aPlayer::GetPlayer()->InHyperspace || aPlayer::GetPlayer()->RuinsSavedDockedTo != nullptr || aPlayer::GetPlayer()->RuinsSavedPlanet != nullptr) {
+            auto endColorTag = pas::borrow(aMyFunction::EndColorTag);
             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetNotNormalSpace"_wref.get());
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<Ship>"_w, std::move(localizedColorText), u"</color>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<Ship>"_w, std::move(localizedColorText), endColorTag.get());
         } else if (aPlayer::GetPlayer()->GetHull()->Energy < aPlayer::GetPlayer()->GetInterceptorEnergyCost()) {
+            auto endColorTag_2 = pas::borrow(aMyFunction::EndColorTag);
             pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetNoEnergy"_wref.get());
             pas::WideString& dialogText_2 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_2, u"<Ship>"_w, std::move(localizedColorText_2), u"</color>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_2, u"<Ship>"_w, std::move(localizedColorText_2), endColorTag_2.get());
         } else if (aPlayer::GetPlayer()->GetHull()->InterceptorTarget != nullptr) {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString fullName = static_cast<aShip::TShip*>(aPlayer::GetPlayer()->GetHull()->InterceptorTarget)->GetFullName(u" "_wref.get());
             pas::WideString& dialogText_3 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_3, u"<Ship>"_w, std::move(fullName), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_3, u"<Ship>"_w, std::move(fullName), textHighlightColorTag.get());
         } else if (aPlayer::GetPlayer()->GetHull()->InterceptorTargetingStrategy == aItem::itsManual) {
+            auto endColorTag_3 = pas::borrow(aMyFunction::EndColorTag);
             pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetOff"_wref.get());
             pas::WideString& dialogText_4 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_4, u"<Ship>"_w, std::move(localizedColorText_3), u"</color>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_4, u"<Ship>"_w, std::move(localizedColorText_3), endColorTag_3.get());
         } else if (aPlayer::GetPlayer()->SelectInterceptorTarget() != nullptr) {
+            auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString fullName_2 = aPlayer::GetPlayer()->SelectInterceptorTarget()->GetFullName(u" "_wref.get());
             pas::WideString& dialogText_5 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_5, u"<Ship>"_w, std::move(fullName_2), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_5, u"<Ship>"_w, std::move(fullName_2), textHighlightColorTag_2.get());
         } else {
+            auto endColorTag_4 = pas::borrow(aMyFunction::EndColorTag);
             pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsNextTargetMissing"_wref.get());
             pas::WideString& dialogText_6 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_6, u"<Ship>"_w, std::move(localizedColorText_4), u"</color>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_6, u"<Ship>"_w, std::move(localizedColorText_4), endColorTag_4.get());
         }
         switch (aPlayer::GetPlayer()->GetHull()->InterceptorTargetingStrategy) {
             case aItem::itsManual: {
+                auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyManual"_wref.get());
                 pas::WideString& dialogText_7 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_7, u"<Strategy>"_w, std::move(localizedColorText_5), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_7, u"<Strategy>"_w, std::move(localizedColorText_5), textHighlightColorTag_3.get());
                 break;
             }
             case aItem::itsMostHullPoints: {
+                auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMax"_wref.get());
                 pas::WideString& dialogText_8 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_8, u"<Strategy>"_w, std::move(localizedColorText_6), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_8, u"<Strategy>"_w, std::move(localizedColorText_6), textHighlightColorTag_4.get());
                 break;
             }
             case aItem::itsFewestHullPoints: {
+                auto textHighlightColorTag_5 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMin"_wref.get());
                 pas::WideString& dialogText_9 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_9, u"<Strategy>"_w, std::move(localizedColorText_7), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_9, u"<Strategy>"_w, std::move(localizedColorText_7), textHighlightColorTag_5.get());
                 break;
             }
             case aItem::itsGreatestStrength: {
+                auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyStrMax"_wref.get());
                 pas::WideString& dialogText_10 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_10, u"<Strategy>"_w, std::move(localizedColorText_8), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_10, u"<Strategy>"_w, std::move(localizedColorText_8), textHighlightColorTag_6.get());
                 break;
             }
             case aItem::itsStrongestDefense: {
+                auto textHighlightColorTag_7 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_9 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDefMax"_wref.get());
                 pas::WideString& dialogText_11 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_11, u"<Strategy>"_w, std::move(localizedColorText_9), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_11, u"<Strategy>"_w, std::move(localizedColorText_9), textHighlightColorTag_7.get());
                 break;
             }
             case aItem::itsNearest: {
+                auto textHighlightColorTag_8 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_10 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMin"_wref.get());
                 pas::WideString& dialogText_12 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_12, u"<Strategy>"_w, std::move(localizedColorText_10), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_12, u"<Strategy>"_w, std::move(localizedColorText_10), textHighlightColorTag_8.get());
                 break;
             }
             case aItem::itsFarthest: {
+                auto textHighlightColorTag_9 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_11 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMax"_wref.get());
                 pas::WideString& dialogText_13 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_13, u"<Strategy>"_w, std::move(localizedColorText_11), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_13, u"<Strategy>"_w, std::move(localizedColorText_11), textHighlightColorTag_9.get());
                 break;
             }
             default: {
+                auto textHighlightColorTag_10 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_12 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyManual"_wref.get());
                 pas::WideString& dialogText_14 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_14, u"<Strategy>"_w, std::move(localizedColorText_12), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_14, u"<Strategy>"_w, std::move(localizedColorText_12), textHighlightColorTag_10.get());
                 break;
             }
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<Duration>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetInterceptorPassCount())), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<DeployCost>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetInterceptorEnergyCost()), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Duration>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetInterceptorPassCount())), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DeployCost>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetInterceptorEnergyCost()), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->CountActiveInterceptorTargets() > 0) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowActiveInterceptors>(this);
@@ -2080,7 +2125,7 @@ namespace fRuinsTalk {
         aGalaxy::TStar* Star{};
         aShip::TShip* Ship{};
         DialogText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsCallOffChoose"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveInterceptorTargets()), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveInterceptorTargets()), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::RecallAllInterceptors>(this);
@@ -2095,12 +2140,16 @@ namespace fRuinsTalk {
                 if (aPlayer::GetPlayer() == Ship->InterceptorSourceShip) {
                     ShipList = pas::concat_wide({ShipList, Ship->GetFullName(u" "_wref.get()), u"\r\n"});
                     Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsCallOffShip"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<Ship>"_w, Ship->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w);
+                    {
+                        auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                        pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
+                        aMyFunction::ReplaceTextToken(Text, u"<Ship>"_w, std::move(fullName), textHighlightColorTag.get());
+                    }
                     AddChoice(pas::concat_wide({u"- ", Text}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfRuinsTalk::RecallInterceptorsFromTarget>(this));
                 }
             }
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<ShipList>"_w, ShipList, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<ShipList>"_w, ShipList, aMyFunction::TextHighlightColorTag);
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg_3 = pas::bind_method<&TfRuinsTalk::ShowInterceptorDialog>(this);
             pas::WideString cpp_arg_4 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsCallOffCancel"_wref.get())});
@@ -2137,10 +2186,10 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowInterceptorPassDialog(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsDurationChoose"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Duration>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetInterceptorPassCount())), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<DeployCost>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetInterceptorEnergyCost()), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<DurationMax>"_w, pas::wide_int_to_str(10), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<DurationMin>"_w, pas::wide_int_to_str(2), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Duration>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetInterceptorPassCount())), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DeployCost>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetInterceptorEnergyCost()), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DurationMax>"_w, pas::wide_int_to_str(10), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DurationMin>"_w, pas::wide_int_to_str(2), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->GetInterceptorPassCount() < 10) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::IncreaseInterceptorPassCount>(this);
@@ -2197,9 +2246,13 @@ namespace fRuinsTalk {
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-            if (aPlayer::GetPlayer() != Ship && aPlayer::GetPlayer()->DockedTo != Ship && (!(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) || aPlayer::GetPlayer()->CanSelectShipTarget(Ship)) && Ship->InNormalSpace() && aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Ship->Position) <= 1.0E+6L && Ship->InterceptorPassesRemaining <= 0) {
+            if (aPlayer::GetPlayer() != Ship && aPlayer::GetPlayer()->DockedTo != Ship && (!(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) || aPlayer::GetPlayer()->CanSelectShipTarget(Ship)) && Ship->InNormalSpace() && aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Ship->Position) <= pas::constant(static_cast<long double>(aGalaxyStruct::InterceptorTargetRangeSquared)) && Ship->InterceptorPassesRemaining <= 0) {
                 Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetShip"_wref.get());
-                aMyFunction::ReplaceTextToken(Text, u"<Ship>"_w, Ship->GetFullName(u" "_wref.get()), u"<color=255,240,100>"_w);
+                {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Ship>"_w, std::move(fullName), textHighlightColorTag.get());
+                }
                 AddChoice(pas::concat_wide({u"- ", Text}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfRuinsTalk::SelectInterceptorTarget>(this));
             }
         }
@@ -2221,25 +2274,53 @@ namespace fRuinsTalk {
         DialogText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargeting"_wref.get());
         ClearChoices();
         Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingAttack"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyManual"_wref.get()), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyManual"_wref.get());
+            aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, std::move(localizedColorText), textHighlightColorTag.get());
+        }
         AddChoice(pas::concat_wide({u"- ", Text}), 0, pas::bind_method<&TfRuinsTalk::SelectInterceptorStrategy>(this));
         Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingAttack"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMax"_wref.get()), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMax"_wref.get());
+            aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, std::move(localizedColorText_2), textHighlightColorTag_2.get());
+        }
         AddChoice(pas::concat_wide({u"- ", Text}), 1, pas::bind_method<&TfRuinsTalk::SelectInterceptorStrategy>(this));
         Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingAttack"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMin"_wref.get()), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyHPMin"_wref.get());
+            aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, std::move(localizedColorText_3), textHighlightColorTag_3.get());
+        }
         AddChoice(pas::concat_wide({u"- ", Text}), 2, pas::bind_method<&TfRuinsTalk::SelectInterceptorStrategy>(this));
         Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingAttack"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyStrMax"_wref.get()), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyStrMax"_wref.get());
+            aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, std::move(localizedColorText_4), textHighlightColorTag_4.get());
+        }
         AddChoice(pas::concat_wide({u"- ", Text}), 3, pas::bind_method<&TfRuinsTalk::SelectInterceptorStrategy>(this));
         Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingAttack"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDefMax"_wref.get()), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag_5 = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDefMax"_wref.get());
+            aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, std::move(localizedColorText_5), textHighlightColorTag_5.get());
+        }
         AddChoice(pas::concat_wide({u"- ", Text}), 4, pas::bind_method<&TfRuinsTalk::SelectInterceptorStrategy>(this));
         Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingAttack"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMin"_wref.get()), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMin"_wref.get());
+            aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, std::move(localizedColorText_6), textHighlightColorTag_6.get());
+        }
         AddChoice(pas::concat_wide({u"- ", Text}), 5, pas::bind_method<&TfRuinsTalk::SelectInterceptorStrategy>(this));
         Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingAttack"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMax"_wref.get()), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag_7 = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingStrategyDistMax"_wref.get());
+            aMyFunction::ReplaceTextToken(Text, u"<StrategyName>"_w, std::move(localizedColorText_7), textHighlightColorTag_7.get());
+        }
         AddChoice(pas::concat_wide({u"- ", Text}), 6, pas::bind_method<&TfRuinsTalk::SelectInterceptorStrategy>(this));
         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeInterceptorsTargetingCancel"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowInterceptorDialog>(this));
     }
@@ -2264,8 +2345,8 @@ namespace fRuinsTalk {
     void TfRuinsTalk::ShowBridgeHelpAnswer(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"FormRuins.Bridge.BridgeHelpAnswer", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Action))})));
         ClearChoices();
-        aMyFunction::ReplaceTextToken(DialogText, u"<SwitchCost>"_w, pas::wide_int_to_str(10), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<BHCost>"_w, pas::wide_int_to_str(600), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SwitchCost>"_w, pas::wide_int_to_str(10), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BHCost>"_w, pas::wide_int_to_str(600), aMyFunction::TextHighlightColorTag);
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowBridgeHelp>(this);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeHelpMoreQuestions"_wref.get())});
@@ -2289,14 +2370,14 @@ namespace fRuinsTalk {
             } else {
                 Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeImpulseShieldsOn"_wref.get());
             }
-            aMyFunction::ReplaceTextToken(Text, u"<SwitchCost>"_w, pas::wide_int_to_str(10), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<SwitchCost>"_w, pas::wide_int_to_str(10), aMyFunction::TextHighlightColorTag);
             if (aPlayer::GetPlayer()->GetHull()->Energy >= 10) {
                 AddChoice(pas::concat_wide({u"- ", Text}), 0, pas::bind_method<&TfRuinsTalk::ToggleImpulseShields>(this));
             } else {
                 AddChoice(pas::concat_wide({u"- ", Text}), 0, fTalk::ScriptDialogBlockCallback);
             }
             Text = aConst::LocalizedColorText(u"FormRuins.Bridge.BridgeBHAsk"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(600), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(600), aMyFunction::TextHighlightColorTag);
             if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && aPlayer::GetPlayer()->RuinsSavedDockedTo == nullptr && aPlayer::GetPlayer()->RuinsSavedPlanet == nullptr && aPlayer::GetPlayer()->GetHull()->Energy >= 600) {
                 AddChoice(pas::concat_wide({u"- ", Text}), 0, pas::bind_method<&TfRuinsTalk::ShowBridgeBlackHoleDialog>(this));
             } else {
@@ -2316,7 +2397,8 @@ namespace fRuinsTalk {
                         AddChoice(([&] {
                             pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->GetCarriedNodeCount());
                             pas::WideString cpp_arg = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.RC.SaleNod.PlayerSend"_wref.get())});
-                            return aMyFunction::FormatText1(std::move(cpp_arg), u"<color=255,240,100>"_w, u"<Count>"_w, std::move(intToStr));
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(cpp_arg), std::move(textHighlightColorTag), u"<Count>"_w, std::move(intToStr));
                         }()), 0, pas::bind_method<&TfRuinsTalk::DepositNodesAtRangerCenter>(this));
                     }
                     AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowRangerCenterTakeNodeDialog>(this));
@@ -2365,7 +2447,8 @@ namespace fRuinsTalk {
                                 AddChoice(pas::concat_wide({u"- ", ([&] {
                                     pas::WideString nextRankName = aPlayer::GetPlayer()->GetNextRankName();
                                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.WB.NextRank.PlayerSend"_wref.get());
-                                    return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<NextRank>"_w, std::move(nextRankName));
+                                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag_2), u"<NextRank>"_w, std::move(nextRankName));
                                 }())}), 0, pas::bind_method<&TfRuinsTalk::ShowMilitaryBaseNextRankDialog>(this));
                             }
                             AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.WB.Repair.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowMilitaryBaseRepairDialog>(this));
@@ -2374,7 +2457,8 @@ namespace fRuinsTalk {
                                 AddChoice(([&] {
                                     auto name = pas::borrow(pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar->Name);
                                     pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.WB.FlyToEnemy.PlayerAsk"_wref.get())});
-                                    return aMyFunction::FormatText1(std::move(cpp_arg_3), u"<color=255,240,100>"_w, u"<StarEnemy>"_w, name.get());
+                                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                    return aMyFunction::FormatText1(std::move(cpp_arg_3), std::move(textHighlightColorTag_3), u"<StarEnemy>"_w, name.get());
                                 }()), 0, pas::bind_method<&TfRuinsTalk::ShowMilitaryBaseTravelDialog>(this));
                             }
                         } else {
@@ -2402,7 +2486,7 @@ namespace fRuinsTalk {
                     if (aGalaxy::Galaxy->IsDominatorSeriesUnresolved(aGalaxyStruct::dsTerron) && aGalaxy::Galaxy->IsDominatorResearchComplete(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsTerron}})) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->HasProgram(aGalaxyStruct::prgEnergotron) ^ 1)) {
                         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.SB.Scn.PlayerBuyTechTerron"_wref.get())}), 3, pas::bind_method<&TfRuinsTalk::BuyScienceBaseResearchProgram>(this));
                     }
-                    if (aGalaxy::Galaxy->CurrentTurn - 300 < 120) {
+                    if (aGalaxy::Galaxy->CurrentTurn - aGalaxyStruct::GalaxyWarmupTurns < 120) {
                         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuinsSB.History.PlayerOk"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::ShowScienceBaseHistoryDialog>(this));
                     }
                     break;
@@ -2414,14 +2498,16 @@ namespace fRuinsTalk {
                         AddChoice(([&] {
                             pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount);
                             pas::WideString cpp_arg_4 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.BK.RetDebt.PlayerSend"_wref.get())});
-                            return aMyFunction::FormatText1(std::move(cpp_arg_4), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(cpp_arg_4), std::move(textHighlightColorTag_4), u"<Money>"_w, std::move(intToStr_2));
                         }()), 0, pas::bind_method<&TfRuinsTalk::RepayBusinessCenterDebt>(this));
                     } else {
                         GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback_2 = fTalk::ScriptDialogBlockCallback;
                         pas::WideString formatText1 = ([&] {
                             pas::WideString intToStr_3 = pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount);
                             pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.BK.RetDebt.PlayerSend"_wref.get())});
-                            return aMyFunction::FormatText1(std::move(cpp_arg_5), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_3));
+                            pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(cpp_arg_5), std::move(textHighlightColorTag_5), u"<Money>"_w, std::move(intToStr_3));
                         }());
                         AddChoice(std::move(formatText1), 0, scriptDialogBlockCallback_2);
                     }
@@ -2432,14 +2518,16 @@ namespace fRuinsTalk {
                             AddChoice(([&] {
                                 pas::WideString intToStr_4 = pas::wide_int_to_str(aPlayer::GetPlayer()->ComputeDepositAccruedValue());
                                 pas::WideString cpp_arg_6 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.BK.RetDeposit.PlayerSend"_wref.get())});
-                                return aMyFunction::FormatText1(std::move(cpp_arg_6), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_4));
+                                pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(cpp_arg_6), std::move(textHighlightColorTag_6), u"<Money>"_w, std::move(intToStr_4));
                             }()), 0, pas::bind_method<&TfRuinsTalk::WithdrawBusinessCenterDeposit>(this));
                         } else {
                             GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback_3 = fTalk::ScriptDialogBlockCallback;
                             pas::WideString formatText1_2 = ([&] {
                                 pas::WideString intToStr_5 = pas::wide_int_to_str(aPlayer::GetPlayer()->ComputeDepositAccruedValue());
                                 pas::WideString cpp_arg_7 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.BK.RetDeposit.PlayerSend"_wref.get())});
-                                return aMyFunction::FormatText1(std::move(cpp_arg_7), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_5));
+                                pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(cpp_arg_7), std::move(textHighlightColorTag_7), u"<Money>"_w, std::move(intToStr_5));
                             }());
                             AddChoice(std::move(formatText1_2), 0, scriptDialogBlockCallback_3);
                         }
@@ -2628,7 +2716,7 @@ namespace fRuinsTalk {
                 }
                 default: DialogText = aConst::LocalizedColorText(u"FormRuins.GN.Modern.Answer"_wref.get()); break;
             }
-            DialogText = aMyFunction::FormatText1(DialogText, u"<color=255,240,100>"_w, u"<Money>"_w, pas::wide_int_to_str(Cost));
+            DialogText = aMyFunction::FormatText1(DialogText, aMyFunction::TextHighlightColorTag, u"<Money>"_w, pas::wide_int_to_str(Cost));
             ClearChoices();
             Text = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.GN.Modern.PlayerOk"_wref.get())});
             if (aPlayer::GetPlayer()->Money >= Cost) {
@@ -2667,8 +2755,8 @@ namespace fRuinsTalk {
         aGalaxy::Galaxy->RefreshRangerRatingPlaces();
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         DialogText = aConst::LocalizedColorText(u"FormRuins.RC.SaleNod.RCAnswer"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<BaseNod>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BaseNod>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes), aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -2690,9 +2778,9 @@ namespace fRuinsTalk {
         }
         NodeExchangeLowPriorityCost = aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(NodeExchangeLowPriorityCost, 1.5L));
         Text = aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.RCAnswerBig"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeLowPriorityCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeLowPriorityModule].Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeLowPriorityModule, u"<color=255,240,100>"_w), pas::WideString());
+        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeLowPriorityCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeLowPriorityModule].Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeLowPriorityModule, aMyFunction::TextHighlightColorTag), pas::WideString());
         DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
         for (I = 0; I <= 50; ++I) {
             NodeExchangeMediumPriorityModule = aRuins::TRuins_SelectServiceMicroModule(reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), 1, I, false);
@@ -2708,9 +2796,9 @@ namespace fRuinsTalk {
         }
         NodeExchangeMediumPriorityCost = aMyFunction::RoundAndTruncateToHundreds(pas::real_min<pas::Extended>(static_cast<pas::Extended>(NodeExchangeLowPriorityCost / 2), pas::real_divide(NodeExchangeMediumPriorityCost, 1.5L)));
         Text = aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.RCAnswerAverage"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeMediumPriorityCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeMediumPriorityModule].Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeMediumPriorityModule, u"<color=255,240,100>"_w), pas::WideString());
+        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeMediumPriorityCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeMediumPriorityModule].Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeMediumPriorityModule, aMyFunction::TextHighlightColorTag), pas::WideString());
         DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
         for (I = 0; I <= 50; ++I) {
             NodeExchangeHighPriorityModule = aRuins::TRuins_SelectServiceMicroModule(reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo), 0, I, false);
@@ -2726,32 +2814,32 @@ namespace fRuinsTalk {
         }
         NodeExchangeHighPriorityCost = aMyFunction::RoundAndTruncateToTens(pas::real_min<pas::Extended>(static_cast<pas::Extended>(NodeExchangeMediumPriorityCost / 2), pas::real_divide(NodeExchangeHighPriorityCost, 1.5L)));
         Text = aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.RCAnswerSmall"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeHighPriorityCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeHighPriorityModule].Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeHighPriorityModule, u"<color=255,240,100>"_w), pas::WideString());
+        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeHighPriorityCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeHighPriorityModule].Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Text>"_w, aItem::GetMicroModuleInfoText(NodeExchangeHighPriorityModule, aMyFunction::TextHighlightColorTag), pas::WideString());
         DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
         DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.RCAnswerEnd"_wref.get())});
-        aMyFunction::ReplaceTextToken(DialogText, u"<BaseNod>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BaseNod>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         Text = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.PlayerOk"_wref.get())});
-        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeLowPriorityCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeLowPriorityModule].Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeLowPriorityCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeLowPriorityModule].Name, aMyFunction::TextHighlightColorTag);
         if (aPlayer::GetPlayer()->BaseNodes >= NodeExchangeLowPriorityCost) {
             AddChoice(Text, 3, pas::bind_method<&TfRuinsTalk::BuyRangerCenterMicroModule>(this));
         } else {
             AddChoice(Text, 0, fTalk::ScriptDialogBlockCallback);
         }
         Text = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.PlayerOk"_wref.get())});
-        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeMediumPriorityCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeMediumPriorityModule].Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeMediumPriorityCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeMediumPriorityModule].Name, aMyFunction::TextHighlightColorTag);
         if (aPlayer::GetPlayer()->BaseNodes >= NodeExchangeMediumPriorityCost) {
             AddChoice(Text, 2, pas::bind_method<&TfRuinsTalk::BuyRangerCenterMicroModule>(this));
         } else {
             AddChoice(Text, 0, fTalk::ScriptDialogBlockCallback);
         }
         Text = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.PlayerOk"_wref.get())});
-        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeHighPriorityCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeHighPriorityModule].Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(NodeExchangeHighPriorityCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, aConst::MicroModuleTemplates[NodeExchangeHighPriorityModule].Name, aMyFunction::TextHighlightColorTag);
         if (aPlayer::GetPlayer()->BaseNodes >= NodeExchangeHighPriorityCost) {
             AddChoice(Text, 1, pas::bind_method<&TfRuinsTalk::BuyRangerCenterMicroModule>(this));
         } else {
@@ -2799,9 +2887,9 @@ namespace fRuinsTalk {
         Item->Init(ModuleIndex);
         pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
         DialogText = aConst::LocalizedColorText(u"FormRuins.RC.TakeNod.RCAfterPlayerOk"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<NodCnt>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, aConst::MicroModuleTemplates[ModuleIndex].Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<RC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<NodCnt>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, aConst::MicroModuleTemplates[ModuleIndex].Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<RC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         aGalaxyEvent::TGalaxyEvent* Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerReceivesMM"_w, nullptr);
         Event->AddData(Item->Id);
@@ -2883,7 +2971,8 @@ namespace fRuinsTalk {
                     pas::WideString highlightedName = Module->GetHighlightedName();
                     pas::WideString intToStr = pas::wide_int_to_str(Module->CalculateNodeExchangeValue(NodeExchangeLowPriorityCost, NodeExchangeMediumPriorityCost));
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.RC.GiveNod.Nod"_wref.get());
-                    return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(highlightedName), u"<Count>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(highlightedName), u"<Count>"_w, std::move(intToStr));
                 }())});
                 ++Count;
             }
@@ -2893,7 +2982,8 @@ namespace fRuinsTalk {
             DialogText = pas::concat_wide({DialogText, u"\r\n", ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.RC.GiveNod.Sum"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<BaseNod>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<BaseNod>"_w, std::move(intToStr_2));
             }())});
         } else {
             DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.RC.GiveNod.Nothing"_wref.get())});
@@ -2910,7 +3000,8 @@ namespace fRuinsTalk {
                             pas::WideString highlightedName_2 = Module->GetHighlightedName();
                             pas::WideString intToStr_3 = pas::wide_int_to_str(Module->CalculateNodeExchangeValue(NodeExchangeLowPriorityCost, NodeExchangeMediumPriorityCost));
                             pas::WideString cpp_arg = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.RC.GiveNod.PlayerOk"_wref.get())});
-                            return aMyFunction::FormatText2(std::move(cpp_arg), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(highlightedName_2), u"<Count>"_w, std::move(intToStr_3));
+                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(cpp_arg), std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(highlightedName_2), u"<Count>"_w, std::move(intToStr_3));
                         }());
                         std::int32_t id = Module->Id;
                         AddChoice(std::move(formatText2), id, pas::bind_method<&TfRuinsTalk::ExchangeMicroModuleForNodes>(this));
@@ -2942,7 +3033,8 @@ namespace fRuinsTalk {
             pas::WideString highlightedName = Module->GetHighlightedName();
             pas::WideString intToStr = pas::wide_int_to_str(Value);
             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.RC.GiveNod.AfterOk"_wref.get());
-            return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(highlightedName), u"<Count>"_w, std::move(intToStr));
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(highlightedName), u"<Count>"_w, std::move(intToStr));
         }());
         pas::list_delete(aPlayer::GetPlayer()->Inventory, pas::list_indexof(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Module)));
         pas::free(Module);
@@ -2960,7 +3052,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowRangerCenterNodeInfo(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.RC.AboutNod.RCAnswer"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(30), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(30), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowRangerCenterNodeInfoContinuation>(this);
@@ -2972,7 +3064,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowRangerCenterNodeInfoContinuation(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.RC.AboutNod.RCAnswerAdd"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(30), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(30), aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -3005,7 +3097,7 @@ namespace fRuinsTalk {
             const std::int32_t cpp_first = pas::list_count(aGalaxy::Galaxy->GalaxyEvents) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
-                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + 365 < aGalaxy::Galaxy->CurrentTurn) {
+                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + aGalaxyStruct::TurnsPerYear < aGalaxy::Galaxy->CurrentTurn) {
                         break;
                     }
                     if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->EventType == u"PlayerChangesNationality") {
@@ -3014,11 +3106,11 @@ namespace fRuinsTalk {
                 }
             }
         }
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyMaloc>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiMaloc)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeleng>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiPeleng)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeople>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyFei>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiFeyan)) * Factor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyGaal>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiGaal)) * Factor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyMaloc>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiMaloc)) * Factor)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeleng>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiPeleng)) * Factor)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyPeople>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman)) * Factor)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyFei>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiFeyan)) * Factor)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyGaal>"_w, pas::wide_int64_to_str(System::Round(static_cast<long double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiGaal)) * Factor)), aMyFunction::TextHighlightColorTag);
         DialogText = pas::concat_wide({DialogText, Text});
         ClearChoices();
         std::int32_t A = aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiMaloc);
@@ -3068,7 +3160,7 @@ namespace fRuinsTalk {
             const std::int32_t cpp_first = pas::list_count(aGalaxy::Galaxy->GalaxyEvents) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
-                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + 365 < aGalaxy::Galaxy->CurrentTurn) {
+                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + aGalaxyStruct::TurnsPerYear < aGalaxy::Galaxy->CurrentTurn) {
                         break;
                     }
                     if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->EventType == u"PlayerChangesNationality") {
@@ -3101,10 +3193,10 @@ namespace fRuinsTalk {
             ++aPlayer::GetPlayer()->NationalityChangeCount;
             Achievements::TryAddAchievementProgress(u"MANYFACES"_w, 1);
             for (J = 1; J <= 12; ++J) {
-                if (!aConst::CaptainHealthDefinitions[J].Disabled) {
-                    if (static_cast<std::uint8_t>(pas::contains(aConst::CaptainHealthDefinitions[J].AllowedOwners, aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) ^ 1) && aPlayer::GetPlayer()->CaptainHealth[J].Progress < 1.0E+2L) {
-                        aPlayer::GetPlayer()->CaptainHealth[J].Progress = 0.0;
-                        aPlayer::GetPlayer()->StatusEffectSourceNames[J] = pas::WideString();
+                if (!aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(J)].Disabled) {
+                    if (static_cast<std::uint8_t>(pas::contains(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(J)].AllowedOwners, aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) ^ 1) && aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(J)].Progress < 1.0E+2L) {
+                        aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(J)].Progress = 0.0;
+                        aPlayer::GetPlayer()->StatusEffectSourceNames[static_cast<aGalaxyStruct::TCaptainHealthEffect>(J)] = pas::WideString();
                     }
                 }
             }
@@ -3177,16 +3269,16 @@ namespace fRuinsTalk {
             const std::int32_t cpp_first = pas::list_count(aGalaxy::Galaxy->GalaxyEvents) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
-                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + 365 < aGalaxy::Galaxy->CurrentTurn) {
+                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + aGalaxyStruct::TurnsPerYear < aGalaxy::Galaxy->CurrentTurn) {
                         break;
                     }
                     if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->EventType == u"PlayerChangesSide") {
-                        StationServiceQuoteCost = std::min<std::int64_t>(static_cast<std::int64_t>(100000000), System::Round(StationServiceQuoteCost * 1.5L));
+                        StationServiceQuoteCost = std::min<std::int64_t>(static_cast<std::int64_t>(aGalaxyStruct::MaxMonetaryValue), System::Round(StationServiceQuoteCost * 1.5L));
                     }
                 }
             }
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->Money >= StationServiceQuoteCost) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptPirateBaseSideChange>(this);
@@ -3222,11 +3314,11 @@ namespace fRuinsTalk {
             const std::int32_t cpp_first = pas::list_count(aGalaxy::Galaxy->GalaxyEvents) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
-                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + 365 < aGalaxy::Galaxy->CurrentTurn) {
+                    if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->Turn + aGalaxyStruct::TurnsPerYear < aGalaxy::Galaxy->CurrentTurn) {
                         break;
                     }
                     if (pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, I)->EventType == u"PlayerChangesSide") {
-                        StationServiceQuoteCost = std::min<std::int64_t>(static_cast<std::int64_t>(100000000), System::Round(StationServiceQuoteCost * 1.5L));
+                        StationServiceQuoteCost = std::min<std::int64_t>(static_cast<std::int64_t>(aGalaxyStruct::MaxMonetaryValue), System::Round(StationServiceQuoteCost * 1.5L));
                     }
                 }
             }
@@ -3287,10 +3379,10 @@ namespace fRuinsTalk {
             Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
             DiscountedCost = std::max<std::int64_t>(static_cast<std::int64_t>(1), static_cast<std::int64_t>(Cost - System::Round(pas::real_divide(Cost, 1.0E+2L) * Discount)));
             Text = aConst::LocalizedColorText(u"FormRuins.PB.Nod.PBStart"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<MoneyAll>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<MoneyDec>"_w, pas::wide_int_to_str(DiscountedCost), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MoneyAll>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MoneyDec>"_w, pas::wide_int_to_str(DiscountedCost), aMyFunction::TextHighlightColorTag);
             DialogText = Text;
             ClearChoices();
             if (aPlayer::GetPlayer()->Money >= DiscountedCost) {
@@ -3302,8 +3394,12 @@ namespace fRuinsTalk {
             OtherBase = pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FindPirateBaseWithNodes();
             if (OtherBase != nullptr) {
                 Text = pas::concat_wide({Text, u"\r\n", aConst::LocalizedColorText(u"FormRuins.PB.Nod.PBEndPlus"_wref.get())});
-                aMyFunction::ReplaceTextToken(Text, u"<ToSector>"_w, OtherBase->CurrentStar->Constellation->GetName(), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<ToBase>"_w, OtherBase->Name, u"<color=255,240,100>"_w);
+                {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString name = OtherBase->CurrentStar->Constellation->GetName();
+                    aMyFunction::ReplaceTextToken(Text, u"<ToSector>"_w, std::move(name), textHighlightColorTag.get());
+                }
+                aMyFunction::ReplaceTextToken(Text, u"<ToBase>"_w, OtherBase->Name, aMyFunction::TextHighlightColorTag);
             }
             DialogText = Text;
             ClearChoices();
@@ -3350,30 +3446,36 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::ShowPirateBaseProgramDialog(std::int32_t Action) {
-        std::uint8_t I{};
+        aGalaxyStruct::TProgramIndex I{};
         pas::WideString Text{};
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range.next(I); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range.next(I); ) {
             PirateProgramQuoteCosts[I] = 0;
         }
         std::int32_t Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         Text = aConst::LocalizedColorText(u"FormRuins.PB.Program.PBStart"_wref.get());
-        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Percent>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Discount)), u"<color=255,240,100>"sv));
-        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<NodTrum>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr))), u"<color=255,240,100>"sv));
-        Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<NodAcc>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes)), u"<color=255,240,100>"sv));
+        Text = aMyFunction::FormatText1(Text, aMyFunction::TextHighlightColorTag, u"<Percent>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Discount)), pas::view(aMyFunction::TextHighlightColorTag)));
+        Text = aMyFunction::FormatText1(Text, aMyFunction::TextHighlightColorTag, u"<NodTrum>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr))), pas::view(aMyFunction::TextHighlightColorTag)));
+        Text = aMyFunction::FormatText1(Text, aMyFunction::TextHighlightColorTag, u"<NodAcc>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->BaseNodes)), pas::view(aMyFunction::TextHighlightColorTag)));
         Text = pas::concat_wide({Text, u"\r\n"});
-        for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range_2.next(I); ) {
+        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range_2.next(I); ) {
             if (aConst::PirateProgramBatchSizes[I] != 0) {
-                Text = pas::concat_wide({Text, aMyFunction::WrapTextInColor(pas::view((static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I))), u"<color=255,240,100>"sv), u" - "});
+                Text = pas::concat_wide({Text, ([&] {
+                    pas::WideString programName = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(programName)), pas::view(std::move(textHighlightColorTag)));
+                }()), u" - "});
                 Text = pas::concat_wide({Text, ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aConst::PirateProgramBatchSizes[I]);
                     pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[I], u".Text"}));
-                    return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Count>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag_2), u"<Count>"_w, std::move(intToStr));
                 }()), u"\r\n"});
                 PirateProgramQuoteCosts[I] = std::max<std::int64_t>(static_cast<std::int64_t>(100), static_cast<std::int64_t>(aConst::PirateProgramBaseCosts[I] - System::Round(pas::real_divide(aConst::PirateProgramBaseCosts[I], 1.0E+2L) * Discount)));
                 Text = pas::concat_wide({Text, ([&] {
                     pas::WideString intToStr_2 = pas::wide_int_to_str(PirateProgramQuoteCosts[I]);
                     pas::WideString localizedText_2 = aConst::LocalizedText(u"FormRuins.PB.Program.NodCost"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<Cost>"_w, std::move(intToStr_2));
+                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_3), u"<Cost>"_w, std::move(intToStr_2));
                 }())});
                 Text = pas::concat_wide({Text, u"\r\n", u"\r\n"});
             }
@@ -3381,11 +3483,19 @@ namespace fRuinsTalk {
         DialogText = Text;
         ClearChoices();
         std::int32_t Nodes = aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) + aPlayer::GetPlayer()->BaseNodes;
-        for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range_3.next(I); ) {
+        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range_3.next(I); ) {
             if (aConst::PirateProgramBatchSizes[I] != 0) {
                 Text = pas::concat_wide({u" - ", aConst::LocalizedColorText(u"FormRuins.PB.Program.PlayerOk"_wref.get())});
-                Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Nod>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(PirateProgramQuoteCosts[I])), u"<color=255,240,100>"sv));
-                Text = aMyFunction::FormatText1(Text, u"<color=255,240,100>"_w, u"<Text>"_w, aMyFunction::WrapTextInColor(pas::view((static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I))), u"<color=255,240,100>"sv));
+                Text = aMyFunction::FormatText1(Text, aMyFunction::TextHighlightColorTag, u"<Nod>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(PirateProgramQuoteCosts[I])), pas::view(aMyFunction::TextHighlightColorTag)));
+                Text = ([&] {
+                    pas::WideString wrapTextInColor = ([&] {
+                        pas::WideString programName_2 = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I));
+                        pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(programName_2)), pas::view(std::move(textHighlightColorTag_4)));
+                    }());
+                    pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(Text, std::move(textHighlightColorTag_5), u"<Text>"_w, std::move(wrapTextInColor));
+                }());
                 if (PirateProgramQuoteCosts[I] <= Nodes) {
                     AddChoice(Text, I, pas::bind_method<&TfRuinsTalk::BuyPirateBaseProgram>(this));
                 } else {
@@ -3397,7 +3507,7 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::BuyPirateBaseProgram(std::int32_t Action) {
-        std::uint8_t ProgramIndex = Action;
+        aGalaxyStruct::TProgramIndex ProgramIndex = static_cast<aGalaxyStruct::TProgramIndex>(Action);
         std::int32_t Cost = PirateProgramQuoteCosts[ProgramIndex];
         std::int32_t CarriedNodes = aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr);
         std::int32_t BaseNodes = aPlayer::GetPlayer()->BaseNodes;
@@ -3414,7 +3524,8 @@ namespace fRuinsTalk {
             DialogText = ([&] {
                 pas::WideString programName = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(ProgramIndex));
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.PB.Program.PBAfterOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Text>"_w, std::move(programName));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Text>"_w, std::move(programName));
             }());
             ClearChoices();
             M_Main(true);
@@ -3463,14 +3574,14 @@ namespace fRuinsTalk {
             M_Main(true);
         } else {
             Text = aConst::LocalizedColorText(u"FormRuins.PB.Repair.PBYouNeedRepair"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<MoneyAll>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<MoneyDec>"_w, pas::wide_int_to_str(DiscountedCost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<MoneyAll>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MoneyDec>"_w, pas::wide_int_to_str(DiscountedCost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
             DialogText = Text;
             if (NodeCost != 0) {
                 DialogText = pas::concat_wide_reverse({aConst::LocalizedColorText(u"FormRuins.PB.Repair.PBCostAnswerNeedNode"_wref.get()), DialogText});
-                aMyFunction::ReplaceTextToken(DialogText, u"<NeedNode>"_w, pas::wide_int_to_str(NodeCost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<NeedNode>"_w, pas::wide_int_to_str(NodeCost), aMyFunction::TextHighlightColorTag);
             }
             ClearChoices();
             if (aPlayer::GetPlayer()->Money >= DiscountedCost) {
@@ -3536,8 +3647,8 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowPirateBaseSubCrackDialog(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.PB.SabCrack.PBInfo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ConfirmPirateBaseSubCrack>(this);
@@ -3549,15 +3660,16 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ConfirmPirateBaseSubCrack(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.PB.SabCrack.PBContinue"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::BuyPirateBaseSubCrack>(this);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost()));
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.PB.SabCrack.PlayerOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
             }())});
             TfRuinsTalk* self = this;
             self->AddChoice(std::move(cpp_arg_2), 0, cpp_arg);
@@ -3579,8 +3691,8 @@ namespace fRuinsTalk {
     void TfRuinsTalk::BuyPirateBaseSubCrack(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.PB.SabCrack.PBAfterOk"_wref.get());
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost()));
-        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost())), aMyFunction::TextHighlightColorTag);
         aPlayer::GetPlayer()->ProgramCounts[aGalaxyStruct::prgSabCrack] = 1;
         ClearChoices();
         M_Main(true);
@@ -3589,8 +3701,8 @@ namespace fRuinsTalk {
     void TfRuinsTalk::BuyPirateBaseSubCrackHalfPrice(std::int32_t Action) {
         std::int32_t Cost = (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::GetSubCrackCost()) / 2;
         DialogText = aConst::LocalizedColorText(u"FormRuins.PB.SabCrack.PBAfterOkHalf"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
         aPlayer::GetPlayer()->ProgramCounts[aGalaxyStruct::prgSabCrack] = 1;
         ClearChoices();
@@ -3599,48 +3711,50 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::DeclinePirateBaseSubCrack(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.PB.SabCrack.PBAfterNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         ClearChoices();
         M_Main(true);
     }
 
     void TfRuinsTalk::ShowPirateBaseChameleonDialog(std::int32_t Action) {
-        std::uint8_t I{};
+        aGalaxyStruct::TDominatorSeries I{};
         pas::WideString Text{};
         pas::WideString SeriesName{};
         std::int32_t Value{};
         std::int32_t Cost{};
         float BaseCost = std::max<std::int32_t>(1000, aGalaxy::Galaxy->ComputeScaledBigMoney(aPlayer::GetPlayer()->DockedTo->OwnerId));
         float SeriesCost = 0.0f;
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range.next(I); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range.next(I); ) {
             switch (I) {
-                case 1: SeriesCost = BaseCost * 1.1L; break;
-                case 0: SeriesCost = BaseCost * 1.2L; break;
-                case 2: SeriesCost = BaseCost * 1.3L; break;
+                case aGalaxyStruct::dsKeller: SeriesCost = BaseCost * 1.1L; break;
+                case aGalaxyStruct::dsBlazer: SeriesCost = BaseCost * 1.2L; break;
+                case aGalaxyStruct::dsTerron: SeriesCost = BaseCost * 1.3L; break;
             }
             PirateChameleonQuoteCosts[I] = System::Round(SeriesCost + static_cast<long double>(aPlayer::GetPlayer()->ChameleonCharges[I]) * SeriesCost * 0.1L);
         }
         Text = pas::concat_wide({u"-----------------------", u"\r\n"});
-        for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range_2.next(I); ) {
+        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_2.next(I); ) {
             SeriesName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[I], u".0"}));
             Cost = PirateChameleonQuoteCosts[I];
             Text = pas::concat_wide({Text, ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(Cost);
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.PB.Chameleon.PlayerOk"_wref.get());
-                return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Series>"_w, SeriesName, u"<Cost>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Series>"_w, SeriesName, u"<Cost>"_w, std::move(intToStr));
             }()), u"\r\n"});
         }
         Text = pas::concat_wide({Text, u"-----------------------"});
         DialogText = aMyFunction::FormatText1(aConst::LocalizedColorText(u"FormRuins.PB.Chameleon.PBAsk"_wref.get()), pas::WideString(), u"<List>"_w, Text);
         ClearChoices();
-        for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range_3.next(I); ) {
+        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_3.next(I); ) {
             Value = I;
             SeriesName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[I], u".0"}));
             Cost = PirateChameleonQuoteCosts[I];
             Text = ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.PB.Chameleon.PlayerOk"_wref.get());
-                return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Series>"_w, SeriesName, u"<Cost>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Series>"_w, SeriesName, u"<Cost>"_w, std::move(intToStr_2));
             }());
             if (aPlayer::GetPlayer()->Money >= Cost) {
                 AddChoice(pas::concat_wide({u"- ", Text}), Value, pas::bind_method<&TfRuinsTalk::BuyPirateBaseChameleon>(this));
@@ -3652,7 +3766,7 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::BuyPirateBaseChameleon(std::int32_t Action) {
-        std::uint8_t Series = Action;
+        aGalaxyStruct::TDominatorSeries Series = static_cast<aGalaxyStruct::TDominatorSeries>(Action);
         std::int32_t Cost = PirateChameleonQuoteCosts[Series];
         ++aPlayer::GetPlayer()->ChameleonCharges[Series];
         aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - Cost));
@@ -3723,16 +3837,17 @@ namespace fRuinsTalk {
             }
         }
         DialogText = aConst::LocalizedColorText(Key);
-        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(CoalitionPercent)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<DominatorsPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(DominatorPercent)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<PiratesPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(PiratePercent)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(CoalitionPercent)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DominatorsPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(DominatorPercent)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PiratesPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(PiratePercent)), aMyFunction::TextHighlightColorTag);
         if (EnemyStar != nullptr) {
-            aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, EnemyStar->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, EnemyStar->Name, aMyFunction::TextHighlightColorTag);
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString name = EnemyStar->Constellation->GetName();
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<Sector>"_w, std::move(name), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<Sector>"_w, std::move(name), textHighlightColorTag.get());
             }
         }
         M_Main(true);
@@ -3740,25 +3855,26 @@ namespace fRuinsTalk {
 
     // Does not promote the player.
     void TfRuinsTalk::ShowMilitaryBaseNextRankDialog(std::int32_t Action) {
-        std::uint8_t I{};
+        aGalaxyStruct::TKlingType I{};
         pas::WideString Token{};
         DialogText = aConst::LocalizedColorText(u"FormRuins.WB.NextRank.WBAnswer"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString nextRankName = aPlayer::GetPlayer()->GetNextRankName();
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<NextRank>"_w, std::move(nextRankName), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<NextRank>"_w, std::move(nextRankName), textHighlightColorTag.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<NeedPoints>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetRankPointsToNextRank())), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<RankPointsForLiberationSystem>"_w, pas::wide_int_to_str(30), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<RankPointsForDeadPirates>"_w, pas::wide_int_to_str(10), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<RankPointsForDeadPiratesInGiperSpace>"_w, pas::wide_int_to_str(2), u"<color=255,240,100>"_w);
-        for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(7); ++I) {
-            if (I != 0) {
+        aMyFunction::ReplaceTextToken(DialogText, u"<NeedPoints>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->GetRankPointsToNextRank())), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<RankPointsForLiberationSystem>"_w, pas::wide_int_to_str(30), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<RankPointsForDeadPirates>"_w, pas::wide_int_to_str(10), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<RankPointsForDeadPiratesInGiperSpace>"_w, pas::wide_int_to_str(2), aMyFunction::TextHighlightColorTag);
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range.next(I); ) {
+            if (I != aGalaxyStruct::ktBoss) {
                 Token = static_cast<pas::WideString>(pas::concat_ansi({"<Name", SysUtils::IntToStr(I), ">"}));
                 aMyFunction::ReplaceTextToken(DialogText, Token, aConst::DominatorShipDefinitions[I].DisplayNames[aGalaxyStruct::dsBlazer], pas::WideString());
-                Token = pas::concat_wide({u"<RankPointsFor", aConst::DominatorShipTypeNames[I], u">"});
-                aMyFunction::ReplaceTextToken(DialogText, Token, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::DominatorShipDefinitions[I].RankPoints)), u"<color=255,240,100>"_w);
+                Token = pas::concat_wide({u"<RankPointsFor", aConst::DominatorShipTypeKeys[I], u">"});
+                aMyFunction::ReplaceTextToken(DialogText, Token, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::DominatorShipDefinitions[I].RankPoints)), aMyFunction::TextHighlightColorTag);
             }
         }
         M_Main(true);
@@ -3766,7 +3882,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowMilitaryBaseRepairDialog(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.WB.Repair.WBAnswer"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowMilitaryBaseRepairQuote>(this);
@@ -3787,15 +3903,16 @@ namespace fRuinsTalk {
             } else {
                 DialogText = aConst::LocalizedColorText(u"FormRuins.WB.Repair.WBCostAnswerYouHaveBadEquipments"_wref.get());
             }
-            aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
             ClearChoices();
             if (Cost > 0 && aPlayer::GetPlayer()->Money >= Cost) {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptMilitaryBaseRepair>(this);
                 pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(Cost);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.WB.Repair.PlayerOk"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
                 }())});
                 TfRuinsTalk* self = this;
                 self->AddChoice(std::move(cpp_arg_2), 0, cpp_arg);
@@ -3825,17 +3942,22 @@ namespace fRuinsTalk {
     void TfRuinsTalk::ShowMilitaryBaseProgramsDialog(std::int32_t Action) {
         pas::WideString Text{};
         pas::WideString Info{};
-        std::uint8_t I{};
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range.next(I); ) {
+        aGalaxyStruct::TProgramIndex I{};
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range.next(I); ) {
             if (aPlayer::GetPlayer()->ProgramRewardStocks[I] > 0) {
                 Info = aConst::LocalizedColorText(u"FormRuins.WB.Programms.Info"_wref.get());
-                aMyFunction::ReplaceTextToken(Info, u"<Name>"_w, (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I)), u"<color=255,240,100>"_w);
+                {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString programName = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(I));
+                    aMyFunction::ReplaceTextToken(Info, u"<Name>"_w, std::move(programName), textHighlightColorTag.get());
+                }
                 aMyFunction::ReplaceTextToken(Info, u"<Text>"_w, ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->ProgramRewardStocks[I]);
                     pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[I], u".Text"}));
-                    return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Count>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag_2), u"<Count>"_w, std::move(intToStr));
                 }()), pas::WideString());
-                aMyFunction::ReplaceTextToken(Info, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ProgramRewardStocks[I]), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Info, u"<Count>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ProgramRewardStocks[I]), aMyFunction::TextHighlightColorTag);
                 if (Text == u"") {
                     Text = Info;
                 } else {
@@ -3844,7 +3966,7 @@ namespace fRuinsTalk {
             }
         }
         DialogText = aConst::LocalizedColorText(u"FormRuins.WB.Programms.WBAnswer"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<WB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         aMyFunction::ReplaceTextToken(DialogText, u"<Programms>"_w, Text, pas::WideString());
         ClearChoices();
         {
@@ -3856,8 +3978,8 @@ namespace fRuinsTalk {
     }
 
     void TfRuinsTalk::AcceptMilitaryBasePrograms(std::int32_t Action) {
-        std::uint8_t I{};
-        for (I = static_cast<std::uint8_t>(0); I <= static_cast<std::uint8_t>(11); ++I) {
+        aGalaxyStruct::TProgramIndex I{};
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range.next(I); ) {
             if (aPlayer::GetPlayer()->ProgramRewardStocks[I] > 0) {
                 aPlayer::GetPlayer()->ProgramCounts[I] += aPlayer::GetPlayer()->ProgramRewardStocks[I];
                 aPlayer::GetPlayer()->ProgramRewardStocks[I] = 0;
@@ -3874,15 +3996,16 @@ namespace fRuinsTalk {
         StationServiceQuoteCost = aMyFunction::RoundAndTruncateToHundreds(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman));
         StationServiceQuoteCost = aMyFunction::RoundAndTruncateToHundreds(static_cast<long double>(StationServiceQuoteCost) * aMyFunction::RemapClamped(aGalaxy::Galaxy->CurrentTurn - aPlayer::GetPlayer()->StationServiceLastUseTurns[aGalaxyStruct::cpWarOperation], 0.0, aConst::StationServiceRepeatPeriods[aGalaxyStruct::cpWarOperation], 7.7, 1.0));
         DialogText = aConst::LocalizedColorText(u"FormRuins.WB.WarOperation.WB"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<DecMoney>"_w, pas::wide_int_to_str(BusinessQuoteSmallAmount), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DecMoney>"_w, pas::wide_int_to_str(BusinessQuoteSmallAmount), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->Money >= StationServiceQuoteCost) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptMilitaryBaseWarOperation>(this);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(StationServiceQuoteCost);
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.WB.WarOperation.PlayerOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
             }())});
             TfRuinsTalk* self = this;
             self->AddChoice(std::move(cpp_arg_2), 0, cpp_arg);
@@ -3891,7 +4014,8 @@ namespace fRuinsTalk {
             pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(StationServiceQuoteCost);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.WB.WarOperation.PlayerOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
             }())});
             TfRuinsTalk* self_2 = this;
             self_2->AddChoice(std::move(cpp_arg_3), 0, scriptDialogBlockCallback);
@@ -3936,28 +4060,31 @@ namespace fRuinsTalk {
             ToStar = pas::checked_cast<aGalaxy::TStar*>(Group->Route[3].Target);
             DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.WB.WarOperation.WBAfterOkGood"_wref.get())});
             aMyFunction::ReplaceTextToken(DialogText, u"<Names>"_w, Names, pas::WideString());
-            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<StarNormal>"_w, FromStar->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<StarEnemy>"_w, ToStar->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<StarNormal>"_w, FromStar->Name, aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<StarEnemy>"_w, ToStar->Name, aMyFunction::TextHighlightColorTag);
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString name = FromStar->Constellation->GetName();
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<SectorNormal>"_w, std::move(name), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<SectorNormal>"_w, std::move(name), textHighlightColorTag.get());
             }
             {
+                auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString name_2 = ToStar->Constellation->GetName();
                 pas::WideString& dialogText_2 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_2, u"<SectorEnemy>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_2, u"<SectorEnemy>"_w, std::move(name_2), textHighlightColorTag_2.get());
             }
             {
+                auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Group->Route[2].WaitUntilTurn);
                 pas::WideString& dialogText_3 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_3, u"<Date>"_w, std::move(formatTurnDate), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_3, u"<Date>"_w, std::move(formatTurnDate), textHighlightColorTag_3.get());
             }
         } else {
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - BusinessQuoteSmallAmount);
             DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.WB.WarOperation.WBAfterOkBad"_wref.get())});
-            aMyFunction::ReplaceTextToken(DialogText, u"<DecMoney>"_w, pas::wide_int_to_str(BusinessQuoteSmallAmount), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<DecMoney>"_w, pas::wide_int_to_str(BusinessQuoteSmallAmount), aMyFunction::TextHighlightColorTag);
         }
         M_Main(true);
     }
@@ -4061,9 +4188,9 @@ namespace fRuinsTalk {
             }
         }
         DialogText = aConst::LocalizedColorText(u"FormRuins.WB.FlyToEnemy.WBStarEnemyInfo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<N>"_w, pas::wide_int_to_str(MilitaryTravelDistance), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Ships>"_w, Names, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<N>"_w, pas::wide_int_to_str(MilitaryTravelDistance), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Ships>"_w, Names, aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg_3 = pas::bind_method<&TfRuinsTalk::OpenHangar>(this);
@@ -4114,7 +4241,7 @@ namespace fRuinsTalk {
                     }
                 }
                 aMyFunction::ReplaceTextToken(Text, u"<ItemName>"_w, aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName())), pas::WideString());
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), aMyFunction::TextHighlightColorTag);
             }
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range_2.next(I); ) {
@@ -4133,7 +4260,7 @@ namespace fRuinsTalk {
                     }
                 }
                 aMyFunction::ReplaceTextToken(Text, u"<ItemName>"_w, aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Artefact->GetDisplayName())), pas::WideString());
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), aMyFunction::TextHighlightColorTag);
             }
         }
         DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Improvement.SBSeeItems"_wref.get());
@@ -4165,21 +4292,22 @@ namespace fRuinsTalk {
         StationImprovementItem = Item;
         if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Improvement.SBNeedCostImprovementNodes"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<MinNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMinor) * 0.01L)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<AverageNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMedium) * 0.01L)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MaxNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L)), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MinNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMinor) * 0.01L)), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<AverageNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMedium) * 0.01L)), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MaxNode>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L)), aMyFunction::TextHighlightColorTag);
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Improvement.SBNeedCostImprovement"_wref.get());
         }
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString normalizeTextHighlightColors = aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName()));
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<FullName>"_w, std::move(normalizeTextHighlightColors), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<FullName>"_w, std::move(normalizeTextHighlightColors), textHighlightColorTag.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Min>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMinor)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Average>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMedium)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Max>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMajor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Min>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMinor)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Average>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMedium)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Max>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMajor)), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             Nodes = aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr);
@@ -4249,7 +4377,11 @@ namespace fRuinsTalk {
                         ClearChoices();
                     }
                     {
-                        pas::WideString cpp_arg = pas::concat_wide({u"- ", aMyFunction::FormatText1(aConst::LocalizedColorText(u"FormRuins.SB.Improvement.PlayerDetailOk"_wref.get()), u"<color=255,240,100>"_w, u"<Attr>"_w, Text)});
+                        pas::WideString cpp_arg = pas::concat_wide({u"- ", ([&] {
+                            pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.SB.Improvement.PlayerDetailOk"_wref.get());
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Attr>"_w, Text);
+                        }())});
                         std::int32_t detail = Detail;
                         AddChoice(std::move(cpp_arg), detail, pas::bind_method<&TfRuinsTalk::AcceptScienceBaseImprovement>(this));
                     }
@@ -4336,7 +4468,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowScienceBaseRepairDialog(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Repair.SBAnswer"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowScienceBaseRepairQuote>(this);
@@ -4377,13 +4509,13 @@ namespace fRuinsTalk {
             } else {
                 DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Repair.SBCostAnswerYouHaveBadEquipments"_wref.get());
             }
-            aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<EqMoney>"_w, pas::wide_int_to_str(EquipmentCost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<ArtMoney>"_w, pas::wide_int_to_str(Cost - EquipmentCost), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<EqMoney>"_w, pas::wide_int_to_str(EquipmentCost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<ArtMoney>"_w, pas::wide_int_to_str(Cost - EquipmentCost), aMyFunction::TextHighlightColorTag);
             if (NodeCost != 0) {
                 DialogText = pas::concat_wide_reverse({aConst::LocalizedColorText(u"FormRuins.SB.Repair.SBCostAnswerNeedNode"_wref.get()), DialogText});
-                aMyFunction::ReplaceTextToken(DialogText, u"<NeedNode>"_w, pas::wide_int_to_str(NodeCost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<NeedNode>"_w, pas::wide_int_to_str(NodeCost), aMyFunction::TextHighlightColorTag);
             }
             ClearChoices();
             if (Cost > 0 && aPlayer::GetPlayer()->Money >= Cost) {
@@ -4457,20 +4589,21 @@ namespace fRuinsTalk {
                 }
             }
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString displayName = Satellite->GetDisplayName();
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<SatName>"_w, std::move(displayName), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<SatName>"_w, std::move(displayName), textHighlightColorTag.get());
             }
             {
                 pas::WideString infoText = Satellite->virtual_TItem_GetInfoText(pas::WideString(), nullptr);
                 pas::WideString& dialogText_2 = DialogText;
                 aMyFunction::ReplaceTextToken(dialogText_2, u"<SatText>"_w, std::move(infoText), pas::WideString());
             }
-            aMyFunction::ReplaceTextToken(DialogText, u"<SatSize>"_w, pas::wide_int_to_str(Satellite->Weight), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<SatMoney>"_w, pas::wide_int_to_str(Satellite->Cost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<SatCurCount>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->CountExistingSatellites()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<SatMayCount>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetSatelliteLimit()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<SatSize>"_w, pas::wide_int_to_str(Satellite->Weight), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<SatMoney>"_w, pas::wide_int_to_str(Satellite->Cost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<SatCurCount>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->CountExistingSatellites()), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<SatMayCount>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->GetSatelliteLimit()), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         }
         ClearChoices();
         {
@@ -4480,8 +4613,12 @@ namespace fRuinsTalk {
             self->AddChoice(std::move(cpp_arg_2), 0, cpp_arg);
         }
         Text = aConst::LocalizedColorText(u"FormRuins.SB.Satellite.PlayerOk"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<SatName>"_w, Satellite->GetDisplayName(), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<SatMoney>"_w, pas::wide_int_to_str(Satellite->Cost), u"<color=255,240,100>"_w);
+        {
+            auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString displayName_2 = Satellite->GetDisplayName();
+            aMyFunction::ReplaceTextToken(Text, u"<SatName>"_w, std::move(displayName_2), textHighlightColorTag_2.get());
+        }
+        aMyFunction::ReplaceTextToken(Text, u"<SatMoney>"_w, pas::wide_int_to_str(Satellite->Cost), aMyFunction::TextHighlightColorTag);
         if (([&] {
             std::int32_t cpp_left_2 = aGalaxy::Galaxy->CountExistingSatellites();
             return cpp_left_2 < aPlayer::GetPlayer()->GetSatelliteLimit();
@@ -4508,9 +4645,10 @@ namespace fRuinsTalk {
         aItem::TSatellite* Satellite = pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->SatelliteOffer;
         DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Satellite.SBAfterOk"_wref.get());
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString displayName = Satellite->GetDisplayName();
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<SatName>"_w, std::move(displayName), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<SatName>"_w, std::move(displayName), textHighlightColorTag.get());
         }
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Satellite->Cost);
         pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Satellite));
@@ -4546,9 +4684,9 @@ namespace fRuinsTalk {
                     TfRuinsTalk* self_2 = this;
                     self_2->AddChoice(std::move(cpp_arg_4), 0, scriptDialogBlockCallback);
                 }
-                aMyFunction::ReplaceTextToken(Info, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[Series].Material), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Info, u"<Speed>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aGalaxy::Galaxy->GetDominatorResearchEfficiency(Series))), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Info, u"<Day>"_w, pas::wide_int64_to_str(System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(1.0E+2L - aGalaxy::Galaxy->DominatorResearch[Series].Progress, aGalaxy::Galaxy->GetDominatorResearchRate(Series))))), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Info, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[Series].Material), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Info, u"<Speed>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aGalaxy::Galaxy->GetDominatorResearchEfficiency(Series))), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Info, u"<Day>"_w, pas::wide_int64_to_str(System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(1.0E+2L - aGalaxy::Galaxy->DominatorResearch[Series].Progress, aGalaxy::Galaxy->GetDominatorResearchRate(Series))))), aMyFunction::TextHighlightColorTag);
             } else {
                 Info = aConst::LocalizedColorText(u"FormRuins.SB.Scn.SBSectionInfoEnd"_wref.get());
             }
@@ -4573,7 +4711,7 @@ namespace fRuinsTalk {
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Scn.SBAnswer2"_wref.get());
         }
         aMyFunction::ReplaceTextToken(DialogText, u"<SBSectionInfo>"_w, Text, pas::WideString());
-        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg_5 = pas::bind_method<&TfRuinsTalk::SelectScienceBaseResearchSection>(this);
             pas::WideString cpp_arg_6 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.SB.Scn.SectionNone"_wref.get())});
@@ -4584,14 +4722,14 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::SelectScienceBaseResearchSection(std::int32_t Action) {
         pas::WideString Text{};
-        std::uint8_t Series{};
+        aGalaxyStruct::TDominatorSeries Series{};
         ClearChoices();
         if (Action == 0) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Scn.SBAfterSectionNone"_wref.get());
             M_Main(true);
         } else {
             Text = pas::WideString();
-            Series = Action - 1;
+            Series = static_cast<aGalaxyStruct::TDominatorSeries>(Action - 1);
             SelectedResearchSeries = Series;
             BuildResearchItemChoices(Series, Text);
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Scn.SBSection1"_wref.get());
@@ -4602,9 +4740,10 @@ namespace fRuinsTalk {
             }
             aMyFunction::ReplaceTextToken(DialogText, u"<Items>"_w, Text, pas::WideString());
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString lookupLocalizedTextOrEmpty = GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get());
                 pas::WideString& dialogText_2 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), textHighlightColorTag.get());
             }
             {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowScienceBaseResearchDialog>(this);
@@ -4631,7 +4770,7 @@ namespace fRuinsTalk {
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
                     Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                    if (Item->OwnerId == aGalaxyStruct::oiDominator && Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(SelectedResearchSeries) && Item->NoDropFlag == 0 && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
+                    if (Item->OwnerId == aGalaxyStruct::oiDominator && Item->DominatorSeries == SelectedResearchSeries && Item->NoDropFlag == 0 && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
                         if (static_cast<std::uint8_t>(TfRuinsTalk::IsResearchItemQuestLetter(pas::checked_cast<aItem::TUselessItem*>(Item)) ^ 1) && Item->CustomFaction == u"") {
                             aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material += Item->Weight;
                             Money += 2 * Item->Cost;
@@ -4657,12 +4796,13 @@ namespace fRuinsTalk {
             aMyFunction::ReplaceTextToken(dialogText, u"<SectionName>"_w, std::move(localizedColorText), pas::WideString());
         }
         aMyFunction::ReplaceTextToken(DialogText, u"<Items>"_w, Text, pas::WideString());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), aMyFunction::TextHighlightColorTag);
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString lookupLocalizedTextOrEmpty = GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get());
             pas::WideString& dialogText_2 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), textHighlightColorTag.get());
         }
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowScienceBaseResearchDialog>(this);
@@ -4717,12 +4857,13 @@ namespace fRuinsTalk {
             aMyFunction::ReplaceTextToken(dialogText, u"<SectionName>"_w, std::move(localizedColorText), pas::WideString());
         }
         aMyFunction::ReplaceTextToken(DialogText, u"<Items>"_w, Text, pas::WideString());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), aMyFunction::TextHighlightColorTag);
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString lookupLocalizedTextOrEmpty = GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get());
             pas::WideString& dialogText_2 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), textHighlightColorTag.get());
         }
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowScienceBaseResearchDialog>(this);
@@ -4748,7 +4889,7 @@ namespace fRuinsTalk {
         std::int32_t Money{};
         aItem::TEquipment* Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, Action);
         aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material += Item->Weight;
-        if (Item->DominatorSeries == static_cast<aGalaxyStruct::TDominatorSeries>(SelectedResearchSeries) && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
+        if (Item->DominatorSeries == SelectedResearchSeries && pas::class_cast_if<aItem::TUselessItem*>(Item) != nullptr) {
             Money = Item->Cost * 2;
         } else {
             Money = Item->Cost;
@@ -4770,12 +4911,13 @@ namespace fRuinsTalk {
             aMyFunction::ReplaceTextToken(dialogText, u"<SectionName>"_w, std::move(localizedColorText), pas::WideString());
         }
         aMyFunction::ReplaceTextToken(DialogText, u"<Items>"_w, Text, pas::WideString());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->DominatorResearch[SelectedResearchSeries].Material), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), aMyFunction::TextHighlightColorTag);
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString lookupLocalizedTextOrEmpty = GR_Main::LookupLocalizedTextOrEmpty(u"FormRuins.SB.Scn.ItemsCool"_wref.get());
             pas::WideString& dialogText_2 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_2, u"<ItemsCool>"_w, std::move(lookupLocalizedTextOrEmpty), textHighlightColorTag.get());
         }
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::ShowScienceBaseResearchDialog>(this);
@@ -4805,23 +4947,24 @@ namespace fRuinsTalk {
         } else if (Action == 3) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Scn.SBSectionEnd"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
     void TfRuinsTalk::BuyScienceBaseResearchProgram(std::int32_t Action) {
-        SelectedResearchSeries = Action - 1;
+        SelectedResearchSeries = static_cast<aGalaxyStruct::TDominatorSeries>(Action - 1);
         std::int32_t Cost = aMyFunction::RoundAndTruncateToHundreds(static_cast<long double>(std::min<std::int32_t>(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) * 2, aPlayer::GetPlayer()->Wealth / 30)) * aConst::ResearchProgramCostFactors[SelectedResearchSeries]);
         DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.SB.Scn.SBBuyTech", aConst::DominatorSeriesNames[SelectedResearchSeries]}));
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->Money >= Cost) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptScienceBaseResearchProgram>(this);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(Cost);
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.SB.Scn.PlayerBuyTechOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
             }())});
             TfRuinsTalk* self = this;
             self->AddChoice(std::move(cpp_arg_2), Cost, cpp_arg);
@@ -4830,7 +4973,8 @@ namespace fRuinsTalk {
             pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.SB.Scn.PlayerBuyTechOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
             }())});
             TfRuinsTalk* self_2 = this;
             self_2->AddChoice(std::move(cpp_arg_3), 0, scriptDialogBlockCallback);
@@ -4856,14 +5000,14 @@ namespace fRuinsTalk {
             case aGalaxyStruct::dsTerron: aPlayer::GetPlayer()->ProgramCounts[aGalaxyStruct::prgEnergotron] = 1; break;
         }
         DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.SB.Scn.SBAfterPlayerBuyTech", aConst::DominatorSeriesNames[SelectedResearchSeries]}));
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
     void TfRuinsTalk::DeclineScienceBaseResearchProgram(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.SB.Scn.SBAfterPlayerBuyTechNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -4916,7 +5060,7 @@ namespace fRuinsTalk {
                 break;
             }
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
     }
 
     void TfRuinsTalk::ShowBusinessCenterDebtDialog(std::int32_t Action) {
@@ -4939,9 +5083,10 @@ namespace fRuinsTalk {
                         if ((Event->EventType == u"PlayerKillsShip" || Event->EventType == u"PlayerCompanionKillsShip" || Event->EventType == u"PlayerTranclucatorKillsShip") && Event->GetData(0) == 10) {
                             DialogText = aConst::LocalizedColorText(u"FormRuins.BK.DebtNoPenalty"_wref.get());
                             {
+                                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                                 pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Event->Turn + 1825);
                                 pas::WideString& dialogText = DialogText;
-                                aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatTurnDate), u"<color=255,240,100>"_w);
+                                aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatTurnDate), textHighlightColorTag.get());
                             }
                             M_Main(true);
                             return;
@@ -4975,19 +5120,19 @@ namespace fRuinsTalk {
             BusinessQuoteLargeDueTurn = aGalaxy::Galaxy->CurrentTurn + Days / 2;
             BusinessQuoteSmallDueTurn = aGalaxy::Galaxy->CurrentTurn + Days * 3;
             DialogText = aConst::LocalizedColorText(u"FormRuins.BK.TakeDebt.BK"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MinMoney>"_w, pas::wide_int_to_str(BusinessQuoteSmallAmount), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<AveMoney>"_w, pas::wide_int_to_str(BusinessQuoteMediumAmount), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MaxMoney>"_w, pas::wide_int_to_str(BusinessQuoteLargeAmount), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MinDay>"_w, pas::wide_int_to_str(BusinessQuoteLargeDueTurn - aGalaxy::Galaxy->CurrentTurn), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<AveDay>"_w, pas::wide_int_to_str(BusinessQuoteMediumDueTurn - aGalaxy::Galaxy->CurrentTurn), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MaxDay>"_w, pas::wide_int_to_str(BusinessQuoteSmallDueTurn - aGalaxy::Galaxy->CurrentTurn), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MinMoneyAdd>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteSmallAmount * 1.1L) - BusinessQuoteSmallAmount), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<AveMoneyAdd>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteMediumAmount * 1.15L) - BusinessQuoteMediumAmount), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MaxMoneyAdd>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteLargeAmount * 1.2L) - BusinessQuoteLargeAmount), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MinMoneyReturn>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteSmallAmount * 1.1L)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<AveMoneyReturn>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteMediumAmount * 1.15L)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<MaxMoneyReturn>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteLargeAmount * 1.2L)), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MinMoney>"_w, pas::wide_int_to_str(BusinessQuoteSmallAmount), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<AveMoney>"_w, pas::wide_int_to_str(BusinessQuoteMediumAmount), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MaxMoney>"_w, pas::wide_int_to_str(BusinessQuoteLargeAmount), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MinDay>"_w, pas::wide_int_to_str(BusinessQuoteLargeDueTurn - aGalaxy::Galaxy->CurrentTurn), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<AveDay>"_w, pas::wide_int_to_str(BusinessQuoteMediumDueTurn - aGalaxy::Galaxy->CurrentTurn), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MaxDay>"_w, pas::wide_int_to_str(BusinessQuoteSmallDueTurn - aGalaxy::Galaxy->CurrentTurn), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MinMoneyAdd>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteSmallAmount * 1.1L) - BusinessQuoteSmallAmount), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<AveMoneyAdd>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteMediumAmount * 1.15L) - BusinessQuoteMediumAmount), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MaxMoneyAdd>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteLargeAmount * 1.2L) - BusinessQuoteLargeAmount), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MinMoneyReturn>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteSmallAmount * 1.1L)), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<AveMoneyReturn>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteMediumAmount * 1.15L)), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MaxMoneyReturn>"_w, pas::wide_int64_to_str(System::Round(BusinessQuoteLargeAmount * 1.2L)), aMyFunction::TextHighlightColorTag);
             ClearChoices();
             {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptBusinessCenterDebtQuote>(this);
@@ -5047,28 +5192,29 @@ namespace fRuinsTalk {
         aPlayer::GetPlayer()->DebtDefaultCount = 0;
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Amount);
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.TakeDebt.BKAfterOk"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<SendMoney>"_w, pas::wide_int_to_str(Amount), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<DebtMoney>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SendMoney>"_w, pas::wide_int_to_str(Amount), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DebtMoney>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount), aMyFunction::TextHighlightColorTag);
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->DebtDueTurn);
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatTurnDate), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatTurnDate), textHighlightColorTag.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         M_Main(true);
     }
 
     void TfRuinsTalk::DeclineBusinessCenterDebtDialog(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.TakeDebt.BKAfterNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
     // Requires the menu's prior affordability check.
     void TfRuinsTalk::RepayBusinessCenterDebt(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.RetDebt.BK"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         aPlayer::GetPlayer()->DebtDefaultCount = 0;
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aPlayer::GetPlayer()->DebtAmount);
         aPlayer::GetPlayer()->DebtAmount = 0;
@@ -5083,13 +5229,14 @@ namespace fRuinsTalk {
         BusinessQuoteSmallAmount = std::min<std::int32_t>(10000000, std::max<std::int32_t>(1000, aPlayer::GetPlayer()->Money / 4));
         BusinessDepositQuoteInterestRate = MathImports::RoundTo(aMyFunction::RemapClamped(aGalaxy::Galaxy->GetFactionControlPercent(aGalaxyStruct::sfDominators), 5.0, 95.0, 7.0, 1.0), -1);
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.BK"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(BusinessDepositQuoteInterestRate, SysUtilsImports::ffFixed, 1, 1)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(BusinessDepositQuoteInterestRate, SysUtilsImports::ffFixed, 1, 1)), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         Text = ([&] {
             pas::WideString intToStr = pas::wide_int_to_str(BusinessQuoteLargeAmount);
             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.PlayerOkMaxMoney"_wref.get());
-            return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<MaxMoney>"_w, std::move(intToStr));
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<MaxMoney>"_w, std::move(intToStr));
         }());
         if (aPlayer::GetPlayer()->Money >= BusinessQuoteLargeAmount) {
             AddChoice(pas::concat_wide({u"- ", Text}), 1, pas::bind_method<&TfRuinsTalk::AcceptBusinessCenterDepositQuote>(this));
@@ -5100,7 +5247,8 @@ namespace fRuinsTalk {
             Text = ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(BusinessQuoteMediumAmount);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.PlayerOkAveMoney"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<AveMoney>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<AveMoney>"_w, std::move(intToStr_2));
             }());
             if (aPlayer::GetPlayer()->Money >= BusinessQuoteMediumAmount) {
                 AddChoice(pas::concat_wide({u"- ", Text}), 2, pas::bind_method<&TfRuinsTalk::AcceptBusinessCenterDepositQuote>(this));
@@ -5112,7 +5260,8 @@ namespace fRuinsTalk {
             Text = ([&] {
                 pas::WideString intToStr_3 = pas::wide_int_to_str(BusinessQuoteSmallAmount);
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.PlayerOkMinMoney"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<MinMoney>"_w, std::move(intToStr_3));
+                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<MinMoney>"_w, std::move(intToStr_3));
             }());
             if (aPlayer::GetPlayer()->Money >= BusinessQuoteSmallAmount) {
                 AddChoice(pas::concat_wide({u"- ", Text}), 3, pas::bind_method<&TfRuinsTalk::AcceptBusinessCenterDepositQuote>(this));
@@ -5140,16 +5289,16 @@ namespace fRuinsTalk {
         aPlayer::GetPlayer()->DepositStartTurn = aGalaxy::Galaxy->CurrentTurn;
         aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - aPlayer::GetPlayer()->DepositAmount));
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.BKAfterOk"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<SendMoney>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DepositAmount), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(BusinessDepositQuoteInterestRate, SysUtilsImports::ffFixed, 1, 1)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<SendMoney>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DepositAmount), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(BusinessDepositQuoteInterestRate, SysUtilsImports::ffFixed, 1, 1)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         M_Main(true);
     }
 
     void TfRuinsTalk::DeclineBusinessCenterDepositDialog(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Deposit.BKAfterNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -5159,7 +5308,7 @@ namespace fRuinsTalk {
             DialogText = aConst::LocalizedColorText(u"FormRuins.BK.RetDeposit.War"_wref.get());
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.BK.RetDeposit.BK"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
             Profit = aPlayer::GetPlayer()->ComputeDepositAccruedValue() - aPlayer::GetPlayer()->DepositAmount;
             aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + aPlayer::GetPlayer()->ComputeDepositAccruedValue());
             static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckInvestorAchievement(Profit);
@@ -5175,9 +5324,9 @@ namespace fRuinsTalk {
     void TfRuinsTalk::ShowBusinessCenterMedicalPolicyDialog(std::int32_t Refresh) {
         if (Refresh == 0) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Policy.BK"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman)), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Year>"_w, pas::wide_int_to_str(5), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman)), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Year>"_w, pas::wide_int_to_str(5), aMyFunction::TextHighlightColorTag);
         }
         ClearChoices();
         if (aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman) <= aPlayer::GetPlayer()->Money) {
@@ -5208,9 +5357,9 @@ namespace fRuinsTalk {
     // Policy duration is 1825 ticks.
     void TfRuinsTalk::BuyBusinessCenterMedicalPolicy(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Policy.BKAfterOk"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Year>"_w, pas::wide_int_to_str(5), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Year>"_w, pas::wide_int_to_str(5), aMyFunction::TextHighlightColorTag);
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman));
         aPlayer::GetPlayer()->MedicalPolicyTicks = 1825;
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
@@ -5219,7 +5368,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ShowBusinessCenterPolicyDetails(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Policy.BKAfterAsk"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         ClearChoices();
         ShowBusinessCenterMedicalPolicyDialog(1);
     }
@@ -5227,22 +5376,22 @@ namespace fRuinsTalk {
     void TfRuinsTalk::DeclineBusinessCenterPolicy(std::int32_t Action) {
         pas::AnsiString YearText{};
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Policy.BKAfterNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         System::TDateTime Date = aGalaxy::Galaxy->TurnToDateTime(-1);
         SysUtilsImports::DateTimeToString(YearText, "yyyy"_a, Date);
-        aMyFunction::ReplaceTextToken(DialogText, u"<CurYear>"_w, static_cast<pas::WideString>(YearText), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<CurYear>"_w, static_cast<pas::WideString>(YearText), aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
     void TfRuinsTalk::ShowBusinessCenterInvestmentDialog(std::int32_t Action) {
-        static const pas::Set<0, 255> StationTypes = pas::constant_set<pas::Set<0, 255>>({{6, 12}});
+        static const pas::Set<0, 255> StationTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::rstRangerCenter, aGalaxyStruct::rstDominion}});
         std::int32_t I{};
         std::int32_t Index{};
         std::int32_t BoundA{};
         std::int32_t BoundB{};
         std::int32_t BestScore{};
         std::int32_t Score{};
-        std::uint8_t Kind{};
+        aGalaxyStruct::TCoalitionProject Kind{};
         std::uint8_t Choice{};
         pas::WideString Offers{};
         pas::WideString Text{};
@@ -5252,12 +5401,12 @@ namespace fRuinsTalk {
         aPlanet::TPlanet* Planet{};
         aPlanet::TPlanet* BestPlanet{};
         ClearChoices();
-        for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(11)); cpp_range.next(Kind); ) {
-            Choice = Kind;
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TCoalitionProject>(static_cast<aGalaxyStruct::TCoalitionProject>(0), static_cast<aGalaxyStruct::TCoalitionProject>(11)); cpp_range.next(Kind); ) {
+            Choice = static_cast<std::int32_t>(Kind);
             Text = pas::WideString();
             BoundA = 1;
             BoundB = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
-            Index = aMyFunction::SeededRandomIntRange(BoundA, BoundB, aPlayer::GetPlayer()->DockedTo->Seed + aGalaxy::Galaxy->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 1743 + 731 * Kind);
+            Index = aMyFunction::SeededRandomIntRange(BoundA, BoundB, aPlayer::GetPlayer()->DockedTo->Seed + aGalaxy::Galaxy->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 1743 + 731 * static_cast<std::int32_t>(Kind));
             if (aPlayer::GetPlayer()->StationServiceLastUseTurns[Kind] <= aGalaxy::Galaxy->CurrentTurn - aConst::StationServiceRepeatPeriods[Kind]) {
                 switch (Kind) {
                     case aGalaxyStruct::cpCreateRangerCenter: {
@@ -5292,11 +5441,11 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_2 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 2;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_2, cpp_arg, 1171 * (Kind + 13) + InvestmentRangerCenterStar->GenerationSeed);
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_2, cpp_arg, 1171 * (static_cast<std::int32_t>(Kind) + 13) + InvestmentRangerCenterStar->GenerationSeed);
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5309,7 +5458,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_4 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
                             }())});
                             TfRuinsTalk* self = this;
                             self->AddChoice(std::move(cpp_arg_4), Choice, cpp_arg_3);
@@ -5318,7 +5468,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_2 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
                             }())});
                             TfRuinsTalk* self_2 = this;
                             self_2->AddChoice(std::move(cpp_arg_5), 0, scriptDialogBlockCallback);
@@ -5357,11 +5508,11 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_6 = 2 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_7 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 2;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_7, cpp_arg_6, 1171 * (Kind + 13) + InvestmentPirateBaseStar->GenerationSeed);
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_7, cpp_arg_6, 1171 * (static_cast<std::int32_t>(Kind) + 13) + InvestmentPirateBaseStar->GenerationSeed);
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5374,7 +5525,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_9 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_3 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_3));
+                                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Money>"_w, std::move(intToStr_3));
                             }())});
                             TfRuinsTalk* self_3 = this;
                             self_3->AddChoice(std::move(cpp_arg_9), Choice, cpp_arg_8);
@@ -5383,7 +5535,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_10 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_4 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_4 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_4));
+                                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<Money>"_w, std::move(intToStr_4));
                             }())});
                             TfRuinsTalk* self_4 = this;
                             self_4->AddChoice(std::move(cpp_arg_10), 0, scriptDialogBlockCallback_2);
@@ -5422,11 +5575,11 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_11 = 3 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_12 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 2;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_12, cpp_arg_11, 1171 * (Kind + 13) + InvestmentMilitaryBaseStar->GenerationSeed);
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_12, cpp_arg_11, 1171 * (static_cast<std::int32_t>(Kind) + 13) + InvestmentMilitaryBaseStar->GenerationSeed);
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5439,7 +5592,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_14 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_5 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_5 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_5), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_5));
+                                pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_5), std::move(textHighlightColorTag_5), u"<Money>"_w, std::move(intToStr_5));
                             }())});
                             TfRuinsTalk* self_5 = this;
                             self_5->AddChoice(std::move(cpp_arg_14), Choice, cpp_arg_13);
@@ -5448,7 +5602,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_15 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_6 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_6 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_6), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_6));
+                                pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_6), std::move(textHighlightColorTag_6), u"<Money>"_w, std::move(intToStr_6));
                             }())});
                             TfRuinsTalk* self_6 = this;
                             self_6->AddChoice(std::move(cpp_arg_15), 0, scriptDialogBlockCallback_3);
@@ -5487,11 +5642,11 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_16 = 4 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t computeScaledHugeMoney = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(computeScaledHugeMoney, cpp_arg_16, 1172 * (Kind + 13) + InvestmentScienceBaseStar->GenerationSeed);
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(computeScaledHugeMoney, cpp_arg_16, 1172 * (static_cast<std::int32_t>(Kind) + 13) + InvestmentScienceBaseStar->GenerationSeed);
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5504,7 +5659,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_18 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_7 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_7 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_7), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_7));
+                                pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_7), std::move(textHighlightColorTag_7), u"<Money>"_w, std::move(intToStr_7));
                             }())});
                             TfRuinsTalk* self_7 = this;
                             self_7->AddChoice(std::move(cpp_arg_18), Choice, cpp_arg_17);
@@ -5513,7 +5669,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_19 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_8 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_8 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_8), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_8));
+                                pas::WideString textHighlightColorTag_8 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_8), std::move(textHighlightColorTag_8), u"<Money>"_w, std::move(intToStr_8));
                             }())});
                             TfRuinsTalk* self_8 = this;
                             self_8->AddChoice(std::move(cpp_arg_19), 0, scriptDialogBlockCallback_4);
@@ -5552,11 +5709,11 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_20 = 2 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_21 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 2;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_21, cpp_arg_20, 1173 * (Kind + 13) + InvestmentBusinessCenterStar->GenerationSeed);
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_21, cpp_arg_20, 1173 * (static_cast<std::int32_t>(Kind) + 13) + InvestmentBusinessCenterStar->GenerationSeed);
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5569,7 +5726,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_23 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_9 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_9 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_9), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_9));
+                                pas::WideString textHighlightColorTag_9 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_9), std::move(textHighlightColorTag_9), u"<Money>"_w, std::move(intToStr_9));
                             }())});
                             TfRuinsTalk* self_9 = this;
                             self_9->AddChoice(std::move(cpp_arg_23), Choice, cpp_arg_22);
@@ -5578,7 +5736,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_24 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_10 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_10 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_10), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_10));
+                                pas::WideString textHighlightColorTag_10 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_10), std::move(textHighlightColorTag_10), u"<Money>"_w, std::move(intToStr_10));
                             }())});
                             TfRuinsTalk* self_10 = this;
                             self_10->AddChoice(std::move(cpp_arg_24), 0, scriptDialogBlockCallback_5);
@@ -5617,11 +5776,11 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_25 = 2 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_26 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 2;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_26, cpp_arg_25, 1174 * (Kind + 13) + InvestmentMedicalBaseStar->GenerationSeed);
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_26, cpp_arg_25, 1174 * (static_cast<std::int32_t>(Kind) + 13) + InvestmentMedicalBaseStar->GenerationSeed);
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestStar->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5634,7 +5793,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_28 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_11 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_11 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_11), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_11));
+                                pas::WideString textHighlightColorTag_11 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_11), std::move(textHighlightColorTag_11), u"<Money>"_w, std::move(intToStr_11));
                             }())});
                             TfRuinsTalk* self_11 = this;
                             self_11->AddChoice(std::move(cpp_arg_28), Choice, cpp_arg_27);
@@ -5643,7 +5803,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_29 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_12 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_12 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_12), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_12));
+                                pas::WideString textHighlightColorTag_12 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_12), std::move(textHighlightColorTag_12), u"<Money>"_w, std::move(intToStr_12));
                             }())});
                             TfRuinsTalk* self_12 = this;
                             self_12->AddChoice(std::move(cpp_arg_29), 0, scriptDialogBlockCallback_6);
@@ -5660,10 +5821,10 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_30 = 2 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_31 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 4;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_31, cpp_arg_30, 1123475 * (Kind + 13));
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_31, cpp_arg_30, 1123475 * (static_cast<std::int32_t>(Kind) + 13));
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5676,7 +5837,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_33 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_13 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_13 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_13), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_13));
+                                pas::WideString textHighlightColorTag_13 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_13), std::move(textHighlightColorTag_13), u"<Money>"_w, std::move(intToStr_13));
                             }())});
                             TfRuinsTalk* self_13 = this;
                             self_13->AddChoice(std::move(cpp_arg_33), Choice, cpp_arg_32);
@@ -5685,7 +5847,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_34 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_14 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_14 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_14), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_14));
+                                pas::WideString textHighlightColorTag_14 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_14), std::move(textHighlightColorTag_14), u"<Money>"_w, std::move(intToStr_14));
                             }())});
                             TfRuinsTalk* self_14 = this;
                             self_14->AddChoice(std::move(cpp_arg_34), 0, scriptDialogBlockCallback_7);
@@ -5699,10 +5862,10 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_35 = 2 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_36 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 2;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_36, cpp_arg_35, 1175234 * (Kind + 13));
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_36, cpp_arg_35, 1175234 * (static_cast<std::int32_t>(Kind) + 13));
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5715,7 +5878,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_38 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_15 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_15 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_15), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_15));
+                                pas::WideString textHighlightColorTag_15 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_15), std::move(textHighlightColorTag_15), u"<Money>"_w, std::move(intToStr_15));
                             }())});
                             TfRuinsTalk* self_15 = this;
                             self_15->AddChoice(std::move(cpp_arg_38), Choice, cpp_arg_37);
@@ -5724,7 +5888,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_39 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_16 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_16 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_16), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_16));
+                                pas::WideString textHighlightColorTag_16 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_16), std::move(textHighlightColorTag_16), u"<Money>"_w, std::move(intToStr_16));
                             }())});
                             TfRuinsTalk* self_16 = this;
                             self_16->AddChoice(std::move(cpp_arg_39), 0, scriptDialogBlockCallback_8);
@@ -5738,10 +5903,10 @@ namespace fRuinsTalk {
                         {
                             std::int32_t computeScaledHugeMoney_2 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t cpp_arg_40 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)) / 4;
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_40, computeScaledHugeMoney_2, 117627 * (Kind + 13));
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(cpp_arg_40, computeScaledHugeMoney_2, 117627 * (static_cast<std::int32_t>(Kind) + 13));
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5754,7 +5919,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_42 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_17 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_17 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_17), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_17));
+                                pas::WideString textHighlightColorTag_17 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_17), std::move(textHighlightColorTag_17), u"<Money>"_w, std::move(intToStr_17));
                             }())});
                             TfRuinsTalk* self_17 = this;
                             self_17->AddChoice(std::move(cpp_arg_42), Choice, cpp_arg_41);
@@ -5763,7 +5929,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_43 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_18 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_18 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_18), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_18));
+                                pas::WideString textHighlightColorTag_18 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_18), std::move(textHighlightColorTag_18), u"<Money>"_w, std::move(intToStr_18));
                             }())});
                             TfRuinsTalk* self_18 = this;
                             self_18->AddChoice(std::move(cpp_arg_43), 0, scriptDialogBlockCallback_9);
@@ -5774,10 +5941,10 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_44 = 4 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t computeScaledHugeMoney_3 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(computeScaledHugeMoney_3, cpp_arg_44, 1177961 * (Kind + 13));
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(computeScaledHugeMoney_3, cpp_arg_44, 1177961 * (static_cast<std::int32_t>(Kind) + 13));
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5790,7 +5957,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_46 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_19 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_19 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_19), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_19));
+                                pas::WideString textHighlightColorTag_19 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_19), std::move(textHighlightColorTag_19), u"<Money>"_w, std::move(intToStr_19));
                             }())});
                             TfRuinsTalk* self_19 = this;
                             self_19->AddChoice(std::move(cpp_arg_46), Choice, cpp_arg_45);
@@ -5799,7 +5967,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_47 = pas::concat_wide({u"- ", ([&] {
                                 pas::WideString intToStr_20 = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText_20 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_20), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_20));
+                                pas::WideString textHighlightColorTag_20 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_20), std::move(textHighlightColorTag_20), u"<Money>"_w, std::move(intToStr_20));
                             }())});
                             TfRuinsTalk* self_20 = this;
                             self_20->AddChoice(std::move(cpp_arg_47), 0, scriptDialogBlockCallback_10);
@@ -5811,7 +5980,7 @@ namespace fRuinsTalk {
                         BestScore = 0;
                         BoundA = 0;
                         BoundB = pas::list_count(aGalaxy::Galaxy->Planets) - 1;
-                        Index = aMyFunction::SeededRandomIntRange(BoundA, BoundB, aPlayer::GetPlayer()->DockedTo->Seed + aGalaxy::Galaxy->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 174313 + 73163 * Kind);
+                        Index = aMyFunction::SeededRandomIntRange(BoundA, BoundB, aPlayer::GetPlayer()->DockedTo->Seed + aGalaxy::Galaxy->GenerationSeed + aGalaxy::Galaxy->CurrentTurn / 60 + 174313 + 73163 * static_cast<std::int32_t>(Kind));
                         for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range_8.next(I); ) {
                             aMyFunction::IncrementWrapped(Index, BoundA, BoundB);
                             Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, Index);
@@ -5837,12 +6006,12 @@ namespace fRuinsTalk {
                         {
                             std::int32_t cpp_arg_48 = 5 * aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
                             std::int32_t computeScaledHugeMoney_4 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace));
-                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(computeScaledHugeMoney_4, cpp_arg_48, 1178 * (Kind + 13) + InvestmentDefensePlanet->GenerationSeed);
+                            StationServiceQuoteCost = aMyFunction::SeededRandomIntRange(computeScaledHugeMoney_4, cpp_arg_48, 1178 * (static_cast<std::int32_t>(Kind) + 13) + InvestmentDefensePlanet->GenerationSeed);
                         }
                         Name = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Name"}));
-                        aMyFunction::ReplaceTextToken(Name, u"<Planet>"_w, BestPlanet->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestPlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Name, u"<Planet>"_w, BestPlanet->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Star>"_w, BestPlanet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                        aMyFunction::ReplaceTextToken(Name, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                         Text = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKInvestment"_wref.get());
                         aMyFunction::ReplaceTextToken(Text, u"<InvestmentFullName>"_w, Name, pas::WideString());
                         if (Offers == u"") {
@@ -5855,7 +6024,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_50 = pas::concat_wide({u"- ", ([&] {
                                 auto name = pas::borrow(InvestmentDefensePlanet->Name);
                                 pas::WideString localizedColorText_21 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_21), u"<color=255,240,100>"_w, u"<Planet>"_w, name.get());
+                                pas::WideString textHighlightColorTag_21 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_21), std::move(textHighlightColorTag_21), u"<Planet>"_w, name.get());
                             }())});
                             TfRuinsTalk* self_21 = this;
                             self_21->AddChoice(std::move(cpp_arg_50), Choice, cpp_arg_49);
@@ -5864,7 +6034,8 @@ namespace fRuinsTalk {
                             pas::WideString cpp_arg_51 = pas::concat_wide({u"- ", ([&] {
                                 auto name_2 = pas::borrow(InvestmentDefensePlanet->Name);
                                 pas::WideString localizedColorText_22 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".PlayerSend"}));
-                                return aMyFunction::FormatText1(std::move(localizedColorText_22), u"<color=255,240,100>"_w, u"<Planet>"_w, name_2.get());
+                                pas::WideString textHighlightColorTag_22 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedColorText_22), std::move(textHighlightColorTag_22), u"<Planet>"_w, name_2.get());
                             }())});
                             TfRuinsTalk* self_22 = this;
                             self_22->AddChoice(std::move(cpp_arg_51), 0, scriptDialogBlockCallback_11);
@@ -5876,7 +6047,7 @@ namespace fRuinsTalk {
             }
         }
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BK"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         aMyFunction::ReplaceTextToken(DialogText, u"<BKInvestment>"_w, Offers, pas::WideString());
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg_52 = pas::bind_method<&TfRuinsTalk::DeclineBusinessCenterInvestment>(this);
@@ -5890,8 +6061,8 @@ namespace fRuinsTalk {
         static const pas::Set<0, 255> RangerTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger}});
         static const pas::Set<0, 255> FriendlyTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger}, {aGalaxyStruct::htTransport, aGalaxyStruct::htDiplomat}});
         static const pas::Set<0, 255> PirateTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htPirate}});
-        static const pas::Set<0, 255> TransportTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger, 15}}) - pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger, aGalaxyStruct::htPirate}, {aGalaxyStruct::htDiplomat, 15}});
-        std::uint8_t Kind{};
+        static const pas::Set<0, 255> TransportTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger, aGalaxyStruct::htFlagship}}) - pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htRanger, aGalaxyStruct::htPirate}, {aGalaxyStruct::htDiplomat, aGalaxyStruct::htFlagship}});
+        aGalaxyStruct::TCoalitionProject Kind{};
         aRuins::TRuins* RangerCenter{};
         aRuins::TRuins* PirateBase{};
         aRuins::TRuins* MilitaryBase{};
@@ -5909,24 +6080,25 @@ namespace fRuinsTalk {
         aWarrior::TWarrior* Warrior{};
         pas::WideString Text{};
         pas::WideString ShipNames{};
-        Kind = Action;
+        Kind = static_cast<aGalaxyStruct::TCoalitionProject>(Action);
         StationServiceQuoteCost = InvestmentQuoteCosts[Kind];
         aPlayer::GetPlayer()->StationServiceLastUseTurns[Kind] = aGalaxy::Galaxy->CurrentTurn;
         switch (Kind) {
             case aGalaxyStruct::cpCreateRangerCenter: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 RangerCenter = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                RangerCenter->Init(aGalaxyStruct::rstRangerCenter, InvestmentRangerCenterStar, pas::WideString());
+                RangerCenter->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstRangerCenter), InvestmentRangerCenterStar, pas::WideString());
                 {
                     pas::WideString formatText3 = ([&] {
                         pas::WideString name = RangerCenter->GetName();
                         auto name_2 = pas::borrow(RangerCenter->CurrentStar->Name);
                         pas::WideString name_3 = RangerCenter->CurrentStar->Constellation->GetName();
                         pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(u"GalaxyNews.CreateNewObject.RC"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name), u"<Star>"_w, name_2.get(), u"<Sector>"_w, std::move(name_3));
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name), u"<Star>"_w, name_2.get(), u"<Sector>"_w, std::move(name_3));
                     }());
                     aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                    galaxy->AddPlanetNewsWithPlayerBubble(41, std::move(formatText3));
+                    galaxy->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnStationCreated, std::move(formatText3));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -5934,12 +6106,12 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText, u"<InvestmentText>"_w, std::move(localizedColorText), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, RangerCenter->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, RangerCenter->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, RangerCenter->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, RangerCenter->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                 Experience = aMyFunction::SeededRandomIntRange(1000, 1500, RangerCenter->Seed);
-                aPlayer::GetPlayer()->GainExperience(Experience, 0);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(Experience), u"<color=255,240,100>"_w);
+                aPlayer::GetPlayer()->GainExperience(Experience, aGalaxyStruct::esUnscaled);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(Experience), aMyFunction::TextHighlightColorTag);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 10, aConst::PlanetOwnerMasks.Coalition);
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 40, static_cast<aConst::THullShipTypeMask>(RangerTypes), aConst::PlanetOwnerMasks.Coalition);
@@ -5949,17 +6121,18 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreatePirateBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 PirateBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                PirateBase->Init(aGalaxyStruct::rstPirateBase, InvestmentPirateBaseStar, pas::WideString());
+                PirateBase->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstPirateBase), InvestmentPirateBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_2 = ([&] {
                         pas::WideString name_4 = PirateBase->GetName();
                         auto name_5 = pas::borrow(PirateBase->CurrentStar->Name);
                         pas::WideString name_6 = PirateBase->CurrentStar->Constellation->GetName();
                         pas::WideString pickLocalizedTextVariant_2 = aConst::PickLocalizedTextVariant(u"GalaxyNews.CreateNewObject.PB"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_4), u"<Star>"_w, name_5.get(), u"<Sector>"_w, std::move(name_6));
+                        pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_4), u"<Star>"_w, name_5.get(), u"<Sector>"_w, std::move(name_6));
                     }());
                     aGalaxy::TGalaxy* galaxy_2 = aGalaxy::Galaxy;
-                    galaxy_2->AddPlanetNewsWithPlayerBubble(41, std::move(formatText3_2));
+                    galaxy_2->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnStationCreated, std::move(formatText3_2));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -5967,9 +6140,9 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_2 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_2, u"<InvestmentText>"_w, std::move(localizedColorText_2), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, PirateBase->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, PirateBase->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, PirateBase->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, PirateBase->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 10, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}}));
@@ -5979,17 +6152,18 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateMilitaryBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 MilitaryBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                MilitaryBase->Init(aGalaxyStruct::rstMilitaryBase, InvestmentMilitaryBaseStar, pas::WideString());
+                MilitaryBase->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstMilitaryBase), InvestmentMilitaryBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_3 = ([&] {
                         pas::WideString name_7 = MilitaryBase->GetName();
                         auto name_8 = pas::borrow(MilitaryBase->CurrentStar->Name);
                         pas::WideString name_9 = MilitaryBase->CurrentStar->Constellation->GetName();
                         pas::WideString pickLocalizedTextVariant_3 = aConst::PickLocalizedTextVariant(u"GalaxyNews.CreateNewObject.WB"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_3), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_7), u"<Star>"_w, name_8.get(), u"<Sector>"_w, std::move(name_9));
+                        pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_3), std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(name_7), u"<Star>"_w, name_8.get(), u"<Sector>"_w, std::move(name_9));
                     }());
                     aGalaxy::TGalaxy* galaxy_3 = aGalaxy::Galaxy;
-                    galaxy_3->AddPlanetNewsWithPlayerBubble(41, std::move(formatText3_3));
+                    galaxy_3->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnStationCreated, std::move(formatText3_3));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
@@ -6001,13 +6175,13 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_4 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_4, u"<InvestmentText>"_w, std::move(localizedColorText_4), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, MilitaryBase->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, MilitaryBase->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, MilitaryBase->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, MilitaryBase->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                 if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                     RankPoints = aMyFunction::SeededRandomIntRange(50, 200, MilitaryBase->Seed);
                     aPlayer::GetPlayer()->AddRankPoints(RankPoints);
-                    aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(RankPoints), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(DialogText, u"<Point>"_w, pas::wide_int_to_str(RankPoints), aMyFunction::TextHighlightColorTag);
                 }
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, aConst::PlanetOwnerMasks.Coalition);
@@ -6019,17 +6193,18 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateScienceBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 ScienceBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                ScienceBase->Init(aGalaxyStruct::rstScienceBase, InvestmentScienceBaseStar, pas::WideString());
+                ScienceBase->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstScienceBase), InvestmentScienceBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_4 = ([&] {
                         pas::WideString name_10 = ScienceBase->GetName();
                         auto name_11 = pas::borrow(ScienceBase->CurrentStar->Name);
                         pas::WideString name_12 = ScienceBase->CurrentStar->Constellation->GetName();
                         pas::WideString pickLocalizedTextVariant_4 = aConst::PickLocalizedTextVariant(u"GalaxyNews.CreateNewObject.SB"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_4), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_10), u"<Star>"_w, name_11.get(), u"<Sector>"_w, std::move(name_12));
+                        pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_4), std::move(textHighlightColorTag_4), u"<Name>"_w, std::move(name_10), u"<Star>"_w, name_11.get(), u"<Sector>"_w, std::move(name_12));
                     }());
                     aGalaxy::TGalaxy* galaxy_4 = aGalaxy::Galaxy;
-                    galaxy_4->AddPlanetNewsWithPlayerBubble(41, std::move(formatText3_4));
+                    galaxy_4->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnStationCreated, std::move(formatText3_4));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -6037,9 +6212,9 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_5 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_5, u"<InvestmentText>"_w, std::move(localizedColorText_5), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, ScienceBase->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, ScienceBase->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, ScienceBase->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, ScienceBase->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 25, static_cast<aConst::THullShipTypeMask>(RangerTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
@@ -6048,17 +6223,18 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateBusinessCenter: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 BusinessCenter = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                BusinessCenter->Init(aGalaxyStruct::rstBusinessCenter, InvestmentBusinessCenterStar, pas::WideString());
+                BusinessCenter->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstBusinessCenter), InvestmentBusinessCenterStar, pas::WideString());
                 {
                     pas::WideString formatText3_5 = ([&] {
                         pas::WideString name_13 = BusinessCenter->GetName();
                         auto name_14 = pas::borrow(BusinessCenter->CurrentStar->Name);
                         pas::WideString name_15 = BusinessCenter->CurrentStar->Constellation->GetName();
                         pas::WideString pickLocalizedTextVariant_5 = aConst::PickLocalizedTextVariant(u"GalaxyNews.CreateNewObject.BK"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_5), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_13), u"<Star>"_w, name_14.get(), u"<Sector>"_w, std::move(name_15));
+                        pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_5), std::move(textHighlightColorTag_5), u"<Name>"_w, std::move(name_13), u"<Star>"_w, name_14.get(), u"<Sector>"_w, std::move(name_15));
                     }());
                     aGalaxy::TGalaxy* galaxy_5 = aGalaxy::Galaxy;
-                    galaxy_5->AddPlanetNewsWithPlayerBubble(41, std::move(formatText3_5));
+                    galaxy_5->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnStationCreated, std::move(formatText3_5));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -6066,9 +6242,9 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_6 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_6, u"<InvestmentText>"_w, std::move(localizedColorText_6), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, BusinessCenter->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, BusinessCenter->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, BusinessCenter->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, BusinessCenter->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(TransportTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
@@ -6077,17 +6253,18 @@ namespace fRuinsTalk {
             case aGalaxyStruct::cpCreateMedicalBase: {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - StationServiceQuoteCost);
                 MedicalBase = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                MedicalBase->Init(aGalaxyStruct::rstMedicalBase, InvestmentMedicalBaseStar, pas::WideString());
+                MedicalBase->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstMedicalBase), InvestmentMedicalBaseStar, pas::WideString());
                 {
                     pas::WideString formatText3_6 = ([&] {
                         pas::WideString name_16 = MedicalBase->GetName();
                         auto name_17 = pas::borrow(MedicalBase->CurrentStar->Name);
                         pas::WideString name_18 = MedicalBase->CurrentStar->Constellation->GetName();
                         pas::WideString pickLocalizedTextVariant_6 = aConst::PickLocalizedTextVariant(u"GalaxyNews.CreateNewObject.MC"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_6), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_16), u"<Star>"_w, name_17.get(), u"<Sector>"_w, std::move(name_18));
+                        pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText3(std::move(pickLocalizedTextVariant_6), std::move(textHighlightColorTag_6), u"<Name>"_w, std::move(name_16), u"<Star>"_w, name_17.get(), u"<Sector>"_w, std::move(name_18));
                     }());
                     aGalaxy::TGalaxy* galaxy_6 = aGalaxy::Galaxy;
-                    galaxy_6->AddPlanetNewsWithPlayerBubble(41, std::move(formatText3_6));
+                    galaxy_6->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnStationCreated, std::move(formatText3_6));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -6095,9 +6272,9 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_7 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_7, u"<InvestmentText>"_w, std::move(localizedColorText_7), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, MedicalBase->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, MedicalBase->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Name>"_w, MedicalBase->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, MedicalBase->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
                 aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), aConst::PlanetOwnerMasks.Coalition);
                 Achievements::TryAddAchievementProgress(u"RUINS"_w, 1);
@@ -6121,11 +6298,12 @@ namespace fRuinsTalk {
                 {
                     pas::WideString formatText1 = ([&] {
                         pas::WideString intToStr = pas::wide_int_to_str(StationServiceQuoteCost);
-                        pas::WideString pickLocalizedTextVariant_7 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), Kind + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText1(std::move(pickLocalizedTextVariant_7), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                        pas::WideString pickLocalizedTextVariant_7 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), static_cast<std::int32_t>(Kind) + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
+                        pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(pickLocalizedTextVariant_7), std::move(textHighlightColorTag_7), u"<Money>"_w, std::move(intToStr));
                     }());
                     aGalaxy::TGalaxy* galaxy_7 = aGalaxy::Galaxy;
-                    galaxy_7->AddPlanetNewsWithPlayerBubble(42, std::move(formatText1));
+                    galaxy_7->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnCoalitionInvestment, std::move(formatText1));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -6133,8 +6311,8 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_8 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_8, u"<InvestmentText>"_w, std::move(localizedColorText_8), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                 break;
             }
             case aGalaxyStruct::cpPiratesSubsidy: {
@@ -6153,11 +6331,12 @@ namespace fRuinsTalk {
                     pas::WideString formatText2 = ([&] {
                         pas::WideString intToStr_2 = pas::wide_int_to_str(StationServiceQuoteCost);
                         auto name_19 = pas::borrow(aPlayer::GetPlayer()->DockedTo->Name);
-                        pas::WideString pickLocalizedTextVariant_8 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), Kind + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_8), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2), u"<BK>"_w, name_19.get());
+                        pas::WideString pickLocalizedTextVariant_8 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), static_cast<std::int32_t>(Kind) + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
+                        pas::WideString textHighlightColorTag_8 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_8), std::move(textHighlightColorTag_8), u"<Money>"_w, std::move(intToStr_2), u"<BK>"_w, name_19.get());
                     }());
                     aGalaxy::TGalaxy* galaxy_8 = aGalaxy::Galaxy;
-                    galaxy_8->AddPlanetNewsWithPlayerBubble(42, std::move(formatText2));
+                    galaxy_8->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnCoalitionInvestment, std::move(formatText2));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -6165,8 +6344,8 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_9 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_9, u"<InvestmentText>"_w, std::move(localizedColorText_9), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                 break;
             }
             case aGalaxyStruct::cpTransportSubsidy: {
@@ -6185,11 +6364,12 @@ namespace fRuinsTalk {
                     pas::WideString formatText2_2 = ([&] {
                         pas::WideString intToStr_3 = pas::wide_int_to_str(StationServiceQuoteCost);
                         auto name_20 = pas::borrow(aPlayer::GetPlayer()->DockedTo->Name);
-                        pas::WideString pickLocalizedTextVariant_9 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), Kind + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_9), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_3), u"<BK>"_w, name_20.get());
+                        pas::WideString pickLocalizedTextVariant_9 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), static_cast<std::int32_t>(Kind) + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
+                        pas::WideString textHighlightColorTag_9 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_9), std::move(textHighlightColorTag_9), u"<Money>"_w, std::move(intToStr_3), u"<BK>"_w, name_20.get());
                     }());
                     aGalaxy::TGalaxy* galaxy_9 = aGalaxy::Galaxy;
-                    galaxy_9->AddPlanetNewsWithPlayerBubble(42, std::move(formatText2_2));
+                    galaxy_9->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnCoalitionInvestment, std::move(formatText2_2));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -6197,8 +6377,8 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_10 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_10, u"<InvestmentText>"_w, std::move(localizedColorText_10), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                 break;
             }
             case aGalaxyStruct::cpLostSubsidy: {
@@ -6207,11 +6387,12 @@ namespace fRuinsTalk {
                     pas::WideString formatText2_3 = ([&] {
                         pas::WideString intToStr_4 = pas::wide_int_to_str(StationServiceQuoteCost);
                         auto name_21 = pas::borrow(aPlayer::GetPlayer()->DockedTo->Name);
-                        pas::WideString pickLocalizedTextVariant_10 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), Kind + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                        return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_10), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_4), u"<BK>"_w, name_21.get());
+                        pas::WideString pickLocalizedTextVariant_10 = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), static_cast<std::int32_t>(Kind) + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
+                        pas::WideString textHighlightColorTag_10 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_10), std::move(textHighlightColorTag_10), u"<Money>"_w, std::move(intToStr_4), u"<BK>"_w, name_21.get());
                     }());
                     aGalaxy::TGalaxy* galaxy_10 = aGalaxy::Galaxy;
-                    galaxy_10->AddPlanetNewsWithPlayerBubble(42, std::move(formatText2_3));
+                    galaxy_10->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnCoalitionInvestment, std::move(formatText2_3));
                 }
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
@@ -6219,8 +6400,8 @@ namespace fRuinsTalk {
                     pas::WideString& dialogText_11 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_11, u"<InvestmentText>"_w, std::move(localizedColorText_11), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, aConst::PlanetOwnerMasks.Coalition);
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 20, static_cast<aConst::THullShipTypeMask>(FriendlyTypes), aConst::PlanetOwnerMasks.Coalition);
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 20, static_cast<aConst::THullShipTypeMask>(PirateTypes), aConst::PlanetOwnerMasks.Coalition);
@@ -6235,25 +6416,25 @@ namespace fRuinsTalk {
                     Warrior->Name = pas::concat_wide({Warrior->Name, u" ", aPlayer::GetPlayer()->Name});
                     ShipNames = pas::concat_wide({ShipNames, Warrior->GetName(), u"\r\n"});
                 }
-                Text = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), Kind + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
-                aMyFunction::ReplaceTextToken(Text, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, InvestmentDefensePlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, InvestmentDefensePlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
-                aGalaxy::Galaxy->AddPlanetNewsWithPlayerBubble(42, Text);
+                Text = aConst::PickLocalizedTextVariant(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".GalaxyMessage"}), static_cast<std::int32_t>(Kind) + aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->DockedTo->Seed);
+                aMyFunction::ReplaceTextToken(Text, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, InvestmentDefensePlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, InvestmentDefensePlanet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
+                aGalaxy::Galaxy->AddPlanetNewsWithPlayerBubble(aGalaxyStruct::gnCoalitionInvestment, Text);
                 DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterInvestment"_wref.get());
                 {
                     pas::WideString localizedColorText_12 = aConst::LocalizedColorText(pas::concat_wide({u"Investment.", aConst::CoalitionProjectNames[Kind], u".Text"}));
                     pas::WideString& dialogText_12 = DialogText;
                     aMyFunction::ReplaceTextToken(dialogText_12, u"<InvestmentText>"_w, std::move(localizedColorText_12), pas::WideString());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
                 aMyFunction::ReplaceTextToken(DialogText, u"<ShipsName>"_w, ShipNames, pas::WideString());
-                aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, InvestmentDefensePlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, InvestmentDefensePlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Count>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, InvestmentDefensePlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, InvestmentDefensePlanet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
                 InvestmentDefensePlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 20, aConst::PlanetOwnerMasks.Coalition);
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmDecreaseWithFloor20, 30, static_cast<aConst::THullShipTypeMask>(PirateTypes), aConst::PlanetOwnerMasks.Coalition);
@@ -6265,7 +6446,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::DeclineBusinessCenterInvestment(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Investment.BKAfterPlayerNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -6282,17 +6463,18 @@ namespace fRuinsTalk {
         std::uint8_t Discount = System::Round(pas::real_divide(aPlayer::GetPlayer()->CareerStatus[aGalaxyStruct::rcTrader], 1.3L)) + 1;
         NearbyTradeAdviceCost = std::max<std::int64_t>(static_cast<std::int64_t>(10), static_cast<std::int64_t>(NearbyTradeAdviceCost - System::Round(pas::real_divide(NearbyTradeAdviceCost, 1.0E+2L) * Discount)));
         DistantTradeAdviceCost = std::max<std::int64_t>(static_cast<std::int64_t>(5), static_cast<std::int64_t>(DistantTradeAdviceCost - System::Round(pas::real_divide(DistantTradeAdviceCost, 1.0E+2L) * Discount)));
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<NeaMoney>"_w, pas::wide_int_to_str(NearbyTradeAdviceCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<FarMoney>"_w, pas::wide_int_to_str(DistantTradeAdviceCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<NeaMoney>"_w, pas::wide_int_to_str(NearbyTradeAdviceCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<FarMoney>"_w, pas::wide_int_to_str(DistantTradeAdviceCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->Money >= NearbyTradeAdviceCost) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg_4 = pas::bind_method<&TfRuinsTalk::BuyBusinessCenterTradeAdvice>(this);
             pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(NearbyTradeAdviceCost);
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.Trade.PlayerNea"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<NeaMoney>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<NeaMoney>"_w, std::move(intToStr));
             }())});
             TfRuinsTalk* self = this;
             self->AddChoice(std::move(cpp_arg_5), 1, cpp_arg_4);
@@ -6301,7 +6483,8 @@ namespace fRuinsTalk {
             pas::WideString cpp_arg_6 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(NearbyTradeAdviceCost);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.BK.Trade.PlayerNea"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<NeaMoney>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<NeaMoney>"_w, std::move(intToStr_2));
             }())});
             TfRuinsTalk* self_2 = this;
             self_2->AddChoice(std::move(cpp_arg_6), 0, scriptDialogBlockCallback);
@@ -6311,7 +6494,8 @@ namespace fRuinsTalk {
             pas::WideString cpp_arg_8 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr_3 = pas::wide_int_to_str(DistantTradeAdviceCost);
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRuins.BK.Trade.PlayerFar"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<FarMoney>"_w, std::move(intToStr_3));
+                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<FarMoney>"_w, std::move(intToStr_3));
             }())});
             TfRuinsTalk* self_3 = this;
             self_3->AddChoice(std::move(cpp_arg_8), 2, cpp_arg_7);
@@ -6320,7 +6504,8 @@ namespace fRuinsTalk {
             pas::WideString cpp_arg_9 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr_4 = pas::wide_int_to_str(DistantTradeAdviceCost);
                 pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRuins.BK.Trade.PlayerFar"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<FarMoney>"_w, std::move(intToStr_4));
+                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<FarMoney>"_w, std::move(intToStr_4));
             }())});
             TfRuinsTalk* self_4 = this;
             self_4->AddChoice(std::move(cpp_arg_9), 0, scriptDialogBlockCallback_2);
@@ -6383,14 +6568,22 @@ namespace fRuinsTalk {
                 ++Count;
                 Text = aConst::LocalizedColorText(u"FormRuins.BK.Trade.BKFindTradePath"_wref.get());
                 aMyFunction::ReplaceTextToken(Text, u"<Num>"_w, pas::wide_int_to_str(I), pas::WideString());
-                aMyFunction::ReplaceTextToken(Text, u"<Goods>"_w, aConst::GoodsMarket[Routes[I].GoodsIndex].DisplayName, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Routes[I].FromPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Routes[I].FromPlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Buy>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Routes[I].GoodsIndex, Routes[I].FromPlanet)), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Cnt>"_w, pas::wide_int_to_str(Routes[I].FromPlanet->Goods[Routes[I].GoodsIndex].Count), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<ToPlanet>"_w, Routes[I].ToPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, Routes[I].ToPlanet->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Sale>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Routes[I].GoodsIndex, Routes[I].ToPlanet)), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Goods>"_w, aConst::GoodsMarket[Routes[I].GoodsIndex].DisplayName, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Routes[I].FromPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Routes[I].FromPlanet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Routes[I].GoodsIndex, Routes[I].FromPlanet));
+                    aMyFunction::ReplaceTextToken(Text, u"<Buy>"_w, std::move(intToStr), textHighlightColorTag.get());
+                }
+                aMyFunction::ReplaceTextToken(Text, u"<Cnt>"_w, pas::wide_int_to_str(Routes[I].FromPlanet->Goods[Routes[I].GoodsIndex].Count), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<ToPlanet>"_w, Routes[I].ToPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, Routes[I].ToPlanet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Routes[I].GoodsIndex, Routes[I].ToPlanet));
+                    aMyFunction::ReplaceTextToken(Text, u"<Sale>"_w, std::move(intToStr_2), textHighlightColorTag_2.get());
+                }
                 if (Paths == u"") {
                     Paths = Text;
                 } else {
@@ -6415,15 +6608,19 @@ namespace fRuinsTalk {
         } else {
             Panel = aConst::LocalizedColorText(u"FormRuins.BK.Trade.BKAfterOkFarPanel"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(Panel, u"<Date>"_w, aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn), u"<color=0,255,0>"_w);
-        aMyFunction::ReplaceTextToken(Panel, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=0,255,0>"_w);
+        {
+            auto greenColorTag = pas::borrow(aMyFunction::GreenColorTag);
+            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn);
+            aMyFunction::ReplaceTextToken(Panel, u"<Date>"_w, std::move(formatTurnDate), greenColorTag.get());
+        }
+        aMyFunction::ReplaceTextToken(Panel, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::GreenColorTag);
         FindBusinessCenterTradeRoutes();
         if (Count == 0) {
             DialogText = pas::concat_wide({Greeting, u"\r\n", aConst::LocalizedColorText(u"FormRuins.BK.Trade.BKNotVariant"_wref.get())});
         } else {
             Dialog = pas::concat_wide({Greeting, u"\r\n", aConst::LocalizedColorText(u"FormRuins.BK.Trade.BKAfterOk"_wref.get())});
             aMyFunction::ReplaceTextToken(Dialog, u"<BKFindTradePath>"_w, Paths, pas::WideString());
-            aMyFunction::ReplaceTextToken(Dialog, u"<Count>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Dialog, u"<Count>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
             DialogText = Dialog;
             if (Action == 1) {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - NearbyTradeAdviceCost);
@@ -6431,16 +6628,16 @@ namespace fRuinsTalk {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - DistantTradeAdviceCost);
             }
             GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
-            Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, pas::concat_wide({Panel, u"\r\n", Paths}), u""_wref.get());
+            Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, pas::concat_wide({Panel, u"\r\n", Paths}), u""_wref.get());
             MainPanel->RebuildMessageButtons(false);
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
     void TfRuinsTalk::DeclineBusinessCenterTradeAdvice(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.BK.Trade.BKAfterNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<BK>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -6472,31 +6669,35 @@ namespace fRuinsTalk {
                     DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeCureless"_wref.get())});
                 }
             }
-            aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
             TotalCost = 0;
             IllnessText = pas::WideString();
             if (HasDisease) {
                 for (I = 1; I <= 12; ++I) {
                     Text = pas::WideString();
-                    if (aPlayer::GetPlayer()->CaptainHealth[I].Progress != 0.0L) {
+                    if (aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress != 0.0L) {
                         Text = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeIll"_wref.get());
-                        aMyFunction::ReplaceTextToken(Text, u"<IllName>"_w, aConst::CaptainHealthDefinitions[I].Name, u"<color=255,240,100>"_w);
-                        if (aPlayer::GetPlayer()->CaptainHealth[I].Progress >= 1.0E+2L) {
+                        aMyFunction::ReplaceTextToken(Text, u"<IllName>"_w, aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name, aMyFunction::TextHighlightColorTag);
+                        if (aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress >= 1.0E+2L) {
                             aMyFunction::ReplaceTextToken(Text, u"<MCSeeIllType>"_w, aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeIllType1"_wref.get()), pas::WideString());
                         } else {
                             aMyFunction::ReplaceTextToken(Text, u"<MCSeeIllType>"_w, aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeIllType2"_wref.get()), pas::WideString());
-                            ++aPlayer::GetPlayer()->CaptainHealth[I].ApplicationCount;
+                            ++aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].ApplicationCount;
                             static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckAllDiseasesAchievement();
                         }
-                        aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->CaptainHealth[I].AppliedTurn), u"<color=255,240,100>"_w);
-                        aMyFunction::ReplaceTextToken(Text, u"<InfectionObjectName>"_w, aPlayer::GetPlayer()->StatusEffectSourceNames[I], u"<color=255,240,100>"_w);
+                        {
+                            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].AppliedTurn);
+                            aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatTurnDate), textHighlightColorTag.get());
+                        }
+                        aMyFunction::ReplaceTextToken(Text, u"<InfectionObjectName>"_w, aPlayer::GetPlayer()->StatusEffectSourceNames[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)], aMyFunction::TextHighlightColorTag);
                         Cost = ([&] {
                             std::int32_t computeScaledAverageMoney = aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                             std::int32_t computeScaledMiniMoney = aGalaxy::Galaxy->ComputeScaledMiniMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
+                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].MedicalPriceSizeLevel, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
                         }());
                         TotalCost += Cost;
-                        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
                         if (IllnessText == u"") {
                             IllnessText = pas::concat_wide({IllnessText, Text});
                         } else {
@@ -6519,11 +6720,11 @@ namespace fRuinsTalk {
             ClearChoices();
             if (HasDisease) {
                 for (I = 1; I <= 12; ++I) {
-                    if (aPlayer::GetPlayer()->CaptainHealth[I].Progress != 0.0L) {
+                    if (aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress != 0.0L) {
                         Cost = ([&] {
                             std::int32_t computeScaledAverageMoney_2 = aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                             std::int32_t computeScaledMiniMoney_2 = aGalaxy::Galaxy->ComputeScaledMiniMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledMiniMoney_2, computeScaledAverageMoney_2, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
+                            return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].MedicalPriceSizeLevel, computeScaledMiniMoney_2, computeScaledAverageMoney_2, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
                         }());
                         if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                             Cost = Cost / 2;
@@ -6531,20 +6732,22 @@ namespace fRuinsTalk {
                         if (aPlayer::GetPlayer()->Money >= Cost) {
                             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::TreatSelectedDiseaseAtMedicalCenter>(this);
                             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", ([&] {
-                                auto name = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
+                                auto name = pas::borrow(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name);
                                 pas::WideString intToStr = pas::wide_int_to_str(Cost);
                                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.PlayerIll"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<IllName>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag_2), u"<IllName>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
                             }())});
                             TfRuinsTalk* self = this;
                             self->AddChoice(std::move(cpp_arg_2), I, cpp_arg);
                         } else {
                             GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback = fTalk::ScriptDialogBlockCallback;
                             pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", ([&] {
-                                auto name_2 = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
+                                auto name_2 = pas::borrow(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name);
                                 pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.PlayerIll"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<IllName>"_w, name_2.get(), u"<Money>"_w, std::move(intToStr_2));
+                                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_3), u"<IllName>"_w, name_2.get(), u"<Money>"_w, std::move(intToStr_2));
                             }())});
                             TfRuinsTalk* self_2 = this;
                             self_2->AddChoice(std::move(cpp_arg_3), 0, scriptDialogBlockCallback);
@@ -6557,7 +6760,8 @@ namespace fRuinsTalk {
                     pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", ([&] {
                         pas::WideString intToStr_3 = pas::wide_int_to_str(AllCost);
                         pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.PlayerIllAll"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_3));
+                        pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_4), u"<Money>"_w, std::move(intToStr_3));
                     }())});
                     TfRuinsTalk* self_3 = this;
                     self_3->AddChoice(std::move(cpp_arg_5), AllCost, cpp_arg_4);
@@ -6566,7 +6770,8 @@ namespace fRuinsTalk {
                     pas::WideString cpp_arg_6 = pas::concat_wide({u"- ", ([&] {
                         pas::WideString intToStr_4 = pas::wide_int_to_str(AllCost);
                         pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.PlayerIllAll"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_4));
+                        pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_5), u"<Money>"_w, std::move(intToStr_4));
                     }())});
                     TfRuinsTalk* self_4 = this;
                     self_4->AddChoice(std::move(cpp_arg_6), 0, scriptDialogBlockCallback_2);
@@ -6603,7 +6808,7 @@ namespace fRuinsTalk {
                 }
                 DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(Key)});
             }
-            aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
             M_Main(true);
         }
     }
@@ -6619,13 +6824,13 @@ namespace fRuinsTalk {
                     aGalaxy::Galaxy->GraphDominatorSurfacesEnabled = true;
                     aGalaxy::Galaxy->DisableDominatorSurfaces();
                 }
-                aPlayer::GetPlayer()->CaptainHealth[I].Progress = 0.0;
-                aPlayer::GetPlayer()->StatusEffectSourceNames[I] = pas::WideString();
-                Name = aConst::CaptainHealthDefinitions[I].Name;
+                aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress = 0.0;
+                aPlayer::GetPlayer()->StatusEffectSourceNames[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)] = pas::WideString();
+                Name = aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name;
                 Cost = ([&] {
                     std::int32_t computeScaledAverageMoney = aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                     std::int32_t computeScaledMiniMoney = aGalaxy::Galaxy->ComputeScaledMiniMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
+                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].MedicalPriceSizeLevel, computeScaledMiniMoney, computeScaledAverageMoney, 50, aGalaxy::Galaxy->CurrentTurn / 10 * aGalaxy::Galaxy->GenerationSeed * I);
                 }());
                 if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                     Cost = Cost / 2;
@@ -6644,8 +6849,8 @@ namespace fRuinsTalk {
         if (aPlayer::GetPlayer()->HasRadiationSickness() && static_cast<std::uint8_t>(aPlayer::GetPlayer()->HasPresentDisease() ^ 1)) {
             DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeAfterIllRadiation"_wref.get())});
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<IllName>"_w, Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<IllName>"_w, Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         ClearChoices();
         ShowMedicalCenterIllnessTreatmentDialog(1);
     }
@@ -6655,18 +6860,18 @@ namespace fRuinsTalk {
         std::int32_t I{};
         pas::AnsiString YearText{};
         DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeAfterIllAll"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         System::TDateTime Date = SysUtilsImports::Now();
         SysUtilsImports::DateTimeToString(YearText, "yyyy"_a, Date);
-        aMyFunction::ReplaceTextToken(DialogText, u"<CurrentYear>"_w, static_cast<pas::WideString>(YearText), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<CurrentYear>"_w, static_cast<pas::WideString>(YearText), aMyFunction::TextHighlightColorTag);
         for (I = 1; I <= 12; ++I) {
-            if (aPlayer::GetPlayer()->CaptainHealth[I].Progress != 0.0L) {
+            if (aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress != 0.0L) {
                 if (I == 3) {
                     aGalaxy::Galaxy->GraphDominatorSurfacesEnabled = true;
                     aGalaxy::Galaxy->DisableDominatorSurfaces();
                 }
-                aPlayer::GetPlayer()->CaptainHealth[I].Progress = 0.0;
-                aPlayer::GetPlayer()->StatusEffectSourceNames[I] = pas::WideString();
+                aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress = 0.0;
+                aPlayer::GetPlayer()->StatusEffectSourceNames[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)] = pas::WideString();
             }
         }
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - QuotedCost);
@@ -6677,7 +6882,7 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::DeclineMedicalCenterTreatment(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeAfterNo"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -6687,7 +6892,7 @@ namespace fRuinsTalk {
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Illnes.MCSeeAfterExit"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -6701,7 +6906,7 @@ namespace fRuinsTalk {
         pas::WideString StimulantText{};
         pas::WideString Key{};
         pas::Set<8, 39> Offers{};
-        std::uint8_t Rank{};
+        aGalaxyStruct::TShipRank Rank{};
         Offers = pas::constant_set<pas::Set<8, 39>>({});
         std::int32_t OfferCount = 0;
         Seed = aGalaxy::Galaxy->GenerationSeed * (aGalaxy::Galaxy->CurrentTurn / 13);
@@ -6715,7 +6920,7 @@ namespace fRuinsTalk {
             I = aMyFunction::SeededRandomIntRange(13, 24, Seed);
             if (static_cast<std::uint8_t>(pas::contains(Offers, I) ^ 1) && ([&] {
                 pas::Extended cpp_left = aMyFunction::SeededRandomUnitFloat(Seed);
-                return cpp_left <= aConst::CaptainHealthDefinitions[I].InfectionChance;
+                return cpp_left <= aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].InfectionChance;
             }())) {
                 pas::include_at(&Offers, I);
                 ++OfferCount;
@@ -6747,20 +6952,22 @@ namespace fRuinsTalk {
         }
         DialogText = pas::concat_wide_reverse({aConst::LocalizedColorText(Key), DialogText});
         DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.MC4"_wref.get())});
-        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<MaxStim>"_w, pas::wide_int_to_str(MaxStimulants), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<CurStim>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveStimulants()), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<AddStim>"_w, pas::wide_int_to_str(MaxStimulants - aPlayer::GetPlayer()->CountActiveStimulants()), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<LawStim>"_w, pas::wide_int_to_str(LawStimulants), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<MaxStim>"_w, pas::wide_int_to_str(MaxStimulants), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<CurStim>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->CountActiveStimulants()), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<AddStim>"_w, pas::wide_int_to_str(MaxStimulants - aPlayer::GetPlayer()->CountActiveStimulants()), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<LawStim>"_w, pas::wide_int_to_str(LawStimulants), aMyFunction::TextHighlightColorTag);
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString rankName = aPlayer::GetPlayer()->GetRankName();
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<Rank>"_w, std::move(rankName), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<Rank>"_w, std::move(rankName), textHighlightColorTag.get());
         }
         {
+            auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString pirateRankName = aPlayer::GetPlayer()->GetPirateRankName();
             pas::WideString& dialogText_2 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_2, u"<PirateRank>"_w, std::move(pirateRankName), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_2, u"<PirateRank>"_w, std::move(pirateRankName), textHighlightColorTag_2.get());
         }
         if (aPlayer::GetPlayer()->CountActiveStimulants() < MaxStimulants) {
             StimulantText = pas::WideString();
@@ -6768,23 +6975,23 @@ namespace fRuinsTalk {
                 if (pas::contains(Offers, I)) {
                     Text = pas::WideString();
                     Text = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.MCStimInfo"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<StimName>"_w, aConst::CaptainHealthDefinitions[I].Name, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Text, u"<StimText>"_w, aConst::CaptainHealthDefinitions[I].Text, pas::WideString());
+                    aMyFunction::ReplaceTextToken(Text, u"<StimName>"_w, aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Text, u"<StimText>"_w, aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Text, pas::WideString());
                     Duration = ([&] {
-                        std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(aConst::CaptainHealthDefinitions[I].Duration / 10, aConst::CaptainHealthDefinitions[I].Duration / 3, aPlayer::GetPlayer()->DockedTo->Id + I + aGalaxy::Galaxy->CurrentTurn / 13);
-                        return aConst::CaptainHealthDefinitions[I].Duration + cpp_right;
+                        std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Duration / 10, aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Duration / 3, aPlayer::GetPlayer()->DockedTo->Id + I + aGalaxy::Galaxy->CurrentTurn / 13);
+                        return aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Duration + cpp_right;
                     }());
                     Duration = System::Round(pas::real_divide(Duration, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor));
-                    aMyFunction::ReplaceTextToken(Text, u"<Month>"_w, pas::wide_int_to_str(Duration / 30), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<Month>"_w, pas::wide_int_to_str(Duration / 30), aMyFunction::TextHighlightColorTag);
                     Cost = ([&] {
                         std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                         std::int32_t computeScaledSmallMoney = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                     }());
                     if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                         Cost = Cost / 2;
                     }
-                    aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
                     if (StimulantText == u"") {
                         StimulantText = pas::concat_wide({StimulantText, Text});
                     } else {
@@ -6803,28 +7010,30 @@ namespace fRuinsTalk {
                     Cost = ([&] {
                         std::int32_t cpp_arg_2 = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                         std::int32_t computeScaledSmallMoney_2 = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney_2, cpp_arg_2, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                        return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].MedicalPriceSizeLevel, computeScaledSmallMoney_2, cpp_arg_2, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                     }());
                     if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                         Cost = Cost / 2;
                     }
-                    if (aPlayer::GetPlayer()->Money < Cost || aPlayer::GetPlayer()->CaptainHealth[I].Progress == 1.0E+2L) {
+                    if (aPlayer::GetPlayer()->Money < Cost || aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress == 1.0E+2L) {
                         GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback = fTalk::ScriptDialogBlockCallback;
                         pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", ([&] {
-                            auto name = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
+                            auto name = pas::borrow(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name);
                             pas::WideString intToStr = pas::wide_int_to_str(Cost);
                             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerStim"_wref.get());
-                            return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<StimName>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
+                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag_3), u"<StimName>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
                         }())});
                         TfRuinsTalk* self = this;
                         self->AddChoice(std::move(cpp_arg_3), 0, scriptDialogBlockCallback);
                     } else {
                         GI_MessageLoop::TDialogChoiceEventGI cpp_arg_4 = pas::bind_method<&TfRuinsTalk::BuySelectedStimulantAtMedicalCenter>(this);
                         pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", ([&] {
-                            auto name_2 = pas::borrow(aConst::CaptainHealthDefinitions[I].Name);
+                            auto name_2 = pas::borrow(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name);
                             pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                             pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.PlayerStim"_wref.get());
-                            return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<StimName>"_w, name_2.get(), u"<Money>"_w, std::move(intToStr_2));
+                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_4), u"<StimName>"_w, name_2.get(), u"<Money>"_w, std::move(intToStr_2));
                         }())});
                         TfRuinsTalk* self_2 = this;
                         self_2->AddChoice(std::move(cpp_arg_5), I, cpp_arg_4);
@@ -6851,20 +7060,20 @@ namespace fRuinsTalk {
         pas::WideString Name{};
         for (I = 13; I <= 24; ++I) {
             if (I == StimulantIndex) {
-                aPlayer::GetPlayer()->CaptainHealth[I].Progress = 1.0E+2;
-                aPlayer::GetPlayer()->StatusEffectSourceNames[I] = pas::WideString();
-                Name = aConst::CaptainHealthDefinitions[I].Name;
+                aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Progress = 1.0E+2;
+                aPlayer::GetPlayer()->StatusEffectSourceNames[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)] = pas::WideString();
+                Name = aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name;
                 Duration = ([&] {
-                    std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(aConst::CaptainHealthDefinitions[I].Duration / 10, aConst::CaptainHealthDefinitions[I].Duration / 3, aPlayer::GetPlayer()->DockedTo->Id + I + aGalaxy::Galaxy->CurrentTurn / 13);
-                    return aConst::CaptainHealthDefinitions[I].Duration + cpp_right;
+                    std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Duration / 10, aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Duration / 3, aPlayer::GetPlayer()->DockedTo->Id + I + aGalaxy::Galaxy->CurrentTurn / 13);
+                    return aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Duration + cpp_right;
                 }());
                 Duration = System::Round(pas::real_divide(Duration, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].GoodsEventDurationFactor));
-                aPlayer::GetPlayer()->CaptainHealth[I].AppliedTurn = aGalaxy::Galaxy->CurrentTurn;
-                aPlayer::GetPlayer()->CaptainHealth[I].ExpireTurn = Duration + aGalaxy::Galaxy->CurrentTurn;
+                aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].AppliedTurn = aGalaxy::Galaxy->CurrentTurn;
+                aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].ExpireTurn = Duration + aGalaxy::Galaxy->CurrentTurn;
                 Cost = ([&] {
                     std::int32_t cpp_arg = 2 * aGalaxy::Galaxy->ComputeScaledAverageMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
                     std::int32_t computeScaledSmallMoney = aGalaxy::Galaxy->ComputeScaledSmallMoney(aPlayer::GetPlayer()->DockedTo->OwnerId);
-                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[I].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
+                    return aConst::GenerateValueForSizeLevel(aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].MedicalPriceSizeLevel, computeScaledSmallMoney, cpp_arg, 50, aGalaxy::Galaxy->CurrentTurn / 13 * aGalaxy::Galaxy->GenerationSeed * I);
                 }());
                 if (aPlayer::GetPlayer()->MedicalPolicyTicks > 0 && aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.ControlFaction != aGalaxyStruct::sfPirates) {
                     Cost = Cost / 2;
@@ -6874,14 +7083,15 @@ namespace fRuinsTalk {
                 ++aPlayer::GetPlayer()->StimulantPurchaseCount;
                 GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
                 DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.MCAfterPlayerStim"_wref.get());
-                aMyFunction::ReplaceTextToken(DialogText, u"<StimName>"_w, Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<StimName>"_w, Name, aMyFunction::TextHighlightColorTag);
                 {
-                    pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->CaptainHealth[I].ExpireTurn);
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].ExpireTurn);
                     pas::WideString& dialogText = DialogText;
-                    aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatTurnDate), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatTurnDate), textHighlightColorTag.get());
                 }
-                aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-                ++aPlayer::GetPlayer()->CaptainHealth[I].ApplicationCount;
+                aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+                ++aPlayer::GetPlayer()->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].ApplicationCount;
                 static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckAllDrugsAchievement();
                 M_Main(true);
                 break;
@@ -6895,7 +7105,7 @@ namespace fRuinsTalk {
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.MC.Stimulants.MCAfterPlayerNo"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<MC>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -6905,14 +7115,14 @@ namespace fRuinsTalk {
         aRanger::PPlayerOldQuest Quest{};
         std::uint8_t CanBuy = true;
         aItem::THull* Hull = pas::construct_call<aItem::THull>(aItem::TEquipment_Create);
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
-            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstPirateBase) {
+            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, aGalaxyStruct::htSpecial, -1, false);
             aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullPB"sv), Hull);
-        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
-            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
+        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase) {
+            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, aGalaxyStruct::htSpecial, -1, false);
             aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullWB"sv), Hull);
-        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstScienceBase)) {
-            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
+        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstScienceBase) {
+            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, aGalaxyStruct::htSpecial, -1, false);
             aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullSB"sv), Hull);
         } else {
             GR_Main::RaiseWideMessage(u"Ask special ship"_wref.get());
@@ -6920,78 +7130,86 @@ namespace fRuinsTalk {
         std::int32_t Price = Hull->GetConditionAdjustedCost();
         pas::free(Hull);
         DialogText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Info"}));
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
-            aMyFunction::ReplaceTextToken(DialogText, u"<KillCnt>"_w, pas::wide_int_to_str(100), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Price>"_w, pas::wide_int_to_str(Price), u"<color=255,240,100>"_w);
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstPirateBase) {
+            aMyFunction::ReplaceTextToken(DialogText, u"<KillCnt>"_w, pas::wide_int_to_str(100), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Price>"_w, pas::wide_int_to_str(Price), aMyFunction::TextHighlightColorTag);
             if (aPlayer::GetPlayer()->CivilianKillCount < 100) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<KillComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<KillComplate>"_w, std::move(localizedColorText), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<KillComplate>"_w, std::move(localizedColorText), textHighlightColorTag.get());
             }
             if (aPlayer::GetPlayer()->GetDominantCareer() != aGalaxyStruct::rcPirate) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<PirateComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_2 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_2, u"<PirateComplate>"_w, std::move(localizedColorText_2), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_2, u"<PirateComplate>"_w, std::move(localizedColorText_2), textHighlightColorTag_2.get());
             }
             if (aPlayer::GetPlayer()->Rank < 5) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<RankComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_3 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_3, u"<RankComplate>"_w, std::move(localizedColorText_3), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_3, u"<RankComplate>"_w, std::move(localizedColorText_3), textHighlightColorTag_3.get());
             }
-        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
-            aMyFunction::ReplaceTextToken(DialogText, u"<KillCnt>"_w, pas::wide_int_to_str(50), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Price>"_w, pas::wide_int_to_str(Price), u"<color=255,240,100>"_w);
+        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase) {
+            aMyFunction::ReplaceTextToken(DialogText, u"<KillCnt>"_w, pas::wide_int_to_str(50), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Price>"_w, pas::wide_int_to_str(Price), aMyFunction::TextHighlightColorTag);
             if (aPlayer::GetPlayer()->PirateKillCount < 50) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<KillComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_4 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_4 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_4, u"<KillComplate>"_w, std::move(localizedColorText_4), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_4, u"<KillComplate>"_w, std::move(localizedColorText_4), textHighlightColorTag_4.get());
             }
             if (aPlayer::GetPlayer()->GetDominantCareer() != aGalaxyStruct::rcWarrior) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<WarriorComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_5 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_5 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_5 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_5, u"<WarriorComplate>"_w, std::move(localizedColorText_5), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_5, u"<WarriorComplate>"_w, std::move(localizedColorText_5), textHighlightColorTag_5.get());
             }
             if (aPlayer::GetPlayer()->Rank < 5) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<RankComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_6 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_6 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_6, u"<RankComplate>"_w, std::move(localizedColorText_6), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_6, u"<RankComplate>"_w, std::move(localizedColorText_6), textHighlightColorTag_6.get());
             }
-        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstScienceBase)) {
-            aMyFunction::ReplaceTextToken(DialogText, u"<KillCnt>"_w, pas::wide_int_to_str(500), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Price>"_w, pas::wide_int_to_str(Price), u"<color=255,240,100>"_w);
+        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstScienceBase) {
+            aMyFunction::ReplaceTextToken(DialogText, u"<KillCnt>"_w, pas::wide_int_to_str(500), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Price>"_w, pas::wide_int_to_str(Price), aMyFunction::TextHighlightColorTag);
             if (aPlayer::GetPlayer()->DominatorKillCount < 500) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<KillComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_7 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_7 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_7 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_7, u"<KillComplate>"_w, std::move(localizedColorText_7), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_7, u"<KillComplate>"_w, std::move(localizedColorText_7), textHighlightColorTag_7.get());
             }
             if (aPlayer::GetPlayer()->Rank < 5) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<RankComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_8 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_8 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_8 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_8, u"<RankComplate>"_w, std::move(localizedColorText_8), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_8, u"<RankComplate>"_w, std::move(localizedColorText_8), textHighlightColorTag_8.get());
             }
             CompletedQuests = 0;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aRanger::PlayerOldQuests) - 1); cpp_range.next(I); ) {
@@ -7000,14 +7218,15 @@ namespace fRuinsTalk {
                     ++CompletedQuests;
                 }
             }
-            aMyFunction::ReplaceTextToken(DialogText, u"<QuestCnt>"_w, pas::wide_int_to_str(20), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<QuestCnt>"_w, pas::wide_int_to_str(20), aMyFunction::TextHighlightColorTag);
             if (CompletedQuests < 20) {
                 CanBuy = false;
                 aMyFunction::ReplaceTextToken(DialogText, u"<QuestComplate>"_w, pas::WideString(), pas::WideString());
             } else {
+                auto textHighlightColorTag_9 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedColorText_9 = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.", aPlayer::GetPlayer()->DockedTo->GetTypeNameKey(), u".SpecialShip.Complate"}));
                 pas::WideString& dialogText_9 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_9, u"<QuestComplate>"_w, std::move(localizedColorText_9), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_9, u"<QuestComplate>"_w, std::move(localizedColorText_9), textHighlightColorTag_9.get());
             }
         } else {
             GR_Main::RaiseWideMessage(u"Ask special ship 2"_wref.get());
@@ -7038,14 +7257,14 @@ namespace fRuinsTalk {
         static const pas::Set<0, 255> CoalitionOwners = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman, aGalaxyStruct::oiGaal}});
         pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->SpecialServiceActive = false;
         aItem::THull* Hull = pas::construct_call<aItem::THull>(aItem::TEquipment_Create);
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
-            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstPirateBase) {
+            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, aGalaxyStruct::htSpecial, -1, false);
             aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullPB"sv), Hull);
-        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstMilitaryBase)) {
-            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
+        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase) {
+            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, aGalaxyStruct::htSpecial, -1, false);
             aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullWB"sv), Hull);
-        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstScienceBase)) {
-            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, 9, -1, false);
+        } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstScienceBase) {
+            Hull->Init(1000, 8, aPlayer::GetPlayer()->DockedTo->OwnerId, aGalaxyStruct::htSpecial, -1, false);
             aItem::ApplySpecialMicroModule(aConst::FindMicroModuleTemplateByCustomTag(u"SuperHullSB"sv), Hull);
         } else {
             GR_Main::RaiseWideMessage(u"Buy special ship"_wref.get());
@@ -7058,7 +7277,7 @@ namespace fRuinsTalk {
             } else {
                 aPlayer::GetPlayer()->AddItemToPlayerStorage(Hull, aPlayer::GetPlayer()->DockedTo, -1);
             }
-            if (aPlayer::GetPlayer()->DockedTo->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstPirateBase)) {
+            if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstPirateBase) {
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmIncrease, 30, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPeleng}}));
                 aPlayer::GetPlayer()->ChangeShipRelations(nullptr, aRanger::rcmIncrease, 30, static_cast<aConst::THullShipTypeMask>(RelationShipTypes), static_cast<aGalaxyStruct::TOwnerMask>(PirateOwners));
                 aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecreaseWithFloor20, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
@@ -7133,10 +7352,10 @@ namespace fRuinsTalk {
             if (Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->Name != u"") {
                 return Result;
             }
-            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && static_cast<std::uint8_t>(pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1)) {
+            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && static_cast<std::uint8_t>(pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1)) {
                 return Result;
             }
-            if (static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1) && Kind != Item->ItemType) {
+            if (static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon)) ^ 1) && Kind != Item->ItemType) {
                 return Result;
             }
             if (Kind == aConst::t_Hull) {
@@ -7154,7 +7373,7 @@ namespace fRuinsTalk {
                     return Result;
                 }
             }
-            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                 for (I = 1; I <= 5; ++I) {
                     if (ConstructionWeapons[I].Item == Item) {
                         return Result;
@@ -7165,26 +7384,30 @@ namespace fRuinsTalk {
         };
         auto FormatConstructionItem = [&](pas::WideString& Text, aItem::TEquipment* Item) -> void {
             pas::WideString Stats{};
-            aMyFunction::ReplaceTextToken(Text, u"<ItemName>"_w, EC_Str::RemoveTextTagsW(Item->GetDisplayName()), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Size>"_w, pas::wide_int_to_str(Item->Weight), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Item->Cost), u"<color=255,240,100>"_w);
+            {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(Item->GetDisplayName());
+                aMyFunction::ReplaceTextToken(Text, u"<ItemName>"_w, std::move(removeTextTagsW), textHighlightColorTag.get());
+            }
+            aMyFunction::ReplaceTextToken(Text, u"<Size>"_w, pas::wide_int_to_str(Item->Weight), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Item->Cost), aMyFunction::TextHighlightColorTag);
             if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
                 Stats = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.StatsWeapon"_wref.get());
             } else {
                 Stats = aConst::LocalizedColorText(pas::concat_wide({u"FormRuins.CB.ConstructPirate.Stats", aConst::ItemTypeNames[Item->ItemType]}));
             }
-            Item->ReplaceInfoTokens(Stats, u"<color=255,240,100>"_w, nullptr);
+            Item->ReplaceInfoTokens(Stats, aMyFunction::TextHighlightColorTag, nullptr);
             if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Item); hull != nullptr && hull->HullSeries != -1) {
                 Stats = pas::concat_wide({Stats, u", ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.StatsSeries"_wref.get())});
-                aMyFunction::ReplaceTextToken(Stats, u"<SeriesName>"_w, pas::concat_wide({u"\"", aConst::HullSeriesDefinitions[reinterpret_cast<aItem::THull*>(Item)->HullSeries].Name, u"\""}), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Stats, u"<SeriesName>"_w, pas::concat_wide({u"\"", aConst::HullSeriesDefinitions[reinterpret_cast<aItem::THull*>(Item)->HullSeries].Name, u"\""}), aMyFunction::TextHighlightColorTag);
             }
             if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr && Item->SpecialModuleIndex > 0) {
                 Stats = pas::concat_wide({Stats, u", ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.StatsSeries"_wref.get())});
-                aMyFunction::ReplaceTextToken(Stats, u"<SeriesName>"_w, Item->GetSpecialModuleName(), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Stats, u"<SeriesName>"_w, Item->GetSpecialModuleName(), aMyFunction::TextHighlightColorTag);
             }
             aMyFunction::ReplaceTextToken(Text, u"<Stats>"_w, Stats, pas::WideString());
-            Text = EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
-            Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,255,0>"_wref.get(), u"<color=0,130,0>"sv);
+            Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag));
+            Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::GreenColorTag, pas::view(aMyFunction::DialogGreenColorTag));
         };
         std::int32_t Count = 0;
         if (Kind != aConst::t_Hull) {
@@ -7240,7 +7463,7 @@ namespace fRuinsTalk {
                 }
             }
         }
-        if (static_cast<std::uint8_t>(pas::in_set<aConst::t_Hull, aConst::t_Engine, aConst::t_CargoHook, aConst::t_CargoHook>(Kind) ^ 1) && (Kind != aConst::t_Weapon1 || ConstructionWeapons[1].Item != nullptr)) {
+        if (static_cast<std::uint8_t>(pas::in_set<aConst::t_Hull, aConst::t_Engine, aConst::t_CargoHook, aConst::t_CargoHook>(Kind) ^ 1) && (Kind != aConst::WeaponCategoryItemType || ConstructionWeapons[1].Item != nullptr)) {
             AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.skip"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::SkipConstructionItem>(this));
         }
         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.cancel"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::DeclineDominionShipConstruction>(this));
@@ -7328,8 +7551,8 @@ namespace fRuinsTalk {
             }
         }
         aMyFunction::ReplaceTextToken(DialogText, u"<ItemList>"_w, Text, pas::WideString());
-        aMyFunction::ReplaceTextToken(DialogText, u"<TotalCost>"_w, pas::wide_int_to_str(fRuinsTalk::GetConstructionShopCost()), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<FreeSpace>"_w, pas::wide_int_to_str(fRuinsTalk::GetConstructionFreeSpace()), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<TotalCost>"_w, pas::wide_int_to_str(fRuinsTalk::GetConstructionShopCost()), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<FreeSpace>"_w, pas::wide_int_to_str(fRuinsTalk::GetConstructionFreeSpace()), aMyFunction::TextHighlightColorTag);
     }
 
     void TfRuinsTalk::ContinueDominionConstruction(pas::WideString PreviousItem) {
@@ -7340,7 +7563,7 @@ namespace fRuinsTalk {
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.AddedNothing"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<PrevItem>"_w, PreviousItem, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PrevItem>"_w, PreviousItem, aMyFunction::TextHighlightColorTag);
         AppendConstructionItemList();
         ClearChoices();
         if (ConstructionEquipment[aConst::t_Engine].Item == nullptr) {
@@ -7353,7 +7576,7 @@ namespace fRuinsTalk {
             BuildConstructionItemChoices(aConst::t_CargoHook);
             DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickCargoHook"_wref.get())});
         } else if (ConstructionWeapons[1].Item == nullptr) {
-            BuildConstructionItemChoices(aConst::t_Weapon1);
+            BuildConstructionItemChoices(aConst::WeaponCategoryItemType);
             DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickWeapon"_wref.get())});
         } else {
             CanAdd = false;
@@ -7427,7 +7650,7 @@ namespace fRuinsTalk {
         DialogText = pas::WideString();
         AppendConstructionItemList();
         ClearChoices();
-        BuildConstructionItemChoices(aConst::t_Weapon1);
+        BuildConstructionItemChoices(aConst::WeaponCategoryItemType);
         DialogText = pas::concat_wide({DialogText, u"\r\n", u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.PickWeapon"_wref.get())});
     }
 
@@ -7548,11 +7771,12 @@ namespace fRuinsTalk {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.ConstructPirate.CompletionTextNotPartner"_wref.get());
         }
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<FullName>"_w, std::move(fullName), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<FullName>"_w, std::move(fullName), textHighlightColorTag.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<CntMonth>"_w, pas::wide_int_to_str(Months), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<CntMonth>"_w, pas::wide_int_to_str(Months), aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -7584,7 +7808,7 @@ namespace fRuinsTalk {
                     }
                 }
                 aMyFunction::ReplaceTextToken(Text, u"<ItemName>"_w, aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName())), pas::WideString());
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), aMyFunction::TextHighlightColorTag);
             }
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range_2.next(I); ) {
@@ -7603,7 +7827,7 @@ namespace fRuinsTalk {
                     }
                 }
                 aMyFunction::ReplaceTextToken(Text, u"<ItemName>"_w, aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Artefact->GetDisplayName())), pas::WideString());
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->Cost), aMyFunction::TextHighlightColorTag);
             }
         }
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.Improvement.CBSeeItems"_wref.get());
@@ -7636,17 +7860,21 @@ namespace fRuinsTalk {
         std::int32_t NodeCost = 0;
         if (Item->OwnerId == aGalaxyStruct::oiDominator) {
             Text = aConst::LocalizedColorText(u"FormRuins.CB.Improvement.CBNeedCostImprovementNodes"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Nodes>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L * 1.5L)), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<Nodes>"_w, pas::wide_int64_to_str(System::Round(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L * 1.5L)), aMyFunction::TextHighlightColorTag);
             NodeCost = System::Round(pas::real_divide(Item->CalculateImprovementCost(aItem::ikMajor) * 0.01L * 1.5L * (100 - Discount), 1.0E+2L));
-            aMyFunction::ReplaceTextToken(Text, u"<NodesDiscount>"_w, pas::wide_int_to_str(NodeCost), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<NodesDiscount>"_w, pas::wide_int_to_str(NodeCost), aMyFunction::TextHighlightColorTag);
         } else {
             Text = aConst::LocalizedColorText(u"FormRuins.CB.Improvement.CBNeedCostImprovement"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMajor)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Item->CalculateImprovementCost(aItem::ikMajor)), aMyFunction::TextHighlightColorTag);
         std::int32_t MoneyCost = System::Round(pas::real_divide(Item->CalculateImprovementCost(aItem::ikMajor) * (100 - Discount), 1.0E+2L));
-        aMyFunction::ReplaceTextToken(Text, u"<MoneyDiscount>"_w, pas::wide_int_to_str(MoneyCost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<Discount>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Text, u"<FullName>"_w, aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName())), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<MoneyDiscount>"_w, pas::wide_int_to_str(MoneyCost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<Discount>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), aMyFunction::TextHighlightColorTag);
+        {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+            pas::WideString normalizeTextHighlightColors = aMyFunction::NormalizeTextHighlightColors(EC_Str::RemoveTextTagsW(Item->GetDisplayName()));
+            aMyFunction::ReplaceTextToken(Text, u"<FullName>"_w, std::move(normalizeTextHighlightColors), textHighlightColorTag.get());
+        }
         DialogText = Text;
         ClearChoices();
         if (aPlayer::GetPlayer()->GetAvailableNodeCount(nullptr) >= NodeCost && aPlayer::GetPlayer()->Money >= MoneyCost) {
@@ -7716,11 +7944,11 @@ namespace fRuinsTalk {
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.PirateLicense.CBAnswerProlongate"_wref.get());
         }
-        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(aMyFunction::RemapClamped(aPlayer::GetPlayer()->PirateLicenseTicks, 0.0, 365.0, aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman), 0.0));
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Discount>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), u"<color=255,240,100>"_w);
+        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(aMyFunction::RemapClamped(aPlayer::GetPlayer()->PirateLicenseTicks, 0.0, pas::constant(static_cast<double>(aGalaxyStruct::TurnsPerYear)), aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman), 0.0));
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Discount>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Discount)), aMyFunction::TextHighlightColorTag);
         Cost = System::Round(pas::real_divide(Cost * (100 - Discount), 1.0E+2L));
-        aMyFunction::ReplaceTextToken(DialogText, u"<DiscountMoney>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DiscountMoney>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->PirateLicenseTicks == 0) {
             if (aPlayer::GetPlayer()->Money >= Cost) {
@@ -7760,7 +7988,7 @@ namespace fRuinsTalk {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.PirateLicense.CBAfterOkProlongate"_wref.get());
         }
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Action);
-        aPlayer::GetPlayer()->PirateLicenseTicks = 365;
+        aPlayer::GetPlayer()->PirateLicenseTicks = aGalaxyStruct::TurnsPerYear;
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         M_Main(true);
     }
@@ -7771,18 +7999,19 @@ namespace fRuinsTalk {
         } else {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.PirateLicense.CBAfterNoProlongate"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(DialogText, u"<Days>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->PirateLicenseTicks), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Days>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->PirateLicenseTicks), aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
-    std::uint8_t TfRuinsTalk::CheckDominionServiceStanding(std::uint8_t RequiredRank, pas::WideString Prefix, float CreditCost) {
+    std::uint8_t TfRuinsTalk::CheckDominionServiceStanding(aGalaxyStruct::TShipRank RequiredRank, pas::WideString Prefix, float CreditCost) {
         std::uint8_t Result = false;
         if (aPlayer::GetPlayer()->PirateRank < RequiredRank) {
             DialogText = pas::concat_wide({Prefix, u" ", aConst::LocalizedColorText(u"FormRuins.CB.GenericRefuseNeedRank"_wref.get())});
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"RankPirate.", aConst::PirateRankNames[RequiredRank], u".Name"}));
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<PirateRank>"_w, std::move(localizedText), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<PirateRank>"_w, std::move(localizedText), textHighlightColorTag.get());
             }
             return Result;
         } else if (pas::real_divide(static_cast<long double>(aGalaxy::Galaxy->AverageRangerCapital) * CreditCost, 6.0E+2L) > aPlayer::GetPlayer()->PirateLicenseCash && aPlayer::GetPlayer()->PirateRank < 7) {
@@ -7818,7 +8047,7 @@ namespace fRuinsTalk {
         std::uint8_t Duplicate{};
         std::uint8_t Discount{};
         auto GetDominionTravelQuoteCost = [&](std::int32_t Index) -> std::int32_t {
-            return std::min<std::int64_t>(static_cast<std::int64_t>(100000000), System::Round(pas::real_divide(pas::real_divide(pas::real_divide(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman), DominionTravelQuotes[Index].DrawCount) * aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->CurrentStar->Position, DominionTravelQuotes[Index].Star->Position), 1.6E+3L) * (100 - Discount), 1.0E+2L)));
+            return std::min<std::int64_t>(static_cast<std::int64_t>(aGalaxyStruct::MaxMonetaryValue), System::Round(pas::real_divide(pas::real_divide(pas::real_divide(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman), DominionTravelQuotes[Index].DrawCount) * aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->CurrentStar->Position, DominionTravelQuotes[Index].Star->Position), 1.6E+3L) * (100 - Discount), 1.0E+2L)));
         };
         Discount = aPlayer::GetPlayer()->GetPirateServiceDiscount();
         if (aPlayer::GetPlayer()->DockedTo->CurrentStar->Status.Battle != 0) {
@@ -7878,17 +8107,17 @@ namespace fRuinsTalk {
         ClearChoices();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Count); cpp_range_2.next(I); ) {
             Text = aConst::LocalizedColorText(u"FormRuins.CB.ShuffleTeleport.ToStar"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, DominionTravelQuotes[I].Star->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(DominionTravelQuotes[I].Cost), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, DominionTravelQuotes[I].Star->Name, aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(DominionTravelQuotes[I].Cost), aMyFunction::TextHighlightColorTag);
             if (aPlayer::GetPlayer()->Money >= DominionTravelQuotes[I].Cost) {
                 AddChoice(pas::concat_wide({u"- ", Text}), I, pas::bind_method<&TfRuinsTalk::ConfirmDominionTravel>(this));
             } else {
                 AddChoice(pas::concat_wide({u"- ", Text}), 0, fTalk::ScriptDialogBlockCallback);
             }
             Text = aConst::LocalizedColorText(u"FormRuins.CB.ShuffleTeleport.ToList"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, DominionTravelQuotes[I].Star->Name, u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(DominionTravelQuotes[I].Cost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Dist>"_w, pas::wide_int64_to_str(System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, DominionTravelQuotes[I].Star->Position))), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, DominionTravelQuotes[I].Star->Name, aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(DominionTravelQuotes[I].Cost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Dist>"_w, pas::wide_int64_to_str(System::Round(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, DominionTravelQuotes[I].Star->Position))), aMyFunction::TextHighlightColorTag);
             DialogText = pas::concat_wide({DialogText, u"\r\n", pas::wide_int_to_str(I), u") ", Text});
         }
         AddChoice(pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.ShuffleTeleport.Refuse"_wref.get())}), 0, pas::bind_method<&TfRuinsTalk::DeclineDominionTravel>(this));
@@ -7896,8 +8125,8 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::ConfirmDominionTravel(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.ShuffleTeleport.CBConfirmation"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, DominionTravelQuotes[Action].Star->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(DominionTravelQuotes[Action].Cost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, DominionTravelQuotes[Action].Star->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(DominionTravelQuotes[Action].Cost), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptDominionTravel>(this);
@@ -7925,7 +8154,7 @@ namespace fRuinsTalk {
         TfRuinsTalk::SpendDominionServiceCredit(0.5f);
         reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->RelocationAge = (reinterpret_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->RelocationAge - 45) / 2;
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, aPlayer::GetPlayer()->QueuedTravelTarget->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, aPlayer::GetPlayer()->QueuedTravelTarget->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
@@ -7949,12 +8178,12 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk::DeclineDominionCancelTravel(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.ShuffleTeleport.CBAfterNoCancel"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, aPlayer::GetPlayer()->QueuedTravelTarget->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<FlyToStar>"_w, aPlayer::GetPlayer()->QueuedTravelTarget->Name, aMyFunction::TextHighlightColorTag);
         M_Main(true);
     }
 
     void TfRuinsTalk::ShowDominionRelocationDialog(std::int32_t Action) {
-        static const pas::Set<0, 255> StationMask = pas::constant_set<pas::Set<0, 255>>({{6, 12}});
+        static const pas::Set<0, 255> StationMask = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::rstRangerCenter, aGalaxyStruct::rstDominion}});
         std::int32_t I{};
         std::int32_t Index{};
         std::int32_t Cost{};
@@ -7992,7 +8221,8 @@ namespace fRuinsTalk {
                                 auto name = pas::borrow(Star->Name);
                                 pas::WideString intToStr = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Relocate.ToStar"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<ToStar>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
+                                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<ToStar>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
                             }())});
                             AddChoice(std::move(cpp_arg), 0, scriptDialogBlockCallback);
                         } else {
@@ -8000,7 +8230,8 @@ namespace fRuinsTalk {
                                 auto name_2 = pas::borrow(Star->Name);
                                 pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Relocate.ToStar"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<ToStar>"_w, name_2.get(), u"<Cost>"_w, std::move(intToStr_2));
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<ToStar>"_w, name_2.get(), u"<Cost>"_w, std::move(intToStr_2));
                             }())}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Star)), pas::bind_method<&TfRuinsTalk::AcceptDominionRelocation>(this));
                         }
                         // Native disabled choice uses the shared quote and <Money>, unlike the enabled choice.
@@ -8022,7 +8253,7 @@ namespace fRuinsTalk {
     void TfRuinsTalk::AcceptDominionRelocation(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Relocate.CBAfterConfirm"_wref.get());
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
-        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, Star->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, Star->Name, aMyFunction::TextHighlightColorTag);
         {
             std::int32_t cpp_right = fRuinsTalk::GetDominionRelocationCost(Star);
             std::int32_t cpp_arg = aPlayer::GetPlayer()->Money - cpp_right;
@@ -8137,10 +8368,10 @@ namespace fRuinsTalk {
             }
         }
         DialogText = aConst::LocalizedColorText(Path);
-        aMyFunction::ReplaceTextToken(DialogText, u"<CB>"_w, aPlayer::GetPlayer()->DockedTo->Name, u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(CoalitionPercent)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<DominatorsPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(DominatorPercent)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<PiratesPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(PiratePercent)), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<CB>"_w, aPlayer::GetPlayer()->DockedTo->Name, aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Percent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(CoalitionPercent)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<DominatorsPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(DominatorPercent)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<PiratesPercent>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(PiratePercent)), aMyFunction::TextHighlightColorTag);
         DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.WarWithKlingAndCoalition.ExtraTextAboutRanks"_wref.get())});
         BuildDominionWarOptions();
     }
@@ -8167,14 +8398,15 @@ namespace fRuinsTalk {
         }
         StationServiceQuoteCost = fRuinsTalk::ApplyRecentDominionOrderSurcharge(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman));
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.WarOperation.CBAboutWarOperation"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
         ClearChoices();
         if (aPlayer::GetPlayer()->Money >= StationServiceQuoteCost) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptDominionWarOperation>(this);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(StationServiceQuoteCost);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.WarOperation.PlayerOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
             }())});
             TfRuinsTalk* self_2 = this;
             self_2->AddChoice(std::move(cpp_arg_2), 0, cpp_arg);
@@ -8183,7 +8415,8 @@ namespace fRuinsTalk {
             pas::WideString cpp_arg_3 = pas::concat_wide({u"- ", ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(StationServiceQuoteCost);
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.WarOperation.PlayerOk"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
             }())});
             TfRuinsTalk* self_3 = this;
             self_3->AddChoice(std::move(cpp_arg_3), 0, scriptDialogBlockCallback);
@@ -8283,12 +8516,13 @@ namespace fRuinsTalk {
             Event->AddData(Target->Id);
             DialogText = pas::concat_wide({DialogText, u"\r\n", aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.WarOperation.CBAfterOkGood"_wref.get())});
             aMyFunction::ReplaceTextToken(DialogText, u"<Names>"_w, Names, pas::WideString());
-            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<StarEnemy>"_w, Target->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<StarEnemy>"_w, Target->Name, aMyFunction::TextHighlightColorTag);
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString name = Target->Constellation->GetName();
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<SectorEnemy>"_w, std::move(name), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<SectorEnemy>"_w, std::move(name), textHighlightColorTag.get());
             }
             ClearChoices();
             M_Main(true);
@@ -8327,18 +8561,18 @@ namespace fRuinsTalk {
         std::int32_t Turn = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->LiberationGroups) - 1); cpp_range.next(I); ) {
             Group = pas::list_at<aGroup::TGroup>(aGalaxy::Galaxy->LiberationGroups, I);
-            if (Group != nullptr) {
-                if (pas::list_count(Group->Ships) > 0) {
-                    Entry = Group->Route[Group->Route.length() - 1];
-                    if (Entry.Kind == 3) {
-                        Star = reinterpret_cast<aGalaxy::TStar*>(Entry.Target);
-                        if (Star != nullptr) {
-                            if (Star->IsConstellationVisible() && (Star->Status.ControlFaction != aGalaxyStruct::sfCoalition || Star->Status.CustomFaction != u"") && (Group->Route[2].WaitUntilTurn < Turn || Target == nullptr)) {
-                                Target = Star;
-                                Turn = Group->Route[2].WaitUntilTurn;
-                            }
-                        }
-                    }
+            if (Group == nullptr || pas::list_count(Group->Ships) <= 0) {
+                continue;
+            }
+            Entry = Group->Route[Group->Route.length() - 1];
+            if (Entry.Kind == aShip::soJump) {
+                Star = reinterpret_cast<aGalaxy::TStar*>(Entry.Target);
+                if (Star == nullptr) {
+                    continue;
+                }
+                if (Star->IsConstellationVisible() && (Star->Status.ControlFaction != aGalaxyStruct::sfCoalition || Star->Status.CustomFaction != u"") && (Group->Route[2].WaitUntilTurn < Turn || Target == nullptr)) {
+                    Target = Star;
+                    Turn = Group->Route[2].WaitUntilTurn;
                 }
             }
         }
@@ -8358,11 +8592,12 @@ namespace fRuinsTalk {
         }
         if (Turn - aGalaxy::Galaxy->CurrentTurn > 21) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Ambush.CBAnswerNoOperationsSoon"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, aMyFunction::TextHighlightColorTag);
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(Turn);
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatGameTurnDate), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<Date>"_w, std::move(formatGameTurnDate), textHighlightColorTag.get());
             }
             BuildDominionWarOptions();
             return;
@@ -8372,11 +8607,12 @@ namespace fRuinsTalk {
             if (Star->Dominion != nullptr) {
                 if (reinterpret_cast<aRuins::TRuins*>(Star->Dominion)->FlyToStar == Target) {
                     DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Ambush.CBAnswerAmbushAlreadyInProgress"_wref.get());
-                    aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, aMyFunction::TextHighlightColorTag);
                     {
+                        auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString formatGameTurnDate_2 = aGalaxy::FormatGameTurnDate(Turn);
                         pas::WideString& dialogText_2 = DialogText;
-                        aMyFunction::ReplaceTextToken(dialogText_2, u"<Date>"_w, std::move(formatGameTurnDate_2), u"<color=255,240,100>"_w);
+                        aMyFunction::ReplaceTextToken(dialogText_2, u"<Date>"_w, std::move(formatGameTurnDate_2), textHighlightColorTag_2.get());
                     }
                     BuildDominionWarOptions();
                     return;
@@ -8386,33 +8622,34 @@ namespace fRuinsTalk {
         std::int32_t Count = 0;
         Star = aPlayer::GetPlayer()->DockedTo->CurrentStar;
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(I); ) {
-            // Preserve index-before-receiver evaluation under DCC32 O-.
-            Ship = pas::list_at<aShip::TShip>(Star->Ships, I * 1);
+            Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
             if (static_cast<std::uint8_t>(Ship->InHyperspace ^ 1) && pas::class_cast_if<aPirate::TPirate*>(Ship) != nullptr && Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->PartnerShip == nullptr && Ship->ScriptShip == nullptr && static_cast<std::uint8_t>(Ship->HasScriptControl() ^ 1)) {
                 ++Count;
             }
         }
         if (Count < 8) {
             DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Ambush.CBAnswerNotEnoughPirates"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, aMyFunction::TextHighlightColorTag);
             {
+                auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString formatGameTurnDate_3 = aGalaxy::FormatGameTurnDate(Turn);
                 pas::WideString& dialogText_3 = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText_3, u"<Date>"_w, std::move(formatGameTurnDate_3), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText_3, u"<Date>"_w, std::move(formatGameTurnDate_3), textHighlightColorTag_3.get());
             }
             BuildDominionWarOptions();
             return;
         }
         ClearChoices();
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Ambush.CBAnswerOperationSoon"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, Target->Name, aMyFunction::TextHighlightColorTag);
         {
+            auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString formatGameTurnDate_4 = aGalaxy::FormatGameTurnDate(Turn);
             pas::WideString& dialogText_4 = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText_4, u"<Date>"_w, std::move(formatGameTurnDate_4), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText_4, u"<Date>"_w, std::move(formatGameTurnDate_4), textHighlightColorTag_4.get());
         }
         StationServiceQuoteCost = fRuinsTalk::ApplyRecentDominionOrderSurcharge(fRuinsTalk::GetDominionRelocationCost(Target) * 1.5L);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(StationServiceQuoteCost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(StationServiceQuoteCost), aMyFunction::TextHighlightColorTag);
         if (aPlayer::GetPlayer()->Money >= StationServiceQuoteCost) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfRuinsTalk::AcceptDominionAmbush>(this);
             pas::WideString cpp_arg_2 = pas::concat_wide({u"- ", aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Ambush.Confirm"_wref.get())});
@@ -8435,7 +8672,7 @@ namespace fRuinsTalk {
     void TfRuinsTalk::AcceptDominionAmbush(std::int32_t Action) {
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Ambush.CBAfterOk"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, Star->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, Star->Name, aMyFunction::TextHighlightColorTag);
         StationServiceQuoteCost = fRuinsTalk::ApplyRecentDominionOrderSurcharge(fRuinsTalk::GetDominionRelocationCost(Star) * 1.5L);
         aGalaxyEvent::TGalaxyEvent* Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerOrdersPirateAmbush"_w, nullptr);
         Event->AddData(Star->Id);
@@ -8463,7 +8700,7 @@ namespace fRuinsTalk {
         std::int32_t Cost{};
         aGalaxy::TStar* Star{};
         aGalaxyStruct::TStarFaction Faction{};
-        std::uint8_t Rank{};
+        aGalaxyStruct::TShipRank Rank{};
         float CreditCost{};
         ClearChoices();
         if (Action == 0) {
@@ -8507,7 +8744,8 @@ namespace fRuinsTalk {
                                 auto name = pas::borrow(Star->Name);
                                 pas::WideString intToStr = pas::wide_int_to_str(StationServiceQuoteCost);
                                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Assault.ToStar"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<ToStar>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
+                                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<ToStar>"_w, name.get(), u"<Money>"_w, std::move(intToStr));
                             }())});
                             AddChoice(std::move(cpp_arg), 0, scriptDialogBlockCallback);
                         } else {
@@ -8515,7 +8753,8 @@ namespace fRuinsTalk {
                                 auto name_2 = pas::borrow(Star->Name);
                                 pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Assault.ToStar"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<ToStar>"_w, name_2.get(), u"<Cost>"_w, std::move(intToStr_2));
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<ToStar>"_w, name_2.get(), u"<Cost>"_w, std::move(intToStr_2));
                             }())}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Star)), pas::bind_method<&TfRuinsTalk::AcceptDominionAssault>(this));
                         }
                         // Native disabled choice uses the shared quote and <Money>, unlike the enabled choice.
@@ -8537,7 +8776,7 @@ namespace fRuinsTalk {
     void TfRuinsTalk::AcceptDominionAssault(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormRuins.CB.WarPlans.Assault.CBAfterConfirm"_wref.get());
         aGalaxy::TStar* Star = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
-        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, Star->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<ToStar>"_w, Star->Name, aMyFunction::TextHighlightColorTag);
         {
             std::int32_t cpp_right = fRuinsTalk::ApplyRecentDominionOrderSurcharge(fRuinsTalk::GetDominionRelocationCost(Star) * 2.5L);
             std::int32_t cpp_arg = aPlayer::GetPlayer()->Money - cpp_right;

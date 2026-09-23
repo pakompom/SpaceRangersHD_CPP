@@ -360,7 +360,7 @@ namespace GI_StarFieldImg {
                                 pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(Data->GetSequenceFrameIndex(0, Star->FrameIndex), cpp_result), cpp_result);
                                 std::int32_t cpp_arg = Origin.Y + Bounds.Top;
                                 std::int32_t cpp_arg_2 = Origin.X + Bounds.Left;
-                                GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, 0x00ffffffu, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                                GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                             }
                         } else {
                             Frame = Data->LoadFrameGi(Data->GetSequenceFrameIndex(0, Star->FrameIndex));

@@ -55,6 +55,21 @@ namespace Globals {
 
     struct TPlanetAdvtList;
 
+    // PlayerMessagePresentations order, also persisted in the message queue.
+    enum TPlayerMessageKind : std::uint8_t {
+        pmGalaxyNews = 0,
+        pmRadio = 1,
+        pmShipPositive = 2,
+        pmQuestActive = 3,
+        pmQuestSucceeded = 4,
+        pmQuestCancelled = 5,
+        pmTip = 6,
+        pmUserNote = 7,
+        pmShipNegative = 8,
+        pmStorage = 9,
+        pmRadioPlayer = 10,
+    };
+
     #pragma pack(push, 1)
     struct TPlayerMessageTarget {
         std::uint32_t ShipId;
@@ -76,7 +91,7 @@ namespace Globals {
         TMessagePlayer* Prev;
         TMessagePlayer* Next;
         pas::WideString Key;
-        std::uint8_t Kind;
+        TPlayerMessageKind Kind;
         std::uint8_t cpp_padding[3];
         pas::WideString ImageNameOverride;
         // 0: new message; 1: system liberation; some message kinds override it.
@@ -198,7 +213,7 @@ namespace Globals {
         pas::WideString Image2;
         // Clamped to -1..1.
         std::int32_t War;
-        // 0..7, or 42 when absent/unrecognized.
+        // 0..7, or UnspecifiedGoods when absent/unrecognized.
         std::uint8_t Goods;
         aGalaxyStruct::TOwnerMask Owner;
         std::uint8_t cpp_padding[2];
@@ -223,7 +238,14 @@ namespace Globals {
 
     using TGreetingMask = pas::Set<0, 7>;
 
-    // Byte predicates use 0=Yes, 1=No, 2=Any; omitted-field defaults vary by rule.
+    // Greeting configuration predicates; omitted-field defaults vary by rule.
+    enum TGreetingCondition : std::uint8_t {
+        gcYes = 0,
+        gcNo = 1,
+        gcAny = 2,
+    };
+
+    // Three-valued predicates preserve each rule's omitted-field default.
     // Native record RTTI.
     struct TGovGreetingsInfo {
         pas::WideString Name;
@@ -234,9 +256,9 @@ namespace Globals {
         TGreetingMask PlayerRank;
         std::uint8_t Goods;
         aGalaxyStruct::TOwnerMask CurPlanetRace;
-        std::uint8_t CurPlanetRaceIsPlayerRace;
+        TGreetingCondition CurPlanetRaceIsPlayerRace;
         aGalaxyStruct::TRelationLevels CurPlanetRelations;
-        std::uint8_t CurPlanetGoodsPermit;
+        TGreetingCondition CurPlanetGoodsPermit;
         TGreetingMask CurPlanetGoodsCnt;
         TGreetingMask CurPlanetGoodsSale;
         TGreetingMask CurPlanetGoodsBuy;
@@ -247,55 +269,65 @@ namespace Globals {
         aGalaxyStruct::TGreetingCountMask KlingInCurStar;
         aGalaxyStruct::TGreetingCountMask WarriorInCurStar;
         aGalaxyStruct::TGreetingCountMask TransportInCurStar;
-        std::uint8_t CurStarInBattle;
+        TGreetingCondition CurStarInBattle;
         aGalaxyStruct::TOwnerMask ToPlanetRace;
-        std::uint8_t ToPlanetRaceIsPlayerRace;
-        std::uint8_t ToPlanetRaceIsCurPlanetRace;
+        TGreetingCondition ToPlanetRaceIsPlayerRace;
+        TGreetingCondition ToPlanetRaceIsCurPlanetRace;
         aGalaxyStruct::TRelationLevels ToPlanetRelations;
-        std::uint8_t ToPlanetGoodsPermit;
+        TGreetingCondition ToPlanetGoodsPermit;
         TGreetingMask ToPlanetGoodsCnt;
         TGreetingMask ToPlanetGoodsSale;
         TGreetingMask ToPlanetGoodsBuy;
         aGalaxyStruct::TPlanetEconomies ToPlanetEconomy;
         aGalaxyStruct::TPlanetGovernments ToPlanetGovernment;
-        std::uint8_t ToPlanetInCurStar;
+        TGreetingCondition ToPlanetInCurStar;
         aGalaxyStruct::TGreetingCountMask RangerInToStar;
         aGalaxyStruct::TGreetingCountMask PirateInToStar;
         aGalaxyStruct::TGreetingCountMask KlingInToStar;
         aGalaxyStruct::TGreetingCountMask WarriorInToStar;
         aGalaxyStruct::TGreetingCountMask TransportInToStar;
-        std::uint8_t ToStarControlByKling;
-        std::uint8_t ToStarInBattle;
-        std::uint8_t CurPlanetPirateClan;
-        std::uint8_t CurStarInBattlePirates;
+        TGreetingCondition ToStarControlByKling;
+        TGreetingCondition ToStarInBattle;
+        TGreetingCondition CurPlanetPirateClan;
+        TGreetingCondition CurStarInBattlePirates;
         aGalaxyStruct::TGreetingCountMask PirateClanInCurStar;
         aGalaxyStruct::TGreetingCountMask PirateClanInToStar;
-        std::uint8_t ToStarControlByPirates;
-        std::uint8_t CoalitionAlreadyDefeated;
-        std::uint8_t DominatorsAlreadyDefeated;
+        TGreetingCondition ToStarControlByPirates;
+        TGreetingCondition CoalitionAlreadyDefeated;
+        TGreetingCondition DominatorsAlreadyDefeated;
         TGreetingMask PlayerPirateRank;
         std::uint8_t cpp_padding[2];
     };
+
+    enum TGreetingFlightKind : std::uint8_t {
+        gfAny = 0,
+        gfToPlanet = 1,
+        gfToStar = 2,
+        gfToItem = 3,
+        gfToShip = 4,
+    };
+
+    using TGreetingShipCategories = pas::Set<0, 7>;
 
     // Native record RTTI.
     struct TShipGreetingsInfo {
         pas::WideString Name;
         std::int32_t Priority;
-        std::uint8_t AutoTalk;
-        std::uint8_t FlyType;
-        TGreetingMask ShipType;
+        TGreetingCondition AutoTalk;
+        TGreetingFlightKind FlyType;
+        TGreetingShipCategories ShipType;
         aGalaxyStruct::TRelationLevels Relations;
         aGalaxyStruct::TOwnerMask ShipRace;
         aGalaxyStruct::TOwnerMask PlayerRace;
-        std::uint8_t ShipRaceIsPlayerRace;
-        std::uint8_t PlayerAttackGoodShip;
-        std::uint8_t InFear;
-        std::uint8_t ShipBadFlyToShip;
-        TGreetingMask ShipBadType;
+        TGreetingCondition ShipRaceIsPlayerRace;
+        TGreetingCondition PlayerAttackGoodShip;
+        TGreetingCondition InFear;
+        TGreetingCondition ShipBadFlyToShip;
+        TGreetingShipCategories ShipBadType;
         aGalaxyStruct::TOwnerMask ShipBadRace;
-        std::uint8_t ShipFlyToPlayer;
-        std::uint8_t PlayerFlyToShip;
-        std::uint8_t PlayerIsShipBad;
+        TGreetingCondition ShipFlyToPlayer;
+        TGreetingCondition PlayerFlyToShip;
+        TGreetingCondition PlayerIsShipBad;
         aGalaxyStruct::TGreetingCountMask ShipTurnBeforeEndOrder;
         aGalaxyStruct::TGreetingCountMask PlayerTurnBeforeEndOrder;
         aGalaxyStruct::TGreetingCountMask ShipBadTurnBeforeEndOrder;
@@ -315,11 +347,11 @@ namespace Globals {
         std::uint8_t Goods;
         TGreetingMask ShipGoodsCnt;
         TGreetingMask PlayerGoodsCnt;
-        std::uint8_t ShipHaveGoods;
-        std::uint8_t PlayerHaveGoods;
+        TGreetingCondition ShipHaveGoods;
+        TGreetingCondition PlayerHaveGoods;
         aGalaxyStruct::TGreetingCountMask ShipGoodsTypeCnt;
         aGalaxyStruct::TGreetingCountMask PlayerGoodsTypeCnt;
-        std::uint8_t ShipMayScanPlayer;
+        TGreetingCondition ShipMayScanPlayer;
         aGalaxyStruct::TGreetingCountMask RangerInCurStar;
         aGalaxyStruct::TGreetingCountMask PirateInCurStar;
         aGalaxyStruct::TGreetingCountMask KlingInCurStar;
@@ -330,12 +362,12 @@ namespace Globals {
         TGreetingMask LastPlanetGoodsCnt;
         TGreetingMask LastPlanetGoodsSale;
         TGreetingMask LastPlanetGoodsBuy;
-        std::uint8_t LastPlanetIsHomePlanet;
-        std::uint8_t LastPlanetRaceIsShipRace;
-        std::uint8_t LastPlanetRaceIsPlayerRace;
+        TGreetingCondition LastPlanetIsHomePlanet;
+        TGreetingCondition LastPlanetRaceIsShipRace;
+        TGreetingCondition LastPlanetRaceIsPlayerRace;
         aGalaxyStruct::TPlanetEconomies LastPlanetEconomy;
         aGalaxyStruct::TPlanetGovernments LastPlanetGovernment;
-        std::uint8_t LastPlanetInCurStar;
+        TGreetingCondition LastPlanetInCurStar;
         aGalaxyStruct::TGreetingCountMask LastPlanetDistToShipInTurn;
         aGalaxyStruct::TGreetingCountMask RangerInLastPlanetStar;
         aGalaxyStruct::TGreetingCountMask PirateInLastPlanetStar;
@@ -347,17 +379,17 @@ namespace Globals {
         TGreetingMask ToPlanetGoodsCnt;
         TGreetingMask ToPlanetGoodsSale;
         TGreetingMask ToPlanetGoodsBuy;
-        std::uint8_t ToPlanetIsHomePlanet;
-        std::uint8_t ToPlanetRaceIsShipRace;
-        std::uint8_t ToPlanetRaceIsPlayerRace;
+        TGreetingCondition ToPlanetIsHomePlanet;
+        TGreetingCondition ToPlanetRaceIsShipRace;
+        TGreetingCondition ToPlanetRaceIsPlayerRace;
         aGalaxyStruct::TPlanetEconomies ToPlanetEconomy;
         aGalaxyStruct::TPlanetGovernments ToPlanetGovernment;
-        std::uint8_t ToPlanetIsLastPlanet;
-        std::uint8_t ToPlanetRaceIsLastPlanetRace;
-        std::uint8_t HomePlanetInToStar;
-        std::uint8_t HomePlanetInCurStar;
-        std::uint8_t ToStarControlByKling;
-        std::uint8_t ToStarInBattle;
+        TGreetingCondition ToPlanetIsLastPlanet;
+        TGreetingCondition ToPlanetRaceIsLastPlanetRace;
+        TGreetingCondition HomePlanetInToStar;
+        TGreetingCondition HomePlanetInCurStar;
+        TGreetingCondition ToStarControlByKling;
+        TGreetingCondition ToStarInBattle;
         aGalaxyStruct::TGreetingCountMask RangerInToStar;
         aGalaxyStruct::TGreetingCountMask PirateInToStar;
         aGalaxyStruct::TGreetingCountMask KlingInToStar;
@@ -365,21 +397,21 @@ namespace Globals {
         aGalaxyStruct::TGreetingCountMask TransportInToStar;
         std::uint8_t cpp_padding[1];
         pas::WideString ItemType;
-        std::uint8_t ShipNeedInItem;
-        TGreetingMask ToShipType;
+        TGreetingCondition ShipNeedInItem;
+        TGreetingShipCategories ToShipType;
         aGalaxyStruct::TOwnerMask ToShipRace;
-        std::uint8_t ToShipInPlanet;
-        std::uint8_t ToShipBad;
+        TGreetingCondition ToShipInPlanet;
+        TGreetingCondition ToShipBad;
         aGalaxyStruct::TRelationLevels ToShipRelations;
         // Second field loaded from RankShipWithPlayer; the normal-ship consumer compares PirateRank.
         TGreetingMask RankShipWithPlayerExtra;
         TGreetingMask PlayerPirateRank;
         std::uint8_t Female;
-        std::uint8_t ToStarControlByPirates;
+        TGreetingCondition ToStarControlByPirates;
         aGalaxyStruct::TGreetingCountMask PirateClanInCurStar;
         aGalaxyStruct::TGreetingCountMask PirateClanInToStar;
-        std::uint8_t CoalitionAlreadyDefeated;
-        std::uint8_t DominatorsAlreadyDefeated;
+        TGreetingCondition CoalitionAlreadyDefeated;
+        TGreetingCondition DominatorsAlreadyDefeated;
     };
 
     // Native record RTTI.
@@ -390,8 +422,11 @@ namespace Globals {
         std::int32_t LifetimeTurns;
     };
 
-    using TPlayerMessageKindSet = pas::Set<0, 15>;
+    using TPlayerMessageKindSet = pas::Set<0, 10>;
 
     using PPlanetAdvertDefinition = TPlanetAdvtGroup*;
+
+    // Finite native lifetime for retained notices.
+    inline constexpr std::int32_t PersistentMessageLifetimeTurns = 1000000;
 
 } // namespace Globals

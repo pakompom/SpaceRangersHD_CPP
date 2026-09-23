@@ -133,6 +133,14 @@ namespace aShip {
 
     using TWeaponCount = std::uint8_t;
 
+    // Follow modes in OrderStateData; unknown byte values are preserved.
+    enum TFollowMode : std::uint8_t {
+        fmFollowNear = 0,
+        fmMinWeaponRange = 1,
+        fmMaxWeaponRange = 2,
+        fmKamikaze = 3,
+    };
+
     using TPilotSkillLevel = std::uint8_t;
 
     enum TCombatStatusEffectType : std::uint8_t {
@@ -162,8 +170,6 @@ namespace aShip {
         void SetMoney(std::int32_t Value);
         // Can cancel the player's jump when remaining fuel is insufficient.
         void ProcessBrokenFuelTankLeak();
-        // Zero-byte pointer additions below retain native argument evaluation order
-        // without narrowing object addresses to Integer.
         // Can unlock carried equipment use/repair and notify the player.
         void RefreshTechKnowledgeAtLocation();
         virtual void virtual_TShip_NextDay();
@@ -175,7 +181,7 @@ namespace aShip {
         virtual pas::WideString GetTypeNameKey();
         pas::WideString GetLocalizedTypeName();
         pas::WideString GetFactionNameKey();
-        std::uint8_t GetDefaultHullType();
+        aGalaxyStruct::THullType GetDefaultHullType();
         std::int32_t NextRandomInteger(std::int32_t Minimum, std::int32_t Maximum);
         virtual std::int32_t GetDesiredCargoFreeSpace();
         std::uint8_t IsHullDestroyed();
@@ -209,7 +215,7 @@ namespace aShip {
         pas::WideString GetShipPortraitImagePath();
         // Reads the player rather than Self; requires a player.
         static std::uint8_t HasPlayerChameleonCharges();
-        std::uint8_t SelectChameleonVisualType();
+        aGalaxyStruct::TKlingType SelectChameleonVisualType();
         // Requires a player; action-17 script handlers can override the default result.
         std::uint8_t IsPlayerChameleonEffectiveAgainstSelf();
         void CreateNormalGraphic();
@@ -233,7 +239,7 @@ namespace aShip {
         // Requires a non-nil queue ordered with current-star planets first; otherwise falls back to the first entry. Empty queue returns nil.
         aPlanet::TPlanet* SelectNearestQueuedPlanet();
         // Types 6..13 whose CanDock(Self) succeeds. Zero mask permits every standing; does not independently filter hyperspace/docking.
-        TShip* FindNearestDockableStation(aGalaxyStruct::TStationStandingMask StandingMask);
+        TShip* FindNearestDockableStation(aGalaxyStruct::TShipStandings StandingMask);
         // Requires a nonempty planet list; returns the last planet if all are uninhabited.
         aPlanet::TPlanet* FindFirstInhabitedPlanetInStar();
         // Can build PlanetQueue and issue a landing or jump order. Result is borrowed and may be nil.
@@ -385,10 +391,10 @@ namespace aShip {
         std::int32_t GetCargoGoodsWeight();
         // Requires a follow order; uses weapon ranges or the ships' collision radii.
         std::int32_t CalculateFollowRadius();
-        // Raises when the current order is not follow.
-        std::uint8_t GetFollowMode();
-        // Requires a follow order; applies tactical and map-edge adjustments without modifying OrderStateData.
-        std::uint8_t GetEffectiveFollowMode();
+        // Requires a follow order.
+        TFollowMode GetFollowMode();
+        // Requires a follow order; adjusts the mode for tactics and map boundaries without changing the order.
+        TFollowMode GetEffectiveFollowMode();
         std::uint8_t NeedsEquipmentType(aConst::TItemType ItemType);
         // Includes equipped artefacts.
         std::int32_t CalculateEquippedItemCostWithoutHull();
@@ -527,7 +533,7 @@ namespace aShip {
         // Location is a planet or dockable ship.
         void OrderLanding(pas::Object* Location, std::uint8_t Absolute);
         void OrderTakeoff();
-        void OrderFollowShip(TShip* Ship, std::uint8_t FollowMode, std::uint8_t Absolute);
+        void OrderFollowShip(TShip* Ship, TFollowMode FollowMode, std::uint8_t Absolute);
         // Ceiling of active path-node count times the star's MovementStepScale.
         std::int32_t GetMovementPathTurnCount();
         void PrepareTurnMovement(std::int32_t StartStepIndex, std::uint8_t RecordFilm);
@@ -625,7 +631,7 @@ namespace aShip {
         // Requires ScriptShip; matches the state's group in the current system.
         TShip* FindScriptFollowTarget();
         // Source kind 0 bypasses diminishing returns.
-        void GainExperience(std::int32_t Amount, std::uint8_t SourceKind);
+        void GainExperience(std::int32_t Amount, aGalaxyStruct::TExperienceSource SourceKind);
         // Subtracts independently from total and free experience, capped at each current balance.
         void RemoveExperience(std::int32_t Amount);
         // Deposits every carried stack and awards experience.
@@ -650,8 +656,8 @@ namespace aShip {
         std::int32_t CountPresentDiseasesAndActiveStimulants();
         std::uint8_t HasDiseaseFromCurrentPlanet();
         std::uint8_t HasDiseaseFromCurrentDockedShip();
-        // Captain effect is active only when Progress equals 100.
-        std::uint8_t IsHealthEffectActive(std::int32_t Index);
+        // Active when Progress = 100.
+        std::uint8_t IsHealthEffectActive(aGalaxyStruct::TCaptainHealthEffect Index);
         void SimulateNpcHealthEffects();
         std::uint8_t HasRadiationSickness();
         virtual std::int32_t CalculateSpeed();
@@ -709,9 +715,9 @@ namespace aShip {
         // Requires a nonempty faction other than the exact SubFactionFixedStanding marker.
         std::uint8_t HasNamedScriptFaction();
         // 0 normal, 1 independent faction, 2 fixed standing. The SubFaction substring test accepts absence as mode one.
-        std::int32_t GetScriptStandingOverrideMode();
+        aGalaxyStruct::TScriptStandingOverrideMode GetScriptStandingOverrideMode();
         // Returns Param after script handlers modify it; object slots may carry event-specific integer values.
-        std::int32_t ScriptItemsAct(std::uint8_t ActionType, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+        std::int32_t ScriptItemsAct(aGalaxyStruct::TScriptActionType ActionType, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
         virtual std::uint8_t virtual_TShip_CanDock(TShip* Ship);
         // Base implementation clears Response and returns false.
         virtual std::uint8_t CheckDockingPermission(TShip* Ship, pas::WideString& Response);
@@ -720,7 +726,7 @@ namespace aShip {
         virtual pas::WideString GetName() = 0;
         virtual pas::WideString GetFullName(const pas::WideString& Separator) = 0;
         // Category bit in ship-greeting ShipType, ToShipType and ShipBadType filters.
-        virtual std::uint8_t GetGreetingShipCategory() = 0;
+        virtual aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() = 0;
         virtual aGalaxy::TStar* GetHomeStar() = 0;
         virtual aGalaxyStruct::TRangerCareer GetDominantCareer() = 0;
         virtual aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() = 0;
@@ -750,8 +756,7 @@ namespace aShip {
         std::int32_t Id;
         pas::WideString Name;
         pas::WideString TypeNameOverrideKey;
-        // st* ship codes and TStationType station codes are declared in aGalaxyStruct.
-        std::uint8_t TypeId;
+        aGalaxyStruct::TShipType TypeId;
         aGalaxyStruct::TOwnerId OwnerId;
         std::uint8_t cpp_padding[2];
         EC_Struct::TPointF Position;
@@ -888,7 +893,7 @@ namespace aShip {
         std::uint8_t ChameleonActive;
         aGalaxyStruct::TDominatorSeries ChameleonSeries;
         // Hull-dependent disguise silhouette.
-        std::uint8_t ChameleonVisualType;
+        aGalaxyStruct::TKlingType ChameleonVisualType;
         // Serialized counter displayed in active chameleon info (); no gameplay update recovered.
         std::int32_t ChameleonDisplayCount;
         // TDominatorSeries order.
@@ -926,7 +931,7 @@ namespace aShip {
         // Borrowed auxiliary graphic entry.
         aEFilm::TEFilmObj* AuxiliaryFilmObject;
         // ss* faction-combat category, exposed by Script.ShipStanding.
-        std::uint8_t CurrentStanding;
+        aGalaxyStruct::TShipStanding CurrentStanding;
         std::uint8_t cpp_padding_17[3];
         std::int32_t SmoothedSpeed;
         // Retained while EnemyShip is absent or outside this system.

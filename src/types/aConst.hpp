@@ -128,7 +128,7 @@ namespace aConst {
         pas::WideString ConfigName;
         std::uint8_t TechLevel;
         // Planetary invention used to determine the available weapon level.
-        std::uint8_t InventionIndex;
+        aGalaxyStruct::TPlanetInvention InventionIndex;
         std::uint8_t cpp_padding_2[2];
         float CostFactor;
         std::int32_t MinDamage;
@@ -228,7 +228,7 @@ namespace aConst {
         pas::WideString Text;
     };
 
-    using THullShipTypeMask = pas::Set<0, 15>;
+    using THullShipTypeMask = pas::Set<0, 10>;
 
     using TEquipmentBonuses = pas::Array<std::int32_t, 0, 42>;
 
@@ -404,7 +404,7 @@ namespace aConst {
 
     // Native record RTTI.
     struct TKlingTypeInfo {
-        // Indexed by TDominatorSeries; replaced by localized names during configuration loading.
+        // Replaced by localized ShipType.Dominator names during configuration loading.
         pas::Array<pas::WideString, 0, 2> DisplayNames;
         // InitGenerated (): random hull-size bounds before HullCapacityScale.
         std::int32_t MinimumHullSize;
@@ -436,6 +436,8 @@ namespace aConst {
     };
     #pragma pack(pop)
 
+    using THealthLocations = pas::Set<0, 3>;
+
     // Native record RTTI.
     // Native TIllnessInfo RTTI.
     struct TIllnessInfo {
@@ -452,11 +454,18 @@ namespace aConst {
         // Progress increment factor.
         double DevelopmentRate;
         double InfectionChance;
-        // Bits 0=planet, 1=ship interior, 2=normal space, 3=combat infection.
-        aGalaxyStruct::TByteMask Locations;
+        THealthLocations Locations;
         std::uint8_t Disabled;
         std::uint8_t cpp_padding_2[2];
         std::int32_t Duration;
+    };
+
+    // Locations where captain health effects can be acquired.
+    enum THealthLocation : std::uint8_t {
+        hlPlanet = 0,
+        hlDocked = 1,
+        hlNormalSpace = 2,
+        hlCombat = 3,
     };
 
     using TRadiationHealthDefinitions = pas::Array<TIllnessInfo, 1, 1>;
@@ -496,9 +505,14 @@ namespace aConst {
 
     using TStationEquipmentOfferQuotaTable = pas::Array<TStationEquipmentOfferQuota, 6, 13>;
 
-    using TEquipmentInventionIndexTable = pas::Array<std::uint8_t, 42, 49>;
+    using TEquipmentInventionIndexTable = pas::Array<aGalaxyStruct::TPlanetInvention, 42, 49>;
 
     using TOwnerWeaponAvailabilityTable = pas::Array<aGalaxyStruct::TWeaponAvailability, 0, 7>;
+
+    // Nine quotas per Coalition race, with every weapon sharing the final category.
+    using TPlanetEquipmentOfferQuotaRow = pas::Array<std::int32_t, 42, 50>;
+
+    using TPlanetEquipmentOfferQuotaTable = pas::Array<TPlanetEquipmentOfferQuotaRow, 0, 4>;
 
     // Native record RTTI.
     struct TStatusInfo {
@@ -519,117 +533,51 @@ namespace aConst {
         // Native initialization names the research levels.
         pas::WideString Name;
         std::uint8_t InitialLevel;
-        // Compared with InventionLevels[7], not ResearchLevelPercent.
+        // Compared with InventionLevels[piMainTech], not ResearchLevelPercent.
         std::uint8_t RequiredMainTechLevel;
         std::uint8_t cpp_padding[2];
     };
 
-    // Ordinals of the native ScriptActionTypeNames table.
-    // These ordinary constants preserve the byte API and existing set layout.
-    inline constexpr std::int32_t satOnStep = 0;
+    using TDominatorDisplayIndex = std::uint8_t;
 
-    inline constexpr std::int32_t satOnWeaponShot = 1;
+    // English Items.Weapon.Name resource names; retain the native enum spellings for RTTI.
+    inline constexpr aConst::TItemType t_IndustrialLaser = aConst::t_Weapon1;
 
-    inline constexpr std::int32_t satOnMissileShot = 2;
+    inline constexpr aConst::TItemType t_FragmentationCannon = aConst::t_Weapon2;
 
-    inline constexpr std::int32_t satOnDealingDamage = 3;
+    inline constexpr aConst::TItemType t_Flux = aConst::t_Weapon3;
 
-    inline constexpr std::int32_t satOnDealingFatalDamage = 4;
+    inline constexpr aConst::TItemType t_MissileLauncher = aConst::t_Weapon4;
 
-    inline constexpr std::int32_t satOnDealingKamikazeDamage = 5;
+    inline constexpr aConst::TItemType t_Treton = aConst::t_Weapon5;
 
-    inline constexpr std::int32_t satOnTakingDamage = 6;
+    inline constexpr aConst::TItemType t_WavePhaser = aConst::t_Weapon6;
 
-    inline constexpr std::int32_t satOnWeaponShot2 = 10;
+    inline constexpr aConst::TItemType t_FlowBlaster = aConst::t_Weapon7;
 
-    inline constexpr std::int32_t satOnMissileShot2 = 11;
+    inline constexpr aConst::TItemType t_ElectronicCutter = aConst::t_Weapon8;
 
-    inline constexpr std::int32_t satOnGettingWeaponHit = 12;
+    inline constexpr aConst::TItemType t_Multiresonator = aConst::t_Weapon9;
 
-    inline constexpr std::int32_t satOnGettingMissileHit = 13;
+    inline constexpr aConst::TItemType t_AtomicVision = aConst::t_Weapon10;
 
-    inline constexpr std::int32_t satOnDroidRepair = 14;
+    inline constexpr aConst::TItemType t_Disintegrator = aConst::t_Weapon11;
 
-    inline constexpr std::int32_t satOnItemPickUp = 15;
+    inline constexpr aConst::TItemType t_Turbogravitron = aConst::t_Weapon12;
 
-    inline constexpr std::int32_t satOnChameleonConfusion = 17;
+    inline constexpr aConst::TItemType t_IMHO9000 = aConst::t_Weapon13;
 
-    inline constexpr std::int32_t satOnAnotherItem = 19;
+    inline constexpr aConst::TItemType t_Vertix = aConst::t_Weapon14;
 
-    inline constexpr std::int32_t satOnAnotherItem2 = 20;
+    inline constexpr aConst::TItemType t_TorpedoTube = aConst::t_Weapon15;
 
-    inline constexpr std::int32_t satOnAnotherGoods = 21;
+    inline constexpr aConst::TItemType t_Esodapher = aConst::t_Weapon16;
 
-    inline constexpr std::int32_t satOnItemHit = 22;
+    inline constexpr aConst::TItemType t_Caphasitor = aConst::t_Weapon17;
 
-    inline constexpr std::int32_t satOnMissileHittingObject = 23;
+    inline constexpr aConst::TItemType t_Lirecron = aConst::t_Weapon18;
 
-    inline constexpr std::int32_t satOnEnteringForm = 24;
-
-    inline constexpr std::int32_t satOnLeavingForm = 25;
-
-    inline constexpr std::int32_t satOnReEnteringForm = 26;
-
-    inline constexpr std::int32_t satOnEnteringOtherShip = 27;
-
-    inline constexpr std::int32_t satOnReEnteringOtherShip = 29;
-
-    inline constexpr std::int32_t satOnPlayerSkillIncrease = 30;
-
-    inline constexpr std::int32_t satOnPlayerTalkedWithShip = 31;
-
-    inline constexpr std::int32_t satOnShipTalkedWithPlayer = 32;
-
-    inline constexpr std::int32_t satOnDropItem = 33;
-
-    inline constexpr std::int32_t satOnDropItemFixed = 34;
-
-    inline constexpr std::int32_t satOnMovingItemToStorage = 35;
-
-    inline constexpr std::int32_t satOnReduceEqBattle = 36;
-
-    inline constexpr std::int32_t satOnReduceEqUse = 37;
-
-    inline constexpr std::int32_t satOnReduceEqForce = 38;
-
-    inline constexpr std::int32_t satOnReduceEqForsage = 39;
-
-    inline constexpr std::int32_t satOnItemDestroy = 40;
-
-    inline constexpr std::int32_t satOnPlayerChangeHull = 41;
-
-    inline constexpr std::int32_t satOnPlayerUseMM = 42;
-
-    inline constexpr std::int32_t satOnPlayerBuyEq = 43;
-
-    inline constexpr std::int32_t satOnItemEquip = 44;
-
-    inline constexpr std::int32_t satOnItemDeEquip = 45;
-
-    inline constexpr std::int32_t satOnTrancPacking = 46;
-
-    inline constexpr std::int32_t satOnShipBuysGoods = 47;
-
-    inline constexpr std::int32_t satOnShipSellsGoods = 48;
-
-    inline constexpr std::int32_t satOnShowingItemInfo = 49;
-
-    inline constexpr std::int32_t satOnShowingShipInfo = 50;
-
-    inline constexpr std::int32_t satOnShowingStarInfo = 51;
-
-    inline constexpr std::int32_t satOnNonStandartEqChange = 52;
-
-    inline constexpr std::int32_t satOnABItemDrop = 56;
-
-    inline constexpr std::int32_t satOnGovItemReward = 57;
-
-    inline constexpr std::int32_t satOnCheckingUsability = 58;
-
-    inline constexpr std::int32_t satOnCheckingUsability2 = 59;
-
-    inline constexpr std::int32_t satOnCheckingUsabilityGoods = 60;
-
-    inline constexpr std::int32_t satOnDeath = 61;
+    // Equipment slot and shop APIs use the first weapon type to represent all weapons.
+    inline constexpr aConst::TItemType WeaponCategoryItemType = aConst::t_IndustrialLaser;
 
 } // namespace aConst

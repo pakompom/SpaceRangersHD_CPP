@@ -471,13 +471,11 @@ namespace EC_Cache {
                 }
                 Control = Control->NextBoundControl;
             }
-            if (Control != nullptr) {
-                continue;
+            if (Control == nullptr) {
+                RemainingBytes -= Removed->ResidentBytes;
+                ResidentBytes -= Removed->ResidentBytes;
+                RemoveAndFreeData(Removed);
             }
-            RemainingBytes -= Removed->ResidentBytes;
-            // DCC32 O- folds +0 after register selection, evaluating the size first.
-            ResidentBytes -= Removed->ResidentBytes + 0;
-            RemoveAndFreeData(Removed);
         }
         pas::critical_leave(CacheLock);
     }

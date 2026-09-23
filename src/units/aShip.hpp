@@ -38,7 +38,7 @@ namespace aShip {
     extern std::int8_t SimulationContext;
 
     // Energy, splinter and missile hit callbacks.
-    extern pas::Array<std::uint8_t, 0, 2> DamageScriptActionTypes;
+    extern pas::Array<aGalaxyStruct::TScriptActionType, 0, 2> DamageScriptActionTypes;
 
     // Reused script-event payload for the goods leaving the ship.
     extern aItem::TGoods* TradeGoodsSold;
@@ -104,7 +104,7 @@ namespace aShip {
     extern const pas::Array<double, 0, 7> DominatorProgramDropCostFactors;
 
     // Allocates an unregistered instance; caller must initialize or deserialize it.
-    TShip* CreateShipByType(std::uint8_t ShipType);
+    TShip* CreateShipByType(aGalaxyStruct::TShipType ShipType);
 
     // Lists contain TShip. Sum of pairwise ChanceToWin divided by Opponents.Count squared; requires nonempty Opponents when Ships is nonempty.
     float CompareShipGroupsStrength(pas::List* Ships, pas::List* Opponents);
@@ -263,7 +263,7 @@ namespace aShip {
     std::uint8_t TShip_OpenPlayerConversation(TShip* Self, std::uint8_t RespectChameleon);
 
     // Returns the global dialogue response, or zero when conversation cannot open. Amount only replaces the global amount when positive.
-    std::uint8_t TShip_ShowPlayerDialogue(TShip* Self, std::uint8_t Kind, const pas::WideString& Text, std::int32_t Amount);
+    std::uint8_t TShip_ShowPlayerDialogue(TShip* Self, aGalaxyStruct::TTalkKind Kind, const pas::WideString& Text, std::int32_t Amount);
 
     pas::WideString TShip_GetGreetingText(TShip* Self);
 

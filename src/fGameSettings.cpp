@@ -29,7 +29,7 @@
 // PACKAGEINFO's adjacent fGameSettings2/fGameSettings dependency entries.
 namespace fGameSettings {
     void TThreadCreateNewGame_Execute(TThreadCreateNewGame* Self) {
-        static const pas::Set<0, 255> InitialDominatorShipMask = pas::constant_set<pas::Set<0, 255>>({{0}});
+        static const pas::Set<0, 255> InitialDominatorShipMask = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::stKling}});
         std::uint16_t ControlWord{};
         std::int32_t I{};
         std::int32_t J{};
@@ -570,32 +570,32 @@ namespace fGameSettings {
             {
                 aGalaxy::TStar* currentStar = aPlayer::GetPlayer()->CurrentStar;
                 aRuins::TRuins* cpp_arg_2 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_2->Init(aGalaxyStruct::rstRangerCenter, currentStar, pas::WideString());
+                cpp_arg_2->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstRangerCenter), currentStar, pas::WideString());
             }
             {
                 aGalaxy::TStar* currentStar_2 = aPlayer::GetPlayer()->CurrentStar;
                 aRuins::TRuins* cpp_arg_3 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_3->Init(aGalaxyStruct::rstScienceBase, currentStar_2, pas::WideString());
+                cpp_arg_3->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstScienceBase), currentStar_2, pas::WideString());
             }
             {
                 aGalaxy::TStar* currentStar_3 = aPlayer::GetPlayer()->CurrentStar;
                 aRuins::TRuins* cpp_arg_4 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_4->Init(aGalaxyStruct::rstMedicalBase, currentStar_3, pas::WideString());
+                cpp_arg_4->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstMedicalBase), currentStar_3, pas::WideString());
             }
             {
                 aGalaxy::TStar* cpp_arg_5 = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[3].Star));
                 aRuins::TRuins* cpp_arg_6 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_6->Init(aGalaxyStruct::rstPirateBase, cpp_arg_5, pas::WideString());
+                cpp_arg_6->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstPirateBase), cpp_arg_5, pas::WideString());
             }
             {
                 aGalaxy::TStar* cpp_arg_7 = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[1].Star));
                 aRuins::TRuins* cpp_arg_8 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_8->Init(aGalaxyStruct::rstBusinessCenter, cpp_arg_7, pas::WideString());
+                cpp_arg_8->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstBusinessCenter), cpp_arg_7, pas::WideString());
             }
             {
                 aGalaxy::TStar* cpp_arg_9 = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[2].Star));
                 aRuins::TRuins* cpp_arg_10 = pas::construct_call<aRuins::TRuins>(aRuins::TRuins_Create);
-                cpp_arg_10->Init(aGalaxyStruct::rstMilitaryBase, cpp_arg_9, pas::WideString());
+                cpp_arg_10->Init(static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstMilitaryBase), cpp_arg_9, pas::WideString());
             }
             aGalaxy::Galaxy->UpdateConstellationMilitaryStats();
             Stage = 15;
@@ -614,7 +614,7 @@ namespace fGameSettings {
             if (GR_Main::ExitScreenLoop) {
                 return;
             }
-            for (I = 1; I <= 300; ++I) {
+            for (I = 1; I <= aGalaxyStruct::GalaxyWarmupTurns; ++I) {
                 if (I % 20 == 0) {
                     SysUtilsImports::Sleep(1u);
                 }
@@ -632,7 +632,7 @@ namespace fGameSettings {
             aPlayer::GetPlayer()->DockedTo = nullptr;
             for (auto cpp_range_20 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range_20.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-                if (Ship->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstRangerCenter)) {
+                if (Ship->TypeId == aGalaxyStruct::rstRangerCenter) {
                     aPlayer::GetPlayer()->DockedTo = Ship;
                     break;
                 }
@@ -732,8 +732,8 @@ namespace fGameSettings {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
                             aItem::TWeapon* cpp_arg_18 = pas::checked_cast<aItem::TWeapon*>(Item);
-                            std::int32_t round_8 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon1].AverageSize) * aConst::EquipmentSizeFactors[4]);
-                            cpp_arg_18->Init(aConst::t_Weapon1, round_8, 3, aPlayer::GetPlayer()->OwnerId);
+                            std::int32_t round_8 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_IndustrialLaser].AverageSize) * aConst::EquipmentSizeFactors[4]);
+                            cpp_arg_18->Init(aConst::t_IndustrialLaser, round_8, 3, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
                     }
@@ -741,8 +741,8 @@ namespace fGameSettings {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
                             aItem::TWeapon* cpp_arg_19 = pas::checked_cast<aItem::TWeapon*>(Item);
-                            std::int32_t round_9 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon2].AverageSize) * aConst::EquipmentSizeFactors[3]);
-                            cpp_arg_19->Init(aConst::t_Weapon2, round_9, 2, aPlayer::GetPlayer()->OwnerId);
+                            std::int32_t round_9 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_FragmentationCannon].AverageSize) * aConst::EquipmentSizeFactors[3]);
+                            cpp_arg_19->Init(aConst::t_FragmentationCannon, round_9, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
                     }
@@ -750,8 +750,8 @@ namespace fGameSettings {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
                             aItem::TWeapon* cpp_arg_20 = pas::checked_cast<aItem::TWeapon*>(Item);
-                            std::int32_t round_10 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon3].AverageSize) * aConst::EquipmentSizeFactors[2]);
-                            cpp_arg_20->Init(aConst::t_Weapon3, round_10, 2, aPlayer::GetPlayer()->OwnerId);
+                            std::int32_t round_10 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Flux].AverageSize) * aConst::EquipmentSizeFactors[2]);
+                            cpp_arg_20->Init(aConst::t_Flux, round_10, 2, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
                     }
@@ -759,8 +759,8 @@ namespace fGameSettings {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
                             aItem::TWeapon* cpp_arg_21 = pas::checked_cast<aItem::TWeapon*>(Item);
-                            std::int32_t round_11 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon4].AverageSize) * aConst::EquipmentSizeFactors[3]);
-                            cpp_arg_21->Init(aConst::t_Weapon4, round_11, 1, aPlayer::GetPlayer()->OwnerId);
+                            std::int32_t round_11 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_MissileLauncher].AverageSize) * aConst::EquipmentSizeFactors[3]);
+                            cpp_arg_21->Init(aConst::t_MissileLauncher, round_11, 1, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
                     }
@@ -768,8 +768,8 @@ namespace fGameSettings {
                         Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
                         {
                             aItem::TWeapon* cpp_arg_22 = pas::checked_cast<aItem::TWeapon*>(Item);
-                            std::int32_t round_12 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Weapon5].AverageSize) * aConst::EquipmentSizeFactors[4]);
-                            cpp_arg_22->Init(aConst::t_Weapon5, round_12, 1, aPlayer::GetPlayer()->OwnerId);
+                            std::int32_t round_12 = System::Round(static_cast<long double>(aConst::WeaponInfos[aConst::t_Treton].AverageSize) * aConst::EquipmentSizeFactors[4]);
+                            cpp_arg_22->Init(aConst::t_Treton, round_12, 1, aPlayer::GetPlayer()->OwnerId);
                         }
                         break;
                     }

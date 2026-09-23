@@ -152,18 +152,18 @@ namespace fTalk {
         ParentLoop->ChildLoop = Globals::TalkScreen;
         aShip::TShip* OtherShip = Globals::TalkShip;
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(0x00000018, OtherShip, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, OtherShip, nullptr, 0);
         }
         if (OtherShip != nullptr) {
-            OtherShip->ScriptItemsAct(0x00000018, nullptr, nullptr, 0);
+            OtherShip->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
         }
         if (Globals::TalkScreen->Run() == 1) {
             Result = true;
             if (aPlayer::GetPlayer() != nullptr) {
-                aPlayer::GetPlayer()->ScriptItemsAct(0x00000019, OtherShip, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, OtherShip, nullptr, 0);
             }
             if (OtherShip != nullptr) {
-                OtherShip->ScriptItemsAct(0x00000019, nullptr, nullptr, 0);
+                OtherShip->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
             }
         } else {
             Result = false;
@@ -433,7 +433,7 @@ namespace fTalk {
                 }
             }
             if (aPlayer::GetPlayer() != nullptr && Globals::TalkShip != nullptr && static_cast<std::uint8_t>(Globals::TalkScripted ^ 1)) {
-                aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnPlayerTalkedWithShip, Globals::TalkShip, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnPlayerTalkedWithShip, Globals::TalkShip, nullptr, 0);
             }
             Globals::TalkShip = nullptr;
             Globals::TalkPlanet = nullptr;
@@ -558,7 +558,7 @@ namespace fTalk {
             if (!pas::assigned(Callback)) {
                 Text = EC_Str::RemoveTextTagsW(Text);
             }
-            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv)}));
+            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag))}));
             cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             if (!pas::assigned(Choice->Callback)) {
                 cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(127, 127, 127));
@@ -727,24 +727,23 @@ namespace fTalk {
     }
 
     void TfTalk::ChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        TfTalkA* Choice{};
         if (Sender->FirstChild != nullptr && Sender->FirstChild->NextSibling != nullptr && Sender->FirstChild->NextSibling->FirstChild != nullptr && Sender->FirstChild->NextSibling->FirstChild->FirstChild != nullptr) {
             Sender->FirstChild->NextSibling->FirstChild->FirstChild->SetPosition(ClassesImports::Point(0, 0));
         }
-        if (static_cast<std::uint8_t>(Sender->IsOccludedAtPoint(Point) ^ 1) && ChoiceMousePressed) {
-            ChoiceMousePressed = false;
-            Choice = reinterpret_cast<TfTalkA*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
-            // DCC32 evaluates the callback receiver first with this identity expression.
-            if (pas::assigned(Choice->Callback)) {
-                reinterpret_cast<TfTalkA*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Choice)) * 1)))->Callback(Choice->Value);
-            } else if (pas::assigned(Choice->FallbackCallback)) {
-                reinterpret_cast<TfTalkA*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Choice)) * 1)))->FallbackCallback(Choice->FallbackText);
-            } else {
-                return;
-            }
-            RestartTextPresentation();
-            GI_Main::BreakUiMessage();
+        if (Sender->IsOccludedAtPoint(Point) || static_cast<std::uint8_t>(ChoiceMousePressed ^ 1)) {
+            return;
         }
+        ChoiceMousePressed = false;
+        TfTalkA* Choice = reinterpret_cast<TfTalkA*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+        if (pas::assigned(Choice->Callback)) {
+            Choice->Callback(Choice->Value);
+        } else if (pas::assigned(Choice->FallbackCallback)) {
+            Choice->FallbackCallback(Choice->FallbackText);
+        } else {
+            return;
+        }
+        RestartTextPresentation();
+        GI_Main::BreakUiMessage();
     }
 
     void TfTalk::RestartTextPresentation() {
@@ -786,7 +785,7 @@ namespace fTalk {
             GR_Main::PostMouseMoveMessage();
         } else {
             PresentedTextLength = DialogText.length();
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag));
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->SetText(DialogText);
             TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
             TextPanel->SetScrollOffset(ClassesImports::Point(0, 0));
@@ -907,11 +906,11 @@ namespace fTalk {
     void TfTalk::AddMessageClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString Text{};
         Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetText();
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,50,200>"_wref.get(), u"<color=255,240,100>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::DialogHighlightColorTag, pas::view(aMyFunction::TextHighlightColorTag));
         Text = EC_Str::RemoveMatchingTextTagsW(Text, u"object"sv, u"OBJECT"sv);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv))->SetDisabled(true);
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
-        Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
+        Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
         if (!aPlayer::GetPlayer()->InHyperspace) {
             ReturnToMap(0);
         }
@@ -1132,7 +1131,7 @@ namespace fTalk {
         std::uint8_t HasAttackChoice{};
         pas::WideString TargetName{};
         GI_MessageLoop::TDialogChoiceEventGI Callback{};
-        std::uint8_t ProgramIndex{};
+        aGalaxyStruct::TProgramIndex ProgramIndex{};
         std::int32_t I{};
         std::uint8_t RecognizesPlayer = static_cast<std::uint8_t>(Globals::TalkShip->IsPlayerChameleonEffectiveAgainstSelf() ^ 1);
         if (Globals::TalkScripted) {
@@ -1170,7 +1169,7 @@ namespace fTalk {
                 }
                 case aGalaxyStruct::tkAttack: {
                     AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerOk"_wref.get())}), 0, pas::bind_method<&TfTalk::AcceptScriptedConversation>(this), 0);
-                    if (Globals::TalkShip->EnemyShip != nullptr && (aShip::TShip_RelationToShip(Globals::TalkShip->EnemyShip, aPlayer::GetPlayer()) >= 80 || aShip::TShip_RelationToShip(Globals::TalkShip->EnemyShip, aPlayer::GetPlayer()) >= 60 && aPlayer::GetPlayer()->GetDominantCareer() != aGalaxyStruct::rcPirate)) {
+                    if (Globals::TalkShip->EnemyShip != nullptr && (aShip::TShip_RelationToShip(Globals::TalkShip->EnemyShip, aPlayer::GetPlayer()) >= aGalaxyStruct::RelationExcellentMin || aShip::TShip_RelationToShip(Globals::TalkShip->EnemyShip, aPlayer::GetPlayer()) >= aGalaxyStruct::RelationGoodMin && aPlayer::GetPlayer()->GetDominantCareer() != aGalaxyStruct::rcPirate)) {
                         if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Globals::TalkShip->EnemyShip); !(tranclucator != nullptr)) {
                             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerWeFriends"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
                         } else if (aPlayer::GetPlayer() == tranclucator->OwnerShip) {
@@ -1237,16 +1236,16 @@ namespace fTalk {
             }
             PartnerOfferAmount = std::min<std::int32_t>(aPlayer::GetPlayer()->Money, Globals::TalkShip->Wealth / 8);
             PartnerGiftAmount = std::min<std::int32_t>(aPlayer::GetPlayer()->Money, Globals::TalkShip->Wealth / 32);
-            if ((aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip || static_cast<std::uint8_t>(pas::in_range(Globals::TalkShip->TypeId, aGalaxyStruct::stPirate, aGalaxyStruct::stPirate) ^ 1)) && (pas::in_range(Globals::TalkShip->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stWarrior) && RecognizesPlayer)) {
+            if ((aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip || static_cast<std::uint8_t>(pas::in_range(Globals::TalkShip->TypeId, static_cast<std::int32_t>(aGalaxyStruct::stPirate), static_cast<std::int32_t>(aGalaxyStruct::stPirate)) ^ 1)) && (pas::in_range(Globals::TalkShip->TypeId, static_cast<std::int32_t>(aGalaxyStruct::stRanger), static_cast<std::int32_t>(aGalaxyStruct::stWarrior)) && RecognizesPlayer)) {
                 if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip) {
                     AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Truce.PlayerSend"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowTruceOffer>(this), 0);
-                    if (aPlayer::GetPlayer()->IsHealthEffectActive(5)) {
+                    if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heMysteriousLuatanza)) {
                         Callback = ScriptDialogBlockCallback;
                     } else {
                         Callback = pas::bind_method<&TfTalk::ShowMoneyDemand>(this);
                     }
                     AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Money.PlayerSend"_wref.get())}), 0, Callback, 0);
-                    if (aPlayer::GetPlayer()->IsHealthEffectActive(5)) {
+                    if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heMysteriousLuatanza)) {
                         Callback = ScriptDialogBlockCallback;
                     } else {
                         Callback = pas::bind_method<&TfTalk::DemandCargo>(this);
@@ -1255,13 +1254,13 @@ namespace fTalk {
                 } else {
                     HasAttackChoice = AddImmediateAttackChoices();
                     if (static_cast<std::uint8_t>(HasAttackChoice ^ 1) && aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip) {
-                        if (aPlayer::GetPlayer()->IsHealthEffectActive(5)) {
+                        if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heMysteriousLuatanza)) {
                             Callback = ScriptDialogBlockCallback;
                         } else {
                             Callback = pas::bind_method<&TfTalk::ShowMoneyDemand>(this);
                         }
                         AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Money.PlayerSend"_wref.get())}), 0, Callback, 0);
-                        if (aPlayer::GetPlayer()->IsHealthEffectActive(5)) {
+                        if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heMysteriousLuatanza)) {
                             Callback = ScriptDialogBlockCallback;
                         } else {
                             Callback = pas::bind_method<&TfTalk::DemandCargo>(this);
@@ -1314,7 +1313,11 @@ namespace fTalk {
                                         TargetName = pas::WideString();
                                     }
                                     if (TargetName.length() > 0) {
-                                        AddChoice(aMyFunction::FormatText1(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.LandingToObject"_wref.get())}), u"<color=255,240,100>"_w, u"<ObjectName>"_w, TargetName), 0, pas::bind_method<&TfTalk::OrderPartnerLand>(this), 0);
+                                        AddChoice(([&] {
+                                            pas::WideString cpp_arg_4 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.LandingToObject"_wref.get())});
+                                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                            return aMyFunction::FormatText1(std::move(cpp_arg_4), std::move(textHighlightColorTag), u"<ObjectName>"_w, TargetName);
+                                        }()), 0, pas::bind_method<&TfTalk::OrderPartnerLand>(this), 0);
                                     }
                                 }
                                 break;
@@ -1323,8 +1326,9 @@ namespace fTalk {
                                 if (aPlayer::GetPlayer()->OrderTarget != Globals::TalkShip->OrderTarget) {
                                     AddChoice(([&] {
                                         auto name_2 = pas::borrow(pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->Name);
-                                        pas::WideString cpp_arg_4 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.FlyToStar"_wref.get())});
-                                        return aMyFunction::FormatText1(std::move(cpp_arg_4), u"<color=255,240,100>"_w, u"<Star>"_w, name_2.get());
+                                        pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.FlyToStar"_wref.get())});
+                                        pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                        return aMyFunction::FormatText1(std::move(cpp_arg_5), std::move(textHighlightColorTag_2), u"<Star>"_w, name_2.get());
                                     }()), 0, pas::bind_method<&TfTalk::OrderPartnerJump>(this), 0);
                                 }
                                 break;
@@ -1376,7 +1380,11 @@ namespace fTalk {
                                         TargetName = pas::WideString();
                                     }
                                     if (TargetName.length() > 0) {
-                                        AddChoice(aMyFunction::FormatText1(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.LandingToObject"_wref.get())}), u"<color=255,240,100>"_w, u"<ObjectName>"_w, TargetName), 0, pas::bind_method<&TfTalk::OrderPiratePartnerLand>(this), 0);
+                                        AddChoice(([&] {
+                                            pas::WideString cpp_arg_6 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.LandingToObject"_wref.get())});
+                                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                            return aMyFunction::FormatText1(std::move(cpp_arg_6), std::move(textHighlightColorTag_3), u"<ObjectName>"_w, TargetName);
+                                        }()), 0, pas::bind_method<&TfTalk::OrderPiratePartnerLand>(this), 0);
                                     }
                                 }
                                 break;
@@ -1385,8 +1393,9 @@ namespace fTalk {
                                 if (aPlayer::GetPlayer()->OrderTarget != Globals::TalkShip->OrderTarget) {
                                     AddChoice(([&] {
                                         auto name_3 = pas::borrow(pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->Name);
-                                        pas::WideString cpp_arg_5 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.FlyToStar"_wref.get())});
-                                        return aMyFunction::FormatText1(std::move(cpp_arg_5), u"<color=255,240,100>"_w, u"<Star>"_w, name_3.get());
+                                        pas::WideString cpp_arg_7 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.FlyToStar"_wref.get())});
+                                        pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                                        return aMyFunction::FormatText1(std::move(cpp_arg_7), std::move(textHighlightColorTag_4), u"<Star>"_w, name_3.get());
                                     }()), 0, pas::bind_method<&TfTalk::OrderPiratePartnerJump>(this), 0);
                                 }
                                 break;
@@ -1405,12 +1414,13 @@ namespace fTalk {
                 }
                 case aGalaxyStruct::stKling: {
                     if (Globals::TalkShip != aKling::BlazerShip && Globals::TalkShip != aKling::KellerShip && Globals::TalkShip != aKling::TerronShip && pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramAppliedTurn <= 0 && aPlayer::GetPlayer()->HasProgram(aGalaxyStruct::prgIntercom) && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Globals::TalkShip)) {
-                        for (ProgramIndex = static_cast<std::uint8_t>(0); ProgramIndex <= static_cast<std::uint8_t>(11); ++ProgramIndex) {
-                            if (aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] > 0 && pas::in_range(ProgramIndex, aGalaxyStruct::prgShipwreck, aGalaxyStruct::prgDisconnection) && pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramAppliedTurn == 0) {
+                        for (auto cpp_range = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range.next(ProgramIndex); ) {
+                            if (aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] > 0 && pas::in_range(ProgramIndex, static_cast<std::int32_t>(aGalaxyStruct::prgShipwreck), static_cast<std::int32_t>(aGalaxyStruct::prgDisconnection)) && pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramAppliedTurn == 0) {
                                 AddChoice(pas::concat_wide({u"- ", ([&] {
                                     pas::WideString programName = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(ProgramIndex));
                                     pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Dominator.ProgrammPlayer"_wref.get());
-                                    return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(programName));
+                                    pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                                    return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag_5), u"<Name>"_w, std::move(programName));
                                 }())}), ProgramIndex, pas::bind_method<&TfTalk::RunDominatorProgram>(this), 0);
                             }
                         }
@@ -1450,8 +1460,16 @@ namespace fTalk {
                                 TargetName = pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->OrderTarget)->GetColoredFullName(u""_wref.get());
                             }
                             if (TargetName.length() > 0) {
-                                AddChoice(aMyFunction::FormatText1(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Tranclucator.LandingToObject"_wref.get())}), u"<color=255,240,100>"_w, u"<ObjectName>"_w, TargetName), 0, pas::bind_method<&TfTalk::OrderTranclucatorLand>(this), 0);
-                                AddChoice(aMyFunction::FormatText1(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Tranclucator.LandingToStorage"_wref.get())}), u"<color=255,240,100>"_w, u"<ObjectName>"_w, TargetName), 0, pas::bind_method<&TfTalk::OrderTranclucatorStoreCargo>(this), 0);
+                                AddChoice(([&] {
+                                    pas::WideString cpp_arg_8 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Tranclucator.LandingToObject"_wref.get())});
+                                    pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                                    return aMyFunction::FormatText1(std::move(cpp_arg_8), std::move(textHighlightColorTag_6), u"<ObjectName>"_w, TargetName);
+                                }()), 0, pas::bind_method<&TfTalk::OrderTranclucatorLand>(this), 0);
+                                AddChoice(([&] {
+                                    pas::WideString cpp_arg_9 = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Tranclucator.LandingToStorage"_wref.get())});
+                                    pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                                    return aMyFunction::FormatText1(std::move(cpp_arg_9), std::move(textHighlightColorTag_7), u"<ObjectName>"_w, TargetName);
+                                }()), 0, pas::bind_method<&TfTalk::OrderTranclucatorStoreCargo>(this), 0);
                             }
                         }
                         if (aPlayer::GetPlayer() != Globals::TalkShip->OrderTarget) {
@@ -1636,15 +1654,17 @@ namespace fTalk {
             DialogText = ([&] {
                 pas::WideString cpp_arg = pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Globals::TalkShip->EnemyShip, false), Globals::TalkShip->EnemyShip->GetName()});
                 pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.AnswerWar"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<ShipBad>"_w, std::move(cpp_arg));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<ShipBad>"_w, std::move(cpp_arg));
             }());
         } else if (Globals::TalkShip->GetCurrentPickupItem() != nullptr && aPlayer::GetPlayer() != Globals::TalkShip->PartnerShip) {
             DialogText = ([&] {
                 pas::WideString cpp_arg_2 = pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Globals::TalkShip->GetCurrentPickupItem(), false), Globals::TalkShip->GetCurrentPickupItem()->GetDisplayName()});
                 pas::WideString lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.AnswerAlreadyTakeItem"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText_2), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(cpp_arg_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText_2), std::move(textHighlightColorTag_2), u"<Item>"_w, std::move(cpp_arg_2));
             }());
-        } else if (static_cast<std::uint8_t>(Globals::TalkShip->HasCargoGoods() ^ 1) && (Capacity < 1 || Money < aConst::GoodsMarket[0].AveragePrice)) {
+        } else if (static_cast<std::uint8_t>(Globals::TalkShip->HasCargoGoods() ^ 1) && (Capacity < 1 || Money < aConst::GoodsMarket[aConst::t_Food].AveragePrice)) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.AnswerNoNeedGoods"_wref.get());
         } else if (aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, Globals::TalkShip->Position) > 2.5E+5L) {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.AnswerBigDist"_wref.get());
@@ -1653,7 +1673,8 @@ namespace fTalk {
                 DialogText = ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(Capacity);
                     pas::WideString lookupTalkText_3 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.TradeOkMayBuyOk"_wref.get());
-                    return aMyFunction::FormatText1(std::move(lookupTalkText_3), u"<color=255,240,100>"_w, u"<Cnt>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(lookupTalkText_3), std::move(textHighlightColorTag_3), u"<Cnt>"_w, std::move(intToStr));
                 }());
             } else {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.TradeOkMayBuyNo"_wref.get());
@@ -1708,9 +1729,10 @@ namespace fTalk {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Money.ComputerAsk"_wref.get());
                 ClearChoices(false);
                 AddChoice(pas::concat_wide({u"- ", ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Money.PlayerSendSum"_wref.get());
                     pas::WideString intToStr = pas::wide_int_to_str(ExtortionDemandAmount);
-                    return aMyFunction::ReplaceColoredToken(std::move(lookupTalkText), u"<Money>"_w, std::move(intToStr), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(lookupTalkText), u"<Money>"_w, std::move(intToStr), textHighlightColorTag.get());
                 }())}), 0, pas::bind_method<&TfTalk::DemandMoney>(this), 0);
                 if (ExtortionDemandAmount / 2 > 10) {
                     AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Money.PlayerLess"_wref.get())}), 0, pas::bind_method<&TfTalk::HalveMoneyDemand>(this), 0);
@@ -1770,9 +1792,10 @@ namespace fTalk {
             ClearChoices(false);
             if (aPlayer::GetPlayer()->Money > 0) {
                 AddChoice(pas::concat_wide({u"- ", ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Truce.PlayerSendSum"_wref.get());
                     pas::WideString intToStr = pas::wide_int_to_str(TruceOfferAmount);
-                    return aMyFunction::ReplaceColoredToken(std::move(lookupTalkText), u"<Money>"_w, std::move(intToStr), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(lookupTalkText), u"<Money>"_w, std::move(intToStr), textHighlightColorTag.get());
                 }())}), 0, pas::bind_method<&TfTalk::AcceptTruceOffer>(this), 0);
                 if (TruceOfferAmount / 2 > 100) {
                     AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Truce.PlayerLess"_wref.get())}), 0, pas::bind_method<&TfTalk::HalveTruceOffer>(this), 0);
@@ -1848,7 +1871,8 @@ namespace fTalk {
                 DialogText = ([&] {
                     pas::WideString cpp_arg = pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Ship, false), Ship->GetFullName(u" "_wref.get())});
                     pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Attack.ComputerReadyAttack"_wref.get());
-                    return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<Target>"_w, std::move(cpp_arg));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<Target>"_w, std::move(cpp_arg));
                 }());
                 AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Attack.PlayerOk"_wref.get())}), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfTalk::AcceptJointAttack>(this), 0);
                 AllowTargets = true;
@@ -1970,7 +1994,8 @@ namespace fTalk {
                 DialogText = ([&] {
                     pas::WideString cpp_arg = pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Target, false), Target->GetFullName(u" "_wref.get())});
                     pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.Protect.", Globals::TalkShip->GetTypeNameKey(), u"No"}));
-                    return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<Target>"_w, std::move(cpp_arg));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<Target>"_w, std::move(cpp_arg));
                 }());
             }
             BuildStandardChoices(true);
@@ -2004,7 +2029,7 @@ namespace fTalk {
             if (Globals::TalkShip->OrderTarget == Target) {
                 Globals::TalkShip->OrderNone(false);
             }
-            if (Globals::TalkShip->Order == aShip::soFollowShip && pas::in_range(pas::checked_cast<aShip::TShip*>(Globals::TalkShip->OrderTarget)->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stPirate)) {
+            if (Globals::TalkShip->Order == aShip::soFollowShip && pas::in_range(pas::checked_cast<aShip::TShip*>(Globals::TalkShip->OrderTarget)->TypeId, static_cast<std::int32_t>(aGalaxyStruct::stRanger), static_cast<std::int32_t>(aGalaxyStruct::stPirate))) {
                 Globals::TalkShip->NavigateToQueuedPlanet(false);
                 if (Globals::TalkShip->Order == aShip::soFollowShip) {
                     Globals::TalkShip->OrderNone(false);
@@ -2043,10 +2068,11 @@ namespace fTalk {
             DialogText = ([&] {
                 pas::WideString cpp_arg_4 = pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Target, false), Target->GetFullName(u" "_wref.get())});
                 pas::WideString lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.Protect.", Globals::TalkShip->GetTypeNameKey(), u"Ok"}));
-                return aMyFunction::FormatText1(std::move(lookupTalkText_2), u"<color=255,240,100>"_w, u"<Target>"_w, std::move(cpp_arg_4));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText_2), std::move(textHighlightColorTag_2), u"<Target>"_w, std::move(cpp_arg_4));
             }());
             RecognizesPlayer = static_cast<std::uint8_t>(Target->IsPlayerChameleonEffectiveAgainstSelf() ^ 1);
-            if (RecognizesPlayer && pas::in_range(Target->TypeId, aGalaxyStruct::stRanger, aGalaxyStruct::stPirate)) {
+            if (RecognizesPlayer && pas::in_range(Target->TypeId, static_cast<std::int32_t>(aGalaxyStruct::stRanger), static_cast<std::int32_t>(aGalaxyStruct::stPirate))) {
                 if (!FearsAttacker) {
                     Target->ShowMessageToPlayer(aShip::TShip_LookupTalkText(Target, u"Talk.Protect.TargetNotFearShip"_wref.get()));
                 } else if (CanEscape && Target->GetHullIntegrityPercent() > 30) {
@@ -2060,7 +2086,8 @@ namespace fTalk {
                     Target->ShowMessageToPlayer(([&] {
                         pas::WideString intToStr = pas::wide_int_to_str(Reward);
                         pas::WideString lookupTalkText_3 = aShip::TShip_LookupTalkText(Target, u"Talk.Protect.TargetGiveMoney"_wref.get());
-                        return aMyFunction::FormatText1(std::move(lookupTalkText_3), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                        pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(lookupTalkText_3), std::move(textHighlightColorTag_3), u"<Money>"_w, std::move(intToStr));
                     }()));
                 } else {
                     Target->ShowMessageToPlayer(aShip::TShip_LookupTalkText(Target, u"Talk.Protect.TargetThanks"_wref.get()));
@@ -2073,7 +2100,8 @@ namespace fTalk {
             DialogText = ([&] {
                 pas::WideString cpp_arg_5 = pas::concat_wide_reverse({aGalaxy::GetLocalObjectLink(Target, false), Target->GetFullName(u" "_wref.get())});
                 pas::WideString lookupTalkText_4 = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.Protect.", Globals::TalkShip->GetTypeNameKey(), u"No"}));
-                return aMyFunction::FormatText1(std::move(lookupTalkText_4), u"<color=255,240,100>"_w, u"<Target>"_w, std::move(cpp_arg_5));
+                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText_4), std::move(textHighlightColorTag_4), u"<Target>"_w, std::move(cpp_arg_5));
             }());
         }
         ClearChoices(false);
@@ -2111,14 +2139,16 @@ namespace fTalk {
             DialogText = ([&] {
                 auto name = pas::borrow(pas::checked_cast<aRanger::TRanger*>(Globals::TalkShip->PartnerShip)->Name);
                 pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.AlreadyHavePartner"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<Partner>"_w, name.get());
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<Partner>"_w, name.get());
             }());
             BuildStandardChoices(true);
         } else if (pas::checked_cast<aRanger::TRanger*>(Globals::TalkShip)->CountWingmen() > 0) {
             DialogText = ([&] {
                 auto name_2 = pas::borrow(aPlayer::GetPlayer()->Name);
                 pas::WideString lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ILeader"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText_2), u"<color=255,240,100>"_w, u"<Ranger>"_w, name_2.get());
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText_2), std::move(textHighlightColorTag_2), u"<Ranger>"_w, name_2.get());
             }());
             BuildStandardChoices(true);
         } else {
@@ -2127,14 +2157,16 @@ namespace fTalk {
                 DialogText = ([&] {
                     auto name_3 = pas::borrow(aPlayer::GetPlayer()->Name);
                     pas::WideString lookupTalkText_3 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.NeedLeadership"_wref.get());
-                    return aMyFunction::FormatText1(std::move(lookupTalkText_3), u"<color=255,240,100>"_w, u"<Ranger>"_w, name_3.get());
+                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(lookupTalkText_3), std::move(textHighlightColorTag_3), u"<Ranger>"_w, name_3.get());
                 }());
                 BuildStandardChoices(true);
             } else if (static_cast<aRanger::TRanger*>(Globals::TalkShip)->Rank > aPlayer::GetPlayer()->Rank) {
                 DialogText = ([&] {
                     auto name_4 = pas::borrow(aPlayer::GetPlayer()->Name);
                     pas::WideString lookupTalkText_4 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.YouNeedInMoreRank"_wref.get());
-                    return aMyFunction::FormatText1(std::move(lookupTalkText_4), u"<color=255,240,100>"_w, u"<Ranger>"_w, name_4.get());
+                    pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(lookupTalkText_4), std::move(textHighlightColorTag_4), u"<Ranger>"_w, name_4.get());
                 }());
                 BuildStandardChoices(true);
             } else {
@@ -2143,13 +2175,15 @@ namespace fTalk {
                         pas::WideString intToStr = pas::wide_int_to_str(PartnerOfferAmount);
                         pas::WideString intToStr_2 = pas::wide_int_to_str(Globals::TalkShip->CalculatePartnershipMonths(PartnerOfferAmount, aPlayer::GetPlayer()));
                         pas::WideString lookupTalkText_5 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerSayOk"_wref.get());
-                        return aMyFunction::FormatText2(std::move(lookupTalkText_5), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr), u"<Month>"_w, std::move(intToStr_2));
+                        pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText2(std::move(lookupTalkText_5), std::move(textHighlightColorTag_5), u"<Money>"_w, std::move(intToStr), u"<Month>"_w, std::move(intToStr_2));
                     }());
                 } else {
                     DialogText = ([&] {
                         pas::WideString intToStr_3 = pas::wide_int_to_str(PartnerOfferAmount);
                         pas::WideString lookupTalkText_6 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerSayNo"_wref.get());
-                        return aMyFunction::FormatText1(std::move(lookupTalkText_6), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_3));
+                        pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(lookupTalkText_6), std::move(textHighlightColorTag_6), u"<Money>"_w, std::move(intToStr_3));
                     }());
                 }
                 ClearChoices(false);
@@ -2189,7 +2223,7 @@ namespace fTalk {
     }
 
     void TfTalk::OrderPartnerFollow(std::int32_t Action) {
-        Globals::TalkShip->OrderFollowShip(aPlayer::GetPlayer(), 0, true);
+        Globals::TalkShip->OrderFollowShip(aPlayer::GetPlayer(), aShip::fmFollowNear, true);
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerAgreeFlyToMe"_wref.get());
         if (aPlayer::GetPlayer()->CountPartnersInNormalSpace() > 1) {
             DialogText = pas::concat_wide({DialogText, u"\r\n"});
@@ -2211,7 +2245,11 @@ namespace fTalk {
         } else if (pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->OrderTarget) != nullptr) {
             Name = pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->OrderTarget)->GetColoredFullName(u""_wref.get());
         }
-        DialogText = aMyFunction::FormatText1(aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerAgreeLandingToObject"_wref.get()), u"<color=255,240,100>"_w, u"<ObjectName>"_w, Name);
+        DialogText = ([&] {
+            pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerAgreeLandingToObject"_wref.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<ObjectName>"_w, Name);
+        }());
         if (aPlayer::GetPlayer()->CountPartnersInNormalSpace() > 1) {
             DialogText = pas::concat_wide({DialogText, u"\r\n"});
             DialogText = pas::concat_wide_reverse({aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.IsOrderForAll"_wref.get()), DialogText});
@@ -2229,7 +2267,8 @@ namespace fTalk {
         DialogText = ([&] {
             auto name = pas::borrow(pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->Name);
             pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerAgreeFlyToStar"_wref.get());
-            return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<Star>"_w, name.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<Star>"_w, name.get());
         }());
         if (aPlayer::GetPlayer()->CountPartnersInNormalSpace() > 1) {
             DialogText = pas::concat_wide({DialogText, u"\r\n"});
@@ -2267,7 +2306,7 @@ namespace fTalk {
 
     void TfTalk::ShowPartnerFinances(std::int32_t Action) {
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.FinancesReport"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), aMyFunction::TextHighlightColorTag);
         ClearChoices(false);
         if (aPlayer::GetPlayer()->Money > 0) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfTalk::ShowPartnerGift>(this);
@@ -2288,7 +2327,7 @@ namespace fTalk {
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.FinancesWaitForGift"_wref.get());
         ClearChoices(false);
         Text = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.FinancesSendGift"_wref.get())});
-        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(PartnerGiftAmount), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(PartnerGiftAmount), aMyFunction::TextHighlightColorTag);
         AddChoice(Text, 0, pas::bind_method<&TfTalk::GivePartnerGift>(this), 0);
         if (PartnerGiftAmount / 2 > 0) {
             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Partner.PlayerLess"_wref.get())}), 0, pas::bind_method<&TfTalk::HalvePartnerGift>(this), 0);
@@ -2307,7 +2346,7 @@ namespace fTalk {
         aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - PartnerGiftAmount));
         Globals::TalkShip->SetMoney(Globals::TalkShip->Money + PartnerGiftAmount);
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.FinancesGotGift"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), aMyFunction::TextHighlightColorTag);
         BuildStandardChoices(true);
     }
 
@@ -2331,7 +2370,7 @@ namespace fTalk {
             Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
             if (aPlayer::GetPlayer() == Ship->PartnerShip && Ship->InNormalSpace() && aPlayer::GetPlayer() != Ship && Globals::TalkShip != Ship) {
                 if (aPlayer::GetPlayer() == Globals::TalkShip->OrderTarget) {
-                    Ship->OrderFollowShip(aPlayer::GetPlayer(), 0, true);
+                    Ship->OrderFollowShip(aPlayer::GetPlayer(), aShip::fmFollowNear, true);
                 } else if (Globals::TalkShip->Order == aShip::soFollowShip) {
                     Ship->SetJointAttackTarget(Ship, pas::checked_cast<aShip::TShip*>(Globals::TalkShip->OrderTarget));
                 } else if (Globals::TalkShip->Order == aShip::soLand) {
@@ -2350,7 +2389,7 @@ namespace fTalk {
 
     void TfTalk::OrderTranclucatorFollow(std::int32_t Action) {
         aTranclucator::TTranclucator* Ship = pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip);
-        Ship->OrderFollowShip(aPlayer::GetPlayer(), 0, true);
+        Ship->OrderFollowShip(aPlayer::GetPlayer(), aShip::fmFollowNear, true);
         Ship->FollowOwner = false;
         Ship->SeekItems = false;
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.FlyToMe.Ok"_wref.get());
@@ -2361,7 +2400,7 @@ namespace fTalk {
 
     void TfTalk::OrderTranclucatorReturn(std::int32_t Action) {
         aTranclucator::TTranclucator* Ship = pas::checked_cast<aTranclucator::TTranclucator*>(Globals::TalkShip);
-        Ship->OrderFollowShip(Ship->OwnerShip, 1, false);
+        Ship->OrderFollowShip(Ship->OwnerShip, aShip::fmMinWeaponRange, false);
         Ship->FollowOwner = true;
         Ship->SeekItems = false;
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.Return.Ok"_wref.get());
@@ -2403,13 +2442,25 @@ namespace fTalk {
             std::int32_t Value{};
             pas::WideString Caption{};
             if (Ship->GetCollectionPermission(static_cast<aTranclucator::TTranclucatorCollectionKind>(Kind))) {
-                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectNo"_wref.get())), u"<color=255,0,0>"sv);
+                Caption = ([&] {
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectNo"_wref.get());
+                    pas::WideString redColorTag = aMyFunction::RedColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)), pas::view(std::move(redColorTag)));
+                }());
                 Value = Kind * 10;
             } else {
-                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectYes"_wref.get())), u"<color=45,105,45>"sv);
+                Caption = ([&] {
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectYes"_wref.get());
+                    pas::WideString darkGreenColorTag = aMyFunction::DarkGreenColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_2)), pas::view(std::move(darkGreenColorTag)));
+                }());
                 Value = Kind * 10 + 1;
             }
-            AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Item>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Collect", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
+            AddChoice(pas::concat_wide({u"- ", ([&] {
+                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Collect", SysUtils::IntToStr(Kind)})));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(Caption, std::move(textHighlightColorTag), u"<Item>"_w, std::move(localizedColorText_3));
+            }())}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
         };
         auto GetTranclucatorCollectionText = [&]() -> pas::WideString {
             pas::WideString Result{};
@@ -2428,13 +2479,25 @@ namespace fTalk {
             std::int32_t Value{};
             pas::WideString Caption{};
             if (Ship->GetStoragePermission(static_cast<aTranclucator::TTranclucatorStorageKind>(Kind))) {
-                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandNo"_wref.get())), u"<color=255,0,0>"sv);
+                Caption = ([&] {
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandNo"_wref.get());
+                    pas::WideString redColorTag = aMyFunction::RedColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)), pas::view(std::move(redColorTag)));
+                }());
                 Value = Kind * 1000;
             } else {
-                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandYes"_wref.get())), u"<color=45,105,45>"sv);
+                Caption = ([&] {
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandYes"_wref.get());
+                    pas::WideString darkGreenColorTag = aMyFunction::DarkGreenColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_2)), pas::view(std::move(darkGreenColorTag)));
+                }());
                 Value = Kind * 1000 + 100;
             }
-            AddChoice(pas::concat_wide({u"- ", aMyFunction::FormatText1(Caption, u"<color=255,240,100>"_w, u"<Land>"_w, aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Land", SysUtils::IntToStr(Kind)}))))}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
+            AddChoice(pas::concat_wide({u"- ", ([&] {
+                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Talk.Tranclucator.Options.Land", SysUtils::IntToStr(Kind)})));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(Caption, std::move(textHighlightColorTag), u"<Land>"_w, std::move(localizedColorText_3));
+            }())}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
         };
         auto GetTranclucatorStorageText = [&]() -> pas::WideString {
             pas::WideString Result{};
@@ -2453,10 +2516,18 @@ namespace fTalk {
             std::int32_t Value{};
             pas::WideString Caption{};
             if (Ship->AutoArrange) {
-                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeNo"_wref.get())), u"<color=255,0,0>"sv);
+                Caption = ([&] {
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeNo"_wref.get());
+                    pas::WideString redColorTag = aMyFunction::RedColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)), pas::view(std::move(redColorTag)));
+                }());
                 Value = 10000;
             } else {
-                Caption = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeYes"_wref.get())), u"<color=45,105,45>"sv);
+                Caption = ([&] {
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.ArrangeYes"_wref.get());
+                    pas::WideString darkGreenColorTag = aMyFunction::DarkGreenColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_2)), pas::view(std::move(darkGreenColorTag)));
+                }());
                 Value = 20000;
             }
             AddChoice(pas::concat_wide({u"- ", Caption}), Value, pas::bind_method<&TfTalk::ShowTranclucatorOptions>(this), 0);
@@ -2500,7 +2571,8 @@ namespace fTalk {
         DialogText = pas::concat_wide_reverse({([&] {
             auto text = pas::borrow(Text);
             pas::WideString localizedColorText = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.CollectText"_wref.get());
-            return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<List>"_w, text.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<List>"_w, text.get());
         }()), DialogText});
         DialogText = pas::concat_wide({DialogText, u"\r\n"});
         if (Ship->GetCargoHook() != nullptr) {
@@ -2513,7 +2585,8 @@ namespace fTalk {
             DialogText = pas::concat_wide_reverse({([&] {
                 auto text_2 = pas::borrow(Text);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandText"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<List>"_w, text_2.get());
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<List>"_w, text_2.get());
             }()), DialogText});
         } else {
             DialogText = pas::concat_wide_reverse({aConst::LocalizedColorText(u"Talk.Tranclucator.Options.LandBad"_wref.get()), DialogText});
@@ -2561,7 +2634,11 @@ namespace fTalk {
         } else if (pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->OrderTarget) != nullptr) {
             Name = pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->OrderTarget)->GetColoredFullName(u""_wref.get());
         }
-        DialogText = aMyFunction::FormatText1(aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.AgreeLandingToObject"_wref.get()), u"<color=255,240,100>"_w, u"<ObjectName>"_w, Name);
+        DialogText = ([&] {
+            pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.AgreeLandingToObject"_wref.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<ObjectName>"_w, Name);
+        }());
         ClearChoices(false);
         AddTranclucatorGroupChoice();
         AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Exit"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
@@ -2579,7 +2656,11 @@ namespace fTalk {
         } else {
             Name = pas::checked_cast<aPlanet::TPlanet*>(aPlayer::GetPlayer()->OrderTarget)->Name;
         }
-        DialogText = aMyFunction::FormatText1(aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.AgreeLandingToStorage"_wref.get()), u"<color=255,240,100>"_w, u"<ObjectName>"_w, Name);
+        DialogText = ([&] {
+            pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Tranclucator.AgreeLandingToStorage"_wref.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<ObjectName>"_w, Name);
+        }());
         ClearChoices(false);
         AddTranclucatorGroupChoice();
         AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Exit"_wref.get())}), 0, pas::bind_method<&TfTalk::FastExit>(this), 0);
@@ -2638,7 +2719,8 @@ namespace fTalk {
             DialogText = ([&] {
                 auto name = pas::borrow(pas::checked_cast<aRanger::TRanger*>(Globals::TalkShip->PartnerShip)->Name);
                 pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.AlreadyHavePartner"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<Partner>"_w, name.get());
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<Partner>"_w, name.get());
             }());
             BuildStandardChoices(true);
         } else if (aPlayer::GetPlayer()->GetMaxPiratePartners() <= pas::list_count(aPlayer::GetPlayer()->PiratePartners) || ([&] {
@@ -2648,7 +2730,8 @@ namespace fTalk {
             DialogText = ([&] {
                 auto name_2 = pas::borrow(aPlayer::GetPlayer()->Name);
                 pas::WideString lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.NeedPirate"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText_2), u"<color=255,240,100>"_w, u"<Ranger>"_w, name_2.get());
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText_2), std::move(textHighlightColorTag_2), u"<Ranger>"_w, name_2.get());
             }());
             BuildStandardChoices(true);
         } else {
@@ -2657,13 +2740,15 @@ namespace fTalk {
                     pas::WideString intToStr = pas::wide_int_to_str(PartnerOfferAmount);
                     pas::WideString intToStr_2 = pas::wide_int_to_str(Globals::TalkShip->CalculatePartnershipMonths(PartnerOfferAmount, aPlayer::GetPlayer()));
                     pas::WideString lookupTalkText_3 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.ComputerSayOk"_wref.get());
-                    return aMyFunction::FormatText2(std::move(lookupTalkText_3), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr), u"<Month>"_w, std::move(intToStr_2));
+                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText2(std::move(lookupTalkText_3), std::move(textHighlightColorTag_3), u"<Money>"_w, std::move(intToStr), u"<Month>"_w, std::move(intToStr_2));
                 }());
             } else {
                 DialogText = ([&] {
                     pas::WideString intToStr_3 = pas::wide_int_to_str(PartnerOfferAmount);
                     pas::WideString lookupTalkText_4 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerSayNo"_wref.get());
-                    return aMyFunction::FormatText1(std::move(lookupTalkText_4), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_3));
+                    pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(lookupTalkText_4), std::move(textHighlightColorTag_4), u"<Money>"_w, std::move(intToStr_3));
                 }());
             }
             ClearChoices(false);
@@ -2708,7 +2793,7 @@ namespace fTalk {
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.AttackList"_wref.get());
         ClearChoices(false);
         std::uint8_t ReservedFlag = false;
-        std::uint8_t FollowMode = ReservedFlag;
+        aShip::TFollowMode FollowMode = static_cast<aShip::TFollowMode>(static_cast<std::uint8_t>(ReservedFlag));
         std::int32_t cpp_left = aPlayer::GetPlayer()->GetRadarRange();
         std::int32_t RadarRangeSquared = cpp_left * aPlayer::GetPlayer()->GetRadarRange();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
@@ -2728,7 +2813,8 @@ namespace fTalk {
         DialogText = ([&] {
             pas::WideString fullName = Target->GetFullName(u" "_wref.get());
             pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.AttackShipOk"_wref.get());
-            return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<ShipName>"_w, std::move(fullName));
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<ShipName>"_w, std::move(fullName));
         }());
         if (aPlayer::GetPlayer()->CountPartnersInNormalSpace() > 1) {
             DialogText = pas::concat_wide({DialogText, u"\r\n", aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.IsOrderForAll"_wref.get())});
@@ -2742,7 +2828,7 @@ namespace fTalk {
     }
 
     void TfTalk::OrderPiratePartnerFollow(std::int32_t Action) {
-        Globals::TalkShip->OrderFollowShip(aPlayer::GetPlayer(), 0, true);
+        Globals::TalkShip->OrderFollowShip(aPlayer::GetPlayer(), aShip::fmFollowNear, true);
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerAgreeFlyToMe"_wref.get());
         if (aPlayer::GetPlayer()->CountPartnersInNormalSpace() > 1) {
             DialogText = pas::concat_wide({DialogText, u"\r\n", aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.IsOrderForAll"_wref.get())});
@@ -2765,11 +2851,19 @@ namespace fTalk {
             Name = pas::checked_cast<aPlanet::TPlanet*>(aPlayer::GetPlayer()->OrderTarget)->Name;
             Relation = pas::checked_cast<aPlanet::TPlanet*>(aPlayer::GetPlayer()->OrderTarget)->RelationToShip(Globals::TalkShip);
         }
-        if (Relation < 10) {
-            DialogText = aMyFunction::FormatText1(aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerDisagreeLandingToObject"_wref.get()), u"<color=255,240,100>"_w, u"<ObjectName>"_w, Name);
+        if (Relation < aGalaxyStruct::RelationBadMin) {
+            DialogText = ([&] {
+                pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerDisagreeLandingToObject"_wref.get());
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<ObjectName>"_w, Name);
+            }());
         } else {
             Globals::TalkShip->OrderLanding(aPlayer::GetPlayer()->OrderTarget, true);
-            DialogText = aMyFunction::FormatText1(aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerAgreeLandingToObject"_wref.get()), u"<color=255,240,100>"_w, u"<ObjectName>"_w, Name);
+            DialogText = ([&] {
+                pas::WideString lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerAgreeLandingToObject"_wref.get());
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText_2), std::move(textHighlightColorTag_2), u"<ObjectName>"_w, Name);
+            }());
         }
         if (aPlayer::GetPlayer()->CountPartnersInNormalSpace() > 1) {
             DialogText = pas::concat_wide({DialogText, u"\r\n", aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.IsOrderForAll"_wref.get())});
@@ -2787,7 +2881,8 @@ namespace fTalk {
             DialogText = ([&] {
                 auto name = pas::borrow(pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->Name);
                 pas::WideString lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerDisagreeFlyToStar"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText), u"<color=255,240,100>"_w, u"<Star>"_w, name.get());
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText), std::move(textHighlightColorTag), u"<Star>"_w, name.get());
             }());
             ClearChoices(false);
             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.Back"_wref.get())}), 0, pas::bind_method<&TfTalk::ShowGreeting>(this), 0);
@@ -2796,7 +2891,8 @@ namespace fTalk {
             DialogText = ([&] {
                 auto name_2 = pas::borrow(pas::checked_cast<aGalaxy::TStar*>(aPlayer::GetPlayer()->OrderTarget)->Name);
                 pas::WideString lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.ComputerAgreeFlyToStar"_wref.get());
-                return aMyFunction::FormatText1(std::move(lookupTalkText_2), u"<color=255,240,100>"_w, u"<Star>"_w, name_2.get());
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(lookupTalkText_2), std::move(textHighlightColorTag_2), u"<Star>"_w, name_2.get());
             }());
             if (aPlayer::GetPlayer()->CountPartnersInNormalSpace() > 1) {
                 DialogText = pas::concat_wide({DialogText, u"\r\n", aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Partner.IsOrderForAll"_wref.get())});
@@ -2812,7 +2908,7 @@ namespace fTalk {
 
     void TfTalk::ShowPiratePartnerFinances(std::int32_t Action) {
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.FinancesReport"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), aMyFunction::TextHighlightColorTag);
         ClearChoices(false);
         if (aPlayer::GetPlayer()->Money > 0) {
             GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfTalk::ShowPiratePartnerGift>(this);
@@ -2833,7 +2929,7 @@ namespace fTalk {
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.FinancesWaitForGift"_wref.get());
         ClearChoices(false);
         Text = pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.FinancesSendGift"_wref.get())});
-        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(PartnerGiftAmount), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(PartnerGiftAmount), aMyFunction::TextHighlightColorTag);
         AddChoice(Text, 0, pas::bind_method<&TfTalk::GivePiratePartnerGift>(this), 0);
         if (PartnerGiftAmount / 2 > 0) {
             AddChoice(pas::concat_wide({u"- ", aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.Pirate.PlayerLess"_wref.get())}), 0, pas::bind_method<&TfTalk::HalvePiratePartnerGift>(this), 0);
@@ -2857,7 +2953,7 @@ namespace fTalk {
         aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - PartnerGiftAmount));
         Globals::TalkShip->SetMoney(Globals::TalkShip->Money + PartnerGiftAmount);
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Pirate.FinancesGotGift"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Globals::TalkShip->Money), aMyFunction::TextHighlightColorTag);
         BuildStandardChoices(true);
     }
 
@@ -2927,7 +3023,7 @@ namespace fTalk {
     }
 
     void TfTalk::RunDominatorProgram(std::int32_t Action) {
-        std::uint8_t ProgramIndex = Action;
+        aGalaxyStruct::TProgramIndex ProgramIndex = static_cast<aGalaxyStruct::TProgramIndex>(Action);
         std::int32_t Remaining = aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] - 1;
         aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] = Remaining;
         SysUtilsImports::Sleep(1u);
@@ -2948,9 +3044,10 @@ namespace fTalk {
         }
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Dominator.ProgrammOk"_wref.get());
         {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString programName = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(ProgramIndex));
             pas::WideString& dialogText = DialogText;
-            aMyFunction::ReplaceTextToken(dialogText, u"<Name>"_w, std::move(programName), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(dialogText, u"<Name>"_w, std::move(programName), textHighlightColorTag.get());
         }
         pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramAppliedTurn = aGalaxy::Galaxy->CurrentTurn;
         pas::checked_cast<aKling::TKling*>(Globals::TalkShip)->ActiveProgramId = ProgramIndex;
@@ -3139,7 +3236,7 @@ namespace fTalk {
             DialogText = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.MilitarySupport.RefuseEnemy"_wref.get());
         } else if (aShip::TShip_GetRelationLevelToShip(Globals::TalkShip, aPlayer::GetPlayer()) <= aGalaxyStruct::rlNormal) {
             DialogText = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.MilitarySupport.RefuseWary"_wref.get());
-        } else if (pas::in_range(aPlayer::GetPlayer()->CurrentStanding, aGalaxyStruct::ssPiratePassive, aGalaxyStruct::ssPirateMilitary)) {
+        } else if (pas::in_range(aPlayer::GetPlayer()->CurrentStanding, static_cast<std::int32_t>(aGalaxyStruct::ssPiratePassive), static_cast<std::int32_t>(aGalaxyStruct::ssPirateMilitary))) {
             DialogText = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.MilitarySupport.RefusePirate"_wref.get());
         } else if (aMyFunction::PointDistance(aPlayer::GetPlayer()->Position, Globals::TalkShip->Position) > 4.0E+2L) {
             DialogText = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.MilitarySupport.RefuseDistance"_wref.get());
@@ -3151,9 +3248,10 @@ namespace fTalk {
         } else {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, pas::concat_wide({u"Talk.MilitarySupport.Answer", aConst::RaceToSys(Globals::TalkShip->PilotRace)}));
             {
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString fullName = Globals::TalkShip->GetFullName(u" "_wref.get());
                 pas::WideString& dialogText = DialogText;
-                aMyFunction::ReplaceTextToken(dialogText, u"<ShipName>"_w, std::move(fullName), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(dialogText, u"<ShipName>"_w, std::move(fullName), textHighlightColorTag.get());
             }
             BuildMilitarySupportChoices();
         }
@@ -3180,7 +3278,7 @@ namespace fTalk {
             Available = std::min<std::int32_t>(Cost, aPlayer::GetPlayer()->GetCarriedNodeCount());
             if (Available > 0) {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerRepairHull"_wref.get());
-                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
                 ClearChoices(true);
                 if (Available == Cost) {
                     Caption = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.MilitarySupport.RepairHullOk"_wref.get());
@@ -3196,7 +3294,7 @@ namespace fTalk {
                 }
             } else {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerRepairHullNoNodes"_wref.get());
-                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
                 BuildMilitarySupportChoices();
             }
         }
@@ -3230,7 +3328,7 @@ namespace fTalk {
             Available = std::min<std::int32_t>(Cost, aPlayer::GetPlayer()->GetCarriedNodeCount());
             if (Available > 0) {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerRepairEq"_wref.get());
-                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
                 ClearChoices(true);
                 if (Available == Cost) {
                     Caption = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.MilitarySupport.RepairEqOk"_wref.get());
@@ -3246,7 +3344,7 @@ namespace fTalk {
                 }
             } else {
                 DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerRepairEqNoNodes"_wref.get());
-                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
                 BuildMilitarySupportChoices();
             }
         }
@@ -3293,8 +3391,8 @@ namespace fTalk {
             BuildMilitarySupportChoices();
         } else {
             DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerSellRemains"_wref.get());
-            aMyFunction::ReplaceTextToken(DialogText, u"<Remains>"_w, pas::wide_int_to_str(Count), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Remains>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(DialogText, u"<Cost>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
             ClearChoices(true);
             {
                 GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfTalk::SellAllMilitaryRemains>(this);
@@ -3369,7 +3467,11 @@ namespace fTalk {
         }
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerSellSomeRemains"_wref.get());
         ClearChoices(true);
-        BonusCaption = pas::concat_wide({u" ", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"Talk.MilitarySupport.ItemsCool"_wref.get())), u"<color=255,240,100>"sv)});
+        BonusCaption = pas::concat_wide({u" ", ([&] {
+            pas::WideString lookupLocalizedTextOrEmpty = GR_Main::LookupLocalizedTextOrEmpty(u"Talk.MilitarySupport.ItemsCool"_wref.get());
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextOrEmpty)), pas::view(std::move(textHighlightColorTag)));
+        }())});
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
             Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
@@ -3380,7 +3482,7 @@ namespace fTalk {
                 } else {
                     Cost = Item->Cost;
                 }
-                Caption = pas::concat_wide({Item->GetDisplayName(), u" (", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Cost)), u"<color=255,240,100>"sv), u" cr)"});
+                Caption = pas::concat_wide({Item->GetDisplayName(), u" (", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Cost)), pas::view(aMyFunction::TextHighlightColorTag)), u" cr)"});
                 if (aGalaxy::Galaxy->DominatorResearch[Item->DominatorSeries].Progress < 1.0E+2L && aGalaxy::Galaxy->IsDominatorSeriesUnresolved(Item->DominatorSeries)) {
                     Caption = pas::concat_wide({Caption, BonusCaption});
                 }
@@ -3400,7 +3502,7 @@ namespace fTalk {
         pas::WideString Caption{};
         std::int32_t Cost = 100;
         DialogText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.MilitarySupport.AnswerBuff"_wref.get());
-        aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Nodes>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
         ClearChoices(true);
         if (aPlayer::GetPlayer()->GetCombatStatusStrength(aShip::cseBWBuff) > 0.01L) {
             Caption = aShip::TShip_LookupTalkText(aPlayer::GetPlayer(), u"Talk.MilitarySupport.BuffProlongateOk"_wref.get());

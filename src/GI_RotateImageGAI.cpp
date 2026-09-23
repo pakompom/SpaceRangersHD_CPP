@@ -5,12 +5,14 @@
 #include "types/GR_gi.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aMyFunction.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/Direct3D9.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_CacheGAI.hpp"
 #include "units/EC_CacheRotateBuf.hpp"
 #include "units/EC_Mem.hpp"
+#include "units/EC_Struct.hpp"
 #include "units/GI_GAI.hpp"
 #include "units/GI_Main.hpp"
 #include "units/GI_MessageLoop.hpp"
@@ -92,10 +94,10 @@ namespace GI_RotateImageGAI {
                 pas::raise(pas::make_exception<pas::Exception>("Error in TRotateImageGaiGI.SetImage"_a));
             }
             this->ImageSize = ImageSize;
-            Radius = pas::sqr(Pivot.X - 0) + pas::sqr(Pivot.Y - 0);
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - ImageSize.X) + pas::sqr(Pivot.Y - ImageSize.Y)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - ImageSize.X) + pas::sqr(Pivot.Y - 0)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - 0) + pas::sqr(Pivot.Y - ImageSize.Y)));
+            Radius = EC_Struct::SquaredDistanceToPoint(Pivot, 0, 0);
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, ImageSize.Y)));
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, 0)));
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, 0, ImageSize.Y)));
             Radius = MathImports::Floor(System::Sqrt(Radius) * 2.0L + 2.0L);
             {
                 std::int32_t trunc = System::Trunc(Radius);
@@ -231,7 +233,7 @@ namespace GI_RotateImageGAI {
                     }
                 }
             }
-            Vertices[0].Color = static_cast<std::uint32_t>(Alpha) << 24 | 0x00ffffff;
+            Vertices[0].Color = static_cast<std::uint32_t>(Alpha) << 24 | GR_DX::RgbWhite;
             Vertices[1].Color = Vertices[0].Color;
             Vertices[2].Color = Vertices[0].Color;
             Vertices[3].Color = Vertices[0].Color;
@@ -258,8 +260,8 @@ namespace GI_RotateImageGAI {
             CenterX = pas::real_divide(ClientSize.X, 2.0L);
             CenterY = pas::real_divide(ClientSize.Y, 2.0L);
             Degrees = pas::real_divide(Angle, 256.0L) * 3.6E+2L;
-            C = System::Cos(0.017453292222222222223L * Degrees);
-            S = System::Sin(0.017453292222222222223L * Degrees);
+            C = System::Cos(pas::constant(aMyFunction::GamePi / 1.8E+2L) * Degrees);
+            S = System::Sin(pas::constant(aMyFunction::GamePi / 1.8E+2L) * Degrees);
             Vertices[0].X = static_cast<long double>(LeftX) * C - static_cast<long double>(TopY) * S + CenterX + HitTestBounds.Left;
             Vertices[0].Y = static_cast<long double>(LeftX) * S + static_cast<long double>(TopY) * C + CenterY + HitTestBounds.Top;
             Vertices[1].X = static_cast<long double>(RightX) * C - static_cast<long double>(TopY) * S + CenterX + HitTestBounds.Left;

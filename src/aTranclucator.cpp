@@ -125,7 +125,7 @@ namespace aTranclucator {
                 aShip::TShip* self_2 = this;
                 self_2->CreateAndEquipEngine(randomEquipmentSize, 2, ownerId_2);
             }
-            WeaponType = static_cast<aConst::TItemType>(aMyFunction::NextRandomIntRange(0, 2, RandomState) + aConst::t_Weapon1);
+            WeaponType = static_cast<aConst::TItemType>(aMyFunction::NextRandomIntRange(0, 2, RandomState) + aConst::t_IndustrialLaser);
             {
                 aGalaxyStruct::TOwnerId ownerId_3 = OwnerId;
                 std::int32_t randomEquipmentSize_2 = RandomEquipmentSize(aConst::WeaponInfos[WeaponType].AverageSize);
@@ -170,7 +170,7 @@ namespace aTranclucator {
                 aShip::TShip* self_8 = this;
                 self_8->CreateAndEquipCargoHook(randomEquipmentSize_6, randomEquipmentLevel_4, ownerId_8);
             }
-            WeaponType = static_cast<aConst::TItemType>(aMyFunction::NextRandomIntRange(0, 2, RandomState) + aConst::t_Weapon1);
+            WeaponType = static_cast<aConst::TItemType>(aMyFunction::NextRandomIntRange(0, 2, RandomState) + aConst::t_IndustrialLaser);
             {
                 aGalaxyStruct::TOwnerId ownerId_9 = OwnerId;
                 std::int32_t randomEquipmentSize_7 = RandomEquipmentSize(aConst::WeaponInfos[WeaponType].AverageSize);
@@ -335,7 +335,7 @@ namespace aTranclucator {
                     if (!(Self->SeekItems && Self->TryLandForStorage())) {
                         if (Self->FollowOwner && Self->OwnerShip != nullptr) {
                             Stage = 12;
-                            Self->OrderFollowShip(Self->OwnerShip, 0, false);
+                            Self->OrderFollowShip(Self->OwnerShip, aShip::fmFollowNear, false);
                         } else {
                             Stage = 13;
                             if (!Self->OrderAbsolute) {
@@ -384,7 +384,7 @@ namespace aTranclucator {
         return Name;
     }
 
-    std::uint8_t TTranclucator::GetGreetingShipCategory() {
+    aGalaxyStruct::TGreetingShipCategory TTranclucator::GetGreetingShipCategory() {
         return aGalaxyStruct::gscTransport;
     }
 
@@ -445,11 +445,12 @@ namespace aTranclucator {
             const std::int32_t cpp_first = pas::list_count(Inventory) - 1;
             if (cpp_first >= 0) {
                 for (I = cpp_first; I >= 0; --I) {
-                    Item = pas::list_at<aItem::TEquipment>(Inventory, I + 0);
-                    if (Item->EquippedFlag == 0) {
-                        pas::list_delete(Inventory, pas::list_indexof(Inventory, static_cast<void*>(reinterpret_cast<std::uint8_t*>(Item) + 0)));
-                        pas::list_add(Destination->Inventory, reinterpret_cast<void*>(Item));
+                    Item = pas::list_at<aItem::TEquipment>(Inventory, I);
+                    if (Item->EquippedFlag != 0) {
+                        continue;
                     }
+                    pas::list_delete(Inventory, pas::list_indexof(Inventory, reinterpret_cast<void*>(Item)));
+                    pas::list_add(Destination->Inventory, reinterpret_cast<void*>(Item));
                 }
             }
         }
@@ -457,15 +458,16 @@ namespace aTranclucator {
             const std::int32_t cpp_first_2 = pas::list_count(Artefacts) - 1;
             if (cpp_first_2 >= 0) {
                 for (I = cpp_first_2; I >= 0; --I) {
-                    Artefact = pas::list_at<aItem::TArtefact>(Artefacts, I + 0);
-                    if (Artefact->EquippedFlag == 0) {
-                        pas::list_delete(Artefacts, pas::list_indexof(Artefacts, static_cast<void*>(reinterpret_cast<std::uint8_t*>(Artefact) + 0)));
-                        pas::list_add(Destination->Artefacts, reinterpret_cast<void*>(Artefact));
+                    Artefact = pas::list_at<aItem::TArtefact>(Artefacts, I);
+                    if (Artefact->EquippedFlag != 0) {
+                        continue;
                     }
+                    pas::list_delete(Artefacts, pas::list_indexof(Artefacts, reinterpret_cast<void*>(Artefact)));
+                    pas::list_add(Destination->Artefacts, reinterpret_cast<void*>(Artefact));
                 }
             }
         }
-        for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
+        for (Good = 0; Good <= 7; ++Good) {
             aShip::TCargoGoodsEntry& cpp_with = CargoGoods[Good];
             AddGoods(Good, cpp_with.Count, cpp_with.TotalCost);
             cpp_with.Count = 0;
@@ -479,7 +481,6 @@ namespace aTranclucator {
         }
     }
 
-    // The +0 index/pointer expressions below preserve native DCC32 argument scheduling.
     void TTranclucator::StoreUnequippedCargoAt(pas::Object* Location) {
         std::uint8_t Good{};
         std::int32_t I{};
@@ -490,11 +491,12 @@ namespace aTranclucator {
                 const std::int32_t cpp_first = pas::list_count(Inventory) - 1;
                 if (cpp_first >= 0) {
                     for (I = cpp_first; I >= 0; --I) {
-                        Item = pas::list_at<aItem::TEquipment>(Inventory, I + 0);
-                        if (Item->EquippedFlag == 0) {
-                            aPlayer::GetPlayer()->AddItemToPlayerStorage(Item, Location, -1);
-                            pas::list_delete(Inventory, pas::list_indexof(Inventory, static_cast<void*>(reinterpret_cast<std::uint8_t*>(Item) + 0)));
+                        Item = pas::list_at<aItem::TEquipment>(Inventory, I);
+                        if (Item->EquippedFlag != 0) {
+                            continue;
                         }
+                        aPlayer::GetPlayer()->AddItemToPlayerStorage(Item, Location, -1);
+                        pas::list_delete(Inventory, pas::list_indexof(Inventory, reinterpret_cast<void*>(Item)));
                     }
                 }
             }
@@ -502,15 +504,16 @@ namespace aTranclucator {
                 const std::int32_t cpp_first_2 = pas::list_count(Artefacts) - 1;
                 if (cpp_first_2 >= 0) {
                     for (I = cpp_first_2; I >= 0; --I) {
-                        Artefact = pas::list_at<aItem::TArtefact>(Artefacts, I + 0);
-                        if (Artefact->EquippedFlag == 0) {
-                            aPlayer::GetPlayer()->AddItemToPlayerStorage(Artefact, Location, -1);
-                            pas::list_delete(Artefacts, pas::list_indexof(Artefacts, static_cast<void*>(reinterpret_cast<std::uint8_t*>(Artefact) + 0)));
+                        Artefact = pas::list_at<aItem::TArtefact>(Artefacts, I);
+                        if (Artefact->EquippedFlag != 0) {
+                            continue;
                         }
+                        aPlayer::GetPlayer()->AddItemToPlayerStorage(Artefact, Location, -1);
+                        pas::list_delete(Artefacts, pas::list_indexof(Artefacts, reinterpret_cast<void*>(Artefact)));
                     }
                 }
             }
-            for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
+            for (Good = 0; Good <= 7; ++Good) {
                 aShip::TCargoGoodsEntry& cpp_with = CargoGoods[Good];
                 aPlayer::GetPlayer()->AddGoodsToPlayerStorage(Good, cpp_with.Count, cpp_with.TotalCost, Location, -1);
                 cpp_with.Count = 0;
@@ -641,8 +644,8 @@ namespace aTranclucator {
             OwnerShip->AddItemToPlayerStorage(Artefact, Location, -1);
             aPlayer::GetPlayer()->RefreshStorageBubbles();
             OwnerShip->RefreshDerivedStats(true);
-            ScriptItemsAct(0x0000002e, Artefact, Location, 0);
-            aPlayer::GetPlayer()->ScriptItemsAct(0x0000002e, Artefact, Location, 0);
+            ScriptItemsAct(aGalaxyStruct::satOnTrancPacking, Artefact, Location, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnTrancPacking, Artefact, Location, 0);
             return true;
         }
         return Result;
@@ -650,12 +653,12 @@ namespace aTranclucator {
 
     void TTranclucator::UpdateFreeFlightOrder() {
         if (EnemyShip != nullptr && EnemyShip->CurrentStar == CurrentStar && EnemyShip->InNormalSpace()) {
-            OrderFollowShip(EnemyShip, 1, false);
+            OrderFollowShip(EnemyShip, aShip::fmMinWeaponRange, false);
         } else if (OwnerShip != nullptr && OwnerShip->CurrentStar == CurrentStar && OwnerShip->InNormalSpace()) {
             if (OwnerShip->Order == aShip::soFollowShip && OwnerShip->EnemyShip == OwnerShip->OrderTarget && OwnerShip->EnemyShip != this) {
-                OrderFollowShip(OwnerShip->EnemyShip, 1, false);
+                OrderFollowShip(OwnerShip->EnemyShip, aShip::fmMinWeaponRange, false);
             } else {
-                OrderFollowShip(OwnerShip, 0, false);
+                OrderFollowShip(OwnerShip, aShip::fmFollowNear, false);
             }
         } else if (OwnerShip != nullptr && OwnerShip->CurrentStar == CurrentStar && OwnerShip->CurrentPlanet != nullptr) {
             OrderMove(OwnerShip->CurrentPlanet->GetPosition(), false);
@@ -847,7 +850,7 @@ namespace aTranclucator {
             }
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Ships) - 1); cpp_range_2.next(I); ) {
                 Ship = pas::list_at<aShip::TShip>(CurrentStar->Ships, I);
-                if (Ship->InNormalSpace() && Ship != this && Ship != OwnerShip && (aShip::TShip_RelationToShip(this, Ship) < 10 || Ship == EnemyShip || Ship->EnemyShip == this)) {
+                if (Ship->InNormalSpace() && Ship != this && Ship != OwnerShip && (aShip::TShip_RelationToShip(this, Ship) < aGalaxyStruct::RelationBadMin || Ship == EnemyShip || Ship->EnemyShip == this)) {
                     const std::int32_t cpp_last_5 = static_cast<std::int32_t>(WeaponCount);
                     if (1 <= cpp_last_5) {
                         for (J = 1; J <= cpp_last_5; ++J) {
@@ -867,7 +870,7 @@ namespace aTranclucator {
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(CurrentStar->Asteroids) - 1); cpp_range_3.next(I); ) {
                     Asteroid = pas::list_at<aAsteroid::TAsteroid>(CurrentStar->Asteroids, I);
                     Distance = aMyFunction::PointDistanceSquared(Position, Asteroid->Position);
-                    if (Distance <= 1.0E+6L) {
+                    if (Distance <= pas::constant(static_cast<long double>(aGalaxyStruct::AsteroidTargetRangeSquared))) {
                         const std::int32_t cpp_last_6 = static_cast<std::int32_t>(WeaponCount);
                         if (1 <= cpp_last_6) {
                             for (J = 1; J <= cpp_last_6; ++J) {
@@ -977,7 +980,7 @@ namespace aTranclucator {
     }
 
     void TTranclucator_RefreshCurrentStanding(TTranclucator* Self) {
-        std::int32_t StandingMode = Self->GetScriptStandingOverrideMode();
+        aGalaxyStruct::TScriptStandingOverrideMode StandingMode = Self->GetScriptStandingOverrideMode();
         if (StandingMode == aGalaxyStruct::ssmCustomFaction) {
             Self->CurrentStanding = aGalaxyStruct::ssCustom;
         } else if (StandingMode != aGalaxyStruct::ssmFixed) {
@@ -988,13 +991,13 @@ namespace aTranclucator {
                 if (Self->OwnerShip->CurrentStar == Self->CurrentStar || pas::is_one_of<aGalaxyStruct::ssCoalitionMilitary, aGalaxyStruct::ssPirateMilitary>(Self->OwnerShip->CurrentStanding)) {
                     Self->CurrentStanding = Self->OwnerShip->CurrentStanding;
                 } else if (pas::is_one_of<aGalaxyStruct::ssCoalitionActive, aGalaxyStruct::ssCoalitionPassive>(Self->OwnerShip->CurrentStanding)) {
-                    if (pas::in_set<0, 1>(static_cast<std::uint8_t>(Self->CurrentStar->Status.ControlFaction))) {
+                    if (pas::is_one_of<aGalaxyStruct::sfCoalition, aGalaxyStruct::sfDominators>(Self->CurrentStar->Status.ControlFaction)) {
                         Self->CurrentStanding = aGalaxyStruct::ssCoalitionActive;
                     } else {
                         Self->CurrentStanding = aGalaxyStruct::ssNeutral;
                     }
                 } else if (pas::is_one_of<aGalaxyStruct::ssPiratePassive, aGalaxyStruct::ssPirateActive>(Self->OwnerShip->CurrentStanding)) {
-                    if (pas::in_set<1, 2>(static_cast<std::uint8_t>(Self->CurrentStar->Status.ControlFaction))) {
+                    if (pas::is_one_of<aGalaxyStruct::sfDominators, aGalaxyStruct::sfPirates>(Self->CurrentStar->Status.ControlFaction)) {
                         Self->CurrentStanding = aGalaxyStruct::ssPirateActive;
                     } else {
                         Self->CurrentStanding = aGalaxyStruct::ssNeutral;

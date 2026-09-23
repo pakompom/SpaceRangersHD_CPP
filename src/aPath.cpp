@@ -295,16 +295,14 @@ namespace aPath {
             return ActiveTail;
         }
         PSPathNode NewNode = PopFreeNode();
-        // Value expressions preserve DCC32's native address/value evaluation order;
-        // the + 0 operations themselves emit no instructions.
-        reinterpret_cast<PSPathNode>(reinterpret_cast<std::uint8_t*>(NewNode) + 0)->Prev = Node->Prev;
-        reinterpret_cast<PSPathNode>(reinterpret_cast<std::uint8_t*>(NewNode) + 0)->Next = Node;
+        NewNode->Prev = Node->Prev;
+        NewNode->Next = Node;
         if (Node->Prev != nullptr) {
             Node->Prev->Next = NewNode;
         }
         Node->Prev = NewNode;
-        if (reinterpret_cast<PSPathNode>(reinterpret_cast<std::uint8_t*>(Node) + 0) == ActiveHead) {
-            ActiveHead = reinterpret_cast<PSPathNode>(reinterpret_cast<std::uint8_t*>(NewNode) + 0);
+        if (Node == ActiveHead) {
+            ActiveHead = NewNode;
         }
         return NewNode;
     }

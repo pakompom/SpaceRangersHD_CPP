@@ -233,7 +233,7 @@ namespace aItem {
     #endif
     struct THull : aItem::TEquipment {
         PAS_CLASS_META(THull, aItem::TEquipment, "THull", 132)
-        void Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, std::uint8_t HullType, std::int32_t Series, std::uint8_t PirateBuilt);
+        void Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, aGalaxyStruct::THullType HullType, std::int32_t Series, std::uint8_t PirateBuilt);
         // Applies the current hull series, resets HullPoints to capacity, and bounds Cost.
         void ApplySeriesSizeAndCost();
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
@@ -266,7 +266,7 @@ namespace aItem {
         std::uint8_t TechLevel;
         std::int8_t Armor;
         // ht* categories in aGalaxyStruct.
-        std::uint8_t HullType;
+        aGalaxyStruct::THullType HullType;
         std::uint8_t cpp_padding[1];
         // -1 means no series.
         std::int32_t HullSeries;

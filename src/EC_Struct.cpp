@@ -87,6 +87,10 @@ namespace EC_Struct {
         return Result;
     }
 
+    std::int32_t SquaredDistanceToPoint(const Types::TPoint& Point, std::int32_t X, std::int32_t Y) {
+        return pas::sqr(Point.X - X) + pas::sqr(Point.Y - Y);
+    }
+
     void TObjectEx_Create(TObjectEx* Self) {
         pas::object_create(Self);
     }

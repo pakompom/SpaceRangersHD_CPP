@@ -24,35 +24,33 @@ namespace EC_CacheFont {
         return Result;
     }
 
-    // The + 0 expressions below, including those in Self casts, preserve DCC32's
-    // native operand evaluation order. They emit no additional instructions.
-    void IncludeGlyphBounds(WindowsSdk::TRect& Bounds, std::int32_t& X, std::int32_t& Y, PAftGlyphEC& Glyph) {
+    void IncludeGlyphBounds(WindowsSdk::TRect& Bounds, std::int32_t X, std::int32_t Y, PAftGlyphEC Glyph) {
         if (Glyph->AlphaMaskPlane.DataOffset != 0) {
-            if (X + 0 + Glyph->AlphaMaskPlane.Left < Bounds.Left) {
-                Bounds.Left = X + 0 + Glyph->AlphaMaskPlane.Left;
+            if (X + Glyph->AlphaMaskPlane.Left < Bounds.Left) {
+                Bounds.Left = X + Glyph->AlphaMaskPlane.Left;
             }
-            if (Y + 0 + Glyph->AlphaMaskPlane.Top < Bounds.Top) {
-                Bounds.Top = Y + 0 + Glyph->AlphaMaskPlane.Top;
+            if (Y + Glyph->AlphaMaskPlane.Top < Bounds.Top) {
+                Bounds.Top = Y + Glyph->AlphaMaskPlane.Top;
             }
-            if (X + 0 + Glyph->AlphaMaskPlane.Left + Glyph->AlphaMaskPlane.Width > Bounds.Right) {
-                Bounds.Right = X + 0 + Glyph->AlphaMaskPlane.Left + Glyph->AlphaMaskPlane.Width;
+            if (X + Glyph->AlphaMaskPlane.Left + Glyph->AlphaMaskPlane.Width > Bounds.Right) {
+                Bounds.Right = X + Glyph->AlphaMaskPlane.Left + Glyph->AlphaMaskPlane.Width;
             }
-            if (Y + 0 + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bounds.Bottom) {
-                Bounds.Bottom = Y + 0 + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
+            if (Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bounds.Bottom) {
+                Bounds.Bottom = Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
             }
         }
         if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
-            if (X + 0 + Glyph->OpaqueMaskPlane.Left < Bounds.Left) {
-                Bounds.Left = X + 0 + Glyph->OpaqueMaskPlane.Left;
+            if (X + Glyph->OpaqueMaskPlane.Left < Bounds.Left) {
+                Bounds.Left = X + Glyph->OpaqueMaskPlane.Left;
             }
-            if (Y + 0 + Glyph->OpaqueMaskPlane.Top < Bounds.Top) {
-                Bounds.Top = Y + 0 + Glyph->OpaqueMaskPlane.Top;
+            if (Y + Glyph->OpaqueMaskPlane.Top < Bounds.Top) {
+                Bounds.Top = Y + Glyph->OpaqueMaskPlane.Top;
             }
-            if (X + 0 + Glyph->OpaqueMaskPlane.Left + Glyph->OpaqueMaskPlane.Width > Bounds.Right) {
-                Bounds.Right = X + 0 + Glyph->OpaqueMaskPlane.Left + Glyph->OpaqueMaskPlane.Width;
+            if (X + Glyph->OpaqueMaskPlane.Left + Glyph->OpaqueMaskPlane.Width > Bounds.Right) {
+                Bounds.Right = X + Glyph->OpaqueMaskPlane.Left + Glyph->OpaqueMaskPlane.Width;
             }
-            if (Y + 0 + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bounds.Bottom) {
-                Bounds.Bottom = Y + 0 + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
+            if (Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bounds.Bottom) {
+                Bounds.Bottom = Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
             }
         }
     }
@@ -135,7 +133,6 @@ namespace EC_CacheFont {
     WindowsSdk::TRect TCFontEC::MeasureTaggedTextBounds(const pas::WideString& Text, std::int32_t X, std::int32_t Y, WindowsSdk::PInteger TopAdjustment) {
         WindowsSdk::TRect Result{};
         std::int32_t GlyphIndex{};
-        std::int32_t PosX{};
         std::int32_t TokenLength{};
         std::int32_t MiddleY{};
         char16_t Ch{};
@@ -145,7 +142,7 @@ namespace EC_CacheFont {
         std::int32_t Alignment{};
         std::int32_t SavedObjectCount = ObjectCount;
         std::int32_t CharCount = Text.length();
-        PosX = X;
+        std::int32_t PosX = X;
         Result.Left = 999999999;
         Result.Right = -999999999;
         Result.Top = 999999999;
@@ -161,7 +158,7 @@ namespace EC_CacheFont {
                 } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
                     ++FixedWidthDepth;
                 } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                    reinterpret_cast<TCFontEC*>(reinterpret_cast<std::uint8_t*>(this) + 0)->FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
                 } else if (TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, FieldWidth, Alignment) > 0) {
                     Index = Index + TokenLength - 1;
                     while (Index < CharCount) {
@@ -172,7 +169,7 @@ namespace EC_CacheFont {
                             if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
                                 ++FixedWidthDepth;
                             } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                                reinterpret_cast<TCFontEC*>(reinterpret_cast<std::uint8_t*>(this) + 0)->FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                                FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
                             } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
                                 Index = Index + TokenLength - 1;
                                 break;
@@ -187,7 +184,7 @@ namespace EC_CacheFont {
                             if (FixedWidthDepth > 0) {
                                 PosX += MaxGlyphAdvance;
                             } else {
-                                PosX = PosX + 0 + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
+                                PosX = PosX + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
                             }
                             --FieldWidth;
                         }
@@ -209,14 +206,15 @@ namespace EC_CacheFont {
                 continue;
             }
             GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Ch * 2));
-            if (GlyphIndex != 0) {
-                Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
-                EC_CacheFont::IncludeGlyphBounds(Result, PosX, Y, Glyph);
-                if (FixedWidthDepth > 0) {
-                    PosX += MaxGlyphAdvance;
-                } else {
-                    PosX = PosX + 0 + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
-                }
+            if (GlyphIndex == 0) {
+                continue;
+            }
+            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+            EC_CacheFont::IncludeGlyphBounds(Result, PosX, Y, Glyph);
+            if (FixedWidthDepth > 0) {
+                PosX += MaxGlyphAdvance;
+            } else {
+                PosX = PosX + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
             }
         }
         Result.Right = std::max<std::int32_t>(Result.Right, PosX);
@@ -235,7 +233,7 @@ namespace EC_CacheFont {
                 }
             }
         }
-        reinterpret_cast<TCFontEC*>(reinterpret_cast<std::uint8_t*>(this) + 0)->ObjectCount = SavedObjectCount;
+        ObjectCount = SavedObjectCount;
         return Result;
     }
 
@@ -290,7 +288,7 @@ namespace EC_CacheFont {
                     } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart)) > 0) {
                         ++FixedWidthDepth;
                     } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart)) > 0) {
-                        FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0) + 0;
+                        FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
                     } else if (TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart), FieldWidth, Alignment) > 0) {
                         Index = Index + TokenLength - 1;
                         while (Index < CharCount) {
@@ -301,7 +299,7 @@ namespace EC_CacheFont {
                                 if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
                                     ++FixedWidthDepth;
                                 } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0) + 0;
+                                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
                                 } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
                                     Index = Index + TokenLength - 1;
                                     if (FieldWidth > 0) {
@@ -330,15 +328,15 @@ namespace EC_CacheFont {
                         continue;
                     }
                     Index = Index + TokenLength - 1;
+                    continue;
+                }
+                if (FixedWidthDepth > 0) {
+                    WordWidth += MaxGlyphAdvance;
                 } else {
-                    if (FixedWidthDepth > 0) {
-                        WordWidth += MaxGlyphAdvance;
-                    } else {
-                        WordWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, Ch);
-                    }
-                    if (WordWidth <= MaxWidth) {
-                        FitEnd = Index - 1 - 1;
-                    }
+                    WordWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, Ch);
+                }
+                if (WordWidth <= MaxWidth) {
+                    FitEnd = Index - 1 - 1;
                 }
             }
             if (LineWidth == 0) {
@@ -392,7 +390,7 @@ namespace EC_CacheFont {
         if (LineLength - TokenLength > 0) {
             Lines->AddSlice(Text.pchar() + LineStart + TokenLength, LineLength - TokenLength);
         }
-        ObjectCount = SavedObjectCount + 0;
+        ObjectCount = SavedObjectCount;
     }
 
     void TCFontEC::DrawTaggedText16(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y, const pas::WideString& Text, WindowsSdk::TRect ClipRect) {
@@ -434,14 +432,14 @@ namespace EC_CacheFont {
                 } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
                     ++FixedWidthDepth;
                 } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                    reinterpret_cast<TCFontEC*>(reinterpret_cast<std::uint8_t*>(this) + 0)->FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
                 } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, FieldWidth, Alignment) > 0) {
                     Index = Index + TokenLength - 1;
                     FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(Text.pchar() + Index, CharCount - Index);
                     if (FieldWidth > 0) {
                         if (Alignment == 0) {
                             if (FixedWidthDepth > 0) {
-                                PosX += (MaxGlyphAdvance + 0) * pas::shr(FieldWidth, 1);
+                                PosX += MaxGlyphAdvance * pas::shr(FieldWidth, 1);
                             } else {
                                 PosX += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') * pas::shr(FieldWidth, 1);
                             }
@@ -469,34 +467,35 @@ namespace EC_CacheFont {
                     }
                 }
                 Index = Index + TokenLength - 1;
-            } else {
-                GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Ch * 2));
-                if (GlyphIndex != 0) {
-                    Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
-                    if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
-                        if (Y + 0 + Glyph->OpaqueMaskPlane.Top < Top) {
-                            Top = Y + 0 + Glyph->OpaqueMaskPlane.Top;
-                        }
-                        if (Y + 0 + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
-                            Bottom = Y + 0 + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
-                        }
-                        GR_Main::Ex_OKGR_MaskBuf_DrawClip_WORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left, Y + 0 + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
-                    }
-                    if (Glyph->AlphaMaskPlane.DataOffset != 0) {
-                        if (Y + 0 + Glyph->AlphaMaskPlane.Top < Top) {
-                            Top = Y + 0 + Glyph->AlphaMaskPlane.Top;
-                        }
-                        if (Y + 0 + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
-                            Bottom = Y + 0 + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
-                        }
-                        GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_16(Destination, PitchBytes, X + PosX + Glyph->AlphaMaskPlane.Left, Y + 0 + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
-                    }
-                    if (FixedWidthDepth > 0) {
-                        PosX += MaxGlyphAdvance;
-                    } else {
-                        PosX = PosX + 0 + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
-                    }
+                continue;
+            }
+            GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Ch * 2));
+            if (GlyphIndex == 0) {
+                continue;
+            }
+            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+            if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
+                if (Y + Glyph->OpaqueMaskPlane.Top < Top) {
+                    Top = Y + Glyph->OpaqueMaskPlane.Top;
                 }
+                if (Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
+                    Bottom = Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
+                }
+                GR_Main::Ex_OKGR_MaskBuf_DrawClip_WORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left, Y + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
+            }
+            if (Glyph->AlphaMaskPlane.DataOffset != 0) {
+                if (Y + Glyph->AlphaMaskPlane.Top < Top) {
+                    Top = Y + Glyph->AlphaMaskPlane.Top;
+                }
+                if (Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
+                    Bottom = Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
+                }
+                GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_16(Destination, PitchBytes, X + PosX + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
+            }
+            if (FixedWidthDepth > 0) {
+                PosX += MaxGlyphAdvance;
+            } else {
+                PosX = PosX + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
             }
         }
         if (ObjectCount - SavedObjectCount > 0) {
@@ -548,14 +547,14 @@ namespace EC_CacheFont {
                 } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
                     ++FixedWidthDepth;
                 } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                    reinterpret_cast<TCFontEC*>(reinterpret_cast<std::uint8_t*>(this) + 0)->FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
                 } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, FieldWidth, Alignment) > 0) {
                     Index = Index + TokenLength - 1;
                     FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(Text.pchar() + Index, CharCount - Index);
                     if (FieldWidth > 0) {
                         if (Alignment == 0) {
                             if (FixedWidthDepth > 0) {
-                                PosX += (MaxGlyphAdvance + 0) * pas::shr(FieldWidth, 1);
+                                PosX += MaxGlyphAdvance * pas::shr(FieldWidth, 1);
                             } else {
                                 PosX += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') * pas::shr(FieldWidth, 1);
                             }
@@ -583,34 +582,35 @@ namespace EC_CacheFont {
                     }
                 }
                 Index = Index + TokenLength - 1;
-            } else {
-                GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Ch * 2));
-                if (GlyphIndex != 0) {
-                    Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
-                    if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
-                        if (Y + 0 + Glyph->OpaqueMaskPlane.Top < Top) {
-                            Top = Y + 0 + Glyph->OpaqueMaskPlane.Top;
-                        }
-                        if (Y + 0 + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
-                            Bottom = Y + 0 + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
-                        }
-                        GR_Main::Ex_OKGR_MaskBuf_DrawClip_DWORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left, Y + 0 + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
-                    }
-                    if (Glyph->AlphaMaskPlane.DataOffset != 0) {
-                        if (Y + 0 + Glyph->AlphaMaskPlane.Top < Top) {
-                            Top = Y + 0 + Glyph->AlphaMaskPlane.Top;
-                        }
-                        if (Y + 0 + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
-                            Bottom = Y + 0 + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
-                        }
-                        GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_RGBA(Destination, PitchBytes, X + PosX + Glyph->AlphaMaskPlane.Left, Y + 0 + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
-                    }
-                    if (FixedWidthDepth > 0) {
-                        PosX += MaxGlyphAdvance;
-                    } else {
-                        PosX = PosX + 0 + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
-                    }
+                continue;
+            }
+            GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Ch * 2));
+            if (GlyphIndex == 0) {
+                continue;
+            }
+            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+            if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
+                if (Y + Glyph->OpaqueMaskPlane.Top < Top) {
+                    Top = Y + Glyph->OpaqueMaskPlane.Top;
                 }
+                if (Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
+                    Bottom = Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
+                }
+                GR_Main::Ex_OKGR_MaskBuf_DrawClip_DWORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left, Y + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
+            }
+            if (Glyph->AlphaMaskPlane.DataOffset != 0) {
+                if (Y + Glyph->AlphaMaskPlane.Top < Top) {
+                    Top = Y + Glyph->AlphaMaskPlane.Top;
+                }
+                if (Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
+                    Bottom = Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
+                }
+                GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_RGBA(Destination, PitchBytes, X + PosX + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
+            }
+            if (FixedWidthDepth > 0) {
+                PosX += MaxGlyphAdvance;
+            } else {
+                PosX = PosX + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
             }
         }
         if (ObjectCount - SavedObjectCount > 0) {

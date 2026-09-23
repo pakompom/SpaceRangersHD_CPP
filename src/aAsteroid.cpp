@@ -4,6 +4,7 @@
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "types/aEFilm.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "types/aShip.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Buf.hpp"
@@ -100,7 +101,7 @@ namespace aAsteroid {
     }
 
     void TAsteroid::AdvanceOrbitStep(std::int32_t StepIndex, std::uint8_t RecordFilm) {
-        IntegrateMotion(pas::real_divide(2.0E+2L, CurrentStar->MovementStepCount));
+        IntegrateMotion(pas::real_divide(pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn)), CurrentStar->MovementStepCount));
         if (RecordFilm) {
             Globals::PrimaryFilm->SetObjectPosition(StepIndex, FilmObject, Position);
         }
@@ -218,18 +219,18 @@ namespace aAsteroid {
     pas::WideString TAsteroid::GetDisplayName() {
         pas::WideString Result{};
         Result = aConst::LocalizedText(u"Asteroid.Name"_wref.get());
-        aMyFunction::ReplaceTextToken(Result, u"<Number>"_w, EC_Str::IntToWideString(Id), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Result, u"<Number>"_w, EC_Str::IntToWideString(Id), aMyFunction::TextHighlightColorTag);
         return Result;
     }
 
     pas::WideString TAsteroid::GetInfoText() {
         pas::WideString Result{};
         Result = aConst::LocalizedText(u"Asteroid.Text"_wref.get());
-        aMyFunction::ReplaceTextToken(Result, u"<Number>"_w, EC_Str::IntToWideString(Id), u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(Result, u"<Number>"_w, EC_Str::IntToWideString(Id), aMyFunction::TextHighlightColorTag);
         float Speed = System::Sqrt(pas::sqr(static_cast<pas::Extended>(Velocity.X)) + pas::sqr(static_cast<pas::Extended>(Velocity.Y)));
-        Speed = Speed * 2.0E+2L * 19968.0L * AsteroidWorldScale;
-        aMyFunction::ReplaceTextToken(Result, u"<Speed>"_w, EC_Str::IntToWideString(System::Round(Speed)), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(Result, u"<Count>"_w, EC_Str::IntToWideString(MineralCount), u"<color=255,240,100>"_w);
+        Speed = Speed * pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn)) * 19968.0L * AsteroidWorldScale;
+        aMyFunction::ReplaceTextToken(Result, u"<Speed>"_w, EC_Str::IntToWideString(System::Round(Speed)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Result, u"<Count>"_w, EC_Str::IntToWideString(MineralCount), aMyFunction::TextHighlightColorTag);
         return Result;
     }
 

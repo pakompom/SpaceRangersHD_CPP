@@ -236,8 +236,8 @@ namespace ab_Hit {
                 }
                 DeletionPending = true;
                 aGalaxy::Galaxy->CheckIntegrityChecksum1(650);
-                ++aPlayer::GetPlayer()->DominatorKillsByType[0];
-                aKling::KellerShip->ScriptItemsAct(61, nullptr, nullptr, 0);
+                ++aPlayer::GetPlayer()->DominatorKillsByType[aGalaxyStruct::ktBoss];
+                aKling::KellerShip->ScriptItemsAct(aGalaxyStruct::satOnDeath, nullptr, nullptr, 0);
                 pas::free(aKling::KellerShip);
                 aGalaxy::Galaxy->PrimeIntegrityChecksum1(651);
             } else {

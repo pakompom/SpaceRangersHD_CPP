@@ -910,10 +910,6 @@ namespace TextQuest {
         std::int32_t i{};
         std::int32_t j{};
         std::int32_t Selected{};
-        std::uint8_t Critical{};
-        pas::List* Pending{};
-        pas::List* Group{};
-        pas::List* Chosen{};
         PathClass::TPath* Path{};
         PathClass::TPath* Other{};
         std::uint8_t Eligible{};
@@ -921,205 +917,210 @@ namespace TextQuest {
         double TotalPriority{};
         double RandomPriority{};
         EventClass::TEvent* Event{};
-        if (PlayerInterface != nullptr) {
-            {
-                std::int32_t findLocationIndex = FindLocationIndex(LocationId);
-                TTextQuest* self = this;
-                Location = self->GetLocation(findLocationIndex);
-            }
-            if (TextShown && static_cast<std::uint8_t>(Location->IsEmpty ^ 1)) {
-                TextShown = false;
-                // The folded +0 makes DCC32 evaluate the receiver before simple arguments.
-                static_cast<TextQuestInterface::TTextQuestInterface*>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(PlayerInterface) + 0))->AddLocationContinueAction(LocationId);
-            } else {
-                Location->ApplyParameterChanges(Parameters);
-                if (Location->Days > 0) {
-                    PlayerInterface->AdvanceDays(Location->Days);
-                }
-                ++Location->VisitCount;
-                GroupCaption = pas::WideString();
-                ShowParameters();
-                Critical = CheckCriticalParameters();
-                Event = Location->SelectEvent(Parameters);
-                if (Event != nullptr) {
-                    if (static_cast<std::uint8_t>(TextShown ^ 1) || static_cast<std::uint8_t>(Location->IsEmpty ^ 1)) {
-                        ShowEvent(Event);
-                        if (EC_Str::TrimWideString(Event->Text->Text) != u"") {
-                            LastEventSource = pas::concat_wide({u"Location ", EC_Str::IntToWideString(Location->Id)});
-                        }
-                    }
-                }
-                if (Critical) {
-                    if (TextShown) {
-                        PlayerInterface->AddContinueAction();
-                    } else {
-                        ShowOutcome();
-                    }
-                } else if (Location->IsSuccess) {
-                    PlayerInterface->AddSuccessAction();
-                } else if (Location->IsDeath) {
-                    PlayerInterface->AddDeathAction();
-                } else if (Location->IsFailure) {
-                    PlayerInterface->AddFailureAction();
-                } else {
-                    Pending = pas::make_object<pas::List>();
-                    Group = pas::make_object<pas::List>();
-                    Chosen = pas::make_object<pas::List>();
-                    for (auto cpp_range = pas::for_to<std::int32_t>(1, GetPathCount()); cpp_range.next(i); ) {
-                        Path = GetPath(i);
-                        if (Location->Id != Path->FromLocationId || Path->TraversalLimit > 0 && Path->TraversalCount >= Path->TraversalLimit) {
-                            continue;
-                        }
-                        Eligible = false;
-                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, GetLocationCount()); cpp_range_2.next(j); ) {
-                            Target = GetLocation(j);
-                            if (Target->Id == Path->ToLocationId) {
-                                Eligible = Target->VisitLimit == 0 || Target->VisitLimit > Target->VisitCount;
-                                break;
-                            }
-                        }
-                        if (!Eligible) {
-                            continue;
-                        }
-                        Path->CheckAvailable(Parameters);
-                        if (!Path->Available) {
-                            if (!Path->AlwaysShow) {
-                                continue;
-                            }
-                            if (EC_Str::TrimWideString(Path->Caption->Text) == u"") {
-                                continue;
-                            }
-                        }
-                        pas::list_add(Pending, reinterpret_cast<void*>(Path));
-                    }
-                    while (pas::list_count(Pending) > 0) {
-                        Path = pas::list_at<PathClass::TPath>(Pending, 0);
-                        GroupCaption = ([&] {
-                            pas::WideString trimWideString = EC_Str::TrimWideString(Path->Caption->Text);
-                            TTextQuest* self_2 = this;
-                            return self_2->ExpandText(std::move(trimWideString), false);
-                        }());
-                        pas::list_add(Group, reinterpret_cast<void*>(Path));
-                        pas::list_delete(Pending, 0);
-                        {
-                            const std::int32_t cpp_first = pas::list_count(Pending) - 1;
-                            if (cpp_first >= 0) {
-                                for (i = cpp_first; i >= 0; --i) {
-                                    Path = pas::list_at<PathClass::TPath>(Pending, i);
-                                    if (GroupCaption == ([&] {
-                                        pas::WideString trimWideString_2 = EC_Str::TrimWideString(Path->Caption->Text);
-                                        TTextQuest* self_3 = this;
-                                        return self_3->ExpandText(std::move(trimWideString_2), false);
-                                    }())) {
-                                        pas::list_delete(Pending, i);
-                                        if (Path->Available || pas::list_count(Group) <= 0) {
-                                            pas::list_add(Group, reinterpret_cast<void*>(Path));
-                                            if (pas::list_count(Group) > 1) {
-                                                Path = pas::list_at<PathClass::TPath>(Group, 0);
-                                                if (!Path->Available) {
-                                                    pas::list_delete(Group, 0);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        MaxPriority = 0.0;
-                        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Group) - 1); cpp_range_3.next(i); ) {
-                            Path = pas::list_at<PathClass::TPath>(Group, i);
-                            if (MaxPriority < Path->Priority) {
-                                MaxPriority = Path->Priority;
-                            }
-                        }
-                        if (pas::list_count(Group) == 1) {
-                            if (pas::random_real(&System::RandSeed) <= MaxPriority) {
-                                pas::list_add(Chosen, pas::list_get(Group, 0));
-                            }
-                        } else {
-                            {
-                                const std::int32_t cpp_first_2 = pas::list_count(Group) - 1;
-                                if (cpp_first_2 >= 0) {
-                                    for (i = cpp_first_2; i >= 0; --i) {
-                                        Path = pas::list_at<PathClass::TPath>(Group, i);
-                                        if (Path->Priority <= MaxPriority * 0.01L) {
-                                            pas::list_delete(Group, i);
-                                        }
-                                    }
-                                }
-                            }
-                            TotalPriority = 0.0;
-                            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Group) - 1); cpp_range_4.next(i); ) {
-                                Path = pas::list_at<PathClass::TPath>(Group, i);
-                                TotalPriority = static_cast<long double>(TotalPriority) + Path->Priority;
-                            }
-                            RandomPriority = pas::random_real(&System::RandSeed) * TotalPriority;
-                            Selected = pas::list_count(Group) - 1;
-                            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Group) - 1); cpp_range_5.next(i); ) {
-                                Path = pas::list_at<PathClass::TPath>(Group, i);
-                                if (Path->Priority > RandomPriority) {
-                                    Selected = i;
-                                    break;
-                                }
-                                RandomPriority = static_cast<long double>(RandomPriority) - Path->Priority;
-                            }
-                            pas::list_add(Chosen, pas::list_get(Group, Selected));
-                        }
-                        pas::list_clear(Group);
-                    }
-                    if (pas::list_count(Chosen) == 0) {
-                        pas::free(Chosen);
-                        pas::free(Group);
-                        pas::free(Pending);
-                        Dialogs::ShowMessage(static_cast<pas::AnsiString>(pas::concat_wide({u"No available answers from location ", EC_Str::IntToWideString(Location->Id)})));
-                        return;
-                    }
-                    if (pas::list_count(Chosen) == 1) {
-                        Path = pas::list_at<PathClass::TPath>(Chosen, 0);
-                        if (EC_Str::TrimWideString(Path->Caption->Text) == u"") {
-                            pas::free(Chosen);
-                            pas::free(Group);
-                            pas::free(Pending);
-                            FollowPath(Path->Id);
-                            return;
-                        }
-                    }
-                    for (auto cpp_range_6 = pas::for_to<std::int32_t>(1, pas::list_count(Chosen) * 2); cpp_range_6.next(i); ) {
-                        Selected = pas::random(pas::list_count(Chosen), &System::RandSeed);
-                        Path = pas::list_at<PathClass::TPath>(Chosen, Selected);
-                        j = pas::random(pas::list_count(Chosen), &System::RandSeed);
-                        pas::list_put(Chosen, Selected, pas::list_get(Chosen, j));
-                        pas::list_put(Chosen, j, reinterpret_cast<void*>(Path));
-                    }
-                    for (auto cpp_range_7 = pas::for_to<std::int32_t>(2, pas::list_count(Chosen)); cpp_range_7.next(i); ) {
-                        for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Chosen) - i); cpp_range_8.next(j); ) {
-                            Path = pas::list_at<PathClass::TPath>(Chosen, j);
-                            Other = pas::list_at<PathClass::TPath>(Chosen, j + 1);
-                            if (Other->DisplayOrder < Path->DisplayOrder) {
-                                pas::list_put(Chosen, j, reinterpret_cast<void*>(Other));
-                                pas::list_put(Chosen, j + 1, reinterpret_cast<void*>(Path));
-                            }
-                        }
-                    }
-                    for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, pas::list_count(Chosen) - 1); cpp_range_9.next(i); ) {
-                        Path = pas::list_at<PathClass::TPath>(Chosen, i);
-                        Caption = EC_Str::TrimWideString(Path->Caption->Text);
-                        if (Caption != u"") {
-                            Caption = ExpandText(Caption, true);
-                            if (Path->Available) {
-                                static_cast<TextQuestInterface::TTextQuestInterface*>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(PlayerInterface) + 0))->AddPathAction(Caption, Path->Id);
-                            } else {
-                                static_cast<TextQuestInterface::TTextQuestInterface*>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(PlayerInterface) + 0))->AddDisabledPath(Caption);
-                            }
-                        }
-                    }
-                    pas::free(Chosen);
-                    pas::free(Group);
-                    pas::free(Pending);
-                    TextShown = false;
+        if (PlayerInterface == nullptr) {
+            return;
+        }
+        {
+            std::int32_t findLocationIndex = FindLocationIndex(LocationId);
+            TTextQuest* self = this;
+            Location = self->GetLocation(findLocationIndex);
+        }
+        if (TextShown && static_cast<std::uint8_t>(Location->IsEmpty ^ 1)) {
+            TextShown = false;
+            PlayerInterface->AddLocationContinueAction(LocationId);
+            return;
+        }
+        Location->ApplyParameterChanges(Parameters);
+        if (Location->Days > 0) {
+            PlayerInterface->AdvanceDays(Location->Days);
+        }
+        ++Location->VisitCount;
+        ShowParameters();
+        std::uint8_t Critical = CheckCriticalParameters();
+        Event = Location->SelectEvent(Parameters);
+        if (Event != nullptr) {
+            if (static_cast<std::uint8_t>(TextShown ^ 1) || static_cast<std::uint8_t>(Location->IsEmpty ^ 1)) {
+                ShowEvent(Event);
+                if (EC_Str::TrimWideString(Event->Text->Text) != u"") {
+                    LastEventSource = pas::concat_wide({u"Location ", EC_Str::IntToWideString(Location->Id)});
                 }
             }
         }
+        if (Critical) {
+            if (TextShown) {
+                PlayerInterface->AddContinueAction();
+            } else {
+                ShowOutcome();
+            }
+            return;
+        }
+        if (Location->IsSuccess) {
+            PlayerInterface->AddSuccessAction();
+            return;
+        }
+        if (Location->IsDeath) {
+            PlayerInterface->AddDeathAction();
+            return;
+        }
+        if (Location->IsFailure) {
+            PlayerInterface->AddFailureAction();
+            return;
+        }
+        pas::List* Pending = pas::make_object<pas::List>();
+        pas::List* Group = pas::make_object<pas::List>();
+        pas::List* Chosen = pas::make_object<pas::List>();
+        for (auto cpp_range = pas::for_to<std::int32_t>(1, GetPathCount()); cpp_range.next(i); ) {
+            Path = GetPath(i);
+            if (Location->Id != Path->FromLocationId || Path->TraversalLimit > 0 && Path->TraversalCount >= Path->TraversalLimit) {
+                continue;
+            }
+            Eligible = false;
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, GetLocationCount()); cpp_range_2.next(j); ) {
+                Target = GetLocation(j);
+                if (Target->Id == Path->ToLocationId) {
+                    Eligible = Target->VisitLimit == 0 || Target->VisitLimit > Target->VisitCount;
+                    break;
+                }
+            }
+            if (!Eligible) {
+                continue;
+            }
+            Path->CheckAvailable(Parameters);
+            if (!Path->Available) {
+                if (!Path->AlwaysShow) {
+                    continue;
+                }
+                if (EC_Str::TrimWideString(Path->Caption->Text) == u"") {
+                    continue;
+                }
+            }
+            pas::list_add(Pending, reinterpret_cast<void*>(Path));
+        }
+        while (pas::list_count(Pending) > 0) {
+            Path = pas::list_at<PathClass::TPath>(Pending, 0);
+            GroupCaption = ([&] {
+                pas::WideString trimWideString = EC_Str::TrimWideString(Path->Caption->Text);
+                TTextQuest* self_2 = this;
+                return self_2->ExpandText(std::move(trimWideString), false);
+            }());
+            pas::list_add(Group, reinterpret_cast<void*>(Path));
+            pas::list_delete(Pending, 0);
+            {
+                const std::int32_t cpp_first = pas::list_count(Pending) - 1;
+                if (cpp_first >= 0) {
+                    for (i = cpp_first; i >= 0; --i) {
+                        Path = pas::list_at<PathClass::TPath>(Pending, i);
+                        if (GroupCaption == ([&] {
+                            pas::WideString trimWideString_2 = EC_Str::TrimWideString(Path->Caption->Text);
+                            TTextQuest* self_3 = this;
+                            return self_3->ExpandText(std::move(trimWideString_2), false);
+                        }())) {
+                            pas::list_delete(Pending, i);
+                            if (Path->Available || pas::list_count(Group) <= 0) {
+                                pas::list_add(Group, reinterpret_cast<void*>(Path));
+                                if (pas::list_count(Group) > 1) {
+                                    Path = pas::list_at<PathClass::TPath>(Group, 0);
+                                    if (!Path->Available) {
+                                        pas::list_delete(Group, 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            MaxPriority = 0.0;
+            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Group) - 1); cpp_range_3.next(i); ) {
+                Path = pas::list_at<PathClass::TPath>(Group, i);
+                if (MaxPriority < Path->Priority) {
+                    MaxPriority = Path->Priority;
+                }
+            }
+            if (pas::list_count(Group) == 1) {
+                if (pas::random_real(&System::RandSeed) <= MaxPriority) {
+                    pas::list_add(Chosen, pas::list_get(Group, 0));
+                }
+            } else {
+                {
+                    const std::int32_t cpp_first_2 = pas::list_count(Group) - 1;
+                    if (cpp_first_2 >= 0) {
+                        for (i = cpp_first_2; i >= 0; --i) {
+                            Path = pas::list_at<PathClass::TPath>(Group, i);
+                            if (Path->Priority <= MaxPriority * 0.01L) {
+                                pas::list_delete(Group, i);
+                            }
+                        }
+                    }
+                }
+                TotalPriority = 0.0;
+                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Group) - 1); cpp_range_4.next(i); ) {
+                    Path = pas::list_at<PathClass::TPath>(Group, i);
+                    TotalPriority = static_cast<long double>(TotalPriority) + Path->Priority;
+                }
+                RandomPriority = pas::random_real(&System::RandSeed) * TotalPriority;
+                Selected = pas::list_count(Group) - 1;
+                for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Group) - 1); cpp_range_5.next(i); ) {
+                    Path = pas::list_at<PathClass::TPath>(Group, i);
+                    if (Path->Priority > RandomPriority) {
+                        Selected = i;
+                        break;
+                    }
+                    RandomPriority = static_cast<long double>(RandomPriority) - Path->Priority;
+                }
+                pas::list_add(Chosen, pas::list_get(Group, Selected));
+            }
+            pas::list_clear(Group);
+        }
+        if (pas::list_count(Chosen) == 0) {
+            pas::free(Chosen);
+            pas::free(Group);
+            pas::free(Pending);
+            Dialogs::ShowMessage(static_cast<pas::AnsiString>(pas::concat_wide({u"No available answers from location ", EC_Str::IntToWideString(Location->Id)})));
+            return;
+        }
+        if (pas::list_count(Chosen) == 1) {
+            Path = pas::list_at<PathClass::TPath>(Chosen, 0);
+            if (EC_Str::TrimWideString(Path->Caption->Text) == u"") {
+                pas::free(Chosen);
+                pas::free(Group);
+                pas::free(Pending);
+                FollowPath(Path->Id);
+                return;
+            }
+        }
+        for (auto cpp_range_6 = pas::for_to<std::int32_t>(1, pas::list_count(Chosen) * 2); cpp_range_6.next(i); ) {
+            Selected = pas::random(pas::list_count(Chosen), &System::RandSeed);
+            Path = pas::list_at<PathClass::TPath>(Chosen, Selected);
+            j = pas::random(pas::list_count(Chosen), &System::RandSeed);
+            pas::list_put(Chosen, Selected, pas::list_get(Chosen, j));
+            pas::list_put(Chosen, j, reinterpret_cast<void*>(Path));
+        }
+        for (auto cpp_range_7 = pas::for_to<std::int32_t>(2, pas::list_count(Chosen)); cpp_range_7.next(i); ) {
+            for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Chosen) - i); cpp_range_8.next(j); ) {
+                Path = pas::list_at<PathClass::TPath>(Chosen, j);
+                Other = pas::list_at<PathClass::TPath>(Chosen, j + 1);
+                if (Other->DisplayOrder < Path->DisplayOrder) {
+                    pas::list_put(Chosen, j, reinterpret_cast<void*>(Other));
+                    pas::list_put(Chosen, j + 1, reinterpret_cast<void*>(Path));
+                }
+            }
+        }
+        for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, pas::list_count(Chosen) - 1); cpp_range_9.next(i); ) {
+            Path = pas::list_at<PathClass::TPath>(Chosen, i);
+            Caption = EC_Str::TrimWideString(Path->Caption->Text);
+            if (Caption != u"") {
+                Caption = ExpandText(Caption, true);
+                if (Path->Available) {
+                    PlayerInterface->AddPathAction(Caption, Path->Id);
+                } else {
+                    PlayerInterface->AddDisabledPath(Caption);
+                }
+            }
+        }
+        pas::free(Chosen);
+        pas::free(Group);
+        pas::free(Pending);
+        TextShown = false;
     }
 
     void TTextQuest::FollowPath(std::int32_t PathId) {

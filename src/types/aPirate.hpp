@@ -62,7 +62,7 @@ namespace aPirate {
         aGalaxy::TStar* GetHomeStar() override;
         pas::WideString GetName() override;
         pas::WideString GetFullName(const pas::WideString& Separator) override;
-        std::uint8_t GetGreetingShipCategory() override;
+        aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() override;
         // Always rcPirate.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;

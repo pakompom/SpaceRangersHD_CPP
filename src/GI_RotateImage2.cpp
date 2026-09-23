@@ -7,6 +7,7 @@
 #include "units/EC_CacheBitmap.hpp"
 #include "units/EC_CacheRotateBuf.hpp"
 #include "units/EC_Mem.hpp"
+#include "units/EC_Struct.hpp"
 #include "units/GI_Main.hpp"
 #include "units/GI_MessageLoop.hpp"
 #include "units/GI_RotateImage2.hpp"
@@ -71,17 +72,17 @@ namespace GI_RotateImage2 {
     void TRotateImage2GI::SetImage(pas::WideString Path, Types::TPoint ImageSize, Types::TPoint Pivot) {
         EC_CacheBitmap::TCBitmapEC* Image{};
         double Radius{};
-        ImageCache->SetCacheKey(pas::concat_wide({Path, u"?RGBA"}));
+        ImageCache->SetCacheKey(pas::concat_wide({Path, EC_CacheBitmap::RgbaImagePathSuffix}));
         Image = EC_CacheBitmap::AcquireOrCreateBitmap(ImageCache);
         {
             pas::ScopeExit cpp_cleanup = [&]() noexcept {
                 ImageCache->Release();
             };
             RotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(ImageSize.X), ",", SysUtils::IntToStr(ImageSize.Y), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Image->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Image->Bitmap->Height)), ",", SysUtils::IntToStr(Pivot.X), ",", SysUtils::IntToStr(Pivot.Y)})));
-            Radius = pas::sqr(Pivot.X - 0) + pas::sqr(Pivot.Y - 0);
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - ImageSize.X) + pas::sqr(Pivot.Y - ImageSize.Y)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - ImageSize.X) + pas::sqr(Pivot.Y - 0)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(pas::sqr(Pivot.X - 0) + pas::sqr(Pivot.Y - ImageSize.Y)));
+            Radius = EC_Struct::SquaredDistanceToPoint(Pivot, 0, 0);
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, ImageSize.Y)));
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, 0)));
+            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, 0, ImageSize.Y)));
             Radius = MathImports::Floor(System::Sqrt(Radius) * 2.0L + 2.0L);
             {
                 std::int32_t trunc = System::Trunc(Radius);

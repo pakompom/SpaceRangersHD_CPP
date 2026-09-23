@@ -344,7 +344,7 @@ namespace Globals {
     extern std::uint8_t TalkScripted;
 
     // tk* conversation ID set by TShip.ShowPlayerDialogue and exposed by SF_GetTalkType.
-    extern std::uint8_t TalkType;
+    extern aGalaxyStruct::TTalkKind TalkType;
 
     // Negotiated amount; ShowPlayerDialogue overwrites it only for positive inputs.
     extern std::int32_t TalkAmount;
@@ -491,7 +491,7 @@ namespace Globals {
     // First configured value divided by 20; -1 when absent.
     extern pas::Array<std::int32_t, 0, 17> ArcadeWeaponLoopTicks;
 
-    // Retained SE.Ship templates indexed by race and six ordinary ship kinds.
+    // Retained SE.Ship templates indexed by owner and six ordinary hull kinds.
     extern pas::Array<pas::Array<SE_Space::TObjectSE*, 0, 5>, 0, 7> RaceShipTemplates;
 
     extern pas::Array<SE_Space::TObjectSE*, 0, 7> BlazerShipTemplates;
@@ -614,7 +614,7 @@ namespace Globals {
     TMessagePlayer* CreatePersistentPlayerMessage();
 
     // Returns a borrowed queue node. An existing key updates kind/turn and nonempty text; otherwise an exact text match is returned unchanged.
-    TMessagePlayer* AddOrUpdatePlayerBubble(std::uint8_t Kind, std::int32_t Turn, const pas::WideString& Text, const pas::WideString& Key);
+    TMessagePlayer* AddOrUpdatePlayerBubble(TPlayerMessageKind Kind, std::int32_t Turn, const pas::WideString& Text, const pas::WideString& Key);
 
     void PruneExpiredPersistentPlayerMessages();
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "runtime_support.hpp"
 #include "types/EC_Struct.hpp"
+#include "types/aShip.hpp"
 
 namespace EC_Buf {
     struct TBufEC;
@@ -14,26 +15,26 @@ namespace aGalaxy {
 
 } // namespace aGalaxy
 
-namespace aShip {
-    struct TShip;
-
-} // namespace aShip
-
 namespace aGroup {
     struct TGroupRouteOrder;
 
     struct TGroup;
 
+    // Ordinal 1 is unused by the recovered route logic.
+    enum TGroupWaitMode : std::uint8_t {
+        GroupWaitArrival = 0,
+        GroupWaitAssembly = 2,
+        GroupWaitUntilTurn = 3,
+    };
+
     #pragma pack(push, 1)
     struct TGroupRouteOrder {
-        // Same numeric orders as TShipOrder.
-        std::uint8_t Kind;
+        aShip::TShipOrder Kind;
         std::uint8_t cpp_padding[3];
         // Serialized as an object ID until ResolveLoadedReferences.
         pas::Object* Target;
         EC_Struct::TPointF Destination;
-        // 0: arrival, 2: group assembly, 3: WaitUntilTurn.
-        std::uint8_t WaitMode;
+        TGroupWaitMode WaitMode;
         std::uint8_t cpp_padding_2[3];
         std::int32_t WaitUntilTurn;
     };

@@ -1,4 +1,5 @@
 #include "layout/ab_Object.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/GI_MessageLoop.hpp"
 #include "types/SystemImports.hpp"
 #include "types/ab_Hit.hpp"
@@ -387,7 +388,10 @@ namespace ab_Object {
     }
 
     std::int32_t TabObject::RandomRange(std::int32_t BoundA, std::int32_t BoundB) {
-        RandomState = 16807 * (RandomState % 127773) - 2836 * (RandomState / 127773);
+        {
+            std::int32_t cpp_left = EC_Buf::SeedRngMultiplier * pas::imod(RandomState, EC_Buf::SeedRngQuotient);
+            RandomState = cpp_left - EC_Buf::SeedRngRemainder * pas::idiv(RandomState, EC_Buf::SeedRngQuotient);
+        }
         std::int32_t Result = static_cast<std::int32_t>(RandomState) - 1;
         if (Result < 0) {
             Result = -Result;

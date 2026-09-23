@@ -13,6 +13,7 @@
 #include "types/aItem.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aShip.hpp"
+#include "types/ab_Global.hpp"
 #include "types/fAbout.hpp"
 #include "types/fCfgSettings.hpp"
 #include "types/fFilm.hpp"
@@ -84,13 +85,13 @@ namespace Globals {
         {.NormalImage = u"GalaxyN"_w, .ActiveImage = u"GalaxyA"_w, .PressedImage = u"GalaxyD"_w, .LifetimeTurns = 10},
         {.NormalImage = u"EtherN"_w, .ActiveImage = u"EtherA"_w, .PressedImage = u"EtherD"_w},
         {.NormalImage = u"ShipPlusN"_w, .ActiveImage = u"ShipPlusA"_w, .PressedImage = u"ShipPlusD"_w, .LifetimeTurns = 5},
-        {.NormalImage = u"QuestNormalN"_w, .ActiveImage = u"QuestNormalA"_w, .PressedImage = u"QuestNormalD"_w, .LifetimeTurns = 1000000},
-        {.NormalImage = u"QuestOkN"_w, .ActiveImage = u"QuestOkA"_w, .PressedImage = u"QuestOkD"_w, .LifetimeTurns = 1000000},
-        {.NormalImage = u"QuestCancelN"_w, .ActiveImage = u"QuestCancelA"_w, .PressedImage = u"QuestCancelD"_w, .LifetimeTurns = 1000000},
+        {.NormalImage = u"QuestNormalN"_w, .ActiveImage = u"QuestNormalA"_w, .PressedImage = u"QuestNormalD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
+        {.NormalImage = u"QuestOkN"_w, .ActiveImage = u"QuestOkA"_w, .PressedImage = u"QuestOkD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
+        {.NormalImage = u"QuestCancelN"_w, .ActiveImage = u"QuestCancelA"_w, .PressedImage = u"QuestCancelD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
         {.NormalImage = u"TipsN"_w, .ActiveImage = u"TipsA"_w, .PressedImage = u"TipsD"_w, .LifetimeTurns = 182},
-        {.NormalImage = u"UserN"_w, .ActiveImage = u"UserA"_w, .PressedImage = u"UserD"_w, .LifetimeTurns = 1000000},
+        {.NormalImage = u"UserN"_w, .ActiveImage = u"UserA"_w, .PressedImage = u"UserD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
         {.NormalImage = u"ShipMinusN"_w, .ActiveImage = u"ShipMinusA"_w, .PressedImage = u"ShipMinusD"_w, .LifetimeTurns = 5},
-        {.NormalImage = u"StorageN"_w, .ActiveImage = u"StorageA"_w, .PressedImage = u"StorageD"_w, .LifetimeTurns = 1000000},
+        {.NormalImage = u"StorageN"_w, .ActiveImage = u"StorageA"_w, .PressedImage = u"StorageD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
         {.NormalImage = u"Ether2N"_w, .ActiveImage = u"Ether2A"_w, .PressedImage = u"Ether2D"_w},
     }};
 
@@ -184,7 +185,7 @@ namespace Globals {
     std::uint8_t TalkScripted{};
 
     // tk* conversation ID set by TShip.ShowPlayerDialogue and exposed by SF_GetTalkType.
-    std::uint8_t TalkType{};
+    aGalaxyStruct::TTalkKind TalkType{};
 
     // Negotiated amount; ShowPlayerDialogue overwrites it only for positive inputs.
     std::int32_t TalkAmount{};
@@ -331,7 +332,7 @@ namespace Globals {
     // First configured value divided by 20; -1 when absent.
     pas::Array<std::int32_t, 0, 17> ArcadeWeaponLoopTicks{};
 
-    // Retained SE.Ship templates indexed by race and six ordinary ship kinds.
+    // Retained SE.Ship templates indexed by owner and six ordinary hull kinds.
     pas::Array<pas::Array<SE_Space::TObjectSE*, 0, 5>, 0, 7> RaceShipTemplates{};
 
     pas::Array<SE_Space::TObjectSE*, 0, 7> BlazerShipTemplates{};
@@ -422,11 +423,11 @@ namespace Globals {
             if (Index < 10) {
                 const pas::WideString& localizedColorText = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Tips.0", SysUtils::IntToStr(Index)})));
                 std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
-                Globals::AddOrUpdatePlayerBubble(6, currentTurn, localizedColorText, u""_wref.get());
+                Globals::AddOrUpdatePlayerBubble(pmTip, currentTurn, localizedColorText, u""_wref.get());
             } else {
                 const pas::WideString& localizedColorText_2 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Tips.", SysUtils::IntToStr(Index)})));
                 std::int32_t currentTurn_2 = aGalaxy::Galaxy->CurrentTurn;
-                Globals::AddOrUpdatePlayerBubble(6, currentTurn_2, localizedColorText_2, u""_wref.get());
+                Globals::AddOrUpdatePlayerBubble(pmTip, currentTurn_2, localizedColorText_2, u""_wref.get());
             }
             return true;
         }
@@ -525,8 +526,8 @@ namespace Globals {
 
     void FinalizeScriptHostRuntime() {
         aGalaxyStruct::TOwnerId Race{};
-        std::uint8_t Kind{};
-        std::uint8_t Series{};
+        aGalaxyStruct::THullType Kind{};
+        aGalaxyStruct::TKlingType KlingKind{};
         pas::Object* Item{};
         std::int32_t Index{};
         aScript::FinalizeScriptEngine();
@@ -567,7 +568,7 @@ namespace Globals {
             ScriptUiAbortEvent = 0u;
         }
         for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_2.next(Race); ) {
-            for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(5)); cpp_range_3.next(Kind); ) {
+            for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat); cpp_range_3.next(Kind); ) {
                 if (RaceShipTemplates[Race][Kind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][Kind]));
                 }
@@ -576,16 +577,16 @@ namespace Globals {
                 SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PirateClanShipTemplates[Race]));
             }
         }
-        for (auto cpp_range_4 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_4.next(Series); ) {
-            if (Series != 0) {
-                if (BlazerShipTemplates[Series] != nullptr) {
-                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[Series]));
+        for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_4.next(KlingKind); ) {
+            if (KlingKind != aGalaxyStruct::ktBoss) {
+                if (BlazerShipTemplates[KlingKind] != nullptr) {
+                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[KlingKind]));
                 }
-                if (KellerShipTemplates[Series] != nullptr) {
-                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[Series]));
+                if (KellerShipTemplates[KlingKind] != nullptr) {
+                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[KlingKind]));
                 }
-                if (TerronShipTemplates[Series] != nullptr) {
-                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[Series]));
+                if (TerronShipTemplates[KlingKind] != nullptr) {
+                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[KlingKind]));
                 }
             }
         }
@@ -775,28 +776,28 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"AutoTalk"_wref.get());
                     if (Text == u"" || Text == u"No") {
-                        cpp_with.AutoTalk = 1;
+                        cpp_with.AutoTalk = gcNo;
                     } else if (Text == u"Any") {
-                        cpp_with.AutoTalk = 2;
+                        cpp_with.AutoTalk = gcAny;
                     } else {
-                        cpp_with.AutoTalk = 0;
+                        cpp_with.AutoTalk = gcYes;
                     }
                     Text = ReadShipGreetingField(u"FlyType"_wref.get());
                     if (Text == u"Any" || Text == u"") {
-                        cpp_with.FlyType = 0;
+                        cpp_with.FlyType = gfAny;
                     } else if (Text == u"ToPlanet") {
-                        cpp_with.FlyType = 1;
+                        cpp_with.FlyType = gfToPlanet;
                     } else if (Text == u"ToStar") {
-                        cpp_with.FlyType = 2;
+                        cpp_with.FlyType = gfToStar;
                     } else if (Text == u"ToItem") {
-                        cpp_with.FlyType = 3;
+                        cpp_with.FlyType = gfToItem;
                     } else if (Text == u"ToShip") {
-                        cpp_with.FlyType = 4;
+                        cpp_with.FlyType = gfToShip;
                     } else {
                         GR_Main::RaiseWideMessage(Text);
                     }
                     Text = ReadShipGreetingField(u"ShipType"_wref.get());
-                    cpp_with.ShipType = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ShipType = pas::constant_set<TGreetingShipCategories>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Transport", static_cast<pas::AnsiString>(Text)) > 0) {
                             pas::include_at(&cpp_with.ShipType, aGalaxyStruct::gscTransport);
@@ -848,38 +849,38 @@ namespace Globals {
                     cpp_with.PlayerRace = Globals::ParseRobotMapRaceMask(Text);
                     Text = ReadShipGreetingField(u"ShipRaceIsPlayerRace"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ShipRaceIsPlayerRace = 0;
+                        cpp_with.ShipRaceIsPlayerRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ShipRaceIsPlayerRace = 1;
+                        cpp_with.ShipRaceIsPlayerRace = gcNo;
                     } else {
-                        cpp_with.ShipRaceIsPlayerRace = 2;
+                        cpp_with.ShipRaceIsPlayerRace = gcAny;
                     }
                     Text = ReadShipGreetingField(u"PlayerAttackGoodShip"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.PlayerAttackGoodShip = 0;
+                        cpp_with.PlayerAttackGoodShip = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.PlayerAttackGoodShip = 1;
+                        cpp_with.PlayerAttackGoodShip = gcNo;
                     } else {
-                        cpp_with.PlayerAttackGoodShip = 2;
+                        cpp_with.PlayerAttackGoodShip = gcAny;
                     }
                     Text = ReadShipGreetingField(u"InFear"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.InFear = 0;
+                        cpp_with.InFear = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.InFear = 2;
+                        cpp_with.InFear = gcAny;
                     } else {
-                        cpp_with.InFear = 1;
+                        cpp_with.InFear = gcNo;
                     }
                     Text = ReadShipGreetingField(u"ShipBadFlyToShip"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ShipBadFlyToShip = 0;
+                        cpp_with.ShipBadFlyToShip = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ShipBadFlyToShip = 2;
+                        cpp_with.ShipBadFlyToShip = gcAny;
                     } else {
-                        cpp_with.ShipBadFlyToShip = 1;
+                        cpp_with.ShipBadFlyToShip = gcNo;
                     }
                     Text = ReadShipGreetingField(u"ShipBadType"_wref.get());
-                    cpp_with.ShipBadType = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ShipBadType = pas::constant_set<TGreetingShipCategories>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Transport", static_cast<pas::AnsiString>(Text)) > 0) {
                             pas::include_at(&cpp_with.ShipBadType, aGalaxyStruct::gscTransport);
@@ -910,27 +911,27 @@ namespace Globals {
                     cpp_with.ShipBadRace = Globals::ParseRobotMapRaceMask(Text);
                     Text = ReadShipGreetingField(u"ShipFlyToPlayer"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ShipFlyToPlayer = 0;
+                        cpp_with.ShipFlyToPlayer = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ShipFlyToPlayer = 1;
+                        cpp_with.ShipFlyToPlayer = gcNo;
                     } else {
-                        cpp_with.ShipFlyToPlayer = 2;
+                        cpp_with.ShipFlyToPlayer = gcAny;
                     }
                     Text = ReadShipGreetingField(u"PlayerFlyToShip"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.PlayerFlyToShip = 0;
+                        cpp_with.PlayerFlyToShip = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.PlayerFlyToShip = 1;
+                        cpp_with.PlayerFlyToShip = gcNo;
                     } else {
-                        cpp_with.PlayerFlyToShip = 2;
+                        cpp_with.PlayerFlyToShip = gcAny;
                     }
                     Text = ReadShipGreetingField(u"PlayerIsShipBad"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.PlayerIsShipBad = 0;
+                        cpp_with.PlayerIsShipBad = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.PlayerIsShipBad = 1;
+                        cpp_with.PlayerIsShipBad = gcNo;
                     } else {
-                        cpp_with.PlayerIsShipBad = 2;
+                        cpp_with.PlayerIsShipBad = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ShipTurnBeforeEndOrder"_wref.get());
                     cpp_with.ShipTurnBeforeEndOrder = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -1236,7 +1237,7 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"Goods"_wref.get());
                     if (Text == u"") {
-                        cpp_with.Goods = 42;
+                        cpp_with.Goods = aGalaxyStruct::UnspecifiedGoods;
                     } else if (Text == u"Food") {
                         cpp_with.Goods = 0;
                     } else if (Text == u"Medicine") {
@@ -1254,7 +1255,7 @@ namespace Globals {
                     } else if (Text == u"Narcotics") {
                         cpp_with.Goods = 7;
                     } else {
-                        cpp_with.Goods = 42;
+                        cpp_with.Goods = aGalaxyStruct::UnspecifiedGoods;
                     }
                     Text = ReadShipGreetingField(u"ShipGoodsCnt"_wref.get());
                     cpp_with.ShipGoodsCnt = pas::constant_set<TGreetingMask>({});
@@ -1302,19 +1303,19 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"ShipHaveGoods"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ShipHaveGoods = 0;
+                        cpp_with.ShipHaveGoods = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ShipHaveGoods = 1;
+                        cpp_with.ShipHaveGoods = gcNo;
                     } else {
-                        cpp_with.ShipHaveGoods = 2;
+                        cpp_with.ShipHaveGoods = gcAny;
                     }
                     Text = ReadShipGreetingField(u"PlayerHaveGoods"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.PlayerHaveGoods = 0;
+                        cpp_with.PlayerHaveGoods = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.PlayerHaveGoods = 1;
+                        cpp_with.PlayerHaveGoods = gcNo;
                     } else {
-                        cpp_with.PlayerHaveGoods = 2;
+                        cpp_with.PlayerHaveGoods = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ShipGoodsTypeCnt"_wref.get());
                     cpp_with.ShipGoodsTypeCnt = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -1344,11 +1345,11 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"ShipMayScanPlayer"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ShipMayScanPlayer = 0;
+                        cpp_with.ShipMayScanPlayer = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ShipMayScanPlayer = 1;
+                        cpp_with.ShipMayScanPlayer = gcNo;
                     } else {
-                        cpp_with.ShipMayScanPlayer = 2;
+                        cpp_with.ShipMayScanPlayer = gcAny;
                     }
                     Text = ReadShipGreetingField(u"RangerInCurStar"_wref.get());
                     cpp_with.RangerInCurStar = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -1517,27 +1518,27 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"LastPlanetIsHomePlanet"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.LastPlanetIsHomePlanet = 0;
+                        cpp_with.LastPlanetIsHomePlanet = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.LastPlanetIsHomePlanet = 1;
+                        cpp_with.LastPlanetIsHomePlanet = gcNo;
                     } else {
-                        cpp_with.LastPlanetIsHomePlanet = 2;
+                        cpp_with.LastPlanetIsHomePlanet = gcAny;
                     }
                     Text = ReadShipGreetingField(u"LastPlanetRaceIsShipRace"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.LastPlanetRaceIsShipRace = 0;
+                        cpp_with.LastPlanetRaceIsShipRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.LastPlanetRaceIsShipRace = 1;
+                        cpp_with.LastPlanetRaceIsShipRace = gcNo;
                     } else {
-                        cpp_with.LastPlanetRaceIsShipRace = 2;
+                        cpp_with.LastPlanetRaceIsShipRace = gcAny;
                     }
                     Text = ReadShipGreetingField(u"LastPlanetRaceIsPlayerRace"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.LastPlanetRaceIsPlayerRace = 0;
+                        cpp_with.LastPlanetRaceIsPlayerRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.LastPlanetRaceIsPlayerRace = 1;
+                        cpp_with.LastPlanetRaceIsPlayerRace = gcNo;
                     } else {
-                        cpp_with.LastPlanetRaceIsPlayerRace = 2;
+                        cpp_with.LastPlanetRaceIsPlayerRace = gcAny;
                     }
                     Text = ReadShipGreetingField(u"LastPlanetEconomy"_wref.get());
                     cpp_with.LastPlanetEconomy = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
@@ -1573,11 +1574,11 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"LastPlanetInCurStar"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.LastPlanetInCurStar = 0;
+                        cpp_with.LastPlanetInCurStar = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.LastPlanetInCurStar = 1;
+                        cpp_with.LastPlanetInCurStar = gcNo;
                     } else {
-                        cpp_with.LastPlanetInCurStar = 2;
+                        cpp_with.LastPlanetInCurStar = gcAny;
                     }
                     Text = ReadShipGreetingField(u"LastPlanetDistToShipInTurn"_wref.get());
                     cpp_with.LastPlanetDistToShipInTurn = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -1758,27 +1759,27 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"ToPlanetIsHomePlanet"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetIsHomePlanet = 0;
+                        cpp_with.ToPlanetIsHomePlanet = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetIsHomePlanet = 1;
+                        cpp_with.ToPlanetIsHomePlanet = gcNo;
                     } else {
-                        cpp_with.ToPlanetIsHomePlanet = 2;
+                        cpp_with.ToPlanetIsHomePlanet = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ToPlanetRaceIsShipRace"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetRaceIsShipRace = 0;
+                        cpp_with.ToPlanetRaceIsShipRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetRaceIsShipRace = 1;
+                        cpp_with.ToPlanetRaceIsShipRace = gcNo;
                     } else {
-                        cpp_with.ToPlanetRaceIsShipRace = 2;
+                        cpp_with.ToPlanetRaceIsShipRace = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ToPlanetRaceIsPlayerRace"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetRaceIsPlayerRace = 0;
+                        cpp_with.ToPlanetRaceIsPlayerRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetRaceIsPlayerRace = 1;
+                        cpp_with.ToPlanetRaceIsPlayerRace = gcNo;
                     } else {
-                        cpp_with.ToPlanetRaceIsPlayerRace = 2;
+                        cpp_with.ToPlanetRaceIsPlayerRace = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ToPlanetEconomy"_wref.get());
                     cpp_with.ToPlanetEconomy = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
@@ -1814,51 +1815,51 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"ToPlanetIsLastPlanet"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetIsLastPlanet = 0;
+                        cpp_with.ToPlanetIsLastPlanet = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ToPlanetIsLastPlanet = 2;
+                        cpp_with.ToPlanetIsLastPlanet = gcAny;
                     } else {
-                        cpp_with.ToPlanetIsLastPlanet = 1;
+                        cpp_with.ToPlanetIsLastPlanet = gcNo;
                     }
                     Text = ReadShipGreetingField(u"ToPlanetRaceIsLastPlanetRace"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetRaceIsLastPlanetRace = 0;
+                        cpp_with.ToPlanetRaceIsLastPlanetRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetRaceIsLastPlanetRace = 1;
+                        cpp_with.ToPlanetRaceIsLastPlanetRace = gcNo;
                     } else {
-                        cpp_with.ToPlanetRaceIsLastPlanetRace = 2;
+                        cpp_with.ToPlanetRaceIsLastPlanetRace = gcAny;
                     }
                     Text = ReadShipGreetingField(u"HomePlanetInToStar"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.HomePlanetInToStar = 0;
+                        cpp_with.HomePlanetInToStar = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.HomePlanetInToStar = 1;
+                        cpp_with.HomePlanetInToStar = gcNo;
                     } else {
-                        cpp_with.HomePlanetInToStar = 2;
+                        cpp_with.HomePlanetInToStar = gcAny;
                     }
                     Text = ReadShipGreetingField(u"HomePlanetInCurStar"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.HomePlanetInCurStar = 0;
+                        cpp_with.HomePlanetInCurStar = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.HomePlanetInCurStar = 1;
+                        cpp_with.HomePlanetInCurStar = gcNo;
                     } else {
-                        cpp_with.HomePlanetInCurStar = 2;
+                        cpp_with.HomePlanetInCurStar = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ToStarControlByKling"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToStarControlByKling = 0;
+                        cpp_with.ToStarControlByKling = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ToStarControlByKling = 2;
+                        cpp_with.ToStarControlByKling = gcAny;
                     } else {
-                        cpp_with.ToStarControlByKling = 1;
+                        cpp_with.ToStarControlByKling = gcNo;
                     }
                     Text = ReadShipGreetingField(u"ToStarInBattle"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToStarInBattle = 0;
+                        cpp_with.ToStarInBattle = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ToStarInBattle = 2;
+                        cpp_with.ToStarInBattle = gcAny;
                     } else {
-                        cpp_with.ToStarInBattle = 1;
+                        cpp_with.ToStarInBattle = gcNo;
                     }
                     Text = ReadShipGreetingField(u"RangerInToStar"_wref.get());
                     cpp_with.RangerInToStar = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -1963,14 +1964,14 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"ShipNeedInItem"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ShipNeedInItem = 0;
+                        cpp_with.ShipNeedInItem = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ShipNeedInItem = 1;
+                        cpp_with.ShipNeedInItem = gcNo;
                     } else {
-                        cpp_with.ShipNeedInItem = 2;
+                        cpp_with.ShipNeedInItem = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ToShipType"_wref.get());
-                    cpp_with.ToShipType = pas::constant_set<TGreetingMask>({});
+                    cpp_with.ToShipType = pas::constant_set<TGreetingShipCategories>({});
                     if (Text != u"" && Text != u"Any") {
                         if (pas::pos("Transport", static_cast<pas::AnsiString>(Text)) > 0) {
                             pas::include_at(&cpp_with.ToShipType, aGalaxyStruct::gscTransport);
@@ -1998,19 +1999,19 @@ namespace Globals {
                     cpp_with.ToShipRace = Globals::ParseRobotMapRaceMask(Text);
                     Text = ReadShipGreetingField(u"ToShipInPlanet"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToShipInPlanet = 0;
+                        cpp_with.ToShipInPlanet = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToShipInPlanet = 1;
+                        cpp_with.ToShipInPlanet = gcNo;
                     } else {
-                        cpp_with.ToShipInPlanet = 2;
+                        cpp_with.ToShipInPlanet = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ToShipBad"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToShipBad = 0;
+                        cpp_with.ToShipBad = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToShipBad = 1;
+                        cpp_with.ToShipBad = gcNo;
                     } else {
-                        cpp_with.ToShipBad = 2;
+                        cpp_with.ToShipBad = gcAny;
                     }
                     Text = ReadShipGreetingField(u"ToShipRelations"_wref.get());
                     cpp_with.ToShipRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
@@ -2102,11 +2103,11 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"ToStarControlByPirates"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.ToStarControlByPirates = 0;
+                        cpp_with.ToStarControlByPirates = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ToStarControlByPirates = 2;
+                        cpp_with.ToStarControlByPirates = gcAny;
                     } else {
-                        cpp_with.ToStarControlByPirates = 1;
+                        cpp_with.ToStarControlByPirates = gcNo;
                     }
                     Text = ReadShipGreetingField(u"PirateClanInCurStar"_wref.get());
                     cpp_with.PirateClanInCurStar = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -2143,19 +2144,19 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"CoalitionAlreadyDefeated"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.CoalitionAlreadyDefeated = 0;
+                        cpp_with.CoalitionAlreadyDefeated = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.CoalitionAlreadyDefeated = 1;
+                        cpp_with.CoalitionAlreadyDefeated = gcNo;
                     } else {
-                        cpp_with.CoalitionAlreadyDefeated = 2;
+                        cpp_with.CoalitionAlreadyDefeated = gcAny;
                     }
                     Text = ReadShipGreetingField(u"DominatorsAlreadyDefeated"_wref.get());
                     if (Text == u"Yes") {
-                        cpp_with.DominatorsAlreadyDefeated = 0;
+                        cpp_with.DominatorsAlreadyDefeated = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.DominatorsAlreadyDefeated = 1;
+                        cpp_with.DominatorsAlreadyDefeated = gcNo;
                     } else {
-                        cpp_with.DominatorsAlreadyDefeated = 2;
+                        cpp_with.DominatorsAlreadyDefeated = gcAny;
                     }
                 }
             }
@@ -2269,7 +2270,7 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"Goods"_w);
                     if (Text == u"") {
-                        cpp_with.Goods = 42;
+                        cpp_with.Goods = aGalaxyStruct::UnspecifiedGoods;
                     } else if (Text == u"Food") {
                         cpp_with.Goods = 0;
                     } else if (Text == u"Medicine") {
@@ -2287,17 +2288,17 @@ namespace Globals {
                     } else if (Text == u"Narcotics") {
                         cpp_with.Goods = 7;
                     } else {
-                        cpp_with.Goods = 42;
+                        cpp_with.Goods = aGalaxyStruct::UnspecifiedGoods;
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetRace"_w);
                     cpp_with.CurPlanetRace = Globals::ParseRobotMapRaceMask(Text);
                     Text = ReadGovernmentGreetingField(u"CurPlanetRaceIsPlayerRace"_w);
                     if (Text == u"Yes") {
-                        cpp_with.CurPlanetRaceIsPlayerRace = 0;
+                        cpp_with.CurPlanetRaceIsPlayerRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.CurPlanetRaceIsPlayerRace = 1;
+                        cpp_with.CurPlanetRaceIsPlayerRace = gcNo;
                     } else {
-                        cpp_with.CurPlanetRaceIsPlayerRace = 2;
+                        cpp_with.CurPlanetRaceIsPlayerRace = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetRelations"_w);
                     cpp_with.CurPlanetRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
@@ -2320,11 +2321,11 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetGoodsPermit"_w);
                     if (Text == u"Yes") {
-                        cpp_with.CurPlanetGoodsPermit = 0;
+                        cpp_with.CurPlanetGoodsPermit = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.CurPlanetGoodsPermit = 1;
+                        cpp_with.CurPlanetGoodsPermit = gcNo;
                     } else {
-                        cpp_with.CurPlanetGoodsPermit = 2;
+                        cpp_with.CurPlanetGoodsPermit = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetGoodsCnt"_w);
                     cpp_with.CurPlanetGoodsCnt = pas::constant_set<TGreetingMask>({});
@@ -2500,11 +2501,11 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"CurStarInBattle"_w);
                     if (Text == u"Yes") {
-                        cpp_with.CurStarInBattle = 0;
+                        cpp_with.CurStarInBattle = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.CurStarInBattle = 2;
+                        cpp_with.CurStarInBattle = gcAny;
                     } else {
-                        cpp_with.CurStarInBattle = 1;
+                        cpp_with.CurStarInBattle = gcNo;
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetRace"_w);
                     if (Text == u"Any") {
@@ -2514,19 +2515,19 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetRaceIsPlayerRace"_w);
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetRaceIsPlayerRace = 0;
+                        cpp_with.ToPlanetRaceIsPlayerRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetRaceIsPlayerRace = 1;
+                        cpp_with.ToPlanetRaceIsPlayerRace = gcNo;
                     } else {
-                        cpp_with.ToPlanetRaceIsPlayerRace = 2;
+                        cpp_with.ToPlanetRaceIsPlayerRace = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetRaceIsCurPlanetRace"_w);
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetRaceIsCurPlanetRace = 0;
+                        cpp_with.ToPlanetRaceIsCurPlanetRace = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetRaceIsCurPlanetRace = 1;
+                        cpp_with.ToPlanetRaceIsCurPlanetRace = gcNo;
                     } else {
-                        cpp_with.ToPlanetRaceIsCurPlanetRace = 2;
+                        cpp_with.ToPlanetRaceIsCurPlanetRace = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetRelations"_w);
                     cpp_with.ToPlanetRelations = pas::constant_set<aGalaxyStruct::TRelationLevels>({});
@@ -2549,11 +2550,11 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetGoodsPermit"_w);
                     if (Text == u"Yes") {
-                        cpp_with.ToPlanetGoodsPermit = 0;
+                        cpp_with.ToPlanetGoodsPermit = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetGoodsPermit = 1;
+                        cpp_with.ToPlanetGoodsPermit = gcNo;
                     } else {
-                        cpp_with.ToPlanetGoodsPermit = 2;
+                        cpp_with.ToPlanetGoodsPermit = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetGoodsCnt"_w);
                     cpp_with.ToPlanetGoodsCnt = pas::constant_set<TGreetingMask>({});
@@ -2649,11 +2650,11 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetInCurStar"_w);
                     if (Text == u"Any") {
-                        cpp_with.ToPlanetInCurStar = 2;
+                        cpp_with.ToPlanetInCurStar = gcAny;
                     } else if (Text == u"No") {
-                        cpp_with.ToPlanetInCurStar = 1;
+                        cpp_with.ToPlanetInCurStar = gcNo;
                     } else {
-                        cpp_with.ToPlanetInCurStar = 0;
+                        cpp_with.ToPlanetInCurStar = gcYes;
                     }
                     Text = ReadGovernmentGreetingField(u"RangerInToStar"_w);
                     cpp_with.RangerInToStar = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -2737,35 +2738,35 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"ToStarControlByKling"_w);
                     if (Text == u"Yes") {
-                        cpp_with.ToStarControlByKling = 0;
+                        cpp_with.ToStarControlByKling = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ToStarControlByKling = 2;
+                        cpp_with.ToStarControlByKling = gcAny;
                     } else {
-                        cpp_with.ToStarControlByKling = 1;
+                        cpp_with.ToStarControlByKling = gcNo;
                     }
                     Text = ReadGovernmentGreetingField(u"ToStarInBattle"_w);
                     if (Text == u"Yes") {
-                        cpp_with.ToStarInBattle = 0;
+                        cpp_with.ToStarInBattle = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ToStarInBattle = 2;
+                        cpp_with.ToStarInBattle = gcAny;
                     } else {
-                        cpp_with.ToStarInBattle = 1;
+                        cpp_with.ToStarInBattle = gcNo;
                     }
                     Text = ReadGovernmentGreetingField(u"CurPlanetPirateClan"_w);
                     if (Text == u"Yes") {
-                        cpp_with.CurPlanetPirateClan = 0;
+                        cpp_with.CurPlanetPirateClan = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.CurPlanetPirateClan = 1;
+                        cpp_with.CurPlanetPirateClan = gcNo;
                     } else {
-                        cpp_with.CurPlanetPirateClan = 2;
+                        cpp_with.CurPlanetPirateClan = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"CurStarInBattlePirates"_w);
                     if (Text == u"Yes") {
-                        cpp_with.CurStarInBattlePirates = 0;
+                        cpp_with.CurStarInBattlePirates = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.CurStarInBattlePirates = 2;
+                        cpp_with.CurStarInBattlePirates = gcAny;
                     } else {
-                        cpp_with.CurStarInBattlePirates = 1;
+                        cpp_with.CurStarInBattlePirates = gcNo;
                     }
                     Text = ReadGovernmentGreetingField(u"PirateClanInCurStar"_w);
                     cpp_with.PirateClanInCurStar = pas::constant_set<aGalaxyStruct::TGreetingCountMask>({});
@@ -2801,27 +2802,27 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"ToStarControlByPirates"_w);
                     if (Text == u"Yes") {
-                        cpp_with.ToStarControlByPirates = 0;
+                        cpp_with.ToStarControlByPirates = gcYes;
                     } else if (Text == u"Any") {
-                        cpp_with.ToStarControlByPirates = 2;
+                        cpp_with.ToStarControlByPirates = gcAny;
                     } else {
-                        cpp_with.ToStarControlByPirates = 1;
+                        cpp_with.ToStarControlByPirates = gcNo;
                     }
                     Text = ReadGovernmentGreetingField(u"CoalitionAlreadyDefeated"_w);
                     if (Text == u"Yes") {
-                        cpp_with.CoalitionAlreadyDefeated = 0;
+                        cpp_with.CoalitionAlreadyDefeated = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.CoalitionAlreadyDefeated = 1;
+                        cpp_with.CoalitionAlreadyDefeated = gcNo;
                     } else {
-                        cpp_with.CoalitionAlreadyDefeated = 2;
+                        cpp_with.CoalitionAlreadyDefeated = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"DominatorsAlreadyDefeated"_w);
                     if (Text == u"Yes") {
-                        cpp_with.DominatorsAlreadyDefeated = 0;
+                        cpp_with.DominatorsAlreadyDefeated = gcYes;
                     } else if (Text == u"No") {
-                        cpp_with.DominatorsAlreadyDefeated = 1;
+                        cpp_with.DominatorsAlreadyDefeated = gcNo;
                     } else {
-                        cpp_with.DominatorsAlreadyDefeated = 2;
+                        cpp_with.DominatorsAlreadyDefeated = gcAny;
                     }
                     Text = ReadGovernmentGreetingField(u"PlayerPirateRank"_w);
                     cpp_with.PlayerPirateRank = pas::constant_set<TGreetingMask>({});
@@ -2904,7 +2905,7 @@ namespace Globals {
                             PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = 1;
                         }
                     }
-                    PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = 42;
+                    PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = aGalaxyStruct::UnspecifiedGoods;
                     if (Block->CountParams(u"Goods"_wref.get()) > 0) {
                         Text = Block->GetParam(u"Goods"sv);
                         if (Text == u"Food") {
@@ -2924,7 +2925,7 @@ namespace Globals {
                         } else if (Text == u"Narcotics") {
                             PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = 7;
                         } else {
-                            PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = 42;
+                            PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = aGalaxyStruct::UnspecifiedGoods;
                         }
                     }
                     PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
@@ -2985,8 +2986,8 @@ namespace Globals {
         std::int32_t Count{};
         TSputnikTempl* SatelliteTemplate{};
         EC_BlockPar::TBlockParEC* Section{};
-        std::uint8_t Series{};
-        std::uint8_t Kind{};
+        aGalaxyStruct::TKlingType KlingKind{};
+        aGalaxyStruct::THullType Kind{};
         TScriptTemplUnit* ScriptTemplate{};
         pas::WideString Text{};
         pas::WideString WarningText{};
@@ -3044,7 +3045,7 @@ namespace Globals {
             GlobalsV::ViewPathLength = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewPathLength"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"TurnSaveStep"_wref.get()) > 0) {
-            GlobalsV::TurnSaveStep = std::min<std::int32_t>(365, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TurnSaveStep"_wref.get()))));
+            GlobalsV::TurnSaveStep = std::min<std::int32_t>(aGalaxyStruct::TurnsPerYear, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TurnSaveStep"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"QuickSaveExtraSlots"_wref.get()) > 0) {
             GlobalsV::QuickSaveExtraSlots = std::min<std::int32_t>(9, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"QuickSaveExtraSlots"_wref.get()))));
@@ -3314,39 +3315,39 @@ namespace Globals {
                     const pas::WideString& internalName = aConst::OwnerInfo[Race].InternalName;
                     return blockByPath->FindBlock(pas::view(internalName));
                 }());
-                for (Kind = static_cast<std::uint8_t>(0); Kind <= static_cast<std::uint8_t>(5); ++Kind) {
+                for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat); cpp_range_4.next(Kind); ) {
                     RaceShipTemplates[Race][Kind] = nullptr;
                 }
                 PirateClanShipTemplates[Race] = nullptr;
                 if (ShipBlock != nullptr) {
                     if (ShipBlock->CountBlocks(u"Ranger"_wref.get()) > 0) {
                         SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Ranger"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][0]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htRanger]);
                         SE_Space::RetainSpaceObject(cpp_arg, createSpaceObjectByName);
                     }
                     if (ShipBlock->CountBlocks(u"Warrior"_wref.get()) > 0) {
                         SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Warrior"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_2 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][1]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_2 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htWarrior]);
                         SE_Space::RetainSpaceObject(cpp_arg_2, createSpaceObjectByName_2);
                     }
                     if (ShipBlock->CountBlocks(u"Pirate"_wref.get()) > 0) {
                         SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Pirate"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_3 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][2]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_3 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htPirate]);
                         SE_Space::RetainSpaceObject(cpp_arg_3, createSpaceObjectByName_3);
                     }
                     if (ShipBlock->CountBlocks(u"Transport"_wref.get()) > 0) {
                         SE_Space::TObjectSE* createSpaceObjectByName_4 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Transport"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_4 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][3]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_4 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htTransport]);
                         SE_Space::RetainSpaceObject(cpp_arg_4, createSpaceObjectByName_4);
                     }
                     if (ShipBlock->CountBlocks(u"Liner"_wref.get()) > 0) {
                         SE_Space::TObjectSE* createSpaceObjectByName_5 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Liner"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_5 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][4]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_5 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htLiner]);
                         SE_Space::RetainSpaceObject(cpp_arg_5, createSpaceObjectByName_5);
                     }
                     if (ShipBlock->CountBlocks(u"Diplomat"_wref.get()) > 0) {
                         SE_Space::TObjectSE* createSpaceObjectByName_6 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Diplomat"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_6 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][5]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_6 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htDiplomat]);
                         SE_Space::RetainSpaceObject(cpp_arg_6, createSpaceObjectByName_6);
                     }
                     if (ShipBlock->CountBlocks(u"PirateClan"_wref.get()) > 0) {
@@ -3357,21 +3358,21 @@ namespace Globals {
                 }
             }
             Index = 1;
-            for (auto cpp_range_4 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_4.next(Series); ) {
-                if (Series != 0) {
+            for (auto cpp_range_5 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_5.next(KlingKind); ) {
+                if (KlingKind != aGalaxyStruct::ktBoss) {
                     {
                         SE_Space::TObjectSE* createSpaceObjectByName_8 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Blazer.B", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_8 = pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[Series]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_8 = pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[KlingKind]);
                         SE_Space::RetainSpaceObject(cpp_arg_8, createSpaceObjectByName_8);
                     }
                     {
                         SE_Space::TObjectSE* createSpaceObjectByName_9 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Keller.K", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_9 = pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[Series]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_9 = pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[KlingKind]);
                         SE_Space::RetainSpaceObject(cpp_arg_9, createSpaceObjectByName_9);
                     }
                     {
                         SE_Space::TObjectSE* createSpaceObjectByName_10 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Terron.T", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_10 = pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[Series]);
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_10 = pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[KlingKind]);
                         SE_Space::RetainSpaceObject(cpp_arg_10, createSpaceObjectByName_10);
                     }
                     ++Index;
@@ -3379,7 +3380,7 @@ namespace Globals {
             }
         }
         Count = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get())->GetBlockCount();
-        for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(Index); ) {
+        for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_6.next(Index); ) {
             Section = ([&] {
                 EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get());
                 std::int32_t index = Index;
@@ -3392,7 +3393,7 @@ namespace Globals {
         PlanetSpaceTemplates.set_length(Count);
         Count = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get())->GetBlockCount();
         TemplateIndex = 0;
-        for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_6.next(Index); ) {
+        for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(Index); ) {
             Section = ([&] {
                 EC_BlockPar::TBlockParEC* blockByPath_3 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get());
                 std::int32_t index_2 = Index;
@@ -3595,7 +3596,7 @@ namespace Globals {
         Section = GR_Main::GameDataConfig->GetBlock(u"SpaceImg"sv);
         Count = Section->GetParamCount();
         GlobalsV::SpaceImageTemplates.set_length(Count);
-        for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(Index); ) {
+        for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_8.next(Index); ) {
             Text = Section->GetParamValue(Index);
             if (EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) < 2) {
                 pas::raise(pas::make_exception<pas::Exception>("Error in GlobalsInit"_a));
@@ -3610,7 +3611,7 @@ namespace Globals {
         Section = GR_Main::GameDataConfig->GetBlock(u"StarFieldImg"sv);
         Count = Section->GetParamCount();
         GlobalsV::StarFieldImageTemplates.set_length(Count);
-        for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_8.next(Index); ) {
+        for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_9.next(Index); ) {
             GlobalsV::StarFieldImageTemplates[Index].Weight = EC_Str::ExtractDigitsToIntW(pas::view(Section->GetParamName(Index)));
             GlobalsV::StarFieldImageTemplates[Index].CacheControl = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
             GlobalsV::StarFieldImageTemplates[Index].CachedData = nullptr;
@@ -3627,23 +3628,23 @@ namespace Globals {
         Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"Explosion"sv);
         Count = Section->GetParamCount();
         ArcadeExplosionSounds.set_length(Count);
-        for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_9.next(Index); ) {
+        for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_10.next(Index); ) {
             ArcadeExplosionSounds[Index] = Section->GetParamValue(Index);
         }
         Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"Hit"sv);
         Count = Section->GetParamCount();
         ArcadeHitSounds.set_length(Count);
-        for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_10.next(Index); ) {
+        for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_11.next(Index); ) {
             ArcadeHitSounds[Index] = Section->GetParamValue(Index);
         }
         Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"Item"sv);
         Count = Section->GetParamCount();
         ArcadeItemSounds.set_length(Count);
-        for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_11.next(Index); ) {
+        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_12.next(Index); ) {
             ArcadeItemSounds[Index] = Section->GetParamValue(Index);
         }
         Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"WeaponFirst"sv);
-        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, 17); cpp_range_12.next(Index); ) {
+        for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, 17); cpp_range_13.next(Index); ) {
             if (Section->CountParams(pas::wide_int_to_str(Index)) <= 0) {
                 ArcadeWeaponFirstSounds[Index] = pas::WideString();
             } else {
@@ -3651,13 +3652,13 @@ namespace Globals {
             }
         }
         Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"WeaponLoop"sv);
-        for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, 17); cpp_range_13.next(Index); ) {
+        for (auto cpp_range_14 = pas::for_to<std::int32_t>(0, 17); cpp_range_14.next(Index); ) {
             if (Section->CountParams(pas::wide_int_to_str(Index)) <= 0) {
                 ArcadeWeaponLoopSounds[Index] = pas::WideString();
                 ArcadeWeaponLoopTicks[Index] = -1;
             } else {
                 Text = Section->GetParam(pas::view(pas::wide_int_to_str(Index)));
-                ArcadeWeaponLoopTicks[Index] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv))) / 20;
+                ArcadeWeaponLoopTicks[Index] = pas::idiv(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv))), ab_Global::ArcadeTickMs);
                 ArcadeWeaponLoopSounds[Index] = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
         }
@@ -3922,8 +3923,8 @@ namespace Globals {
 
     void ResetScriptHostRuntimeState() {
         aGalaxyStruct::TOwnerId Race{};
-        std::uint8_t Kind{};
-        std::uint8_t Series{};
+        aGalaxyStruct::THullType Kind{};
+        aGalaxyStruct::TKlingType KlingKind{};
         std::int32_t Index{};
         if (ScriptTemplates != nullptr) {
             const std::int32_t cpp_first = pas::list_count(ScriptTemplates) - 1;
@@ -3960,7 +3961,7 @@ namespace Globals {
             aScript::ScriptLibraryCache = nullptr;
         }
         for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range.next(Race); ) {
-            for (auto cpp_range_2 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(5)); cpp_range_2.next(Kind); ) {
+            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat); cpp_range_2.next(Kind); ) {
                 if (RaceShipTemplates[Race][Kind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][Kind]));
                 }
@@ -3969,16 +3970,16 @@ namespace Globals {
                 SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PirateClanShipTemplates[Race]));
             }
         }
-        for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range_3.next(Series); ) {
-            if (Series != 0) {
-                if (BlazerShipTemplates[Series] != nullptr) {
-                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[Series]));
+        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_3.next(KlingKind); ) {
+            if (KlingKind != aGalaxyStruct::ktBoss) {
+                if (BlazerShipTemplates[KlingKind] != nullptr) {
+                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[KlingKind]));
                 }
-                if (KellerShipTemplates[Series] != nullptr) {
-                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[Series]));
+                if (KellerShipTemplates[KlingKind] != nullptr) {
+                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[KlingKind]));
                 }
-                if (TerronShipTemplates[Series] != nullptr) {
-                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[Series]));
+                if (TerronShipTemplates[KlingKind] != nullptr) {
+                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[KlingKind]));
                 }
             }
         }
@@ -4348,7 +4349,7 @@ namespace Globals {
     }
 
     // Returns a borrowed queue node. An existing key updates kind/turn and nonempty text; otherwise an exact text match is returned unchanged.
-    TMessagePlayer* AddOrUpdatePlayerBubble(std::uint8_t Kind, std::int32_t Turn, const pas::WideString& Text, const pas::WideString& Key) {
+    TMessagePlayer* AddOrUpdatePlayerBubble(TPlayerMessageKind Kind, std::int32_t Turn, const pas::WideString& Text, const pas::WideString& Key) {
         TMessagePlayer* Result{};
         TMessagePlayer* Entry{};
         pas::critical_enter(PersistentPlayerMessageLock);
@@ -4410,13 +4411,13 @@ namespace Globals {
             while (Next != nullptr) {
                 Entry = Next;
                 Next = Next->Next;
-                if (Entry->WasRead && pas::in_range(Entry->Kind, 6, 6) && aGalaxy::Galaxy->CurrentTurn - Entry->Turn >= 7) {
+                if (Entry->WasRead && pas::in_range(Entry->Kind, static_cast<std::int32_t>(pmTip), static_cast<std::int32_t>(pmTip)) && aGalaxy::Galaxy->CurrentTurn - Entry->Turn >= 7) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
                 } else if (aGalaxy::Galaxy->CurrentTurn - Entry->Turn >= PlayerMessagePresentations[Entry->Kind].LifetimeTurns) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
-                } else if (Entry->WasRead && pas::in_set<0, 2, 4, 5, 8, 8>(Entry->Kind)) {
+                } else if (Entry->WasRead && pas::in_set<pmGalaxyNews, pmShipPositive, pmQuestSucceeded, pmQuestCancelled, pmShipNegative, pmShipNegative>(Entry->Kind)) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
-                } else if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1) && Entry->Kind == 1) {
+                } else if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1) && Entry->Kind == pmRadio) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
                 }
             }
@@ -4434,7 +4435,7 @@ namespace Globals {
 
     void TMessagePlayer::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
         Buffer->AddWideStringZ(Key);
-        Buffer->AddAnsiChar(Kind);
+        Buffer->AddAnsiChar(static_cast<std::uint8_t>(Kind));
         Buffer->AddIntegerValue(NotificationSoundKind);
         Buffer->AddIntegerValue(Turn);
         Buffer->AddWideStringZ(Text);
@@ -4453,7 +4454,7 @@ namespace Globals {
     // Leaves linkage and Button untouched. ImageNameOverride is present only from save version 109 onward.
     void TMessagePlayer::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         Key = Buffer->ReadWideString();
-        Kind = EC_Buf::TBufEC_GetByte(Buffer);
+        Kind = static_cast<TPlayerMessageKind>(EC_Buf::TBufEC_GetByte(Buffer));
         NotificationSoundKind = EC_Buf::TBufEC_GetInt32(Buffer);
         Turn = EC_Buf::TBufEC_GetInt32(Buffer);
         Text = Buffer->ReadWideString();

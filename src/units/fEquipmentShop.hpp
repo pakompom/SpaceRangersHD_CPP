@@ -1,6 +1,7 @@
 #pragma once
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "types/fEquipmentShop.hpp"
 
 namespace aItem {
@@ -29,7 +30,7 @@ namespace fEquipmentShop {
 
     extern aRuins::TRuins* TemporaryShopStation;
 
-    extern pas::Array<pas::WideString, 0, 2> ShopDominatorImagePrefixes;
+    extern aGalaxyStruct::TDominatorSeriesNameTable ShopDominatorImagePrefixes;
 
     // Native no-op. Sole caller passes nil; original parameter meaning is unresolved.
     void TemporaryShopStockHook(void* Argument);

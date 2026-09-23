@@ -164,7 +164,7 @@ namespace aScript {
 
     TScriptShipTypeMask DecodeScriptShipTypeMask(std::uint32_t Value);
 
-    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, std::uint8_t KlingType);
+    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, aGalaxyStruct::TKlingType KlingType);
 
     // Values outside 0..7 become owner 6.
     aGalaxyStruct::TOwnerId DecodeScriptItemOwner(std::int32_t Value);
@@ -208,10 +208,10 @@ namespace aScript {
     std::int32_t RunItemUseCode(aItem::TItem* Item, aShip::TShip* Ship);
 
     // Uses artifact or useless-item configuration code. Object slots can carry event-specific integers.
-    std::int32_t RunItemConfigActionCode(aItem::TItem* Item, std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+    std::int32_t RunItemConfigActionCode(aItem::TItem* Item, aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
 
     // Returns the event parameter after script changes. Object slots can carry event-specific integers.
-    std::int32_t RunCustomShipInfoActionCode(aShip::PCustomShipInfo Info, std::uint8_t ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+    std::int32_t RunCustomShipInfoActionCode(aShip::PCustomShipInfo Info, aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
 
     pas::WideString GetScriptContextDescription();
 

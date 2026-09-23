@@ -948,7 +948,7 @@ namespace fMods {
         pas::free(List);
         EC_BlockPar::TBlockParEC* Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         Block->AddParam(u"CurrentMod"_wref.get(), Folders);
-        Block->SaveTextFile(pas::literal_pointer(u"Mods\\ModCFG.txt"), true, false);
+        Block->SaveTextFile(GR_Main::ModSelectionConfigPath.pchar(), true, false);
         pas::free(Block);
         Globals::ReloadModsRequested = true;
         if (ExitCode == 0) {
@@ -1090,8 +1090,8 @@ namespace fMods {
                         }
                     }
                     Text = aConst::LocalizedText(u"FormMods.QueryTurnOffWithExtra"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<ModName>"_w, pas::concat_wide({u"<color=255,240,100>", Info->Name, u"</color>"}), pas::WideString());
-                    aMyFunction::ReplaceTextToken(Text, u"<ModsList>"_w, pas::concat_wide({u"<color=255,240,100>", Value, u"</color>"}), pas::WideString());
+                    aMyFunction::ReplaceTextToken(Text, u"<ModName>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Info->Name, aMyFunction::EndColorTag}), pas::WideString());
+                    aMyFunction::ReplaceTextToken(Text, u"<ModsList>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Value, aMyFunction::EndColorTag}), pas::WideString());
                     if (GI_MessageBox::ShowMessageBoxGI(Globals::GetInnermostScreenLoop(), Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
                         cpp_flow = pas::FinallyFlow::Return;
                         goto cpp_cleanup;
@@ -1246,13 +1246,13 @@ namespace fMods {
                     }
                     if (Value != u"") {
                         Temp = aConst::LocalizedText(u"FormMods.QueryTurnOnWithExtra2"_wref.get());
-                        aMyFunction::ReplaceTextToken(Temp, u"<ModsList>"_w, pas::concat_wide({u"<color=255,240,100>", Value, u"</color>"}), pas::WideString());
+                        aMyFunction::ReplaceTextToken(Temp, u"<ModsList>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Value, aMyFunction::EndColorTag}), pas::WideString());
                     } else {
                         Temp = pas::WideString();
                     }
                     if (Text != u"") {
                         Value = aConst::LocalizedText(u"FormMods.QueryTurnOnWithExtra1"_wref.get());
-                        aMyFunction::ReplaceTextToken(Value, u"<ModsList>"_w, pas::concat_wide({u"<color=255,240,100>", Text, u"</color>"}), pas::WideString());
+                        aMyFunction::ReplaceTextToken(Value, u"<ModsList>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Text, aMyFunction::EndColorTag}), pas::WideString());
                     } else {
                         Value = pas::WideString();
                     }
@@ -1323,7 +1323,7 @@ namespace fMods {
             Related = Info->Dependencies[PartIndex];
             if (Related == nullptr) {
                 Name = aConst::LocalizedText(u"FormMods.ErrorNoDependency"_wref.get());
-                aMyFunction::ReplaceTextToken(Name, u"<ModName>"_w, pas::concat_wide({u"<color=255,240,100>", EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), PartIndex, u","sv)), u"</color>"}), pas::WideString());
+                aMyFunction::ReplaceTextToken(Name, u"<ModName>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), PartIndex, u","sv)), aMyFunction::EndColorTag}), pas::WideString());
                 GI_MessageBox::ShowMessageBoxGI(Self, Name, GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
                 return Result;
             }
@@ -1456,7 +1456,7 @@ namespace fMods {
         pas::WideString Text{};
         Info = reinterpret_cast<aModsInfo::TModInfo*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         Body = aConst::LocalizedText(u"FormMods.InfoName"_wref.get());
-        aMyFunction::ReplaceTextToken(Body, u"<Name>"_w, pas::concat_wide({u"<color=255,240,100>", Info->GetDisplayName(), u"</color>"}), pas::WideString());
+        aMyFunction::ReplaceTextToken(Body, u"<Name>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Info->GetDisplayName(), aMyFunction::EndColorTag}), pas::WideString());
         Body = pas::concat_wide({Body, u"\r\n", u" ", u"\r\n"});
         if (Info->Author == u"") {
             Text = aConst::LocalizedText(u"FormMods.InfoAuthorUnknown"_wref.get());
@@ -1465,7 +1465,7 @@ namespace fMods {
         } else {
             Text = aConst::LocalizedText(u"FormMods.InfoAuthor"_wref.get());
         }
-        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, pas::concat_wide({u"<color=255,240,100>", Info->Author, u"</color>"}), pas::WideString());
+        aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Info->Author, aMyFunction::EndColorTag}), pas::WideString());
         Body = pas::concat_wide({Body, Text, u"\r\n", u" ", u"\r\n"});
         if (Info->FullDescription == u"") {
             Body = pas::concat_wide({Body, aConst::LocalizedText(u"FormMods.NoDescription"_wref.get()), u"\r\n", u" ", u"\r\n"});
@@ -1474,16 +1474,16 @@ namespace fMods {
         }
         if (Info->DependencyNames != u"") {
             Text = aConst::LocalizedText(u"FormMods.InfoDependencies"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Mods>"_w, pas::concat_wide({u"<color=255,240,100>", Info->DependencyNames, u"</color>"}), pas::WideString());
+            aMyFunction::ReplaceTextToken(Text, u"<Mods>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Info->DependencyNames, aMyFunction::EndColorTag}), pas::WideString());
             Body = pas::concat_wide({Body, Text, u"\r\n", u" ", u"\r\n"});
         }
         if (Info->ConflictNames != u"") {
             Text = aConst::LocalizedText(u"FormMods.InfoConflicts"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Mods>"_w, pas::concat_wide({u"<color=255,240,100>", Info->ConflictNames, u"</color>"}), pas::WideString());
+            aMyFunction::ReplaceTextToken(Text, u"<Mods>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Info->ConflictNames, aMyFunction::EndColorTag}), pas::WideString());
             Body = pas::concat_wide({Body, Text, u"\r\n", u" ", u"\r\n"});
         }
         Text = aConst::LocalizedText(u"FormMods.InfoPath"_wref.get());
-        aMyFunction::ReplaceTextToken(Text, u"<Path>"_w, pas::concat_wide({u"<color=255,240,100>", Info->Folder, u"</color>"}), pas::WideString());
+        aMyFunction::ReplaceTextToken(Text, u"<Path>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Info->Folder, aMyFunction::EndColorTag}), pas::WideString());
         Body = pas::concat_wide({Body, Text});
         GI_MessageBox::ShowMessageBoxGI(this, Body, GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04 | GI_MessageBox::mbgLeftAlign, 0, 0, 0);
     }
@@ -1503,7 +1503,7 @@ namespace fMods {
         std::uint8_t Selected = Info->SwitchImage->UserIndex == 1;
         std::uint8_t Critical = false;
         Body = aConst::LocalizedText(u"FormMods.ProblemsInfoHeader"_wref.get());
-        aMyFunction::ReplaceTextToken(Body, u"<Name>"_w, pas::concat_wide({u"<color=255,240,100>", Info->GetDisplayName(), u"</color>"}), pas::WideString());
+        aMyFunction::ReplaceTextToken(Body, u"<Name>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Info->GetDisplayName(), aMyFunction::EndColorTag}), pas::WideString());
         Body = pas::concat_wide({Body, u"\r\n", u" ", u"\r\n"});
         if (Info->MissingFolder) {
             Critical = true;
@@ -1533,7 +1533,7 @@ namespace fMods {
                 } else {
                     Text = aConst::LocalizedText(u"FormMods.ProblemsInfoSharedName2"_wref.get());
                 }
-                aMyFunction::ReplaceTextToken(Text, u"<Mods>"_w, pas::concat_wide({u"<color=255,240,100>", Value, u"</color>"}), pas::WideString());
+                aMyFunction::ReplaceTextToken(Text, u"<Mods>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Value, aMyFunction::EndColorTag}), pas::WideString());
                 Body = pas::concat_wide({Body, Text, u"\r\n", u" ", u"\r\n"});
             }
             if (Selected && Info->ConflictCount > 0) {
@@ -1558,7 +1558,7 @@ namespace fMods {
                 }
                 if (Text != u"") {
                     Value = aConst::LocalizedText(u"FormMods.ProblemsInfoConflicts"_wref.get());
-                    aMyFunction::ReplaceTextToken(Value, u"<Mods>"_w, pas::concat_wide({u"<color=255,240,100>", Text, u"</color>"}), pas::WideString());
+                    aMyFunction::ReplaceTextToken(Value, u"<Mods>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Text, aMyFunction::EndColorTag}), pas::WideString());
                     Body = pas::concat_wide({Body, Value, u"\r\n", u" ", u"\r\n"});
                     Critical = true;
                 }
@@ -1569,7 +1569,7 @@ namespace fMods {
                     Related = Info->Dependencies[J];
                     if (Related == nullptr) {
                         Value = aConst::LocalizedText(u"FormMods.ProblemsInfoDependencies2"_wref.get());
-                        aMyFunction::ReplaceTextToken(Value, u"<Mod>"_w, pas::concat_wide({u"<color=255,240,100>", EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), J, u","sv)), u"</color>"}), pas::WideString());
+                        aMyFunction::ReplaceTextToken(Value, u"<Mod>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), J, u","sv)), aMyFunction::EndColorTag}), pas::WideString());
                         Body = pas::concat_wide({Body, Value, u"\r\n", u" ", u"\r\n"});
                         Critical = Selected;
                     } else if (Selected) {
@@ -1597,7 +1597,7 @@ namespace fMods {
                 }
                 if (Text != u"") {
                     Value = aConst::LocalizedText(u"FormMods.ProblemsInfoDependencies"_wref.get());
-                    aMyFunction::ReplaceTextToken(Value, u"<Mods>"_w, pas::concat_wide({u"<color=255,240,100>", Text, u"</color>"}), pas::WideString());
+                    aMyFunction::ReplaceTextToken(Value, u"<Mods>"_w, pas::concat_wide({aMyFunction::TextHighlightColorTag, Text, aMyFunction::EndColorTag}), pas::WideString());
                     Body = pas::concat_wide({Body, Value, u"\r\n", u" ", u"\r\n"});
                     Critical = true;
                 }

@@ -649,7 +649,7 @@ namespace ab_Space {
             pas::list_add(Objects, reinterpret_cast<void*>(Ship));
         }
         Kind = 0;
-        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower, pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[4].AveragePrice));
+        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower, pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[aConst::t_Minerals].AveragePrice));
         MineralBudget = System::Round(static_cast<long double>(aMyFunction::RemapClamped(static_cast<long double>(Danger) + ApproachDanger, 0.0, 2.5E+2, 0.2, 1.2)) * MineralBudget);
         MineralBudget = System::Round(static_cast<long double>(aMyFunction::RemapClamped(Count, 0.0, 4.0, 0.8, 1.2)) * MineralBudget);
         for (Index = 1; Index <= 8; ++Index) {
@@ -779,7 +779,7 @@ namespace ab_Space {
             pas::list_add(Objects, reinterpret_cast<void*>(Ship));
         }
         Kind = 0;
-        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower, pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[4].AveragePrice));
+        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower, pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[aConst::t_Minerals].AveragePrice));
         MineralBudget = System::Round(static_cast<long double>(aMyFunction::RemapClamped(Count, 2.0, 4.0, 0.8, 1.2)) * MineralBudget);
         for (Index = 1; Index <= 8; ++Index) {
             Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);

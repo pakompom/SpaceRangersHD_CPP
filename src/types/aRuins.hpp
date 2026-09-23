@@ -76,7 +76,7 @@ namespace aRuins {
         pas::WideString GetFullName(const pas::WideString& Separator) override;
         // Uses the station type's alternate localized caption and colors the individual name.
         pas::WideString GetColoredFullName(const pas::WideString& ColorTag);
-        std::uint8_t GetGreetingShipCategory() override;
+        aGalaxyStruct::TGreetingShipCategory GetGreetingShipCategory() override;
         // Always rcTrader.
         aGalaxyStruct::TRangerCareer GetDominantCareer() override;
         aGalaxy::TStar* GetHomeStar() override;
@@ -223,6 +223,6 @@ namespace aRuins {
     };
     #pragma pack(pop)
 
-    using TStationHullTypes = pas::Set<0, 15>;
+    using TStationHullTypes = pas::Set<0, 10>;
 
 } // namespace aRuins

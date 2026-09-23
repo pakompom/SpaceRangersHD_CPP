@@ -3,6 +3,7 @@
 #include "types/GR_GraphBuf.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aMyFunction.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Mem.hpp"
 #include "units/EC_Struct.hpp"
@@ -80,14 +81,14 @@ namespace GI_SpaceCircle {
         ClearSegments();
         if (Radius > 0) {
             Spacing = 2.0E+1f;
-            Circumference = Radius * 6.2831852L;
+            Circumference = Radius * pas::constant(2.0L * aMyFunction::GamePi);
             Count = System::Round(pas::real_divide(Circumference, Spacing));
             if (Count < 10) {
                 Count = 10;
             }
             Segments = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AllocEC(Count * static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
             Angle = 0.0f;
-            Step = pas::real_divide(6.2831852L, Count);
+            Step = pas::real_divide(pas::constant(2.0L * aMyFunction::GamePi), Count);
             {
                 float cpp_arg = System::Sin(Angle) * Radius;
                 float cpp_arg_2 = System::Cos(Angle) * -Radius;
@@ -142,7 +143,7 @@ namespace GI_SpaceCircle {
         float Y{};
         float Angle{};
         if (Radius > 0) {
-            Angle = pas::real_divide(-2.0L, Radius * 6.2831852L) * 3.1415926L * 2.0L;
+            Angle = pas::real_divide(-2.0L, Radius * pas::constant(2.0L * aMyFunction::GamePi)) * aMyFunction::GamePi * 2.0L;
             Sine = System::Sin(Angle);
             Cosine = System::Cos(Angle);
             Segment = Segments;

@@ -357,22 +357,22 @@ namespace fGov {
                 Stage = 8;
                 MapIndex = Globals::FindRobotMapById(PlanetBattleMapId);
                 Text = Globals::RobotMapDefinitions[MapIndex].RobotsStart;
-                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
                 aConst::ExpandLocalizedTextMarkupAndPrefixLines(Text);
                 Text = pas::concat_wide({pas::wide_int_to_str(GovernmentBattleDifficulty), Text});
                 Text = pas::concat_wide({pas::wide_int_to_str(std::min<std::int32_t>(static_cast<std::int32_t>(aGalaxy::Galaxy->GetDifficultyTierIndex()), 3) + 1), Text});
                 Text = pas::concat_wide({pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->RaceId + 1), Text});
                 WinText = Globals::RobotMapDefinitions[MapIndex].RobotsWin;
-                aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
                 aConst::ExpandLocalizedTextMarkupAndPrefixLines(WinText);
                 LossText = Globals::RobotMapDefinitions[MapIndex].RobotsLoss;
-                aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
                 aConst::ExpandLocalizedTextMarkupAndPrefixLines(LossText);
                 TerronName = pas::concat_wide({aPlayer::GetPlayer()->CurrentPlanet->GetFullName(u" "_w), u", ", GR_Main::LookupLocalizedTextOrEmpty(u"FormShip.StorageInfo.StarInfo"_wref.get()), u" ", aPlayer::GetPlayer()->CurrentStar->Name});
                 Stage = 9;
@@ -457,10 +457,10 @@ namespace fGov {
                 GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
                 aPlayer::GetPlayer()->CurrentPlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), -40);
                 DialogText = Globals::RobotMapDefinitions[MapIndex].GovTextLoss;
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), aMyFunction::TextHighlightColorTag);
                 Stage = 15;
                 BuildGovernmentChoices(true);
                 Stage = 16;
@@ -484,7 +484,7 @@ namespace fGov {
                 MapIndex = Globals::FindRobotMapById(PlanetBattleMapId);
                 Money = aMyFunction::RoundAndTruncateToTens(pas::real_max<pas::Extended>(aPlayer::GetPlayer()->Wealth * 0.03L, static_cast<pas::Extended>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman))));
                 Money = System::Round(static_cast<long double>(Money) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestMoneyFactor);
-                if (aPlayer::GetPlayer()->IsHealthEffectActive(23)) {
+                if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heDoubleplex)) {
                     Money = System::Round(static_cast<long double>(aMyFunction::SeededRandomFloatRange((static_cast<std::int32_t>(aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn) / 33, 1.3, 2.3)) * Money);
                 }
                 Money += System::Round(Money * aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma, false) * 0.1L);
@@ -498,10 +498,10 @@ namespace fGov {
                 GR_Main::SoundManager->PlaySound(u"Sound.LiberationSystem"_wref.get());
                 Stage = 19;
                 DialogText = Globals::RobotMapDefinitions[MapIndex].GovTextWin;
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), aMyFunction::TextHighlightColorTag);
                 DialogText = pas::concat_wide_reverse({aRanger::TRanger_GrantPlanetQuestReward(aPlayer::GetPlayer(), GovernmentBattleDifficulty, ExperienceAwarded), DialogText});
                 Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerFinishesPlanetaryBattle"_w, nullptr);
                 Event->AddData(PlanetBattleMapId);
@@ -586,7 +586,7 @@ namespace fGov {
             MainPanel->RebuildMessageButtons(false);
             Stage = 29;
             if (aPlayer::GetPlayer() != nullptr) {
-                aPlayer::GetPlayer()->ScriptItemsAct(0x00000018, nullptr, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
             }
             aGalaxy::Galaxy->PrimeIntegrityChecksum(170);
         } catch (...) {
@@ -605,7 +605,7 @@ namespace fGov {
             aGalaxy::Galaxy->CheckIntegrityChecksum(171);
         }
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(0x00000019, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         LoadPanel->OnClose();
         Globals::ScriptDialogIndex = -1;
@@ -795,7 +795,7 @@ namespace fGov {
             if (!pas::assigned(Callback)) {
                 Text = EC_Str::RemoveTextTagsW(Text);
             }
-            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv)}));
+            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag))}));
             cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             if (!pas::assigned(Choice->Callback)) {
                 cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(127, 127, 127));
@@ -889,7 +889,7 @@ namespace fGov {
             DialogText = EC_Str::ReplaceAllWideString(DialogText, pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix}), u"\r\n"sv);
             DialogText = EC_Str::ReplaceAllWideString(DialogText, u"\r\n"_wref.get(), pas::view(pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix})));
             FormattedTextLength = DialogText.length();
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv);
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag));
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->SetText(DialogText);
             TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
             TextPanel->SetScrollOffset(ClassesImports::Point(0, 0));
@@ -958,10 +958,10 @@ namespace fGov {
     void TfGov::AddMessageClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString Text{};
         Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetText();
-        Text = EC_Str::ReplaceAllWideString(Text, u"<color=0,50,200>"_wref.get(), u"<color=255,240,100>"sv);
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::DialogHighlightColorTag, pas::view(aMyFunction::TextHighlightColorTag));
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->SetDisabled(true);
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
-        Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
+        Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
         MainPanel->RebuildMessageButtons(false);
         GI_Main::BreakUiMessage();
     }
@@ -1355,7 +1355,7 @@ namespace fGov {
             RelationDeficit = 100 - aPlayer::GetPlayer()->CurrentPlanet->RelationToShip(aPlayer::GetPlayer());
             Cost = System::Round(static_cast<long double>(aMyFunction::RemapClamped(RelationDeficit, 0.0, 1.0E+2, 1.0, 5.0)) * (aGalaxy::Galaxy->AverageRangerCapital / 100) * aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].FuelPriceFactor);
             Text = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.Question"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 223429);
-            aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
+            aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
             DialogText = Text;
             ClearDialogChoices();
             if (aPlayer::GetPlayer()->Money >= Cost) {
@@ -1363,7 +1363,8 @@ namespace fGov {
                     pas::WideString intToStr = pas::wide_int_to_str(Cost);
                     auto name = pas::borrow(aPlayer::GetPlayer()->CurrentPlanet->Name);
                     pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.Ok"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 8168236);
-                    return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr), u"<Planet>"_w, name.get());
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr), u"<Planet>"_w, name.get());
                 }()), 0, pas::bind_method<&TfGov::PayBribe>(this));
             }
             AddChoice(aConst::PickLocalizedTextVariant(u"FormGov.Bribe.No"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 23985), 0, pas::bind_method<&TfGov::DeclineBribe>(this));
@@ -1389,8 +1390,8 @@ namespace fGov {
             aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), aPlayer::GetPlayer()->CurrentStar, aRanger::rcmIncrease, 20, aConst::PlanetOwnerMasks.Coalition);
         }
         DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.QuestionOk"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 7156317);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), u"<color=255,240,100>"_w);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
         BuildGovernmentChoices(true);
     }
 
@@ -1418,9 +1419,9 @@ namespace fGov {
             if (MapId >= 0 && GlobalsV::ForcedPlanetQuestId < 0) {
                 MapIndex = Globals::FindRobotMapById(MapId);
                 DialogText = Globals::RobotMapDefinitions[MapIndex].GovTextStart;
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
                 ClearDialogChoices();
                 if (Robot::RobotInterface != nullptr && Robot::RobotInterface->Support() == 0) {
                     GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfGov::ShowPlanetBattleSupport>(this);
@@ -1457,7 +1458,7 @@ namespace fGov {
             } else {
                 QuestNegotiationLevel = 0;
                 DialogText = aPlayer::GetPlayer()->BuildQuestText(QuestOffer, aRanger::qtkOffer);
-                if (QuestOffer.QuestType == aGalaxyStruct::qtPlanetQuest && QuestOffer.QuestNumber >= 10000) {
+                if (QuestOffer.QuestType == aGalaxyStruct::qtPlanetQuest && QuestOffer.QuestNumber >= aGalaxyStruct::FirstLicensedQuestId) {
                     if (GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) <= 0 || ([&] {
                         pas::WideString cpp_string = ([&] {
                             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(QuestOffer.QuestNumber));
@@ -1689,7 +1690,8 @@ namespace fGov {
             pas::WideString name = pas::checked_cast<aGalaxy::TConstellation*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentPlanet->FindUnchartedNeighborConstellation()))->GetName();
             pas::WideString intToStr = pas::wide_int_to_str(Cost);
             pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(u"FormGov.BuyMap.GovAsk"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed);
-            return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name), u"<Money>"_w, std::move(intToStr));
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name), u"<Money>"_w, std::move(intToStr));
         }());
         ClearDialogChoices();
         if (aPlayer::GetPlayer()->Money >= Cost) {
@@ -1728,7 +1730,8 @@ namespace fGov {
                     pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
                     pas::WideString intToStr = pas::wide_int_to_str(Ship->GetPrisonReleaseCost());
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGov.GuarantPrison.ShipRow"_wref.get());
-                    return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Ship>"_w, std::move(fullName), u"<Cost>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Ship>"_w, std::move(fullName), u"<Cost>"_w, std::move(intToStr));
                 }());
                 Text = pas::concat_wide({Text, u"\r\n", u" - ", RowText});
                 pas::list_add(Ships, reinterpret_cast<void*>(Ship));
@@ -1744,7 +1747,8 @@ namespace fGov {
                 Text = ([&] {
                     pas::WideString fullName_2 = Ship->GetFullName(u" "_wref.get());
                     pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
-                    return aMyFunction::FormatText2(Text, u"<color=255,240,100>"_w, u"<Ship>"_w, std::move(fullName_2), u"<Cost>"_w, std::move(intToStr_2));
+                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText2(Text, std::move(textHighlightColorTag_2), u"<Ship>"_w, std::move(fullName_2), u"<Cost>"_w, std::move(intToStr_2));
                 }());
                 if (aPlayer::GetPlayer()->Money >= Cost) {
                     AddChoice(Text, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfGov::PayPrisonBail>(this));

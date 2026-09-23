@@ -510,7 +510,7 @@ namespace SE_Ship2 {
     EC_Struct::TPointF TShip2SE::ImagePointToWorld(EC_Struct::TPointF Point) {
         EC_Struct::TPointF Result{};
         Point = ScaleImagePoint(Point);
-        double Radians = pas::real_divide(Angle, 256.0L) * 6.2831852L;
+        double Radians = pas::real_divide(Angle, 256.0L) * aMyFunction::GameTwoPi;
         double Sine = System::Sin(Radians);
         double Cosine = System::Cos(Radians);
         Result.X = static_cast<long double>(Point.X) * Cosine - static_cast<long double>(Point.Y) * Sine + Position.X;
@@ -528,7 +528,7 @@ namespace SE_Ship2 {
         }
         Point.X = static_cast<long double>(Point.X) * TargetSizeScale;
         Point.Y = static_cast<long double>(Point.Y) * TargetSizeScale;
-        double Radians = pas::real_divide(Heading, 256.0L) * 6.2831852L;
+        double Radians = pas::real_divide(Heading, 256.0L) * aMyFunction::GameTwoPi;
         double Sine = System::Sin(Radians);
         double Cosine = System::Cos(Radians);
         Result.X = static_cast<long double>(Point.X) * Cosine - static_cast<long double>(Point.Y) * Sine + Position.X;
@@ -544,7 +544,7 @@ namespace SE_Ship2 {
             return Result;
         }
         Point = ScaleImagePoint(WeaponPorts[1 + pas::imod(pas::sqr(static_cast<std::int32_t>(Seed)) / 11, WeaponPortCount)]);
-        double Radians = pas::real_divide(Heading, 256.0L) * 6.2831852L;
+        double Radians = pas::real_divide(Heading, 256.0L) * aMyFunction::GameTwoPi;
         double Sine = System::Sin(Radians);
         double Cosine = System::Cos(Radians);
         Result.X = static_cast<long double>(Point.X) * Cosine - static_cast<long double>(Point.Y) * Sine + Position.X;

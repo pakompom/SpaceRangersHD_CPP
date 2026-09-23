@@ -19,6 +19,7 @@
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "types/aAsteroid.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "types/aItem.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aShip.hpp"
@@ -143,7 +144,7 @@ namespace fFilm {
             turnSlider->SetRange(0, cpp_arg_2);
         }
         TurnSlider->PositionChangedCallback = pas::bind_method<&TfFilm::TurnSliderChanged>(this);
-        GetByName(u"MapPanelA"sv)->SetActive(aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(1));
+        GetByName(u"MapPanelA"sv)->SetActive(aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heBlindness));
         SelectHistoryEntry(Globals::FilmHistory->GetCount() - 1, true);
         CopyLiveVisualStateToFilm();
         AdvanceOneStep();
@@ -429,7 +430,7 @@ namespace fFilm {
         Globals::SpaceProcess->BindMinimap(MapPanel);
         Globals::SpaceProcess->Space->MinimapScale = pas::real_divide(MapPanel->ClientSize.X, CurrentFilm->MapDiameter);
         if (aPlayer::GetPlayer() != nullptr) {
-            if (aPlayer::GetPlayer()->IsHealthEffectActive(1)) {
+            if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heBlindness)) {
                 Globals::SpaceProcess->Space->AlphaShift = 2;
             }
         }

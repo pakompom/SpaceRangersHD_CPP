@@ -63,7 +63,7 @@ namespace aMissile {
         this->OwnerShip = OwnerShip;
         this->Target = Target;
         WeaponId = Weapon->Id;
-        ItemType = static_cast<std::uint8_t>(Weapon->ItemType);
+        ItemType = Weapon->ItemType;
         MinDamage = OwnerShip->GetWeaponMinDamage(Weapon);
         MicroModuleIndex = Weapon->MicroModuleIndex;
         SpecialModuleIndex = Weapon->SpecialModuleIndex;
@@ -102,7 +102,7 @@ namespace aMissile {
         InitializeShot(Star, OwnerShip, Weapon, Target, ShotIndex);
     }
 
-    void TMissile::InitializeUnownedShot(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y, float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed, std::uint8_t ItemType, std::int32_t ModuleIndex, std::int32_t SpecialIndex) {
+    void TMissile::InitializeUnownedShot(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y, float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed, aConst::TItemType ItemType, std::int32_t ModuleIndex, std::int32_t SpecialIndex) {
         pas::list_add(Star->Missiles, reinterpret_cast<void*>(this));
         CurrentStar = Star;
         OwnerShip = nullptr;
@@ -122,13 +122,13 @@ namespace aMissile {
 
     void TCustomMissile::InitializeUnownedShot_2(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y, float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed, pas::WideString WeaponName, std::int32_t ModuleIndex, std::int32_t SpecialIndex) {
         WeaponInfo = aGalaxy::Galaxy->RequireCustomWeaponInfo(WeaponName);
-        InitializeUnownedShot(Star, Target, X, Y, Direction, MinDamage, MaxDamage, MaximumSpeed, static_cast<std::uint8_t>(WeaponInfo->ItemType), ModuleIndex, SpecialIndex);
+        InitializeUnownedShot(Star, Target, X, Y, Direction, MinDamage, MaxDamage, MaximumSpeed, WeaponInfo->ItemType, ModuleIndex, SpecialIndex);
     }
 
     void TMissile::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
         Buffer->AddDWord(Id);
         Buffer->AddDWord(WeaponId);
-        Buffer->AddAnsiChar(ItemType);
+        Buffer->AddAnsiChar(static_cast<std::uint8_t>(ItemType));
         Buffer->AddAnsiChar(TechLevel);
         Buffer->AddIntegerValue(MinDamage);
         Buffer->AddIntegerValue(MaxDamage);
@@ -155,21 +155,21 @@ namespace aMissile {
             Buffer->AddDWord(OwnerShip->Id);
         }
         if (Target == nullptr) {
-            Buffer->AddAnsiChar(0);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkNone));
         } else if (pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
-            Buffer->AddAnsiChar(1);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkShip));
             Buffer->AddDWord(pas::checked_cast<aShip::TShip*>(Target)->Id);
         } else if (pas::class_cast_if<aItem::TItem*>(Target) != nullptr) {
-            Buffer->AddAnsiChar(2);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkItem));
             Buffer->AddDWord(pas::checked_cast<aItem::TItem*>(Target)->Id);
         } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(Target) != nullptr) {
-            Buffer->AddAnsiChar(3);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkAsteroid));
             Buffer->AddDWord(pas::checked_cast<aAsteroid::TAsteroid*>(Target)->Id);
         } else if (pas::class_cast_if<TMissile*>(Target) != nullptr) {
-            Buffer->AddAnsiChar(4);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkMissile));
             Buffer->AddDWord(pas::checked_cast<TMissile*>(Target)->Id);
         } else {
-            Buffer->AddAnsiChar(0);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkNone));
         }
         Buffer->AddAnsiChar(ShotIndex);
         Buffer->AddIntegerValue(FlightTicks);
@@ -177,21 +177,21 @@ namespace aMissile {
         Buffer->AddSingle(Speed);
         Buffer->AddSingle(MaximumSpeed);
         if (PreviousTarget == nullptr) {
-            Buffer->AddAnsiChar(0);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkNone));
         } else if (pas::class_cast_if<aShip::TShip*>(PreviousTarget) != nullptr) {
-            Buffer->AddAnsiChar(1);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkShip));
             Buffer->AddDWord(pas::checked_cast<aShip::TShip*>(PreviousTarget)->Id);
         } else if (pas::class_cast_if<aItem::TItem*>(PreviousTarget) != nullptr) {
-            Buffer->AddAnsiChar(2);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkItem));
             Buffer->AddDWord(pas::checked_cast<aItem::TItem*>(PreviousTarget)->Id);
         } else if (pas::class_cast_if<aAsteroid::TAsteroid*>(PreviousTarget) != nullptr) {
-            Buffer->AddAnsiChar(3);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkAsteroid));
             Buffer->AddDWord(pas::checked_cast<aAsteroid::TAsteroid*>(PreviousTarget)->Id);
         } else if (pas::class_cast_if<TMissile*>(PreviousTarget) != nullptr) {
-            Buffer->AddAnsiChar(4);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkMissile));
             Buffer->AddDWord(pas::checked_cast<TMissile*>(PreviousTarget)->Id);
         } else {
-            Buffer->AddAnsiChar(0);
+            Buffer->AddAnsiChar(static_cast<std::uint8_t>(mtkNone));
         }
         Buffer->AddSingle(LastTargetPosition.X);
         Buffer->AddSingle(LastTargetPosition.Y);
@@ -228,7 +228,7 @@ namespace aMissile {
         if (GlobalsV::LoadedSaveVersion >= 159) {
             WeaponId = EC_Buf::TBufEC_GetUInt32(Buffer);
         }
-        ItemType = static_cast<std::uint8_t>(aItem::MigrateSavedItemType(EC_Buf::TBufEC_GetByte(Buffer)));
+        ItemType = aItem::MigrateSavedItemType(EC_Buf::TBufEC_GetByte(Buffer));
         TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
         if (GlobalsV::LoadedSaveVersion >= 100) {
             MinDamage = EC_Buf::TBufEC_GetInt32(Buffer);
@@ -291,8 +291,8 @@ namespace aMissile {
         TurnDirection = EC_Buf::TBufEC_GetSingle(Buffer);
         CurrentStar = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
         OwnerShip = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
-        SavedTargetKind = EC_Buf::TBufEC_GetByte(Buffer);
-        if (SavedTargetKind == 0) {
+        SavedTargetKind = static_cast<TMissileTargetKind>(EC_Buf::TBufEC_GetByte(Buffer));
+        if (SavedTargetKind == mtkNone) {
             Target = nullptr;
         } else {
             Target = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
@@ -306,8 +306,8 @@ namespace aMissile {
         } else {
             MaximumSpeed = aMyFunction::RemapClamped(TechLevel, 1.0, 8.0, GetWeaponInfo()->MissileMinSpeed, GetWeaponInfo()->MissileMaxSpeed);
         }
-        SavedPreviousTargetKind = EC_Buf::TBufEC_GetByte(Buffer);
-        if (SavedPreviousTargetKind == 0) {
+        SavedPreviousTargetKind = static_cast<TMissileTargetKind>(EC_Buf::TBufEC_GetByte(Buffer));
+        if (SavedPreviousTargetKind == mtkNone) {
             PreviousTarget = nullptr;
         } else {
             PreviousTarget = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
@@ -325,22 +325,22 @@ namespace aMissile {
     void TMissile::ResolveLoadedReferences(aGalaxy::TGalaxy* World) {
         CurrentStar = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(World->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(CurrentStar)))));
         OwnerShip = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(World->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(OwnerShip)), true)));
-        if (SavedTargetKind == 1) {
+        if (SavedTargetKind == mtkShip) {
             Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(World->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));
-        } else if (SavedTargetKind == 2) {
+        } else if (SavedTargetKind == mtkItem) {
             Target = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(World->IdToItem(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));
-        } else if (SavedTargetKind == 3) {
+        } else if (SavedTargetKind == mtkAsteroid) {
             Target = pas::checked_cast<aAsteroid::TAsteroid*>(static_cast<pas::Object*>(World->IdToAsteroid(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)))));
-        } else if (SavedTargetKind == 4) {
+        } else if (SavedTargetKind == mtkMissile) {
             Target = pas::checked_cast<TMissile*>(static_cast<pas::Object*>(World->IdToMissile(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)))));
         }
-        if (SavedPreviousTargetKind == 1) {
+        if (SavedPreviousTargetKind == mtkShip) {
             PreviousTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(World->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)), true)));
-        } else if (SavedPreviousTargetKind == 2) {
+        } else if (SavedPreviousTargetKind == mtkItem) {
             PreviousTarget = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(World->IdToItem(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)), true)));
-        } else if (SavedPreviousTargetKind == 3) {
+        } else if (SavedPreviousTargetKind == mtkAsteroid) {
             PreviousTarget = pas::checked_cast<aAsteroid::TAsteroid*>(static_cast<pas::Object*>(World->IdToAsteroid(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)))));
-        } else if (SavedPreviousTargetKind == 4) {
+        } else if (SavedPreviousTargetKind == mtkMissile) {
             PreviousTarget = pas::checked_cast<TMissile*>(static_cast<pas::Object*>(World->IdToMissile(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)))));
         }
     }
@@ -379,7 +379,7 @@ namespace aMissile {
                 if (pas::class_cast_if<TCustomMissile*>(this) != nullptr) {
                     Config = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", GetWeaponInfo()->PrimarySE}));
                 } else {
-                    Config = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"SE.Weapon.", SysUtils::IntToStr(ItemType - 50)})));
+                    Config = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"SE.Weapon.", SysUtils::IntToStr(ItemType - aConst::t_IndustrialLaser)})));
                 }
                 Palette = Config->FindBlock(u"Palettes"sv);
                 if (Palette != nullptr) {
@@ -392,7 +392,7 @@ namespace aMissile {
                 } else if (pas::class_cast_if<TCustomMissile*>(this) != nullptr) {
                     Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, pas::concat_wide({u"Sound.shot", GetWeaponInfo()->ConfigName}));
                 } else {
-                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, static_cast<pas::WideString>(pas::concat_ansi({"Sound.shot", SysUtils::IntToStr(ItemType - 50)})));
+                    Globals::PrimaryFilm->PlayObjectSound(StepIndex, FilmObject, static_cast<pas::WideString>(pas::concat_ansi({"Sound.shot", SysUtils::IntToStr(ItemType - aConst::t_IndustrialLaser)})));
                 }
             }
         }
@@ -458,13 +458,13 @@ namespace aMissile {
         try {
             Result = nullptr;
             PreviousPosition = Position;
-            StepScale = pas::real_divide(2.0E+2L, CurrentStar->MovementStepCount);
+            StepScale = pas::real_divide(pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn)), CurrentStar->MovementStepCount);
             FlightTicks += System::Round(StepScale);
             TargetPosition = EC_Struct::MakePointF(0.0f, 0.0f);
             HasTarget = false;
             DesiredSpeed = MaximumSpeed;
             Stage = 1;
-            if (FlightTicks < 200) {
+            if (FlightTicks < aGalaxyStruct::BaseMovementStepsPerTurn) {
                 Stage = 2;
                 if (OwnerShip != nullptr) {
                     Stage = 3;
@@ -487,21 +487,21 @@ namespace aMissile {
                     }
                     {
                         pas::Extended cpp_left = System::Sin(aMyFunction::HeadingDegreesToRadians(Direction));
-                        Position.X = Position.X + cpp_left * (pas::real_divide(Speed, 2.0E+2L) * StepScale);
+                        Position.X = Position.X + cpp_left * (pas::real_divide(Speed, pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn))) * StepScale);
                     }
                     {
                         pas::Extended cpp_left_2 = System::Cos(aMyFunction::HeadingDegreesToRadians(Direction));
-                        Position.Y = Position.Y - cpp_left_2 * (pas::real_divide(Speed, 2.0E+2L) * StepScale);
+                        Position.Y = Position.Y - cpp_left_2 * (pas::real_divide(Speed, pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn))) * StepScale);
                     }
                 } else {
                     Stage = 4;
                     {
                         pas::Extended cpp_left_3 = System::Sin(aMyFunction::HeadingDegreesToRadians(Direction));
-                        Position.X = Position.X + cpp_left_3 * (pas::real_divide(Speed, 2.0E+2L) * StepScale);
+                        Position.X = Position.X + cpp_left_3 * (pas::real_divide(Speed, pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn))) * StepScale);
                     }
                     {
                         pas::Extended cpp_left_4 = System::Cos(aMyFunction::HeadingDegreesToRadians(Direction));
-                        Position.Y = Position.Y - cpp_left_4 * (pas::real_divide(Speed, 2.0E+2L) * StepScale);
+                        Position.Y = Position.Y - cpp_left_4 * (pas::real_divide(Speed, pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn))) * StepScale);
                     }
                 }
             } else {
@@ -574,11 +574,11 @@ namespace aMissile {
                 }
                 {
                     pas::Extended cpp_left_5 = System::Sin(aMyFunction::HeadingDegreesToRadians(Direction));
-                    Position.X = Position.X + cpp_left_5 * (pas::real_divide(Speed, 2.0E+2L) * StepScale);
+                    Position.X = Position.X + cpp_left_5 * (pas::real_divide(Speed, pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn))) * StepScale);
                 }
                 {
                     pas::Extended cpp_left_6 = System::Cos(aMyFunction::HeadingDegreesToRadians(Direction));
-                    Position.Y = Position.Y - cpp_left_6 * (pas::real_divide(Speed, 2.0E+2L) * StepScale);
+                    Position.Y = Position.Y - cpp_left_6 * (pas::real_divide(Speed, pas::constant(static_cast<long double>(aGalaxyStruct::BaseMovementStepsPerTurn))) * StepScale);
                 }
             }
             Stage = 16;
@@ -790,32 +790,37 @@ namespace aMissile {
             Result = pas::concat_wide({Result, ([&] {
                 pas::WideString name = OwnerShip->GetName();
                 pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.Missile.TextFrom"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name));
             }()), u"\r\n"});
         }
         if (Target != nullptr && pas::class_cast_if<aAsteroid::TAsteroid*>(Target) != nullptr) {
             Result = pas::concat_wide({Result, ([&] {
                 pas::WideString displayName = reinterpret_cast<aAsteroid::TAsteroid*>(Target)->GetDisplayName();
                 pas::WideString localizedText_2 = aConst::LocalizedText(u"Items.Weapon.Missile.TextTarget"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(displayName));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(displayName));
             }()), u"\r\n"});
         } else if (Target != nullptr && pas::class_cast_if<aItem::TItem*>(Target) != nullptr) {
             Result = pas::concat_wide({Result, ([&] {
                 pas::WideString displayName_2 = reinterpret_cast<aItem::TItem*>(Target)->GetDisplayName();
                 pas::WideString localizedText_3 = aConst::LocalizedText(u"Items.Weapon.Missile.TextTarget"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_3), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(displayName_2));
+                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_3), std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(displayName_2));
             }()), u"\r\n"});
         } else if (Target != nullptr && pas::class_cast_if<aShip::TShip*>(Target) != nullptr) {
             Result = pas::concat_wide({Result, ([&] {
                 pas::WideString name_2 = reinterpret_cast<aShip::TShip*>(Target)->GetName();
                 pas::WideString localizedText_4 = aConst::LocalizedText(u"Items.Weapon.Missile.TextTarget"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_4), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_2));
+                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_4), std::move(textHighlightColorTag_4), u"<Name>"_w, std::move(name_2));
             }()), u"\r\n"});
         } else if (Target != nullptr && pas::class_cast_if<TMissile*>(Target) != nullptr) {
             Result = pas::concat_wide({Result, ([&] {
                 pas::WideString displayName_3 = reinterpret_cast<TMissile*>(Target)->GetDisplayName();
                 pas::WideString localizedText_5 = aConst::LocalizedText(u"Items.Weapon.Missile.TextTarget"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_5), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(displayName_3));
+                pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_5), std::move(textHighlightColorTag_5), u"<Name>"_w, std::move(displayName_3));
             }()), u"\r\n"});
         } else {
             Result = pas::concat_wide({Result, aConst::LocalizedText(u"Items.Weapon.Missile.TextNoTarget"_wref.get()), u"\r\n"});
@@ -834,8 +839,16 @@ namespace aMissile {
                     SpeedText = u"???"_w;
                     DamageText = u"???"_w;
                 }
-                Result = pas::concat_wide({Result, aMyFunction::FormatText1(aConst::LocalizedText(u"Items.Weapon.Missile.TextSpeed"_wref.get()), u"<color=255,240,100>"_w, u"<Speed>"_w, SpeedText), u", "});
-                return pas::concat_wide({Result, aMyFunction::FormatText1(aConst::LocalizedText(u"Items.Weapon.Missile.TextDamage"_wref.get()), u"<color=255,240,100>"_w, u"<Damage>"_w, DamageText), u"\r\n"});
+                Result = pas::concat_wide({Result, ([&] {
+                    pas::WideString localizedText_6 = aConst::LocalizedText(u"Items.Weapon.Missile.TextSpeed"_wref.get());
+                    pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText_6), std::move(textHighlightColorTag_6), u"<Speed>"_w, SpeedText);
+                }()), u", "});
+                return pas::concat_wide({Result, ([&] {
+                    pas::WideString localizedText_7 = aConst::LocalizedText(u"Items.Weapon.Missile.TextDamage"_wref.get());
+                    pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText_7), std::move(textHighlightColorTag_7), u"<Damage>"_w, DamageText);
+                }()), u"\r\n"});
             }
         }
         return Result;
@@ -846,7 +859,7 @@ namespace aMissile {
         if (Attacker == nullptr) {
             Roll = aMyFunction::NextRandomIntRange(1, 100, aGalaxy::Galaxy->RandomState);
         } else {
-            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Attacker); kling != nullptr && kling->KlingType == 0) {
+            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Attacker); kling != nullptr && kling->KlingType == aGalaxyStruct::ktBoss) {
                 return true;
             }
             Roll = aMyFunction::NextRandomIntRange(1, 100, Attacker->RandomState);
@@ -880,7 +893,7 @@ namespace aMissile {
             Result = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].MissileGraph;
         }
         if (Result == u"") {
-            return pas::wide_int_to_str(ItemType - 50 + 1);
+            return pas::wide_int_to_str(ItemType - aConst::t_IndustrialLaser + 1);
         }
         return Result;
     }
@@ -897,7 +910,7 @@ namespace aMissile {
     }
 
     aConst::PWeaponInfo TMissile::GetWeaponInfo() {
-        return &aConst::WeaponInfos[static_cast<aConst::TItemType>(ItemType)];
+        return &aConst::WeaponInfos[ItemType];
     }
 
     aConst::PWeaponInfo TCustomMissile::GetWeaponInfo() {

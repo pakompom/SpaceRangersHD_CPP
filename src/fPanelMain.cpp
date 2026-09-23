@@ -689,9 +689,10 @@ namespace fPanelMain {
         if (Globals::SaveManagerScreen->QuickSaveExists(SlotIndex)) {
             if (GlobalsV::QuickSaveExtraSlots > 0 || SlotIndex > 1) {
                 Text = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString intToStr = pas::wide_int_to_str(SlotIndex);
                     pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"FormSaveManager.QueryQuickN"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(lookupLocalizedTextByKey), u"<Num>"_w, std::move(intToStr), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(lookupLocalizedTextByKey), u"<Num>"_w, std::move(intToStr), textHighlightColorTag.get());
                 }());
             } else {
                 Text = GR_Main::LookupLocalizedTextByKey(u"FormSaveManager.QueryQuick"_wref.get());
@@ -705,9 +706,10 @@ namespace fPanelMain {
         } else if (GlobalsV::QuickSaveExtraSlots + 1 >= SlotIndex) {
             if (GlobalsV::QuickSaveExtraSlots > 0) {
                 Text = ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString intToStr_2 = pas::wide_int_to_str(SlotIndex);
                     pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(u"FormSaveManager.QuickNotExistN"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(lookupLocalizedTextByKey_2), u"<Num>"_w, std::move(intToStr_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(lookupLocalizedTextByKey_2), u"<Num>"_w, std::move(intToStr_2), textHighlightColorTag_2.get());
                 }());
             } else {
                 Text = GR_Main::LookupLocalizedTextByKey(u"FormSaveManager.QuickNotExist"_wref.get());
@@ -752,7 +754,7 @@ namespace fPanelMain {
                         Stage = 3;
                         if (GI_GraphButton::TGraphButtonGI* graphButtonGI = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(Control)) {
                             Stage = 4;
-                            if (pas::in_set<0, 0, 6, 6>(MessageEntry->Kind) && static_cast<std::uint8_t>(MessageEntry->WasRead ^ 1)) {
+                            if (pas::is_one_of<Globals::pmGalaxyNews, Globals::pmTip>(MessageEntry->Kind) && static_cast<std::uint8_t>(MessageEntry->WasRead ^ 1)) {
                                 Stage = 5;
                                 {
                                     GI_GraphButton::TGraphButtonGI* cpp_with = graphButtonGI;
@@ -868,10 +870,10 @@ namespace fPanelMain {
                     Button->EnterSound = u"Sound.ButtonInfoEnter"_w;
                     Button->LeaveSound = u"Sound.ButtonInfoLeave"_w;
                     Button->ClickSound = u"Sound.ButtonInfoClick"_w;
-                    if (MessageEntry->Kind == 1 && aPlayer::GetPlayer() != nullptr && (static_cast<std::int32_t>(MessageEntry->Targets[0].ShipId) == aPlayer::GetPlayer()->Id || static_cast<std::int32_t>(MessageEntry->Targets[1].ShipId) == aPlayer::GetPlayer()->Id || static_cast<std::int32_t>(MessageEntry->Targets[2].ShipId) == aPlayer::GetPlayer()->Id)) {
-                        MessageEntry->Kind = 10;
+                    if (MessageEntry->Kind == Globals::pmRadio && aPlayer::GetPlayer() != nullptr && (static_cast<std::int32_t>(MessageEntry->Targets[0].ShipId) == aPlayer::GetPlayer()->Id || static_cast<std::int32_t>(MessageEntry->Targets[1].ShipId) == aPlayer::GetPlayer()->Id || static_cast<std::int32_t>(MessageEntry->Targets[2].ShipId) == aPlayer::GetPlayer()->Id)) {
+                        MessageEntry->Kind = Globals::pmRadioPlayer;
                     }
-                    if (pas::in_set<0, 0, 6, 6>(MessageEntry->Kind) && static_cast<std::uint8_t>(MessageEntry->WasRead ^ 1)) {
+                    if (pas::is_one_of<Globals::pmGalaxyNews, Globals::pmTip>(MessageEntry->Kind) && static_cast<std::uint8_t>(MessageEntry->WasRead ^ 1)) {
                         Button->SetImageNormalPath(u"GraphBuf"_wref.get());
                         Button->ImageNormal->GraphBufControl->SourceHasPerPixelAlpha = true;
                         GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.MsgPlayer.", GR_Main::GiResourceSuffix(), MessageEntry->GetNormalImageName()}), Button->ImageNormal->GraphBufControl->GraphBuf);
@@ -933,7 +935,7 @@ namespace fPanelMain {
 
     std::uint8_t TfPanelMain::RemoveDismissibleMessages(pas::WideString Key) {
         std::uint8_t Result = false;
-        if (Globals::RemovePlayerMessagesExceptKinds(Key, pas::constant_set<Globals::TPlayerMessageKindSet>({{3}, {9}}), false)) {
+        if (Globals::RemovePlayerMessagesExceptKinds(Key, pas::constant_set<Globals::TPlayerMessageKindSet>({{Globals::pmQuestActive}, {Globals::pmStorage}}), false)) {
             RebuildMessageButtons(false);
             GR_Main::SoundManager->PlaySound(u"Sound.DelMsg"_wref.get());
             return true;
@@ -968,7 +970,7 @@ namespace fPanelMain {
             LabelControl->SetSize(ClassesImports::Point(Window->ClientSize.X - Window->WorkSubRect.Left - Window->WorkSubRect.Right, Window->ClientSize.Y - Window->WorkSubRect.Top - Window->WorkSubRect.Bottom));
             if (!MessageEntry->WasRead) {
                 MessageEntry->WasRead = true;
-                if (MessageEntry->Kind == 6) {
+                if (MessageEntry->Kind == Globals::pmTip) {
                     MessageEntry->Turn = aGalaxy::Galaxy->CurrentTurn;
                 }
             }
@@ -997,7 +999,7 @@ namespace fPanelMain {
                     cpp_flow = pas::FinallyFlow::Return;
                     goto cpp_cleanup;
                 }
-                if (pas::in_set<3, 3, 9, 9>(MessageEntry->Kind)) {
+                if (pas::is_one_of<Globals::pmQuestActive, Globals::pmStorage>(MessageEntry->Kind)) {
                     cpp_flow = pas::FinallyFlow::Return;
                     goto cpp_cleanup;
                 }
@@ -1295,11 +1297,11 @@ namespace fPanelMain {
             MessageEntry = Globals::FirstPersistentPlayerMessage;
             while (MessageEntry != nullptr) {
                 if (!MessageEntry->NotificationSoundPlayed) {
-                    if (pas::in_set<0, 6, 8, 8>(MessageEntry->Kind)) {
-                        if (static_cast<std::uint8_t>(PlayedQuestOk ^ 1) && MessageEntry->Kind == 4) {
+                    if (pas::in_set<Globals::pmGalaxyNews, Globals::pmTip, Globals::pmShipNegative, Globals::pmShipNegative>(MessageEntry->Kind)) {
+                        if (static_cast<std::uint8_t>(PlayedQuestOk ^ 1) && MessageEntry->Kind == Globals::pmQuestSucceeded) {
                             PlayedQuestOk = true;
                             GR_Main::SoundManager->PlaySound(u"Sound.QuestOk"_wref.get());
-                        } else if (static_cast<std::uint8_t>(PlayedQuestCancel ^ 1) && MessageEntry->Kind == 5) {
+                        } else if (static_cast<std::uint8_t>(PlayedQuestCancel ^ 1) && MessageEntry->Kind == Globals::pmQuestCancelled) {
                             PlayedQuestCancel = true;
                             GR_Main::SoundManager->PlaySound(u"Sound.QuestCancel"_wref.get());
                         } else if (static_cast<std::uint8_t>(PlayedNew ^ 1) && MessageEntry->NotificationSoundKind == 0) {

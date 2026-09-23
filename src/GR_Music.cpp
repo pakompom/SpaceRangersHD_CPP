@@ -64,11 +64,11 @@ namespace GR_Music {
         Self->BuiltinVorbis = false;
         Self->DecodeLock = pas::make_critical_section<pas::CriticalSection>();
         if (static_cast<pas::AnsiString>(LibraryName) == "vorbisfile.dll") {
-            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, &Self->DecodeLock, false);
+            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, Self->DecodeLock, false);
             Self->BuiltinVorbis = true;
             Self->Buffer = GR_Main::SoundManager->AddBuffer();
         } else {
-            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, &Self->DecodeLock, true);
+            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, Self->DecodeLock, true);
             if (!Self->BuiltinVorbis) {
                 GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({"Load ", static_cast<pas::AnsiString>(LibraryName), " .... "}));
                 try {

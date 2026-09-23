@@ -34,7 +34,7 @@ namespace aConst {
     extern pas::Array<aConst::TShipTypeInfo, 0, 13>& ShipTypeNames;
 
     // Standing used to gate station spawning by faction, including the custom station.
-    extern pas::Array<std::uint8_t, 6, 13>& StationDefaultStandings;
+    extern pas::Array<aGalaxyStruct::TShipStanding, 6, 13>& StationDefaultStandings;
 
     // Standing masks used by TPlayer.CanSelectShipTarget.
     extern aGalaxyStruct::TFactionStandingMasks& NonTargetableStationStandingMasks;
@@ -47,7 +47,8 @@ namespace aConst {
 
     extern const pas::Array<aGalaxyStruct::TKlingType, 0, 7>& DominatorDisplayOrder;
 
-    extern pas::Array<pas::WideString, 0, 7>& DominatorShipTypeNames;
+    // Military-base rank-dialog keys, not display names.
+    extern pas::Array<pas::WideString, 0, 7>& DominatorShipTypeKeys;
 
     // TKlingType order; native name initializer pairs.
     extern pas::Array<aConst::TKlingTypeInfo, 0, 7>& DominatorShipDefinitions;
@@ -91,7 +92,7 @@ namespace aConst {
 
     extern aGalaxyStruct::TPlanetRaceMarketTable& PlanetRaceMarket;
 
-    extern aGalaxyStruct::TPlanetEquipmentOfferQuotaTable& PlanetEquipmentOfferQuotas;
+    extern aConst::TPlanetEquipmentOfferQuotaTable& PlanetEquipmentOfferQuotas;
 
     // Native defaults; aRuins accesses this table through an external-unit reference. Original defining unit is inferred.
     extern aConst::TStationEquipmentOfferQuotaTable& StationEquipmentOfferQuotas;
@@ -167,16 +168,16 @@ namespace aConst {
     extern pas::Array<std::int32_t, 0, 10>& TranclucatorHullSlots;
 
     // Native base slot counts; final column is unsupported kind.
-    extern pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& StationHullSlots;
+    extern pas::Array<pas::Array<std::int32_t, 0, 10>, 6, 13>& StationHullSlots;
 
     // Native base slot counts; final column is unsupported kind.
     extern pas::Array<pas::Array<std::int32_t, 0, 10>, 0, 7>& DominatorHullSlots;
 
     // Native base slot counts; final column is unsupported kind.
-    extern pas::Array<std::int32_t, 0, 10>& HullType9Slots;
+    extern pas::Array<std::int32_t, 0, 10>& SpecialHullSlots;
 
     // Native base slot counts; final column is unsupported kind.
-    extern pas::Array<std::int32_t, 0, 10>& HullType10Slots;
+    extern pas::Array<std::int32_t, 0, 10>& FlagshipHullSlots;
 
     extern pas::Array<aConst::TEquipmentBonusKind, 0, 10>& HullSlotBonusKinds;
 
@@ -534,7 +535,7 @@ namespace aConst {
     // Native count used by CheatIdeal and hull-series configuration.
     extern std::int32_t HullSeriesCount;
 
-    // Native disease/stimulant definitions; eligibility and progression fields verified in TPlayer.NextDay.
+    // Disease and stimulant definitions.
     extern pas::Array<aConst::TIllnessInfo, 1, 24> CaptainHealthDefinitions;
 
     // Finalized as one TIllnessInfo alongside the 24 captain effects.
@@ -577,7 +578,7 @@ namespace aConst {
     TWeaponDamageClass ClassifyWeaponDamageFlags(aGalaxyStruct::TDamageFlagSet Flags);
 
     // Class/subtype mapping used by hull generation and legacy saves; only TObject RTTI operations precede explicit subclass casts.
-    std::uint8_t ShipToHullType(pas::Object* Ship);
+    aGalaxyStruct::THullType ShipToHullType(pas::Object* Ship);
 
     // Identity conversion for Coalition races 0..4; raises for all other values.
     aGalaxyStruct::TOwnerId RaceToOwner(aGalaxyStruct::TOwnerId RaceId);
@@ -594,10 +595,10 @@ namespace aConst {
     aGalaxyStruct::TOwnerId NumberToRace(std::int32_t Value);
 
     // Case-sensitive lookup; raises for an unknown name.
-    std::uint8_t SysToReward(const std::u16string_view& Name);
+    aGalaxyStruct::TAwardKind SysToReward(const std::u16string_view& Name);
 
     // Case-sensitive lookup among 14 ship types; raises for an unknown name.
-    std::uint8_t SysToShipType(const std::u16string_view& Name);
+    aGalaxyStruct::TShipType SysToShipType(const std::u16string_view& Name);
 
     // Maps owner IDs 0..5 and 7 to fixed RGB colors through CurrentPixelFormat; other values use magenta.
     std::uint32_t OwnerToFilmColor(aGalaxyStruct::TOwnerId OwnerId);

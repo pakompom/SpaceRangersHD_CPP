@@ -1,4 +1,5 @@
 #pragma once
+#include "types/aGalaxyStruct.hpp"
 #include "types/aItem.hpp"
 #include "types/fRuinsTalk.hpp"
 
@@ -61,7 +62,7 @@ namespace fRuinsTalk {
 
     extern pas::Array<std::int32_t, 0, 11> InvestmentQuoteCosts;
 
-    extern std::uint8_t SelectedResearchSeries;
+    extern aGalaxyStruct::TDominatorSeries SelectedResearchSeries;
 
     extern std::int32_t NearbyTradeAdviceCost;
 

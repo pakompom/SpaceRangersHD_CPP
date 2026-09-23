@@ -204,7 +204,8 @@ namespace fSelectFace {
             Text = ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(Cost);
                 pas::WideString paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.PB.ChangeNationality.Confirm"_wref.get());
-                return aMyFunction::FormatText1(std::move(paramByPathOrMarker), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(paramByPathOrMarker), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
             }());
             if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
                 RequestClose(1);
@@ -214,7 +215,8 @@ namespace fSelectFace {
             Text = ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
                 pas::WideString paramByPathOrMarker_2 = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.PB.ChangeNationality.NoMoney"_wref.get());
-                return aMyFunction::FormatText1(std::move(paramByPathOrMarker_2), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(paramByPathOrMarker_2), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
             }());
             GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgWarning, 0, 0, 0);
         }

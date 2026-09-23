@@ -101,8 +101,8 @@ namespace fScore {
         aGalaxyStruct::TOwnerId PilotRace;
         std::uint8_t cpp_padding_2[3];
         std::int32_t FinishedTurn;
-        std::uint8_t Rank;
-        std::uint8_t PirateRank;
+        aGalaxyStruct::TShipRank Rank;
+        aGalaxyStruct::TShipRank PirateRank;
         std::uint8_t cpp_padding_3[2];
         std::int32_t OtherShipKillCount;
         std::int32_t PirateKillCount;

@@ -6,6 +6,9 @@
 #include "units/GR_Main.hpp"
 
 namespace EC_CacheBitmap {
+    // Cache paths pass the option after '?' to LoadFromConfigBuffer.
+    const pas::WideString RgbaImagePathSuffix = u"?RGBA"_w;
+
     TCBitmapEC* AcquireOrCreateBitmap(EC_Cache::TCacheControlEC* Control) {
         return pas::checked_cast<TCBitmapEC*>(Control->AcquireDataFromConfig(pas::class_ref<TCBitmapEC>()));
     }

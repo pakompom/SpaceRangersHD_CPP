@@ -122,10 +122,10 @@ namespace CPVarClass {
         if (ValueKind == cpvkRange) {
             return Range->GetRandomValue();
         } else if (ValueKind == cpvkFloat) {
-            if (FloatValue < -2.0E+9L) {
-                return -2000000000;
-            } else if (FloatValue > 2.0E+9L) {
-                return 2000000000;
+            if (FloatValue < pas::constant(static_cast<long double>(-QuestNumericLimit))) {
+                return -QuestNumericLimit;
+            } else if (FloatValue > pas::constant(static_cast<long double>(QuestNumericLimit))) {
+                return QuestNumericLimit;
             } else {
                 return System::Round(FloatValue + 1.0E-11L);
             }

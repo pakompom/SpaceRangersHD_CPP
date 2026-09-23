@@ -10,9 +10,11 @@
 #include "types/TextFieldClass.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
+#include "types/aGalaxyStruct.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Buf.hpp"
 #include "units/EC_Cache.hpp"
+#include "units/EC_CacheBitmap.hpp"
 #include "units/EC_CacheBuf.hpp"
 #include "units/EC_File.hpp"
 #include "units/EC_Str.hpp"
@@ -144,7 +146,7 @@ namespace fLoadQuest {
                 if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
                     if (Entries[SelectedIndex].QuestId >= 0) {
                         LoadCompletionData();
-                        if (Entries[SelectedIndex].QuestId >= 0 && Entries[SelectedIndex].QuestId < 10000) {
+                        if (Entries[SelectedIndex].QuestId >= 0 && Entries[SelectedIndex].QuestId < aGalaxyStruct::FirstLicensedQuestId) {
                             QuestId = Entries[SelectedIndex].QuestId;
                             if (QuestId < 0 || (CompletionData.length() - 1 + 1) / 2 <= QuestId || CompletionData[QuestId * 2 + 1] == 0) {
                                 RecordCompletion(QuestId, 0, 1);
@@ -388,7 +390,7 @@ namespace fLoadQuest {
         Row->SetSize(Background->ClientSize);
         Background->SetActive(true);
         std::int32_t TitleRight = GR_Main::GiScalePixels(262);
-        if (Entries[Index].QuestId >= 0 && Entries[Index].QuestId < 10000) {
+        if (Entries[Index].QuestId >= 0 && Entries[Index].QuestId < aGalaxyStruct::FirstLicensedQuestId) {
             LengthImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Row);
             LengthImage->SetDepth(9.0);
             if (Entries[Index].RequiredAccess <= AccessLevel) {
@@ -587,7 +589,7 @@ namespace fLoadQuest {
             if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
                 if (Entries[SelectedIndex].Image != u"") {
                     ImageMap->SetActive(true);
-                    ImageMap->LoadBitmapPathAsRgba(pas::concat_wide({Entries[SelectedIndex].Image, u"?RGBA"}));
+                    ImageMap->LoadBitmapPathAsRgba(pas::concat_wide({Entries[SelectedIndex].Image, EC_CacheBitmap::RgbaImagePathSuffix}));
                     if (ImageMap->ClientSize.X != ImageMap->GraphBuf->Width || ImageMap->ClientSize.Y != ImageMap->GraphBuf->Height) {
                         ImageMap->GraphBuf->RescaleRgba(ImageMap->ClientSize.X, ImageMap->ClientSize.Y, 5);
                     }
@@ -657,16 +659,40 @@ namespace fLoadQuest {
                     }
                 }
                 Text = Quest->QuestDescriptionText->Text;
-                aMyFunction::ReplaceTextToken(Text, u"<Ranger>"_w, aConst::LocalizedText(u"FormLoadQuest.PRanger"_wref.get()), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<ToPlanet>"_w, aConst::LocalizedText(u"FormLoadQuest.PToPlanet"_wref.get()), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, aConst::LocalizedText(u"FormLoadQuest.PToStar"_wref.get()), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::wide_int_to_str(10), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, aGalaxy::FormatGameTurnDate(1000), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Day>"_w, pas::wide_int_to_str(30), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(10000), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, aConst::LocalizedText(u"FormLoadQuest.PFromPlanet"_wref.get()), u"<color=0,71,234>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, aConst::LocalizedText(u"FormLoadQuest.PFromStar"_wref.get()), u"<color=0,71,234>"_w);
-                Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), u"<color=0,71,234>"sv);
+                {
+                    auto brightBlueColorTag = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText = aConst::LocalizedText(u"FormLoadQuest.PRanger"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Ranger>"_w, std::move(localizedText), brightBlueColorTag.get());
+                }
+                {
+                    auto brightBlueColorTag_2 = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText_2 = aConst::LocalizedText(u"FormLoadQuest.PToPlanet"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<ToPlanet>"_w, std::move(localizedText_2), brightBlueColorTag_2.get());
+                }
+                {
+                    auto brightBlueColorTag_3 = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText_3 = aConst::LocalizedText(u"FormLoadQuest.PToStar"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, std::move(localizedText_3), brightBlueColorTag_3.get());
+                }
+                aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::wide_int_to_str(10), aMyFunction::BrightBlueColorTag);
+                {
+                    auto brightBlueColorTag_4 = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(1000);
+                    aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatGameTurnDate), brightBlueColorTag_4.get());
+                }
+                aMyFunction::ReplaceTextToken(Text, u"<Day>"_w, pas::wide_int_to_str(30), aMyFunction::BrightBlueColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(10000), aMyFunction::BrightBlueColorTag);
+                {
+                    auto brightBlueColorTag_5 = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText_4 = aConst::LocalizedText(u"FormLoadQuest.PFromPlanet"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, std::move(localizedText_4), brightBlueColorTag_5.get());
+                }
+                {
+                    auto brightBlueColorTag_6 = pas::borrow(aMyFunction::BrightBlueColorTag);
+                    pas::WideString localizedText_5 = aConst::LocalizedText(u"FormLoadQuest.PFromStar"_wref.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, std::move(localizedText_5), brightBlueColorTag_6.get());
+                }
+                Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), pas::view(aMyFunction::BrightBlueColorTag));
                 aConst::ExpandLocalizedTextMarkup(Text);
                 pas::free(Quest);
                 with_MessageText->SetActive(true);
@@ -742,7 +768,7 @@ namespace fLoadQuest {
     // QuestId must be 0..9999. Higher status wins; equal status minimizes an existing nonzero Value.
     void TfLoadQuest::RecordCompletion(std::int32_t QuestId, std::int32_t Value, std::int32_t Status) {
         std::int32_t I{};
-        if (QuestId < 0 || QuestId >= 10000) {
+        if (QuestId < 0 || QuestId >= aGalaxyStruct::FirstLicensedQuestId) {
             return;
         }
         std::int32_t Count = (CompletionData.length() - 1 + 1) / 2;
@@ -787,7 +813,7 @@ namespace fLoadQuest {
                     break;
                 }
                 QuestId = Entries[I + GroupCount].QuestId;
-                if (QuestId >= 0 && QuestId < 10000) {
+                if (QuestId >= 0 && QuestId < aGalaxyStruct::FirstLicensedQuestId) {
                     CompletionIndex = QuestId;
                     if (CompletionIndex >= 0) {
                         if ((CompletionData.length() - 1 + 1) / 2 > CompletionIndex) {

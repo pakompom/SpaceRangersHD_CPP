@@ -63,11 +63,19 @@ namespace fMainForm {
             GI_Label::TLabelGI* LVersion = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LVersion"sv));
             if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1280) {
                 LVersion->SetPosition(ClassesImports::Point(LVersion->LocalPosition.X + GR_Main::ExtraScreenWidth, LVersion->LocalPosition.Y + GR_Main::ExtraScreenHeight));
-                LVersion->SetText(EC_Str::ReplaceAllWideString(aConst::LocalizedText(u"FormMain.Version"_wref.get()), u"<Value>"_wref.get(), u"2.1.2500"sv));
+                LVersion->SetText(([&] {
+                    const pas::WideString& localizedText = aConst::LocalizedText(u"FormMain.Version"_wref.get());
+                    const pas::WideString& gameVersionText = GR_Main::GameVersionText;
+                    return EC_Str::ReplaceAllWideString(localizedText, u"<Value>"_wref.get(), pas::view(gameVersionText));
+                }()));
                 LogoShift = 0;
             } else {
                 LVersion->SetPosition(ClassesImports::Point(LVersion->LocalPosition.X + GR_Main::ExtraScreenWidth, LVersion->LocalPosition.Y + GR_Main::ExtraScreenHeight - 7));
-                LVersion->SetText(EC_Str::ReplaceAllWideString(aConst::LocalizedText(u"FormMain.Version2"_wref.get()), u"<Value>"_wref.get(), u"2.1.2500"sv));
+                LVersion->SetText(([&] {
+                    const pas::WideString& localizedText_2 = aConst::LocalizedText(u"FormMain.Version2"_wref.get());
+                    const pas::WideString& gameVersionText_2 = GR_Main::GameVersionText;
+                    return EC_Str::ReplaceAllWideString(localizedText_2, u"<Value>"_wref.get(), pas::view(gameVersionText_2));
+                }()));
                 LogoShift = 16;
             }
         }
@@ -394,7 +402,7 @@ namespace fMainForm {
         {
             GI_Label::TLabelGI* ModsCnt = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModsCnt"sv));
             if (GR_Main::SkipModsOnReload) {
-                ModsCnt->SetText(pas::concat_wide({u"<color=255,0,0>", EC_Str::IntToWideString(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods), u","sv)), u"</color>"}));
+                ModsCnt->SetText(pas::concat_wide({aMyFunction::RedColorTag, EC_Str::IntToWideString(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods), u","sv)), aMyFunction::EndColorTag}));
             } else {
                 ModsCnt->SetText(EC_Str::IntToWideString(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods), u","sv)));
             }

@@ -110,7 +110,7 @@ namespace fRating2 {
         }
         pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
         }
         MainPanel->OnOpen();
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->SetHitTestDisabled(true);
@@ -157,7 +157,7 @@ namespace fRating2 {
         GI_MessageLoop::TMessageLoopGI::OnClose();
         aGalaxy::Galaxy->CheckIntegrityChecksum(1114);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         ClearRows();
         MainPanel->OnClose();
@@ -281,7 +281,8 @@ namespace fRating2 {
                             pas::WideString name = Ally->GetName();
                             pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
                             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PartnerBossOneText"_wref.get());
-                            return aMyFunction::FormatText2(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name), u"<Date>"_w, std::move(formatTurnDate));
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name), u"<Date>"_w, std::move(formatTurnDate));
                         }());
                     }
                 }
@@ -295,14 +296,16 @@ namespace fRating2 {
                             pas::WideString name_2 = Ally->GetName();
                             pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
                             pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                            return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate_2));
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate_2));
                         }())});
                     } else {
                         Names = ([&] {
                             pas::WideString name_3 = Ally->GetName();
                             pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
                             pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                            return aMyFunction::FormatText2(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_3));
+                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_3));
                         }());
                     }
                 }
@@ -316,7 +319,8 @@ namespace fRating2 {
                 RewardName->SetText(([&] {
                     pas::WideString name = aPlayer::GetPlayer()->GetName();
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name));
                 }()));
             }
             if (aPlayer::GetPlayer()->CountWingmen() > 0) {
@@ -329,14 +333,16 @@ namespace fRating2 {
                                 pas::WideString name_2 = Ally->GetName();
                                 pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
                                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate));
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate));
                             }())});
                         } else {
                             Names = ([&] {
                                 pas::WideString name_3 = Ally->GetName();
                                 pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
                                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_2));
+                                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_2));
                             }());
                         }
                     }
@@ -348,14 +354,16 @@ namespace fRating2 {
                             pas::WideString name_4 = Pirate->GetName();
                             pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Pirate->PartnershipDaysRemaining);
                             pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPirate"_wref.get());
-                            return aMyFunction::FormatText2(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_4), u"<Date>"_w, std::move(formatTurnDate_3));
+                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<Name>"_w, std::move(name_4), u"<Date>"_w, std::move(formatTurnDate_3));
                         }())});
                     } else {
                         Names = ([&] {
                             pas::WideString name_5 = Pirate->GetName();
                             pas::WideString formatTurnDate_4 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Pirate->PartnershipDaysRemaining);
                             pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPirate"_wref.get());
-                            return aMyFunction::FormatText2(std::move(localizedColorText_5), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_5), u"<Date>"_w, std::move(formatTurnDate_4));
+                            pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText2(std::move(localizedColorText_5), std::move(textHighlightColorTag_5), u"<Name>"_w, std::move(name_5), u"<Date>"_w, std::move(formatTurnDate_4));
                         }());
                     }
                 }
@@ -379,14 +387,16 @@ namespace fRating2 {
                 RewardName_2->SetText(([&] {
                     pas::WideString name_6 = Rows[Sender->UserValue].Ranger->GetName();
                     pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormRating.InPrisonName"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_6), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_6));
+                    pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_6), std::move(textHighlightColorTag_6), u"<Name>"_w, std::move(name_6));
                 }()));
             }
             if (Rows[Sender->UserValue].Ranger->CurrentPlanet != nullptr) {
                 Text = ([&] {
                     auto name_7 = pas::borrow(Rows[Sender->UserValue].Ranger->CurrentPlanet->Name);
                     pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormRating.InPrisonText"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_7), u"<color=255,240,100>"_w, u"<Planet>"_w, name_7.get());
+                    pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_7), std::move(textHighlightColorTag_7), u"<Planet>"_w, name_7.get());
                 }());
             } else {
                 Text = pas::WideString();
@@ -405,12 +415,21 @@ namespace fRating2 {
                 RewardName_3->SetText(([&] {
                     pas::WideString name_8 = Rows[Sender->UserValue].Ranger->GetName();
                     pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_8), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_8));
+                    pas::WideString textHighlightColorTag_8 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_8), std::move(textHighlightColorTag_8), u"<Name>"_w, std::move(name_8));
                 }()));
             }
             Text = aConst::LocalizedColorText(u"FormRating.PartnerText"_wref.get());
-            aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, Rows[Sender->UserValue].Ranger->PartnerShip->GetName(), u"<color=255,240,100>"_w);
-            aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Rows[Sender->UserValue].Ranger->PartnershipDaysRemaining), u"<color=255,240,100>"_w);
+            {
+                auto textHighlightColorTag_9 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString name_9 = Rows[Sender->UserValue].Ranger->PartnerShip->GetName();
+                aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, std::move(name_9), textHighlightColorTag_9.get());
+            }
+            {
+                auto textHighlightColorTag_10 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString formatTurnDate_5 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Rows[Sender->UserValue].Ranger->PartnershipDaysRemaining);
+                aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatTurnDate_5), textHighlightColorTag_10.get());
+            }
             if (Rows[Sender->UserValue].Ranger->PartnershipDaysRemaining == 0) {
                 Text = pas::concat_wide({Text, u" ", aConst::LocalizedColorText(u"FormRating.PartnerTextDateEnd"_wref.get())});
             }
@@ -429,9 +448,10 @@ namespace fRating2 {
             {
                 GI_Label::TLabelGI* RewardName_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_4->SetText(([&] {
-                    pas::WideString name_9 = Rows[Sender->UserValue].Ranger->GetName();
+                    pas::WideString name_10 = Rows[Sender->UserValue].Ranger->GetName();
                     pas::WideString localizedColorText_9 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_9), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_9));
+                    pas::WideString textHighlightColorTag_11 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_9), std::move(textHighlightColorTag_11), u"<Name>"_w, std::move(name_10));
                 }()));
             }
             Text = FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger);
@@ -480,7 +500,8 @@ namespace fRating2 {
                 RewardName->SetText(([&] {
                     pas::WideString name = Ranger->GetName();
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name));
                 }()));
             }
             {
@@ -493,7 +514,8 @@ namespace fRating2 {
                 RewardName_2->SetText(([&] {
                     pas::WideString name_2 = Ranger->GetName();
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_2));
+                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2));
                 }()));
             }
             {
@@ -503,7 +525,7 @@ namespace fRating2 {
         }
         Text = pas::concat_wide({u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(u"FormRating.Rating.Title"_wref.get()), u"</align>", u"\r\n"});
         for (auto cpp_range = pas::for_to<aGalaxyStruct::TRangerCareer>(aGalaxyStruct::rcTrader, aGalaxyStruct::rcWarrior); cpp_range.next(Career); ) {
-            Text = pas::concat_wide({Text, u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.", aConst::CareerTuning[Career].Name})), u"<td=", FormatCareerHintColumn(2), u">:</align><td=", FormatCareerHintColumn(3), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[Career]))), u"<color=255,240,100>"sv), u"</align>", u"\r\n"});
+            Text = pas::concat_wide({Text, u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.", aConst::CareerTuning[Career].Name})), u"<td=", FormatCareerHintColumn(2), u">:</align><td=", FormatCareerHintColumn(3), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[Career]))), pas::view(aMyFunction::TextHighlightColorTag)), u"</align>", u"\r\n"});
         }
         {
             GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
@@ -743,18 +765,18 @@ namespace fRating2 {
                     }
                 } else if (SortColumn == rrscRace) {
                     if (SortAscending) {
-                        if (static_cast<std::int8_t>(static_cast<std::int32_t>(B->PilotRace) + 0) < static_cast<std::int8_t>(static_cast<std::int32_t>(A->PilotRace) + 0)) {
+                        if (B->PilotRace < A->PilotRace) {
                             pas::list_exchange(List, I, J);
                         }
-                    } else if (static_cast<std::int8_t>(static_cast<std::int32_t>(B->PilotRace) + 0) > static_cast<std::int8_t>(static_cast<std::int32_t>(A->PilotRace) + 0)) {
+                    } else if (B->PilotRace > A->PilotRace) {
                         pas::list_exchange(List, I, J);
                     }
                 } else if (SortColumn == rrscRank) {
                     if (SortAscending) {
-                        if (static_cast<std::int8_t>(B->Rank + 0) < static_cast<std::int8_t>(A->Rank + 0)) {
+                        if (B->Rank < A->Rank) {
                             pas::list_exchange(List, I, J);
                         }
-                    } else if (static_cast<std::int8_t>(B->Rank + 0) > static_cast<std::int8_t>(A->Rank + 0)) {
+                    } else if (B->Rank > A->Rank) {
                         pas::list_exchange(List, I, J);
                     }
                 } else if (SortColumn == rrscCharacter) {
@@ -854,7 +876,7 @@ namespace fRating2 {
         std::int32_t ExtraKills{};
         GI_GAI::TgaiGI* Animation{};
         // Nested in TfRating2.CreateRow; caller supplies its parent frame.
-        auto GetRatingRankImagePath = [&](std::uint8_t Rank) -> pas::WideString {
+        auto GetRatingRankImagePath = [&](aGalaxyStruct::TShipRank Rank) -> pas::WideString {
             pas::WideString Result{};
             if (Rank == 0) {
                 return pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Rank1"});
@@ -900,7 +922,7 @@ namespace fRating2 {
                 Buffer->MouseLeaveCallback = pas::bind_method<&TfRating2::HintMouseLeave>(this);
                 Buffer->LeftButtonDownCallback = pas::bind_method<&TfRating2::AwardsMouseDown>(this);
                 Buffer->UserValue = Ranger->Id;
-                reinterpret_cast<GR_GraphBuf::TGraphBufGR*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Buffer->GraphBuf)) + 0)))->AllocateRgbaTight(std::max<std::int32_t>(Buffer->ClientSize.X + 0, Step * Count + Size - Step), Size);
+                Buffer->GraphBuf->AllocateRgbaTight(std::max<std::int32_t>(Buffer->ClientSize.X, Step * Count + Size - Step), Size);
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, Size - 1); cpp_range.next(I); ) {
                     GR_GraphBuf::TGraphBufGR_FillRect32(Buffer->GraphBuf, ClassesImports::Rect(0, I, Buffer->GraphBuf->Width, I + 1), pas::shl(static_cast<std::int32_t>(System::Round(pas::real_divide(I, Size) * 2.4E+2L) + 10), 24) | pas::shl(250, 16) | pas::shl(250, 8) | 50);
                 }
@@ -922,8 +944,10 @@ namespace fRating2 {
                     } else {
                         Icon->RescaleRgba(System::Round(pas::real_divide(Size, static_cast<std::uint32_t>(Icon->Height)) * static_cast<std::uint32_t>(Icon->Width)), Size, 5);
                     }
-                    if (Icon->Height <= Size && Icon->Width + J * Step <= Buffer->GraphBuf->Width) {
-                        GR_GraphBuf::TGraphBufGR_BlendRect32(reinterpret_cast<GR_GraphBuf::TGraphBufGR*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Buffer->GraphBuf)) + 0))), ClassesImports::Point(J * Step, 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
+                    if (Icon->Height <= Size) {
+                        if (Icon->Width + J * Step <= Buffer->GraphBuf->Width) {
+                            GR_GraphBuf::TGraphBufGR_BlendRect32(Buffer->GraphBuf, ClassesImports::Point(J * Step, 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
+                        }
                     }
                     ++I;
                     ++J;
@@ -1466,7 +1490,7 @@ namespace fRating2 {
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
@@ -1495,7 +1519,7 @@ namespace fRating2 {
 
     // Only displays a hint for the player.
     void TfRating2::ShowDominatorKillsHint(GI_MessageLoop::TObjectGI* Sender) {
-        std::uint8_t I{};
+        aConst::TDominatorDisplayIndex DisplayIndex{};
         WindowsSdk::TPoint Cursor{};
         pas::WideString Text{};
         aRanger::TRanger* Ranger{};
@@ -1512,7 +1536,8 @@ namespace fRating2 {
                     RewardName->SetText(([&] {
                         pas::WideString name = Ranger->GetName();
                         pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name));
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name));
                     }()));
                 }
                 {
@@ -1525,7 +1550,8 @@ namespace fRating2 {
                     RewardName_2->SetText(([&] {
                         pas::WideString name_2 = Ranger->GetName();
                         pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Name>"_w, std::move(name_2));
+                        pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2));
                     }()));
                 }
                 {
@@ -1535,9 +1561,9 @@ namespace fRating2 {
             }
             if (aPlayer::GetPlayer() == Ranger) {
                 Text = pas::concat_wide({u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedText(u"FormRating.Dominator"_wref.get()), u"</align>", u"\r\n"});
-                for (auto cpp_range = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(7)); cpp_range.next(I); ) {
-                    if (aConst::DominatorDisplayOrder[I] != 0) {
-                        Text = pas::concat_wide({Text, u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"ShipType.Dominator.Blazer.", SysUtils::IntToStr(aConst::DominatorDisplayOrder[I])}))), u"<td=", FormatDominatorKillsHintColumn(2), u">:</align><td=", FormatDominatorKillsHintColumn(3), u"><align=left>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->DominatorKillsByType[aConst::DominatorDisplayOrder[I]])), u"<color=255,240,100>"sv), u"</align>", u"\r\n"});
+                for (auto cpp_range = pas::for_to<aConst::TDominatorDisplayIndex>(static_cast<aConst::TDominatorDisplayIndex>(0), static_cast<aConst::TDominatorDisplayIndex>(7)); cpp_range.next(DisplayIndex); ) {
+                    if (aConst::DominatorDisplayOrder[DisplayIndex] != aGalaxyStruct::ktBoss) {
+                        Text = pas::concat_wide({Text, u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"ShipType.Dominator.Blazer.", SysUtils::IntToStr(aConst::DominatorDisplayOrder[DisplayIndex])}))), u"<td=", FormatDominatorKillsHintColumn(2), u">:</align><td=", FormatDominatorKillsHintColumn(3), u"><align=left>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->DominatorKillsByType[aConst::DominatorDisplayOrder[DisplayIndex]])), pas::view(aMyFunction::TextHighlightColorTag)), u"</align>", u"\r\n"});
                     }
                 }
                 {

@@ -69,6 +69,8 @@ namespace fScore {
     static_assert(sizeof(void*) != 4 || offsetof(fScore::TShipCounterView, Prefix) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(fScore::TShipCounterView, Counters) == 1236);
 
+    const pas::WideString ScoreValueColorTag = u"<color=255,222,0>"_w;
+
     void TfScoreUnit_Create(TfScoreUnit* Self) {
         pas::object_create(Self);
         Self->ScoreTags = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
@@ -212,7 +214,7 @@ namespace fScore {
         Difficulty = DifficultyPercent;
         if (VictoryAchieved) {
             {
-                pas::Extended real_max = pas::real_max<pas::Extended>(7.0L, pas::real_divide(FinishedTurn - 300, 365.0L));
+                pas::Extended real_max = pas::real_max<pas::Extended>(7.0L, pas::real_divide(FinishedTurn - aGalaxyStruct::GalaxyWarmupTurns, pas::constant(static_cast<long double>(aGalaxyStruct::TurnsPerYear))));
                 {
                     pas::Extended cpp_right = Math::Power(real_max, 1.3L);
                     TotalScore = System::Round(pas::real_divide(pas::real_divide(Experience * Difficulty, 1.0E+2L), cpp_right));
@@ -1058,9 +1060,12 @@ namespace fScore {
                     Size = Buffer->DataSize;
                     for (auto cpp_range = pas::for_to<std::int32_t>(8, Size - 1); cpp_range.next(I); ) {
                         *Data = *Data ^ static_cast<std::uint8_t>(Seed - 1);
-                        Seed = 16807 * (Seed % 127773) - 2836 * (Seed / 127773);
+                        {
+                            std::int32_t cpp_left_4 = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
+                            Seed = cpp_left_4 - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
+                        }
                         if (Seed <= 0) {
-                            Seed += SystemImports::MaxInt;
+                            Seed += EC_Buf::SeedRngModulus;
                         }
                         Data = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Data) + 1);
                     }
@@ -1133,9 +1138,12 @@ namespace fScore {
         Data = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(8, Size - 1); cpp_range_3.next(I); ) {
             *Data = *Data ^ static_cast<std::uint8_t>(Seed - 1);
-            Seed = 16807 * (Seed % 127773) - 2836 * (Seed / 127773);
+            {
+                std::int32_t cpp_left = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
+                Seed = cpp_left - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
+            }
             if (Seed <= 0) {
-                Seed += SystemImports::MaxInt;
+                Seed += EC_Buf::SeedRngModulus;
             }
             Data = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Data) + 1);
         }
@@ -1371,7 +1379,8 @@ namespace fScore {
             auto playerName = pas::borrow(Entry->PlayerName);
             pas::WideString intToStr = pas::wide_int_to_str(Entry->TotalScore);
             pas::WideString paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormScore.QueryDelete"_wref.get());
-            return aMyFunction::FormatText2(std::move(paramByPathOrMarker), u"<color=255,240,100>"_w, u"<Name>"_w, playerName.get(), u"<Score>"_w, std::move(intToStr));
+            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText2(std::move(paramByPathOrMarker), std::move(textHighlightColorTag), u"<Name>"_w, playerName.get(), u"<Score>"_w, std::move(intToStr));
         }());
         if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
             GR_Main::PostMouseMoveMessage();
@@ -1581,7 +1590,8 @@ namespace fScore {
             const pas::WideString& formatText1 = ([&] {
                 pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(Entry->FinishedTurn);
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormScore.DateWin"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,222,0>"_w, u"<Date>"_w, std::move(formatGameTurnDate));
+                pas::WideString scoreValueColorTag = ScoreValueColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(scoreValueColorTag), u"<Date>"_w, std::move(formatGameTurnDate));
             }());
             GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IDate"sv));
             cpp_arg->SetText(formatText1);
@@ -1589,14 +1599,15 @@ namespace fScore {
         {
             GI_Label::TLabelGI* checked_cast = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITurn"sv));
             pas::WideString LocalizedColorText = aConst::LocalizedColorText(u"FormScore.TurnWin"_wref.get());
-            std::int32_t max = std::max<std::int32_t>(0, Entry->FinishedTurn - 300);
-            checked_cast->SetText(aMyFunction::FormatText1(LocalizedColorText, u"<color=255,222,0>"_w, u"<Date>"_w, pas::wide_int_to_str(max)));
+            std::int32_t max = std::max<std::int32_t>(0, Entry->FinishedTurn - aGalaxyStruct::GalaxyWarmupTurns);
+            checked_cast->SetText(aMyFunction::FormatText1(LocalizedColorText, ScoreValueColorTag, u"<Date>"_w, pas::wide_int_to_str(max)));
         }
         {
             const pas::WideString& formatText1_2 = ([&] {
                 pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Entry->Rank], u".Name"}));
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormScore.Rank"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Rank>"_w, std::move(localizedText));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag), u"<Rank>"_w, std::move(localizedText));
             }());
             GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRank"sv));
             cpp_arg_2->SetText(formatText1_2);
@@ -1625,7 +1636,8 @@ namespace fScore {
             const pas::WideString& formatText1_3 = ([&] {
                 pas::WideString intToStr_5 = pas::wide_int_to_str(Entry->LiberatedSystemCount);
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormScore.LiberationSystem"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,222,0>"_w, u"<LiberationSystem>"_w, std::move(intToStr_5));
+                pas::WideString scoreValueColorTag_2 = ScoreValueColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(scoreValueColorTag_2), u"<LiberationSystem>"_w, std::move(intToStr_5));
             }());
             GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ILiberationSystem"sv));
             cpp_arg_7->SetText(formatText1_3);
@@ -1634,7 +1646,8 @@ namespace fScore {
             const pas::WideString& formatText1_4 = ([&] {
                 pas::WideString intToStr_6 = pas::wide_int_to_str(Entry->AwardCount);
                 pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormScore.Rewards"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Rewards>"_w, std::move(intToStr_6));
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_2), u"<Rewards>"_w, std::move(intToStr_6));
             }());
             GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRewards"sv));
             cpp_arg_8->SetText(formatText1_4);
@@ -1663,7 +1676,8 @@ namespace fScore {
             const pas::WideString& formatText1_5 = ([&] {
                 pas::WideString intToStr_7 = pas::wide_int_to_str(LetterQuests + ShipKillQuests + PlanetQuests + SystemDefenseQuests + ShipDefenseQuests);
                 pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormScore.Quests"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_5), u"<color=255,240,100>"_w, u"<Quests>"_w, std::move(intToStr_7));
+                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_5), std::move(textHighlightColorTag_3), u"<Quests>"_w, std::move(intToStr_7));
             }());
             GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IQuests"sv));
             cpp_arg_9->SetText(formatText1_5);
@@ -1721,7 +1735,8 @@ namespace fScore {
                         cpp_with_19->HelpText = ([&] {
                             pas::WideString text = cpp_with_19->GetText();
                             pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"FormScore.Quests", SysUtils::IntToStr((I - 1) / 2 + 1)})));
-                            return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey), u"<color=255,240,100>"_w, u"<N>"_w, std::move(text));
+                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey), std::move(textHighlightColorTag_4), u"<N>"_w, std::move(text));
                         }());
                         cpp_with_19->MouseEnterCallback = pas::bind_method<&TfScore::QuestHelpMouseEnter>(this);
                         cpp_with_19->MouseLeaveCallback = pas::bind_method<&TfScore::QuestHelpMouseLeave>(this);
@@ -1740,7 +1755,8 @@ namespace fScore {
             const pas::WideString& formatText1_6 = ([&] {
                 pas::WideString intToStr_8 = pas::wide_int_to_str(Entry->PlanetBattles);
                 pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormScore.PlanetBattles"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_6), u"<color=255,240,100>"_w, u"<PlanetBattles>"_w, std::move(intToStr_8));
+                pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_6), std::move(textHighlightColorTag_5), u"<PlanetBattles>"_w, std::move(intToStr_8));
             }());
             GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPlanetBattles"sv));
             cpp_arg_10->SetText(formatText1_6);
@@ -1749,7 +1765,8 @@ namespace fScore {
             const pas::WideString& formatText1_7 = ([&] {
                 pas::WideString intToStr_9 = pas::wide_int_to_str(Entry->TotalExperience);
                 pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormScore.Exp"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_7), u"<color=255,222,0>"_w, u"<Exp>"_w, std::move(intToStr_9));
+                pas::WideString scoreValueColorTag_3 = ScoreValueColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_7), std::move(scoreValueColorTag_3), u"<Exp>"_w, std::move(intToStr_9));
             }());
             GI_Label::TLabelGI* cpp_arg_11 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IExp"sv));
             cpp_arg_11->SetText(formatText1_7);
@@ -1855,7 +1872,8 @@ namespace fScore {
             const pas::WideString& formatText1_11 = ([&] {
                 pas::WideString intToStr_10 = pas::wide_int_to_str(Entry->TotalScore);
                 pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormScore.TotalWin"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedColorText_8), u"<color=255,222,0>"_w, u"<Total>"_w, std::move(intToStr_10));
+                pas::WideString scoreValueColorTag_4 = ScoreValueColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_8), std::move(scoreValueColorTag_4), u"<Total>"_w, std::move(intToStr_10));
             }());
             GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITotal"sv));
             cpp_arg_15->SetText(formatText1_11);
@@ -1895,12 +1913,13 @@ namespace fScore {
         }
         Entry->ExportToFile(FileName);
         Text = aConst::LocalizedColorText(u"FormScore.ToServer"_wref.get());
-        Text = aMyFunction::ReplaceColoredToken(Text, u"<Player>"_w, Entry->PlayerName, u"<color=255,240,100>"_w);
-        Text = aMyFunction::ReplaceColoredToken(Text, u"<File>"_w, EC_Str::ReplaceAllWideString(FileName, u"\\"_wref.get(), u" \\ "sv), u"<color=255,240,100>"_w);
+        Text = aMyFunction::ReplaceColoredToken(Text, u"<Player>"_w, Entry->PlayerName, aMyFunction::TextHighlightColorTag);
+        Text = aMyFunction::ReplaceColoredToken(Text, u"<File>"_w, EC_Str::ReplaceAllWideString(FileName, u"\\"_wref.get(), u" \\ "sv), aMyFunction::TextHighlightColorTag);
         Text = ([&] {
+            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
             pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(Entry->FinishedTurn);
             pas::WideString text = Text;
-            return aMyFunction::ReplaceColoredToken(std::move(text), u"<WinGameDate>"_w, std::move(formatGameTurnDate), u"<color=255,240,100>"_w);
+            return aMyFunction::ReplaceColoredToken(std::move(text), u"<WinGameDate>"_w, std::move(formatGameTurnDate), textHighlightColorTag.get());
         }());
         Entry->Exported = true;
         GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04 | GI_MessageBox::mbgLeftAlign, 0, 0, 0);

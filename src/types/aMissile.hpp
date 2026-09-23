@@ -40,6 +40,15 @@ namespace aMissile {
 
     struct TCustomMissile;
 
+    // Saved target tags; unknown byte values leave references unresolved.
+    enum TMissileTargetKind : std::uint8_t {
+        mtkNone = 0,
+        mtkShip = 1,
+        mtkItem = 2,
+        mtkAsteroid = 3,
+        mtkMissile = 4,
+    };
+
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(push, 4)
     #endif
@@ -48,7 +57,7 @@ namespace aMissile {
         void p_destroy() override;
         // Registers the missile in Star, copies weapon data and initializes position, heading and speed.
         void InitializeShot(aGalaxy::TStar* Star, aShip::TShip* OwnerShip, aItem::TWeapon* Weapon, pas::Object* Target, std::int32_t ShotIndex);
-        void InitializeUnownedShot(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y, float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed, std::uint8_t ItemType, std::int32_t ModuleIndex, std::int32_t SpecialIndex);
+        void InitializeUnownedShot(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y, float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed, aConst::TItemType ItemType, std::int32_t ModuleIndex, std::int32_t SpecialIndex);
         virtual void SaveToBuffer(EC_Buf::TBufEC* Buffer);
         virtual void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* World);
         void ResolveLoadedReferences(aGalaxy::TGalaxy* World);
@@ -71,7 +80,7 @@ namespace aMissile {
         std::uint32_t Id;
         // Matches TItem.Id.
         std::int32_t WeaponId;
-        std::uint8_t ItemType;
+        aConst::TItemType ItemType;
         std::uint8_t TechLevel;
         std::uint8_t cpp_padding[2];
         std::int32_t MinDamage;
@@ -97,9 +106,8 @@ namespace aMissile {
         std::uint8_t DestroyQueued;
         std::uint8_t cpp_padding_2[3];
         aEFilm::TEFilmObj* FilmObject;
-        // Serialized target discriminator.
-        std::uint8_t SavedTargetKind;
-        std::uint8_t SavedPreviousTargetKind;
+        TMissileTargetKind SavedTargetKind;
+        TMissileTargetKind SavedPreviousTargetKind;
         std::uint8_t cpp_padding_3[2];
         EC_Struct::TPointF LastTargetPosition;
         // Squared distance used to detect overshooting, not a random seed.

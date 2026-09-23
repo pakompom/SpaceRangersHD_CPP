@@ -143,7 +143,7 @@ namespace fPlanet {
         }
         MainPanel->RebuildMessageButtons(false);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
         }
         aGalaxy::Galaxy->PrimeIntegrityChecksum(94);
     }
@@ -151,7 +151,7 @@ namespace fPlanet {
     void TfPlanet::OnClose() {
         aGalaxy::Galaxy->CheckIntegrityChecksum(95);
         if (aPlayer::GetPlayer() != nullptr) {
-            aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnLeavingForm, nullptr, nullptr, 0);
+            aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
         }
         MainPanel->OnClose();
         fPanelPlanet::TfPanelPlanet::OnClose();
@@ -245,7 +245,7 @@ namespace fPlanet {
                     return blockByPath->CountParams(intToStr);
                 }()) > 0) {
                     QuestNumber = Quest->QuestNumber;
-                    if (Quest->QuestNumber < 10000 || GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
+                    if (Quest->QuestNumber < aGalaxyStruct::FirstLicensedQuestId || GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
                         pas::WideString cpp_string = ([&] {
                             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(Quest->QuestNumber));
                             EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
@@ -277,10 +277,10 @@ namespace fPlanet {
                 Text = aConst::LocalizedColorText(u"PlanetQuest.StartText.QuestExtern"_wref.get());
             }
             if (Quest != nullptr) {
-                aMyFunction::ReplaceTextToken(Text, u"<CurPlanet>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<CurStar>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->CurrentStar->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Quest->Planet->Name, u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Quest->Planet->CurrentStar->Name, u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Text, u"<CurPlanet>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<CurStar>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Quest->Planet->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Quest->Planet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
             }
             QuestInfo_Text->SetText(Text);
             Window->SetSize(ClassesImports::Point(QuestInfo_Text->ClientSize.X + Window->WorkSubRect.Left + Window->WorkSubRect.Right, QuestInfo_Text->ClientSize.Y + Window->WorkSubRect.Top + Window->WorkSubRect.Bottom));

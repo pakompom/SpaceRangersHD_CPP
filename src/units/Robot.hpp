@@ -84,4 +84,6 @@ namespace Robot {
 
     void PAS_STDCALL RobotReleaseTextures();
 
+    std::int32_t CenterSpan(std::int32_t SpanStart, std::int32_t SpanEnd, std::int32_t ContentStart, std::int32_t ContentEnd);
+
 } // namespace Robot

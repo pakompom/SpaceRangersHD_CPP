@@ -135,7 +135,7 @@ namespace SE_Sputnik {
         if (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) < 768) {
             DisplayRadius = System::Round(pas::real_divide(DisplayRadius * 800, 1024.0L));
         }
-        LightAngle = System::Round(pas::real_divide(pas::real_divide(Math::ArcTan2(-Position.X, Position.Y) * 1.8E+2L, 3.1415926L) * 256.0L, 3.6E+2L));
+        LightAngle = System::Round(pas::real_divide(pas::real_divide(Math::ArcTan2(-Position.X, Position.Y) * 1.8E+2L, aMyFunction::GamePi) * 256.0L, 3.6E+2L));
         std::int32_t Index = DisplayRadius - GlobalsV::MinimumSatelliteTemplateRadius;
         Template = pas::list_at<Globals::TSputnikTempl>(GlobalsV::SatelliteRenderTemplates, Index);
         PlanetControl->SetImageFromTemplate(Template->MaskName, ImagePath, Template->Radius);

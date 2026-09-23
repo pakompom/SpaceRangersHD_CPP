@@ -89,10 +89,18 @@ namespace aEObjInfo {
                         return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)), pas::view(std::move(infoNameColorTag)));
                     }());
                     if (Ship != nullptr && aPlayer::GetPlayer() == Ship->PartnerShip) {
-                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get())), u"<color=255,240,100>"sv)});
+                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", ([&] {
+                            pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get());
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextByKey)), pas::view(std::move(textHighlightColorTag)));
+                        }())});
                     }
-                    if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId, 6, 11)) {
-                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId], u".AddToShipInfo"}))), u"<color=255,0,0>"sv)});
+                    if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId, static_cast<std::int32_t>(aGalaxyStruct::prgShipwreck), static_cast<std::int32_t>(aGalaxyStruct::prgDisconnection))) {
+                        Ships[Index].FullName = pas::concat_wide({Ships[Index].FullName, u"\r\n", ([&] {
+                            pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId], u".AddToShipInfo"}));
+                            pas::WideString redColorTag = aMyFunction::RedColorTag;
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText)), pas::view(std::move(redColorTag)));
+                        }())});
                     }
                 } else {
                     Stage = 22;
@@ -203,7 +211,7 @@ namespace aEObjInfo {
                         pas::WideString infoNameColorTag_3 = aMyFunction::InfoNameColorTag;
                         return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag_3)));
                     }());
-                    Items[Index].InfoText = Item->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, nullptr);
+                    Items[Index].InfoText = Item->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, nullptr);
                     Items[Index].OwnerId = Item->OwnerId;
                 }
                 if (aItem::TEquipment* equipment = pas::class_cast_if<aItem::TEquipment*>(Item)) {

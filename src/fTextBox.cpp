@@ -12,6 +12,7 @@
 #include "units/GI_Window.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
+#include "units/aMyFunction.hpp"
 #include "units/fTextBox.hpp"
 
 namespace fTextBox {
@@ -123,7 +124,7 @@ namespace fTextBox {
         CaptionLabel->SetTextAlignY(GI_Main::tayCenter);
         CaptionLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         CaptionLabel->SetFontName(GlobalsV::NormalBoldFontName);
-        CaptionLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Caption, u"<color=255,240,100>"_wref.get(), u"<color=0,50,200>"sv), u"<color=0,255,0>"_wref.get(), u"<color=255,255,0>"sv));
+        CaptionLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Caption, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag)), aMyFunction::GreenColorTag, pas::view(aMyFunction::YellowColorTag)));
         Edit = pas::construct_call<GI_Edit::TEditGI>(GI_Edit::TEditGI_Create, ContentPanel);
         {
             GI_Edit::TEditGI* cpp_with_2 = Edit;

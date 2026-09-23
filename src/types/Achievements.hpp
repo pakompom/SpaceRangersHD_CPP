@@ -97,6 +97,12 @@ namespace Achievements {
     #pragma pack(pop)
     #endif
 
+    enum TAchievementBackend : std::uint8_t {
+        achSteam = 1,
+        achSteamWithoutAchievements = 2,
+        achLocal = 3,
+    };
+
     // Native record RTTI.
     struct TAchievementInfo {
         pas::AnsiString Key;

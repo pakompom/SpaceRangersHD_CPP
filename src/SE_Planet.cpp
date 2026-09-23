@@ -719,7 +719,7 @@ namespace SE_Planet {
             Obj = Space->FirstObject;
             while (Obj != nullptr) {
                 if (pas::class_cast_if<SE_Star::TStarSE*>(Obj) != nullptr) {
-                    SetLightAngle(System::Trunc(pas::real_divide(pas::real_divide(Math::ArcTan2(-(static_cast<long double>(Position.X) - Obj->Position.X), static_cast<long double>(Position.Y) - Obj->Position.Y) * 1.8E+2L, 3.1415926L) * 256.0L, 3.6E+2L)));
+                    SetLightAngle(System::Trunc(pas::real_divide(pas::real_divide(Math::ArcTan2(-(static_cast<long double>(Position.X) - Obj->Position.X), static_cast<long double>(Position.Y) - Obj->Position.Y) * 1.8E+2L, aMyFunction::GamePi) * 256.0L, 3.6E+2L)));
                     break;
                 }
                 Obj = Obj->Next;
@@ -1096,9 +1096,9 @@ namespace SE_Planet {
             Control = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             if (SmallPreview) {
-                Control->SetCacheKey(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(SatelliteTemplate->MaskName), 0, u"?"sv), u"?RGBA"}));
+                Control->SetCacheKey(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(SatelliteTemplate->MaskName), 0, u"?"sv), EC_CacheBitmap::RgbaImagePathSuffix}));
             } else {
-                Control->SetCacheKey(pas::concat_wide({Template->MaskName, u"?RGBA"}));
+                Control->SetCacheKey(pas::concat_wide({Template->MaskName, EC_CacheBitmap::RgbaImagePathSuffix}));
             }
             EC_CacheBitmap::AcquireOrCreateBitmap(Control);
             Planet->RenderSurfaceToBuffer(Buffer);

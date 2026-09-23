@@ -683,10 +683,9 @@ namespace aVector {
         float Result = 0.0f;
         CachedArea = 0.0f;
         if (pas::list_count(Points) >= 3) {
-            // Preserve DCC32's receiver-before-index argument order; + 0 emits no arithmetic.
-            TriangleFirst = pas::list_at<EC_Struct::TPointF>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Points) + 0), 0);
+            TriangleFirst = pas::list_at<EC_Struct::TPointF>(Points, 0);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Points) - 2); cpp_range.next(Index); ) {
-                Middle = pas::list_at<EC_Struct::TPointF>(reinterpret_cast<pas::List*>(reinterpret_cast<std::uint8_t*>(Points) + 0), Index);
+                Middle = pas::list_at<EC_Struct::TPointF>(Points, Index);
                 Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
                 A = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(TriangleFirst), pas::load_unaligned<EC_Struct::TPointF>(Middle));
                 B = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(TriangleFirst), pas::load_unaligned<EC_Struct::TPointF>(Last));

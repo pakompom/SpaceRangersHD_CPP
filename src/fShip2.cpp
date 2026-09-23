@@ -201,7 +201,7 @@ namespace fShip2 {
         return Result;
     }
 
-    pas::WideString RankToImage(std::uint8_t Rank) {
+    pas::WideString RankToImage(aGalaxyStruct::TShipRank Rank) {
         pas::WideString Result{};
         if (pas::in_range(Rank, 0, 7)) {
             return static_cast<pas::WideString>(pas::concat_ansi({"GI,Bm.FormRating2.2Rank", SysUtils::IntToStr(Rank + 1)}));
@@ -210,7 +210,7 @@ namespace fShip2 {
         return Result;
     }
 
-    pas::WideString RankToImageSmall(std::uint8_t Rank) {
+    pas::WideString RankToImageSmall(aGalaxyStruct::TShipRank Rank) {
         pas::WideString Result{};
         if (pas::in_range(Rank, 0, 7)) {
             return static_cast<pas::WideString>(pas::concat_ansi({"GI,Bm.FormShip2.2Rank", SysUtils::IntToStr(Rank + 1)}));
@@ -219,7 +219,7 @@ namespace fShip2 {
         return Result;
     }
 
-    pas::WideString PirateRankToImage(std::uint8_t Rank) {
+    pas::WideString PirateRankToImage(aGalaxyStruct::TShipRank Rank) {
         pas::WideString Result{};
         if (pas::in_range(Rank, 0, 7)) {
             return static_cast<pas::WideString>(pas::concat_ansi({"GI,Bm.FormShip2.PRank", SysUtils::IntToStr(Rank + 1)}));
@@ -228,7 +228,7 @@ namespace fShip2 {
         return Result;
     }
 
-    pas::WideString PirateRankToImageSmall(std::uint8_t Rank) {
+    pas::WideString PirateRankToImageSmall(aGalaxyStruct::TShipRank Rank) {
         pas::WideString Result{};
         if (pas::in_range(Rank, 0, 7)) {
             return static_cast<pas::WideString>(pas::concat_ansi({"GI,Bm.FormShip2.PRank", SysUtils::IntToStr(Rank + 1), "s"}));
@@ -271,7 +271,7 @@ namespace fShip2 {
             Entry = pas::list_at<TPlayerHoldUnit>(PlayerHoldEntries, I);
             Entry->Retained = Entry->Kind == phkEmpty;
         }
-        for (Goods = static_cast<std::uint8_t>(0); Goods <= static_cast<std::uint8_t>(7); ++Goods) {
+        for (Goods = 0; Goods <= 7; ++Goods) {
             if (!IncludeFilteredItems) {
                 if (!(static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessHoldGoods(Goods))) {
                     continue;
@@ -887,14 +887,14 @@ namespace fShip2 {
         std::uint8_t SavedFlag = ReopenRequested;
         ReopenRequested = false;
         if (SavedFlag) {
-            PlayerHoldShip->ScriptItemsAct(aConst::satOnReEnteringForm, nullptr, nullptr, 0);
+            PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnReEnteringForm, nullptr, nullptr, 0);
             if (aPlayer::GetPlayer() != PlayerHoldShip) {
-                aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnReEnteringOtherShip, nullptr, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnReEnteringOtherShip, nullptr, nullptr, 0);
             }
         } else {
-            PlayerHoldShip->ScriptItemsAct(aConst::satOnEnteringForm, nullptr, nullptr, 0);
+            PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
             if (aPlayer::GetPlayer() != PlayerHoldShip) {
-                aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnEnteringOtherShip, nullptr, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringOtherShip, nullptr, nullptr, 0);
             }
         }
         std::uint8_t ScriptChangedFlag = ReopenRequested;
@@ -1311,7 +1311,7 @@ namespace fShip2 {
         }
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 7); cpp_range_4.next(I); ) {
             SlotCount = 1;
-            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::t_Weapon1) {
+            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::WeaponCategoryItemType) {
                 SlotCount = 5;
             }
             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, SlotCount - 1); cpp_range_5.next(J); ) {
@@ -1363,9 +1363,9 @@ namespace fShip2 {
             PlayerHoldShip = aPlayer::GetPlayer();
         }
         if (!ReopenRequested) {
-            PlayerHoldShip->ScriptItemsAct(0x00000019, nullptr, nullptr, 0);
+            PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnLeavingForm, nullptr, nullptr, 0);
             if (aPlayer::GetPlayer() != PlayerHoldShip) {
-                aPlayer::GetPlayer()->ScriptItemsAct(0x0000001c, nullptr, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnLeavingOtherShip, nullptr, nullptr, 0);
             }
         }
         BackgroundBuffer->GraphBuf->Clear();
@@ -1482,72 +1482,64 @@ namespace fShip2 {
     }
 
     void TfShip2::RefreshRewards(aNormalShip::TNormalShip* Ship) {
-        std::int32_t Index{};
-        std::int32_t I{};
-        GR_GraphBuf::TGraphBufGR* Icon{};
-        GR_GraphBuf::TGraphBufGR* Shadow{};
         std::uint8_t Award{};
         pas::WideString Path{};
-        std::int32_t IconSize{};
         float Spacing{};
-        std::int32_t VisibleCount{};
-        std::int32_t Count{};
         HideRewardTooltip();
         if (Ship->AwardIds == nullptr || pas::list_count(Ship->AwardIds) < 1) {
-            // The value expression preserves the native receiver-before-argument order.
-            reinterpret_cast<GI_GraphBuf::TGraphBufGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(RewardsBuffer)) + 0)))->SetActive(false);
-        } else {
-            Count = std::min<std::int32_t>(Ship->AwardVisibleCount, pas::list_count(Ship->AwardIds));
-            IconSize = GR_Main::GiScalePixels(20);
-            VisibleCount = pas::idiv(RewardsBuffer->ClientSize.X - 2, IconSize);
-            if (Count <= VisibleCount) {
-                Spacing = IconSize;
-            } else {
-                VisibleCount = std::min<std::int32_t>(30, Count);
-                Spacing = pas::real_divide(RewardsBuffer->ClientSize.X - 2 - IconSize, VisibleCount - 1);
-            }
-            {
-                GI_GraphBuf::TGraphBufGI* cpp_with = RewardsBuffer;
-                cpp_with->SetActive(true);
-                cpp_with->SetImageKindX(GI_Main::ikxLeft);
-                cpp_with->SetImageKindY(GI_Main::ikyBottom);
-                cpp_with->GraphBuf->AllocateRgbaTight(std::max<std::int64_t>(static_cast<std::int64_t>(cpp_with->ClientSize.X), System::Round(static_cast<long double>(VisibleCount) * Spacing + IconSize - Spacing)) + 2, IconSize + 2);
-                cpp_with->MouseMoveCallback = pas::bind_method<&TfShip2::RewardsMouseMove>(this);
-                cpp_with->MouseLeaveCallback = pas::bind_method<&TfShip2::RewardsMouseLeave>(this);
-                cpp_with->LeftButtonDownCallback = pas::bind_method<&TfShip2::RewardsMouseDown>(this);
-                cpp_with->GraphBuf->ClearPixels();
-                cpp_with->SourceHasPerPixelAlpha = true;
-            }
-            Icon = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            Shadow = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            Index = std::max<std::int32_t>(0, Count - VisibleCount);
-            I = 0;
-            while (Index < Count) {
-                Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index)));
-                if (Award < 10) {
-                    Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
-                } else {
-                    Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
-                }
-                GI_GI::LoadGiByPathIntoGraphBuf(Path, Icon);
-                if (static_cast<std::uint32_t>(Icon->Width) >= static_cast<std::uint32_t>(Icon->Height)) {
-                    Icon->RescaleRgba(IconSize, System::Round(pas::real_divide(IconSize, static_cast<std::uint32_t>(Icon->Width)) * static_cast<std::uint32_t>(Icon->Height)), 5);
-                } else {
-                    Icon->RescaleRgba(System::Round(pas::real_divide(IconSize, static_cast<std::uint32_t>(Icon->Height)) * static_cast<std::uint32_t>(Icon->Width)), IconSize, 5);
-                }
-                Shadow->AllocateRgbaTight(Icon->Width, Icon->Height);
-                GR_GraphBuf::TGraphBufGR_CopyRect32(Shadow, ClassesImports::Point(0, 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
-                GR_GraphBuf::TGraphBufGR_MakeShadow(Shadow);
-                if (!(Icon->Height > IconSize || RewardsBuffer->GraphBuf->Width < System::Round(static_cast<long double>(I) * Spacing) + Icon->Width)) {
-                    GR_GraphBuf::TGraphBufGR_BlendRect32(RewardsBuffer->GraphBuf, ClassesImports::Point(System::Round(static_cast<long double>(I) * Spacing) + 2, 2), Shadow, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
-                    GR_GraphBuf::TGraphBufGR_BlendRect32(RewardsBuffer->GraphBuf, ClassesImports::Point(System::Round(static_cast<long double>(I) * Spacing), 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
-                }
-                ++Index;
-                ++I;
-            }
-            pas::free(Icon);
-            pas::free(Shadow);
+            RewardsBuffer->SetActive(false);
+            return;
         }
+        std::int32_t Count = std::min<std::int32_t>(Ship->AwardVisibleCount, pas::list_count(Ship->AwardIds));
+        std::int32_t IconSize = GR_Main::GiScalePixels(20);
+        std::int32_t VisibleCount = pas::idiv(RewardsBuffer->ClientSize.X - 2, IconSize);
+        if (Count <= VisibleCount) {
+            Spacing = IconSize;
+        } else {
+            VisibleCount = std::min<std::int32_t>(30, Count);
+            Spacing = pas::real_divide(RewardsBuffer->ClientSize.X - 2 - IconSize, VisibleCount - 1);
+        }
+        {
+            GI_GraphBuf::TGraphBufGI* cpp_with = RewardsBuffer;
+            cpp_with->SetActive(true);
+            cpp_with->SetImageKindX(GI_Main::ikxLeft);
+            cpp_with->SetImageKindY(GI_Main::ikyBottom);
+            cpp_with->GraphBuf->AllocateRgbaTight(std::max<std::int64_t>(static_cast<std::int64_t>(cpp_with->ClientSize.X), System::Round(static_cast<long double>(VisibleCount) * Spacing + IconSize - Spacing)) + 2, IconSize + 2);
+            cpp_with->MouseMoveCallback = pas::bind_method<&TfShip2::RewardsMouseMove>(this);
+            cpp_with->MouseLeaveCallback = pas::bind_method<&TfShip2::RewardsMouseLeave>(this);
+            cpp_with->LeftButtonDownCallback = pas::bind_method<&TfShip2::RewardsMouseDown>(this);
+            cpp_with->GraphBuf->ClearPixels();
+            cpp_with->SourceHasPerPixelAlpha = true;
+        }
+        GR_GraphBuf::TGraphBufGR* Icon = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        GR_GraphBuf::TGraphBufGR* Shadow = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        std::int32_t Index = std::max<std::int32_t>(0, Count - VisibleCount);
+        std::int32_t I = 0;
+        while (Index < Count) {
+            Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index)));
+            if (Award < 10) {
+                Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
+            } else {
+                Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
+            }
+            GI_GI::LoadGiByPathIntoGraphBuf(Path, Icon);
+            if (static_cast<std::uint32_t>(Icon->Width) >= static_cast<std::uint32_t>(Icon->Height)) {
+                Icon->RescaleRgba(IconSize, System::Round(pas::real_divide(IconSize, static_cast<std::uint32_t>(Icon->Width)) * static_cast<std::uint32_t>(Icon->Height)), 5);
+            } else {
+                Icon->RescaleRgba(System::Round(pas::real_divide(IconSize, static_cast<std::uint32_t>(Icon->Height)) * static_cast<std::uint32_t>(Icon->Width)), IconSize, 5);
+            }
+            Shadow->AllocateRgbaTight(Icon->Width, Icon->Height);
+            GR_GraphBuf::TGraphBufGR_CopyRect32(Shadow, ClassesImports::Point(0, 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
+            GR_GraphBuf::TGraphBufGR_MakeShadow(Shadow);
+            if (!(Icon->Height > IconSize || RewardsBuffer->GraphBuf->Width < System::Round(static_cast<long double>(I) * Spacing) + Icon->Width)) {
+                GR_GraphBuf::TGraphBufGR_BlendRect32(RewardsBuffer->GraphBuf, ClassesImports::Point(System::Round(static_cast<long double>(I) * Spacing) + 2, 2), Shadow, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
+                GR_GraphBuf::TGraphBufGR_BlendRect32(RewardsBuffer->GraphBuf, ClassesImports::Point(System::Round(static_cast<long double>(I) * Spacing), 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
+            }
+            ++Index;
+            ++I;
+        }
+        pas::free(Icon);
+        pas::free(Shadow);
     }
 
     void TfShip2::RewardsMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
@@ -1744,24 +1736,24 @@ namespace fShip2 {
             if (Sender->UserValue == -1) {
                 if (Sender->UserData != 0) {
                     Info = reinterpret_cast<aShip::PCustomShipInfo>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserData)));
-                    aScript::RunCustomShipInfoActionCode(Info, aConst::satOnShowingItemInfo, PlayerHoldShip, nullptr, nullptr, 0);
+                    aScript::RunCustomShipInfoActionCode(Info, aGalaxyStruct::satOnShowingItemInfo, PlayerHoldShip, nullptr, nullptr, 0);
                     CustomDescription = Info->Description;
                     if (CustomDescription == u"") {
                         CustomDescription = aConst::LocalizedColorText(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".Description"}));
                     }
-                    aMyFunction::ReplaceTextToken(CustomDescription, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomDescription, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomDescription, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomDescription, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomDescription, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomDescription, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(CustomDescription, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomDescription, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomDescription, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomDescription, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomDescription, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomDescription, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     CustomName = aConst::LocalizedColorText(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".Name"}));
-                    aMyFunction::ReplaceTextToken(CustomName, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomName, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomName, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomName, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomName, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(CustomName, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(CustomName, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomName, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomName, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomName, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomName, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(CustomName, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     Sender->HelpText = pas::concat_wide({CustomName, u"~", CustomDescription});
                 }
                 {
@@ -1812,13 +1804,15 @@ namespace fShip2 {
                                 pas::WideString nextRankName = Ship->GetNextRankName();
                                 pas::WideString intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(Ship->GetRankPointsToNextRank()));
                                 pas::WideString localizedText = aConst::LocalizedText(u"Rank.NextRankText"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedText), u"<color=255,240,100>"_w, u"<NextRank>"_w, std::move(nextRankName), u"<WarPoints>"_w, std::move(intToStr));
+                                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedText), std::move(textHighlightColorTag), u"<NextRank>"_w, std::move(nextRankName), u"<WarPoints>"_w, std::move(intToStr));
                             }())});
                         } else {
                             Description = pas::concat_wide({Description, u" ", ([&] {
                                 pas::WideString nextRankName_2 = Ship->GetNextRankName();
                                 pas::WideString localizedText_2 = aConst::LocalizedText(u"Rank.NextRankGetText"_wref.get());
-                                return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<NextRank>"_w, std::move(nextRankName_2));
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_2), u"<NextRank>"_w, std::move(nextRankName_2));
                             }())});
                         }
                     }
@@ -1843,13 +1837,15 @@ namespace fShip2 {
                                 pas::WideString nextPirateRankName = Ship->GetNextPirateRankName();
                                 pas::WideString intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(Ship->GetPirateRankPointsToNextRank()));
                                 pas::WideString localizedText_3 = aConst::LocalizedText(u"RankPirate.NextRankText"_wref.get());
-                                return aMyFunction::FormatText2(std::move(localizedText_3), u"<color=255,240,100>"_w, u"<NextRank>"_w, std::move(nextPirateRankName), u"<WarPoints>"_w, std::move(intToStr_2));
+                                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedText_3), std::move(textHighlightColorTag_3), u"<NextRank>"_w, std::move(nextPirateRankName), u"<WarPoints>"_w, std::move(intToStr_2));
                             }())});
                         } else {
                             Description = pas::concat_wide({Description, u" ", ([&] {
                                 pas::WideString nextPirateRankName_2 = Ship->GetNextPirateRankName();
                                 pas::WideString localizedText_4 = aConst::LocalizedText(u"RankPirate.NextRankGetText"_wref.get());
-                                return aMyFunction::FormatText1(std::move(localizedText_4), u"<color=255,240,100>"_w, u"<NextRank>"_w, std::move(nextPirateRankName_2));
+                                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedText_4), std::move(textHighlightColorTag_4), u"<NextRank>"_w, std::move(nextPirateRankName_2));
                             }())});
                         }
                     }
@@ -1871,23 +1867,25 @@ namespace fShip2 {
                 Description = ([&] {
                     pas::WideString intToStr_3 = pas::wide_int_to_str(static_cast<std::int32_t>(aConst::PilotSkillEffects[PlayerHoldShip->GetEffectiveSkillLevel(Skill, false)][Skill]));
                     pas::WideString localizedText_6 = aConst::LocalizedText(pas::concat_wide({u"Skills.", aConst::SkillConfigNames[Skill], u".Text"}));
-                    return aMyFunction::FormatText1(std::move(localizedText_6), u"<color=255,240,100>"_w, u"<SkillValue>"_w, std::move(intToStr_3));
+                    pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText_6), std::move(textHighlightColorTag_5), u"<SkillValue>"_w, std::move(intToStr_3));
                 }());
-                aMyFunction::ReplaceTextToken(Description, u"<SkillLevel>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(PlayerHoldShip->GetEffectiveSkillLevel(Skill, false))), u"<color=255,240,100>"_w);
+                aMyFunction::ReplaceTextToken(Description, u"<SkillLevel>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(PlayerHoldShip->GetEffectiveSkillLevel(Skill, false))), aMyFunction::TextHighlightColorTag);
                 if (Skill == aGalaxyStruct::psTechnical) {
-                    aMyFunction::ReplaceTextToken(Description, u"<N>"_w, pas::wide_int_to_str(PlayerHoldShip->GetSatelliteLimit()), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Description, u"<N>"_w, pas::wide_int_to_str(PlayerHoldShip->GetSatelliteLimit()), aMyFunction::TextHighlightColorTag);
                 }
                 if (Skill == aGalaxyStruct::psTrading) {
-                    aMyFunction::ReplaceTextToken(Description, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::TradingSkillSalePercent[PlayerHoldShip->GetEffectiveSkillLevel(Skill, false)])), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Description, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::TradingSkillSalePercent[PlayerHoldShip->GetEffectiveSkillLevel(Skill, false)])), aMyFunction::TextHighlightColorTag);
                 }
                 if (Skill == aGalaxyStruct::psLeadership) {
-                    aMyFunction::ReplaceTextToken(Description, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::LeadershipExperiencePercent[PlayerHoldShip->GetEffectiveSkillLevel(Skill, false)])), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Description, u"<SkillValue2>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(aConst::LeadershipExperiencePercent[PlayerHoldShip->GetEffectiveSkillLevel(Skill, false)])), aMyFunction::TextHighlightColorTag);
                 }
                 if (PlayerHoldShip->GetBaseSkillLevel(Skill) < 6) {
                     Description = pas::concat_wide({Description, u"\r\n", u"\r\n", ([&] {
                         pas::WideString intToStr_4 = pas::wide_int_to_str(static_cast<std::int32_t>(aConst::SkillTrainingCosts[PlayerHoldShip->BaseSkills[Skill] + 1][Skill]));
                         pas::WideString localizedText_7 = aConst::LocalizedText(u"Skills.PointForNextLevel"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText_7), u"<color=255,240,100>"_w, u"<PointForNextLevel>"_w, std::move(intToStr_4));
+                        pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_7), std::move(textHighlightColorTag_6), u"<PointForNextLevel>"_w, std::move(intToStr_4));
                     }())});
                 }
             }
@@ -1941,7 +1939,7 @@ namespace fShip2 {
     }
 
     std::uint8_t TfShip2::IsCompatibleSlot(aConst::TItemType ItemType, aConst::TItemType SlotType) {
-        return ItemType == SlotType || pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_range(SlotType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon));
+        return ItemType == SlotType || pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_range(SlotType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon));
     }
 
     void TfShip2::RefreshEquipmentSlotControls() {
@@ -1951,7 +1949,7 @@ namespace fShip2 {
         std::int32_t Slot{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 7); cpp_range.next(I); ) {
             MaximumSlots = 1;
-            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::t_Weapon1) {
+            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::WeaponCategoryItemType) {
                 MaximumSlots = 5;
             }
             Count = PlayerHoldShip->GetSlotCountForItemType(aConst::EquipmentSlotLayouts[I].ItemType);
@@ -1962,7 +1960,7 @@ namespace fShip2 {
                 GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"off"})))->SetActive(false);
                 GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"Set"})))->SetActive(false);
             }
-            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::t_Weapon1) {
+            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::WeaponCategoryItemType) {
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(Count, 4); cpp_range_3.next(Slot); ) {
                     GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"off"})))->SetActive(true);
                     GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"Set"})))->SetActive(false);
@@ -2041,7 +2039,7 @@ namespace fShip2 {
             cpp_arg->SetText(intToStr);
         }
         if (PlayerHoldShip->CalculateSpeed() <= 0) {
-            Text = u"<color=255,0,0>"_w;
+            Text = aMyFunction::RedColorTag;
         } else {
             Text = pas::WideString();
         }
@@ -2051,7 +2049,7 @@ namespace fShip2 {
             cpp_arg_2->SetText(wrapTextInColor);
         }
         if (PlayerHoldShip->GetCargoFreeSpace() < 0) {
-            Text = u"<color=255,0,0>"_w;
+            Text = aMyFunction::RedColorTag;
         } else {
             Text = pas::WideString();
         }
@@ -2128,15 +2126,15 @@ namespace fShip2 {
                     Highlight = true;
                 } else if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_MicroModule && Item != nullptr && Item->MicroModuleIndex == 0 && pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->CanInstallOn(Item)) {
                     Highlight = true;
-                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && Item != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && Item != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
                     Highlight = true;
-                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && Item != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && Item != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnCheckingUsability, PlayerHoldShip, Item, nullptr, 0) > 0) {
                     Highlight = true;
-                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && Item != nullptr && pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr && aScript::RunItemConfigActionCode(Item, aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && Item != nullptr && pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr && aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
                     Highlight = true;
-                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && Item != nullptr && Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
+                } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && Item != nullptr && Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
                     Highlight = true;
-                } else if (SelectedHoldKind == phkGoods && Item != nullptr && Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnCheckingUsabilityGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0) > 0) {
+                } else if (SelectedHoldKind == phkGoods && Item != nullptr && Item->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnCheckingUsabilityGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0) > 0) {
                     Highlight = true;
                 } else if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_Cistern && Item != nullptr && Item->ItemType == aConst::t_FuelTanks && pas::checked_cast<aItem::TCistern*>(SelectedHoldItem)->Fuel > 0 && ([&] {
                     std::int32_t cpp_left = pas::checked_cast<aItem::TFuelTanks*>(Item)->Fuel;
@@ -2163,7 +2161,7 @@ namespace fShip2 {
                 }
                 GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"Ex"})))->SetActive(Boost);
             }
-            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::t_Weapon1) {
+            if (aConst::EquipmentSlotLayouts[I].ItemType == aConst::WeaponCategoryItemType) {
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(SlotCount, 4); cpp_range_3.next(Slot); ) {
                     pas::checked_cast<GI_Zone::TZoneGI*>(GetByName(pas::view(pas::concat_wide({u"S_", aConst::EquipmentSlotLayouts[I].Name, u"_", pas::wide_int_to_str(Slot), u"z"}))))->ZoneMouseDownCallback = nullptr;
                 }
@@ -2321,13 +2319,13 @@ namespace fShip2 {
             GetByName(u"HullA"sv)->SetActive(true);
         } else if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_MicroModule && PlayerHoldShip->GetHull()->MicroModuleIndex == 0 && pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->CanInstallOn(PlayerHoldShip->GetHull())) {
             GetByName(u"HullA"sv)->SetActive(true);
-        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr && aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
             GetByName(u"HullA"sv)->SetActive(true);
-        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnCheckingUsability, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, 0) > 0) {
             GetByName(u"HullA"sv)->SetActive(true);
-        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && PlayerHoldShip->GetHull()->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
+        } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && PlayerHoldShip->GetHull()->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aGalaxyStruct::satOnCheckingUsability2, PlayerHoldShip, SelectedHoldItem, nullptr, 0) > 0) {
             GetByName(u"HullA"sv)->SetActive(true);
-        } else if (SelectedHoldKind == phkGoods && PlayerHoldShip->GetHull()->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnCheckingUsabilityGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0) > 0) {
+        } else if (SelectedHoldKind == phkGoods && PlayerHoldShip->GetHull()->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aGalaxyStruct::satOnCheckingUsabilityGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0) > 0) {
             GetByName(u"HullA"sv)->SetActive(true);
         } else {
             std::uint8_t cpp_arg_8 = SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_Hull && TfShip2::IsHoldNormalShip() && pas::list_at<aItem::TItem>(PlayerHoldShip->Inventory, 0)->NoDropFlag == 0;
@@ -2362,7 +2360,8 @@ namespace fShip2 {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(PlayerHoldShip->GetHull()->Energy);
                 pas::WideString intToStr_3 = pas::wide_int_to_str(PlayerHoldShip->GetHull()->EnergyMax);
                 pas::WideString localizedText = aConst::LocalizedText(u"FormShip.DestrEnergy"_wref.get());
-                return aMyFunction::FormatText2(std::move(localizedText), u"<color=0,71,234>"_w, u"<Value1>"_w, std::move(intToStr_2), u"<Value2>"_w, std::move(intToStr_3));
+                pas::WideString brightBlueColorTag = aMyFunction::BrightBlueColorTag;
+                return aMyFunction::FormatText2(std::move(localizedText), std::move(brightBlueColorTag), u"<Value1>"_w, std::move(intToStr_2), u"<Value2>"_w, std::move(intToStr_3));
             }()));
         }
         {
@@ -2379,7 +2378,8 @@ namespace fShip2 {
                 pas::WideString intToStr_4 = pas::wide_int_to_str(PlayerHoldShip->CountActiveInterceptorTargets());
                 pas::WideString intToStr_5 = pas::wide_int_to_str(PlayerHoldShip->GetInterceptorEnergyCost());
                 pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.DestrCount"_wref.get());
-                return aMyFunction::FormatText2(std::move(localizedText_2), u"<color=0,71,234>"_w, u"<Count>"_w, std::move(intToStr_4), u"<Cost>"_w, std::move(intToStr_5));
+                pas::WideString brightBlueColorTag_2 = aMyFunction::BrightBlueColorTag;
+                return aMyFunction::FormatText2(std::move(localizedText_2), std::move(brightBlueColorTag_2), u"<Count>"_w, std::move(intToStr_4), u"<Cost>"_w, std::move(intToStr_5));
             }()));
         }
         {
@@ -2387,7 +2387,8 @@ namespace fShip2 {
             IDestrEnergyOut->SetText(pas::concat_wide({u"-", ([&] {
                 pas::WideString intToStr_6 = pas::wide_int_to_str(PlayerHoldShip->CountActiveInterceptorTargets() * 3);
                 pas::WideString localizedText_3 = aConst::LocalizedText(u"FormShip.DestrPerDay"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_3), u"<color=0,71,234>"_w, u"<Value>"_w, std::move(intToStr_6));
+                pas::WideString brightBlueColorTag_3 = aMyFunction::BrightBlueColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_3), std::move(brightBlueColorTag_3), u"<Value>"_w, std::move(intToStr_6));
             }())}));
         }
         {
@@ -2395,7 +2396,8 @@ namespace fShip2 {
             IDestrEnergyIn->SetText(pas::concat_wide({u"+", ([&] {
                 pas::WideString intToStr_7 = pas::wide_int_to_str(PlayerHoldShip->GetHullEnergyRegeneration());
                 pas::WideString localizedText_4 = aConst::LocalizedText(u"FormShip.DestrPerDay"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_4), u"<color=0,71,234>"_w, u"<Value>"_w, std::move(intToStr_7));
+                pas::WideString brightBlueColorTag_4 = aMyFunction::BrightBlueColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_4), std::move(brightBlueColorTag_4), u"<Value>"_w, std::move(intToStr_7));
             }())}));
         }
         RefreshLoadEquippedRocketsButton();
@@ -2519,7 +2521,7 @@ namespace fShip2 {
             cpp_with_8->SetActive(PlayerHoldShip->CanTrainSkill(aGalaxyStruct::psLeadership) && OrdinaryShip);
             cpp_with_8->UpCallback = pas::bind_method<&TfShip2::TrainSkillClicked>(this);
         }
-        if ((Kind == phkEquipment || Kind == phkArtefact) && pas::checked_cast<aItem::TEquipment*>(Item)->NeedsRepair() && (Item->ItemType != aConst::t_Protoplasm || aPlayer::GetPlayer()->DockedTo->TypeId != static_cast<std::uint8_t>(aGalaxyStruct::rstRangerCenter)) && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && (aPlayer::GetPlayer()->IsDockedToShip() || aPlayer::GetPlayer()->IsOnPlanet() && static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::oiDominator, aGalaxyStruct::oiUninhabited>(aPlayer::GetPlayer()->CurrentPlanet->OwnerId) ^ 1))) {
+        if ((Kind == phkEquipment || Kind == phkArtefact) && pas::checked_cast<aItem::TEquipment*>(Item)->NeedsRepair() && (Item->ItemType != aConst::t_Protoplasm || aPlayer::GetPlayer()->DockedTo->TypeId != aGalaxyStruct::rstRangerCenter) && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && (aPlayer::GetPlayer()->IsDockedToShip() || aPlayer::GetPlayer()->IsOnPlanet() && static_cast<std::uint8_t>(pas::is_one_of<aGalaxyStruct::oiDominator, aGalaxyStruct::oiUninhabited>(aPlayer::GetPlayer()->CurrentPlanet->OwnerId) ^ 1))) {
             OpenSpecialSlot1();
             {
                 GI_Label::TLabelGI* SC_Slot1_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"SC_Slot1_Text"sv));
@@ -2674,7 +2676,7 @@ namespace fShip2 {
         if (aPlayer::GetPlayer() == PlayerHoldShip) {
             static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckAllSkillsAchievement();
         }
-        PlayerHoldShip->ScriptItemsAct(aConst::satOnPlayerSkillIncrease, nullptr, nullptr, 0);
+        PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnPlayerSkillIncrease, nullptr, nullptr, 0);
         aGalaxy::Galaxy->PrimeIntegrityChecksum1(437);
     }
 
@@ -2697,12 +2699,13 @@ namespace fShip2 {
         if (SelectedHoldKind == phkEmpty) {
             Item = PlayerHoldShip->FindEquippedItemInSlot(ItemType, Slot);
             if (Item != nullptr) {
-                if (pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr && (pas::class_cast_if<aItem::TEngine*>(Item) != nullptr || pas::class_cast_if<aItem::TFuelTanks*>(Item) != nullptr || pas::class_cast_if<aItem::TCargoHook*>(Item) != nullptr && PlayerHoldShip->TypeId == static_cast<std::uint8_t>(aGalaxyStruct::rstDominion))) {
+                if (pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr && (pas::class_cast_if<aItem::TEngine*>(Item) != nullptr || pas::class_cast_if<aItem::TFuelTanks*>(Item) != nullptr || pas::class_cast_if<aItem::TCargoHook*>(Item) != nullptr && PlayerHoldShip->TypeId == aGalaxyStruct::rstDominion)) {
                     GR_Main::SoundManager->PlaySound(u"Sound.NoMoney"_wref.get());
                     GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                         pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(Item->GetDisplayName());
                         pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.RuinMoveItemInvalid"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW));
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Item>"_w, std::move(removeTextTagsW));
                     }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
                     return;
                 }
@@ -2711,7 +2714,8 @@ namespace fShip2 {
                     GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                         pas::WideString removeTextTagsW_2 = EC_Str::RemoveTextTagsW(Item->GetDisplayName());
                         pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.TrancMoveItemInvalid"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW_2));
+                        pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Item>"_w, std::move(removeTextTagsW_2));
                     }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
                     return;
                 }
@@ -2743,10 +2747,11 @@ namespace fShip2 {
                 pas::WideString plainName = pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->GetPlainName();
                 pas::WideString removeTextTagsW_3 = EC_Str::RemoveTextTagsW(Item->GetDisplayName());
                 pas::WideString localizedText = aConst::LocalizedText(u"MicroModuls.AddToItem"_wref.get());
-                return aMyFunction::FormatText2(std::move(localizedText), u"<color=255,240,100>"_w, u"<ModuleName>"_w, std::move(plainName), u"<ItemName>"_w, std::move(removeTextTagsW_3));
+                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText2(std::move(localizedText), std::move(textHighlightColorTag_3), u"<ModuleName>"_w, std::move(plainName), u"<ItemName>"_w, std::move(removeTextTagsW_3));
             }());
             if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
-                PlayerHoldShip->ScriptItemsAct(aConst::satOnPlayerUseMM, Item, SelectedHoldItem, 0);
+                PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnPlayerUseMM, Item, SelectedHoldItem, 0);
                 aItem::ApplyMicroModule(pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->MicroModuleIndex - 1, Item);
                 pas::free(SelectedHoldItem);
                 SelectedHoldKind = phkEmpty;
@@ -2805,7 +2810,7 @@ namespace fShip2 {
             Item = PlayerHoldShip->FindEquippedItemInSlot(ItemType, Slot);
             ActionResult = 0;
             if (Item->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
             }
             if (ActionResult != 0) {
                 Quantity = pas::abs(ActionResult);
@@ -2828,16 +2833,16 @@ namespace fShip2 {
             Item = PlayerHoldShip->FindEquippedItemInSlot(ItemType, Slot);
             ActionResult = 0;
             if (SelectedHoldItem->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
             }
             if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr) {
-                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
+                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
             }
             if (Item->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
             }
             if (aItem::TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item)) {
-                ActionResult = aScript::RunItemConfigActionCode(Item, aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                ActionResult = aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
             }
             if (pas::in_set<1, 1, 3, 3>(ActionResult)) {
                 pas::free(SelectedHoldItem);
@@ -2927,9 +2932,9 @@ namespace fShip2 {
         }
         if (pas::in_range(SelectedHoldKind, static_cast<std::int32_t>(phkGoods), static_cast<std::int32_t>(phkGoods))) {
             if (Item->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
             } else {
-                ActionResult = aScript::RunItemConfigActionCode(Item, aConst::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
+                ActionResult = aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
             }
             if (ActionResult != 0) {
                 Quantity = pas::abs(ActionResult);
@@ -2951,15 +2956,15 @@ namespace fShip2 {
         } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind)) {
             ActionResult = 0;
             if (SelectedHoldItem->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
             }
             if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr) {
-                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
+                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Item, nullptr, ActionResult);
             }
             if (Item->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
             }
-            ActionResult = aScript::RunItemConfigActionCode(Item, aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+            ActionResult = aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
             if (pas::in_set<1, 1, 3, 3>(ActionResult)) {
                 pas::free(SelectedHoldItem);
                 SelectedHoldKind = phkEmpty;
@@ -3066,7 +3071,8 @@ namespace fShip2 {
                             const pas::WideString& formatText1 = ([&] {
                                 pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aItem::GetStackableItemTypeName(static_cast<aConst::TItemType>(SelectedGoodsIndex)));
                                 pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.FromStorageItem"_wref.get());
-                                return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString));
+                                pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedText_2), std::move(dialogHighlightColorTag), u"<Name>"_w, std::move(lowerCaseWideString));
                             }());
                             const pas::WideString& cpp_arg = pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(SelectedGoodsIndex))});
                             GI_MessageLoop::TMessageLoopGI* self_2 = this;
@@ -3085,9 +3091,9 @@ namespace fShip2 {
             }
             if (Entry != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind)) {
                 if (Entry->Item->ScriptItem != nullptr) {
-                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aConst::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Count))), 0);
+                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Count))), 0);
                 } else {
-                    ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aConst::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Count))), 0);
+                    ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aGalaxyStruct::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Count))), 0);
                 }
                 if (ActionResult != 0) {
                     Count = std::min<std::int32_t>(Count, pas::abs(ActionResult));
@@ -3197,7 +3203,8 @@ namespace fShip2 {
                             const pas::WideString& formatText1_2 = ([&] {
                                 pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(aItem::GetStackableItemName(SelectedHoldItem));
                                 pas::WideString localizedText_3 = aConst::LocalizedText(u"FormShip.FromStorageItem"_wref.get());
-                                return aMyFunction::FormatText1(std::move(localizedText_3), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString_2));
+                                pas::WideString dialogHighlightColorTag_2 = aMyFunction::DialogHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedText_3), std::move(dialogHighlightColorTag_2), u"<Name>"_w, std::move(lowerCaseWideString_2));
                             }());
                             const pas::WideString& cpp_arg_2 = pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(SelectedHoldItem), u"s"});
                             GI_MessageLoop::TMessageLoopGI* self_3 = this;
@@ -3213,13 +3220,13 @@ namespace fShip2 {
                 if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && SelectedHoldOrigin == 0 && Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(aItem::TCountableItem_CanMerge(reinterpret_cast<aItem::TCountableItem*>(SelectedHoldItem), Entry->Item) ^ 1)) {
                     ActionResult = 0;
                     if (SelectedHoldItem->ScriptItem != nullptr) {
-                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
+                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
                     }
                     if (Entry->Item->ScriptItem != nullptr) {
-                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                     }
                     if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Entry->Item) != nullptr) {
-                        ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                        ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                     }
                     if (pas::in_set<1, 1, 3, 3>(ActionResult)) {
                         pas::free(SelectedHoldItem);
@@ -3412,11 +3419,12 @@ namespace fShip2 {
                         pas::WideString plainName = pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->GetPlainName();
                         pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(Entry->Item->GetDisplayName());
                         pas::WideString localizedText_4 = aConst::LocalizedText(u"MicroModuls.AddToItem"_wref.get());
-                        return aMyFunction::FormatText2(std::move(localizedText_4), u"<color=255,240,100>"_w, u"<ModuleName>"_w, std::move(plainName), u"<ItemName>"_w, std::move(removeTextTagsW));
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText2(std::move(localizedText_4), std::move(textHighlightColorTag), u"<ModuleName>"_w, std::move(plainName), u"<ItemName>"_w, std::move(removeTextTagsW));
                     }());
                     if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
                         Equipment = reinterpret_cast<aItem::TEquipment*>(Entry->Item);
-                        PlayerHoldShip->ScriptItemsAct(aConst::satOnPlayerUseMM, Equipment, SelectedHoldItem, 0);
+                        PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnPlayerUseMM, Equipment, SelectedHoldItem, 0);
                         aItem::ApplyMicroModule(pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->MicroModuleIndex - 1, Equipment);
                         pas::free(SelectedHoldItem);
                         SelectedHoldKind = phkEmpty;
@@ -3431,16 +3439,16 @@ namespace fShip2 {
                 if (Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0) {
                     ActionResult = 0;
                     if (SelectedHoldItem->ScriptItem != nullptr) {
-                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
+                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
                     }
                     if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr) {
-                        ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
+                        ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
                     }
                     if (Entry->Item->ScriptItem != nullptr) {
-                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                        ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                     }
                     if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Entry->Item) != nullptr) {
-                        ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                        ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                     }
                     if (pas::in_set<1, 1, 3, 3>(ActionResult)) {
                         pas::free(SelectedHoldItem);
@@ -3520,14 +3528,14 @@ namespace fShip2 {
             if (static_cast<std::uint8_t>(RemoteHoldVisible ^ 1) && Entry != nullptr && Entry->Item != nullptr && pas::is_one_of<phkEquipment, phkArtefact>(Entry->Kind) && static_cast<std::uint8_t>(PlayerHoldShip->InHyperspace ^ 1) && pas::list_count(aScript::QueuedArcadeBattles) <= 0) {
                 ActionResult = 0;
                 if (SelectedHoldItem->ScriptItem != nullptr) {
-                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
+                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
                 }
-                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
+                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, Entry->Item, nullptr, ActionResult);
                 if (Entry->Item->ScriptItem != nullptr) {
-                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(Entry->Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                 }
                 if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Entry->Item) != nullptr) {
-                    ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                    ActionResult = aScript::RunItemConfigActionCode(Entry->Item, aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                 }
                 if (pas::in_set<1, 1, 3, 3>(ActionResult)) {
                     pas::free(SelectedHoldItem);
@@ -3655,10 +3663,11 @@ namespace fShip2 {
                 pas::WideString plainName = pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->GetPlainName();
                 pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(PlayerHoldShip->GetHull()->GetDisplayName());
                 pas::WideString localizedText = aConst::LocalizedText(u"MicroModuls.AddToItem"_wref.get());
-                return aMyFunction::FormatText2(std::move(localizedText), u"<color=255,240,100>"_w, u"<ModuleName>"_w, std::move(plainName), u"<ItemName>"_w, std::move(removeTextTagsW));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText2(std::move(localizedText), std::move(textHighlightColorTag), u"<ModuleName>"_w, std::move(plainName), u"<ItemName>"_w, std::move(removeTextTagsW));
             }());
             if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
-                PlayerHoldShip->ScriptItemsAct(aConst::satOnPlayerUseMM, PlayerHoldShip->GetHull(), SelectedHoldItem, 0);
+                PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnPlayerUseMM, PlayerHoldShip->GetHull(), SelectedHoldItem, 0);
                 aItem::ApplyMicroModule(pas::checked_cast<aItem::TMicroModule*>(SelectedHoldItem)->MicroModuleIndex - 1, PlayerHoldShip->GetHull());
                 pas::free(SelectedHoldItem);
                 SelectedHoldKind = phkEmpty;
@@ -3672,7 +3681,7 @@ namespace fShip2 {
         } else if (pas::in_range(SelectedHoldKind, static_cast<std::int32_t>(phkGoods), static_cast<std::int32_t>(phkGoods))) {
             ActionResult = 0;
             if (PlayerHoldShip->GetHull()->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherGoods, PlayerHoldShip, reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsIndex))), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(SelectedGoodsQuantity))), 0);
             }
             if (ActionResult != 0) {
                 Quantity = pas::abs(ActionResult);
@@ -3696,13 +3705,13 @@ namespace fShip2 {
         } else if (pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && SelectedHoldItem != nullptr) {
             ActionResult = 0;
             if (SelectedHoldItem->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnAnotherItem, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, ActionResult);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, ActionResult);
             }
             if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem) != nullptr) {
-                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnAnotherItem, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, ActionResult);
+                ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnAnotherItem, PlayerHoldShip, PlayerHoldShip->GetHull(), nullptr, ActionResult);
             }
             if (PlayerHoldShip->GetHull()->ScriptItem != nullptr) {
-                ActionResult = reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                ActionResult = reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aGalaxyStruct::satOnAnotherItem2, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
             }
             if (pas::in_set<1, 1, 3, 3>(ActionResult)) {
                 pas::free(SelectedHoldItem);
@@ -3737,7 +3746,7 @@ namespace fShip2 {
         if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_Hull && SelectedHoldOrigin == 0) {
             ReturnSelectedHoldEntry();
         } else if (SelectedHoldKind == phkEquipment && SelectedHoldItem->ItemType == aConst::t_Hull && SelectedHoldOrigin == 1 && TfShip2::IsHoldNormalShip()) {
-            PlayerHoldShip->ScriptItemsAct(aConst::satOnPlayerChangeHull, SelectedHoldItem, PlayerHoldShip->GetHull(), 0);
+            PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnPlayerChangeHull, SelectedHoldItem, PlayerHoldShip->GetHull(), 0);
             OldHull = PlayerHoldShip->GetHull();
             pas::list_insert(PlayerHoldShip->Inventory, 0, reinterpret_cast<void*>(SelectedHoldItem));
             PlayerHoldShip->Hull = pas::checked_cast<aItem::THull*>(SelectedHoldItem);
@@ -3753,7 +3762,7 @@ namespace fShip2 {
                 aGalaxy::Galaxy->PrimeIntegrityChecksum1(466);
             }
             if (PlayerHoldShip->GetHull()->ScriptItem != nullptr) {
-                reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aConst::satOnPlayerChangeHull, PlayerHoldShip, PlayerHoldShip->GetHull(), OldHull, 0);
+                reinterpret_cast<aScript::TScriptItem*>(PlayerHoldShip->GetHull()->ScriptItem)->RunActionCode(aGalaxyStruct::satOnPlayerChangeHull, PlayerHoldShip, PlayerHoldShip->GetHull(), OldHull, 0);
             }
             PlayerHoldShip->RefreshAssignedItemSlots();
             PlayerHoldShip->RebuildEquipmentCache();
@@ -3777,7 +3786,7 @@ namespace fShip2 {
         std::int32_t ExpectedCharges{};
         std::int32_t I{};
         aGalaxyStruct::TDominatorSeries Series{};
-        std::uint8_t VisualType{};
+        aGalaxyStruct::TKlingType VisualType{};
         aShip::TShip* Ship{};
         // Nested helper; does not access its parent frame.
         auto ChameleonDialogChoiceToSeries = [&](std::int32_t Choice) -> aGalaxyStruct::TDominatorSeries {
@@ -3794,7 +3803,7 @@ namespace fShip2 {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(427);
             ReturnSelectedHoldEntry();
             VisualType = PlayerHoldShip->SelectChameleonVisualType();
-            if (fChameleon::ShowChameleonDialog(this, PlayerHoldShip->ChameleonCharges[0], PlayerHoldShip->ChameleonCharges[1], PlayerHoldShip->ChameleonCharges[2], VisualType, PlayerHoldShip->ChameleonActive, Choice) == 1) {
+            if (fChameleon::ShowChameleonDialog(this, PlayerHoldShip->ChameleonCharges[aGalaxyStruct::dsBlazer], PlayerHoldShip->ChameleonCharges[aGalaxyStruct::dsKeller], PlayerHoldShip->ChameleonCharges[aGalaxyStruct::dsTerron], VisualType, PlayerHoldShip->ChameleonActive, Choice) == 1) {
                 if (Choice == 1) {
                     PlayerHoldShip->ChameleonActive = false;
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
@@ -4016,7 +4025,7 @@ namespace fShip2 {
                 } else {
                     RefreshEquipmentConfigurationButtons();
                 }
-                aPlayer::GetPlayer()->ScriptItemsAct(aConst::satOnNonStandartEqChange, nullptr, nullptr, 0);
+                aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnNonStandartEqChange, nullptr, nullptr, 0);
                 aGalaxy::Galaxy->PrimeIntegrityChecksum1(471);
             }
         }
@@ -4047,7 +4056,8 @@ namespace fShip2 {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                     pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"\"", static_cast<std::uint8_t>(Key), "\""}));
                     pas::WideString localizedText = aConst::LocalizedText(u"FormShip.SetHotEqu"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Key>"_w, std::move(cpp_arg));
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Key>"_w, std::move(cpp_arg));
                 }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
             } else {
                 SelectEquipmentConfiguration(Index);
@@ -4299,7 +4309,7 @@ namespace fShip2 {
                 Slot = -1;
                 if (pas::in_range(this->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
                     Slot = this->SelectedHoldItem->ItemType - 42;
-                } else if (pas::in_range(this->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_Weapon1), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                } else if (pas::in_range(this->SelectedHoldItem->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                     Slot = 8;
                 }
                 if (Slot < 0) {
@@ -4716,7 +4726,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1 = ([&] {
                         pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aItem::GetStackableItemName(SelectedHoldItem));
                         pas::WideString localizedText = aConst::LocalizedText(u"FormShip.ThrowItem"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString));
+                        pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText), std::move(dialogHighlightColorTag), u"<Name>"_w, std::move(lowerCaseWideString));
                     }());
                     const pas::WideString& cpp_arg = pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(SelectedHoldItem), u"s"});
                     GI_MessageLoop::TMessageLoopGI* self = this;
@@ -4779,7 +4790,8 @@ namespace fShip2 {
                         const pas::WideString& formatText1_2 = ([&] {
                             pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.RuinMoveItemInvalid"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW));
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Item>"_w, std::move(removeTextTagsW));
                         }());
                         GI_MessageLoop::TMessageLoopGI* self_2 = this;
                         GI_MessageBox::ShowMessageBoxGI(self_2, formatText1_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -4792,7 +4804,8 @@ namespace fShip2 {
                         const pas::WideString& formatText1_3 = ([&] {
                             pas::WideString removeTextTagsW_2 = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                             pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.TrancMoveItemInvalid"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW_2));
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Item>"_w, std::move(removeTextTagsW_2));
                         }());
                         GI_MessageLoop::TMessageLoopGI* self_3 = this;
                         GI_MessageBox::ShowMessageBoxGI(self_3, formatText1_3, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -4806,7 +4819,8 @@ namespace fShip2 {
                         Text = ([&] {
                             pas::WideString removeTextTagsW_3 = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                             pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormShip.RuinMoveItemInvalid"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW_3));
+                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Item>"_w, std::move(removeTextTagsW_3));
                         }());
                     } else {
                         Text = aConst::LocalizedText(u"FormShip.ThrowFuelTanksError"_wref.get());
@@ -4821,7 +4835,8 @@ namespace fShip2 {
                         Text = ([&] {
                             pas::WideString removeTextTagsW_4 = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                             pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormShip.RuinMoveItemInvalid"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW_4));
+                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<Item>"_w, std::move(removeTextTagsW_4));
                         }());
                     } else {
                         Text = aConst::LocalizedText(u"FormShip.ThrowEngineError"_wref.get());
@@ -4847,12 +4862,12 @@ namespace fShip2 {
                 Angle = pas::real_divide(aMyFunction::SeededRandomIntRange(0, 360, PlayerHoldShip->CurrentStar->GenerationSeed * aGalaxy::Galaxy->CurrentTurn * SelectedHoldItem->Id) * SystemImports::Pi, 1.8E+2L);
                 SelectedHoldItem->Position.X = System::Sin(Angle) * 1.0E+2L + PlayerHoldShip->Position.X;
                 SelectedHoldItem->Position.Y = PlayerHoldShip->Position.Y - System::Cos(Angle) * 1.0E+2L;
-                ActionResult = PlayerHoldShip->ScriptItemsAct(aConst::satOnDropItemFixed, SelectedHoldItem, nullptr, 0);
+                ActionResult = PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnDropItemFixed, SelectedHoldItem, nullptr, 0);
                 if (aItem::TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<aItem::TEquipmentWithActCode*>(SelectedHoldItem)) {
-                    ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aConst::satOnDropItemFixed, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                    ActionResult = aScript::RunItemConfigActionCode(SelectedHoldItem, aGalaxyStruct::satOnDropItemFixed, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                 }
                 if (SelectedHoldItem->ScriptItem != nullptr) {
-                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aConst::satOnDropItemFixed, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
+                    ActionResult = reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->RunActionCode(aGalaxyStruct::satOnDropItemFixed, PlayerHoldShip, SelectedHoldItem, nullptr, ActionResult);
                 }
                 if (ActionResult == 0) {
                     {
@@ -4899,7 +4914,8 @@ namespace fShip2 {
                         const pas::WideString& formatText1_4 = ([&] {
                             pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(aItem::GetStackableItemTypeName(static_cast<aConst::TItemType>(SelectedGoodsIndex)));
                             pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.ThrowItem"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString_2));
+                            pas::WideString dialogHighlightColorTag_2 = aMyFunction::DialogHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedText_2), std::move(dialogHighlightColorTag_2), u"<Name>"_w, std::move(lowerCaseWideString_2));
                         }());
                         const pas::WideString& cpp_arg_2 = pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(SelectedGoodsIndex))});
                         GI_MessageLoop::TMessageLoopGI* self_4 = this;
@@ -4976,7 +4992,8 @@ namespace fShip2 {
                 const pas::WideString& formatText1 = ([&] {
                     pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aItem::GetStackableItemName(SelectedHoldItem));
                     pas::WideString localizedText = aConst::LocalizedText(u"FormShip.ThrowItem"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedText), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString));
+                    pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText), std::move(dialogHighlightColorTag), u"<Name>"_w, std::move(lowerCaseWideString));
                 }());
                 const pas::WideString& cpp_arg = pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(SelectedHoldItem), u"s"});
                 GI_MessageLoop::TMessageLoopGI* self = this;
@@ -5039,7 +5056,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1_2 = ([&] {
                         pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(aItem::GetStackableItemTypeName(static_cast<aConst::TItemType>(SelectedGoodsIndex)));
                         pas::WideString localizedText_4 = aConst::LocalizedText(u"FormShip.ThrowItem"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText_4), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString_2));
+                        pas::WideString dialogHighlightColorTag_2 = aMyFunction::DialogHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_4), std::move(dialogHighlightColorTag_2), u"<Name>"_w, std::move(lowerCaseWideString_2));
                     }());
                     const pas::WideString& cpp_arg_2 = pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(SelectedGoodsIndex))});
                     GI_MessageLoop::TMessageLoopGI* self_4 = this;
@@ -5073,15 +5091,17 @@ namespace fShip2 {
         if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             }
             return;
@@ -5108,14 +5128,16 @@ namespace fShip2 {
                         GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                             pas::WideString intToStr = pas::wide_int_to_str(Nodes - aPlayer::GetPlayer()->GetAvailableNodeCount(PlayerHoldShip));
                             pas::WideString localizedText = aConst::LocalizedText(u"FormShip.RepairMsgNeedNode"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<NeedNode>"_w, std::move(intToStr));
+                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag_3), u"<NeedNode>"_w, std::move(intToStr));
                         }()), GI_MessageBox::mbgCancel, 0, 0, 0);
                         return;
                     }
                     if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                         pas::WideString intToStr_2 = pas::wide_int_to_str(Nodes);
                         pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.RepairMsgEnoughNode"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<NeedNode>"_w, std::move(intToStr_2));
+                        pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_4), u"<NeedNode>"_w, std::move(intToStr_2));
                     }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
                         return;
                     }
@@ -5206,17 +5228,19 @@ namespace fShip2 {
         if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* self = this;
                 GI_MessageBox::ShowMessageBoxGI(self, replaceColoredToken, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 const pas::WideString& replaceColoredToken_2 = ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* self_2 = this;
                 GI_MessageBox::ShowMessageBoxGI(self_2, replaceColoredToken_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -5234,7 +5258,8 @@ namespace fShip2 {
                         const pas::WideString& formatText1 = ([&] {
                             pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                             pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormShip.RuinMoveItemInvalid"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW));
+                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Item>"_w, std::move(removeTextTagsW));
                         }());
                         GI_MessageLoop::TMessageLoopGI* self_3 = this;
                         GI_MessageBox::ShowMessageBoxGI(self_3, formatText1, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -5246,7 +5271,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1_2 = ([&] {
                         pas::WideString removeTextTagsW_2 = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                         pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormShip.TrancMoveItemInvalid"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW_2));
+                        pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<Item>"_w, std::move(removeTextTagsW_2));
                     }());
                     GI_MessageLoop::TMessageLoopGI* self_4 = this;
                     GI_MessageBox::ShowMessageBoxGI(self_4, formatText1_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -5257,7 +5283,8 @@ namespace fShip2 {
                 const pas::WideString& formatText1_3 = ([&] {
                     pas::WideString displayName = SelectedHoldItem->GetDisplayName();
                     pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormShip.SellItemQuestion"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedColorText_5), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(displayName));
+                    pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_5), std::move(textHighlightColorTag_5), u"<Item>"_w, std::move(displayName));
                 }());
                 GI_MessageLoop::TMessageLoopGI* self_5 = this;
                 return GI_MessageBox::ShowMessageBoxGI(self_5, formatText1_3, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0);
@@ -5276,7 +5303,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1_4 = ([&] {
                         pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aItem::GetStackableItemName(SelectedHoldItem));
                         pas::WideString localizedText = aConst::LocalizedText(u"FormShip.SellItem"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString));
+                        pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText), std::move(dialogHighlightColorTag), u"<Name>"_w, std::move(lowerCaseWideString));
                     }());
                     const pas::WideString& cpp_arg = pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(SelectedHoldItem), u"s"});
                     GI_MessageLoop::TMessageLoopGI* self_6 = this;
@@ -5361,7 +5389,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1_5 = ([&] {
                         pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(aConst::GoodsMarket[SelectedGoodsIndex].DisplayName);
                         pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.SellItem"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString_2));
+                        pas::WideString dialogHighlightColorTag_2 = aMyFunction::DialogHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_2), std::move(dialogHighlightColorTag_2), u"<Name>"_w, std::move(lowerCaseWideString_2));
                     }());
                     const pas::WideString& cpp_arg_2 = pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(SelectedGoodsIndex))});
                     GI_MessageLoop::TMessageLoopGI* self_8 = this;
@@ -5477,7 +5506,7 @@ namespace fShip2 {
                     Text = pas::checked_cast<aItem::TTreasureMap*>(SelectedHoldItem)->PreviewTablePage2;
                 }
                 aGalaxy::Galaxy->CheckIntegrityChecksum1(520);
-                Globals::AddOrUpdatePlayerBubble(7, aGalaxy::Galaxy->CurrentTurn, Text, pas::checked_cast<aItem::TTreasureMap*>(SelectedHoldItem)->GetTargetPlanetName());
+                Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Text, pas::checked_cast<aItem::TTreasureMap*>(SelectedHoldItem)->GetTargetPlanetName());
                 MainPanel->RebuildMessageButtons(false);
                 ReturnSelectedHoldEntry();
                 ReopenRequested = true;
@@ -5543,7 +5572,7 @@ namespace fShip2 {
             }
             Amount = Affordable;
             if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
-                Text = pas::concat_wide({aConst::LocalizedText(u"FormShip.FuelAct"_wref.get()), u"\r\n", u"<color=0,50,200>", aConst::LocalizedText(u"Items.Cistern.Name2"_wref.get()), u"</color>"});
+                Text = pas::concat_wide({aConst::LocalizedText(u"FormShip.FuelAct"_wref.get()), u"\r\n", aMyFunction::DialogHighlightColorTag, aConst::LocalizedText(u"Items.Cistern.Name2"_wref.get()), aMyFunction::EndColorTag});
                 if (([&] {
                     std::int32_t money = aPlayer::GetPlayer()->Money;
                     pas::WideString cpp_arg = pas::concat_wide({fEquipmentShop::GetShopItemIconName(Cistern), u"s"});
@@ -5592,7 +5621,7 @@ namespace fShip2 {
             }
             Amount = Affordable;
             if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
-                Text = pas::concat_wide({aConst::LocalizedText(u"FormShip.FuelAct"_wref.get()), u"\r\n", u"<color=0,50,200>", FuelTanks->GetDisplayName(), u"</color>"});
+                Text = pas::concat_wide({aConst::LocalizedText(u"FormShip.FuelAct"_wref.get()), u"\r\n", aMyFunction::DialogHighlightColorTag, FuelTanks->GetDisplayName(), aMyFunction::EndColorTag});
                 if (([&] {
                     std::int32_t money_2 = aPlayer::GetPlayer()->Money;
                     pas::WideString cpp_arg_2 = pas::concat_wide({fEquipmentShop::GetShopItemIconName(FuelTanks), u"s"});
@@ -5626,15 +5655,17 @@ namespace fShip2 {
             if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
                 if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                     GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                        auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                         pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                     }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
                 } else {
                     GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                        auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                         pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                         pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                     }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
                 }
                 return;
@@ -5651,7 +5682,7 @@ namespace fShip2 {
                 }
                 Amount = Affordable;
                 if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
-                    Text = pas::concat_wide({aConst::LocalizedText(u"FormShip.MissileAct"_wref.get()), u"\r\n", u"<color=0,50,200>", Weapon->GetDisplayName(), u"</color>"});
+                    Text = pas::concat_wide({aConst::LocalizedText(u"FormShip.MissileAct"_wref.get()), u"\r\n", aMyFunction::DialogHighlightColorTag, Weapon->GetDisplayName(), aMyFunction::EndColorTag});
                     if (([&] {
                         std::int32_t money_3 = aPlayer::GetPlayer()->Money;
                         pas::WideString cpp_arg_3 = pas::concat_wide({fEquipmentShop::GetShopItemIconName(Weapon), u"s"});
@@ -5710,15 +5741,17 @@ namespace fShip2 {
         if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             }
             return;
@@ -5757,13 +5790,15 @@ namespace fShip2 {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                     pas::WideString intToStr = pas::wide_int_to_str(Nodes);
                     pas::WideString localizedText = aConst::LocalizedText(u"FormShip.RepairMsgAllNeedNode"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<NeedNode>"_w, std::move(intToStr));
+                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag_3), u"<NeedNode>"_w, std::move(intToStr));
                 }()), GI_MessageBox::mbgCancel, 0, 0, 0);
                 Nodes = 0;
             } else if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                 pas::WideString intToStr_2 = pas::wide_int_to_str(Nodes);
                 pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.RepairMsgEnoughNode"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<NeedNode>"_w, std::move(intToStr_2));
+                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_4), u"<NeedNode>"_w, std::move(intToStr_2));
             }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
                 aPlayer::TPlayer_ConsumeAvailableNodes(aPlayer::GetPlayer(), Nodes, PlayerHoldShip);
             } else {
@@ -5867,15 +5902,17 @@ namespace fShip2 {
         if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             }
             return;
@@ -5900,14 +5937,16 @@ namespace fShip2 {
             GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                 pas::WideString intToStr = pas::wide_int_to_str(Cost);
                 pas::WideString localizedColorText_3 = aConst::LocalizedColorText(pas::concat_wide({u"FormShip.ReloadAll.", Suffix, u".NoMoney"}));
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr));
+                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Money>"_w, std::move(intToStr));
             }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             return;
         }
         if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
             pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
             pas::WideString localizedColorText_4 = aConst::LocalizedColorText(pas::concat_wide({u"FormShip.ReloadAll.", Suffix, u".Confirm"}));
-            return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr_2));
+            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+            return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<Money>"_w, std::move(intToStr_2));
         }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == 2) {
             return;
         }
@@ -6389,10 +6428,10 @@ namespace fShip2 {
             GR_Main::SoundManager->PlaySound(u"Sound.ShipItemInfo"_wref.get());
             if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
                 if (Item->ScriptItem != nullptr) {
-                    reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aConst::satOnShowingItemInfo, PlayerHoldShip, nullptr, nullptr, 0);
+                    reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->RunActionCode(aGalaxyStruct::satOnShowingItemInfo, PlayerHoldShip, nullptr, nullptr, 0);
                 }
                 if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) {
-                    aScript::RunItemConfigActionCode(Item, aConst::satOnShowingItemInfo, PlayerHoldShip, nullptr, nullptr, 0);
+                    aScript::RunItemConfigActionCode(Item, aGalaxyStruct::satOnShowingItemInfo, PlayerHoldShip, nullptr, nullptr, 0);
                 }
             }
             if (aPlayer::GetPlayer() == PlayerHoldShip && pas::is_one_of<phkEquipment, phkArtefact>(SelectedHoldKind) && static_cast<std::uint8_t>(PreserveSpaceMusic ^ 1) && SelectedHoldItem->ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(SelectedHoldItem->ScriptItem)->OnUseText != u"") {
@@ -6430,7 +6469,7 @@ namespace fShip2 {
             SpecialHull = (pas::class_cast_if<aRuins::TRuins*>(PlayerHoldShip) != nullptr || pas::class_cast_if<aTranclucator::TTranclucator*>(PlayerHoldShip) != nullptr || pas::class_cast_if<aKling::TKling*>(PlayerHoldShip) != nullptr) && PlayerHoldShip->GetHull() == Equipment;
             if (Item->ItemType == aConst::t_Hull && static_cast<std::uint8_t>(SpecialHull ^ 1)) {
                 {
-                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, PlayerHoldShip);
+                    pas::WideString infoText = Equipment->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, PlayerHoldShip);
                     aItem::THull* cpp_arg = pas::checked_cast<aItem::THull*>(Item);
                     fEquipmentShop::TfEquipmentShop* equipmentShopScreen = Globals::EquipmentShopScreen;
                     equipmentShopScreen->RefreshHullInfo(this, cpp_arg, std::move(infoText), true);
@@ -6525,7 +6564,7 @@ namespace fShip2 {
                     itemNameLabel->SetText(wrapTextInColor);
                 }
                 {
-                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(u"<color=255,240,100>"_w, PlayerHoldShip);
+                    const pas::WideString& infoText_2 = Equipment->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, PlayerHoldShip);
                     GI_Label::TLabelGI* itemDescriptionLabel = ItemDescriptionLabel;
                     itemDescriptionLabel->SetText(infoText_2);
                 }
@@ -6644,7 +6683,8 @@ namespace fShip2 {
             Text = pas::concat_wide({Text, u"\r\n", ([&] {
                 pas::WideString int64ToStr = pas::wide_int64_to_str(System::Round(PlayerHoldShip->GetAverageCargoCost(Good)));
                 pas::WideString localizedText = aConst::LocalizedText(u"FormShip.CostGoods"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<OldCost>"_w, std::move(int64ToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<OldCost>"_w, std::move(int64ToStr));
             }())});
             if (([&] {
                 pas::WideString cpp_string_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv))->GetText();
@@ -6748,7 +6788,8 @@ namespace fShip2 {
             Text = pas::concat_wide({Text, u"\r\n", ([&] {
                 pas::WideString int64ToStr = pas::wide_int64_to_str(System::Round(AverageCost));
                 pas::WideString localizedText = aConst::LocalizedText(u"FormShip.CostGoods"_wref.get());
-                return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<OldCost>"_w, std::move(int64ToStr));
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<OldCost>"_w, std::move(int64ToStr));
             }())});
             {
                 const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Goods->ItemType].DisplayName), pas::view(aMyFunction::InfoNameColorTag));
@@ -7261,7 +7302,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1 = ([&] {
                         pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aItem::GetStackableItemName(SelectedHoldItem));
                         pas::WideString localizedText = aConst::LocalizedText(u"FormShip.StorageItem"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString));
+                        pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText), std::move(dialogHighlightColorTag), u"<Name>"_w, std::move(lowerCaseWideString));
                     }());
                     const pas::WideString& cpp_arg = pas::concat_wide({u"GI,", fEquipmentShop::GetShopItemIconName(SelectedHoldItem), u"s"});
                     GI_MessageLoop::TMessageLoopGI* self = this;
@@ -7294,7 +7336,8 @@ namespace fShip2 {
                         const pas::WideString& formatText1_2 = ([&] {
                             pas::WideString removeTextTagsW = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                             pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.RuinMoveItemInvalid"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW));
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Item>"_w, std::move(removeTextTagsW));
                         }());
                         GI_MessageLoop::TMessageLoopGI* self_2 = this;
                         GI_MessageBox::ShowMessageBoxGI(self_2, formatText1_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -7307,7 +7350,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1_3 = ([&] {
                         pas::WideString removeTextTagsW_2 = EC_Str::RemoveTextTagsW(SelectedHoldItem->GetDisplayName());
                         pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.TrancMoveItemInvalid"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedColorText_2), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(removeTextTagsW_2));
+                        pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Item>"_w, std::move(removeTextTagsW_2));
                     }());
                     GI_MessageLoop::TMessageLoopGI* self_3 = this;
                     GI_MessageBox::ShowMessageBoxGI(self_3, formatText1_3, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
@@ -7355,7 +7399,8 @@ namespace fShip2 {
                     const pas::WideString& formatText1_4 = ([&] {
                         pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(aItem::GetStackableItemTypeName(static_cast<aConst::TItemType>(SelectedGoodsIndex)));
                         pas::WideString localizedText_2 = aConst::LocalizedText(u"FormShip.StorageItem"_wref.get());
-                        return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=0,50,200>"_w, u"<Name>"_w, std::move(lowerCaseWideString_2));
+                        pas::WideString dialogHighlightColorTag_2 = aMyFunction::DialogHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_2), std::move(dialogHighlightColorTag_2), u"<Name>"_w, std::move(lowerCaseWideString_2));
                     }());
                     const pas::WideString& cpp_arg_2 = pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(SelectedGoodsIndex))});
                     GI_MessageLoop::TMessageLoopGI* self_4 = this;
@@ -7410,7 +7455,7 @@ namespace fShip2 {
             pas::dispose(Entry);
             aGalaxy::Galaxy->PrimeIntegrityChecksum1(514);
             UpdateActionCursor(true);
-            PlayerHoldShip->ScriptItemsAct(aConst::satOnReEnteringForm, nullptr, nullptr, 0);
+            PlayerHoldShip->ScriptItemsAct(aGalaxyStruct::satOnReEnteringForm, nullptr, nullptr, 0);
             RefreshShipView();
             GR_Main::SoundManager->PlaySound(u"Sound.SlotGet"_wref.get());
             return;
@@ -7444,7 +7489,7 @@ namespace fShip2 {
         std::int32_t I{};
         std::int32_t Kind{};
         std::int32_t Turn{};
-        std::uint8_t ProgramIndex{};
+        aGalaxyStruct::TProgramIndex ProgramIndex{};
         pas::WideString Name{};
         pas::WideString SeriesName{};
         pas::WideString TypeName{};
@@ -7453,7 +7498,7 @@ namespace fShip2 {
         pas::WideString ChargesText{};
         pas::WideString Description{};
         pas::WideString Title{};
-        std::uint8_t ColorIndex{};
+        aGalaxyStruct::TDominatorSeries Series{};
         aShip::PCustomShipInfo Info{};
         EC_BlockPar::TBlockParEC* Block{};
         // Nested helper captures the panel, accumulated height and Self.
@@ -7488,12 +7533,12 @@ namespace fShip2 {
             }
         };
         // Nested in BuildAdditionalInfoPanel; does not access its parent frame.
-        auto GetShipInfoColor = [&](std::uint8_t ColorIndex) -> pas::WideString {
+        auto ChameleonSeriesColor = [&](aGalaxyStruct::TDominatorSeries Series) -> pas::WideString {
             pas::WideString Result{};
-            switch (ColorIndex) {
-                case 0: return u"<color=255,0,0>"_w;
-                case 1: return u"<color=0,128,255>"_w;
-                case 2: return u"<color=0,255,0>"_w;
+            switch (Series) {
+                case aGalaxyStruct::dsBlazer: return aMyFunction::RedColorTag;
+                case aGalaxyStruct::dsKeller: return aMyFunction::AzureColorTag;
+                case aGalaxyStruct::dsTerron: return aMyFunction::GreenColorTag;
                 default: return Result;
             }
         };
@@ -7503,30 +7548,32 @@ namespace fShip2 {
         Panel->SetDragScrollingEnabled(true);
         Height = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 24); cpp_range.next(I); ) {
-            if (PlayerHoldShip->IsHealthEffectActive(I)) {
+            if (PlayerHoldShip->IsHealthEffectActive(static_cast<aGalaxyStruct::TCaptainHealthEffect>(I))) {
                 if (I < 13) {
                     Kind = 1;
                 } else {
                     Kind = 2;
                 }
-                Name = pas::concat_wide({aConst::CaptainHealthDefinitions[I].Name, u"~", aConst::CaptainHealthDefinitions[I].Text});
+                Name = pas::concat_wide({aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name, u"~", aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Text});
                 if (PlayerHoldShip->CountActiveArtefacts(aConst::t_ArtBio) > 0) {
-                    Turn = PlayerHoldShip->CaptainHealth[I].ExpireTurn;
+                    Turn = PlayerHoldShip->CaptainHealth[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].ExpireTurn;
                     if (Kind == 1) {
                         Name = pas::concat_wide({Name, u"\r\n", ([&] {
                             pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Turn);
                             pas::WideString localizedText = aConst::LocalizedText(u"Illness.Illness.EndDate"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedText), u"<color=255,240,100>"_w, u"<Date>"_w, std::move(formatTurnDate));
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Date>"_w, std::move(formatTurnDate));
                         }())});
                     } else {
                         Name = pas::concat_wide({Name, u"\r\n", ([&] {
                             pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(Turn);
                             pas::WideString localizedText_2 = aConst::LocalizedText(u"Illness.Stimulant.EndDate"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedText_2), u"<color=255,240,100>"_w, u"<Date>"_w, std::move(formatTurnDate_2));
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedText_2), std::move(textHighlightColorTag_2), u"<Date>"_w, std::move(formatTurnDate_2));
                         }())});
                     }
                 }
-                AddLine(Kind, aConst::CaptainHealthDefinitions[I].Name, Name, 0);
+                AddLine(Kind, aConst::CaptainHealthDefinitions[static_cast<aGalaxyStruct::TCaptainHealthEffect>(I)].Name, Name, 0);
             }
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, 1); cpp_range_2.next(I); ) {
@@ -7537,7 +7584,8 @@ namespace fShip2 {
                     Name = pas::concat_wide({Name, u"\r\n", ([&] {
                         pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Turn), "%"}));
                         pas::WideString localizedText_3 = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Illness.ExtraIllness.", SysUtils::IntToStr(I), ".TextEx"})));
-                        return aMyFunction::FormatText1(std::move(localizedText_3), u"<color=255,240,100>"_w, u"<Percent>"_w, std::move(cpp_arg));
+                        pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedText_3), std::move(textHighlightColorTag_3), u"<Percent>"_w, std::move(cpp_arg));
                     }())});
                 }
                 AddLine(1, aConst::RadiationHealthDefinitions[I].Name, Name, 0);
@@ -7548,7 +7596,8 @@ namespace fShip2 {
                 pas::WideString cpp_arg_2 = pas::concat_wide({aConst::LocalizedText(u"ShipInfo.AddInfo.MedPolicy.Name"_wref.get()), u"~", ([&] {
                     pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + aPlayer::GetPlayer()->MedicalPolicyTicks);
                     pas::WideString localizedText_4 = aConst::LocalizedText(u"ShipInfo.AddInfo.MedPolicy.Text"_wref.get());
-                    return aMyFunction::FormatText1(std::move(localizedText_4), u"<color=255,240,100>"_w, u"<Date>"_w, std::move(formatTurnDate_3));
+                    pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText_4), std::move(textHighlightColorTag_4), u"<Date>"_w, std::move(formatTurnDate_3));
                 }())});
                 pas::WideString localizedText_5 = aConst::LocalizedText(u"ShipInfo.AddInfo.MedPolicy.Name"_wref.get());
                 AddLine(0, std::move(localizedText_5), std::move(cpp_arg_2), 0);
@@ -7559,22 +7608,31 @@ namespace fShip2 {
                     pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->DebtAmount);
                     pas::WideString formatTurnDate_4 = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->DebtDueTurn);
                     pas::WideString localizedText_6 = aConst::LocalizedText(u"ShipInfo.AddInfo.DebtInfo.Text"_wref.get());
-                    return aMyFunction::FormatText2(std::move(localizedText_6), u"<color=255,240,100>"_w, u"<Money>"_w, std::move(intToStr), u"<Date>"_w, std::move(formatTurnDate_4));
+                    pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText2(std::move(localizedText_6), std::move(textHighlightColorTag_5), u"<Money>"_w, std::move(intToStr), u"<Date>"_w, std::move(formatTurnDate_4));
                 }())}), 0);
             }
             if (aPlayer::GetPlayer()->DepositAmount > 0) {
                 Name = aConst::LocalizedText(u"ShipInfo.AddInfo.DepositInfo.Name"_wref.get());
                 Text = aConst::LocalizedText(u"ShipInfo.AddInfo.DepositInfo.Text"_wref.get());
-                aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->DepositStartTurn), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DepositAmount), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(aPlayer::GetPlayer()->DepositInterestRate, SysUtilsImports::ffFixed, 1, 1)), u"<color=255,240,100>"_w);
-                aMyFunction::ReplaceTextToken(Text, u"<Sum>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ComputeDepositAccruedValue()), u"<color=255,240,100>"_w);
+                {
+                    auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString formatTurnDate_5 = aGalaxy::Galaxy->FormatTurnDate(aPlayer::GetPlayer()->DepositStartTurn);
+                    aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatTurnDate_5), textHighlightColorTag_6.get());
+                }
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->DepositAmount), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, static_cast<pas::WideString>(SysUtilsImports::FloatToStrF(aPlayer::GetPlayer()->DepositInterestRate, SysUtilsImports::ffFixed, 1, 1)), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Sum>"_w, pas::wide_int_to_str(aPlayer::GetPlayer()->ComputeDepositAccruedValue()), aMyFunction::TextHighlightColorTag);
                 AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0);
             }
             if (aPlayer::GetPlayer()->PirateLicenseTicks > 0) {
                 Name = aConst::LocalizedText(u"ShipInfo.AddInfo.PirateLicenseInfo.Name"_wref.get());
                 Text = aConst::LocalizedText(u"ShipInfo.AddInfo.PirateLicenseInfo.Text"_wref.get());
-                aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + aPlayer::GetPlayer()->PirateLicenseTicks), u"<color=255,240,100>"_w);
+                {
+                    auto textHighlightColorTag_7 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                    pas::WideString formatTurnDate_6 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + aPlayer::GetPlayer()->PirateLicenseTicks);
+                    aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatTurnDate_6), textHighlightColorTag_7.get());
+                }
                 AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0);
             }
             if (aPlayer::GetPlayer()->ChameleonActive || (static_cast<void>(aPlayer::GetPlayer()), aShip::TShip::HasPlayerChameleonCharges())) {
@@ -7584,7 +7642,11 @@ namespace fShip2 {
                     SeriesName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[aPlayer::GetPlayer()->ChameleonSeries], u".0"}));
                     TypeName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[aPlayer::GetPlayer()->ChameleonSeries], u".", pas::wide_int_to_str(static_cast<std::int32_t>(aPlayer::GetPlayer()->ChameleonVisualType))}));
                     CountText = pas::wide_int_to_str(aPlayer::GetPlayer()->ChameleonDisplayCount);
-                    Text = aMyFunction::FormatText3(aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Text"_wref.get()), u"<color=255,240,100>"_w, u"<Series>"_w, SeriesName, u"<Type>"_w, TypeName, u"<Count>"_w, CountText);
+                    Text = ([&] {
+                        pas::WideString localizedText_7 = aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Text"_wref.get());
+                        pas::WideString textHighlightColorTag_8 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText3(std::move(localizedText_7), std::move(textHighlightColorTag_8), u"<Series>"_w, SeriesName, u"<Type>"_w, TypeName, u"<Count>"_w, CountText);
+                    }());
                 }
                 if (static_cast<void>(aPlayer::GetPlayer()), aShip::TShip::HasPlayerChameleonCharges()) {
                     if (Text.length() > 0) {
@@ -7592,25 +7654,26 @@ namespace fShip2 {
                     }
                     Text = pas::concat_wide_reverse({aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Charge"_wref.get()), Text});
                     ChargesText = pas::WideString();
-                    for (auto cpp_range_3 = pas::for_to<std::uint8_t>(static_cast<std::uint8_t>(0), static_cast<std::uint8_t>(2)); cpp_range_3.next(ColorIndex); ) {
-                        if (aPlayer::GetPlayer()->ChameleonCharges[ColorIndex] > 0) {
-                            SeriesName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[ColorIndex], u".0"}));
+                    for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TDominatorSeries>(aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron); cpp_range_3.next(Series); ) {
+                        if (aPlayer::GetPlayer()->ChameleonCharges[Series] > 0) {
+                            SeriesName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"ShipType.Dominator.", aConst::DominatorSeriesNames[Series], u".0"}));
                             CountText = ([&] {
-                                pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->ChameleonCharges[ColorIndex]);
-                                pas::WideString localizedText_7 = aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Count"_wref.get());
-                                return aMyFunction::FormatText1(std::move(localizedText_7), u"<color=255,240,100>"_w, u"<Count>"_w, std::move(intToStr_2));
+                                pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->ChameleonCharges[Series]);
+                                pas::WideString localizedText_8 = aConst::LocalizedText(u"ShipInfo.AddInfo.Chameleon.Count"_wref.get());
+                                pas::WideString textHighlightColorTag_9 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(localizedText_8), std::move(textHighlightColorTag_9), u"<Count>"_w, std::move(intToStr_2));
                             }());
                             if (ChargesText.length() > 0) {
                                 ChargesText = pas::concat_wide({ChargesText, u"\r\n"});
                             }
-                            ChargesText = pas::concat_wide({ChargesText, aMyFunction::WrapTextInColor(pas::view(SeriesName), pas::view(GetShipInfoColor(ColorIndex))), u" - ", CountText});
+                            ChargesText = pas::concat_wide({ChargesText, aMyFunction::WrapTextInColor(pas::view(SeriesName), pas::view(ChameleonSeriesColor(Series))), u" - ", CountText});
                         }
                     }
                     Text = pas::concat_wide({Text, u"\r\n", ChargesText});
                 }
                 AddLine(0, Name, pas::concat_wide({Name, u"~", Text}), 0);
             }
-            for (ProgramIndex = static_cast<std::uint8_t>(0); ProgramIndex <= static_cast<std::uint8_t>(11); ++ProgramIndex) {
+            for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range_4.next(ProgramIndex); ) {
                 if (aPlayer::GetPlayer()->ProgramCounts[ProgramIndex] > 0) {
                     pas::WideString cpp_arg_3 = pas::concat_wide({(static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(ProgramIndex)), u"~", aPlayer::GetPlayer()->GetProgramInfoText(ProgramIndex)});
                     pas::WideString programName = (static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::GetProgramName(ProgramIndex));
@@ -7618,7 +7681,7 @@ namespace fShip2 {
                 }
             }
         }
-        for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->CustomShipInfos) - 1); cpp_range_4.next(I); ) {
+        for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(PlayerHoldShip->CustomShipInfos) - 1); cpp_range_5.next(I); ) {
             Info = pas::list_at<aShip::TCustomShipInfo>(PlayerHoldShip->CustomShipInfos, I);
             if (!Info->DeleteQueued) {
                 Block = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"sv)->GetBlock(u"AddInfo"sv)->GetBlock(u"CustomInfos"sv)->GetBlock(pas::view(Info->TypeName));
@@ -7627,19 +7690,19 @@ namespace fShip2 {
                     Description = aConst::LocalizedColorText(pas::concat_wide({u"ShipInfo.AddInfo.CustomInfos.", Info->TypeName, u".Description"}));
                 }
                 if (Description != u"NoShow") {
-                    aMyFunction::ReplaceTextToken(Description, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Description, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Description, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     Title = Block->GetParam(u"Name"sv);
-                    aMyFunction::ReplaceTextToken(Title, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Title, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Title, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Title, u"<TextData1>"_w, Info->TextData1, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Title, u"<TextData2>"_w, Info->TextData2, u"<color=255,240,100>"_w);
-                    aMyFunction::ReplaceTextToken(Title, u"<TextData3>"_w, Info->TextData3, u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Title, u"<Data1>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Title, u"<Data2>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Title, u"<Data3>"_w, pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Title, u"<TextData1>"_w, Info->TextData1, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Title, u"<TextData2>"_w, Info->TextData2, aMyFunction::TextHighlightColorTag);
+                    aMyFunction::ReplaceTextToken(Title, u"<TextData3>"_w, Info->TextData3, aMyFunction::TextHighlightColorTag);
                     {
                         std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Icon"sv)));
                         pas::WideString cpp_arg_4 = pas::concat_wide({Title, u"~", Description});
@@ -7694,7 +7757,7 @@ namespace fShip2 {
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::in_set<7, 7, 12, 12>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
             } else {
                 GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
@@ -7865,26 +7928,25 @@ namespace fShip2 {
             if (Location != nullptr) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->StorageEntries) - 1); cpp_range.next(I); ) {
                     Entry = pas::list_at<aPlayer::TStorageEntry>(aPlayer::GetPlayer()->StorageEntries, I);
-                    if (Entry != nullptr) {
-                        if (Entry->LocationOwner == Location) {
-                            Item = Entry->Item;
-                            if (Item != nullptr) {
-                                if (Item->NoDropFlag <= 0 && (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->CanSell)) {
-                                    if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
-                                        Value += ([&] {
-                                            std::int32_t cpp_right = aPlayer::GetPlayer()->ShopGoodsSellPrice(static_cast<std::uint8_t>(reinterpret_cast<aItem::TGoods*>(Item)->ItemType), reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Location)) + 0))));
-                                            return reinterpret_cast<aItem::TGoods*>(Item)->Quantity * cpp_right;
-                                        }());
-                                    } else if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
-                                        Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psTrading, false));
-                                    }
-                                }
+                    if (Entry == nullptr || Entry->LocationOwner != Location) {
+                        continue;
+                    }
+                    Item = Entry->Item;
+                    if (Item != nullptr) {
+                        if (Item->NoDropFlag <= 0 && (Item->ScriptItem == nullptr || reinterpret_cast<aScript::TScriptItem*>(Item->ScriptItem)->CanSell)) {
+                            if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
+                                Value += ([&] {
+                                    std::int32_t cpp_right = aPlayer::GetPlayer()->ShopGoodsSellPrice(static_cast<std::uint8_t>(Item->ItemType), Location);
+                                    return reinterpret_cast<aItem::TGoods*>(Item)->Quantity * cpp_right;
+                                }());
+                            } else if (pas::class_cast_if<aItem::TEquipment*>(Item) != nullptr) {
+                                Value += Item->CalculateResaleValue(aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psTrading, false));
                             }
                         }
                     }
                 }
                 if (Value > 0) {
-                    aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Value), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Value), aMyFunction::TextHighlightColorTag);
                     if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != 2) {
                         SellAllItems(1);
                     }
@@ -7949,7 +8011,7 @@ namespace fShip2 {
                 } else {
                     Location = aPlayer::GetPlayer()->DockedTo;
                 }
-                for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
+                for (Good = 0; Good <= 7; ++Good) {
                     Value += ([&] {
                         std::int32_t cpp_right = aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Location);
                         return PlayerHoldShip->CargoGoods[Good].Count * cpp_right;
@@ -7968,7 +8030,7 @@ namespace fShip2 {
                     }
                 }
                 if (Value > 0) {
-                    aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Value), u"<color=255,240,100>"_w);
+                    aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Value), aMyFunction::TextHighlightColorTag);
                     if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != 2) {
                         SellAllItems(0);
                     }
@@ -8124,15 +8186,17 @@ namespace fShip2 {
         if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 GI_MessageBox::ShowMessageBoxGI(this, ([&] {
+                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                     pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), u"<color=255,240,100>"_w);
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
                 }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             }
             return;
@@ -8161,7 +8225,8 @@ namespace fShip2 {
                         if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                             pas::WideString displayName = Item->GetDisplayName();
                             pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormShip.SellItemQuestion"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText_3), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(displayName));
+                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Item>"_w, std::move(displayName));
                         }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == 2) {
                             --I;
                             continue;
@@ -8172,7 +8237,7 @@ namespace fShip2 {
                 }
                 --I;
             }
-            for (Good = static_cast<std::uint8_t>(0); Good <= static_cast<std::uint8_t>(7); ++Good) {
+            for (Good = 0; Good <= 7; ++Good) {
                 if (PlayerHoldShip->CargoGoods[Good].Count > 0) {
                     if (static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessHoldGoods(Good)) {
                         if (aPlayer::GetPlayer()->IsCargoGoodIllegalOnCurrentPlanet(Good) && static_cast<std::uint8_t>(AllowIllegal ^ 1) && static_cast<std::uint8_t>(DeclineIllegal ^ 1)) {
@@ -8217,7 +8282,8 @@ namespace fShip2 {
                         if (GI_MessageBox::ShowMessageBoxGI(this, ([&] {
                             pas::WideString displayName_2 = Item->GetDisplayName();
                             pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormShip.SellItemQuestion"_wref.get());
-                            return aMyFunction::FormatText1(std::move(localizedColorText_4), u"<color=255,240,100>"_w, u"<Item>"_w, std::move(displayName_2));
+                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<Item>"_w, std::move(displayName_2));
                         }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == 2) {
                             --I;
                             continue;
